@@ -1,6 +1,6 @@
 package slicex
 
-// IsEmptyString Checks if an slice is nil or length equals 0
-func IsEmptyString(slice []string) bool {
-	return len(slice) <= 0
+// IsEmpty Checks if an slice is nil or length equals 0
+func IsEmpty[S ~[]E, E any](s S) bool {
+	return len(s) <= 0
 }
