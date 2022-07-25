@@ -55,8 +55,12 @@ func (task *Task) Start(ctx context.Context) error {
 				job.handler.AddMiddleware(middleware)
 			}
 		}
-		task.router.AddPublisherDecorators()
-		task.router.AddSubscriberDecorators()
+		for _, decorator := range task.o.SubscriberDecorators {
+			task.router.AddSubscriberDecorators(decorator)
+		}
+		for _, decorator := range task.o.PublisherDecorators {
+			task.router.AddPublisherDecorators(decorator)
+		}
 		err = task.router.Run(ctx)
 	})
 	return err
