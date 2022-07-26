@@ -127,6 +127,12 @@ func (o *options) init() {
 			o.Name = filepath.Base(errorx.Quiet(os.Executable()))
 		}
 	}
+	if stringx.IsBlank(o.Version) {
+		switch {
+		case stringx.IsNotBlank(os.Getenv("LEO_SERVICE_VERSION")):
+			o.Name = os.Getenv("LEO_SERVICE_VERSION")
+		}
+	}
 	if o.Logger == nil {
 		o.Logger = log.Discard{}
 	}
