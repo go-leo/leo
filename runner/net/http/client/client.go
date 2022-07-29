@@ -23,13 +23,21 @@ type Client struct {
 	middleware Interceptor
 }
 
-func NewClient(baseURl string, opts ...Option) *Client {
+func NewClient(baseURL string, opts ...Option) *Client {
 	o := new(options)
 	o.apply(opts...)
 	o.init()
 	return &Client{
 		o:          o,
-		baseURL:    baseURl,
+		baseURL:    baseURL,
+		middleware: Chain(o.Middlewares...),
+	}
+}
+
+func newClient(baseURL string, o *options) *Client {
+	return &Client{
+		o:          o,
+		baseURL:    baseURL,
 		middleware: Chain(o.Middlewares...),
 	}
 }
@@ -74,10 +82,6 @@ func (cli *Client) Invoke(ctx context.Context, method string, path string, in an
 	}
 	// 调用中间件与发送http请求
 	return cli.middleware(ctx, in, out, info, f)
-}
-
-func (cli *Client) Target() string {
-	return cli.baseURL
 }
 
 func (cli *Client) getUrl(path string) string {

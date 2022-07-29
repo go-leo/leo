@@ -2,14 +2,20 @@ package lb
 
 import (
 	"context"
-	"errors"
+
+	"golang.org/x/exp/maps"
+
+	"github.com/go-leo/leo/common/sortx"
+	"github.com/go-leo/leo/runner/net/http/client"
 )
 
 type PickFirst struct{}
 
-func (p *PickFirst) Pick(_ context.Context, takers []TargetTaker) (TargetTaker, error) {
-	if len(takers) <= 0 {
-		return nil, errors.New("takers is empty")
+func (p *PickFirst) Pick(_ context.Context, interfaces map[string]client.Interface) (client.Interface, error) {
+	if len(interfaces) <= 0 {
+		return nil, ErrNoInterface
 	}
-	return takers[0], nil
+	keys := maps.Keys(interfaces)
+	sortx.Asc(keys)
+	return interfaces[keys[0]], nil
 }

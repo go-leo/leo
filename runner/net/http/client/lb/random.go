@@ -10,11 +10,11 @@ import (
 	"github.com/go-leo/leo/runner/net/http/client"
 )
 
-type RoundRobin struct {
+type Random struct {
 	number uint64
 }
 
-func (r *RoundRobin) Interface(_ context.Context, interfaces map[string]client.Interface) (client.Interface, error) {
+func (r *Random) Interface(_ context.Context, interfaces map[string]client.Interface) (client.Interface, error) {
 	if len(interfaces) <= 0 {
 		return nil, ErrNoInterface
 	}

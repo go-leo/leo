@@ -40,7 +40,7 @@ import (
 type HttpOptions struct {
 	Port            int
 	GRPCDialOptions []grpc.DialOption
-	GRPCClient      any
+	GRPCConn        grpc.ClientConnInterface
 	ReadTimeout     time.Duration
 	WriteTimeout    time.Duration
 	IdleTimeout     time.Duration
@@ -465,7 +465,7 @@ func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
 	// 如果上面的监听的端口为0，则会随机用一个可用的端口，所以需要回填。
 	httpOpts.Port = netx.ExtractPort(lis.Addr())
 
-	if app.o.GRPCOpts != nil && httpOpts.GRPCClient == nil {
+	if app.o.GRPCOpts != nil && httpOpts.GRPCConn == nil {
 		dialOptions := append([]grpc.DialOption{}, httpOpts.GRPCDialOptions...)
 		if app.o.GRPCOpts.TLSConf != nil {
 			dialOptions = append(dialOptions, grpc.WithTransportCredentials(credentials.NewTLS(app.o.GRPCOpts.TLSConf)))
@@ -476,12 +476,15 @@ func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
 		if err != nil {
 			return nil, err
 		}
-		httpOpts.GRPCClient = app.o.GRPCClientCreator(conn)
+		httpOpts.GRPCConn = conn
 	}
-
+	var gRPCCli any
+	if httpOpts.GRPCConn != nil {
+		gRPCCli = app.o.GRPCClientCreator(httpOpts.GRPCConn)
+	}
 	// 组装options
 	opts := []httpserver.Option{
-		httpserver.GRPCClient(httpOpts.GRPCClient),
+		httpserver.GRPCClient(gRPCCli),
 		httpserver.ServiceDescription(app.o.HTTPDesc),
 		httpserver.ReadTimeout(httpOpts.ReadTimeout),
 		httpserver.WriteTimeout(httpOpts.WriteTimeout),
