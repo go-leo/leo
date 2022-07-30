@@ -48,8 +48,9 @@ func (task *Task) Start(_ context.Context) error {
 	task.startOnce.Do(func() {
 		// 遍历Jobs，并将其添加到cron实例中
 		for _, job := range task.jobs {
-			id, err := task.exec.AddFunc(job.Spec(), job.cmd)
-			if err != nil {
+			id, e := task.exec.AddFunc(job.Spec(), job.cmd)
+			if e != nil {
+				err = e
 				return
 			}
 			job.entryID = id
