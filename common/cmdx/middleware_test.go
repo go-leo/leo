@@ -47,7 +47,7 @@ type logKey struct{}
 
 type Log1Middleware struct{}
 
-func (l *Log1Middleware) Middleware(cmd Command) Command {
+func (l *Log1Middleware) Decorate(cmd Command) Command {
 	return CommandFunc(func(ctx context.Context) (context.Context, error) {
 		logger := log.New(os.Stdout, "log", log.LstdFlags|log.Lshortfile)
 		logger.Println("start log 1")

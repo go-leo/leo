@@ -16,3 +16,13 @@ type CommandFunc func(ctx context.Context) (context.Context, error)
 func (f CommandFunc) Execute(ctx context.Context) (context.Context, error) {
 	return f(ctx)
 }
+
+// UndoCommand undo a Command
+type UndoCommand interface {
+	Undo(ctx context.Context) (context.Context, error)
+}
+
+// RedoCommand redo a Command
+type RedoCommand interface {
+	Redo(ctx context.Context) (context.Context, error)
+}

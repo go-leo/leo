@@ -15,3 +15,12 @@ type MiddlewareFunc func(cmd Command) Command
 func (f MiddlewareFunc) Decorate(cmd Command) Command {
 	return f(cmd)
 }
+
+// Chain decorates the given Command with all middlewares.
+func Chain(cmd Command, middlewares ...Middleware) (chain Command) {
+	chain = cmd
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		chain = middlewares[i].Decorate(chain)
+	}
+	return chain
+}
