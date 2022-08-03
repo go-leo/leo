@@ -1,4 +1,4 @@
-package chainx
+package cmdx
 
 import "context"
 
@@ -8,10 +8,8 @@ type Command interface {
 	Execute(ctx context.Context) (context.Context, error)
 }
 
-// The CommandFunc type is an adapter to allow the use of
-// ordinary functions as Commands. If f is a function
-// with the appropriate signature, CommandFunc(f) is a
-// Command that calls f.
+// The CommandFunc type is an adapter to allow the use of ordinary functions as Command.
+// If f is a function with the appropriate signature, CommandFunc(f) is a Command that calls f.
 type CommandFunc func(ctx context.Context) (context.Context, error)
 
 // Execute calls f(ctx).

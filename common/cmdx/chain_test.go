@@ -1,4 +1,4 @@
-package chainx
+package cmdx
 
 import (
 	"context"
