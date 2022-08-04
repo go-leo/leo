@@ -9,10 +9,10 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
-	"io/fs"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -267,7 +267,8 @@ func (builder *RequestBuilder) GobBody(body any) *RequestBuilder {
 type FormData struct {
 	FieldName string
 	Value     string
-	File      fs.File
+	File      io.Reader
+	Filename  string
 }
 
 func (builder *RequestBuilder) MultipartBody(formData ...*FormData) *RequestBuilder {
@@ -276,24 +277,19 @@ func (builder *RequestBuilder) MultipartBody(formData ...*FormData) *RequestBuil
 	}
 	payload := new(bytes.Buffer)
 	writer := multipart.NewWriter(payload)
-	for _, datum := range formData {
-		if datum.File != nil {
-			stat, err := datum.File.Stat()
+	for _, form := range formData {
+		if form.File != nil {
+			mf, err := writer.CreateFormFile(form.FieldName, filepath.Base(form.Filename))
 			if err != nil {
 				builder.err = err
 				return builder
 			}
-			mf, err := writer.CreateFormFile(datum.FieldName, stat.Name())
-			if err != nil {
-				builder.err = err
-				return builder
-			}
-			if _, err = io.Copy(mf, datum.File); err != nil {
+			if _, err = io.Copy(mf, form.File); err != nil {
 				builder.err = err
 				return builder
 			}
 		} else {
-			_ = writer.WriteField(datum.FieldName, datum.Value)
+			_ = writer.WriteField(form.FieldName, form.Value)
 		}
 	}
 	if err := writer.Close(); err != nil {
