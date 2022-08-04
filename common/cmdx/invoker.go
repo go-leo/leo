@@ -3,7 +3,13 @@ package cmdx
 import (
 	"container/list"
 	"context"
+	"errors"
 	"sync"
+)
+
+var (
+	ErrNotFoundUndoCommand = errors.New("not found command in undo command stack")
+	ErrNotFoundRedoCommand = errors.New("not found command in redo command stack")
 )
 
 type Invoker struct {
@@ -26,16 +32,13 @@ func (invoker *Invoker) Call(ctx context.Context, cmd Command) (context.Context,
 func (invoker *Invoker) Undo(ctx context.Context) (context.Context, error) {
 	invoker.Lock()
 	defer invoker.Unlock()
-	if invoker.isUndoCommandsEmpty() {
-		return ctx, nil
-	}
 	cmd, ok := invoker.popUndoCommand()
 	if !ok {
-		return ctx, nil
+		return ctx, ErrNotFoundUndoCommand
 	}
 	undo, ok := cmd.(UndoCommand)
 	if !ok {
-		return ctx, nil
+		return ctx, ErrNotUndoCommand
 	}
 	ctx, err := undo.Undo(ctx)
 	if err != nil {
@@ -48,16 +51,13 @@ func (invoker *Invoker) Undo(ctx context.Context) (context.Context, error) {
 func (invoker *Invoker) Redo(ctx context.Context) (context.Context, error) {
 	invoker.Lock()
 	defer invoker.Unlock()
-	if invoker.isRedoCommandsEmpty() {
-		return ctx, nil
-	}
 	cmd, ok := invoker.popRedoCommand()
 	if !ok {
-		return ctx, nil
+		return ctx, ErrNotFoundRedoCommand
 	}
 	redo, ok := cmd.(RedoCommand)
 	if !ok {
-		return ctx, nil
+		return ctx, ErrNotRedoCommand
 	}
 	ctx, err := redo.Redo(ctx)
 	if err != nil {
@@ -83,6 +83,9 @@ func (invoker *Invoker) pushUndoCommand(cmd Command) {
 }
 
 func (invoker *Invoker) popUndoCommand() (Command, bool) {
+	if invoker.isUndoCommandsEmpty() {
+		return nil, false
+	}
 	element := invoker.undoCommands().Back()
 	if element == nil {
 		return nil, false
@@ -107,6 +110,9 @@ func (invoker *Invoker) pushRedoCommand(cmd Command) {
 }
 
 func (invoker *Invoker) popRedoCommand() (Command, bool) {
+	if invoker.isRedoCommandsEmpty() {
+		return nil, false
+	}
 	element := invoker.redoCommands().Back()
 	if element == nil {
 		return nil, false
