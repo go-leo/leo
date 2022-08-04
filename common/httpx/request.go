@@ -3,6 +3,8 @@ package httpx
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/gob"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -11,8 +13,10 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
+	"golang.org/x/exp/slices"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/go-leo/leo/common/stringx"
@@ -24,6 +28,7 @@ type RequestBuilder struct {
 	query   url.Values
 	headers http.Header
 	body    io.Reader
+	cookies []*http.Cookie
 	err     error
 }
 
@@ -200,6 +205,9 @@ func (builder *RequestBuilder) Body(body io.Reader, contentType string) *Request
 	}
 	builder.body = body
 	builder.Header("Content-Type", contentType)
+	if lenGetter, ok := body.(interface{ Len() int }); ok {
+		builder.Header("Content-Length", strconv.Itoa(lenGetter.Len()))
+	}
 	return builder
 }
 
@@ -213,47 +221,47 @@ func (builder *RequestBuilder) TextBody(body string, contentType string) *Reques
 	return builder.Body(reader, contentType)
 }
 
-func (builder *RequestBuilder) JSONBody(body any) *RequestBuilder {
+func (builder *RequestBuilder) FormBody(form url.Values) *RequestBuilder {
+	return builder.TextBody(form.Encode(), "application/x-www-form-urlencoded")
+}
+
+func (builder *RequestBuilder) ObjectBody(body any, marshal func(any) ([]byte, error), contentType string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	data, err := json.Marshal(body)
+	data, err := marshal(body)
 	if err != nil {
 		builder.err = err
 		return builder
 	}
-	return builder.BytesBody(data, "application/json")
+	return builder.BytesBody(data, contentType)
+}
+
+func (builder *RequestBuilder) JSONBody(body any) *RequestBuilder {
+	return builder.ObjectBody(body, json.Marshal, "application/json")
 }
 
 func (builder *RequestBuilder) XMLBody(body any) *RequestBuilder {
-	if builder.err != nil {
-		return builder
-	}
-	data, err := xml.Marshal(body)
-	if err != nil {
-		builder.err = err
-		return builder
-	}
-	return builder.BytesBody(data, "application/xml")
+	return builder.ObjectBody(body, xml.Marshal, "application/xml")
 }
 
 func (builder *RequestBuilder) ProtobufBody(body proto.Message) *RequestBuilder {
-	if builder.err != nil {
-		return builder
+	marshal := func(v any) ([]byte, error) {
+		message, _ := v.(proto.Message)
+		return proto.Marshal(message)
 	}
-	data, err := proto.Marshal(body)
-	if err != nil {
-		builder.err = err
-		return builder
-	}
-	return builder.BytesBody(data, "application/x-protobuf")
+	return builder.ObjectBody(body, marshal, "application/x-protobuf")
 }
 
-func (builder *RequestBuilder) FormBody(form url.Values) *RequestBuilder {
-	if builder.err != nil {
-		return builder
+func (builder *RequestBuilder) GobBody(body any) *RequestBuilder {
+	marshal := func(v any) ([]byte, error) {
+		var b bytes.Buffer
+		if err := gob.NewEncoder(&b).Encode(v); err != nil {
+			return nil, err
+		}
+		return b.Bytes(), nil
 	}
-	return builder.TextBody(form.Encode(), "application/x-www-form-urlencoded")
+	return builder.ObjectBody(body, marshal, "application/x-gob")
 }
 
 type FormData struct {
@@ -295,6 +303,76 @@ func (builder *RequestBuilder) MultipartBody(formData ...*FormData) *RequestBuil
 	return builder.Body(payload, writer.FormDataContentType())
 }
 
+func (builder *RequestBuilder) BasicAuth(username, password string) *RequestBuilder {
+	if builder.err != nil {
+		return builder
+	}
+	token := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
+	return builder.CustomAuth("Basic", token)
+}
+
+func (builder *RequestBuilder) BearerAuth(token string) *RequestBuilder {
+	return builder.CustomAuth("Bearer", token)
+}
+
+func (builder *RequestBuilder) CustomAuth(scheme, token string) *RequestBuilder {
+	return builder.APIKey("Authorization", scheme+" "+token)
+}
+
+func (builder *RequestBuilder) APIKey(key string, value string) *RequestBuilder {
+	return builder.Header(key, value)
+}
+
+func (builder *RequestBuilder) Cookie(cookie *http.Cookie) *RequestBuilder {
+	if builder.err != nil {
+		return builder
+	}
+	index := slices.IndexFunc(builder.cookies, func(c *http.Cookie) bool {
+		return c.Name == cookie.Name
+	})
+	if index >= 0 {
+		builder.cookies[index] = cookie
+		return builder
+	}
+	return builder.AddCookie(cookie)
+}
+
+func (builder *RequestBuilder) AddCookie(cookie *http.Cookie) *RequestBuilder {
+	if builder.err != nil {
+		return builder
+	}
+	builder.cookies = append(builder.cookies, cookie)
+	return builder
+}
+
+func (builder *RequestBuilder) RemoveCookie(cookie *http.Cookie) *RequestBuilder {
+	if builder.err != nil {
+		return builder
+	}
+	index := slices.IndexFunc(builder.cookies, func(c *http.Cookie) bool {
+		return c.Name == cookie.Name
+	})
+	if index == -1 {
+		return builder
+	}
+	builder.cookies = slices.Delete(builder.cookies, index, index+1)
+	return builder
+}
+
+func (builder *RequestBuilder) Cookies(cookies ...*http.Cookie) *RequestBuilder {
+	if builder.err != nil {
+		return builder
+	}
+	builder.cookies = make([]*http.Cookie, 0, len(cookies))
+	for _, cookie := range cookies {
+		if cookie == nil {
+			continue
+		}
+		builder.cookies = append(builder.cookies, cookie)
+	}
+	return builder
+}
+
 func (builder *RequestBuilder) Build(ctx context.Context) (*http.Request, error) {
 	if builder.err != nil {
 		return nil, builder.err
@@ -313,6 +391,9 @@ func (builder *RequestBuilder) Build(ctx context.Context) (*http.Request, error)
 		for _, value := range values {
 			req.Header.Add(key, value)
 		}
+	}
+	for _, cookie := range builder.cookies {
+		req.AddCookie(cookie)
 	}
 	return req, nil
 }
