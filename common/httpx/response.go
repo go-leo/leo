@@ -7,7 +7,7 @@ import (
 	"encoding/xml"
 	"io"
 	"net/http"
-	"net/url"
+	"strings"
 
 	"google.golang.org/protobuf/proto"
 
@@ -18,33 +18,56 @@ type ResponseHelper struct {
 	Response *http.Response
 }
 
+func (helper ResponseHelper) StatusCode() int {
+	return helper.Response.StatusCode
+}
+
+func (helper ResponseHelper) Headers() http.Header {
+	return helper.Response.Header
+}
+
+func (helper ResponseHelper) LastModified() string {
+	return helper.Response.Header.Get("Last-Modified")
+}
+
+func (helper ResponseHelper) Etag() string {
+	return helper.Response.Header.Get("Etag")
+}
+
+func (helper ResponseHelper) CacheControl() string {
+	return helper.Response.Header.Get("Cache-Control")
+}
+
+func (helper ResponseHelper) Trailer() http.Header {
+	return helper.Response.Trailer
+}
+
+func (helper ResponseHelper) Cookies() []*http.Cookie {
+	return helper.Response.Cookies()
+}
+
 func (helper ResponseHelper) Body() io.ReadCloser {
 	return helper.Response.Body
 }
 
 func (helper ResponseHelper) BytesBody() ([]byte, error) {
 	defer iox.QuiteClose(helper.Response.Body)
-	data, err := io.ReadAll(helper.Response.Body)
+	b := new(bytes.Buffer)
+	_, err := io.Copy(b, helper.Response.Body)
 	if err != nil {
 		return nil, err
 	}
-	return data, nil
+	return b.Bytes(), nil
 }
 
 func (helper ResponseHelper) TextBody() (string, error) {
-	data, err := helper.BytesBody()
+	defer iox.QuiteClose(helper.Response.Body)
+	b := new(strings.Builder)
+	_, err := io.Copy(b, helper.Response.Body)
 	if err != nil {
 		return "", err
 	}
-	return string(data), nil
-}
-
-func (helper ResponseHelper) FormBody() (url.Values, error) {
-	data, err := helper.TextBody()
-	if err != nil {
-		return nil, err
-	}
-	return url.ParseQuery(data)
+	return b.String(), nil
 }
 
 func (helper ResponseHelper) ObjectBody(body any, unmarshal func([]byte, any) error) error {

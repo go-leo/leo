@@ -25,7 +25,7 @@ import (
 type RequestBuilder struct {
 	method  string
 	uri     *url.URL
-	query   url.Values
+	queries url.Values
 	headers http.Header
 	body    io.Reader
 	cookies []*http.Cookie
@@ -105,25 +105,26 @@ func (builder *RequestBuilder) URLString(urlString string) *RequestBuilder {
 	return builder.URL(uri)
 }
 
+func (builder *RequestBuilder) query() url.Values {
+	if builder.queries == nil {
+		builder.queries = make(url.Values)
+	}
+	return builder.queries
+}
+
 func (builder *RequestBuilder) Query(name, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	if builder.query == nil {
-		builder.query = make(url.Values)
-	}
-	builder.query.Set(name, value)
+	builder.query().Set(name, value)
 	return builder
 }
 
-func (builder *RequestBuilder) AddQuery(name, value string) *RequestBuilder {
+func (builder *RequestBuilder) AddQuery(key, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	if builder.query == nil {
-		builder.query = make(url.Values)
-	}
-	builder.query.Add(name, value)
+	builder.query().Add(key, value)
 	return builder
 }
 
@@ -131,41 +132,43 @@ func (builder *RequestBuilder) RemoveQuery(name string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	if builder.query == nil {
-		builder.query = make(url.Values)
-	}
-	builder.query.Del(name)
+	builder.query().Del(name)
 	return builder
 }
 
 func (builder *RequestBuilder) QueryString(q string) *RequestBuilder {
-	if builder.err != nil {
-		return builder
-	}
-	query, err := url.ParseQuery(q)
+	queries, err := url.ParseQuery(q)
 	if err != nil {
 		builder.err = err
 		return builder
 	}
-	return builder.Queries(query)
+	return builder.Queries(queries)
 }
 
-func (builder *RequestBuilder) Queries(q url.Values) *RequestBuilder {
+func (builder *RequestBuilder) Queries(queries url.Values) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	builder.query = q
+	for key, values := range queries {
+		for _, value := range values {
+			builder.query().Add(key, value)
+		}
+	}
 	return builder
+}
+
+func (builder *RequestBuilder) header() http.Header {
+	if builder.headers == nil {
+		builder.headers = make(http.Header)
+	}
+	return builder.headers
 }
 
 func (builder *RequestBuilder) Header(name, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	if builder.headers == nil {
-		builder.headers = make(http.Header)
-	}
-	builder.headers.Set(name, value)
+	builder.header().Set(name, value)
 	return builder
 }
 
@@ -173,10 +176,7 @@ func (builder *RequestBuilder) AddHeader(name, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	if builder.headers == nil {
-		builder.headers = make(http.Header)
-	}
-	builder.headers.Add(name, value)
+	builder.header().Add(name, value)
 	return builder
 }
 
@@ -184,10 +184,7 @@ func (builder *RequestBuilder) RemoveHeader(name string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	if builder.headers == nil {
-		builder.headers = make(http.Header)
-	}
-	builder.headers.Del(name)
+	builder.header().Del(name)
 	return builder
 }
 
@@ -195,8 +192,36 @@ func (builder *RequestBuilder) Headers(header http.Header) *RequestBuilder {
 	if builder.err != nil {
 		return builder
 	}
-	builder.headers = header.Clone()
+	for key, values := range header {
+		for _, value := range values {
+			builder.header().Add(key, value)
+		}
+	}
 	return builder
+}
+
+func (builder *RequestBuilder) UserAgent(ua string) *RequestBuilder {
+	return builder.Header("User-Agent", ua)
+}
+
+func (builder *RequestBuilder) IfModifiedSince(time string) *RequestBuilder {
+	return builder.Header("If-Modified-Since", time)
+}
+
+func (builder *RequestBuilder) IfUnmodifiedSince(time string) *RequestBuilder {
+	return builder.Header("If-Unmodified-Since", time)
+}
+
+func (builder *RequestBuilder) IfNoneMatch(etag string) *RequestBuilder {
+	return builder.Header("If-None-Match", etag)
+}
+
+func (builder *RequestBuilder) IfMatch(etags ...string) *RequestBuilder {
+	return builder.Header("If-Match", strings.Join(etags, ", "))
+}
+
+func (builder *RequestBuilder) CacheControl(directives ...string) *RequestBuilder {
+	return builder.Header("Cache-Control", strings.Join(directives, ", "))
 }
 
 func (builder *RequestBuilder) Body(body io.Reader, contentType string) *RequestBuilder {
@@ -379,6 +404,16 @@ func (builder *RequestBuilder) Build(ctx context.Context) (*http.Request, error)
 	if builder.uri == nil {
 		return nil, errors.New("url is nil")
 	}
+	query := builder.uri.Query()
+	for name, values := range builder.query() {
+		if query.Has(name) {
+			query.Del(name)
+		}
+		for _, value := range values {
+			query.Add(name, value)
+		}
+	}
+	builder.uri.RawQuery = query.Encode()
 	req, err := http.NewRequestWithContext(ctx, builder.method, builder.uri.String(), builder.body)
 	if err != nil {
 		return nil, err
