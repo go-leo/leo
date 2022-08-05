@@ -5,7 +5,7 @@ import "sync"
 // pooledObject wrap origin object to be pooled
 type pooledObject struct {
 	obj      any
-	pool     *ObjectPool
+	pool     *ObjectPool // nolint
 	unusable bool
 	mu       sync.RWMutex
 }

@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-leo/leo/common/bufx"
 	"github.com/go-leo/leo/common/httpx"
 )
 
@@ -48,8 +47,7 @@ func (probe *HTTPProber) Check(target string) error {
 	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 		return nil
 	}
-	output := bufx.Get()
-	defer output.Free()
+	output := new(bytes.Buffer)
 	if _, err := io.Copy(output, resp.Body); err != nil {
 		return err
 	}

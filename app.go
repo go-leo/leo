@@ -276,11 +276,10 @@ func StopTimeout(timeout time.Duration) Option {
 }
 
 type App struct {
-	o           *options
-	eg          *errgroup.Group
-	wg          sync.WaitGroup
-	stopTimeout time.Duration
-	cancel      context.CancelFunc
+	o      *options
+	eg     *errgroup.Group
+	wg     sync.WaitGroup
+	cancel context.CancelFunc
 }
 
 func NewApp(opts ...Option) *App {

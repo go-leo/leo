@@ -147,7 +147,7 @@ func TestInvokerMultiCommand(t *testing.T) {
 	assert.ErrorIs(t, ErrNotFoundRedoCommand, err)
 	assert.Equal(t, 11, number)
 
-	_, err = invoker.Call(context.Background(), NewDefaultCommand(
+	_, err = invoker.Call(context.Background(), NewDefaultCommand( // nolint
 		func(ctx context.Context) (context.Context, error) {
 			number += 20
 			return ctx, nil

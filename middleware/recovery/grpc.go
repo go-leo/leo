@@ -2,8 +2,6 @@ package recovery
 
 import (
 	"context"
-	"fmt"
-	"runtime"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -14,13 +12,6 @@ func GRPCServerMiddleware(handles ...func(context.Context, any) error) grpc.Unar
 	var handle func(context.Context, any) error
 	if len(handles) == 0 {
 		handle = func(ctx context.Context, p any) (err error) {
-			const size = 64 << 10
-			buf := make([]byte, size)
-			buf = buf[:runtime.Stack(buf, false)]
-			err, ok := p.(error)
-			if !ok {
-				err = fmt.Errorf("%v", p)
-			}
 			return status.Errorf(codes.Internal, "panic triggered: %+v", err)
 		}
 	} else {

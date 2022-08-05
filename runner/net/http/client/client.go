@@ -34,7 +34,7 @@ func NewClient(baseURL string, opts ...Option) *Client {
 	}
 }
 
-func newClient(baseURL string, o *options) *Client {
+func newClient(baseURL string, o *options) *Client { // nolint
 	return &Client{
 		o:          o,
 		baseURL:    baseURL,
