@@ -20,7 +20,7 @@ func HandlerFunc(cli any, desc *ServiceDesc, methodDesc *MethodDesc) func(c *gin
 		acceptCodec := codec.GetCodec(util.GetAcceptType(c.Request.Header))
 
 		metadata := new(Metadata)
-		ctx := NewContextWithMetadata(c.Request.Context(), metadata)
+		c.Request = c.Request.WithContext(NewContextWithMetadata(c.Request.Context(), metadata))
 
 		ctx, cancel, err := _GRPCTimeout(c)
 		if err != nil {
