@@ -19,6 +19,9 @@ func HandlerFunc(cli any, desc *ServiceDesc, methodDesc *MethodDesc) func(c *gin
 		// 获取客户端Accept类型，默认是application/json
 		acceptCodec := codec.GetCodec(util.GetAcceptType(c.Request.Header))
 
+		metadata := new(Metadata)
+		ctx := NewContextWithMetadata(c.Request.Context(), metadata)
+
 		ctx, cancel, err := _GRPCTimeout(c)
 		if err != nil {
 			errorHandler(ctx, c, acceptCodec, err)
@@ -45,8 +48,7 @@ func HandlerFunc(cli any, desc *ServiceDesc, methodDesc *MethodDesc) func(c *gin
 			errorHandler(ctx, c, acceptCodec, err)
 			return
 		}
-		metadata := new(Metadata)
-		ctx = NewContextWithMetadata(ctx, metadata)
+
 		// 调用handler，此handler就是xxx.leo.pb.go里的xxx_HTTP_Handler
 		reply, appErr := methodDesc.Handler(cli, ctx, in)
 		if appErr != nil {
