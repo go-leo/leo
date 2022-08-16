@@ -8,7 +8,8 @@ import (
 )
 
 type Router struct {
-	HTTPMethod   string
+	// HTTPMethods 如果为空，则注册到所有Method
+	HTTPMethods  []string
 	Path         string
 	HandlerFuncs []gin.HandlerFunc
 }

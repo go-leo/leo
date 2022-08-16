@@ -48,7 +48,15 @@ func New(lis net.Listener, opts ...Option) *Server {
 	}
 	// 注册其他自定义的非protoc-gen-go-leo生成的路由
 	for _, router := range o.Routers {
-		mux.Handle(router.HTTPMethod, router.Path, router.HandlerFuncs...)
+		// 如果没有指定具体method，则绑定所有可能的Method
+		if len(router.HTTPMethods) <= 0 {
+			mux.Any(router.Path, router.HandlerFuncs...)
+			continue
+		}
+		// 指定了method，就绑定到method上。
+		for _, method := range router.HTTPMethods {
+			mux.Handle(method, router.Path, router.HandlerFuncs...)
+		}
 	}
 	// 创建http.Server
 	httpSrv := &http.Server{
