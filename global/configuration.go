@@ -401,7 +401,10 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*trace.Trace, error) {
 	zipkinConf := traceConf.Zipkin
 	httpConf := traceConf.HTTP
 	gRPCConf := traceConf.GRPC
-	Attributes := []attribute.KeyValue{attribute.Key("service.name").String(traceConf.ServiceName)}
+	Attributes := []attribute.KeyValue{
+		attribute.Key("service.name").String(traceConf.ServiceName),
+		attribute.Key("service.instance.id").String(errorx.Quiet(os.Hostname())),
+	}
 	switch {
 	case writerConf.Enabled:
 		var writer io.Writer
