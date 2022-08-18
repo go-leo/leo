@@ -20,7 +20,6 @@ import (
 	"github.com/go-leo/leo/common/backoffx"
 	"github.com/go-leo/leo/common/consulx"
 	"github.com/go-leo/leo/common/stringx"
-	"github.com/go-leo/leo/global"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/leo/runner/net/http/server"
@@ -316,7 +315,8 @@ func (factory *RegistrarFactory) Create() (registry.Registrar, error) {
 }
 
 type DiscoveryFactory struct {
-	URI *url.URL
+	URI    *url.URL
+	Logger log.Logger
 }
 
 func (factory *DiscoveryFactory) Create() (registry.Discovery, error) {
@@ -324,5 +324,5 @@ func (factory *DiscoveryFactory) Create() (registry.Discovery, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewDiscovery(client, global.Logger()), nil
+	return NewDiscovery(client, factory.Logger), nil
 }

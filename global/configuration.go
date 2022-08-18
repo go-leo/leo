@@ -17,7 +17,7 @@ import (
 )
 
 // Config 基础配置模版
-//
+// DEPRECATED
 type Config struct {
 	// Server 服务Host/端口配置项
 	Server Server `mapstructure:"server" json:"server" yaml:"server"`

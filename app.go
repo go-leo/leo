@@ -3,6 +3,7 @@ package leo
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -309,27 +310,27 @@ func (app *App) Run(ctx context.Context) error {
 	for _, runnable := range app.o.Runnables {
 		app.run(ctx, runnable)
 	}
-	// 运行Cron任务
+	// 启动Cron任务
 	if app.o.CronOpts != nil && len(app.o.CronOpts.Jobs) > 0 {
 		app.run(ctx, app.newCronTask())
 	}
-	// 运行PubSub任务
+	// 启动PubSub任务
 	if app.o.PubSubOpts != nil && len(app.o.PubSubOpts.Jobs) > 0 {
 		app.run(ctx, app.newPubSubTask())
 	}
-	// 运行gRPC服务
+	// 启动gRPC服务
 	if app.o.GRPCOpts != nil {
 		if err := app.startGRPCServer(ctx); err != nil {
 			return err
 		}
 	}
-	// 运行http服务
+	// 启动http服务
 	if app.o.HttpOpts != nil {
 		if err := app.startHTTPServer(ctx); err != nil {
 			return err
 		}
 	}
-	// 运行management服务
+	// 启动management服务
 	if app.o.MgmtOpts != nil {
 		if err := app.startManagementServer(ctx); err != nil {
 			return err
@@ -434,6 +435,12 @@ func (app *App) newPubSubTask() *pubsub.Task {
 }
 
 func (app *App) newGRPCServer() (*grpcserver.Server, error) {
+	if app.o.ServiceImpl == nil {
+		return nil, errors.New("ServiceImpl is nil")
+	}
+	if app.o.GRPCDesc == nil {
+		return nil, errors.New("GRPCDesc is nil")
+	}
 	grpcOpts := app.o.GRPCOpts
 	// 监听端口
 	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(grpcOpts.Port)))

@@ -18,23 +18,23 @@ type Service struct {
 	Desc *grpc.ServiceDesc
 }
 
+// Server grpc运行实体
 type Server struct {
-	o         *options
-	lis       net.Listener
-	service   Service
-	gRPCSrv   *grpc.Server
+	o         *options     // 可选参数
+	lis       net.Listener // 网络描述符
+	service   Service      // 服务
+	gRPCSrv   *grpc.Server // grpc服务原生类
 	startOnce sync.Once
 	stopOnce  sync.Once
-	healthSrv *health.Server
+	healthSrv *health.Server // 健康检查服务
 }
 
 func (s *Server) Start(_ context.Context) error {
+	if s.lis == nil {
+		return errors.New("net listener is nil")
+	}
 	err := errors.New("server already started")
 	s.startOnce.Do(func() {
-		if s.lis == nil {
-			err = errors.New("net listener is nil")
-			return
-		}
 		err = nil
 		s.healthSrv.Resume()
 		err = s.gRPCSrv.Serve(s.lis)

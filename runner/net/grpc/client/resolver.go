@@ -15,6 +15,8 @@ import (
 	"github.com/go-leo/leo/registry"
 )
 
+var _ resolver.Builder = new(ResolverBuilder)
+
 type ResolverBuilder struct {
 	discovery registry.Discovery
 }
@@ -30,7 +32,7 @@ consul://username:password@ip:port/service.name?scheme=http&datacenter=dev&token
 nacos://ip1:port1,ip2:port2/service.name?contentType=yaml&namespace=ns&group=g&dataId=d
 */
 
-// Build 创建于启动Resolver
+// Build 创建Resolver并启动服务名解析
 func (rb *ResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	// 比较target的Scheme是否与discovery的Scheme一直
 	if target.URL.Scheme != rb.discovery.Scheme() {
@@ -60,6 +62,8 @@ func (rb *ResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 func (rb *ResolverBuilder) Scheme() string {
 	return rb.discovery.Scheme()
 }
+
+var _ resolver.Resolver = new(Resolver)
 
 type Resolver struct {
 	ctx         context.Context
