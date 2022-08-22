@@ -665,7 +665,7 @@ type registrar struct {
 }
 
 func (rr *registrar) String() string {
-	return rr.Registrar.Scheme() + " registrar"
+	return "registrar"
 }
 
 func (rr *registrar) Start(ctx context.Context) error {

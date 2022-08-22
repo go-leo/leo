@@ -12,9 +12,6 @@ const (
 
 // Registrar registers service information to a service registry.
 type Registrar interface {
-	// Scheme returns the scheme supported by this resolver.
-	// Scheme is defined at https://github.com/grpc/grpc/blob/master/doc/naming.md.
-	Scheme() string
 	// Register the ServiceInfo to registry.
 	Register(ctx context.Context, service *ServiceInfo) error
 	// Deregister the ServiceInfo from registry.

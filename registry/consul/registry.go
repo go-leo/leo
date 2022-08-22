@@ -45,10 +45,6 @@ func NewRegistrar(cli *api.Client) *Registrar {
 	return &Registrar{cli: cli}
 }
 
-func (r *Registrar) Scheme() string {
-	return Scheme
-}
-
 func (r *Registrar) Register(ctx context.Context, service *registry.ServiceInfo) error {
 	return r.register(service.Clone())
 }
