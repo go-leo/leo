@@ -1,7 +1,7 @@
 package file
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -25,7 +25,7 @@ func (loader *Loader) ContentType() string {
 
 func (loader *Loader) Load() error {
 	loader.log.Info("reading file:", loader.filename)
-	rawData, err := ioutil.ReadFile(loader.filename)
+	rawData, err := os.ReadFile(loader.filename)
 	if err != nil {
 		return err
 	}

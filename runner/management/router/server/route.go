@@ -15,9 +15,9 @@ type HTTPMapping struct {
 }
 
 type HTTPRouter struct {
-	FullMethod string `json:"full_method,omitempty"`
-	Path       string `json:"path,omitempty"`
-	HttpMethod string `json:"http_method,omitempty"`
+	FullMethod  string   `json:"full_method,omitempty"`
+	Path        string   `json:"path,omitempty"`
+	HttpMethods []string `json:"http_method,omitempty"`
 }
 
 func Route(rg *gin.RouterGroup, grpcMapping *GRPCMapping, httpMapping *HTTPMapping) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
@@ -62,7 +62,7 @@ func (watcher *Watcher) watch(fsWatcher *fsnotify.Watcher, eventC chan *config.E
 				return
 			}
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				data, err := ioutil.ReadFile(watcher.filename)
+				data, err := os.ReadFile(watcher.filename)
 				if err != nil {
 					watcher.log.Error(fmt.Errorf("failed read file %s, %w", watcher.filename, err))
 					return

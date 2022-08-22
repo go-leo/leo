@@ -2,7 +2,6 @@ package file_test
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,7 +30,7 @@ duration: 1s
 func TestMain(t *testing.M) {
 	fp := filepath.Join(os.TempDir(), confFilename)
 
-	if err := ioutil.WriteFile(fp, []byte(confContent), os.ModePerm); err != nil {
+	if err := os.WriteFile(fp, []byte(confContent), os.ModePerm); err != nil {
 		log.Fatalln(err)
 	}
 

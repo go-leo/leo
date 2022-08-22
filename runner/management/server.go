@@ -144,9 +144,9 @@ func HTTPServiceDesc(serviceDesc *httpserver.ServiceDesc) Option {
 		routers := make([]server.HTTPRouter, 0, len(serviceDesc.Methods))
 		for _, method := range serviceDesc.Methods {
 			routers = append(routers, server.HTTPRouter{
-				FullMethod: fmt.Sprintf("/%s/%s", serviceDesc.ServiceName, method.MethodName),
-				Path:       method.Path,
-				HttpMethod: method.HTTPMethod,
+				FullMethod:  fmt.Sprintf("/%s/%s", serviceDesc.ServiceName, method.MethodName),
+				Path:        method.Path,
+				HttpMethods: []string{method.HTTPMethod},
 			})
 		}
 		if o.HTTPMapping == nil {
@@ -161,8 +161,8 @@ func HTTPRouters(httpRouters []httpserver.Router) Option {
 		routers := make([]server.HTTPRouter, 0, len(httpRouters))
 		for _, router := range httpRouters {
 			routers = append(routers, server.HTTPRouter{
-				HttpMethod: router.HTTPMethod,
-				Path:       router.Path,
+				HttpMethods: router.HTTPMethods,
+				Path:        router.Path,
 			})
 		}
 		if o.HTTPMapping == nil {

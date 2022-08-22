@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -129,7 +129,7 @@ func (watcher *Watcher) isModified(ctx context.Context) (bool, error) {
 	defer rawResp.Body.Close()
 	switch rawResp.StatusCode {
 	case http.StatusOK:
-		data, err := ioutil.ReadAll(rawResp.Body)
+		data, err := io.ReadAll(rawResp.Body)
 		if err != nil {
 			return false, err
 		}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -33,7 +33,7 @@ func getConfigContent(ctx context.Context, uri string, appID, secret, contentTyp
 	if rawResp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed get config from apollo, StatusCode: %d, Status: %s", rawResp.StatusCode, rawResp.Status)
 	}
-	data, err := ioutil.ReadAll(rawResp.Body)
+	data, err := io.ReadAll(rawResp.Body)
 	if err != nil {
 		return "", err
 	}
