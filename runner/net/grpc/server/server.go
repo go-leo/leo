@@ -20,13 +20,18 @@ type Service struct {
 
 // Server grpc运行实体
 type Server struct {
-	o         *options     // 可选参数
-	lis       net.Listener // 网络描述符
-	service   Service      // 服务
-	gRPCSrv   *grpc.Server // grpc服务原生类
+	// o 可选参数
+	o *options
+	// lis 网络端口监听接口
+	lis net.Listener
+	// service 包含业务Service的实现和描述信息
+	service Service
+	// gRPCSrv 原生的grpc服务
+	gRPCSrv *grpc.Server
+	// healthSrv 健康检查服务
+	healthSrv *health.Server
 	startOnce sync.Once
 	stopOnce  sync.Once
-	healthSrv *health.Server // 健康检查服务
 }
 
 func (s *Server) Start(_ context.Context) error {
