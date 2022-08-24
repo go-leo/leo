@@ -66,11 +66,15 @@ func (rb *ResolverBuilder) Scheme() string {
 var _ resolver.Resolver = new(Resolver)
 
 type Resolver struct {
-	ctx         context.Context
-	cancelFunc  context.CancelFunc
-	cc          resolver.ClientConn
-	opts        resolver.BuildOptions
-	discovery   registry.Discovery
+	// ctx 和 cancelFunc，可以监听解析器Close信号，以便goroutine可以正常退出
+	ctx        context.Context
+	cancelFunc context.CancelFunc
+	// cc 和 opts 原生gRPC框架传入的，可以控制客户端连接的状态和行为
+	cc   resolver.ClientConn
+	opts resolver.BuildOptions
+	// discovery Leo服务发现组件
+	discovery registry.Discovery
+	// serviceInfo 当前需要被解析的服务
 	serviceInfo *registry.ServiceInfo
 }
 
