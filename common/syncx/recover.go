@@ -1,4 +1,4 @@
-package concurrentx
+package syncx
 
 func BraveGo(f func(), r func(p any)) {
 	go BraveDo(f, r)
