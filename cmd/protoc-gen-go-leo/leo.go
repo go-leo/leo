@@ -131,6 +131,11 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 }
 
 func genServer(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service) {
+	//g.P("// Leading", service.Comments.Leading)
+	//g.P("// Trailing", service.Comments.Trailing)
+	//for _, comments := range service.Comments.LeadingDetached {
+	//	g.P("// LeadingDetached", comments)
+	//}
 	serverType := service.GoName + "Server"
 	clientName := service.GoName + "Client"
 	// Server registration.
