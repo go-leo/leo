@@ -2,50 +2,27 @@ package pagex
 
 import (
 	"errors"
-	"math"
 )
 
 type Page struct {
-	/**
-	 * 页码，从1开始
-	 */
+	// pageNum 页码，从1开始
 	pageNum uint64
-	/**
-	 * 页面大小
-	 */
+	// pageSize 页面大小
 	pageSize uint64
-	/**
-	 * 起始行
-	 */
-	startRow uint64
-	/**
-	 * 末行
-	 */
-	endRow uint64
-	/**
-	 * 总数
-	 */
+	// offset 跳过的行数
+	offset uint64
+	// limit 限制行数
+	limit uint64
+	// total 总行数
 	total uint64
-	/**
-	 * 总页数
-	 */
+	// pages 总页数
 	pages uint64
-	/**
-	 * 包含count查询
-	 */
+	// count 包含count查询
 	count bool
-	/**
-	 * 进行count查询的列名
-	 */
+	// countColumn 进行count查询的列名
 	countColumn string
-	/**
-	 * 排序
-	 */
+	// orderBy 排序
 	orderBy string
-	/**
-	 * 只增加排序
-	 */
-	orderByOnly bool
 }
 
 func (p *Page) init() {
@@ -87,12 +64,6 @@ func UnsafeOrderBy(orderBy string) Option {
 	}
 }
 
-func OrderByOnly(orderByOnly bool) Option {
-	return func(p *Page) {
-		p.orderByOnly = orderByOnly
-	}
-}
-
 func NewPage(pageNum uint64, pageSize uint64, opts ...Option) (*Page, error) {
 	if pageNum == 0 {
 		return nil, errors.New("pageNum is zero")
@@ -103,26 +74,17 @@ func NewPage(pageNum uint64, pageSize uint64, opts ...Option) (*Page, error) {
 	p := &Page{
 		pageNum:     pageNum,
 		pageSize:    pageSize,
-		startRow:    0,
-		endRow:      0,
 		total:       0,
 		pages:       0,
 		count:       true,
 		countColumn: "",
 		orderBy:     "",
-		orderByOnly: false,
 	}
 	p.apply(opts...)
 	p.init()
-	// 查询全部
-	if p.pageNum == 1 && p.pageSize == math.MaxUint64 {
-		p.startRow = 0
-		p.endRow = math.MaxUint64
-		return p, nil
-	}
-	// 计算出起始行与结束行
-	p.startRow = (p.pageNum - 1) * p.pageSize
-	p.endRow = p.startRow + p.pageSize
+	// 计算出 offset 和 limit
+	p.offset = (p.pageNum - 1) * p.pageSize
+	p.limit = p.pageSize
 	return p, nil
 }
 
@@ -134,12 +96,12 @@ func (p *Page) PageSize() uint64 {
 	return p.pageSize
 }
 
-func (p *Page) StartRow() uint64 {
-	return p.startRow
+func (p *Page) Offset() uint64 {
+	return p.offset
 }
 
-func (p *Page) EndRow() uint64 {
-	return p.endRow
+func (p *Page) Limit() uint64 {
+	return p.limit
 }
 
 func (p *Page) Total() uint64 {
@@ -159,10 +121,6 @@ func (p *Page) Pages() uint64 {
 	return p.pages
 }
 
-func (p *Page) SetPages(pages uint64) {
-	p.pages = pages
-}
-
 func (p *Page) Count() bool {
 	return p.count
 }
@@ -173,8 +131,4 @@ func (p *Page) CountColumn() string {
 
 func (p *Page) OrderBy() string {
 	return p.orderBy
-}
-
-func (p *Page) OrderByOnly() bool {
-	return p.orderByOnly
 }
