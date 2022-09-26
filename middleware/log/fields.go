@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/log"
 )
 

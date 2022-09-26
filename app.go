@@ -23,11 +23,12 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/common/errorx"
 	"github.com/go-leo/leo/common/netx"
 	"github.com/go-leo/leo/common/processx"
 	"github.com/go-leo/leo/common/signalx"
-	"github.com/go-leo/leo/common/stringx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/leo/runner"

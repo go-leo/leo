@@ -13,8 +13,7 @@ import (
 	"github.com/go-leo/leo/config/parser"
 	"github.com/go-leo/leo/config/valuer"
 
-	"github.com/go-leo/leo/common/nacosx"
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
 )
 
 type Property struct {
@@ -81,21 +80,17 @@ func NewFileLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher) {
 }
 
 func NewNanosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
-	client, err := nacosx.NewNacosConfigClient(uri)
-	if err != nil {
-		return nil, nil, err
-	}
 	query := uri.Query()
 	group := query.Get("group")
 	dataID := query.Get("dataID")
 	contentType := query.Get("contentType")
-	loader := nacos.NewLoader(client, group, dataID, contentType)
+	loader := nacos.NewLoader("", "", "", group, dataID, contentType)
 
 	isWatch, _ := strconv.ParseBool(query.Get("watch"))
 	if !isWatch {
 		return loader, nil, nil
 	}
-	return loader, nacos.NewWatcher(client, group, dataID), nil
+	return loader, nacos.NewWatcher("", "", "", group, dataID), nil
 }
 
 func NewApolloLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {

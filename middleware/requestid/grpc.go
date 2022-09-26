@@ -6,7 +6,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
+
 	middlewarecontext "github.com/go-leo/leo/middleware/context"
 )
 

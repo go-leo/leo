@@ -5,7 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/config"
 	"github.com/go-leo/leo/log"
 )

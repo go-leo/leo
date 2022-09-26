@@ -17,9 +17,10 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/common/backoffx"
 	"github.com/go-leo/leo/common/consulx"
-	"github.com/go-leo/leo/common/stringx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/leo/runner/net/http/server"

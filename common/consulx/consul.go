@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/consul/api"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
 )
 
 // consul://username:password@ip:port?scheme=http&datacenter=dev&token=12345&wait_time=1s&tls=true

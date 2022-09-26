@@ -10,7 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/runner/net/http/internal/util"
 )
 

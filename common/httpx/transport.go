@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 type TransportBuilder struct {
 	proxy                  func(*http.Request) (*url.URL, error)
 	dial                   func(ctx context.Context, network string, addr string) (net.Conn, error)
@@ -33,106 +34,127 @@ type TransportBuilder struct {
 	forceAttemptHTTP2      bool
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) Proxy(proxy func(*http.Request) (*url.URL, error)) *TransportBuilder {
 	builder.proxy = proxy
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) Dial(dial func(ctx context.Context, network string, addr string) (net.Conn, error)) *TransportBuilder {
 	builder.dial = dial
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) DialTLS(dialTLS func(ctx context.Context, network string, addr string) (net.Conn, error)) *TransportBuilder {
 	builder.dialTLS = dialTLS
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) TLSConfig(tlsConfig *tls.Config) *TransportBuilder {
 	builder.tlsConfig = tlsConfig
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) TLSHandshakeTimeout(timeout time.Duration) *TransportBuilder {
 	builder.tlsHandshakeTimeout = timeout
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) DisableKeepAlives(disable bool) *TransportBuilder {
 	builder.disableKeepAlives = disable
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) DisableCompression(disable bool) *TransportBuilder {
 	builder.disableCompression = disable
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) MaxIdleConns(n int) *TransportBuilder {
 	builder.maxIdleConns = n
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) MaxIdleConnsPerHost(n int) *TransportBuilder {
 	builder.maxIdleConnsPerHost = n
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) MaxConnsPerHost(n int) *TransportBuilder {
 	builder.maxConnsPerHost = n
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) IdleConnTimeout(timeout time.Duration) *TransportBuilder {
 	builder.idleConnTimeout = timeout
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) ResponseHeaderTimeout(timeout time.Duration) *TransportBuilder {
 	builder.responseHeaderTimeout = timeout
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) ExpectContinueTimeout(timeout time.Duration) *TransportBuilder {
 	builder.expectContinueTimeout = timeout
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) TLSNextProto(f map[string]func(authority string, c *tls.Conn) http.RoundTripper) *TransportBuilder {
 	builder.tlsNextProto = f
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) ProxyConnectHeader(h http.Header) *TransportBuilder {
 	builder.proxyConnectHeader = h
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) GetProxyConnectHeader(f func(ctx context.Context, proxyURL *url.URL, target string) (http.Header, error)) *TransportBuilder {
 	builder.getProxyConnectHeader = f
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) MaxResponseHeaderBytes(n int64) *TransportBuilder {
 	builder.maxResponseHeaderBytes = n
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) WriteBufferSize(n int) *TransportBuilder {
 	builder.writeBufferSize = n
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) ReadBufferSize(n int) *TransportBuilder {
 	builder.readBufferSize = n
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) ForceAttemptHTTP2(enable bool) *TransportBuilder {
 	builder.forceAttemptHTTP2 = enable
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *TransportBuilder) Build() *http.Transport {
 	return &http.Transport{
 		Proxy:                  builder.proxy,
@@ -160,6 +182,7 @@ func (builder *TransportBuilder) Build() *http.Transport {
 
 // DisableKeepAlivesTransport returns a new http.Transport with similar default values to
 // http.DefaultTransport, but with idle connections and keepalives disabled.
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func DisableKeepAlivesTransport() *http.Transport {
 	return new(TransportBuilder).
 		Proxy(http.ProxyFromEnvironment).
@@ -177,6 +200,7 @@ func DisableKeepAlivesTransport() *http.Transport {
 // values to http.DefaultTransport. Do not use this for transient transports as
 // it can leak file descriptors over time. Only use this for transports that
 // will be re-used for the same host(s).
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func PooledTransport() *http.Transport {
 	return new(TransportBuilder).
 		Proxy(http.ProxyFromEnvironment).

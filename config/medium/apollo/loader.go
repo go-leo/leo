@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-leo/netx/httpx"
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/common/filex"
-	"github.com/go-leo/leo/common/httpx"
-	"github.com/go-leo/leo/common/stringx"
 	"github.com/go-leo/leo/config"
 	"github.com/go-leo/leo/log"
 )

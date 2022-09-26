@@ -10,6 +10,9 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-kratos/aegis v0.1.3
+	github.com/go-leo/iox v1.0.0
+	github.com/go-leo/netx v1.0.3
+	github.com/go-leo/stringx v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/consul/api v1.13.0
 	github.com/hashicorp/go-hclog v1.2.1
@@ -38,7 +41,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.opentelemetry.io/otel/trace v1.9.0
 	go.uber.org/zap v1.22.0
-	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
+	golang.org/x/exp v0.0.0-20220914170420-dc92f8653013
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424
 	google.golang.org/grpc v1.48.0

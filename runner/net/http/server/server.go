@@ -10,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/runner/net/http/header"
 	"github.com/go-leo/leo/runner/net/http/internal/health"
 )
@@ -48,6 +50,10 @@ func New(lis net.Listener, opts ...Option) *Server {
 	}
 	// 注册其他自定义的非protoc-gen-go-leo生成的路由
 	for _, router := range o.Routers {
+		// 兼容
+		if len(router.HTTPMethods) <= 0 || stringx.IsNotBlank(router.HTTPMethod) {
+			router.HTTPMethods = append(router.HTTPMethods, router.HTTPMethod)
+		}
 		// 如果没有指定具体method，则绑定所有可能的Method
 		if len(router.HTTPMethods) <= 0 {
 			mux.Any(router.Path, router.HandlerFuncs...)

@@ -10,7 +10,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/runner/net/http/header"
 )
 

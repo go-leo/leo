@@ -9,7 +9,10 @@ import (
 
 type Router struct {
 	// HTTPMethods 如果为空，则注册到所有Method
-	HTTPMethods  []string
+	HTTPMethods []string
+	// HTTPMethod
+	// Deprecated: Do not use. use HTTPMethods instead.
+	HTTPMethod   string
 	Path         string
 	HandlerFuncs []gin.HandlerFunc
 }

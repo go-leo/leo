@@ -12,9 +12,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/common/filex"
 	"github.com/go-leo/leo/common/httpx"
-	"github.com/go-leo/leo/common/stringx"
 	"github.com/go-leo/leo/config"
 	"github.com/go-leo/leo/log"
 )
@@ -84,8 +85,7 @@ func (watcher *Watcher) watch(eventC chan *config.Event) {
 			}
 			// 不同，有变化，同步
 			uri := fmt.Sprintf("%s://%s:%s/configs/%s/%s/%s", watcher.scheme, watcher.host, watcher.port, watcher.appID, watcher.cluster, watcher.namespaceName)
-			ctx, cancelFunc := context.WithTimeout(watcher.stopCtx, time.Second)
-			defer cancelFunc()
+			ctx, _ := context.WithTimeout(watcher.stopCtx, time.Second) // nolint
 			contentType := filex.ExtName(watcher.namespaceName)
 			if stringx.IsBlank(contentType) {
 				contentType = "properties"

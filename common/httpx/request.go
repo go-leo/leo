@@ -19,9 +19,10 @@ import (
 	"golang.org/x/exp/slices"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 type RequestBuilder struct {
 	method  string
 	uri     *url.URL
@@ -32,6 +33,7 @@ type RequestBuilder struct {
 	err     error
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Method(method string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -44,42 +46,52 @@ func (builder *RequestBuilder) Method(method string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Get() *RequestBuilder {
 	return builder.Method(http.MethodGet)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Head() *RequestBuilder {
 	return builder.Method(http.MethodHead)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Post() *RequestBuilder {
 	return builder.Method(http.MethodPost)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Put() *RequestBuilder {
 	return builder.Method(http.MethodPut)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Patch() *RequestBuilder {
 	return builder.Method(http.MethodPatch)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Delete() *RequestBuilder {
 	return builder.Method(http.MethodDelete)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Connect() *RequestBuilder {
 	return builder.Method(http.MethodConnect)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Options() *RequestBuilder {
 	return builder.Method(http.MethodOptions)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Trace() *RequestBuilder {
 	return builder.Method(http.MethodTrace)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) URL(uri *url.URL) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -88,6 +100,7 @@ func (builder *RequestBuilder) URL(uri *url.URL) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) URLString(urlString string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -105,6 +118,7 @@ func (builder *RequestBuilder) URLString(urlString string) *RequestBuilder {
 	return builder.URL(uri)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) query() url.Values {
 	if builder.queries == nil {
 		builder.queries = make(url.Values)
@@ -112,6 +126,7 @@ func (builder *RequestBuilder) query() url.Values {
 	return builder.queries
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Query(name, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -120,6 +135,7 @@ func (builder *RequestBuilder) Query(name, value string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) AddQuery(key, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -128,6 +144,7 @@ func (builder *RequestBuilder) AddQuery(key, value string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) RemoveQuery(name string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -136,6 +153,7 @@ func (builder *RequestBuilder) RemoveQuery(name string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) QueryString(q string) *RequestBuilder {
 	queries, err := url.ParseQuery(q)
 	if err != nil {
@@ -145,6 +163,7 @@ func (builder *RequestBuilder) QueryString(q string) *RequestBuilder {
 	return builder.Queries(queries)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Queries(queries url.Values) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -157,6 +176,7 @@ func (builder *RequestBuilder) Queries(queries url.Values) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) header() http.Header {
 	if builder.headers == nil {
 		builder.headers = make(http.Header)
@@ -164,6 +184,7 @@ func (builder *RequestBuilder) header() http.Header {
 	return builder.headers
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Header(name, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -172,6 +193,7 @@ func (builder *RequestBuilder) Header(name, value string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) AddHeader(name, value string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -180,6 +202,7 @@ func (builder *RequestBuilder) AddHeader(name, value string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) RemoveHeader(name string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -188,6 +211,7 @@ func (builder *RequestBuilder) RemoveHeader(name string) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Headers(header http.Header) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -200,30 +224,37 @@ func (builder *RequestBuilder) Headers(header http.Header) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) UserAgent(ua string) *RequestBuilder {
 	return builder.Header("User-Agent", ua)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) IfModifiedSince(time string) *RequestBuilder {
 	return builder.Header("If-Modified-Since", time)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) IfUnmodifiedSince(time string) *RequestBuilder {
 	return builder.Header("If-Unmodified-Since", time)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) IfNoneMatch(etag string) *RequestBuilder {
 	return builder.Header("If-None-Match", etag)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) IfMatch(etags ...string) *RequestBuilder {
 	return builder.Header("If-Match", strings.Join(etags, ", "))
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) CacheControl(directives ...string) *RequestBuilder {
 	return builder.Header("Cache-Control", strings.Join(directives, ", "))
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Body(body io.Reader, contentType string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -236,20 +267,24 @@ func (builder *RequestBuilder) Body(body io.Reader, contentType string) *Request
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) BytesBody(body []byte, contentType string) *RequestBuilder {
 	reader := bytes.NewReader(body)
 	return builder.Body(reader, contentType)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) TextBody(body string, contentType string) *RequestBuilder {
 	reader := strings.NewReader(body)
 	return builder.Body(reader, contentType)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) FormBody(form url.Values) *RequestBuilder {
 	return builder.TextBody(form.Encode(), "application/x-www-form-urlencoded")
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) ObjectBody(body any, marshal func(any) ([]byte, error), contentType string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -262,14 +297,17 @@ func (builder *RequestBuilder) ObjectBody(body any, marshal func(any) ([]byte, e
 	return builder.BytesBody(data, contentType)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) JSONBody(body any) *RequestBuilder {
 	return builder.ObjectBody(body, json.Marshal, "application/json")
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) XMLBody(body any) *RequestBuilder {
 	return builder.ObjectBody(body, xml.Marshal, "application/xml")
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) ProtobufBody(body proto.Message) *RequestBuilder {
 	marshal := func(v any) ([]byte, error) {
 		message, _ := v.(proto.Message)
@@ -278,6 +316,7 @@ func (builder *RequestBuilder) ProtobufBody(body proto.Message) *RequestBuilder 
 	return builder.ObjectBody(body, marshal, "application/x-protobuf")
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) GobBody(body any) *RequestBuilder {
 	marshal := func(v any) ([]byte, error) {
 		var b bytes.Buffer
@@ -289,6 +328,7 @@ func (builder *RequestBuilder) GobBody(body any) *RequestBuilder {
 	return builder.ObjectBody(body, marshal, "application/x-gob")
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 type FormData struct {
 	FieldName string
 	Value     string
@@ -296,6 +336,7 @@ type FormData struct {
 	Filename  string
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) MultipartBody(formData ...*FormData) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -324,6 +365,7 @@ func (builder *RequestBuilder) MultipartBody(formData ...*FormData) *RequestBuil
 	return builder.Body(payload, writer.FormDataContentType())
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) BasicAuth(username, password string) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -332,18 +374,22 @@ func (builder *RequestBuilder) BasicAuth(username, password string) *RequestBuil
 	return builder.CustomAuth("Basic", token)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) BearerAuth(token string) *RequestBuilder {
 	return builder.CustomAuth("Bearer", token)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) CustomAuth(scheme, token string) *RequestBuilder {
 	return builder.APIKey("Authorization", scheme+" "+token)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) APIKey(key string, value string) *RequestBuilder {
 	return builder.Header(key, value)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Cookie(cookie *http.Cookie) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -358,6 +404,7 @@ func (builder *RequestBuilder) Cookie(cookie *http.Cookie) *RequestBuilder {
 	return builder.AddCookie(cookie)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) AddCookie(cookie *http.Cookie) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -366,6 +413,7 @@ func (builder *RequestBuilder) AddCookie(cookie *http.Cookie) *RequestBuilder {
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) RemoveCookie(cookie *http.Cookie) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -380,6 +428,7 @@ func (builder *RequestBuilder) RemoveCookie(cookie *http.Cookie) *RequestBuilder
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Cookies(cookies ...*http.Cookie) *RequestBuilder {
 	if builder.err != nil {
 		return builder
@@ -394,6 +443,7 @@ func (builder *RequestBuilder) Cookies(cookies ...*http.Cookie) *RequestBuilder 
 	return builder
 }
 
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func (builder *RequestBuilder) Build(ctx context.Context) (*http.Request, error) {
 	if builder.err != nil {
 		return nil, builder.err

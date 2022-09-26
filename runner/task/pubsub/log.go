@@ -3,7 +3,8 @@ package pubsub
 import (
 	"github.com/ThreeDotsLabs/watermill"
 
-	"github.com/go-leo/leo/common/stringx"
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/log"
 )
 

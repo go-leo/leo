@@ -8,8 +8,9 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/common/errorx"
-	"github.com/go-leo/leo/common/stringx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/log/zap"
 	"github.com/go-leo/leo/metrics"
