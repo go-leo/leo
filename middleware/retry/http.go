@@ -3,8 +3,10 @@ package circuitbreaker
 import (
 	"context"
 
-	"github.com/go-leo/leo/common/backoffx"
-	"github.com/go-leo/leo/common/retryx"
+	"github.com/go-leo/backoffx"
+
+	"github.com/go-leo/retryx"
+
 	"github.com/go-leo/leo/runner/net/http/client"
 )
 

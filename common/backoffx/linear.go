@@ -6,6 +6,7 @@ import (
 )
 
 // Linear it waits for "delta * attempt" time between calls.
+// Deprecated: Do not use. use github.com/go-leo/backoffx instead.
 func Linear(delta time.Duration) BackoffFunc {
 	return func(ctx context.Context, attempt uint) time.Duration {
 		return linear(delta, attempt)

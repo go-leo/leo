@@ -12,4 +12,5 @@ import (
 // the deadline of the request takes precedence and the wait will be interrupted before proceeding
 // with the next iteration.
 // The context can be used to extract context values.
+// Deprecated: Do not use. use github.com/go-leo/backoffx instead.
 type BackoffFunc func(ctx context.Context, attempt uint) time.Duration

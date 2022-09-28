@@ -10,8 +10,10 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-kratos/aegis v0.1.3
+	github.com/go-leo/backoffx v1.0.0
 	github.com/go-leo/iox v1.0.0
 	github.com/go-leo/netx v1.0.3
+	github.com/go-leo/retryx v1.0.0
 	github.com/go-leo/stringx v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/consul/api v1.13.0

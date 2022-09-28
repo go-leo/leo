@@ -6,6 +6,7 @@ import (
 )
 
 // Fibonacci it waits for "delta * fibonacci(attempt)" time between calls.
+// Deprecated: Do not use. use github.com/go-leo/backoffx instead.
 func Fibonacci(delta time.Duration) BackoffFunc {
 	return func(ctx context.Context, attempt uint) time.Duration {
 		return fibonacci(delta, attempt)

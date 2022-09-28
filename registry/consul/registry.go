@@ -19,7 +19,8 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/common/backoffx"
+	"github.com/go-leo/backoffx"
+
 	"github.com/go-leo/leo/common/consulx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"

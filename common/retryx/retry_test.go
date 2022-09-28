@@ -9,7 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-leo/leo/common/backoffx"
+	"github.com/go-leo/backoffx"
+
 	"github.com/go-leo/leo/common/retryx"
 )
 
