@@ -6,7 +6,7 @@ import (
 	"github.com/streadway/handy/breaker"
 	"google.golang.org/grpc"
 
-	"github.com/go-leo/leo/common/syncx"
+	"github.com/go-leo/syncx"
 )
 
 func GRPCClientMiddleware(opts ...Option) grpc.UnaryClientInterceptor {

@@ -6,7 +6,8 @@ import (
 
 	"github.com/streadway/handy/breaker"
 
-	"github.com/go-leo/leo/common/syncx"
+	"github.com/go-leo/syncx"
+
 	"github.com/go-leo/leo/runner/net/http/client"
 )
 
