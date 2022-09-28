@@ -1,9 +1,11 @@
 package randomx
 
+// Deprecated: Do not use. use github.com/go-leo/mathx/randx instead.
 func Intn(n int) int {
 	return r.Intn(n)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/mathx/randx instead.
 func PickItemsInt32(size int, n ...int32) []int32 {
 	if size <= 0 {
 		return []int32{}

@@ -8,8 +8,10 @@ import (
 	"time"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 type SignalHook = map[os.Signal]func()
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 type SignalWaiter struct {
 	signals        []os.Signal
 	signalC        chan os.Signal
@@ -20,6 +22,7 @@ type SignalWaiter struct {
 	locker         sync.RWMutex
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func NewSignalWaiter(signals []os.Signal, waitTimeout time.Duration) *SignalWaiter {
 	w := &SignalWaiter{
 		signals:        signals,
@@ -34,6 +37,7 @@ func NewSignalWaiter(signals []os.Signal, waitTimeout time.Duration) *SignalWait
 	return w
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) AddHook(f func(os.Signal)) *SignalWaiter {
 	w.locker.Lock()
 	defer w.locker.Unlock()
@@ -44,15 +48,18 @@ func (w *SignalWaiter) AddHook(f func(os.Signal)) *SignalWaiter {
 	return w
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) KillSelf(signum syscall.Signal) error {
 	return syscall.Kill(syscall.Getpid(), signum)
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) WaitSignals() *SignalWaiter {
 	w.incomingSignal = <-w.signalC
 	return w
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) WaitHooksAsyncInvoked() *SignalWaiter {
 	go func(sig os.Signal) {
 		w.locker.RLock()
@@ -66,6 +73,7 @@ func (w *SignalWaiter) WaitHooksAsyncInvoked() *SignalWaiter {
 	return w
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) WaitUntilTimeout() *SignalWaiter {
 	select {
 	case <-w.stopC:
@@ -77,10 +85,12 @@ func (w *SignalWaiter) WaitUntilTimeout() *SignalWaiter {
 	}
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) Signal() os.Signal {
 	return w.incomingSignal
 }
 
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func (w *SignalWaiter) Err() error {
 	w.locker.RLock()
 	defer w.locker.RUnlock()

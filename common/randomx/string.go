@@ -18,6 +18,7 @@ var kWordCharacters = []byte{
 }
 
 // NumericString Generate a random number sequence of a given length
+// Deprecated: Do not use. use github.com/go-leo/mathx/randx instead.
 func NumericString(length int) string {
 	if length < 1 {
 		return ""
@@ -30,6 +31,7 @@ func NumericString(length int) string {
 	return buffer.String()
 }
 
+// Deprecated: Do not use. use github.com/go-leo/mathx/randx instead.
 func WordString(length int) string {
 	if length < 1 {
 		return ""

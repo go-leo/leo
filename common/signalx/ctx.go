@@ -7,11 +7,13 @@ import (
 )
 
 // SignalContext creates a new context that cancels on the given signals.
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func SignalContext(signals ...os.Signal) (context.Context, context.CancelFunc) {
 	return ContextWithSignal(context.Background(), signals...)
 }
 
 // ContextWithSignal creates a new context that cancels on the given signals.
+// Deprecated: Do not use. use github.com/go-leo/osx/signalx instead.
 func ContextWithSignal(ctx context.Context, signals ...os.Signal) (context.Context, context.CancelFunc) {
 	ctx, closer := context.WithCancel(ctx)
 

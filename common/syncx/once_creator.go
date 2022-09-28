@@ -8,12 +8,14 @@ import (
 	"golang.org/x/sync/singleflight"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/syncx instead.
 type OnceCreator[T any] struct {
 	m            sync.Map
 	sfg          singleflight.Group
 	createObject func() T
 }
 
+// Deprecated: Do not use. use github.com/go-leo/syncx instead.
 func NewOnceCreator[T any](createObject func() T) (*OnceCreator[T], error) {
 	var cache *OnceCreator[T]
 	if createObject == nil {
@@ -27,6 +29,7 @@ func NewOnceCreator[T any](createObject func() T) (*OnceCreator[T], error) {
 	return cache, nil
 }
 
+// Deprecated: Do not use. use github.com/go-leo/syncx instead.
 func (m *OnceCreator[T]) LoadOrCreate(key string) T {
 	v, ok := m.m.Load(key)
 	if ok {

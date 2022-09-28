@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/export"
 	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
 
-	"github.com/go-leo/leo/common/otelx"
+	"github.com/go-leo/otelx"
 )
 
 type Metrics struct {

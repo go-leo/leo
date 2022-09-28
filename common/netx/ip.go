@@ -6,6 +6,7 @@ import (
 )
 
 // ExtractIP extract IP from net.Addr
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func ExtractIP(addr net.Addr) net.IP {
 	switch v := addr.(type) {
 	case *net.IPAddr:
@@ -22,6 +23,7 @@ func ExtractIP(addr net.Addr) net.IP {
 }
 
 // GlobalUnicastIP get a global unicast IP address
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func GlobalUnicastIP() (net.IP, error) {
 	ips := IPs()
 	for _, ip := range ips {
@@ -52,6 +54,7 @@ func GlobalUnicastIP() (net.IP, error) {
 }
 
 // GlobalUnicastIPString get a global unicast IP address string
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func GlobalUnicastIPString() (string, error) {
 	ip, err := GlobalUnicastIP()
 	if err != nil {
@@ -61,6 +64,7 @@ func GlobalUnicastIPString() (string, error) {
 }
 
 // IPs get all IP addresses
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func IPs() []net.IP {
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -84,6 +88,7 @@ func IPs() []net.IP {
 }
 
 // InterfaceIPs get public IP addresses by interface name
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func InterfaceIPs(name string) ([]net.IP, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -113,6 +118,7 @@ func InterfaceIPs(name string) ([]net.IP, error) {
 }
 
 // InterfaceIPv4 get a public IPv4 address
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func InterfaceIPv4(name string) (net.IP, error) {
 	ips, err := InterfaceIPs(name)
 	if err != nil {

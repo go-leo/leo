@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/filex"
+	"github.com/go-leo/osx/filex"
 
 	"github.com/go-leo/leo/common/httpx"
 	"github.com/go-leo/leo/config"

@@ -27,9 +27,10 @@ import (
 
 	"github.com/go-leo/errorx"
 
+	"github.com/go-leo/osx/execx"
+	"github.com/go-leo/osx/signalx"
+
 	"github.com/go-leo/leo/common/netx"
-	"github.com/go-leo/leo/common/processx"
-	"github.com/go-leo/leo/common/signalx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/leo/runner"
@@ -650,7 +651,7 @@ func (app *App) wait() error {
 	if !signalx.IsSignal(err, app.o.RestartSignals) {
 		return err
 	}
-	if _, e := processx.StartProcess(); e != nil {
+	if _, e := execx.StartProcess(); e != nil {
 		app.o.Logger.Errorf("failed to restart process, %v", e)
 		return err
 	}

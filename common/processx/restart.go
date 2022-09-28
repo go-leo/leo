@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/osx/execx instead.
 func StartProcess() (*os.Process, error) {
 	// 可执行文件的路径
 	path, err := os.Executable()

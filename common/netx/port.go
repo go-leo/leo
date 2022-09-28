@@ -6,6 +6,7 @@ import (
 )
 
 // ExtractPort extract Port from net.Addr
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func ExtractPort(addr net.Addr) int {
 	switch v := addr.(type) {
 	case *net.TCPAddr:
@@ -18,6 +19,7 @@ func ExtractPort(addr net.Addr) int {
 }
 
 // PickFreePort automatically chose a free port and return it
+// Deprecated: Do not use. use github.com/go-leo/netx instead.
 func PickFreePort() (int, error) {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

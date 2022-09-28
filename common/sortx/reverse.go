@@ -6,6 +6,7 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/sortx instead.
 func Reverse[E constraints.Ordered](x []E, start, end int) {
 	if len(x) == 0 {
 		return

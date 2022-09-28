@@ -1,18 +1,9 @@
 package syncx
 
-func BraveGo(f func(), r func(p any)) {
-	go BraveDo(f, r)
-}
+import "github.com/go-leo/syncx"
 
-func BraveDo(f func(), r func(p any)) {
-	defer func() {
-		// if r is nil, which means panics are not recovered.
-		if r == nil {
-			return
-		}
-		if p := recover(); p != nil {
-			r(p)
-		}
-	}()
-	f()
-}
+// Deprecated: Do not use. use github.com/go-leo/syncx instead.
+var BraveGo = syncx.BraveGo
+
+// Deprecated: Do not use. use github.com/go-leo/syncx instead.
+var BraveDo = syncx.BraveDo
