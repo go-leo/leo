@@ -15,6 +15,7 @@ var (
 )
 
 // Stack returns a nicely formatted stack frame, skipping skip frames.
+// Deprecated: Do not use. use github.com/go-leo/errorx instead.
 func Stack(skip int) []byte {
 	buf := new(bytes.Buffer) // the returned data
 	// As we loop, we open files and read them. These variables record the currently

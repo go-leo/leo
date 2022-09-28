@@ -163,6 +163,8 @@ github.com/go-kratos/aegis v0.1.3 h1:hXw/iO51ofO0hSRBijbmGNidthfAo9Oc/PZSl/lRCxk
 github.com/go-kratos/aegis v0.1.3/go.mod h1:jYeSQ3Gesba478zEnujOiG5QdsyF3Xk/8owFUeKcHxw=
 github.com/go-leo/backoffx v1.0.0 h1:tUMxYrZ10UVTiT0UaqF1lqK8tfLJlXMK6Bd3zlbsnWg=
 github.com/go-leo/backoffx v1.0.0/go.mod h1:dCItv7nDFyrJ03ToHzkcB/VwpRPONgMuYB8BYDJEyJM=
+github.com/go-leo/errorx v1.0.0 h1:sQwPwrD24oq+vsdmqSVvLAjk1Kzb7VQdifu771lNU0E=
+github.com/go-leo/errorx v1.0.0/go.mod h1:g61s2GaU/G8AnUerMZBa98fuHTmYCVj4FoZ54SnLwdg=
 github.com/go-leo/iox v1.0.0 h1:o5IlZJ1K838lJXmw9pbcFSTYLtFwc4u1mBbmcYGa/1M=
 github.com/go-leo/iox v1.0.0/go.mod h1:4bV4w9i2I/C3v15nkMFpuJ1vMTjx6vCrPfodgRRLMFk=
 github.com/go-leo/netx v1.0.3 h1:C5uwfZpQ4bBX/sWicOpD0sdI3J0FAu1wZtiqtHmrwdc=

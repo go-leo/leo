@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/common/errorx"
+	"github.com/go-leo/errorx"
+
 	"github.com/go-leo/leo/common/netx"
 	"github.com/go-leo/leo/common/processx"
 	"github.com/go-leo/leo/common/signalx"

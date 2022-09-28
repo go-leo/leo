@@ -7,6 +7,7 @@ import (
 	"github.com/go-leo/backoffx"
 )
 
+// Deprecated: Do not use. use github.com/go-leo/retryx instead.
 func Call(ctx context.Context, maxAttempts uint, backoffFunc backoffx.BackoffFunc, method func(attemptTime int) error) error {
 	var err error
 	max := int(maxAttempts)

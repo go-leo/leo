@@ -8,14 +8,14 @@ import (
 	"errors"
 )
 
-//pad 填充到BlockSize整数倍长度，如果正好就是对的长度，再多填充一个BlockSize长度
+// pad 填充到BlockSize整数倍长度，如果正好就是对的长度，再多填充一个BlockSize长度
 func pad(src []byte) []byte {
 	padding := aes.BlockSize - len(src)%aes.BlockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
 }
 
-//unpad 去除填充的字节
+// unpad 去除填充的字节
 func unpad(src []byte) ([]byte, error) {
 	length := len(src)
 	if length == 0 {
@@ -28,7 +28,8 @@ func unpad(src []byte) ([]byte, error) {
 	return src[:(length - unpadding)], nil
 }
 
-//AESEncrypt 加密
+// AESEncrypt 加密
+// Deprecated: Do not use. use github.com/go-leo/cryptox instead.
 func AESEncrypt(text string, Key string, IV string) (string, error) {
 	if "" == text {
 		return "", nil
@@ -45,7 +46,8 @@ func AESEncrypt(text string, Key string, IV string) (string, error) {
 	return finalMsg, nil
 }
 
-//AESDecrypt 解密
+// AESDecrypt 解密
+// Deprecated: Do not use. use github.com/go-leo/cryptox instead.
 func AESDecrypt(text string, key string, iv string) (string, error) {
 	if "" == text {
 		return "", nil
