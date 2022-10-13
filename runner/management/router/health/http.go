@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-leo/leo/common/httpx"
+	"github.com/go-leo/netx/httpx"
 )
 
 type HTTPProber struct {

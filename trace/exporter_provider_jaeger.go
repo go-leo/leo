@@ -6,7 +6,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/go-leo/leo/common/httpx"
+	"github.com/go-leo/netx/httpx"
 )
 
 type JaegerOptions struct {

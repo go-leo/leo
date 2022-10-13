@@ -6,7 +6,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/zipkin"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/go-leo/leo/common/httpx"
+	"github.com/go-leo/netx/httpx"
 )
 
 type ZipkinOptions struct {

@@ -16,6 +16,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gin-gonic/gin"
+	"github.com/go-leo/netx/addrx"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 	"golang.org/x/sync/errgroup"
@@ -30,7 +31,6 @@ import (
 	"github.com/go-leo/osx/execx"
 	"github.com/go-leo/osx/signalx"
 
-	"github.com/go-leo/leo/common/netx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/leo/runner"
@@ -451,7 +451,7 @@ func (app *App) newGRPCServer() (*grpcserver.Server, error) {
 		return nil, err
 	}
 	// 如果上面的监听的端口为0，则会随机用一个可用的端口，所以需要回填。
-	grpcOpts.Port = netx.ExtractPort(lis.Addr())
+	grpcOpts.Port = addrx.ExtractPort(lis.Addr())
 	// 组装options
 	opts := []grpcserver.Option{
 		grpcserver.ServerOptions(grpcOpts.GRPCServerOptions...),
@@ -472,7 +472,7 @@ func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
 		return nil, err
 	}
 	// 如果上面的监听的端口为0，则会随机用一个可用的端口，所以需要回填。
-	httpOpts.Port = netx.ExtractPort(lis.Addr())
+	httpOpts.Port = addrx.ExtractPort(lis.Addr())
 
 	if app.o.GRPCOpts != nil && httpOpts.GRPCConn == nil {
 		dialOptions := append([]grpc.DialOption{}, httpOpts.GRPCDialOptions...)
@@ -515,8 +515,8 @@ func (app *App) newManagementServer() (*management.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	mgOpts.Port = netx.ExtractPort(lis.Addr())
-	host, err := netx.GlobalUnicastIPString()
+	mgOpts.Port = addrx.ExtractPort(lis.Addr())
+	host, err := addrx.GlobalUnicastIPString()
 	if err != nil {
 		return nil, err
 	}
@@ -564,7 +564,7 @@ func (app *App) newManagementServer() (*management.Server, error) {
 }
 
 func (app *App) newServiceInfo(transport string, port int) (*registry.ServiceInfo, error) {
-	host, err := netx.GlobalUnicastIPString()
+	host, err := addrx.GlobalUnicastIPString()
 	if err != nil {
 		return nil, err
 	}

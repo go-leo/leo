@@ -16,7 +16,8 @@ import (
 
 	"github.com/go-leo/osx/filex"
 
-	"github.com/go-leo/leo/common/httpx"
+	"github.com/go-leo/netx/httpx"
+
 	"github.com/go-leo/leo/config"
 	"github.com/go-leo/leo/log"
 )
