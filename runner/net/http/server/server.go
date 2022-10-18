@@ -9,10 +9,8 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/runner/net/http/header"
 	"github.com/go-leo/leo/runner/net/http/internal/health"
 )
 
@@ -36,8 +34,7 @@ func New(lis net.Listener, opts ...Option) *Server {
 	// 创建Gin的Engine
 	mux := gin.New()
 	// 设置middlewares
-	middlewares := append([]gin.HandlerFunc{header.GinMiddleware()}, o.GinMiddlewares...)
-	mux.Use(middlewares...)
+	mux.Use(o.GinMiddlewares...)
 	// 设置健康检查
 	healthSrv := health.NewServer()
 	mux.Any(HealthCheckPath, health.HandlerFunc(healthSrv))
