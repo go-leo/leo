@@ -12,6 +12,7 @@ require (
 	github.com/go-kratos/aegis v0.1.3
 	github.com/go-leo/backoffx v1.0.0
 	github.com/go-leo/errorx v1.0.0
+	github.com/go-leo/iox v1.0.0
 	github.com/go-leo/netx v1.0.5
 	github.com/go-leo/osx v1.0.0
 	github.com/go-leo/otelx v0.0.0-20220928080513-98e6aabbd78a
@@ -46,6 +47,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.opentelemetry.io/otel/trace v1.10.0
 	go.uber.org/zap v1.22.0
+	golang.org/x/exp v0.0.0-20220914170420-dc92f8653013
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 	google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424
 	google.golang.org/grpc v1.49.0
@@ -67,7 +69,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
-	github.com/go-leo/iox v1.0.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -116,7 +117,6 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/exp v0.0.0-20220914170420-dc92f8653013 // indirect
 	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect

@@ -38,7 +38,7 @@ import (
 	grpcserver "github.com/go-leo/leo/runner/net/grpc/server"
 	httpserver "github.com/go-leo/leo/runner/net/http/server"
 	crontask "github.com/go-leo/leo/runner/task/cron"
-	"github.com/go-leo/leo/runner/task/pubsub"
+	pubsubtask "github.com/go-leo/leo/runner/task/pubsub"
 )
 
 type HttpOptions struct {
@@ -81,7 +81,7 @@ type CronOptions struct {
 }
 
 type PubSubOptions struct {
-	Jobs                 []*pubsub.Job
+	Jobs                 []*pubsubtask.Job
 	CloseTimeout         time.Duration
 	Middlewares          []message.HandlerMiddleware
 	Plugins              []message.RouterPlugin
@@ -415,26 +415,26 @@ func (app *App) newCronTask() *crontask.Task {
 	return crontask.New(app.o.CronOpts.Jobs, opts...)
 }
 
-func (app *App) newPubSubTask() *pubsub.Task {
+func (app *App) newPubSubTask() *pubsubtask.Task {
 	subOpts := app.o.PubSubOpts
-	var opts []pubsub.Option
-	opts = append(opts, pubsub.Logger(app.o.Logger))
+	var opts []pubsubtask.Option
+	opts = append(opts, pubsubtask.Logger(app.o.Logger))
 	if subOpts.CloseTimeout > 0 {
-		opts = append(opts, pubsub.CloseTimeout(subOpts.CloseTimeout))
+		opts = append(opts, pubsubtask.CloseTimeout(subOpts.CloseTimeout))
 	}
 	if len(subOpts.Middlewares) > 0 {
-		opts = append(opts, pubsub.Middleware(subOpts.Middlewares...))
+		opts = append(opts, pubsubtask.Middleware(subOpts.Middlewares...))
 	}
 	if len(subOpts.Plugins) > 0 {
-		opts = append(opts, pubsub.Plugin(subOpts.Plugins...))
+		opts = append(opts, pubsubtask.Plugin(subOpts.Plugins...))
 	}
 	if len(subOpts.SubscriberDecorators) > 0 {
-		opts = append(opts, pubsub.SubscriberDecorator(subOpts.SubscriberDecorators...))
+		opts = append(opts, pubsubtask.SubscriberDecorator(subOpts.SubscriberDecorators...))
 	}
 	if len(subOpts.PublisherDecorators) > 0 {
-		opts = append(opts, pubsub.PublisherDecorator(subOpts.PublisherDecorators...))
+		opts = append(opts, pubsubtask.PublisherDecorator(subOpts.PublisherDecorators...))
 	}
-	return pubsub.New(subOpts.Jobs, opts...)
+	return pubsubtask.New(subOpts.Jobs, opts...)
 }
 
 func (app *App) newGRPCServer() (*grpcserver.Server, error) {
