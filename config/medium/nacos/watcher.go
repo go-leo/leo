@@ -120,22 +120,12 @@ func (watcher *Watcher) isModified(ctx context.Context) (bool, error) {
 	uri := ""
 	form := url.Values{}
 	form.Set("Listening-Configs", "")
-	request, err := new(httpx.RequestBuilder).
+	helper := new(httpx.RequestBuilder).
 		Post().
 		URLString(uri).
 		Header("Long-Pulling-Timeout", "30000").
 		FormBody(form).
-		Build(ctx)
-	if err != nil {
-		return false, err
-	}
-	helper := httpx.NewResponseHelper(watcher.client.Do(request))
-	if err := helper.Err(); err != nil {
-		return false, err
-	}
-	if helper.StatusCode() != 200 {
-		return false, fmt.Errorf("failed call nocos, status: %d, %s", helper.StatusCode(), http.StatusText(helper.StatusCode()))
-	}
+		Execute(ctx, watcher.client)
 	body, err := helper.BytesBody()
 	if err != nil {
 		return false, err
