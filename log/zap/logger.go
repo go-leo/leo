@@ -88,7 +88,6 @@ func (l *Logger) Clone() log.Logger {
 	zl := *l.zl
 	copy.zl = &zl
 	copy.zsl = copy.zl.Sugar()
-	copy.zl.Sugar()
 	return &copy
 }
 
