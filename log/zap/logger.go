@@ -14,31 +14,38 @@ import (
 var _ log.Logger = new(Logger)
 
 type Logger struct {
-	level zap.AtomicLevel
+	level *zap.AtomicLevel
 	zl    *zap.Logger
 	zsl   *zap.SugaredLogger
 }
 
-func LevelAdapt(level log.Level) zap.AtomicLevel {
+func LevelAdapt(level log.Level) *zap.AtomicLevel {
 	switch level {
 	case log.Debug:
-		return zap.NewAtomicLevelAt(zap.DebugLevel)
+		level := zap.NewAtomicLevelAt(zap.DebugLevel)
+		return &level
 	case log.Info:
-		return zap.NewAtomicLevelAt(zap.InfoLevel)
+		level := zap.NewAtomicLevelAt(zap.InfoLevel)
+		return &level
 	case log.Warn:
-		return zap.NewAtomicLevelAt(zap.WarnLevel)
+		level := zap.NewAtomicLevelAt(zap.WarnLevel)
+		return &level
 	case log.Error:
-		return zap.NewAtomicLevelAt(zap.ErrorLevel)
+		level := zap.NewAtomicLevelAt(zap.ErrorLevel)
+		return &level
 	case log.Panic:
-		return zap.NewAtomicLevelAt(zap.PanicLevel)
+		level := zap.NewAtomicLevelAt(zap.PanicLevel)
+		return &level
 	case log.Fatal:
-		return zap.NewAtomicLevelAt(zap.FatalLevel)
+		level := zap.NewAtomicLevelAt(zap.FatalLevel)
+		return &level
 	default:
-		return zap.NewAtomicLevel()
+		level := zap.NewAtomicLevel()
+		return &level
 	}
 }
 
-func New(level zap.AtomicLevel, opts ...Option) *Logger {
+func New(level *zap.AtomicLevel, opts ...Option) *Logger {
 	o := new(options)
 	o.apply(opts...)
 	o.init()
