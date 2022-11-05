@@ -18,15 +18,17 @@ type Router struct {
 }
 
 type options struct {
-	GRPCClient     any
-	ServiceDesc    *ServiceDesc
-	TLSConf        *tls.Config
-	ReadTimeout    time.Duration
-	WriteTimeout   time.Duration
-	IdleTimeout    time.Duration
-	MaxHeaderBytes int
-	GinMiddlewares []gin.HandlerFunc
-	Routers        []Router
+	GRPCClient       any
+	ServiceDesc      *ServiceDesc
+	TLSConf          *tls.Config
+	ReadTimeout      time.Duration
+	WriteTimeout     time.Duration
+	IdleTimeout      time.Duration
+	MaxHeaderBytes   int
+	GinMiddlewares   []gin.HandlerFunc
+	Routers          []Router
+	NoRouteHandlers  []gin.HandlerFunc
+	NoMethodHandlers []gin.HandlerFunc
 }
 
 type Option func(o *options)
@@ -89,6 +91,18 @@ func Middlewares(middlewares ...gin.HandlerFunc) Option {
 
 func Routers(routers ...Router) Option {
 	return func(o *options) {
-		o.Routers = routers
+		o.Routers = append(o.Routers, routers...)
+	}
+}
+
+func NoRouteHandlers(handlers ...gin.HandlerFunc) Option {
+	return func(o *options) {
+		o.NoRouteHandlers = append(o.NoRouteHandlers, handlers...)
+	}
+}
+
+func NoMethodHandlers(handlers ...gin.HandlerFunc) Option {
+	return func(o *options) {
+		o.NoMethodHandlers = append(o.NoMethodHandlers, handlers...)
 	}
 }

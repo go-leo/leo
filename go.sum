@@ -179,6 +179,8 @@ github.com/go-leo/otelx v0.0.0-20220928080513-98e6aabbd78a h1:OGLW9IBLeBOepm0qq8
 github.com/go-leo/otelx v0.0.0-20220928080513-98e6aabbd78a/go.mod h1:kkkXuF9MRT9PxXDfabewEHqzswy2sWkcddmmloRxKaM=
 github.com/go-leo/retryx v1.0.0 h1:2cALTWr5Ra3BqDVMVrTBwXB5pzGhTfBdQAmNtbEJI2c=
 github.com/go-leo/retryx v1.0.0/go.mod h1:iiPILlM/AihGlgRj/8hDmIw0CIU+vfREKvjwxp/XNSI=
+github.com/go-leo/slicex v1.0.8 h1:rmq3YW6sLVlOBVeT2l5vPwEBXE0+/w/Anp/hmgEYfdo=
+github.com/go-leo/slicex v1.0.8/go.mod h1:HqyK/g54r8gQFVAoxA5utKHjN1VdWcYIP0i1ApJ+0Xc=
 github.com/go-leo/stringx v1.0.0 h1:SqFlg20hBwZbQ0GcaTcy5TtMMK8i++Aa1/xVtxUjtCg=
 github.com/go-leo/stringx v1.0.0/go.mod h1:3EdJ8CukcBUg8rrVRhRVJfF37uYAytcL9w5MWK1MWBg=
 github.com/go-leo/syncx v0.0.0-20220928084040-5eae42f2cb7a h1:pi/GRAJ4r5fqoEP4t0dd4FoikkK+LEyr9aipZvYg1KQ=
@@ -656,6 +658,7 @@ golang.org/x/exp v0.0.0-20200207192155-f17229e696bd/go.mod h1:J/WKrq2StrnmMY6+EH
 golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6/go.mod h1:3jZMyOhIsHpP37uCMkUooju7aAi5cS1Q23tOzKc+0MU=
 golang.org/x/exp v0.0.0-20220914170420-dc92f8653013 h1:ZjglnWxEUdPyXl4o/j4T89SRCI+4X6NW6185PNLEOF4=
 golang.org/x/exp v0.0.0-20220914170420-dc92f8653013/go.mod h1:cyybsKvd6eL0RnXn6p/Grxp8F5bW7iYuBgsNCOHpMYE=
+golang.org/x/exp v0.0.0-20220927162542-c76eaa363f9d/go.mod h1:cyybsKvd6eL0RnXn6p/Grxp8F5bW7iYuBgsNCOHpMYE=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=

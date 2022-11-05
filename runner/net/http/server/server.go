@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-leo/slicex"
 
 	"github.com/go-leo/stringx"
 
@@ -41,6 +42,12 @@ func New(lis net.Listener, opts ...Option) *Server {
 	// 设置健康检查
 	healthSrv := health.NewServer()
 	mux.Any(HealthCheckPath, health.HandlerFunc(healthSrv))
+	if slicex.IsNotEmpty(o.NoRouteHandlers) {
+		mux.NoRoute(o.NoRouteHandlers...)
+	}
+	if slicex.IsNotEmpty(o.NoMethodHandlers) {
+		mux.NoMethod(o.NoMethodHandlers...)
+	}
 	// 基于服务描述ServiceDesc，将HTTPMethod、Path、handler等注册请求处理并包装Handler方法
 	if o.GRPCClient != nil && o.ServiceDesc != nil {
 		for _, methodDesc := range o.ServiceDesc.Methods {

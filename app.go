@@ -42,16 +42,18 @@ import (
 )
 
 type HttpOptions struct {
-	Port            int
-	GRPCDialOptions []grpc.DialOption
-	GRPCConn        grpc.ClientConnInterface
-	ReadTimeout     time.Duration
-	WriteTimeout    time.Duration
-	IdleTimeout     time.Duration
-	MaxHeaderBytes  int
-	TLSConf         *tls.Config
-	GinMiddlewares  []gin.HandlerFunc
-	Routers         []httpserver.Router
+	Port             int
+	GRPCDialOptions  []grpc.DialOption
+	GRPCConn         grpc.ClientConnInterface
+	ReadTimeout      time.Duration
+	WriteTimeout     time.Duration
+	IdleTimeout      time.Duration
+	MaxHeaderBytes   int
+	TLSConf          *tls.Config
+	GinMiddlewares   []gin.HandlerFunc
+	Routers          []httpserver.Router
+	NoRouteHandlers  []gin.HandlerFunc
+	NoMethodHandlers []gin.HandlerFunc
 }
 
 type GRPCOptions struct {
@@ -502,6 +504,8 @@ func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
 		httpserver.TLS(httpOpts.TLSConf),
 		httpserver.Middlewares(httpOpts.GinMiddlewares...),
 		httpserver.Routers(httpOpts.Routers...),
+		httpserver.NoRouteHandlers(httpOpts.NoRouteHandlers...),
+		httpserver.NoMethodHandlers(httpOpts.NoMethodHandlers...),
 	}
 	// 基于Listener和options创建 http server. http server实现了Runnable
 	srv := httpserver.New(lis, opts...)

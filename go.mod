@@ -47,7 +47,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.opentelemetry.io/otel/trace v1.10.0
 	go.uber.org/zap v1.22.0
-	golang.org/x/exp v0.0.0-20220914170420-dc92f8653013
+	golang.org/x/exp v0.0.0-20220927162542-c76eaa363f9d
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 	google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424
 	google.golang.org/grpc v1.49.0
@@ -70,6 +70,7 @@ require (
 	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
+	github.com/go-leo/slicex v1.0.8 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
