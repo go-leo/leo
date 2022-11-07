@@ -1,4 +1,4 @@
-package clientip
+package httpmethod
 
 import (
 	"github.com/gin-gonic/gin"
