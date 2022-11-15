@@ -2,6 +2,7 @@ package cookie
 
 import (
 	"context"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,10 +18,19 @@ func fromContext(ctx context.Context) (c *gin.Context, ok bool) {
 	return
 }
 
-func SetCookie(ctx context.Context, name, value string, maxAge int, path, domain string, secure, httpOnly bool) {
+func GetCookie(ctx context.Context, name string) (string, error) {
 	c, ok := fromContext(ctx)
 	if !ok {
-		return
+		return "", errors.New("not found gin context")
+	}
+	return c.Cookie(name)
+}
+
+func SetCookie(ctx context.Context, name, value string, maxAge int, path, domain string, secure, httpOnly bool) error {
+	c, ok := fromContext(ctx)
+	if !ok {
+		return errors.New("not found gin context")
 	}
 	c.SetCookie(name, value, maxAge, path, domain, secure, httpOnly)
+	return nil
 }
