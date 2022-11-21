@@ -58,7 +58,11 @@ func (trace *Trace) TextMapPropagator() propagation.TextMapPropagator {
 }
 
 func newTracerProvider(exporter sdktrace.SpanExporter, sampler sdktrace.Sampler, resource *resource.Resource) *sdktrace.TracerProvider {
-	return sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter), sdktrace.WithSampler(sampler), sdktrace.WithResource(resource))
+	return sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithSampler(sampler),
+		sdktrace.WithResource(resource),
+	)
 }
 
 func newSample(samplingRate float64) sdktrace.Sampler {

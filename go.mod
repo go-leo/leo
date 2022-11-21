@@ -69,6 +69,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/gin-contrib/timeout v0.0.3 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-leo/slicex v1.0.8 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
