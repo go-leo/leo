@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 
-	"github.com/go-leo/leo/log"
+	"github.com/go-leo/leo/v2/log"
 )
 
 func GRPCClientMiddleware(loggerFactory func(ctx context.Context) log.Logger, opts ...Option) grpc.UnaryClientInterceptor {

@@ -11,8 +11,8 @@ import (
 	"go.opentelemetry.io/otel/metric/instrument"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 
-	"github.com/go-leo/leo/middleware/internal"
-	"github.com/go-leo/leo/middleware/noop"
+	"github.com/go-leo/leo/v2/middleware/internal"
+	"github.com/go-leo/leo/v2/middleware/noop"
 )
 
 func GinMiddleware(opts ...Option) gin.HandlerFunc {

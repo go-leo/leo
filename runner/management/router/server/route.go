@@ -11,13 +11,12 @@ type GRPCMapping struct {
 }
 
 type HTTPMapping struct {
-	HTTPRouters []HTTPRouter `json:"http_routers,omitempty"`
+	HTTPRoutes []HTTPRoute `json:"http_routes,omitempty"`
 }
 
-type HTTPRouter struct {
-	FullMethod  string   `json:"full_method,omitempty"`
-	Path        string   `json:"path,omitempty"`
-	HttpMethods []string `json:"http_method,omitempty"`
+type HTTPRoute struct {
+	Path    string   `json:"path,omitempty"`
+	Methods []string `json:"methods,omitempty"`
 }
 
 func Route(rg *gin.RouterGroup, grpcMapping *GRPCMapping, httpMapping *HTTPMapping) {

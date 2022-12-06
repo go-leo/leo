@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
 
-	"github.com/go-leo/leo/global"
-	"github.com/go-leo/leo/registry"
+	"github.com/go-leo/leo/v2/global"
+	"github.com/go-leo/leo/v2/registry"
 )
 
 var _ resolver.Builder = new(ResolverBuilder)

@@ -3,8 +3,8 @@ package global
 import (
 	"sync"
 
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/log/zap"
+	"github.com/go-leo/leo/v2/log"
+	"github.com/go-leo/leo/v2/log/zap"
 )
 
 var (
@@ -24,11 +24,4 @@ func SetLogger(l log.Logger) func() {
 	prev := logger
 	logger = l
 	return func() { SetLogger(prev) }
-}
-
-func initLogger() error {
-	logConf := Configuration().Logger
-	l := logConf.NewLogger()
-	SetLogger(l)
-	return nil
 }

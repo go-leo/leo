@@ -16,51 +16,48 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gin-gonic/gin"
+	"github.com/go-leo/errorx"
 	"github.com/go-leo/netx/addrx"
+	"github.com/go-leo/osx/execx"
+	"github.com/go-leo/osx/signalx"
+	"github.com/go-leo/stringx"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/go-leo/stringx"
-
-	"github.com/go-leo/errorx"
-
-	"github.com/go-leo/osx/execx"
-	"github.com/go-leo/osx/signalx"
-
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/registry"
-	"github.com/go-leo/leo/runner"
-	"github.com/go-leo/leo/runner/management"
-	grpcserver "github.com/go-leo/leo/runner/net/grpc/server"
-	httpserver "github.com/go-leo/leo/runner/net/http/server"
-	crontask "github.com/go-leo/leo/runner/task/cron"
-	pubsubtask "github.com/go-leo/leo/runner/task/pubsub"
+	"github.com/go-leo/leo/v2/log"
+	"github.com/go-leo/leo/v2/registry"
+	"github.com/go-leo/leo/v2/runner"
+	"github.com/go-leo/leo/v2/runner/management"
+	grpcserver "github.com/go-leo/leo/v2/runner/net/grpc/server"
+	httpserver "github.com/go-leo/leo/v2/runner/net/http/server"
+	crontask "github.com/go-leo/leo/v2/runner/task/cron"
+	pubsubtask "github.com/go-leo/leo/v2/runner/task/pubsub"
 )
 
 type HttpOptions struct {
 	Port             int
-	GRPCDialOptions  []grpc.DialOption
-	GRPCConn         grpc.ClientConnInterface
 	ReadTimeout      time.Duration
 	WriteTimeout     time.Duration
 	IdleTimeout      time.Duration
 	MaxHeaderBytes   int
 	TLSConf          *tls.Config
 	GinMiddlewares   []gin.HandlerFunc
-	Routers          []httpserver.Router
+	Routes           []httpserver.Route
 	NoRouteHandlers  []gin.HandlerFunc
 	NoMethodHandlers []gin.HandlerFunc
+	Registrar        registry.Registrar
 }
 
 type GRPCOptions struct {
+	ServiceImpl             any
+	ServiceDesc             *grpc.ServiceDesc
 	Port                    int
 	TLSConf                 *tls.Config
 	GRPCServerOptions       []grpc.ServerOption
 	UnaryServerInterceptors []grpc.UnaryServerInterceptor
+	Registrar               registry.Registrar
 }
 
 type ManagementOptions struct {
@@ -92,28 +89,25 @@ type PubSubOptions struct {
 }
 
 type options struct {
-	ID                string
-	Name              string
-	Version           string
-	MetaData          map[string]string
-	Logger            log.Logger
-	ServiceImpl       any
-	GRPCDesc          *grpc.ServiceDesc
-	HTTPDesc          *httpserver.ServiceDesc
-	GRPCClientCreator func(cc grpc.ClientConnInterface) any
-	GRPCOpts          *GRPCOptions
-	HttpOpts          *HttpOptions
-	Registrar         registry.Registrar
-	CronOpts          *CronOptions
-	PubSubOpts        *PubSubOptions
-	Runnables         []runner.Runnable
-	Callables         []runner.Callable
-	MgmtOpts          *ManagementOptions
-	ShutdownSignals   []os.Signal
-	ShutdownHook      func(signal os.Signal)
-	RestartSignals    []os.Signal
-	RestartHook       func(signal os.Signal)
-	StopTimeout       time.Duration
+	ID       string
+	Name     string
+	Version  string
+	MetaData map[string]string
+	Logger   log.Logger
+
+	GRPCOpts *GRPCOptions
+	HttpOpts *HttpOptions
+
+	CronOpts        *CronOptions
+	PubSubOpts      *PubSubOptions
+	Runnables       []runner.Runnable
+	Callables       []runner.Callable
+	MgmtOpts        *ManagementOptions
+	ShutdownSignals []os.Signal
+	ShutdownHook    func(signal os.Signal)
+	RestartSignals  []os.Signal
+	RestartHook     func(signal os.Signal)
+	StopTimeout     time.Duration
 }
 
 func (o *options) init() {
@@ -196,13 +190,6 @@ func Logger(logger log.Logger) Option {
 	}
 }
 
-// Service 服务描述
-func Service(serviceDescriber func() (any, *grpc.ServiceDesc, *httpserver.ServiceDesc, func(grpc.ClientConnInterface) any)) Option {
-	return func(o *options) {
-		o.ServiceImpl, o.GRPCDesc, o.HTTPDesc, o.GRPCClientCreator = serviceDescriber()
-	}
-}
-
 // GRPC GRPC服务配置
 func GRPC(opts *GRPCOptions) Option {
 	return func(o *options) {
@@ -214,13 +201,6 @@ func GRPC(opts *GRPCOptions) Option {
 func HTTP(opts *HttpOptions) Option {
 	return func(o *options) {
 		o.HttpOpts = opts
-	}
-}
-
-// Registrar 服务注册器
-func Registrar(registrar registry.Registrar) Option {
-	return func(o *options) {
-		o.Registrar = registrar
 	}
 }
 
@@ -356,14 +336,14 @@ func (app *App) startGRPCServer(ctx context.Context) error {
 	}
 	app.run(ctx, srv)
 	// 注册grpc服务
-	if app.o.Registrar == nil {
+	if app.o.GRPCOpts.Registrar == nil {
 		return nil
 	}
 	serviceInfo, err := app.newServiceInfo(registry.TransportGRPC, app.o.GRPCOpts.Port)
 	if err != nil {
 		return err
 	}
-	app.run(ctx, &registrar{Registrar: app.o.Registrar, ServiceInfo: serviceInfo, Logger: app.o.Logger})
+	app.run(ctx, &registrar{Registrar: app.o.GRPCOpts.Registrar, ServiceInfo: serviceInfo, Logger: app.o.Logger})
 	return nil
 }
 
@@ -374,7 +354,7 @@ func (app *App) startHTTPServer(ctx context.Context) error {
 	}
 	app.run(ctx, srv)
 	// 注册http服务
-	if app.o.Registrar == nil {
+	if app.o.HttpOpts.Registrar == nil {
 		return nil
 	}
 	transport := registry.TransportHTTP
@@ -385,7 +365,7 @@ func (app *App) startHTTPServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	app.run(ctx, &registrar{Registrar: app.o.Registrar, ServiceInfo: serviceInfo, Logger: app.o.Logger})
+	app.run(ctx, &registrar{Registrar: app.o.HttpOpts.Registrar, ServiceInfo: serviceInfo, Logger: app.o.Logger})
 	return nil
 }
 
@@ -440,13 +420,13 @@ func (app *App) newPubSubTask() *pubsubtask.Task {
 }
 
 func (app *App) newGRPCServer() (*grpcserver.Server, error) {
-	if app.o.ServiceImpl == nil {
+	grpcOpts := app.o.GRPCOpts
+	if grpcOpts.ServiceImpl == nil {
 		return nil, errors.New("ServiceImpl is nil")
 	}
-	if app.o.GRPCDesc == nil {
-		return nil, errors.New("GRPCDesc is nil")
+	if grpcOpts.ServiceDesc == nil {
+		return nil, errors.New("ServiceDesc is nil")
 	}
-	grpcOpts := app.o.GRPCOpts
 	// 监听端口
 	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(grpcOpts.Port)))
 	if err != nil {
@@ -461,7 +441,7 @@ func (app *App) newGRPCServer() (*grpcserver.Server, error) {
 		grpcserver.TLS(grpcOpts.TLSConf),
 	}
 	// 基于ServiceImpl、grpc服务的描述以及grpc的options创建 grpc server. grpc server实现了Runnable
-	srv := grpcserver.New(lis, grpcserver.Service{Impl: app.o.ServiceImpl, Desc: app.o.GRPCDesc}, opts...)
+	srv := grpcserver.New(lis, grpcserver.Service{Impl: grpcOpts.ServiceImpl, Desc: grpcOpts.ServiceDesc}, opts...)
 	app.o.Logger.Infof("%s server listen at %s", srv.String(), lis.Addr())
 	return srv, nil
 }
@@ -476,34 +456,15 @@ func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
 	// 如果上面的监听的端口为0，则会随机用一个可用的端口，所以需要回填。
 	httpOpts.Port = addrx.ExtractPort(lis.Addr())
 
-	if app.o.GRPCOpts != nil && httpOpts.GRPCConn == nil {
-		dialOptions := append([]grpc.DialOption{}, httpOpts.GRPCDialOptions...)
-		if app.o.GRPCOpts.TLSConf != nil {
-			dialOptions = append(dialOptions, grpc.WithTransportCredentials(credentials.NewTLS(app.o.GRPCOpts.TLSConf)))
-		} else {
-			dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		}
-		conn, err := grpc.DialContext(ctx, net.JoinHostPort("", strconv.Itoa(app.o.GRPCOpts.Port)), dialOptions...)
-		if err != nil {
-			return nil, err
-		}
-		httpOpts.GRPCConn = conn
-	}
-	var gRPCCli any
-	if httpOpts.GRPCConn != nil {
-		gRPCCli = app.o.GRPCClientCreator(httpOpts.GRPCConn)
-	}
 	// 组装options
 	opts := []httpserver.Option{
-		httpserver.GRPCClient(gRPCCli),
-		httpserver.ServiceDescription(app.o.HTTPDesc),
 		httpserver.ReadTimeout(httpOpts.ReadTimeout),
 		httpserver.WriteTimeout(httpOpts.WriteTimeout),
 		httpserver.IdleTimeout(httpOpts.IdleTimeout),
 		httpserver.MaxHeaderBytes(httpOpts.MaxHeaderBytes),
 		httpserver.TLS(httpOpts.TLSConf),
 		httpserver.Middlewares(httpOpts.GinMiddlewares...),
-		httpserver.Routers(httpOpts.Routers...),
+		httpserver.Routers(httpOpts.Routes...),
 		httpserver.NoRouteHandlers(httpOpts.NoRouteHandlers...),
 		httpserver.NoMethodHandlers(httpOpts.NoMethodHandlers...),
 	}
@@ -535,12 +496,14 @@ func (app *App) newManagementServer() (*management.Server, error) {
 		management.ShutdownSignals(app.o.ShutdownSignals),
 		management.RestartSignals(app.o.RestartSignals),
 	}
+
 	grpcOptions := app.o.GRPCOpts
 	if grpcOptions != nil {
 		target := net.JoinHostPort(host, strconv.Itoa(grpcOptions.Port))
 		opts = append(opts, management.GRPCHealthCheck(target, grpcOptions.TLSConf, time.Second))
-		opts = append(opts, management.GRPC(app.o.GRPCDesc))
+		opts = append(opts, management.GRPC(grpcOptions.ServiceDesc))
 	}
+
 	httpOptions := app.o.HttpOpts
 	if httpOptions != nil {
 		scheme := "http"
@@ -549,19 +512,19 @@ func (app *App) newManagementServer() (*management.Server, error) {
 		}
 		target := fmt.Sprintf("%s://%s%s", scheme, net.JoinHostPort(host, strconv.Itoa(httpOptions.Port)), httpserver.HealthCheckPath)
 		opts = append(opts, management.HTTPHealthCheck(target, httpOptions.TLSConf, time.Second))
-		if app.o.HTTPDesc != nil {
-			opts = append(opts, management.HTTPServiceDesc(app.o.HTTPDesc))
-		}
-		if len(httpOptions.Routers) > 0 {
-			opts = append(opts, management.HTTPRouters(httpOptions.Routers))
+		if len(httpOptions.Routes) > 0 {
+			opts = append(opts, management.HTTPRouters(httpOptions.Routes))
 		}
 	}
+
 	if app.o.CronOpts != nil {
 		opts = append(opts, management.Cron(app.o.CronOpts.Jobs))
 	}
+
 	if app.o.PubSubOpts != nil {
 		opts = append(opts, management.Subscriber(app.o.PubSubOpts.Jobs))
 	}
+
 	srv := management.New(lis, opts...)
 	app.o.Logger.Infof("%s server listen at %s", srv.String(), lis.Addr())
 	return srv, nil

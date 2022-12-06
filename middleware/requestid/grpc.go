@@ -2,13 +2,12 @@ package requestid
 
 import (
 	"context"
-	"encoding/hex"
 
 	"google.golang.org/grpc"
 
 	"github.com/go-leo/stringx"
 
-	middlewarecontext "github.com/go-leo/leo/middleware/context"
+	middlewarecontext "github.com/go-leo/leo/v2/middleware/context"
 )
 
 func GRPCClientMiddleware() grpc.UnaryClientInterceptor {
@@ -34,9 +33,7 @@ func GRPCClientMiddleware() grpc.UnaryClientInterceptor {
 			return ToOutgoing(NewContext(ctx, requestID), requestID)
 		}
 		// 5. generate
-		var tid [16]byte
-		randSource.Read(tid[:])
-		requestID = hex.EncodeToString(tid[:])
+		requestID = Generate()
 		return ToOutgoing(NewContext(ctx, requestID), requestID)
 	})
 }
@@ -60,9 +57,7 @@ func GRPCServerMiddleware() grpc.UnaryServerInterceptor {
 			return NewContext(ctx, requestID)
 		}
 		// 4. generate
-		var tid [16]byte
-		randSource.Read(tid[:])
-		requestID = hex.EncodeToString(tid[:])
+		requestID = Generate()
 		return NewContext(ctx, requestID)
 	})
 }

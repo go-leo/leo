@@ -18,8 +18,8 @@ import (
 
 	"github.com/go-leo/netx/httpx"
 
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/log"
+	"github.com/go-leo/leo/v2/config"
+	"github.com/go-leo/leo/v2/log"
 )
 
 const (

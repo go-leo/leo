@@ -21,9 +21,9 @@ import (
 
 	"github.com/go-leo/backoffx"
 
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/registry"
-	"github.com/go-leo/leo/runner/net/http/server"
+	"github.com/go-leo/leo/v2/log"
+	"github.com/go-leo/leo/v2/registry"
+	"github.com/go-leo/leo/v2/runner/net/http/server"
 )
 
 var _ registry.Registrar = new(Registrar)

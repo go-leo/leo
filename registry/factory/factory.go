@@ -4,10 +4,10 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/registry"
-	"github.com/go-leo/leo/registry/consul"
-	"github.com/go-leo/leo/registry/nacos"
+	"github.com/go-leo/leo/v2/log"
+	"github.com/go-leo/leo/v2/registry"
+	"github.com/go-leo/leo/v2/registry/consul"
+	"github.com/go-leo/leo/v2/registry/nacos"
 )
 
 func NewRegistrar(uri *url.URL) (registry.Registrar, error) {

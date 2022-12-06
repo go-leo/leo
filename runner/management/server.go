@@ -14,20 +14,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 
-	"github.com/go-leo/leo/runner/management/router/app"
-	"github.com/go-leo/leo/runner/management/router/config"
-	"github.com/go-leo/leo/runner/management/router/env"
-	"github.com/go-leo/leo/runner/management/router/health"
-	"github.com/go-leo/leo/runner/management/router/metric"
-	"github.com/go-leo/leo/runner/management/router/profile"
-	"github.com/go-leo/leo/runner/management/router/restart"
-	"github.com/go-leo/leo/runner/management/router/server"
-	"github.com/go-leo/leo/runner/management/router/shutdown"
-	"github.com/go-leo/leo/runner/management/router/system"
-	"github.com/go-leo/leo/runner/management/router/task"
-	httpserver "github.com/go-leo/leo/runner/net/http/server"
-	crontask "github.com/go-leo/leo/runner/task/cron"
-	pubsubtask "github.com/go-leo/leo/runner/task/pubsub"
+	"github.com/go-leo/leo/v2/runner/management/router/app"
+	"github.com/go-leo/leo/v2/runner/management/router/config"
+	"github.com/go-leo/leo/v2/runner/management/router/env"
+	"github.com/go-leo/leo/v2/runner/management/router/health"
+	"github.com/go-leo/leo/v2/runner/management/router/metric"
+	"github.com/go-leo/leo/v2/runner/management/router/profile"
+	"github.com/go-leo/leo/v2/runner/management/router/restart"
+	"github.com/go-leo/leo/v2/runner/management/router/server"
+	"github.com/go-leo/leo/v2/runner/management/router/shutdown"
+	"github.com/go-leo/leo/v2/runner/management/router/system"
+	"github.com/go-leo/leo/v2/runner/management/router/task"
+	httpserver "github.com/go-leo/leo/v2/runner/net/http/server"
+	crontask "github.com/go-leo/leo/v2/runner/task/cron"
+	pubsubtask "github.com/go-leo/leo/v2/runner/task/pubsub"
 )
 
 type Router struct {
@@ -139,36 +139,19 @@ func GRPC(serviceDesc *grpc.ServiceDesc) Option {
 	}
 }
 
-func HTTPServiceDesc(serviceDesc *httpserver.ServiceDesc) Option {
+func HTTPRouters(routes []httpserver.Route) Option {
 	return func(o *options) {
-		routers := make([]server.HTTPRouter, 0, len(serviceDesc.Methods))
-		for _, method := range serviceDesc.Methods {
-			routers = append(routers, server.HTTPRouter{
-				FullMethod:  fmt.Sprintf("/%s/%s", serviceDesc.ServiceName, method.MethodName),
-				Path:        method.Path,
-				HttpMethods: []string{method.HTTPMethod},
+		routers := make([]server.HTTPRoute, 0, len(routes))
+		for _, router := range routes {
+			routers = append(routers, server.HTTPRoute{
+				Methods: router.Methods(),
+				Path:    router.Path(),
 			})
 		}
 		if o.HTTPMapping == nil {
 			o.HTTPMapping = new(server.HTTPMapping)
 		}
-		o.HTTPMapping.HTTPRouters = append(o.HTTPMapping.HTTPRouters, routers...)
-	}
-}
-
-func HTTPRouters(httpRouters []httpserver.Router) Option {
-	return func(o *options) {
-		routers := make([]server.HTTPRouter, 0, len(httpRouters))
-		for _, router := range httpRouters {
-			routers = append(routers, server.HTTPRouter{
-				HttpMethods: router.HTTPMethods,
-				Path:        router.Path,
-			})
-		}
-		if o.HTTPMapping == nil {
-			o.HTTPMapping = new(server.HTTPMapping)
-		}
-		o.HTTPMapping.HTTPRouters = append(o.HTTPMapping.HTTPRouters, routers...)
+		o.HTTPMapping.HTTPRoutes = append(o.HTTPMapping.HTTPRoutes, routers...)
 	}
 }
 

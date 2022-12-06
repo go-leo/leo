@@ -11,10 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-leo/slicex"
 
-	"github.com/go-leo/stringx"
-
-	"github.com/go-leo/leo/runner/net/http/header"
-	"github.com/go-leo/leo/runner/net/http/internal/health"
+	"github.com/go-leo/leo/v2/runner/net/http/internal/health"
 )
 
 const HealthCheckPath = "/health/check"
@@ -37,38 +34,28 @@ func New(lis net.Listener, opts ...Option) *Server {
 	// 创建Gin的Engine
 	mux := gin.New()
 	// 设置middlewares
-	middlewares := append([]gin.HandlerFunc{header.GinMiddleware()}, o.GinMiddlewares...)
-	mux.Use(middlewares...)
+	mux.Use(o.GinMiddlewares...)
+
 	// 设置健康检查
 	healthSrv := health.NewServer()
 	mux.Any(HealthCheckPath, health.HandlerFunc(healthSrv))
+
 	if slicex.IsNotEmpty(o.NoRouteHandlers) {
 		mux.NoRoute(o.NoRouteHandlers...)
 	}
 	if slicex.IsNotEmpty(o.NoMethodHandlers) {
 		mux.NoMethod(o.NoMethodHandlers...)
 	}
-	// 基于服务描述ServiceDesc，将HTTPMethod、Path、handler等注册请求处理并包装Handler方法
-	if o.GRPCClient != nil && o.ServiceDesc != nil {
-		for _, methodDesc := range o.ServiceDesc.Methods {
-			// 绑定Handler
-			mux.Handle(methodDesc.HTTPMethod, methodDesc.Path, HandlerFunc(o.GRPCClient, o.ServiceDesc, methodDesc))
-		}
-	}
 	// 注册其他自定义的非protoc-gen-go-leo生成的路由
-	for _, router := range o.Routers {
-		// 兼容
-		if len(router.HTTPMethods) <= 0 || stringx.IsNotBlank(router.HTTPMethod) {
-			router.HTTPMethods = append(router.HTTPMethods, router.HTTPMethod)
-		}
+	for _, router := range o.Routes {
 		// 如果没有指定具体method，则绑定所有可能的Method
-		if len(router.HTTPMethods) <= 0 {
-			mux.Any(router.Path, router.HandlerFuncs...)
+		if len(router.Methods()) <= 0 {
+			mux.Any(router.Path(), router.Handlers()...)
 			continue
 		}
 		// 指定了method，就绑定到method上。
-		for _, method := range router.HTTPMethods {
-			mux.Handle(method, router.Path, router.HandlerFuncs...)
+		for _, method := range router.Methods() {
+			mux.Handle(method, router.Path(), router.Handlers()...)
 		}
 	}
 	// 创建http.Server

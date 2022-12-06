@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	InstrumentationName = "github.com/go-leo/leo"
+	InstrumentationName = "github.com/go-leo/leo/v2"
 )
 
 var (

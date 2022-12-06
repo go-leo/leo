@@ -7,26 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Router struct {
-	// HTTPMethods 如果为空，则注册到所有Method
-	HTTPMethods []string
-	// HTTPMethod
-	// Deprecated: Do not use. use HTTPMethods instead.
-	HTTPMethod   string
-	Path         string
-	HandlerFuncs []gin.HandlerFunc
-}
-
 type options struct {
-	GRPCClient       any
-	ServiceDesc      *ServiceDesc
 	TLSConf          *tls.Config
 	ReadTimeout      time.Duration
 	WriteTimeout     time.Duration
 	IdleTimeout      time.Duration
 	MaxHeaderBytes   int
 	GinMiddlewares   []gin.HandlerFunc
-	Routers          []Router
+	Routes           []Route
 	NoRouteHandlers  []gin.HandlerFunc
 	NoMethodHandlers []gin.HandlerFunc
 }
@@ -40,18 +28,6 @@ func (o *options) apply(opts []Option) {
 }
 
 func (o *options) init() {}
-
-func GRPCClient(cli any) Option {
-	return func(o *options) {
-		o.GRPCClient = cli
-	}
-}
-
-func ServiceDescription(serviceDesc *ServiceDesc) Option {
-	return func(o *options) {
-		o.ServiceDesc = serviceDesc
-	}
-}
 
 func ReadTimeout(timeout time.Duration) Option {
 	return func(o *options) {
@@ -89,9 +65,9 @@ func Middlewares(middlewares ...gin.HandlerFunc) Option {
 	}
 }
 
-func Routers(routers ...Router) Option {
+func Routers(routers ...Route) Option {
 	return func(o *options) {
-		o.Routers = append(o.Routers, routers...)
+		o.Routes = append(o.Routes, routers...)
 	}
 }
 

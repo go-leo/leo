@@ -15,10 +15,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 
-	"github.com/go-leo/leo/config/mgr"
-	"github.com/go-leo/leo/config/mgr/medium/file"
-	"github.com/go-leo/leo/config/mgr/parser"
-	"github.com/go-leo/leo/config/mgr/valuer"
+	"github.com/go-leo/leo/v2/config/mgr"
+	"github.com/go-leo/leo/v2/config/mgr/medium/file"
+	"github.com/go-leo/leo/v2/config/mgr/parser"
+	"github.com/go-leo/leo/v2/config/mgr/valuer"
 )
 
 type Config struct {

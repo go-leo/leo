@@ -8,7 +8,7 @@ import (
 	"github.com/derekparker/trie"
 	"github.com/spf13/cast"
 
-	"github.com/go-leo/leo/config"
+	"github.com/go-leo/leo/v2/config"
 )
 
 var _ config.Valuer = new(TrieValuer)

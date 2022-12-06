@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/log"
+	"github.com/go-leo/leo/v2/config"
+	"github.com/go-leo/leo/v2/log"
 )
 
 var _ config.Loader = new(Loader)

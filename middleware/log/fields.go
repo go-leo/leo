@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/log"
+	"github.com/go-leo/leo/v2/log"
 )
 
 type FieldBuilder struct {

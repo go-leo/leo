@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-leo/leo/config/valuer"
+	"github.com/go-leo/leo/v2/config/valuer"
 )
 
 func TestTrieTreeValuer(t *testing.T) {

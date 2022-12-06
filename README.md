@@ -4,7 +4,7 @@ Leo is a Go language framework. it can make it easy to create production-grade a
 ## Quick Start
 install `protoc-gen-go-leo` plugin
 ```
-go install github.com/go-leo/leo/cmd/protoc-gen-go-leo@latest
+go install github.com/go-leo/leo/v2/cmd/protoc-gen-go-leo@latest
 ```
 
 # Example

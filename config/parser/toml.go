@@ -5,7 +5,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/go-leo/leo/config"
+	"github.com/go-leo/leo/v2/config"
 )
 
 var _ config.Parser = new(TomlParser)

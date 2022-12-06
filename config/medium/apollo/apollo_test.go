@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-leo/leo/config/medium/apollo"
+	"github.com/go-leo/leo/v2/config/medium/apollo"
 )
 
 var confType = "yaml"

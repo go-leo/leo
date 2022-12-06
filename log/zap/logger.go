@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/go-leo/leo/log"
+	"github.com/go-leo/leo/v2/log"
 )
 
 var _ log.Logger = new(Logger)

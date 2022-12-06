@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"math/rand"
-	"net/http"
 	"time"
 
 	"go.opentelemetry.io/otel/trace"
@@ -12,7 +11,7 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/runner/net/http/header"
+	"github.com/go-leo/leo/v2/middleware/httpheader"
 )
 
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -45,7 +44,7 @@ func ToOutgoing(ctx context.Context, v string) context.Context {
 }
 
 func FromHeader(ctx context.Context) (string, bool) {
-	h, ok := header.FromContext(ctx)
+	h, ok := httpheader.FromContext(ctx)
 	if !ok {
 		return "", false
 	}
@@ -54,16 +53,6 @@ func FromHeader(ctx context.Context) (string, bool) {
 		return "", false
 	}
 	return val, true
-}
-
-func ToHeader(ctx context.Context, v string) context.Context {
-	h, ok := header.FromContext(ctx)
-	if !ok {
-		h = make(http.Header)
-		ctx = header.NewContext(ctx, h)
-	}
-	h.Set(outerKey, v)
-	return ctx
 }
 
 func FromTrace(ctx context.Context) (string, bool) {
@@ -96,8 +85,12 @@ func FromAnyWhere(ctx context.Context) (requestID string, generated bool) {
 		return requestID, true
 	}
 	// 4. generate
+	requestID = Generate()
+	return requestID, false
+}
+
+func Generate() string {
 	var tid [16]byte
 	randSource.Read(tid[:])
-	requestID = hex.EncodeToString(tid[:])
-	return requestID, false
+	return hex.EncodeToString(tid[:])
 }
