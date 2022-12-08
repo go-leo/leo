@@ -139,10 +139,16 @@ func GRPC(serviceDesc *grpc.ServiceDesc) Option {
 	}
 }
 
-func HTTPRouters(routes []httpserver.Route) Option {
+func HTTPRoutes(routes []httpserver.Route, richRoutes []httpserver.RichRoute) Option {
 	return func(o *options) {
 		routers := make([]server.HTTPRoute, 0, len(routes))
 		for _, router := range routes {
+			routers = append(routers, server.HTTPRoute{
+				Methods: []string{router.Method()},
+				Path:    router.Path(),
+			})
+		}
+		for _, router := range richRoutes {
 			routers = append(routers, server.HTTPRoute{
 				Methods: router.Methods(),
 				Path:    router.Path(),

@@ -45,6 +45,7 @@ type HttpOptions struct {
 	TLSConf          *tls.Config
 	GinMiddlewares   []gin.HandlerFunc
 	Routes           []httpserver.Route
+	RichRoutes       []httpserver.RichRoute
 	NoRouteHandlers  []gin.HandlerFunc
 	NoMethodHandlers []gin.HandlerFunc
 	Registrar        registry.Registrar
@@ -464,7 +465,8 @@ func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
 		httpserver.MaxHeaderBytes(httpOpts.MaxHeaderBytes),
 		httpserver.TLS(httpOpts.TLSConf),
 		httpserver.Middlewares(httpOpts.GinMiddlewares...),
-		httpserver.Routers(httpOpts.Routes...),
+		httpserver.Routes(httpOpts.Routes...),
+		httpserver.RichRoutes(httpOpts.RichRoutes...),
 		httpserver.NoRouteHandlers(httpOpts.NoRouteHandlers...),
 		httpserver.NoMethodHandlers(httpOpts.NoMethodHandlers...),
 	}
@@ -513,7 +515,7 @@ func (app *App) newManagementServer() (*management.Server, error) {
 		target := fmt.Sprintf("%s://%s%s", scheme, net.JoinHostPort(host, strconv.Itoa(httpOptions.Port)), httpserver.HealthCheckPath)
 		opts = append(opts, management.HTTPHealthCheck(target, httpOptions.TLSConf, time.Second))
 		if len(httpOptions.Routes) > 0 {
-			opts = append(opts, management.HTTPRouters(httpOptions.Routes))
+			opts = append(opts, management.HTTPRoutes(httpOptions.Routes, httpOptions.RichRoutes))
 		}
 	}
 

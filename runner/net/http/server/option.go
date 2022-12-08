@@ -15,6 +15,7 @@ type options struct {
 	MaxHeaderBytes   int
 	GinMiddlewares   []gin.HandlerFunc
 	Routes           []Route
+	RichRoutes       []RichRoute
 	NoRouteHandlers  []gin.HandlerFunc
 	NoMethodHandlers []gin.HandlerFunc
 }
@@ -65,9 +66,15 @@ func Middlewares(middlewares ...gin.HandlerFunc) Option {
 	}
 }
 
-func Routers(routers ...Route) Option {
+func Routes(routes ...Route) Option {
 	return func(o *options) {
-		o.Routes = append(o.Routes, routers...)
+		o.Routes = append(o.Routes, routes...)
+	}
+}
+
+func RichRoutes(routes ...RichRoute) Option {
+	return func(o *options) {
+		o.RichRoutes = append(o.RichRoutes, routes...)
 	}
 }
 
