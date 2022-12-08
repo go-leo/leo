@@ -9,7 +9,7 @@ import (
 type options struct {
 	Propagators    propagation.TextMapPropagator
 	TracerProvider trace.TracerProvider
-	Skips          []string
+	Skips          map[string]struct{}
 }
 
 func (o *options) apply(opts ...Option) {
@@ -24,6 +24,9 @@ func (o *options) init() {
 	}
 	if o.TracerProvider == nil {
 		o.TracerProvider = otel.GetTracerProvider()
+	}
+	if o.Skips == nil {
+		o.Skips = make(map[string]struct{})
 	}
 }
 
@@ -41,8 +44,13 @@ func TracerProvider(tracerProvider trace.TracerProvider) Option {
 	}
 }
 
-func Skips(skip ...string) Option {
+func Skips(skips ...string) Option {
 	return func(o *options) {
-		o.Skips = skip
+		if o.Skips == nil {
+			o.Skips = make(map[string]struct{})
+		}
+		for _, skip := range skips {
+			o.Skips[skip] = struct{}{}
+		}
 	}
 }
