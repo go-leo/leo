@@ -10,9 +10,9 @@ import (
 	"github.com/go-leo/leo/config/medium/apollo"
 	"github.com/go-leo/leo/config/medium/file"
 	"github.com/go-leo/leo/config/medium/nacos"
+	"github.com/go-leo/leo/config/medium/nacosv2"
 	"github.com/go-leo/leo/config/parser"
 	"github.com/go-leo/leo/config/valuer"
-
 	"github.com/go-leo/stringx"
 )
 
@@ -39,6 +39,15 @@ func NewConfigMgr(configURLs string) (*config.Mgr, error) {
 			}
 		case "nacos":
 			loader, watcher, err := NewNanosLoaderAndWatcher(uri)
+			if err != nil {
+				return nil, err
+			}
+			loaders = append(loaders, loader)
+			if watcher != nil {
+				watchers = append(watchers, watcher)
+			}
+		case "nacosv2":
+			loader, watcher, err := NewNanosV2LoaderAndWatcher(uri)
 			if err != nil {
 				return nil, err
 			}
@@ -91,6 +100,27 @@ func NewNanosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, erro
 		return loader, nil, nil
 	}
 	return loader, nacos.NewWatcher("", "", "", group, dataID), nil
+}
+
+func NewNanosV2LoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
+	host := uri.Hostname()
+	port, _ := strconv.ParseUint(uri.Port(), 10, 64)
+	query := uri.Query()
+	group := query.Get("group")
+	dataID := query.Get("dataID")
+	contentType := query.Get("contentType")
+	namespaceName := query.Get("namespaceName")
+	client, err := nacosv2.NewClient(host, port, namespaceName)
+	if err != nil {
+		return nil, nil, err
+	}
+	loader := nacosv2.NewLoader(client, group, dataID, contentType)
+
+	isWatch, _ := strconv.ParseBool(query.Get("watch"))
+	if !isWatch {
+		return loader, nil, nil
+	}
+	return loader, nacosv2.NewWatcher(client, group, dataID), nil
 }
 
 func NewApolloLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
