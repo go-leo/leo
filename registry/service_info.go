@@ -47,9 +47,9 @@ func (s *ServiceInfo) Clone() *ServiceInfo {
 }
 
 func ServiceInfoFromURL(uri url.URL, transport string) *ServiceInfo {
-	uri.Hostname()
+	metaData := uri.Query().Get("metadata")
 	md := make(map[string]string)
-	_ = json.Unmarshal([]byte(uri.Query().Get("metadata")), &md)
+	_ = json.Unmarshal([]byte(metaData), &md)
 	return &ServiceInfo{
 		ID:        "",
 		Name:      strings.TrimLeft(uri.Path, "/"),

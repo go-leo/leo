@@ -13,7 +13,7 @@ require (
 	github.com/go-kratos/aegis v0.1.3
 	github.com/go-leo/backoffx v1.0.0
 	github.com/go-leo/errorx v1.0.0
-	github.com/go-leo/netx v1.0.7
+	github.com/go-leo/netx v1.0.9
 	github.com/go-leo/osx v1.0.0
 	github.com/go-leo/retryx v1.0.0
 	github.com/go-leo/slicex v1.0.8
@@ -25,6 +25,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nacos-group/nacos-sdk-go v1.1.2
+	github.com/nacos-group/nacos-sdk-go/v2 v2.1.2
 	github.com/prometheus/client_golang v1.13.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/shirou/gopsutil/v3 v3.22.7
@@ -45,6 +46,7 @@ require (
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1723 // indirect
 	github.com/armon/go-metrics v0.4.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -103,6 +105,7 @@ require (
 	golang.org/x/oauth2 v0.2.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/genproto v0.0.0-20221202195650-67e5cbc046fd // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

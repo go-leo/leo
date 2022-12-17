@@ -6,12 +6,11 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/go-leo/stringx"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/go-leo/stringx"
-
-	"github.com/go-leo/leo/v2/middleware/httpheader"
+	"github.com/go-leo/leo/v2/middleware/httpmd"
 )
 
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -44,11 +43,11 @@ func ToOutgoing(ctx context.Context, v string) context.Context {
 }
 
 func FromHeader(ctx context.Context) (string, bool) {
-	h, ok := httpheader.FromContext(ctx)
+	md, ok := httpmd.FromContext(ctx)
 	if !ok {
 		return "", false
 	}
-	val := h.Get(outerKey)
+	val := md.Header.Get(outerKey)
 	if stringx.IsBlank(val) {
 		return "", false
 	}
