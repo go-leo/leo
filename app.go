@@ -53,7 +53,7 @@ type HttpOptions struct {
 
 type GRPCOptions struct {
 	ServiceImpl             any
-	ServiceDesc             *grpc.ServiceDesc
+	ServiceDesc             grpc.ServiceDesc
 	Port                    int
 	TLSConf                 *tls.Config
 	GRPCServerOptions       []grpc.ServerOption
@@ -424,9 +424,6 @@ func (app *App) newGRPCServer() (*grpcserver.Server, error) {
 	grpcOpts := app.o.GRPCOpts
 	if grpcOpts.ServiceImpl == nil {
 		return nil, errors.New("ServiceImpl is nil")
-	}
-	if grpcOpts.ServiceDesc == nil {
-		return nil, errors.New("ServiceDesc is nil")
 	}
 	// 监听端口
 	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(grpcOpts.Port)))

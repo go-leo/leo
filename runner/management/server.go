@@ -127,7 +127,7 @@ func HTTPHealthCheck(target string, TLSConf *tls.Config, timeout time.Duration) 
 	}
 }
 
-func GRPC(serviceDesc *grpc.ServiceDesc) Option {
+func GRPC(serviceDesc grpc.ServiceDesc) Option {
 	return func(o *options) {
 		methodNames := make([]string, 0, len(serviceDesc.Methods))
 		for _, method := range serviceDesc.Methods {

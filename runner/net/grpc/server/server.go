@@ -15,7 +15,7 @@ import (
 
 type Service struct {
 	Impl any
-	Desc *grpc.ServiceDesc
+	Desc grpc.ServiceDesc
 }
 
 // Server grpc运行实体
@@ -83,7 +83,7 @@ func New(lis net.Listener, service Service, opts ...Option) *Server {
 	reflection.Register(gRPCSrv)
 
 	// register business service
-	gRPCSrv.RegisterService(service.Desc, service.Impl)
+	gRPCSrv.RegisterService(&service.Desc, service.Impl)
 
 	srv := &Server{
 		o:         o,
