@@ -38,7 +38,7 @@ func NewConfigMgr(configURLs string) (*config.Mgr, error) {
 				watchers = append(watchers, watcher)
 			}
 		case "nacos":
-			loader, watcher, err := NewNanosLoaderAndWatcher(uri)
+			loader, watcher, err := NewNacosLoaderAndWatcher(uri)
 			if err != nil {
 				return nil, err
 			}
@@ -47,7 +47,7 @@ func NewConfigMgr(configURLs string) (*config.Mgr, error) {
 				watchers = append(watchers, watcher)
 			}
 		case "nacosv2":
-			loader, watcher, err := NewNanosV2LoaderAndWatcher(uri)
+			loader, watcher, err := NewNacosV2LoaderAndWatcher(uri)
 			if err != nil {
 				return nil, err
 			}
@@ -88,7 +88,7 @@ func NewFileLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher) {
 	return loader, file.NewWatcher(uri.String())
 }
 
-func NewNanosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
+func NewNacosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
 	query := uri.Query()
 	group := query.Get("group")
 	dataID := query.Get("dataID")
@@ -102,15 +102,15 @@ func NewNanosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, erro
 	return loader, nacos.NewWatcher("", "", "", group, dataID), nil
 }
 
-func NewNanosV2LoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
+func NewNacosV2LoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
 	host := uri.Hostname()
 	port, _ := strconv.ParseUint(uri.Port(), 10, 64)
 	query := uri.Query()
 	group := query.Get("group")
 	dataID := query.Get("dataID")
 	contentType := query.Get("contentType")
-	namespaceName := query.Get("namespaceName")
-	client, err := nacosv2.NewClient(host, port, namespaceName)
+	namespaceID := query.Get("namespaceID")
+	client, err := nacosv2.NewClient(host, port, namespaceID)
 	if err != nil {
 		return nil, nil, err
 	}

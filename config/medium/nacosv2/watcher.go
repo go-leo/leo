@@ -49,7 +49,9 @@ func (watcher *Watcher) Start(ctx context.Context) (<-chan *config.Event, error)
 		DataId: watcher.dataId,
 		Group:  watcher.group,
 		OnChange: func(namespace, group, dataId, data string) {
-			watcher.log.Info("config changed group:" + group + ", dataId:" + dataId + ", content:" + data)
+			watcher.log.Infof("config changed group:" + group + ", dataId:" + dataId + ", content:" + data)
+			description := &EventDescription{namespace: namespace, group: group, dataId: dataId}
+			eventC <- config.NewContentEvent(description, []byte(data))
 		},
 	})
 	return eventC, nil

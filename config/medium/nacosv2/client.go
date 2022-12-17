@@ -9,7 +9,7 @@ import (
 
 func NewClient(host string, port uint64, namespace string) (config_client.IConfigClient, error) {
 	sc := make([]constant.ServerConfig, 1)
-	sc = append(sc, *constant.NewServerConfig(host, port, constant.WithContextPath("/nacos")))
+	sc[0] = *constant.NewServerConfig(host, port)
 
 	cc := constant.NewClientConfig(
 		constant.WithNamespaceId(namespace),
