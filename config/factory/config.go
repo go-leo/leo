@@ -10,9 +10,9 @@ import (
 	"github.com/go-leo/leo/config/medium/apollo"
 	"github.com/go-leo/leo/config/medium/file"
 	"github.com/go-leo/leo/config/medium/nacos"
+	"github.com/go-leo/leo/config/medium/nacosv2"
 	"github.com/go-leo/leo/config/parser"
 	"github.com/go-leo/leo/config/valuer"
-
 	"github.com/go-leo/stringx"
 )
 
@@ -38,7 +38,16 @@ func NewConfigMgr(configURLs string) (*config.Mgr, error) {
 				watchers = append(watchers, watcher)
 			}
 		case "nacos":
-			loader, watcher, err := NewNanosLoaderAndWatcher(uri)
+			loader, watcher, err := NewNacosLoaderAndWatcher(uri)
+			if err != nil {
+				return nil, err
+			}
+			loaders = append(loaders, loader)
+			if watcher != nil {
+				watchers = append(watchers, watcher)
+			}
+		case "nacosv2":
+			loader, watcher, err := NewNacosV2LoaderAndWatcher(uri)
 			if err != nil {
 				return nil, err
 			}
@@ -79,7 +88,7 @@ func NewFileLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher) {
 	return loader, file.NewWatcher(uri.String())
 }
 
-func NewNanosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
+func NewNacosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
 	query := uri.Query()
 	group := query.Get("group")
 	dataID := query.Get("dataID")
@@ -91,6 +100,27 @@ func NewNanosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, erro
 		return loader, nil, nil
 	}
 	return loader, nacos.NewWatcher("", "", "", group, dataID), nil
+}
+
+func NewNacosV2LoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
+	host := uri.Hostname()
+	port, _ := strconv.ParseUint(uri.Port(), 10, 64)
+	query := uri.Query()
+	group := query.Get("group")
+	dataID := query.Get("dataID")
+	contentType := query.Get("contentType")
+	namespaceID := query.Get("namespaceID")
+	client, err := nacosv2.NewClient(host, port, namespaceID)
+	if err != nil {
+		return nil, nil, err
+	}
+	loader := nacosv2.NewLoader(client, group, dataID, contentType)
+
+	isWatch, _ := strconv.ParseBool(query.Get("watch"))
+	if !isWatch {
+		return loader, nil, nil
+	}
+	return loader, nacosv2.NewWatcher(client, group, dataID), nil
 }
 
 func NewApolloLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {

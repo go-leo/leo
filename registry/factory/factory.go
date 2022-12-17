@@ -8,6 +8,7 @@ import (
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/leo/registry/consul"
 	"github.com/go-leo/leo/registry/nacos"
+	"github.com/go-leo/leo/registry/nacosv2"
 )
 
 func NewRegistrar(uri *url.URL) (registry.Registrar, error) {
@@ -17,6 +18,9 @@ func NewRegistrar(uri *url.URL) (registry.Registrar, error) {
 		return factory.Create()
 	case nacos.Scheme:
 		factory := nacos.RegistrarFactory{URI: uri}
+		return factory.Create()
+	case nacosv2.Scheme:
+		factory := nacosv2.RegistrarFactory{URI: uri}
 		return factory.Create()
 	default:
 		return nil, errors.New("not support this scheme " + uri.Scheme)
@@ -30,6 +34,9 @@ func NewDiscovery(uri *url.URL) (registry.Discovery, error) {
 		return factory.Create()
 	case nacos.Scheme:
 		factory := nacos.DiscoveryFactory{URI: uri, Logger: log.Discard{}}
+		return factory.Create()
+	case nacosv2.Scheme:
+		factory := nacosv2.DiscoveryFactory{URI: uri, Logger: log.Discard{}}
 		return factory.Create()
 	default:
 		return nil, errors.New("not support this scheme " + uri.Scheme)
