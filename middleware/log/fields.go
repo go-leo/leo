@@ -58,6 +58,14 @@ func (f *FieldBuilder) Path(path string) *FieldBuilder {
 	return f
 }
 
+func (f *FieldBuilder) FullPath(path string) *FieldBuilder {
+	if stringx.IsBlank(path) {
+		return f
+	}
+	f.fields = append(f.fields, log.F{K: "full_path", V: path})
+	return f
+}
+
 func (f *FieldBuilder) MetaData(md map[string][]string) *FieldBuilder {
 	f.fields = append(f.fields, log.F{K: "meta_data", V: md})
 	return f
@@ -71,11 +79,16 @@ func (f *FieldBuilder) Status(status string) *FieldBuilder {
 	return f
 }
 
-func (f *FieldBuilder) PeerAddress(status string) *FieldBuilder {
-	if stringx.IsBlank(status) {
+func (f *FieldBuilder) StatusCode(code int) *FieldBuilder {
+	f.fields = append(f.fields, log.F{K: "status_code", V: code})
+	return f
+}
+
+func (f *FieldBuilder) PeerAddress(addr string) *FieldBuilder {
+	if stringx.IsBlank(addr) {
 		return f
 	}
-	f.fields = append(f.fields, log.F{K: "peer.address", V: status})
+	f.fields = append(f.fields, log.F{K: "peer.address", V: addr})
 	return f
 }
 

@@ -44,7 +44,10 @@ func GinMiddleware(loggerFactory func(ctx context.Context) log.Logger, opts ...O
 			StartTime(startTime).
 			Deadline(c.Request.Context()).
 			Path(c.Request.URL.Path).
+			FullPath(c.FullPath()).
 			Method(c.Request.Method).
+			PeerAddress(c.ClientIP()).
+			StatusCode(c.Writer.Status()).
 			Status(http.StatusText(c.Writer.Status())).
 			Error(c.Errors.ByType(gin.ErrorTypePrivate).String()).
 			Latency(time.Since(startTime))
