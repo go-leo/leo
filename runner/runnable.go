@@ -14,10 +14,3 @@ type Runnable interface {
 	// Stop 停止运行，保证Start方法可以退出
 	Stop(ctx context.Context) error
 }
-
-// Callable 可被调用的
-type Callable interface {
-	// Stringer 描述
-	fmt.Stringer
-	Invoke(ctx context.Context) error
-}

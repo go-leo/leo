@@ -1,4 +1,4 @@
-package metrics
+package metric
 
 type options struct {
 	// Skips is a grpc full method array or url path array which metrics are collected.

@@ -26,29 +26,25 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
+	httpserver "github.com/go-leo/leo/v2/runner/net/http/server"
+
 	"github.com/go-leo/leo/v2/log"
 	"github.com/go-leo/leo/v2/registry"
 	"github.com/go-leo/leo/v2/runner"
 	"github.com/go-leo/leo/v2/runner/management"
 	grpcserver "github.com/go-leo/leo/v2/runner/net/grpc/server"
-	httpserver "github.com/go-leo/leo/v2/runner/net/http/server"
 	crontask "github.com/go-leo/leo/v2/runner/task/cron"
 	pubsubtask "github.com/go-leo/leo/v2/runner/task/pubsub"
 )
 
 type HttpOptions struct {
-	Port             int
-	ReadTimeout      time.Duration
-	WriteTimeout     time.Duration
-	IdleTimeout      time.Duration
-	MaxHeaderBytes   int
-	TLSConf          *tls.Config
-	GinMiddlewares   []gin.HandlerFunc
-	Routes           []httpserver.Route
-	RichRoutes       []httpserver.RichRoute
-	NoRouteHandlers  []gin.HandlerFunc
-	NoMethodHandlers []gin.HandlerFunc
-	Registrar        registry.Registrar
+	Port           int
+	ReadTimeout    time.Duration
+	WriteTimeout   time.Duration
+	IdleTimeout    time.Duration
+	MaxHeaderBytes int
+	TLSConf        *tls.Config
+	Registrar      registry.Registrar
 }
 
 type GRPCOptions struct {
