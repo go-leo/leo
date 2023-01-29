@@ -90,9 +90,6 @@ func (exe *Executor) AddCallable(target Callable) {
 }
 
 func (exe *Executor) Execute(ctx context.Context) error {
-	exe.o.Logger.Infof("process %d starting...", os.Getpid())
-	defer exe.o.Logger.Infof("process %d stopping...", os.Getpid())
-
 	// 错误chan
 	var runErrChans []<-chan error
 	var runErr error
@@ -116,18 +113,21 @@ func (exe *Executor) Execute(ctx context.Context) error {
 	signals := slicex.Concat(exe.o.ShutdownSignals, exe.o.RestartSignals)
 	if slicex.IsNotEmpty(signals) {
 		signal.Notify(signalC, signals...)
-		exe.o.Logger.Info("notify signals...")
+		exe.o.Logger.Info("listen system signal...")
 	}
 
 	// 阻塞
+	var ok bool
 	select {
 	case incomingSignal = <-signalC:
 		// 如果收到信号，跳出select
 		exe.o.Logger.Infof("receive signals %s", incomingSignal)
-	case runErr = <-runErrC:
+	case runErr, ok = <-runErrC:
 		// 如果callable或runnable执行有错误，跳出select
 		// 或者callable或runnable执行完毕，跳出select
-		exe.o.Logger.Infof("execute error signals, %s", runErr)
+		if ok {
+			exe.o.Logger.Infof("execute error signals, %s", runErr)
+		}
 	}
 
 	// 并发停止runnable
@@ -154,14 +154,16 @@ func (exe *Executor) Execute(ctx context.Context) error {
 		return err
 	}
 
-	// 没有监听重启信号，就直接退出
+	err = multierror.Append(err, fmt.Errorf("receive signal, %s", incomingSignal))
+
+	// 禁用重启，就直接退出
 	if slicex.IsNotEmpty(exe.o.RestartSignals) {
 		return err
 	}
 
-	// 没有收到重启信号，直接退出
+	// 收到关闭信号，直接退出
 	f := func(o os.Signal) bool { return o.String() == incomingSignal.String() }
-	if slicex.NotContainsFunc(exe.o.RestartSignals, f) {
+	if slicex.ContainsFunc(exe.o.ShutdownSignals, f) {
 		return err
 	}
 

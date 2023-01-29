@@ -46,6 +46,7 @@ func New(jobs []*Job, opts ...Option) *Task {
 func (task *Task) Start(_ context.Context) error {
 	err := errors.New("cron already started")
 	task.startOnce.Do(func() {
+		err = nil
 		// 遍历Jobs，并将其添加到cron实例中
 		for _, job := range task.jobs {
 			id, e := task.exec.AddFunc(job.Spec(), job.cmd)

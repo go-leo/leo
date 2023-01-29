@@ -16,7 +16,7 @@ require (
 	github.com/go-leo/netx v1.1.1
 	github.com/go-leo/osx v1.1.0
 	github.com/go-leo/retryx v1.0.0
-	github.com/go-leo/slicex v1.0.13
+	github.com/go-leo/slicex v1.0.14
 	github.com/go-leo/stringx v1.0.1
 	github.com/go-leo/syncx v0.0.0-20230113082314-5853d4ad28c9
 	github.com/google/uuid v1.3.0
