@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Route(routes gin.IRoutes) {
-	routes.GET("/env", func(c *gin.Context) {
+func Route(rg *gin.RouterGroup) {
+	rg.GET("/env", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, os.Environ())
 	})
 }

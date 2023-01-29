@@ -18,34 +18,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-leo/errorx"
 	"github.com/go-leo/netx/addrx"
-	"github.com/go-leo/osx/execx"
-	"github.com/go-leo/osx/signalx"
 	"github.com/go-leo/stringx"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
-	httpserver "github.com/go-leo/leo/v2/runner/net/http/server"
-
+	crontask "github.com/go-leo/leo/v2/cron"
+	grpcserver "github.com/go-leo/leo/v2/grpc/server"
+	"github.com/go-leo/leo/v2/http"
 	"github.com/go-leo/leo/v2/log"
+	"github.com/go-leo/leo/v2/management"
+	pubsubtask "github.com/go-leo/leo/v2/pubsub"
 	"github.com/go-leo/leo/v2/registry"
 	"github.com/go-leo/leo/v2/runner"
-	"github.com/go-leo/leo/v2/runner/management"
-	grpcserver "github.com/go-leo/leo/v2/runner/net/grpc/server"
-	crontask "github.com/go-leo/leo/v2/runner/task/cron"
-	pubsubtask "github.com/go-leo/leo/v2/runner/task/pubsub"
 )
-
-type HttpOptions struct {
-	Port           int
-	ReadTimeout    time.Duration
-	WriteTimeout   time.Duration
-	IdleTimeout    time.Duration
-	MaxHeaderBytes int
-	TLSConf        *tls.Config
-	Registrar      registry.Registrar
-}
 
 type GRPCOptions struct {
 	ServiceImpl             any
@@ -93,7 +80,7 @@ type options struct {
 	Logger   log.Logger
 
 	GRPCOpts *GRPCOptions
-	HttpOpts *HttpOptions
+	HttpSrv  *http.Server
 
 	CronOpts        *CronOptions
 	PubSubOpts      *PubSubOptions
@@ -195,9 +182,9 @@ func GRPC(opts *GRPCOptions) Option {
 }
 
 // HTTP http服务配置
-func HTTP(opts *HttpOptions) Option {
+func HTTP(httpSrv *http.Server) Option {
 	return func(o *options) {
-		o.HttpOpts = opts
+		o.HttpSrv = httpSrv
 	}
 }
 
@@ -259,10 +246,11 @@ func StopTimeout(timeout time.Duration) Option {
 }
 
 type App struct {
-	o      *options
-	eg     *errgroup.Group
-	wg     sync.WaitGroup
-	cancel context.CancelFunc
+	o        *options
+	eg       *errgroup.Group
+	wg       sync.WaitGroup
+	cancel   context.CancelFunc
+	executor *runner.Executor
 }
 
 func NewApp(opts ...Option) *App {
@@ -272,11 +260,31 @@ func NewApp(opts ...Option) *App {
 	}
 	o.apply(opts...)
 	o.init()
-	return &App{o: o}
+	executor := runner.NewExecutor(
+		runner.Logger(o.Logger),
+		runner.ShutdownSignals(o.ShutdownSignals),
+		runner.RestartSignals(o.RestartSignals),
+		runner.StopTimeout(o.StopTimeout),
+	)
+	return &App{o: o, executor: executor}
 }
 
 // Run 启动app
 func (app *App) Run(ctx context.Context) error {
+	app.o.Logger.Infof("app %d starting...", os.Getpid())
+	defer app.o.Logger.Infof("app %d stopping...", os.Getpid())
+
+	// 添加http服务
+	if app.o.HttpSrv != nil {
+		app.o.Logger.Info("add http server")
+		app.executor.AddRunnable(app.o.HttpSrv)
+	}
+
+	// 等待退出
+	return app.executor.Execute(ctx)
+}
+
+func (app *App) Run1(ctx context.Context) error {
 	app.o.Logger.Infof("app %d starting...", os.Getpid())
 	defer app.o.Logger.Infof("app %d stopping...", os.Getpid())
 	ctx, app.cancel = context.WithCancel(ctx)
@@ -306,24 +314,14 @@ func (app *App) Run(ctx context.Context) error {
 			return err
 		}
 	}
-	// 启动http服务
-	if app.o.HttpOpts != nil {
-		if err := app.startHTTPServer(ctx); err != nil {
-			return err
-		}
-	}
 	// 启动management服务
 	if app.o.MgmtOpts != nil {
 		if err := app.startManagementServer(ctx); err != nil {
 			return err
 		}
 	}
-	// 等待系统信号，支持关闭和重启信号
-	if len(app.o.ShutdownSignals)+len(app.o.RestartSignals) > 0 {
-		app.listenSignal(ctx)
-	}
 	// 等待退出
-	return app.wait()
+	return nil
 }
 
 func (app *App) startGRPCServer(ctx context.Context) error {
@@ -341,28 +339,6 @@ func (app *App) startGRPCServer(ctx context.Context) error {
 		return err
 	}
 	app.run(ctx, &registrar{Registrar: app.o.GRPCOpts.Registrar, ServiceInfo: serviceInfo, Logger: app.o.Logger})
-	return nil
-}
-
-func (app *App) startHTTPServer(ctx context.Context) error {
-	srv, err := app.newHTTPServer(ctx)
-	if err != nil {
-		return err
-	}
-	app.run(ctx, srv)
-	// 注册http服务
-	if app.o.HttpOpts.Registrar == nil {
-		return nil
-	}
-	transport := registry.TransportHTTP
-	if app.o.HttpOpts.TLSConf != nil {
-		transport = registry.TransportHTTPS
-	}
-	serviceInfo, err := app.newServiceInfo(transport, app.o.HttpOpts.Port)
-	if err != nil {
-		return err
-	}
-	app.run(ctx, &registrar{Registrar: app.o.HttpOpts.Registrar, ServiceInfo: serviceInfo, Logger: app.o.Logger})
 	return nil
 }
 
@@ -440,35 +416,6 @@ func (app *App) newGRPCServer() (*grpcserver.Server, error) {
 	return srv, nil
 }
 
-func (app *App) newHTTPServer(ctx context.Context) (*httpserver.Server, error) {
-	httpOpts := app.o.HttpOpts
-	// 监听端口
-	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(httpOpts.Port)))
-	if err != nil {
-		return nil, err
-	}
-	// 如果上面的监听的端口为0，则会随机用一个可用的端口，所以需要回填。
-	httpOpts.Port = addrx.ExtractPort(lis.Addr())
-
-	// 组装options
-	opts := []httpserver.Option{
-		httpserver.ReadTimeout(httpOpts.ReadTimeout),
-		httpserver.WriteTimeout(httpOpts.WriteTimeout),
-		httpserver.IdleTimeout(httpOpts.IdleTimeout),
-		httpserver.MaxHeaderBytes(httpOpts.MaxHeaderBytes),
-		httpserver.TLS(httpOpts.TLSConf),
-		httpserver.Middlewares(httpOpts.GinMiddlewares...),
-		httpserver.Routes(httpOpts.Routes...),
-		httpserver.RichRoutes(httpOpts.RichRoutes...),
-		httpserver.NoRouteHandlers(httpOpts.NoRouteHandlers...),
-		httpserver.NoMethodHandlers(httpOpts.NoMethodHandlers...),
-	}
-	// 基于Listener和options创建 http server. http server实现了Runnable
-	srv := httpserver.New(lis, opts...)
-	app.o.Logger.Infof("%s server listen at %s", srv.String(), lis.Addr())
-	return srv, nil
-}
-
 func (app *App) newManagementServer() (*management.Server, error) {
 	mgOpts := app.o.MgmtOpts
 	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(mgOpts.Port)))
@@ -499,17 +446,11 @@ func (app *App) newManagementServer() (*management.Server, error) {
 		opts = append(opts, management.GRPC(grpcOptions.ServiceDesc))
 	}
 
-	httpOptions := app.o.HttpOpts
-	if httpOptions != nil {
-		scheme := "http"
-		if httpOptions.TLSConf != nil {
-			scheme = "https"
-		}
-		target := fmt.Sprintf("%s://%s%s", scheme, net.JoinHostPort(host, strconv.Itoa(httpOptions.Port)), httpserver.HealthCheckPath)
-		opts = append(opts, management.HTTPHealthCheck(target, httpOptions.TLSConf, time.Second))
-		if len(httpOptions.Routes) > 0 {
-			opts = append(opts, management.HTTPRoutes(httpOptions.Routes, httpOptions.RichRoutes))
-		}
+	httpSrv := app.o.HttpSrv
+	if httpSrv != nil {
+		target := fmt.Sprintf("%s://%s%s", httpSrv.Scheme(), net.JoinHostPort(host, strconv.Itoa(httpSrv.Port())), "/")
+		opts = append(opts, management.HTTPHealthCheck(target, nil, time.Second))
+		opts = append(opts, management.HTTPRoutes(nil))
 	}
 
 	if app.o.CronOpts != nil {
@@ -571,54 +512,6 @@ func (app *App) call(ctx context.Context, target runner.Callable) {
 		return target.Invoke(ctx)
 	})
 	runtime.Gosched()
-}
-
-func (app *App) listenSignal(ctx context.Context) {
-	app.eg.Go(func() error {
-		signals := append([]os.Signal{}, app.o.ShutdownSignals...)
-		signals = append(signals, app.o.RestartSignals...)
-		errC := make(chan error)
-		go func() {
-			runtime.Gosched()
-			app.o.Logger.Info("app wait signals...")
-			err := signalx.NewSignalWaiter(signals, 15*time.Second).
-				AddHook(app.o.ShutdownHook).
-				AddHook(app.o.RestartHook).
-				WaitSignals().
-				WaitHooksAsyncInvoked().
-				WaitUntilTimeout().
-				Err()
-			errC <- err
-			close(errC)
-		}()
-		select {
-		case <-ctx.Done():
-			return nil
-		case e := <-errC:
-			return e
-		}
-	})
-}
-
-func (app *App) wait() error {
-	app.eg.Go(func() error {
-		app.wg.Wait()
-		app.cancel()
-		return nil
-	})
-	err := app.eg.Wait()
-	if err == nil {
-		return nil
-	}
-	if !signalx.IsSignal(err, app.o.RestartSignals) {
-		return err
-	}
-	if _, e := execx.StartProcess(); e != nil {
-		app.o.Logger.Errorf("failed to restart process, %v", e)
-		return err
-	}
-	app.o.Logger.Infof("restart process success")
-	return err
 }
 
 var _ runner.Runnable = new(registrar)

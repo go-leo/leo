@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-leo/stringx"
+	"github.com/go-leo/leo/v2/registry"
 )
 
 type options struct {
@@ -24,6 +24,9 @@ type options struct {
 	BaseContext       func(net.Listener) context.Context
 	ConnContext       func(ctx context.Context, c net.Conn) context.Context
 	HealthCheckPath   string
+	OKStatus          int
+	NotOKStatus       int
+	Registrar         registry.Registrar
 }
 
 type Option func(o *options)
@@ -35,9 +38,7 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-	if stringx.IsBlank(o.HealthCheckPath) {
-		o.HealthCheckPath = "/health/check"
-	}
+
 }
 
 func TLS(conf *tls.Config) Option {
@@ -106,8 +107,16 @@ func ConnContext(f func(ctx context.Context, c net.Conn) context.Context) Option
 	}
 }
 
-func HealthCheckPath(path string) Option {
+func HealthCheck(path string, okStatus int, notOKStatus int) Option {
 	return func(o *options) {
 		o.HealthCheckPath = path
+		o.OKStatus = okStatus
+		o.NotOKStatus = notOKStatus
+	}
+}
+
+func Registrar(reg registry.Registrar) Option {
+	return func(o *options) {
+		o.Registrar = reg
 	}
 }

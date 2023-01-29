@@ -6,69 +6,83 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-leo/stringx"
-
-	"github.com/go-leo/leo/v2/management/router/health/internal"
+	"golang.org/x/sync/errgroup"
 )
 
 type HttpOptions struct {
-	Path    string
 	Target  string
 	TLSConf *tls.Config
 	Timeout time.Duration
 }
 
 type GRPCOptions struct {
-	Path    string
 	Target  string
 	TLSConf *tls.Config
 	Timeout time.Duration
 }
 
-type options struct {
-	HttpOptions *HttpOptions
-	GRPCOptions *GRPCOptions
+func Route(rg *gin.RouterGroup, httpOptions *HttpOptions, gRPCOptions *GRPCOptions) {
+	httpChecker := httpChecker(httpOptions)
+	grpcChecker := grpcChecker(gRPCOptions)
+	rg.GET("/health", func(c *gin.Context) {
+		if grpcChecker == nil || httpChecker() == nil {
+			c.Status(http.StatusNotImplemented)
+		}
+		eg, _ := errgroup.WithContext(c.Request.Context())
+		if grpcChecker != nil {
+			eg.Go(func() error {
+				return grpcChecker()
+			})
+		}
+		if httpChecker != nil {
+			eg.Go(func() error {
+				return httpChecker()
+			})
+		}
+		if err := eg.Wait(); err != nil {
+			c.Status(http.StatusServiceUnavailable)
+			return
+		}
+		c.Status(http.StatusNoContent)
+	})
+	rg.GET("/health/grpc", func(c *gin.Context) {
+		if grpcChecker == nil {
+			c.Status(http.StatusNotImplemented)
+		}
+		if err := grpcChecker(); err != nil {
+			c.Status(http.StatusServiceUnavailable)
+			return
+		}
+		c.Status(http.StatusNoContent)
+	})
+	rg.GET("/health/http", func(c *gin.Context) {
+		if httpChecker == nil {
+			c.Status(http.StatusNotImplemented)
+		}
+		if err := httpChecker(); err != nil {
+			c.Status(http.StatusServiceUnavailable)
+			return
+		}
+		c.Status(http.StatusNoContent)
+	})
 }
 
-func (o *options) apply(opts ...Option) {
-	for _, opt := range opts {
-		opt(o)
+func httpChecker(httpConf *HttpOptions) func() error {
+	if httpConf == nil {
+		return nil
+	}
+	httpProber := NewHTTPProber(httpConf.Timeout, httpConf.TLSConf)
+	return func() error {
+		return httpProber.Check(httpConf.Target)
 	}
 }
 
-func (o *options) init() {
-	if o.HttpOptions != nil && stringx.IsNotBlank(o.HttpOptions.Path) {
-		o.HttpOptions.Path = "/health/http"
+func grpcChecker(grpcConf *GRPCOptions) func() error {
+	if grpcConf == nil {
+		return nil
 	}
-	if o.GRPCOptions != nil && stringx.IsNotBlank(o.GRPCOptions.Path) {
-		o.GRPCOptions.Path = "/health/grpc"
-	}
-}
-
-type Option func(o *options)
-
-func Route(rg gin.IRoutes, opts ...Option) {
-	o := new(options)
-	o.apply(opts...)
-	o.init()
-	if o.HttpOptions != nil {
-		httpProber := internal.NewHTTPProber(o.HttpOptions.Timeout, o.HttpOptions.TLSConf)
-		rg.GET(o.HttpOptions.Path, func(c *gin.Context) {
-			if err := httpProber.Check(o.HttpOptions.Target); err != nil {
-				c.Status(http.StatusServiceUnavailable)
-				return
-			}
-			c.Status(http.StatusNoContent)
-		})
-	}
-	if o.GRPCOptions != nil {
-		grpcProber := internal.NewGRPCProber(o.GRPCOptions.Timeout, o.GRPCOptions.TLSConf)
-		rg.GET(o.GRPCOptions.Path, func(c *gin.Context) {
-			if err := grpcProber.Check(o.GRPCOptions.Target); err != nil {
-				c.Status(http.StatusServiceUnavailable)
-				return
-			}
-			c.Status(http.StatusNoContent)
-		})
+	grpcProber := NewGRPCProber(grpcConf.Timeout, grpcConf.TLSConf)
+	return func() error {
+		return grpcProber.Check(grpcConf.Target)
 	}
 }

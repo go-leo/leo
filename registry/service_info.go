@@ -60,3 +60,17 @@ func ServiceInfoFromURL(uri url.URL, transport string) *ServiceInfo {
 		Version:   uri.Query().Get("version"),
 	}
 }
+
+type ServerInfoSetter interface {
+	SetID(id string)
+	SetName(name string)
+	SetVersion(version string)
+	SetMetaData(metadata map[string]string)
+}
+
+type ServerInfoGetter interface {
+	ID() string
+	Name() string
+	Version() string
+	MetaData() map[string]string
+}

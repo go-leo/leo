@@ -13,7 +13,7 @@ require (
 	github.com/go-kratos/aegis v0.1.3
 	github.com/go-leo/backoffx v1.0.0
 	github.com/go-leo/errorx v1.0.0
-	github.com/go-leo/netx v1.1.0
+	github.com/go-leo/netx v1.1.1
 	github.com/go-leo/osx v1.1.0
 	github.com/go-leo/retryx v1.0.0
 	github.com/go-leo/slicex v1.0.13

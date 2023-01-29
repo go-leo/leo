@@ -92,36 +92,52 @@ func (exe *Executor) AddCallable(target Callable) {
 func (exe *Executor) Execute(ctx context.Context) error {
 	exe.o.Logger.Infof("process %d starting...", os.Getpid())
 	defer exe.o.Logger.Infof("process %d stopping...", os.Getpid())
+
+	// 错误chan
 	var runErrChans []<-chan error
+	var runErr error
+
+	// 并发执行callable
 	for _, callable := range exe.callables {
 		runErrChans = append(runErrChans, exe.invoke(ctx, callable))
 	}
+
+	// 并发开启runnable
 	for _, runnable := range exe.runnables {
 		runErrChans = append(runErrChans, exe.start(ctx, runnable))
 	}
+
+	// 合并所有错误chan
 	runErrC := chanx.CombineChannels(runErrChans...)
 
+	// 监听信号
+	var incomingSignal os.Signal
 	signalC := make(chan os.Signal)
 	signals := slicex.Concat(exe.o.ShutdownSignals, exe.o.RestartSignals)
 	if slicex.IsNotEmpty(signals) {
 		signal.Notify(signalC, signals...)
+		exe.o.Logger.Info("notify signals...")
 	}
 
-	var incomingSignal os.Signal
-	var runErr error
-	exe.o.Logger.Info("notify signals...")
+	// 阻塞
 	select {
 	case incomingSignal = <-signalC:
+		// 如果收到信号，跳出select
 		exe.o.Logger.Infof("receive signals %s", incomingSignal)
 	case runErr = <-runErrC:
+		// 如果callable或runnable执行有错误，跳出select
+		// 或者callable或runnable执行完毕，跳出select
+		exe.o.Logger.Infof("execute error signals, %s", runErr)
 	}
 
+	// 并发停止runnable
 	var stopErrChans []<-chan error
 	for _, runnable := range exe.runnables {
 		stopErrChans = append(stopErrChans, exe.stop(ctx, runnable))
 	}
 	stopErrC := chanx.CombineChannels(stopErrChans...)
 
+	// 收集所有错误，合并成multierror
 	var err error
 	if runErr != nil {
 		err = multierror.Append(err, runErr)
@@ -138,12 +154,12 @@ func (exe *Executor) Execute(ctx context.Context) error {
 		return err
 	}
 
-	// 没有监听重启信号
+	// 没有监听重启信号，就直接退出
 	if slicex.IsNotEmpty(exe.o.RestartSignals) {
 		return err
 	}
 
-	// 没有收到重启信号，需要重启
+	// 没有收到重启信号，直接退出
 	f := func(o os.Signal) bool { return o.String() == incomingSignal.String() }
 	if slicex.NotContainsFunc(exe.o.RestartSignals, f) {
 		return err
@@ -159,37 +175,39 @@ func (exe *Executor) Execute(ctx context.Context) error {
 }
 
 func (exe *Executor) invoke(ctx context.Context, target Callable) <-chan error {
-	// 并发启动
 	f := func() error {
 		defer exe.o.Logger.Infof("%s is exited", target.String())
 		exe.o.Logger.Infof("calling %s", target.String())
 		err := target.Invoke(ctx)
 		if err != nil {
 			err = fmt.Errorf("failed to invoke %s, %w", target.String(), err)
+			return err
 		}
-		return err
+		return nil
 	}
 	r := func(p any) {
 		exe.o.Logger.Infof("panic trigger when calling %s", target.String())
 	}
+	// 异步执行
 	errC := syncx.BraveGoE(f, r)
 	runtime.Gosched()
 	return errC
 }
 
 func (exe *Executor) start(ctx context.Context, target Runnable) <-chan error {
-	// 并发启动
 	f := func() error {
 		exe.o.Logger.Infof("starting %s", target.String())
 		err := target.Start(ctx)
 		if err != nil {
 			err = fmt.Errorf("failed to start %s, %w", target.String(), err)
+			return err
 		}
-		return err
+		return nil
 	}
 	r := func(p any) {
 		exe.o.Logger.Infof("panic trigger when starting %s", target.String())
 	}
+	// 异步执行
 	errC := syncx.BraveGoE(f, r)
 	runtime.Gosched()
 	return errC
@@ -202,8 +220,9 @@ func (exe *Executor) stop(ctx context.Context, target Runnable) <-chan error {
 		err := target.Stop(ctx)
 		if err != nil {
 			err = fmt.Errorf("failed to stop %s, %w", target.String(), err)
+			return err
 		}
-		return err
+		return nil
 	}
 	r := func(p any) {
 		exe.o.Logger.Infof("panic trigger when stopping %s", target.String())

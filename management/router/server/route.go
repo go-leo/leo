@@ -15,8 +15,8 @@ type HTTPMapping struct {
 }
 
 type HTTPRoute struct {
-	Path    string   `json:"path,omitempty"`
-	Methods []string `json:"methods,omitempty"`
+	Path   string `json:"path,omitempty"`
+	Method string `json:"methods,omitempty"`
 }
 
 func Route(rg *gin.RouterGroup, grpcMapping *GRPCMapping, httpMapping *HTTPMapping) {

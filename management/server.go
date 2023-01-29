@@ -14,8 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 
-	httpserver "github.com/go-leo/leo/v2/runner/net/http/server"
-
 	"github.com/go-leo/leo/v2/runner/management/router/app"
 	"github.com/go-leo/leo/v2/runner/management/router/config"
 	"github.com/go-leo/leo/v2/runner/management/router/env"
@@ -140,25 +138,12 @@ func GRPC(serviceDesc grpc.ServiceDesc) Option {
 	}
 }
 
-func HTTPRoutes(routes []httpserver.Route, richRoutes []httpserver.RichRoute) Option {
+func HTTPRoutes(routes []server.HTTPRoute) Option {
 	return func(o *options) {
-		routers := make([]server.HTTPRoute, 0, len(routes))
-		for _, router := range routes {
-			routers = append(routers, server.HTTPRoute{
-				Methods: []string{router.Method()},
-				Path:    router.Path(),
-			})
-		}
-		for _, router := range richRoutes {
-			routers = append(routers, server.HTTPRoute{
-				Methods: router.Methods(),
-				Path:    router.Path(),
-			})
-		}
 		if o.HTTPMapping == nil {
 			o.HTTPMapping = new(server.HTTPMapping)
 		}
-		o.HTTPMapping.HTTPRoutes = append(o.HTTPMapping.HTTPRoutes, routers...)
+		o.HTTPMapping.HTTPRoutes = append(o.HTTPMapping.HTTPRoutes, routes...)
 	}
 }
 

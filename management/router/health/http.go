@@ -1,4 +1,4 @@
-package internal
+package health
 
 import (
 	"bytes"
@@ -11,6 +11,10 @@ import (
 
 	"github.com/go-leo/netx/httpx"
 )
+
+type Schemer interface {
+	Scheme() string
+}
 
 type HTTPProber struct {
 	timeout         time.Duration
@@ -25,7 +29,10 @@ func NewHTTPProber(timeout time.Duration, tlsConfig *tls.Config) *HTTPProber {
 		Timeout:   10 * time.Second,
 		Transport: trans,
 	}
-	return &HTTPProber{timeout: timeout, httpClient: httpClient}
+	return &HTTPProber{
+		timeout:    timeout,
+		httpClient: httpClient,
+	}
 }
 
 func (probe *HTTPProber) Check(target string) error {
