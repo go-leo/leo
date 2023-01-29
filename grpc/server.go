@@ -1,31 +1,44 @@
-package http
+package grpc
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"net"
-	"net/http"
 	"runtime"
 	"strconv"
 	"sync"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-leo/netx/addrx"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/go-leo/leo/v2/registry"
 )
 
+type Service struct {
+	Impl any
+	Desc grpc.ServiceDesc
+}
+
+// Server grpc运行实体
 type Server struct {
-	host      string
-	port      int
-	engine    *gin.Engine
-	o         *options
-	lis       net.Listener
-	httpSrv   *http.Server
-	healthSrv *healthServer
+	host string
+	port int
+	// o 可选参数
+	o *options
+	// lis 网络端口监听接口
+	lis net.Listener
+	// services 包含业务Service的实现和描述信息
+	services []Service
+	// gRPCSrv 原生的grpc服务
+	gRPCSrv *grpc.Server
+	// healthSrv 健康检查服务
+	healthSrv *health.Server
 	id        string
 	name      string
 	version   string
@@ -34,7 +47,7 @@ type Server struct {
 	stopOnce  sync.Once
 }
 
-func NewServer(port int, engine *gin.Engine, opts ...Option) (*Server, error) {
+func NewServer(port int, services []Service, opts ...Option) (*Server, error) {
 	// 监听端口
 	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(port)))
 	if err != nil {
@@ -48,31 +61,44 @@ func NewServer(port int, engine *gin.Engine, opts ...Option) (*Server, error) {
 	}
 
 	o := new(options)
-	o.apply(opts...)
+	o.apply(opts)
 	o.init()
 
-	// 设置健康检查
-	healthSrv := newHealthServer(SERVING, o.OKStatus, o.NotOKStatus)
-	engine.Any(o.HealthCheckPath, healthSrv.HandlerFunc)
+	var serverOptions []grpc.ServerOption
+	serverOptions = append(serverOptions, o.serverOptions...)
+	if o.tlsConf != nil {
+		serverOptions = append(serverOptions, grpc.Creds(credentials.NewTLS(o.tlsConf)))
+	}
+	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(o.unaryInterceptors...))
+	gRPCSrv := grpc.NewServer(serverOptions...)
 
-	// 创建http.Server
-	httpSrv := newHttpServer(o, engine)
+	// 注册业务服务
+	for _, service := range services {
+		gRPCSrv.RegisterService(&service.Desc, service.Impl)
+	}
+
+	// 注册健康检查服务
+	healthSrv := health.NewServer()
+	for _, service := range services {
+		healthSrv.SetServingStatus(service.Desc.ServiceName, grpc_health_v1.HealthCheckResponse_SERVING)
+	}
+	grpc_health_v1.RegisterHealthServer(gRPCSrv, healthSrv)
+
+	// 注册反射服务
+	reflection.Register(gRPCSrv)
 
 	srv := &Server{
 		host:      host,
 		port:      port,
 		o:         o,
 		lis:       lis,
-		httpSrv:   httpSrv,
-		healthSrv: healthSrv,
+		services:  services,
+		gRPCSrv:   gRPCSrv,
 		startOnce: sync.Once{},
 		stopOnce:  sync.Once{},
+		healthSrv: healthSrv,
 	}
 	return srv, nil
-}
-
-func (s *Server) String() string {
-	return fmt.Sprintf("%s server", s.transport())
 }
 
 func (s *Server) Start(ctx context.Context) error {
@@ -132,6 +158,10 @@ func (s *Server) Stop(ctx context.Context) error {
 	return err
 }
 
+func (s *Server) String() string {
+	return "grpc server"
+}
+
 func (s *Server) ID() string {
 	return s.id
 }
@@ -164,11 +194,8 @@ func (s *Server) SetMetaData(metaData map[string]string) {
 	s.metaData = metaData
 }
 
-func (s *Server) Scheme() string {
-	if s.o.TLSConf != nil {
-		return "https"
-	}
-	return "http"
+func (s *Server) Services() []Service {
+	return s.services
 }
 
 func (s *Server) Host() string {
@@ -179,68 +206,36 @@ func (s *Server) Port() int {
 	return s.port
 }
 
-func (s *Server) Engin() *gin.Engine {
-	return s.engine
-}
-
-func (s *Server) HealthCheckPath() string {
-	return s.o.HealthCheckPath
-}
-
 func (s *Server) startServer(ctx context.Context) error {
-	if s.httpSrv != nil {
-		s.healthSrv.Resume(ctx)
+	if s.healthSrv != nil {
+		s.healthSrv.Resume()
 	}
-	if s.o.TLSConf != nil {
-		return s.httpSrv.Serve(tls.NewListener(s.lis, s.o.TLSConf))
-	}
-	return s.httpSrv.Serve(s.lis)
+	return s.gRPCSrv.Serve(s.lis)
 }
 
 func (s *Server) stopServer(ctx context.Context) error {
-	if s.httpSrv != nil {
-		s.healthSrv.Shutdown(ctx)
+	if s.healthSrv != nil {
+		s.healthSrv.Shutdown()
 	}
-	return s.httpSrv.Shutdown(ctx)
+	s.gRPCSrv.GracefulStop()
+	return nil
 }
 
 func (s *Server) newServiceInfo() (*registry.ServiceInfo, error) {
-
-	transport := s.transport()
+	host, err := addrx.GlobalUnicastIPString()
+	if err != nil {
+		return nil, err
+	}
+	transport := registry.TransportGRPC
 	id := fmt.Sprintf("%s.%s.%d", s.id, transport, s.port)
 	serviceInfo := &registry.ServiceInfo{
 		ID:        id,
 		Name:      s.name,
 		Transport: transport,
-		Host:      s.host,
+		Host:      host,
 		Port:      s.port,
 		Metadata:  s.metaData,
 		Version:   s.version,
 	}
 	return serviceInfo, nil
-}
-
-func (s *Server) transport() string {
-	transport := registry.TransportHTTP
-	if s.o.TLSConf != nil {
-		transport = registry.TransportHTTPS
-	}
-	return transport
-}
-
-func newHttpServer(o *options, engine *gin.Engine) *http.Server {
-	httpSrv := &http.Server{
-		Handler:           engine,
-		ReadTimeout:       o.ReadTimeout,
-		ReadHeaderTimeout: o.ReadHeaderTimeout,
-		WriteTimeout:      o.WriteTimeout,
-		IdleTimeout:       o.IdleTimeout,
-		MaxHeaderBytes:    o.MaxHeaderBytes,
-		TLSNextProto:      o.TLSNextProto,
-		ConnState:         o.ConnState,
-		ErrorLog:          o.ErrorLog,
-		BaseContext:       o.BaseContext,
-		ConnContext:       o.ConnContext,
-	}
-	return httpSrv
 }

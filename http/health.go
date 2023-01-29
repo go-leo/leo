@@ -2,11 +2,9 @@ package http
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
 	"sync/atomic"
 
-	"github.com/go-leo/errorx"
+	"github.com/gin-gonic/gin"
 )
 
 type ServingStatus int32
@@ -42,24 +40,24 @@ func (resp *HealthCheckResp) GetStatus() ServingStatus {
 }
 
 type healthServer struct {
-	status *atomic.Int32
+	status      *atomic.Int32
+	OKStatus    int
+	NotOKStatus int
 }
 
-func newHealthServer(ss ServingStatus) *healthServer {
+func newHealthServer(ss ServingStatus, okStatus, notOKStatus int) *healthServer {
 	status := new(atomic.Int32)
 	status.Store(int32(ss))
-	return &healthServer{status: status}
+	return &healthServer{status: status, OKStatus: okStatus, NotOKStatus: notOKStatus}
 }
 
-func (s *healthServer) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	healthCheckResp := s.Check(request.Context())
+func (s *healthServer) HandlerFunc(c *gin.Context) {
+	healthCheckResp := s.Check(c.Request.Context())
 	if healthCheckResp.Status == SERVING {
-		writer.WriteHeader(http.StatusOK)
-		_, _ = writer.Write(errorx.Quiet(json.Marshal(healthCheckResp)))
+		c.JSON(s.OKStatus, healthCheckResp)
 		return
 	}
-	writer.WriteHeader(http.StatusServiceUnavailable)
-	_, _ = writer.Write(errorx.Quiet(json.Marshal(healthCheckResp)))
+	c.JSON(s.NotOKStatus, healthCheckResp)
 }
 
 func (s *healthServer) Check(_ context.Context) *HealthCheckResp {

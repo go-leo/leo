@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/v2/registry"
 )
 
@@ -38,7 +40,15 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-
+	if stringx.IsBlank(o.HealthCheckPath) {
+		o.HealthCheckPath = "/health/check"
+	}
+	if o.OKStatus < 200 || o.OKStatus > 299 {
+		o.OKStatus = http.StatusOK
+	}
+	if o.NotOKStatus < 500 || o.NotOKStatus > 599 {
+		o.NotOKStatus = http.StatusServiceUnavailable
+	}
 }
 
 func TLS(conf *tls.Config) Option {

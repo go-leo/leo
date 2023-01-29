@@ -72,5 +72,9 @@ func (task *Task) Stop(_ context.Context) error {
 }
 
 func (task *Task) String() string {
-	return "cron"
+	return "cron task"
+}
+
+func (task *Task) Jobs() []*Job {
+	return task.jobs
 }

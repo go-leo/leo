@@ -21,6 +21,13 @@ type Task struct {
 	router    *message.Router
 }
 
+func New(jobs []*Job, opts ...Option) *Task {
+	o := new(options)
+	o.apply(opts...)
+	o.init()
+	return &Task{jobs: jobs, o: o}
+}
+
 func (task *Task) Start(ctx context.Context) error {
 	err := errors.New("pubsub already started")
 	task.startOnce.Do(func() {
@@ -76,13 +83,10 @@ func (task *Task) Stop(ctx context.Context) error {
 	return err
 }
 
-func New(jobs []*Job, opts ...Option) *Task {
-	o := new(options)
-	o.apply(opts...)
-	o.init()
-	return &Task{jobs: jobs, o: o}
-}
-
 func (task *Task) String() string {
 	return "pubsub"
+}
+
+func (task *Task) Jobs() []*Job {
+	return task.jobs
 }

@@ -55,16 +55,7 @@ func Route(rg *gin.RouterGroup, httpOptions *HttpOptions, gRPCOptions *GRPCOptio
 		}
 		c.Status(http.StatusNoContent)
 	})
-	rg.GET("/health/http", func(c *gin.Context) {
-		if httpChecker == nil {
-			c.Status(http.StatusNotImplemented)
-		}
-		if err := httpChecker(); err != nil {
-			c.Status(http.StatusServiceUnavailable)
-			return
-		}
-		c.Status(http.StatusNoContent)
-	})
+
 }
 
 func httpChecker(httpConf *HttpOptions) func() error {

@@ -4,29 +4,30 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
 
-	"github.com/go-leo/leo/v2/runner/management/router/app"
-	"github.com/go-leo/leo/v2/runner/management/router/config"
-	"github.com/go-leo/leo/v2/runner/management/router/env"
-	"github.com/go-leo/leo/v2/runner/management/router/health"
-	"github.com/go-leo/leo/v2/runner/management/router/metric"
-	"github.com/go-leo/leo/v2/runner/management/router/profile"
-	"github.com/go-leo/leo/v2/runner/management/router/restart"
-	"github.com/go-leo/leo/v2/runner/management/router/server"
-	"github.com/go-leo/leo/v2/runner/management/router/shutdown"
-	"github.com/go-leo/leo/v2/runner/management/router/system"
-	"github.com/go-leo/leo/v2/runner/management/router/task"
-	crontask "github.com/go-leo/leo/v2/runner/task/cron"
-	pubsubtask "github.com/go-leo/leo/v2/runner/task/pubsub"
+	"github.com/go-leo/leo/v2/cron"
+	leogrpc "github.com/go-leo/leo/v2/grpc"
+	leohttp "github.com/go-leo/leo/v2/http"
+	"github.com/go-leo/leo/v2/management/router/app"
+	"github.com/go-leo/leo/v2/management/router/config"
+	mgmtcron "github.com/go-leo/leo/v2/management/router/cron"
+	"github.com/go-leo/leo/v2/management/router/env"
+	mgmtgrpc "github.com/go-leo/leo/v2/management/router/grpc"
+	mgmthttp "github.com/go-leo/leo/v2/management/router/http"
+	"github.com/go-leo/leo/v2/management/router/metric"
+	"github.com/go-leo/leo/v2/management/router/profile"
+	"github.com/go-leo/leo/v2/management/router/restart"
+	"github.com/go-leo/leo/v2/management/router/shutdown"
+	"github.com/go-leo/leo/v2/management/router/system"
+	"github.com/go-leo/leo/v2/pubsub"
 )
 
 type Router struct {
@@ -36,21 +37,21 @@ type Router struct {
 }
 
 type options struct {
-	GinMiddlewares  []gin.HandlerFunc
-	Routers         []Router
-	TLSConf         *tls.Config
-	ReadTimeout     time.Duration
-	WriteTimeout    time.Duration
-	IdleTimeout     time.Duration
-	MaxHeaderBytes  int
-	HTTPHealthCheck *health.HttpOptions
-	GRPCHealthCheck *health.GRPCOptions
-	ExitSignals     []os.Signal
-	RestartSignals  []os.Signal
-	GRPCMapping     *server.GRPCMapping
-	HTTPMapping     *server.HTTPMapping
-	CronJobs        []*crontask.Job
-	SubscriberJobs  []*pubsubtask.Job
+	GinMiddlewares      []gin.HandlerFunc
+	Routers             []Router
+	TLSConf             *tls.Config
+	ReadTimeout         time.Duration
+	WriteTimeout        time.Duration
+	IdleTimeout         time.Duration
+	MaxHeaderBytes      int
+	ExitSignals         []os.Signal
+	RestartSignals      []os.Signal
+	CronTask            *cron.Task
+	PubSubTask          *pubsub.Task
+	HTTPSrv             *leohttp.Server
+	HTTPHealthCheckOpts *mgmthttp.HealthCheckOptions
+	GRPCSrv             *leogrpc.Server
+	GRPCHealthCheckOpts *mgmtgrpc.HealthCheckOptions
 }
 
 type Option func(o *options)
@@ -106,56 +107,30 @@ func Routers(routers ...Router) Option {
 	}
 }
 
-func GRPCHealthCheck(target string, TLSConf *tls.Config, timeout time.Duration) Option {
+func HTTP(srv *leohttp.Server, HttpHealthCheckOpts *mgmthttp.HealthCheckOptions) Option {
 	return func(o *options) {
-		o.GRPCHealthCheck = &health.GRPCOptions{
-			Target:  target,
-			TLSConf: TLSConf,
-			Timeout: timeout,
-		}
+		o.HTTPSrv = srv
+		o.HTTPHealthCheckOpts = HttpHealthCheckOpts
 	}
 }
 
-func HTTPHealthCheck(target string, TLSConf *tls.Config, timeout time.Duration) Option {
+func GRPC(srv *leogrpc.Server, grpcHealthCheckOpts *mgmtgrpc.HealthCheckOptions) Option {
 	return func(o *options) {
-		o.HTTPHealthCheck = &health.HttpOptions{
-			Target:  target,
-			TLSConf: TLSConf,
-			Timeout: timeout,
-		}
+		o.GRPCSrv = srv
+		o.GRPCHealthCheckOpts = grpcHealthCheckOpts
+
 	}
 }
 
-func GRPC(serviceDesc grpc.ServiceDesc) Option {
+func Cron(task *cron.Task) Option {
 	return func(o *options) {
-		methodNames := make([]string, 0, len(serviceDesc.Methods))
-		for _, method := range serviceDesc.Methods {
-			methodNames = append(methodNames, fmt.Sprintf("/%s/%s", serviceDesc.ServiceName, method.MethodName))
-		}
-		o.GRPCMapping = &server.GRPCMapping{
-			FullMethods: methodNames,
-		}
+		o.CronTask = task
 	}
 }
 
-func HTTPRoutes(routes []server.HTTPRoute) Option {
+func PubSub(task *pubsub.Task) Option {
 	return func(o *options) {
-		if o.HTTPMapping == nil {
-			o.HTTPMapping = new(server.HTTPMapping)
-		}
-		o.HTTPMapping.HTTPRoutes = append(o.HTTPMapping.HTTPRoutes, routes...)
-	}
-}
-
-func Cron(jobs []*crontask.Job) Option {
-	return func(o *options) {
-		o.CronJobs = jobs
-	}
-}
-
-func Subscriber(jobs []*pubsubtask.Job) Option {
-	return func(o *options) {
-		o.SubscriberJobs = jobs
+		o.PubSubTask = task
 	}
 }
 
@@ -179,23 +154,33 @@ type Server struct {
 	stopOnce  sync.Once
 }
 
-func New(lis net.Listener, opts ...Option) *Server {
+func NewServer(port int, opts ...Option) (*Server, error) {
+	if port <= 0 {
+		return nil, errors.New("management port is zero")
+	}
+	// 监听端口
+	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(port)))
+	if err != nil {
+		return nil, err
+	}
+
 	o := new(options)
 	o.apply(opts)
 	o.init()
+
 	gin.SetMode(gin.ReleaseMode)
 	mux := gin.New()
 	mux.Use(gin.Recovery())
 	mux.Use(o.GinMiddlewares...)
 	rg := mux.Group("/management")
-	// register grpc and http mapping
-	server.Route(rg, o.GRPCMapping, o.HTTPMapping)
-	// register cron and sub jobs
-	task.Route(rg, o.CronJobs, o.SubscriberJobs)
+	// register http server
+	mgmthttp.Route(rg, o.HTTPSrv, o.HTTPHealthCheckOpts)
+	// register grpc server
+	mgmtgrpc.Route(rg, o.GRPCSrv, o.GRPCHealthCheckOpts)
+	// register cron task
+	mgmtcron.Route(rg, o.CronTask)
 	// register profile
 	profile.Route(rg)
-	// register health
-	health.Route(rg, o.HTTPHealthCheck, o.GRPCHealthCheck)
 	// register system
 	system.Route(rg)
 	// register metrics
@@ -226,7 +211,7 @@ func New(lis net.Listener, opts ...Option) *Server {
 		lis:     lis,
 		httpSrv: httpSrv,
 	}
-	return srv
+	return srv, nil
 }
 
 func (s *Server) String() string {
@@ -234,12 +219,11 @@ func (s *Server) String() string {
 }
 
 func (s *Server) Start(ctx context.Context) error {
+	if s.lis == nil {
+		return errors.New("net listener is nil")
+	}
 	err := errors.New("server already started")
 	s.startOnce.Do(func() {
-		if s.lis == nil {
-			err = errors.New("net listener is nil")
-			return
-		}
 		err = nil
 		if s.o.TLSConf == nil {
 			err = s.httpSrv.Serve(s.lis)
