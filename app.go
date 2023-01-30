@@ -233,12 +233,14 @@ func (app *App) Run(ctx context.Context) error {
 	// 添加http服务
 	if app.o.HttpSrv != nil {
 		app.o.Logger.Info("add http server")
+		app.o.HttpSrv.SetServiceInfo(app)
 		app.executor.AddRunnable(app.o.HttpSrv)
 	}
 
 	// 添加gRPC服务
 	if app.o.GRPCSrv != nil {
 		app.o.Logger.Info("add grpc server")
+		app.o.GRPCSrv.SetServiceInfo(app)
 		app.executor.AddRunnable(app.o.GRPCSrv)
 	}
 
@@ -262,4 +264,20 @@ func (app *App) Run(ctx context.Context) error {
 
 	// 等待退出
 	return app.executor.Execute(ctx)
+}
+
+func (app *App) ID() string {
+	return app.o.ID
+}
+
+func (app *App) Name() string {
+	return app.o.Name
+}
+
+func (app *App) Version() string {
+	return app.o.Version
+}
+
+func (app *App) MetaData() map[string]string {
+	return app.o.MetaData
 }

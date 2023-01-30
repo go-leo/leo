@@ -162,36 +162,11 @@ func (s *Server) String() string {
 	return "grpc server"
 }
 
-func (s *Server) ID() string {
-	return s.id
-}
-
-func (s *Server) Name() string {
-	return s.name
-}
-
-func (s *Server) Version() string {
-	return s.version
-}
-
-func (s *Server) MetaData() map[string]string {
-	return s.metaData
-}
-
-func (s *Server) SetID(id string) {
-	s.id = id
-}
-
-func (s *Server) SetName(name string) {
-	s.name = name
-}
-
-func (s *Server) SetVersion(version string) {
-	s.version = version
-}
-
-func (s *Server) SetMetaData(metaData map[string]string) {
-	s.metaData = metaData
+func (s *Server) SetServiceInfo(getter registry.ServiceInfoGetter) {
+	s.id = getter.ID()
+	s.name = getter.Name()
+	s.version = getter.Version()
+	s.metaData = getter.MetaData()
 }
 
 func (s *Server) Services() []Service {

@@ -61,14 +61,7 @@ func ServiceInfoFromURL(uri url.URL, transport string) *ServiceInfo {
 	}
 }
 
-type ServerInfoSetter interface {
-	SetID(id string)
-	SetName(name string)
-	SetVersion(version string)
-	SetMetaData(metadata map[string]string)
-}
-
-type ServerInfoGetter interface {
+type ServiceInfoGetter interface {
 	ID() string
 	Name() string
 	Version() string
