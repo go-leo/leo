@@ -84,7 +84,7 @@ func (task *Task) Stop(ctx context.Context) error {
 }
 
 func (task *Task) String() string {
-	return "pubsub"
+	return "pubsub task"
 }
 
 func (task *Task) Jobs() []*Job {

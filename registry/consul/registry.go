@@ -23,7 +23,6 @@ import (
 
 	"github.com/go-leo/leo/v2/log"
 	"github.com/go-leo/leo/v2/registry"
-	"github.com/go-leo/leo/v2/runner/net/http/server"
 )
 
 var _ registry.Registrar = new(Registrar)
@@ -39,11 +38,12 @@ const (
 )
 
 type Registrar struct {
-	cli *api.Client
+	cli             *api.Client
+	healthCheckPath string
 }
 
-func NewRegistrar(cli *api.Client) *Registrar {
-	return &Registrar{cli: cli}
+func NewRegistrar(cli *api.Client, healthCheckPath string) *Registrar {
+	return &Registrar{cli: cli, healthCheckPath: healthCheckPath}
 }
 
 func (r *Registrar) Register(ctx context.Context, service *registry.ServiceInfo) error {
@@ -78,9 +78,9 @@ func (r *Registrar) register(service *registry.ServiceInfo) error {
 	case registry.TransportGRPC:
 		GRPCChecks = net.JoinHostPort(service.Host, strconv.Itoa(service.Port))
 	case registry.TransportHTTP:
-		HTTPChecks = fmt.Sprintf("%s://%s%s", "http", net.JoinHostPort(service.Host, strconv.Itoa(service.Port)), server.HealthCheckPath)
+		HTTPChecks = fmt.Sprintf("%s://%s%s", "http", net.JoinHostPort(service.Host, strconv.Itoa(service.Port)), r.healthCheckPath)
 	case registry.TransportHTTPS:
-		HTTPChecks = fmt.Sprintf("%s://%s%s", "https", net.JoinHostPort(service.Host, strconv.Itoa(service.Port)), server.HealthCheckPath)
+		HTTPChecks = fmt.Sprintf("%s://%s%s", "https", net.JoinHostPort(service.Host, strconv.Itoa(service.Port)), r.healthCheckPath)
 	}
 	asr := &api.AgentServiceRegistration{
 		ID:      service.ID,
@@ -308,7 +308,8 @@ func (factory *RegistrarFactory) Create() (registry.Registrar, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewRegistrar(client), nil
+	healthCheckPath := factory.URI.Query().Get("health_check_path")
+	return NewRegistrar(client, healthCheckPath), nil
 }
 
 type DiscoveryFactory struct {

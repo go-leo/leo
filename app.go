@@ -239,7 +239,7 @@ func (app *App) Run(ctx context.Context) error {
 	// 添加gRPC服务
 	if app.o.GRPCSrv != nil {
 		app.o.Logger.Info("add grpc server")
-		app.executor.AddRunnable(app.o.HttpSrv)
+		app.executor.AddRunnable(app.o.GRPCSrv)
 	}
 
 	// 添加Cron任务
@@ -251,13 +251,13 @@ func (app *App) Run(ctx context.Context) error {
 	// 添加PubSub任务
 	if app.o.PubSubTask != nil {
 		app.o.Logger.Info("add pubsub task")
-		app.executor.AddRunnable(app.o.CronTask)
+		app.executor.AddRunnable(app.o.PubSubTask)
 	}
 
 	// 添加management服务
 	if app.o.MgmtSrv != nil {
 		app.o.Logger.Info("add management server")
-		app.executor.AddRunnable(app.o.CronTask)
+		app.executor.AddRunnable(app.o.MgmtSrv)
 	}
 
 	// 等待退出
