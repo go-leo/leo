@@ -16,7 +16,7 @@ var _ config.Loader = new(Loader)
 type Loader struct {
 	scheme      string
 	host        string
-	port        string
+	port        int
 	namespace   string
 	group       string
 	dataId      string
@@ -32,7 +32,7 @@ func (loader *Loader) ContentType() string {
 
 func (loader *Loader) Load() error {
 	loader.log.Infof("get config DataId: %s, Group: %s", loader.dataId, loader.group)
-	uri := fmt.Sprintf("%s://%s:%s/nacos/v1/cs/configs", loader.scheme, loader.host, loader.port)
+	uri := fmt.Sprintf("%s://%s:%d/nacos/v1/cs/configs", loader.scheme, loader.host, loader.port)
 	request, err := new(httpx.RequestBuilder).
 		Get().
 		URLString(uri).
@@ -75,7 +75,7 @@ func Logger(log log.Logger) LoaderOption {
 
 func NewLoader(
 	host string,
-	port string,
+	port int,
 	namespace string,
 	group string,
 	dataId string,
