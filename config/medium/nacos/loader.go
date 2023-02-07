@@ -33,17 +33,13 @@ func (loader *Loader) ContentType() string {
 func (loader *Loader) Load() error {
 	loader.log.Infof("get config DataId: %s, Group: %s", loader.dataId, loader.group)
 	uri := fmt.Sprintf("%s://%s:%d/nacos/v1/cs/configs", loader.scheme, loader.host, loader.port)
-	request, err := new(httpx.RequestBuilder).
+	helper := httpx.NewRequestBuilder().
 		Get().
 		URLString(uri).
 		Query("tenant", loader.namespace).
 		Query("group", loader.group).
 		Query("dataId", loader.dataId).
-		Build(context.Background())
-	if err != nil {
-		return err
-	}
-	helper := httpx.NewResponseHelper(loader.client.Do(request))
+		Execute(context.Background(), loader.client)
 	if err := helper.Err(); err != nil {
 		return err
 	}

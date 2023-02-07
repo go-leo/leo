@@ -69,7 +69,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestLoader(t *testing.T) {
-	loader := nacos.NewLoader("localhost", "8848", "1233", group, dataID, confType)
+	loader := nacos.NewLoader("localhost", 8848, "1233", group, dataID, confType)
 	contentType := loader.ContentType()
 	assert.Equal(t, confType, contentType, "content type not match")
 
