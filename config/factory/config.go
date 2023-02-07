@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-leo/stringx"
+
 	"github.com/go-leo/leo/config"
 	"github.com/go-leo/leo/config/medium/apollo"
 	"github.com/go-leo/leo/config/medium/file"
@@ -13,7 +15,6 @@ import (
 	"github.com/go-leo/leo/config/medium/nacosv2"
 	"github.com/go-leo/leo/config/parser"
 	"github.com/go-leo/leo/config/valuer"
-	"github.com/go-leo/stringx"
 )
 
 type Property struct {
@@ -89,11 +90,14 @@ func NewFileLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher) {
 }
 
 func NewNacosLoaderAndWatcher(uri *url.URL) (config.Loader, config.Watcher, error) {
+	host := uri.Hostname()
+	port, _ := strconv.Atoi(uri.Port())
 	query := uri.Query()
 	group := query.Get("group")
 	dataID := query.Get("dataID")
 	contentType := query.Get("contentType")
-	loader := nacos.NewLoader("", "", "", group, dataID, contentType)
+	namespaceID := query.Get("namespaceID")
+	loader := nacos.NewLoader(host, port, namespaceID, group, dataID, contentType)
 
 	isWatch, _ := strconv.ParseBool(query.Get("watch"))
 	if !isWatch {
