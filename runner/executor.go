@@ -154,6 +154,11 @@ func (exe *Executor) Execute(ctx context.Context) error {
 		return err
 	}
 
+	// 自然运行结束，就直接退出
+	if incomingSignal == nil {
+		return nil
+	}
+
 	err = multierror.Append(err, fmt.Errorf("receive signal, %s", incomingSignal))
 
 	// 禁用重启，就直接退出
