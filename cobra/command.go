@@ -11,18 +11,8 @@ type Command struct {
 	rootCmd *cobra.Command
 }
 
-func New(cmds ...*cobra.Command) *Command {
-	var cmd *cobra.Command
-	for i := len(cmds) - 1; i >= 0; i-- {
-		cur := cmds[i]
-		if cmd == nil {
-			cmd = cur
-			continue
-		}
-		cur.AddCommand(cmd)
-		cmd = cur
-	}
-	return &Command{rootCmd: cmd}
+func New(rootCmd *cobra.Command) *Command {
+	return &Command{rootCmd: rootCmd}
 }
 
 func (c *Command) String() string {
@@ -31,7 +21,7 @@ func (c *Command) String() string {
 
 func (c *Command) Invoke(ctx context.Context) error {
 	if c.rootCmd == nil {
-		return errors.New("command is nil")
+		return errors.New("root command is nil")
 	}
 	return c.rootCmd.ExecuteContext(ctx)
 }
