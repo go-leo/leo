@@ -126,7 +126,7 @@ func (exe *Executor) Execute(ctx context.Context) error {
 		// 如果callable或runnable执行有错误，跳出select
 		// 或者callable或runnable执行完毕，跳出select
 		if ok {
-			exe.o.Logger.Infof("execute error signals, %s", runErr)
+			exe.o.Logger.Infof("execute error, %s", runErr)
 		}
 	}
 
