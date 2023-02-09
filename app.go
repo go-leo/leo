@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-leo/leo/v2/cron"
 	"github.com/go-leo/leo/v2/grpc"
 	"github.com/go-leo/leo/v2/http"
 	"github.com/go-leo/leo/v2/log"
@@ -33,7 +32,6 @@ type options struct {
 	GRPCSrv *grpc.Server
 	HttpSrv *http.Server
 
-	CronTask   *cron.Task
 	PubSubTask *pubsub.Task
 
 	Runnables []runner.Runnable
@@ -130,13 +128,6 @@ func GRPC(grpcSrv *grpc.Server) Option {
 func HTTP(httpSrv *http.Server) Option {
 	return func(o *options) {
 		o.HttpSrv = httpSrv
-	}
-}
-
-// Cron 定时任务
-func Cron(task *cron.Task) Option {
-	return func(o *options) {
-		o.CronTask = task
 	}
 }
 
@@ -241,12 +232,6 @@ func (app *App) Run(ctx context.Context) error {
 		app.o.Logger.Info("add grpc server")
 		app.o.GRPCSrv.SetServiceInfo(app)
 		app.executor.AddRunnable(app.o.GRPCSrv)
-	}
-
-	// 添加Cron任务
-	if app.o.CronTask != nil {
-		app.o.Logger.Info("add cron task")
-		app.executor.AddRunnable(app.o.CronTask)
 	}
 
 	// 添加PubSub任务
