@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-leo/leo/v2/cobra"
 	"github.com/go-leo/leo/v2/cron"
 	"github.com/go-leo/leo/v2/grpc"
 	"github.com/go-leo/leo/v2/http"
@@ -39,8 +38,6 @@ type options struct {
 
 	Runnables []runner.Runnable
 	Callables []runner.Callable
-
-	CobraCmd *cobra.Command
 
 	MgmtSrv         *management.Server
 	ShutdownSignals []os.Signal
@@ -164,12 +161,6 @@ func Callable(c ...runner.Callable) Option {
 	}
 }
 
-func Command(cmd *cobra.Command) Option {
-	return func(o *options) {
-		o.CobraCmd = cmd
-	}
-}
-
 // Management 有助于对应用程序进行监控和管理，通过restful api请求来监管、审计、收集应用的运行情况
 func Management(srv *management.Server) Option {
 	return func(o *options) {
@@ -268,11 +259,6 @@ func (app *App) Run(ctx context.Context) error {
 	if app.o.MgmtSrv != nil {
 		app.o.Logger.Info("add management server")
 		app.executor.AddRunnable(app.o.MgmtSrv)
-	}
-
-	if app.o.CobraCmd != nil {
-		app.o.Logger.Info("add cobra command")
-		app.executor.AddCallable(app.o.CobraCmd)
 	}
 
 	// 等待退出
