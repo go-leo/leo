@@ -16,7 +16,6 @@ import (
 	"github.com/go-leo/leo/v2/grpc"
 	"github.com/go-leo/leo/v2/http"
 	"github.com/go-leo/leo/v2/log"
-	"github.com/go-leo/leo/v2/pubsub"
 	"github.com/go-leo/leo/v2/runner"
 )
 
@@ -30,8 +29,6 @@ type options struct {
 
 	GRPCSrv *grpc.Server
 	HttpSrv *http.Server
-
-	PubSubTask *pubsub.Task
 
 	Runnables []runner.Runnable
 	Callables []runner.Callable
@@ -129,13 +126,6 @@ func HTTP(httpSrv *http.Server) Option {
 	}
 }
 
-// PubSub 发布与订阅任务
-func PubSub(task *pubsub.Task) Option {
-	return func(o *options) {
-		o.PubSubTask = task
-	}
-}
-
 // Runnable 其他实现了Runnable接口的程序
 func Runnable(r ...runner.Runnable) Option {
 	return func(o *options) {
@@ -223,12 +213,6 @@ func (app *App) Run(ctx context.Context) error {
 		app.o.Logger.Info("add grpc server")
 		app.o.GRPCSrv.SetServiceInfo(app)
 		app.executor.AddRunnable(app.o.GRPCSrv)
-	}
-
-	// 添加PubSub任务
-	if app.o.PubSubTask != nil {
-		app.o.Logger.Info("add pubsub task")
-		app.executor.AddRunnable(app.o.PubSubTask)
 	}
 
 	// 等待退出
