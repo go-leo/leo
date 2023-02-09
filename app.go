@@ -16,7 +16,6 @@ import (
 	"github.com/go-leo/leo/v2/grpc"
 	"github.com/go-leo/leo/v2/http"
 	"github.com/go-leo/leo/v2/log"
-	"github.com/go-leo/leo/v2/management"
 	"github.com/go-leo/leo/v2/pubsub"
 	"github.com/go-leo/leo/v2/runner"
 )
@@ -37,7 +36,6 @@ type options struct {
 	Runnables []runner.Runnable
 	Callables []runner.Callable
 
-	MgmtSrv         *management.Server
 	ShutdownSignals []os.Signal
 	RestartSignals  []os.Signal
 	StopTimeout     time.Duration
@@ -152,13 +150,6 @@ func Callable(c ...runner.Callable) Option {
 	}
 }
 
-// Management 有助于对应用程序进行监控和管理，通过restful api请求来监管、审计、收集应用的运行情况
-func Management(srv *management.Server) Option {
-	return func(o *options) {
-		o.MgmtSrv = srv
-	}
-}
-
 // ShutdownSignal 关闭信号
 func ShutdownSignal(signals []os.Signal) Option {
 	return func(o *options) {
@@ -238,12 +229,6 @@ func (app *App) Run(ctx context.Context) error {
 	if app.o.PubSubTask != nil {
 		app.o.Logger.Info("add pubsub task")
 		app.executor.AddRunnable(app.o.PubSubTask)
-	}
-
-	// 添加management服务
-	if app.o.MgmtSrv != nil {
-		app.o.Logger.Info("add management server")
-		app.executor.AddRunnable(app.o.MgmtSrv)
 	}
 
 	// 等待退出
