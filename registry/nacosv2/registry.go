@@ -22,7 +22,6 @@ import (
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/stringx"
-	"runtime"
 )
 
 var _ registry.Registrar = new(Registrar)
@@ -75,7 +74,7 @@ func (r *Registrar) register(service *registry.ServiceInfo) error {
 		ClusterName: clusterName,          // 集群名
 		ServiceName: service.Name,
 		GroupName:   groupName,
-		Ephemeral:   false, // 是否临时实例
+		Ephemeral:   true, // 是否临时实例
 	}
 	_, err := r.cli.RegisterInstance(param)
 	if err != nil {
@@ -100,7 +99,7 @@ func (r *Registrar) deregister(service *registry.ServiceInfo) error {
 		Cluster:     clusterName,
 		ServiceName: serviceName,
 		GroupName:   groupName,
-		Ephemeral:   false, // 是否临时实例
+		Ephemeral:   true, // 是否临时实例
 	}
 	_, err := r.cli.DeregisterInstance(param)
 	if err != nil {
@@ -174,6 +173,10 @@ func (d *Discovery) getService(service *registry.ServiceInfo) ([]*registry.Servi
 	for _, instance := range nacosServices.Hosts {
 		if !instance.Enable {
 			// 忽略下线
+			continue
+		}
+		if !instance.Healthy {
+			// 忽略不健康
 			continue
 		}
 		if instance.Weight <= 0 {
@@ -359,8 +362,6 @@ func NewNacosNamingClient(uri *url.URL) (naming_client.INamingClient, error) {
 		constant.WithNotLoadCacheAtStart(true),
 		constant.WithNamespaceId(namespaceId),
 		constant.WithTimeoutMs(5000),
-		constant.WithUpdateCacheWhenEmpty(true),
-		constant.WithUpdateThreadNum(runtime.NumCPU()/2+1),
 	)
 
 	clientParam := vo.NacosClientParam{ClientConfig: cc, ServerConfigs: sc}
