@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-leo/leo/v2/http"
 	"github.com/go-leo/leo/v2/log"
 	"github.com/go-leo/leo/v2/runner"
 )
@@ -25,8 +24,6 @@ type options struct {
 	MetaData map[string]string
 
 	Logger log.Logger
-
-	HttpSrv *http.Server
 
 	Runnables []runner.Runnable
 	Callables []runner.Callable
@@ -110,13 +107,6 @@ func Logger(logger log.Logger) Option {
 	}
 }
 
-// HTTP http服务配置
-func HTTP(httpSrv *http.Server) Option {
-	return func(o *options) {
-		o.HttpSrv = httpSrv
-	}
-}
-
 // Runnable 其他实现了Runnable接口的程序
 func Runnable(r ...runner.Runnable) Option {
 	return func(o *options) {
@@ -190,13 +180,6 @@ func (app *App) Run(ctx context.Context) error {
 	for _, runnable := range app.o.Runnables {
 		app.o.Logger.Info("add runnable")
 		app.executor.AddRunnable(runnable)
-	}
-
-	// 添加http服务
-	if app.o.HttpSrv != nil {
-		app.o.Logger.Info("add http server")
-		app.o.HttpSrv.SetServiceInfo(app)
-		app.executor.AddRunnable(app.o.HttpSrv)
 	}
 
 	// 等待退出
