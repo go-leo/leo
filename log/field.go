@@ -13,11 +13,11 @@ type F struct {
 	V any
 }
 
-func (f *F) Key() string {
+func (f F) Key() string {
 	return f.K
 }
 
-func (f *F) Value() any {
+func (f F) Value() any {
 	return f.V
 }
 
