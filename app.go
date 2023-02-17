@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-leo/leo/v2/grpc"
 	"github.com/go-leo/leo/v2/http"
 	"github.com/go-leo/leo/v2/log"
 	"github.com/go-leo/leo/v2/runner"
@@ -27,7 +26,6 @@ type options struct {
 
 	Logger log.Logger
 
-	GRPCSrv *grpc.Server
 	HttpSrv *http.Server
 
 	Runnables []runner.Runnable
@@ -109,13 +107,6 @@ func Metadata(metaData map[string]string) Option {
 func Logger(logger log.Logger) Option {
 	return func(o *options) {
 		o.Logger = logger
-	}
-}
-
-// GRPC GRPC服务配置
-func GRPC(grpcSrv *grpc.Server) Option {
-	return func(o *options) {
-		o.GRPCSrv = grpcSrv
 	}
 }
 
@@ -206,13 +197,6 @@ func (app *App) Run(ctx context.Context) error {
 		app.o.Logger.Info("add http server")
 		app.o.HttpSrv.SetServiceInfo(app)
 		app.executor.AddRunnable(app.o.HttpSrv)
-	}
-
-	// 添加gRPC服务
-	if app.o.GRPCSrv != nil {
-		app.o.Logger.Info("add grpc server")
-		app.o.GRPCSrv.SetServiceInfo(app)
-		app.executor.AddRunnable(app.o.GRPCSrv)
 	}
 
 	// 等待退出
