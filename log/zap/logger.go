@@ -2,11 +2,9 @@ package zap
 
 import (
 	"net/http"
-	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/go-leo/leo/v2/log"
 )
@@ -14,81 +12,44 @@ import (
 var _ log.Logger = new(Logger)
 
 type Logger struct {
-	level *zap.AtomicLevel
+	level zap.AtomicLevel
 	zl    *zap.Logger
 	zsl   *zap.SugaredLogger
 }
 
-func LevelAdapt(level log.Level) *zap.AtomicLevel {
+func (l *Logger) SetLevel(level log.Level) {
 	switch level {
 	case log.Debug:
-		level := zap.NewAtomicLevelAt(zap.DebugLevel)
-		return &level
+		l.EnableDebug()
 	case log.Info:
-		level := zap.NewAtomicLevelAt(zap.InfoLevel)
-		return &level
+		l.EnableInfo()
 	case log.Warn:
-		level := zap.NewAtomicLevelAt(zap.WarnLevel)
-		return &level
+		l.EnableWarn()
 	case log.Error:
-		level := zap.NewAtomicLevelAt(zap.ErrorLevel)
-		return &level
+		l.EnableError()
 	case log.Panic:
-		level := zap.NewAtomicLevelAt(zap.PanicLevel)
-		return &level
+		l.EnablePanic()
 	case log.Fatal:
-		level := zap.NewAtomicLevelAt(zap.FatalLevel)
-		return &level
-	default:
-		level := zap.NewAtomicLevel()
-		return &level
+		l.EnableFatal()
 	}
 }
 
-func New(level *zap.AtomicLevel, opts ...Option) *Logger {
-	o := new(options)
-	o.apply(opts...)
-	o.init()
-	var cores []zapcore.Core
-	// 控制台输出
-	if o.Console {
-		cores = append(cores, newConsoleCore(o.Encoder, level.Level())...)
+func (l *Logger) GetLevel() log.Level {
+	switch l.level.Level() {
+	case zapcore.DebugLevel:
+		return log.Debug
+	case zapcore.InfoLevel:
+		return log.Info
+	case zapcore.WarnLevel:
+		return log.Warn
+	case zapcore.ErrorLevel:
+		return log.Error
+	case zapcore.PanicLevel:
+		return log.Panic
+	case zapcore.FatalLevel:
+		return log.Fatal
 	}
-	// 配置日志文件
-	if o.FileOptions != nil {
-		cores = append(cores, newFileCore(o.Encoder, level.Level(), o.FileOptions))
-	}
-	core := zapcore.NewTee(cores...)
-	zl := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1), zap.Fields(o.Fields...))
-	return &Logger{level: level, zl: zl, zsl: zl.Sugar()}
-}
-
-func (l *Logger) SkipCaller(depth int) log.Logger {
-	zl := l.zl.WithOptions(zap.WithCaller(true), zap.AddCallerSkip(depth))
-	zsl := zl.Sugar()
-	copy := *l
-	copy.zl = zl
-	copy.zsl = zsl
-	return &copy
-}
-
-func (l *Logger) With(fields ...log.F) log.Logger {
-	zapFields := make([]zap.Field, 0)
-	for _, field := range fields {
-		zapFields = append(zapFields, zap.Any(field.K, field.V))
-	}
-	copy := *l
-	copy.zl = l.zl.With(zapFields...)
-	copy.zsl = copy.zl.Sugar()
-	return &copy
-}
-
-func (l *Logger) Clone() log.Logger {
-	copy := *l
-	zl := *l.zl
-	copy.zl = &zl
-	copy.zsl = copy.zl.Sugar()
-	return &copy
+	return ""
 }
 
 func (l *Logger) EnableDebug() {
@@ -99,38 +60,12 @@ func (l *Logger) IsDebugEnabled() bool {
 	return l.level.Enabled(zapcore.DebugLevel)
 }
 
-func (l *Logger) Debug(args ...any) {
-	l.zsl.Debug(args...)
-}
-
-func (l *Logger) Debugf(template string, args ...any) {
-	l.zsl.Debugf(template, args...)
-}
-
-func (l *Logger) DebugF(fields ...log.F) {
-	fs := toZapFields(fields...)
-	l.zl.Debug("", fs...)
-}
-
 func (l *Logger) EnableInfo() {
 	l.level.SetLevel(zapcore.InfoLevel)
 }
 
 func (l *Logger) IsInfoEnabled() bool {
 	return l.level.Enabled(zapcore.InfoLevel)
-}
-
-func (l *Logger) Info(args ...any) {
-	l.zsl.Info(args...)
-}
-
-func (l *Logger) Infof(template string, args ...any) {
-	l.zsl.Infof(template, args...)
-}
-
-func (l *Logger) InfoF(fields ...log.F) {
-	fs := toZapFields(fields...)
-	l.zl.Info("", fs...)
 }
 
 func (l *Logger) EnableWarn() {
@@ -141,38 +76,12 @@ func (l *Logger) IsWarnEnabled() bool {
 	return l.level.Enabled(zapcore.WarnLevel)
 }
 
-func (l *Logger) Warn(args ...any) {
-	l.zsl.Warn(args...)
-}
-
-func (l *Logger) Warnf(template string, args ...any) {
-	l.zsl.Warnf(template, args...)
-}
-
-func (l *Logger) WarnF(fields ...log.F) {
-	fs := toZapFields(fields...)
-	l.zl.Warn("", fs...)
-}
-
 func (l *Logger) EnableError() {
 	l.level.SetLevel(zapcore.ErrorLevel)
 }
 
 func (l *Logger) IsErrorEnabled() bool {
 	return l.level.Enabled(zap.ErrorLevel)
-}
-
-func (l *Logger) Error(args ...any) {
-	l.zsl.Error(args...)
-}
-
-func (l *Logger) Errorf(template string, args ...any) {
-	l.zsl.Errorf(template, args...)
-}
-
-func (l *Logger) ErrorF(fields ...log.F) {
-	fs := toZapFields(fields...)
-	l.zl.Error("", fs...)
 }
 
 func (l *Logger) EnablePanic() {
@@ -183,6 +92,82 @@ func (l *Logger) IsPanicEnabled() bool {
 	return l.level.Enabled(zapcore.PanicLevel)
 }
 
+func (l *Logger) EnableFatal() {
+	l.level.SetLevel(zapcore.FatalLevel)
+}
+
+func (l *Logger) IsFatalEnabled() bool {
+	return l.level.Enabled(zapcore.FatalLevel)
+}
+
+func (l *Logger) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+	l.level.ServeHTTP(resp, req)
+}
+
+func (l *Logger) SkipCaller(depth int) log.Logger {
+	return l.clone(zap.WithCaller(true), zap.AddCallerSkip(depth))
+}
+
+func (l *Logger) With(fields ...log.Field) log.Logger {
+	return l.clone(zap.Fields(toZapFields(fields...)...))
+}
+
+func (l *Logger) Clone() log.Logger {
+	return l.clone()
+}
+
+func (l *Logger) Debug(args ...any) {
+	l.zsl.Debug(args...)
+}
+
+func (l *Logger) Debugf(template string, args ...any) {
+	l.zsl.Debugf(template, args...)
+}
+
+func (l *Logger) DebugF(fields ...log.Field) {
+	fs := toZapFields(fields...)
+	l.zl.Debug("", fs...)
+}
+
+func (l *Logger) Info(args ...any) {
+	l.zsl.Info(args...)
+}
+
+func (l *Logger) Infof(template string, args ...any) {
+	l.zsl.Infof(template, args...)
+}
+
+func (l *Logger) InfoF(fields ...log.Field) {
+	fs := toZapFields(fields...)
+	l.zl.Info("", fs...)
+}
+
+func (l *Logger) Warn(args ...any) {
+	l.zsl.Warn(args...)
+}
+
+func (l *Logger) Warnf(template string, args ...any) {
+	l.zsl.Warnf(template, args...)
+}
+
+func (l *Logger) WarnF(fields ...log.Field) {
+	fs := toZapFields(fields...)
+	l.zl.Warn("", fs...)
+}
+
+func (l *Logger) Error(args ...any) {
+	l.zsl.Error(args...)
+}
+
+func (l *Logger) Errorf(template string, args ...any) {
+	l.zsl.Errorf(template, args...)
+}
+
+func (l *Logger) ErrorF(fields ...log.Field) {
+	fs := toZapFields(fields...)
+	l.zl.Error("", fs...)
+}
+
 func (l *Logger) Panic(args ...any) {
 	l.zsl.Panic(args...)
 }
@@ -191,17 +176,9 @@ func (l *Logger) Panicf(template string, args ...any) {
 	l.zsl.Panicf(template, args...)
 }
 
-func (l *Logger) PanicF(fields ...log.F) {
+func (l *Logger) PanicF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Panic("", fs...)
-}
-
-func (l *Logger) EnableFatal() {
-	l.level.SetLevel(zapcore.FatalLevel)
-}
-
-func (l *Logger) IsFatalEnabled() bool {
-	return l.level.Enabled(zapcore.FatalLevel)
 }
 
 func (l *Logger) Fatal(args ...any) {
@@ -212,41 +189,22 @@ func (l *Logger) Fatalf(template string, args ...any) {
 	l.zsl.Fatalf(template, args...)
 }
 
-func (l *Logger) FatalF(fields ...log.F) {
+func (l *Logger) FatalF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Fatal("", fs...)
 }
 
-func (l *Logger) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-	l.level.ServeHTTP(resp, req)
+func (l *Logger) clone(opts ...zap.Option) log.Logger {
+	cloned := *l
+	cloned.zl = l.zl.WithOptions(opts...)
+	cloned.zsl = cloned.zl.Sugar()
+	return &cloned
 }
 
-func toZapFields(fields ...log.F) []zap.Field {
+func toZapFields(fields ...log.Field) []zap.Field {
 	zapFields := make([]zap.Field, 0, len(fields))
 	for _, field := range fields {
-		zapFields = append(zapFields, zap.Any(field.K, field.V))
+		zapFields = append(zapFields, zap.Any(field.Key(), field.Value()))
 	}
 	return zapFields
-}
-
-func newConsoleCore(enc zapcore.Encoder, lvl zapcore.Level) []zapcore.Core {
-	stdOutCore := zapcore.NewCore(enc, zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout)), zap.LevelEnablerFunc(func(level zapcore.Level) bool {
-		return level >= lvl && level < zapcore.ErrorLevel
-	}))
-	stdErrCore := zapcore.NewCore(enc, zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stderr)), zap.LevelEnablerFunc(func(level zapcore.Level) bool {
-		return level >= zapcore.ErrorLevel
-	}))
-	return []zapcore.Core{stdOutCore, stdErrCore}
-}
-
-func newFileCore(enc zapcore.Encoder, lvl zapcore.Level, o *fileOptions) zapcore.Core {
-	lj := &lumberjack.Logger{
-		Filename:   o.Filename,
-		MaxSize:    o.MaxSize,
-		MaxAge:     o.MaxAge,
-		MaxBackups: o.MaxBackups,
-	}
-	sync := zapcore.AddSync(lj)
-	fileCore := zapcore.NewCore(enc, sync, lvl)
-	return fileCore
 }

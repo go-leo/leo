@@ -3,12 +3,15 @@ package zap
 import (
 	"testing"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/go-leo/leo/v2/log"
 )
 
 func TestNewZapLogger(t *testing.T) {
 	logger := New(
-		LevelAdapt(log.Debug),
+		zap.NewAtomicLevelAt(zapcore.DebugLevel),
 		File("/tmp/test.rotate.log", 10, 10, 10),
 		Fields(log.F{K: "service", V: "test.zap.log"}),
 		Console(true))

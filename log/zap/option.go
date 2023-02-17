@@ -59,10 +59,10 @@ func Console(enabled bool) Option {
 	}
 }
 
-func Fields(fields ...log.F) Option {
+func Fields(fields ...log.Field) Option {
 	return func(l *options) {
 		for _, field := range fields {
-			l.Fields = append(l.Fields, zap.Any(field.K, field.V))
+			l.Fields = append(l.Fields, zap.Any(field.Key(), field.Value()))
 		}
 	}
 }
