@@ -5,7 +5,6 @@ import (
 
 	"codeup.aliyun.com/qimao/leo/leo/console"
 	"codeup.aliyun.com/qimao/leo/leo/controller"
-	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/pubsub"
 	"codeup.aliyun.com/qimao/leo/leo/resource"
 	"codeup.aliyun.com/qimao/leo/leo/rpc"
