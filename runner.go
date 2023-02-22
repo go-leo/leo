@@ -72,15 +72,6 @@ type Starter interface {
 	Start(ctx context.Context) error
 }
 
-type Stopper interface {
-	Stop(ctx context.Context) error
-}
-
-type StartStopper interface {
-	Starter
-	Stopper
-}
-
 // startRunner 只有开始阶段的启动者
 type startRunner struct {
 	starter Starter
@@ -90,26 +81,50 @@ func (r *startRunner) Run(ctx context.Context) error {
 	return r.starter.Start(ctx)
 }
 
+// StartRunner 启动 Starter
+func StartRunner(starter Starter) Runner {
+	return &startRunner{starter: starter}
+}
+
+type Stopper interface {
+	Stop(ctx context.Context) error
+}
+
+type StartStopper interface {
+	Starter
+	Stopper
+}
+
 // startStopRunner 有开始也有结束的启动者
 type startStopRunner struct {
 	startStopper StartStopper
 }
 
 func (r *startStopRunner) Run(ctx context.Context) error {
-	errC := brave.GoE(
+	return runStartStopper(ctx, r)
+}
+
+func runStartStopper(ctx context.Context, r *startStopRunner) error {
+	startErrC := brave.GoE(
 		func() error { return r.startStopper.Start(ctx) },
-		func(p any) error { return fmt.Errorf("%s", p) },
+		func(p any) error { return fmt.Errorf("%v", p) },
 	)
-	var err error
+	runtime.Gosched()
 	select {
-	case err = <-errC:
+	case startErr := <-startErrC:
+		return startErr
 	case <-ctx.Done():
+		stopErrC := brave.GoE(
+			func() error { return r.startStopper.Stop(ctx) },
+			func(p any) error { return fmt.Errorf("%v", p) },
+		)
+		return errors.Join(ctx.Err(), <-stopErrC)
 	}
-	errC = brave.GoE(
-		func() error { return r.startStopper.Stop(ctx) },
-		func(p any) error { return fmt.Errorf("%s", p) },
-	)
-	return errors.Join(ctx.Err(), err, <-errC)
+}
+
+// StartStopRunner 启动 StartStopper
+func StartStopRunner(startStopper StartStopper) Runner {
+	return &startStopRunner{startStopper: startStopper}
 }
 
 // masterSlaveStartStopRunner 两个有主从关系的 StartStopper，主先运行，从后运行，从先停止，主后停止。
@@ -159,16 +174,6 @@ func (r *masterSlaveStartStopRunner) Run(ctx context.Context) error {
 	)
 
 	return errors.Join(ctx.Err(), err, <-slaveStopErrC, <-masterStopErrC)
-}
-
-// StartRunner 启动 Starter
-func StartRunner(starter Starter) Runner {
-	return &startRunner{starter: starter}
-}
-
-// StartStopRunner 启动 StartStopper
-func StartStopRunner(startStopper StartStopper) Runner {
-	return &startStopRunner{startStopper: startStopper}
 }
 
 // MasterSlaveStartStopRunner 启动两个有主从关系的 StartStopper

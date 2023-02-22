@@ -1,20 +1,25 @@
 package leo
 
 import (
+	"github.com/go-kit/kit/log"
 	"os"
 )
 
 type options struct {
+	Logger          log.Logger
 	Runners         []Runner
 	ShutdownSignals []os.Signal
 }
 
-func (o *options) init() {}
-
-func (o *options) apply(opts ...Option) {
+func (o *options) apply(opts ...Option) *options {
 	for _, opt := range opts {
 		opt(o)
 	}
+	return o
+}
+
+func (o *options) init() *options {
+	return o
 }
 
 type Option func(o *options)
@@ -22,6 +27,12 @@ type Option func(o *options)
 func Runners(runners ...Runner) Option {
 	return func(o *options) {
 		o.Runners = append(o.Runners, runners...)
+	}
+}
+
+func Logger(l log.Logger) Option {
+	return func(o *options) {
+		o.Logger = l
 	}
 }
 
