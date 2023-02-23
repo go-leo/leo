@@ -40,10 +40,10 @@ func (l defaultLogger) GetLevel() Level {
 }
 
 func (l defaultLogger) EnableDebug() {
-	l.lvl = Debug
+	l.lvl = Debug()
 }
 
-func (l defaultLogger) IsDebugEnabled() bool { return l.lvl <= Debug }
+func (l defaultLogger) IsDebugEnabled() bool { return l.lvl == Debug() }
 
 func (l defaultLogger) Debug(...any) {
 
