@@ -5,6 +5,7 @@ import (
 
 	"codeup.aliyun.com/qimao/leo/leo/console"
 	"codeup.aliyun.com/qimao/leo/leo/controller"
+	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/pubsub"
 	"codeup.aliyun.com/qimao/leo/leo/resource"
 	"codeup.aliyun.com/qimao/leo/leo/rpc"
@@ -24,7 +25,11 @@ type options struct {
 	ShutdownSignals []os.Signal
 }
 
-func (o *options) init() {}
+func (o *options) init() {
+	if o.InfoLogger == nil {
+		o.InfoLogger = log.DefaultLogger
+	}
+}
 
 func (o *options) apply(opts ...Option) {
 	for _, opt := range opts {

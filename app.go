@@ -2,10 +2,9 @@ package leo
 
 import (
 	"context"
+	"github.com/go-leo/gox/contextx"
 	"os"
 	"syscall"
-
-	"github.com/go-leo/gox/contextx"
 
 	"codeup.aliyun.com/qimao/leo/leo/runner"
 )
