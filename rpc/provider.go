@@ -16,4 +16,10 @@ type Provider interface {
 	Service() registry.Service
 	// Registrar 注册服务
 	registry.Registrar
+	// Methods 方法名
+	Methods() []Method
+}
+
+type Method interface {
+	MethodName() string
 }
