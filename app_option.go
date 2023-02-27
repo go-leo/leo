@@ -5,20 +5,21 @@ import (
 
 	"codeup.aliyun.com/qimao/leo/leo/console"
 	"codeup.aliyun.com/qimao/leo/leo/controller"
-	"codeup.aliyun.com/qimao/leo/leo/pubsub"
+	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/resource"
 	"codeup.aliyun.com/qimao/leo/leo/rpc"
 	"codeup.aliyun.com/qimao/leo/leo/runner"
 	"codeup.aliyun.com/qimao/leo/leo/scheduler"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
 )
 
 type options struct {
 	InfoLogger      interface{ Infof(string, ...any) }
 	Runners         []runner.Runner
-	Consoles        []console.Console
-	Controllers     []controller.Controller
-	Resources       []resource.Resource
-	Subscribers     []pubsub.Subscriber
+	Consoles        []console.Server
+	Controllers     []controller.Server
+	Resources       []resource.Server
+	Routers         []stream.Router
 	Providers       []rpc.Provider
 	Schedulers      []scheduler.Scheduler
 	ShutdownSignals []os.Signal
@@ -40,27 +41,27 @@ func Runner(runners ...runner.Runner) Option {
 	}
 }
 
-func Console(consoles ...console.Console) Option {
+func Console(consoles ...console.Server) Option {
 	return func(o *options) {
 		o.Consoles = append(o.Consoles, consoles...)
 	}
 }
 
-func Controller(controllers ...controller.Controller) Option {
+func Controller(controllers ...controller.Server) Option {
 	return func(o *options) {
 		o.Controllers = append(o.Controllers, controllers...)
 	}
 }
 
-func Resource(resources ...resource.Resource) Option {
+func Resource(resources ...resource.Server) Option {
 	return func(o *options) {
 		o.Resources = append(o.Resources, resources...)
 	}
 }
 
-func Subscriber(subscribers ...pubsub.Subscriber) Option {
+func Stream(routers ...stream.Router) Option {
 	return func(o *options) {
-		o.Subscribers = append(o.Subscribers, subscribers...)
+		o.Routers = append(o.Routers, routers...)
 	}
 }
 
