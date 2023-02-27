@@ -18,32 +18,29 @@ func (l level) Code() int {
 	return l.code
 }
 
-var (
-	debugLevel = level{name: "debug", code: -1}
-	infoLevel  = level{name: "info", code: 0}
-	warnLevel  = level{name: "warn", code: 1}
-	errorLevel = level{name: "error", code: 2}
-	panicLevel = level{name: "panic", code: 3}
-	fatalLevel = level{name: "fatal", code: 4}
+const (
+	LevelDebugCode = -1
+	LevelInfoCode  = 0
+	LevelWarnCode  = 1
+	LevelErrorCode = 2
+	LevelPanicCode = 3
+	LevelFatalCode = 4
 )
 
-func Debug() Level {
-	return debugLevel
-}
+const (
+	LevelDebugName = "debug"
+	LevelInfoName  = "info"
+	LevelWarnName  = "warn"
+	LevelErrorName = "error"
+	LevelPanicName = "panic"
+	LevelFatalName = "fatal"
+)
 
-func Info() Level {
-	return infoLevel
-}
-
-func Warn() Level {
-	return warnLevel
-}
-func Error() Level {
-	return errorLevel
-}
-func Panic() Level {
-	return panicLevel
-}
-func Fatal() Level {
-	return fatalLevel
-}
+var (
+	LevelDebug = level{name: LevelDebugName, code: LevelDebugCode}
+	LevelInfo  = level{name: LevelInfoName, code: LevelInfoCode}
+	LevelWarn  = level{name: LevelWarnName, code: LevelWarnCode}
+	LevelError = level{name: LevelErrorName, code: LevelErrorCode}
+	LevelPanic = level{name: LevelPanicName, code: LevelPanicCode}
+	LevelFatal = level{name: LevelFatalName, code: LevelFatalCode}
+)

@@ -18,12 +18,12 @@ func FromContext(ctx context.Context) (Logger, bool) {
 	return l, true
 }
 
-// FromContextOrDefault returns a Logger from ctx. If no Logger is found, this
-// returns a default Logger.
-func FromContextOrDefault(ctx context.Context) Logger {
+// FromContextOrDiscard returns a Logger from ctx.  If no Logger is found, this
+// returns a Logger that discards all log messages.
+func FromContextOrDiscard(ctx context.Context) Logger {
 	l, ok := ctx.Value(logKey{}).(Logger)
 	if ok {
 		return l
 	}
-	return defaultLogger{}
+	return Discard{}
 }
