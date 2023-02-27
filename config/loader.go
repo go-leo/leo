@@ -4,3 +4,9 @@ package config
 type Loader interface {
 	Load() ([]byte, error)
 }
+
+type noopLoader struct{}
+
+func (noopLoader) Load() ([]byte, error) {
+	return []byte{}, nil
+}

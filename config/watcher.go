@@ -9,3 +9,15 @@ type Watcher interface {
 	StartWatch(ctx context.Context) (<-chan Event, error)
 	StopWatch(ctx context.Context) error
 }
+
+type noopWatcher struct{}
+
+func (noopWatcher) StartWatch(ctx context.Context) (<-chan Event, error) {
+	eventC := make(chan Event)
+	defer close(eventC)
+	return eventC, nil
+}
+
+func (noopWatcher) StopWatch(ctx context.Context) error {
+	return nil
+}

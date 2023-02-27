@@ -10,4 +10,12 @@ type Server interface {
 	Start(ctx context.Context) error
 	// Stop 停止运行
 	Stop(ctx context.Context) error
+	// Views 视图
+	Views() []View
+}
+
+type View interface {
+	Method() string
+	Path() string
+	View() string
 }
