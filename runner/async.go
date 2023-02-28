@@ -23,6 +23,7 @@ func (r *asyncRunner) Run(ctx context.Context) error {
 	return nil
 }
 
-func AsyncRunner(runner Runner, errC chan<- error) Runner {
-	return &asyncRunner{runner: runner, errC: errC}
+func AsyncRunner(runner Runner) (Runner, <-chan error) {
+	errC := make(chan error)
+	return &asyncRunner{runner: runner, errC: errC}, errC
 }
