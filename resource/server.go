@@ -14,8 +14,10 @@ type Server interface {
 	Stop(ctx context.Context) error
 	// Service 服务信息
 	Service() registry.Service
-	// Registrar 注册服务
-	registry.Registrar
+	// Register 注册服务
+	Register(ctx context.Context, registrar registry.Registrar) error
+	// Deregister 注销服务
+	Deregister(ctx context.Context, registrar registry.Registrar) error
 	// Routes 路由
 	Routes() []Route
 }
