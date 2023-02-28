@@ -2,6 +2,7 @@ package leo
 
 import (
 	"context"
+	"errors"
 	"os"
 	"syscall"
 
@@ -61,5 +62,7 @@ func (app *App) Run(ctx context.Context) error {
 	}
 
 	runners = append(runners, app.o.Runners...)
-	return runner.MutilRunner(runners...).Run(ctx)
+	err := runner.MutilRunner(runners...).Run(ctx)
+	ctxErr := contextx.Error(ctx)
+	return errors.Join(ctxErr, err)
 }

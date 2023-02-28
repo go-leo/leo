@@ -14,10 +14,9 @@ func (p LoopPrintHello) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println(ctx.Err())
 			return nil
 		case <-tickers.C:
-			fmt.Println("hello leo")
+			fmt.Println("hello leo loop")
 		}
 	}
 }
