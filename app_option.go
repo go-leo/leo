@@ -16,7 +16,7 @@ import (
 type options struct {
 	InfoLogger      interface{ Infof(string, ...any) }
 	Runners         []runner.Runner
-	Consoles        []console.Server
+	Commanders      []console.Commander
 	Controllers     []controller.Server
 	Resources       []resource.Server
 	Routers         []stream.Router
@@ -45,9 +45,9 @@ func Runner(runners ...runner.Runner) Option {
 	}
 }
 
-func Console(consoles ...console.Server) Option {
+func Commander(commanders ...console.Commander) Option {
 	return func(o *options) {
-		o.Consoles = append(o.Consoles, consoles...)
+		o.Commanders = append(o.Commanders, commanders...)
 	}
 }
 

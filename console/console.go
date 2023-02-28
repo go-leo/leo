@@ -4,8 +4,8 @@ import (
 	"context"
 )
 
-// Server is command line server app
-type Server interface {
+// Commander is command line app
+type Commander interface {
 	// Start 开始运行
 	Start(ctx context.Context) error
 }
