@@ -52,10 +52,10 @@ func (r *startStopRunner) Run(ctx context.Context) error {
 	return errors.Join(ctx.Err(), err, <-errC)
 }
 
-func NewStartRunner(starter Starter) Runner {
+func StartRunner(starter Starter) Runner {
 	return &startRunner{starter: starter}
 }
 
-func NewStartStopRunner(startStopper StartStopper) Runner {
+func StartStopRunner(startStopper StartStopper) Runner {
 	return &startStopRunner{startStopper: startStopper}
 }

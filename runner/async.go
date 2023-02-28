@@ -5,24 +5,24 @@ import (
 	"fmt"
 
 	"github.com/go-leo/gox/syncx/brave"
+	"github.com/go-leo/gox/syncx/chanx"
 )
 
-// AsyncRunner 异步启动者
-type AsyncRunner interface {
-	AsyncRun(ctx context.Context) <-chan error
-}
-
+// asyncRunner 异步启动者
 type asyncRunner struct {
 	runner Runner
+	errC   chan<- error
 }
 
-func (r *asyncRunner) AsyncRun(ctx context.Context) <-chan error {
-	return brave.GoE(
+func (r *asyncRunner) Run(ctx context.Context) error {
+	errC := brave.GoE(
 		func() error { return r.runner.Run(ctx) },
 		func(p any) error { return fmt.Errorf("%s", p) },
 	)
+	chanx.AsyncPipe(errC, r.errC)
+	return nil
 }
 
-func NewAsyncRunner(runner Runner) AsyncRunner {
-	return &asyncRunner{runner: runner}
+func AsyncRunner(runner Runner, errC chan<- error) Runner {
+	return &asyncRunner{runner: runner, errC: errC}
 }
