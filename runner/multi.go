@@ -15,7 +15,10 @@ type mutilRunner struct {
 func (r *mutilRunner) Run(ctx context.Context) error {
 	var errCs []<-chan error
 	for _, runner := range r.runners {
-		errCs = append(errCs, NewAsyncRunner(runner).AsyncRun(ctx))
+		errC := make(chan error)
+		asyncRunner := AsyncRunner(runner, errC)
+		_ = asyncRunner.Run(ctx)
+		errCs = append(errCs, errC)
 	}
 	errC := chanx.Combine(errCs...)
 	var errs []error
@@ -25,7 +28,7 @@ func (r *mutilRunner) Run(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
-func NewMutilRunner(runners ...Runner) Runner {
+func MutilRunner(runners ...Runner) Runner {
 	r := make([]Runner, len(runners))
 	copy(r, runners)
 	return &mutilRunner{runners: r}

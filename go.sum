@@ -4,6 +4,8 @@ github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981/go.mod h1:C7Es+DL
 github.com/frankban/quicktest v1.14.3 h1:FJKSZTDHjyhriyC81FLQ0LY93eSai0ZyR/ZIkd3ZUKE=
 github.com/go-leo/gox v0.0.0-20230227030525-978dad430d00 h1:0gTPfrWcs/846nGdcwxqvSLN2rttVYpjEGCPOSF3SY8=
 github.com/go-leo/gox v0.0.0-20230227030525-978dad430d00/go.mod h1:V8+gohbz7kWJfeGbIycrm5xLWzciN638RdgtAiiblnU=
+github.com/go-leo/gox v0.0.0-20230228012235-0ac3300ac02c h1:GMHKijvqIrniQPEhAk/Ypvh/uaDiZcAVRnoEgFDT3kQ=
+github.com/go-leo/gox v0.0.0-20230228012235-0ac3300ac02c/go.mod h1:V8+gohbz7kWJfeGbIycrm5xLWzciN638RdgtAiiblnU=
 github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=
 github.com/kr/pretty v0.3.0 h1:WgNl7dwNpEZ6jJ9k1snq4pZsg7DOEN8hP9Xw0Tsjwk0=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
