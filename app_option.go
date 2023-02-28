@@ -25,7 +25,11 @@ type options struct {
 	ShutdownSignals []os.Signal
 }
 
-func (o *options) init() {}
+func (o *options) init() {
+	if o.InfoLogger == nil {
+		o.InfoLogger = log.Discard{}
+	}
+}
 
 func (o *options) apply(opts ...Option) {
 	for _, opt := range opts {
