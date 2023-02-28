@@ -29,5 +29,37 @@ func (app *App) Run(ctx context.Context) error {
 	defer app.o.InfoLogger.Infof("leo app %d stopping...", os.Getpid())
 	ctx, causeFunc := contextx.WithSignal(ctx, app.o.ShutdownSignals...)
 	defer causeFunc(nil)
-	return runner.MutilRunner(app.o.Runners...).Run(ctx)
+
+	var runners []runner.Runner
+
+	for _, commander := range app.o.Commanders {
+		runners = append(runners, runner.StartRunner(commander))
+	}
+
+	for _, server := range app.o.Controllers {
+		runners = append(runners, runner.StartStopRunner(server))
+	}
+
+	for _, server := range app.o.Resources {
+		runners = append(runners, runner.StartStopRunner(server))
+	}
+
+	for _, router := range app.o.Routers {
+		runners = append(runners, runner.StartStopRunner(router))
+	}
+
+	for _, router := range app.o.Routers {
+		runners = append(runners, runner.StartStopRunner(router))
+	}
+
+	for _, provider := range app.o.Providers {
+		runners = append(runners, runner.StartStopRunner(provider))
+	}
+
+	for _, scheduler := range app.o.Schedulers {
+		runners = append(runners, runner.StartStopRunner(scheduler))
+	}
+
+	runners = append(runners, app.o.Runners...)
+	return runner.MutilRunner(runners...).Run(ctx)
 }
