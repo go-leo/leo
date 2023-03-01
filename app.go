@@ -33,36 +33,34 @@ func (app *App) Run(ctx context.Context) error {
 
 	var runners []runner.Runner
 
-	for _, commander := range app.o.Commanders {
-		runners = append(runners, runner.StartRunner(commander))
+	if app.o.ConsoleCommander != nil {
+		runners = append(runners, runner.StartRunner(app.o.ConsoleCommander))
 	}
 
-	for _, server := range app.o.Controllers {
-		runners = append(runners, runner.StartStopRunner(server))
+	if app.o.ViewController != nil {
+		runners = append(runners, runner.StartStopRunner(app.o.ViewController))
 	}
 
-	for _, server := range app.o.Resources {
-		runners = append(runners, runner.StartStopRunner(server))
+	if app.o.ResourceServer != nil {
+		runners = append(runners, runner.StartStopRunner(app.o.ResourceServer))
 	}
 
-	for _, router := range app.o.Routers {
-		runners = append(runners, runner.StartStopRunner(router))
+	if app.o.SteamRouter != nil {
+		runners = append(runners, runner.StartStopRunner(app.o.SteamRouter))
 	}
 
-	for _, router := range app.o.Routers {
-		runners = append(runners, runner.StartStopRunner(router))
+	if app.o.RPCProvider != nil {
+		runners = append(runners, runner.StartStopRunner(app.o.RPCProvider))
 	}
 
-	for _, provider := range app.o.Providers {
-		runners = append(runners, runner.StartStopRunner(provider))
+	if app.o.Scheduler != nil {
+		runners = append(runners, runner.StartStopRunner(app.o.Scheduler))
 	}
 
-	for _, scheduler := range app.o.Schedulers {
-		runners = append(runners, runner.StartStopRunner(scheduler))
+	if app.o.ActuatorServer != nil {
+		runners = append(runners, runner.StartStopRunner(app.o.ActuatorServer))
 	}
 
-	runners = append(runners, app.o.Runners...)
-	err := runner.MutilRunner(runners...).Run(ctx)
-	ctxErr := contextx.Error(ctx)
-	return errors.Join(ctxErr, err)
+	mutilRunner := runner.MutilRunner(append(runners, app.o.Runners...)...)
+	return errors.Join(mutilRunner.Run(ctx), contextx.Error(ctx))
 }
