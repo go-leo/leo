@@ -1,36 +1,33 @@
-package leo
+package actuator
 
 import (
-	"os"
+	"crypto/tls"
 
-	"codeup.aliyun.com/qimao/leo/leo/actuator"
+	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 	"codeup.aliyun.com/qimao/leo/leo/console"
-	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/resource"
 	"codeup.aliyun.com/qimao/leo/leo/rpc"
-	"codeup.aliyun.com/qimao/leo/leo/runner"
 	"codeup.aliyun.com/qimao/leo/leo/schedule"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/view"
 )
 
 type options struct {
-	InfoLogger       interface{ Infof(string, ...any) }
-	Runners          []runner.Runner
-	ConsoleCommander console.Commander
-	ViewController   view.Controller
-	ResourceServer   resource.Server
-	SteamRouter      stream.Router
-	RPCProvider      rpc.Provider
-	Scheduler        schedule.Scheduler
-	ActuatorServer   *actuator.Server
-	ShutdownSignals  []os.Signal
+	TLSConf                *tls.Config
+	ConsoleCommander       console.Commander
+	ViewController         view.Controller
+	ResourceServer         resource.Server
+	SteamRouter            stream.Router
+	RPCProvider            rpc.Provider
+	Scheduler              schedule.Scheduler
+	HealthCheckers         []health.Checker
+	HttpHealthStatusMapper health.HttpHealthStatusMapper
+	Handlers               []Handler
+	PProfEnabled           bool
 }
 
 func (o *options) init() {
-	if o.InfoLogger == nil {
-		o.InfoLogger = log.Discard{}
-	}
+
 }
 
 func (o *options) apply(opts ...Option) {
@@ -41,9 +38,9 @@ func (o *options) apply(opts ...Option) {
 
 type Option func(o *options)
 
-func Runner(runners ...runner.Runner) Option {
+func TLSConf(conf *tls.Config) Option {
 	return func(o *options) {
-		o.Runners = append(o.Runners, runners...)
+		o.TLSConf = conf
 	}
 }
 
@@ -83,15 +80,15 @@ func Scheduler(scheduler schedule.Scheduler) Option {
 	}
 }
 
-func ActuatorServer(server *actuator.Server) Option {
+func HealthCheck(checkers []health.Checker, mapper health.HttpHealthStatusMapper) Option {
 	return func(o *options) {
-		o.ActuatorServer = server
+		o.HealthCheckers = checkers
+		o.HttpHealthStatusMapper = mapper
 	}
 }
 
-// ShutdownSignal 关闭信号
-func ShutdownSignal(signals []os.Signal) Option {
+func Handlers(handlers ...Handler) Option {
 	return func(o *options) {
-		o.ShutdownSignals = signals
+		o.Handlers = append(o.Handlers, handlers...)
 	}
 }
