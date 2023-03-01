@@ -10,7 +10,7 @@ import (
 )
 
 type FieldBuilder struct {
-	fields []log.F
+	fields []log.Field
 }
 
 func NewFieldBuilder() *FieldBuilder {
@@ -110,6 +110,6 @@ func (f *FieldBuilder) Response(response any) *FieldBuilder {
 	return f
 }
 
-func (f *FieldBuilder) Build() []log.F {
+func (f *FieldBuilder) Build() []log.Field {
 	return f.fields
 }
