@@ -2,12 +2,23 @@ package stream
 
 import "context"
 
+// Header is a mapping from keys to values.
 type Header interface {
-	Get(key string) string
-	Set(key string, val string)
-	Append(key string, val string)
+	// Len returns the number of items in Header.
+	Len() int
+	// Get obtains the values for a given key.
+	Get(key string) []string
+	// Set sets the value of a given key with a slice of values.
+	Set(key string, values ...string) Header
+	// Append appends the value of a given key with a slice of values.
+	Append(k string, values ...string) Header
+	// Delete delete the values for a given key.
+	Delete(key string) Header
+	// Range iterates the header
+	Range(fn func(key string, values []string)) Header
 }
 
+// Message is a message. Message is emitted by Publisher and received by Subscriber.
 type Message interface {
 	// ID return message uniq id
 	ID() string
