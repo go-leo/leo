@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"runtime"
 
 	"github.com/go-leo/gox/syncx/brave"
+	"github.com/go-leo/gox/syncx/chanx"
 )
 
 type Starter interface {
@@ -52,10 +54,66 @@ func (r *startStopRunner) Run(ctx context.Context) error {
 	return errors.Join(ctx.Err(), err, <-errC)
 }
 
+// masterSlaveStartStopRunner 两个有主从关系的 StartStopper，主先运行，从后运行，从先停止，主后停止。
+type masterSlaveStartStopRunner struct {
+	master StartStopper
+	slave  StartStopper
+}
+
+func (r *masterSlaveStartStopRunner) Run(ctx context.Context) error {
+	// master先运行
+	masterStartErrC := brave.GoE(
+		func() error { return r.master.Start(ctx) },
+		func(p any) error { return fmt.Errorf("%s", p) },
+	)
+
+	// slave后运行
+	runtime.Gosched()
+	slaveStartErrC := brave.GoE(
+		func() error {
+			runtime.Gosched()
+			return r.slave.Start(ctx)
+		},
+		func(p any) error { return fmt.Errorf("%s", p) },
+	)
+
+	// wait
+	var err error
+	select {
+	case err = <-chanx.Combine(masterStartErrC, slaveStartErrC):
+	case <-ctx.Done():
+	}
+
+	// slave先停止
+	slaveStopErrC := brave.GoE(
+		func() error { return r.slave.Stop(ctx) },
+		func(p any) error { return fmt.Errorf("%s", p) },
+	)
+
+	// master后停止
+	runtime.Gosched()
+	masterStopErrC := brave.GoE(
+		func() error {
+			runtime.Gosched()
+			return r.master.Stop(ctx)
+		},
+		func(p any) error { return fmt.Errorf("%s", p) },
+	)
+
+	return errors.Join(ctx.Err(), err, <-slaveStopErrC, <-masterStopErrC)
+}
+
+// StartRunner 启动 Starter
 func StartRunner(starter Starter) Runner {
 	return &startRunner{starter: starter}
 }
 
+// StartStopRunner 启动 StartStopper
 func StartStopRunner(startStopper StartStopper) Runner {
 	return &startStopRunner{startStopper: startStopper}
+}
+
+// MasterSlaveStartStopRunner 启动两个有主从关系的 StartStopper
+func MasterSlaveStartStopRunner(master, slave StartStopper) Runner {
+	return &masterSlaveStartStopRunner{master: master, slave: slave}
 }
