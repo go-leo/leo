@@ -5,17 +5,19 @@ import (
 	"net/url"
 )
 
-// Service is Service
-type Service interface {
-	// ID is service id.
+// ServiceInstance represents an instance of a service in a discovery system.
+type ServiceInstance interface {
+	// InstanceID is the unique instance ID as registered.
+	InstanceID() string
+	// ID is the service ID as registered.
 	ID() string
 	// Name is service name.
 	Name() string
 	// Kind is service kind.
 	Kind() string
-	// Host is the host that Endpoint used.
+	// Host is the hostname of the registered service instance.
 	Host() string
-	// Port is the port that Endpoint used.
+	// Port is the port of the registered service instance.
 	Port() int
 	// Metadata is other information the service carried.
 	Metadata() map[string]string
@@ -27,10 +29,10 @@ type Service interface {
 
 // Registrar is service Registrar
 type Registrar interface {
-	// Register the Service to registry.
-	Register(ctx context.Context, service Service) error
-	// Deregister the Service from registry.
-	Deregister(ctx context.Context, service Service) error
+	// Register the ServiceInstance to registry.
+	Register(ctx context.Context, service ServiceInstance) error
+	// Deregister the ServiceInstance from registry.
+	Deregister(ctx context.Context, service ServiceInstance) error
 }
 
 // Discovery is service Discovery
@@ -39,9 +41,9 @@ type Discovery interface {
 	// Scheme is defined at https://github.com/grpc/grpc/blob/master/doc/naming.md.
 	Scheme() string
 	// GetService get service from service registry
-	GetService(ctx context.Context, service Service) ([]Service, error)
-	StartWatch(ctx context.Context, service Service) (<-chan []Service, error)
-	StopWatch(ctx context.Context, service Service) error
+	GetService(ctx context.Context, service ServiceInstance) ([]ServiceInstance, error)
+	StartWatch(ctx context.Context, service ServiceInstance) (<-chan []ServiceInstance, error)
+	StopWatch(ctx context.Context, service ServiceInstance) error
 }
 
 type RegistrarFactory interface {

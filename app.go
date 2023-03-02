@@ -42,7 +42,7 @@ func (app *App) Run(ctx context.Context) error {
 	}
 
 	if app.o.ResourceServer != nil {
-		runners = append(runners, runner.StartStopRunner(app.o.ResourceServer))
+		runners = append(runners, runner.ServiceRunner(app.o.ResourceServer))
 	}
 
 	if app.o.SteamRouter != nil {
@@ -50,7 +50,7 @@ func (app *App) Run(ctx context.Context) error {
 	}
 
 	if app.o.RPCProvider != nil {
-		runners = append(runners, runner.StartStopRunner(app.o.RPCProvider))
+		runners = append(runners, runner.ServiceRunner(app.o.RPCProvider))
 	}
 
 	if app.o.Scheduler != nil {

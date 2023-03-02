@@ -12,12 +12,14 @@ type Provider interface {
 	Start(ctx context.Context) error
 	// Stop 停止运行
 	Stop(ctx context.Context) error
-	// Service 服务信息
-	Service() registry.Service
+	// ServiceInstance 服务信息
+	ServiceInstance() registry.ServiceInstance
+	// Registrar 服务注册器
+	Registrar() registry.Registrar
 	// Register 注册服务
-	Register(ctx context.Context, registrar registry.Registrar) error
+	Register(ctx context.Context) error
 	// Deregister 注销服务
-	Deregister(ctx context.Context, registrar registry.Registrar) error
+	Deregister(ctx context.Context) error
 	// Methods 方法名
 	Methods() []Method
 }
