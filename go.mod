@@ -11,4 +11,7 @@ require (
 
 require gopkg.in/natefinch/lumberjack.v2 v2.2.1
 
-require github.com/kr/pretty v0.3.1 // indirect
+require (
+	github.com/kr/pretty v0.3.1 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
+)

@@ -95,3 +95,10 @@ func ShutdownSignal(signals []os.Signal) Option {
 		o.ShutdownSignals = signals
 	}
 }
+
+// Logger 注入日志
+func Logger(l log.Logger) Option {
+	return func(o *options) {
+		o.InfoLogger = l
+	}
+}
