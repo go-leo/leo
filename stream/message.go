@@ -5,6 +5,7 @@ import "context"
 type Header interface {
 	Get(key string) string
 	Set(key string, val string)
+	Append(key string, val string)
 }
 
 type Message interface {
