@@ -19,11 +19,11 @@ type Message interface {
 	// WithContext return new message with context
 	WithContext(ctx context.Context) Message
 	// Ack ack message
-	Ack() bool
+	Ack() (any, error)
 	// Nack nack message
-	Nack() bool
-	// Acked returns channel which is closed when acknowledgement is sent.
-	Acked() <-chan struct{}
-	// Nacked returns channel which is closed when negative acknowledgement is sent.
-	Nacked() <-chan struct{}
+	Nack() (any, error)
+	// Acked returns a channel which is closed when ack message. function will be invoked at Ack
+	Acked(f func() (any, error)) <-chan struct{}
+	// Nacked returns a channel which is closed when nack message. function will be invoked at Nack
+	Nacked(f func() (any, error)) <-chan struct{}
 }
