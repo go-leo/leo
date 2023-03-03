@@ -2,22 +2,6 @@ package stream
 
 import "context"
 
-// Header is a mapping from keys to values.
-type Header interface {
-	// Len returns the number of items in Header.
-	Len() int
-	// Get obtains the values for a given key.
-	Get(key string) []string
-	// Set sets the value of a given key with a slice of values.
-	Set(key string, values ...string) Header
-	// Append appends the value of a given key with a slice of values.
-	Append(k string, values ...string) Header
-	// Delete delete the values for a given key.
-	Delete(key string) Header
-	// Range iterates the header
-	Range(fn func(key string, values []string)) Header
-}
-
 // Message is a message. Message is emitted by Publisher and received by Subscriber.
 type Message interface {
 	// ID return message uniq id
@@ -38,4 +22,107 @@ type Message interface {
 	Acked(f func() (any, error)) <-chan struct{}
 	// Nacked returns a channel which is closed when nack message. function will be invoked at Nack
 	Nacked(f func() (any, error)) <-chan struct{}
+}
+
+var _ Message = new(message)
+
+type message struct {
+	id      string
+	payload []byte
+	header  Header
+	ctx     context.Context
+	ackC    chan struct{}
+	nackC   chan struct{}
+	onAck   func() (any, error)
+	onNack  func() (any, error)
+}
+
+func (m *message) ID() string {
+	return m.id
+}
+
+func (m *message) Payload() []byte {
+	return m.payload
+}
+
+func (m *message) Header() Header {
+	if m.header == nil {
+		m.header = make(Header)
+	}
+	return m.header
+}
+
+func (m *message) Context() context.Context {
+	return m.ctx
+}
+
+func (m *message) WithContext(ctx context.Context) Message {
+	cloned := *m
+	cloned.ctx = ctx
+	return &cloned
+}
+
+func (m *message) Ack() (any, error) {
+	close(m.ackC)
+	if m.onAck != nil {
+		return m.onAck()
+	}
+	return nil, nil
+}
+
+func (m *message) Nack() (any, error) {
+	close(m.nackC)
+	if m.onNack != nil {
+		return m.onNack()
+	}
+	return nil, nil
+}
+
+func (m *message) Acked(f func() (any, error)) <-chan struct{} {
+	m.onAck = f
+	return m.ackC
+}
+
+func (m *message) Nacked(f func() (any, error)) <-chan struct{} {
+	m.onNack = f
+	return m.nackC
+}
+
+type MessageBuilder struct {
+	id      string
+	payload []byte
+	header  Header
+	ctx     context.Context
+}
+
+func (builder *MessageBuilder) SetId(id string) *MessageBuilder {
+	builder.id = id
+	return builder
+}
+
+func (builder *MessageBuilder) SetPayload(payload []byte) *MessageBuilder {
+	builder.payload = payload
+	return builder
+}
+
+func (builder *MessageBuilder) SetHeader(header Header) *MessageBuilder {
+	builder.header = header
+	return builder
+}
+
+func (builder *MessageBuilder) Build(ctx context.Context) Message {
+	return &message{
+		id:      builder.id,
+		payload: builder.payload,
+		header:  builder.header,
+		ctx:     ctx,
+		ackC:    make(chan struct{}),
+		nackC:   make(chan struct{}),
+		onAck:   func() (any, error) { return nil, nil },
+		onNack:  func() (any, error) { return nil, nil },
+	}
+}
+
+func NewMessageBuilder() *MessageBuilder {
+	return &MessageBuilder{}
 }
