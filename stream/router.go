@@ -12,7 +12,7 @@ import (
 type Router interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
-	AppendBridge(b Bridge)
+	AppendBridge(bridges ...Bridge)
 	AppendSubscriberDecorator(decorators ...SubscriberDecorator)
 	AppendPublisherDecorator(decorators ...PublisherDecorator)
 	AppendHandlerMiddleware(middlewares ...HandlerMiddleware)
@@ -48,8 +48,10 @@ func (r *router) Stop(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
-func (r *router) AppendBridge(b Bridge) {
-	r.bridges = append(r.bridges, b.(*bridge))
+func (r *router) AppendBridge(bridges ...Bridge) {
+	for _, b := range bridges {
+		r.bridges = append(r.bridges, b.(*bridge))
+	}
 }
 
 func (r *router) AppendSubscriberDecorator(decorators ...SubscriberDecorator) {
