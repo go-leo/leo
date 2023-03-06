@@ -1,6 +1,9 @@
 package stream
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
 // Message is a message. Message is emitted by Publisher and received by Subscriber.
 type Message interface {
@@ -48,14 +51,16 @@ func chainHandler(middlewares []HandlerMiddleware, handler handler) handler {
 var _ Message = new(message)
 
 type message struct {
-	id      string
-	payload []byte
-	header  Header
-	ctx     context.Context
-	ackC    chan struct{}
-	nackC   chan struct{}
-	onAck   func() (any, error)
-	onNack  func() (any, error)
+	id       string
+	payload  []byte
+	header   Header
+	ctx      context.Context
+	ackOnce  sync.Once
+	nackOnce sync.Once
+	ackC     chan struct{}
+	nackC    chan struct{}
+	onAck    func() (any, error)
+	onNack   func() (any, error)
 }
 
 func (m *message) ID() string {
@@ -84,19 +89,28 @@ func (m *message) WithContext(ctx context.Context) Message {
 }
 
 func (m *message) Ack() (any, error) {
-	close(m.ackC)
-	if m.onAck != nil {
-		return m.onAck()
-	}
-	return nil, nil
+	var ackResult any
+	var err error
+	m.ackOnce.Do(func() {
+		close(m.ackC)
+		if m.onAck != nil {
+			ackResult, err = m.onAck()
+		}
+	})
+	return ackResult, err
 }
 
 func (m *message) Nack() (any, error) {
-	close(m.nackC)
-	if m.onNack != nil {
-		return m.onNack()
-	}
-	return nil, nil
+	var nackResult any
+	var err error
+	m.nackOnce.Do(func() {
+		close(m.nackC)
+		if m.onNack != nil {
+			nackResult, err = m.onNack()
+		}
+	})
+
+	return nackResult, err
 }
 
 func (m *message) Acked(f func() (any, error)) <-chan struct{} {
