@@ -208,3 +208,31 @@ func (b *bridge) pipeErr(errC <-chan error) {
 		}
 	}()
 }
+
+func NewBridge(
+	name string,
+	subscriber Subscriber,
+	publisher Publisher,
+	handler HandlerFunc,
+) Bridge {
+	return &bridge{
+		name:       name,
+		subscriber: subscriber,
+		publisher:  publisher,
+		handler:    handler,
+		eventC:     make(chan Event),
+	}
+}
+
+func NewNoPublisherBridge(
+	name string,
+	subscriber Subscriber,
+	handler NoPublishHandlerFunc,
+) Bridge {
+	return &bridge{
+		name:       name,
+		subscriber: subscriber,
+		handler:    handler,
+		eventC:     make(chan Event),
+	}
+}

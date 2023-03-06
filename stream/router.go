@@ -12,8 +12,7 @@ import (
 type Router interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
-	AppendBridge(name string, subscriber Subscriber, publisher Publisher, handler HandlerFunc)
-	AppendNoPublisherBridge(name string, subscriber Subscriber, handler NoPublishHandlerFunc)
+	AppendBridge(b Bridge)
 	AppendSubscriberDecorator(decorators ...SubscriberDecorator)
 	AppendPublisherDecorator(decorators ...PublisherDecorator)
 	AppendHandlerMiddleware(middlewares ...HandlerMiddleware)
@@ -49,25 +48,8 @@ func (r *router) Stop(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
-func (r *router) AppendBridge(name string, subscriber Subscriber, publisher Publisher, handler HandlerFunc) {
-	b := &bridge{
-		name:       name,
-		subscriber: subscriber,
-		publisher:  publisher,
-		handler:    handler,
-		eventC:     make(chan Event),
-	}
-	r.bridges = append(r.bridges, b)
-}
-
-func (r *router) AppendNoPublisherBridge(name string, subscriber Subscriber, handler NoPublishHandlerFunc) {
-	b := &bridge{
-		name:       name,
-		subscriber: subscriber,
-		handler:    handler,
-		eventC:     make(chan Event),
-	}
-	r.bridges = append(r.bridges, b)
+func (r *router) AppendBridge(b Bridge) {
+	r.bridges = append(r.bridges, b.(*bridge))
 }
 
 func (r *router) AppendSubscriberDecorator(decorators ...SubscriberDecorator) {
