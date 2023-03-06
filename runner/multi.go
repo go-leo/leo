@@ -20,10 +20,7 @@ func (r *mutilRunner) Run(ctx context.Context) error {
 		errCs = append(errCs, errC)
 	}
 	errC := chanx.Combine(errCs...)
-	var errs []error
-	for e := range errC {
-		errs = append(errs, e)
-	}
+	errs := chanx.ReceiveUtilClosed(errC)
 	return errors.Join(errs...)
 }
 

@@ -3,38 +3,62 @@ package stream
 import (
 	"context"
 	"errors"
-
-	"github.com/go-leo/gox/syncx/chanx"
 )
 
 type Bridge interface {
+	Name() string
 	Input() Subscriber
 	Output() Publisher
-	MessageTransformer() MessageTransformer
 	Process(ctx context.Context)
-	Close() error
+	Close(ctx context.Context) error
+	AppendSubscriberDecorator(decorators ...SubscriberDecorator)
+	AppendPublisherDecorator(decorators ...PublisherDecorator)
+	AppendHandlerMiddleware(middlewares ...HandlerMiddleware)
+	UnshiftSubscriberDecorator(decorator SubscriberDecorator)
+	UnshiftPublisherDecorator(decorator PublisherDecorator)
+	UnshiftHandlerMiddleware(middleware HandlerMiddleware)
+	EventChan() <-chan Event
 }
 
-type MessageTransformer interface {
-	Transform(msg Message) (Message, error)
-}
+type EventKind int
 
-type MessageTransformerFunc func(msg Message) (Message, error)
+const (
+	ErrEvent           = 1
+	AckResultEvent     = 1
+	NackResultEvent    = 1
+	PublishResultEvent = 1
+)
 
-func (m MessageTransformerFunc) Transform(msg Message) (Message, error) {
-	return m(msg)
+type Event struct {
+	EventKind     EventKind
+	Bridge        Bridge
+	Err           error
+	AckResult     any
+	NackResult    any
+	PublishResult any
 }
 
 var _ Bridge = new(bridge)
 
 type bridge struct {
-	subscriber         Subscriber
-	publisher          Publisher
-	messageTransformer MessageTransformer
-	errC               chan<- error
-	ackResultC         chan<- any
-	nackResultC        chan<- any
-	publishResultC     chan<- any
+	name string
+
+	chainedSubscriber Subscriber
+	chainedPublisher  Publisher
+	chainedHandler    handler
+	subscriber        Subscriber
+	publisher         Publisher
+	handler           handler
+
+	subscriberDecorators []SubscriberDecorator
+	publisherDecorators  []PublisherDecorator
+	middlewares          []HandlerMiddleware
+
+	eventC chan Event
+}
+
+func (b *bridge) Name() string {
+	return b.name
 }
 
 func (b *bridge) Input() Subscriber {
@@ -45,44 +69,69 @@ func (b *bridge) Output() Publisher {
 	return b.publisher
 }
 
-func (b *bridge) MessageTransformer() MessageTransformer {
-	return b.messageTransformer
+func (b *bridge) AppendSubscriberDecorator(decorators ...SubscriberDecorator) {
+	b.subscriberDecorators = append(b.subscriberDecorators, decorators...)
+}
+
+func (b *bridge) AppendPublisherDecorator(decorators ...PublisherDecorator) {
+	b.publisherDecorators = append(b.publisherDecorators, decorators...)
+}
+
+func (b *bridge) AppendHandlerMiddleware(middlewares ...HandlerMiddleware) {
+	b.middlewares = append(b.middlewares, middlewares...)
+}
+
+func (b *bridge) UnshiftSubscriberDecorator(decorators SubscriberDecorator) {
+	b.subscriberDecorators = append([]SubscriberDecorator{decorators}, b.subscriberDecorators...)
+}
+
+func (b *bridge) UnshiftPublisherDecorator(decorators PublisherDecorator) {
+	b.publisherDecorators = append([]PublisherDecorator{decorators}, b.publisherDecorators...)
+}
+
+func (b *bridge) UnshiftHandlerMiddleware(middleware HandlerMiddleware) {
+	b.middlewares = append([]HandlerMiddleware{middleware}, b.middlewares...)
 }
 
 func (b *bridge) Process(ctx context.Context) {
-	msgC, errC := b.subscriber.Subscribe(ctx)
-	chanx.AsyncPipe(errC, b.errC)
+	b.chainedSubscriber = chainSubscriber(b.subscriberDecorators, b.subscriber)
+	b.chainedPublisher = chainPublisher(b.publisherDecorators, b.publisher)
+	b.chainedHandler = chainHandler(b.middlewares, b.handler)
+	msgC, errC := b.chainedSubscriber.Subscribe(ctx)
+	b.pipeErr(errC)
 	for msg := range msgC {
 		b.handleMessage(msg)
 	}
 	b.closeC()
 }
 
-func (b *bridge) Close() error {
-	return errors.Join(b.subscriber.Close(), b.publisher.Close())
+func (b *bridge) Close(ctx context.Context) error {
+	return errors.Join(b.subscriber.Close(ctx), b.publisher.Close(ctx))
+}
+
+func (b *bridge) EventChan() <-chan Event {
+	return b.eventC
 }
 
 func (b *bridge) handleMessage(msg Message) {
-	err := b.processMessage(msg)
+	transformedMsg, err := b.chainedHandler.Handle(msg)
 	if err != nil {
 		b.sendError(err)
 		b.nack(msg)
 		return
 	}
-	b.ack(msg)
-}
-
-func (b *bridge) processMessage(msg Message) error {
-	transform, err := b.messageTransformer.Transform(msg)
-	if err != nil {
-		return err
+	if b.publisher == nil {
+		b.ack(msg)
+		return
 	}
-	publishRes, err := b.publisher.Publish(transform)
+	publishRes, err := b.chainedPublisher.Publish(transformedMsg)
 	if err != nil {
-		return err
+		b.sendError(err)
+		b.nack(msg)
+		return
 	}
 	b.sendPublishResult(publishRes)
-	return nil
+	b.ack(msg)
 }
 
 func (b *bridge) ack(msg Message) {
@@ -104,105 +153,95 @@ func (b *bridge) nack(msg Message) {
 }
 
 func (b *bridge) sendAck(ackRes any) {
-	if b.ackResultC == nil {
+	if ackRes == nil {
 		return
 	}
-	b.ackResultC <- ackRes
+	if b.eventC == nil {
+		return
+	}
+	select {
+	case b.eventC <- Event{Bridge: b, EventKind: AckResultEvent, AckResult: ackRes}:
+	default:
+	}
 }
 
 func (b *bridge) sentNack(nackRes any) {
-	if b.nackResultC == nil {
+	if nackRes == nil {
 		return
 	}
-	b.nackResultC <- nackRes
+	if b.eventC == nil {
+		return
+	}
+	select {
+	case b.eventC <- Event{Bridge: b, EventKind: NackResultEvent, NackResult: nackRes}:
+	default:
+	}
 }
 
 func (b *bridge) sendError(err error) {
-	if b.errC == nil {
+	if err == nil {
 		return
 	}
-	b.errC <- err
+	if b.eventC == nil {
+		return
+	}
+	select {
+	case b.eventC <- Event{Bridge: b, EventKind: ErrEvent, Err: err}:
+	default:
+	}
 }
 
 func (b *bridge) sendPublishResult(publishRes any) {
-	if b.publishResultC == nil {
+	if publishRes == nil {
 		return
 	}
-	b.publishResultC <- publishRes
+	if b.eventC == nil {
+		return
+	}
+	select {
+	case b.eventC <- Event{Bridge: b, EventKind: PublishResultEvent, PublishResult: publishRes}:
+	default:
+	}
 }
 
 func (b *bridge) closeC() {
-	if b.ackResultC != nil {
-		close(b.ackResultC)
-	}
-	if b.nackResultC != nil {
-		close(b.nackResultC)
-	}
-	if b.errC != nil {
-		close(b.errC)
-	}
-	if b.publishResultC != nil {
-		close(b.publishResultC)
+	if b.eventC != nil {
+		close(b.eventC)
 	}
 }
 
-type BridgeBuilder struct {
-	subscriber         Subscriber
-	publisher          Publisher
-	messageTransformer MessageTransformer
-	errC               chan<- error
-	ackResultC         chan<- any
-	nackResultC        chan<- any
-	publishResultC     chan<- any
+func (b *bridge) pipeErr(errC <-chan error) {
+	go func() {
+		for err := range errC {
+			b.sendError(err)
+		}
+	}()
 }
 
-func (builder *BridgeBuilder) SetSubscriber(subscriber Subscriber) *BridgeBuilder {
-	builder.subscriber = subscriber
-	return builder
-}
-
-func (builder *BridgeBuilder) SetPublisher(publisher Publisher) *BridgeBuilder {
-	builder.publisher = publisher
-	return builder
-}
-
-func (builder *BridgeBuilder) SetMessageTransformer(messageTransformer MessageTransformer) *BridgeBuilder {
-	builder.messageTransformer = messageTransformer
-	return builder
-}
-
-func (builder *BridgeBuilder) SetErrC(errC chan<- error) *BridgeBuilder {
-	builder.errC = errC
-	return builder
-}
-
-func (builder *BridgeBuilder) SetAckResultC(ackResultC chan<- any) *BridgeBuilder {
-	builder.ackResultC = ackResultC
-	return builder
-}
-
-func (builder *BridgeBuilder) SetNackResultC(nackResultC chan<- any) *BridgeBuilder {
-	builder.nackResultC = nackResultC
-	return builder
-}
-
-func (builder *BridgeBuilder) SetPublishResultC(publishResultC chan<- any) *BridgeBuilder {
-	builder.publishResultC = publishResultC
-	return builder
-}
-
-func (builder *BridgeBuilder) Build() Bridge {
+func NewBridge(
+	name string,
+	subscriber Subscriber,
+	publisher Publisher,
+	handler HandlerFunc,
+) Bridge {
 	return &bridge{
-		subscriber:         builder.subscriber,
-		publisher:          builder.publisher,
-		messageTransformer: builder.messageTransformer,
-		errC:               builder.errC,
-		ackResultC:         builder.ackResultC,
-		nackResultC:        builder.nackResultC,
-		publishResultC:     builder.publishResultC,
+		name:       name,
+		subscriber: subscriber,
+		publisher:  publisher,
+		handler:    handler,
+		eventC:     make(chan Event),
 	}
 }
 
-func NewBridgeBuilder() *BridgeBuilder {
-	return &BridgeBuilder{}
+func NewNoPublisherBridge(
+	name string,
+	subscriber Subscriber,
+	handler NoPublishHandlerFunc,
+) Bridge {
+	return &bridge{
+		name:       name,
+		subscriber: subscriber,
+		handler:    handler,
+		eventC:     make(chan Event),
+	}
 }
