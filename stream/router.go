@@ -12,7 +12,8 @@ import (
 type Router interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
-	AppendBridge(bridge Bridge) *router
+	AppendBridge(name string, subscriber Subscriber, publisher Publisher, handler HandlerFunc)
+	AppendNoPublisherBridge(name string, subscriber Subscriber, handler NoPublishHandlerFunc)
 	AppendSubscriberDecorator(decorators ...SubscriberDecorator)
 	AppendPublisherDecorator(decorators ...PublisherDecorator)
 	AppendHandlerMiddleware(middlewares ...HandlerMiddleware)
@@ -21,14 +22,12 @@ type Router interface {
 }
 
 type router struct {
-	bridges []Bridge
-
+	bridges              []*bridge
 	subscriberDecorators []SubscriberDecorator
 	publisherDecorators  []PublisherDecorator
 	middlewares          []HandlerMiddleware
-
-	eventC        chan Event
-	bridgeEventCs []<-chan Event
+	eventC               chan Event
+	bridgeEventCs        []<-chan Event
 }
 
 func (r *router) Start(ctx context.Context) error {
@@ -50,9 +49,25 @@ func (r *router) Stop(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
-func (r *router) AppendBridge(bridge Bridge) *router {
-	r.bridges = append(r.bridges, bridge)
-	return r
+func (r *router) AppendBridge(name string, subscriber Subscriber, publisher Publisher, handler HandlerFunc) {
+	b := &bridge{
+		name:       name,
+		subscriber: subscriber,
+		publisher:  publisher,
+		handler:    handler,
+		eventC:     make(chan Event),
+	}
+	r.bridges = append(r.bridges, b)
+}
+
+func (r *router) AppendNoPublisherBridge(name string, subscriber Subscriber, handler NoPublishHandlerFunc) {
+	b := &bridge{
+		name:       name,
+		subscriber: subscriber,
+		handler:    handler,
+		eventC:     make(chan Event),
+	}
+	r.bridges = append(r.bridges, b)
 }
 
 func (r *router) AppendSubscriberDecorator(decorators ...SubscriberDecorator) {
@@ -72,47 +87,55 @@ func (r *router) EventChan() <-chan Event {
 }
 
 func (r *router) Bridges() []Bridge {
-	return r.bridges
+	var bridges []Bridge
+	for _, b := range r.bridges {
+		bridges = append(bridges, b)
+	}
+	return bridges
 }
 
-func (r *router) process(ctx context.Context, b Bridge) {
+func (r *router) process(ctx context.Context, b *bridge) {
 	r.insertSubscriberDecorator(b)
 	r.insertPublisherDecorators(b)
 	r.insertHandlerMiddlewares(b)
 	go func() {
-		b.Process(ctx)
+		b.process(ctx)
 	}()
 }
 
-func (r *router) appendEventChans(b Bridge) {
-	r.bridgeEventCs = append(r.bridgeEventCs, b.EventChan())
+func (r *router) appendEventChans(b *bridge) {
+	r.bridgeEventCs = append(r.bridgeEventCs, b.eventChan())
 }
 
 func (r *router) pipeEventChans() {
 	chanx.Pipe(chanx.Combine(r.bridgeEventCs...), r.eventC)
 }
 
-func (r *router) insertSubscriberDecorator(bridge Bridge) {
+func (r *router) insertSubscriberDecorator(bridge *bridge) {
 	for _, subscriberDecorator := range r.subscriberDecorators {
-		bridge.UnshiftSubscriberDecorator(subscriberDecorator)
+		bridge.unshiftSubscriberDecorator(subscriberDecorator)
 	}
 }
 
-func (r *router) insertPublisherDecorators(bridge Bridge) {
+func (r *router) insertPublisherDecorators(bridge *bridge) {
 	for _, publisherDecorator := range r.publisherDecorators {
-		bridge.UnshiftPublisherDecorator(publisherDecorator)
+		bridge.unshiftPublisherDecorator(publisherDecorator)
 	}
 }
 
-func (r *router) insertHandlerMiddlewares(bridge Bridge) {
+func (r *router) insertHandlerMiddlewares(bridge *bridge) {
 	for _, middleware := range r.middlewares {
-		bridge.UnshiftHandlerMiddleware(middleware)
+		bridge.unshiftHandlerMiddleware(middleware)
 	}
 }
 
-func (r *router) asyncClose(ctx context.Context, bridge Bridge) <-chan error {
+func (r *router) asyncClose(ctx context.Context, bridge *bridge) <-chan error {
 	return brave.GoE(
-		func() error { return bridge.Close(ctx) },
+		func() error { return bridge.close(ctx) },
 		func(p any) error { return fmt.Errorf("%s", p) },
 	)
+}
+
+func NewRouter() Router {
+	return &router{}
 }

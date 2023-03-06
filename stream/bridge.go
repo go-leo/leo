@@ -9,15 +9,6 @@ type Bridge interface {
 	Name() string
 	Input() Subscriber
 	Output() Publisher
-	Process(ctx context.Context)
-	Close(ctx context.Context) error
-	AppendSubscriberDecorator(decorators ...SubscriberDecorator)
-	AppendPublisherDecorator(decorators ...PublisherDecorator)
-	AppendHandlerMiddleware(middlewares ...HandlerMiddleware)
-	UnshiftSubscriberDecorator(decorator SubscriberDecorator)
-	UnshiftPublisherDecorator(decorator PublisherDecorator)
-	UnshiftHandlerMiddleware(middleware HandlerMiddleware)
-	EventChan() <-chan Event
 }
 
 type EventKind int
@@ -69,31 +60,11 @@ func (b *bridge) Output() Publisher {
 	return b.publisher
 }
 
-func (b *bridge) AppendSubscriberDecorator(decorators ...SubscriberDecorator) {
-	b.subscriberDecorators = append(b.subscriberDecorators, decorators...)
+func (b *bridge) close(ctx context.Context) error {
+	return errors.Join(b.subscriber.Close(ctx), b.publisher.Close(ctx))
 }
 
-func (b *bridge) AppendPublisherDecorator(decorators ...PublisherDecorator) {
-	b.publisherDecorators = append(b.publisherDecorators, decorators...)
-}
-
-func (b *bridge) AppendHandlerMiddleware(middlewares ...HandlerMiddleware) {
-	b.middlewares = append(b.middlewares, middlewares...)
-}
-
-func (b *bridge) UnshiftSubscriberDecorator(decorators SubscriberDecorator) {
-	b.subscriberDecorators = append([]SubscriberDecorator{decorators}, b.subscriberDecorators...)
-}
-
-func (b *bridge) UnshiftPublisherDecorator(decorators PublisherDecorator) {
-	b.publisherDecorators = append([]PublisherDecorator{decorators}, b.publisherDecorators...)
-}
-
-func (b *bridge) UnshiftHandlerMiddleware(middleware HandlerMiddleware) {
-	b.middlewares = append([]HandlerMiddleware{middleware}, b.middlewares...)
-}
-
-func (b *bridge) Process(ctx context.Context) {
+func (b *bridge) process(ctx context.Context) {
 	b.chainedSubscriber = chainSubscriber(b.subscriberDecorators, b.subscriber)
 	b.chainedPublisher = chainPublisher(b.publisherDecorators, b.publisher)
 	b.chainedHandler = chainHandler(b.middlewares, b.handler)
@@ -105,11 +76,31 @@ func (b *bridge) Process(ctx context.Context) {
 	b.closeC()
 }
 
-func (b *bridge) Close(ctx context.Context) error {
-	return errors.Join(b.subscriber.Close(ctx), b.publisher.Close(ctx))
+func (b *bridge) appendSubscriberDecorator(decorators ...SubscriberDecorator) {
+	b.subscriberDecorators = append(b.subscriberDecorators, decorators...)
 }
 
-func (b *bridge) EventChan() <-chan Event {
+func (b *bridge) appendPublisherDecorator(decorators ...PublisherDecorator) {
+	b.publisherDecorators = append(b.publisherDecorators, decorators...)
+}
+
+func (b *bridge) appendHandlerMiddleware(middlewares ...HandlerMiddleware) {
+	b.middlewares = append(b.middlewares, middlewares...)
+}
+
+func (b *bridge) unshiftSubscriberDecorator(decorators SubscriberDecorator) {
+	b.subscriberDecorators = append([]SubscriberDecorator{decorators}, b.subscriberDecorators...)
+}
+
+func (b *bridge) unshiftPublisherDecorator(decorators PublisherDecorator) {
+	b.publisherDecorators = append([]PublisherDecorator{decorators}, b.publisherDecorators...)
+}
+
+func (b *bridge) unshiftHandlerMiddleware(middleware HandlerMiddleware) {
+	b.middlewares = append([]HandlerMiddleware{middleware}, b.middlewares...)
+}
+
+func (b *bridge) eventChan() <-chan Event {
 	return b.eventC
 }
 
@@ -216,32 +207,4 @@ func (b *bridge) pipeErr(errC <-chan error) {
 			b.sendError(err)
 		}
 	}()
-}
-
-func NewBridge(
-	name string,
-	subscriber Subscriber,
-	publisher Publisher,
-	handler HandlerFunc,
-) Bridge {
-	return &bridge{
-		name:       name,
-		subscriber: subscriber,
-		publisher:  publisher,
-		handler:    handler,
-		eventC:     make(chan Event),
-	}
-}
-
-func NewNoPublisherBridge(
-	name string,
-	subscriber Subscriber,
-	handler NoPublishHandlerFunc,
-) Bridge {
-	return &bridge{
-		name:       name,
-		subscriber: subscriber,
-		handler:    handler,
-		eventC:     make(chan Event),
-	}
 }
