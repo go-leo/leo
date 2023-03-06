@@ -24,6 +24,27 @@ type Message interface {
 	Nacked(f func() (any, error)) <-chan struct{}
 }
 
+type handler interface {
+	Handle(msg Message) (Message, error)
+}
+
+type HandlerMiddleware func(t handler) handler
+
+type HandlerFunc func(msg Message) (Message, error)
+
+func (f HandlerFunc) Handle(msg Message) (Message, error) { return f(msg) }
+
+type NoPublishHandlerFunc func(msg Message) error
+
+func (f NoPublishHandlerFunc) Handle(msg Message) (Message, error) { return nil, f(msg) }
+
+func chainHandler(middlewares []HandlerMiddleware, handler handler) handler {
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		handler = middlewares[i](handler)
+	}
+	return handler
+}
+
 var _ Message = new(message)
 
 type message struct {

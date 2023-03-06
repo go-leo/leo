@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981
-	github.com/go-leo/gox v0.0.0-20230301121521-b42221dd5153
+	github.com/go-leo/gox v0.0.0-20230303075340-5d754ff82f2b
 	github.com/spf13/cast v1.5.0
 )
 
