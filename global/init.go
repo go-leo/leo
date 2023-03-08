@@ -14,7 +14,7 @@ func Init(ctx context.Context, configURLs string, properties []*Property) error 
 	if err := initTrace(ctx); err != nil {
 		return err
 	}
-	if err := initMetric(); err != nil {
+	if err := initMetric(ctx); err != nil {
 		return err
 	}
 	return nil

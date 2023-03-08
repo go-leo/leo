@@ -26,8 +26,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	// 请求延迟直方图
 	serverHandledHistogram, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncFloat64().
-		Histogram(
+		Float64Histogram(
 			"grpc.server.handling.seconds",
 			instrument.WithDescription("Histogram of response latency (seconds) of gRPC that had been application-level handled by the server."),
 		)
@@ -38,8 +37,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	// 请求计数器
 	serverStartedCounter, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		Counter("grpc.server.started.total",
+		Int64Counter("grpc.server.started.total",
 			instrument.WithDescription("Total number of RPCs started on the server."),
 		)
 	if e != nil {
@@ -48,8 +46,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	}
 	serverHandledCounter, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		Counter("grpc.server.handled.total",
+		Int64Counter("grpc.server.handled.total",
 			instrument.WithDescription("Total number of RPCs completed on the server, regardless of success or failure."),
 		)
 	if e != nil {
@@ -58,8 +55,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	}
 	serverStreamMsgReceived, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		Counter("grpc.server.msg.received.total",
+		Int64Counter("grpc.server.msg.received.total",
 			instrument.WithDescription("Total number of RPC stream messages received on the server."),
 		)
 	if e != nil {
@@ -68,8 +64,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	}
 	serverStreamMsgSent, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		Counter("grpc.server.msg.sent.total",
+		Int64Counter("grpc.server.msg.sent.total",
 			instrument.WithDescription("Total number of gRPC stream messages sent by the server."),
 		)
 	if e != nil {
@@ -86,9 +81,9 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 		// 包含接口信息的属性
 		attrs := []attribute.KeyValue{internal.GRPCType()}
 		attrs = append(attrs, internal.ParseFullMethod(info.FullMethod)...)
-		//开始计数器加1
+		// 开始计数器加1
 		serverStartedCounter.Add(ctx, 1, attrs...)
-		//接收到Msg计数器加1
+		// 接收到Msg计数器加1
 		serverStreamMsgReceived.Add(ctx, 1, attrs...)
 		// 处理一个中间件、业务逻辑
 		resp, err := handler(ctx, req)

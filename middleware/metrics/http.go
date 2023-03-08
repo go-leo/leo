@@ -26,8 +26,7 @@ func GinMiddleware(opts ...Option) gin.HandlerFunc {
 	// 请求延迟直方图
 	latencyHistogram, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncFloat64().
-		Histogram(
+		Float64Histogram(
 			"http.server.latency",
 			instrument.WithDescription("The HTTP request latencies in seconds."),
 		)
@@ -38,8 +37,8 @@ func GinMiddleware(opts ...Option) gin.HandlerFunc {
 	// 请求计数器
 	requestCounter, err := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		Counter("http.server.requests",
+		Int64Counter(
+			"http.server.requests",
 			instrument.WithDescription("How many HTTP requests processed, partitioned by status code and HTTP method."),
 		)
 	if err != nil {
@@ -49,8 +48,7 @@ func GinMiddleware(opts ...Option) gin.HandlerFunc {
 	// 请求大小
 	requestSizeCounter, err := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		UpDownCounter("http.server.request.size.bytes",
+		Int64UpDownCounter("http.server.request.size.bytes",
 			instrument.WithDescription("The HTTP request sizes in bytes."),
 		)
 	if err != nil {
@@ -60,8 +58,7 @@ func GinMiddleware(opts ...Option) gin.HandlerFunc {
 	// 响应大小
 	responseSizeCounter, err := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		SyncInt64().
-		UpDownCounter("http.server.response.size.bytes",
+		Int64UpDownCounter("http.server.response.size.bytes",
 			instrument.WithDescription("The HTTP response sizes in bytes."),
 		)
 	if err != nil {
