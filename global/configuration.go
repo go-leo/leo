@@ -6,6 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-leo/otelx/metricx"
+	"github.com/go-leo/otelx/tracex"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/attribute"
 
 	"github.com/go-leo/stringx"
@@ -13,8 +17,6 @@ import (
 	"github.com/go-leo/leo/common/errorx"
 	"github.com/go-leo/leo/log"
 	"github.com/go-leo/leo/log/zap"
-	"github.com/go-leo/leo/metrics"
-	"github.com/go-leo/leo/trace"
 )
 
 // Config 基础配置模版
@@ -352,51 +354,17 @@ func (logConf LoggerConfig) NewLogger() log.Logger {
 	return zap.New(zap.LevelAdapt(level), opts...)
 }
 
-func (metricConf Metrics) NewMetric() (*metrics.Metrics, error) {
-	ctrlConf := metricConf.Controller
-	boundaries := metricConf.Histogram.Boundaries
-	var opts []metrics.Option
-	switch {
-	case ctrlConf.AggregatorSelector.Inexpensive:
-		opts = append(opts, metrics.InexpensiveAggregatorSelector())
-	default:
-		opts = append(opts, metrics.HistogramAggregatorSelector(boundaries))
-	}
-
-	tsConf := metricConf.Controller.TemporalitySelector
-	switch {
-	case tsConf.Cumulative:
-		opts = append(opts, metrics.CumulativeTemporalitySelector())
-	case tsConf.Delta:
-		opts = append(opts, metrics.DeltaTemporalitySelector())
-	case tsConf.Stateless:
-		opts = append(opts, metrics.StatelessTemporalitySelector())
-	default:
-		opts = append(opts, metrics.CumulativeTemporalitySelector())
-	}
-
-	if ctrlConf.CollectPeriod > 0 {
-		opts = append(opts, metrics.CollectPeriod(ctrlConf.CollectPeriod))
-	}
-	if ctrlConf.CollectTimeout > 0 {
-		opts = append(opts, metrics.CollectTimeout(ctrlConf.CollectTimeout))
-	}
-	if ctrlConf.PushTimeout > 0 {
-		opts = append(opts, metrics.PushTimeout(ctrlConf.PushTimeout))
-	}
-
-	expConf := metricConf.Exporter
-	switch {
-	case expConf.Prometheus.Enabled:
-		opts = append(opts, metrics.Prometheus())
-	default:
-		opts = append(opts, metrics.Prometheus())
-	}
-
-	return metrics.New(opts...)
+func (metricConf Metrics) NewMetric(ctx context.Context) (*metricx.Metric, error) {
+	var opts []metricx.Option
+	// 注册prometheus官方的GoCollector和ProcessCollector
+	registry := prometheus.NewRegistry()
+	_ = registry.Register(collectors.NewGoCollector())
+	_ = registry.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+	opts = append(opts, metricx.Prometheus(&metricx.PrometheusOptions{Registerer: registry}))
+	return metricx.NewMetric(ctx, opts...)
 }
 
-func (traceConf Trace) NewTrace(ctx context.Context) (*trace.Trace, error) {
+func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 	writerConf := traceConf.Writer
 	jaegerConf := traceConf.Jaeger
 	zipkinConf := traceConf.Zipkin
@@ -421,66 +389,66 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*trace.Trace, error) {
 		default:
 			writer = io.Discard
 		}
-		return trace.New(
+		return tracex.NewTrace(
 			ctx,
-			trace.Writer(&trace.WriterOptions{Writer: writer, PrettyPrint: writerConf.PrettyPrint}),
-			trace.SampleRate(traceConf.Sampler.Rate),
-			trace.Attributes(Attributes...),
+			tracex.Writer(&tracex.WriterOptions{Writer: writer, PrettyPrint: writerConf.PrettyPrint}),
+			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Attributes(Attributes...),
 		)
 	case jaegerConf.Enabled:
-		return trace.New(
+		return tracex.NewTrace(
 			ctx,
-			trace.Jaeger(&trace.JaegerOptions{
+			tracex.Jaeger(&tracex.JaegerOptions{
 				Endpoint: jaegerConf.URL,
 				Username: jaegerConf.Username,
 				Password: jaegerConf.Password,
 			}),
-			trace.SampleRate(traceConf.Sampler.Rate),
-			trace.Attributes(Attributes...),
+			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Attributes(Attributes...),
 		)
 	case zipkinConf.Enabled:
-		return trace.New(
+		return tracex.NewTrace(
 			ctx,
-			trace.Zipkin(&trace.ZipkinOptions{
+			tracex.Zipkin(&tracex.ZipkinOptions{
 				URL: zipkinConf.URL,
 			}),
-			trace.SampleRate(traceConf.Sampler.Rate),
-			trace.Attributes(Attributes...),
+			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Attributes(Attributes...),
 		)
 	case httpConf.Enabled:
-		return trace.New(
+		return tracex.NewTrace(
 			ctx,
-			trace.HTTP(&trace.HTTPOptions{
+			tracex.HTTP(&tracex.HTTPOptions{
 				Endpoint: httpConf.URL,
 				Insecure: httpConf.Insecure,
-				//TLSConfig:   traceConf.TL,
+				// TLSConfig:   traceConf.TL,
 				Headers: httpConf.Headers,
-				//Compression: traceConf.HTTP.Compression,
-				//Retry:       nil,
+				// Compression: traceConf.HTTP.Compression,
+				// Retry:       nil,
 				Timeout: httpConf.Timeout,
 				URLPath: httpConf.URLPath,
 			}),
-			trace.SampleRate(traceConf.Sampler.Rate),
-			trace.Attributes(Attributes...),
+			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Attributes(Attributes...),
 		)
 	case gRPCConf.Enabled:
-		return trace.New(
+		return tracex.NewTrace(
 			ctx,
-			trace.GRPC(&trace.GRPCOptions{
+			tracex.GRPC(&tracex.GRPCOptions{
 				Endpoint: gRPCConf.URL,
 				Insecure: gRPCConf.Insecure,
-				//TLSConfig:          nil,
+				// TLSConfig:          nil,
 				Headers: gRPCConf.Headers,
-				//Compressor:         "",
-				//DialOptions:        nil,
-				//GRPCConn:           nil,
+				// Compressor:         "",
+				// DialOptions:        nil,
+				// GRPCConn:           nil,
 				ReconnectionPeriod: gRPCConf.ReconnectionPeriod,
-				//Retry:              nil,
+				// Retry:              nil,
 				Timeout: gRPCConf.Timeout,
-				//ServiceConfig:      "",
+				// ServiceConfig:      "",
 			}),
-			trace.SampleRate(traceConf.Sampler.Rate),
-			trace.Attributes(Attributes...),
+			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Attributes(Attributes...),
 		)
 	}
 	return nil, nil
