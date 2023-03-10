@@ -25,8 +25,8 @@ func Route(rg *gin.RouterGroup, httpOptions *HttpOptions, gRPCOptions *GRPCOptio
 	httpChecker := httpChecker(httpOptions)
 	grpcChecker := grpcChecker(gRPCOptions)
 	rg.GET("/health", func(c *gin.Context) {
-		if grpcChecker == nil || httpChecker() == nil {
-			c.Status(http.StatusNotImplemented)
+		if grpcChecker == nil && httpChecker == nil {
+			c.Status(http.StatusOK)
 		}
 		eg, _ := errgroup.WithContext(c.Request.Context())
 		if grpcChecker != nil {
@@ -43,7 +43,7 @@ func Route(rg *gin.RouterGroup, httpOptions *HttpOptions, gRPCOptions *GRPCOptio
 			c.Status(http.StatusServiceUnavailable)
 			return
 		}
-		c.Status(http.StatusNoContent)
+		c.Status(http.StatusOK)
 	})
 	rg.GET("/health/grpc", func(c *gin.Context) {
 		if grpcChecker == nil {
@@ -53,7 +53,7 @@ func Route(rg *gin.RouterGroup, httpOptions *HttpOptions, gRPCOptions *GRPCOptio
 			c.Status(http.StatusServiceUnavailable)
 			return
 		}
-		c.Status(http.StatusNoContent)
+		c.Status(http.StatusOK)
 	})
 	rg.GET("/health/http", func(c *gin.Context) {
 		if httpChecker == nil {
@@ -63,7 +63,7 @@ func Route(rg *gin.RouterGroup, httpOptions *HttpOptions, gRPCOptions *GRPCOptio
 			c.Status(http.StatusServiceUnavailable)
 			return
 		}
-		c.Status(http.StatusNoContent)
+		c.Status(http.StatusOK)
 	})
 }
 
