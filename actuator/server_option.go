@@ -2,32 +2,44 @@ package actuator
 
 import (
 	"crypto/tls"
+	"time"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"codeup.aliyun.com/qimao/leo/leo/console"
-	"codeup.aliyun.com/qimao/leo/leo/resource"
-	"codeup.aliyun.com/qimao/leo/leo/rpc"
-	"codeup.aliyun.com/qimao/leo/leo/schedule"
-	"codeup.aliyun.com/qimao/leo/leo/stream"
-	"codeup.aliyun.com/qimao/leo/leo/view"
+	"codeup.aliyun.com/qimao/leo/leo/actuator/pprof"
 )
 
 type options struct {
 	TLSConf                *tls.Config
-	ConsoleCommander       console.Commander
-	ViewController         view.Controller
-	ResourceServer         resource.Server
-	SteamRouter            stream.Router
-	RPCProvider            rpc.Provider
-	Scheduler              schedule.Scheduler
 	HealthCheckers         []health.Checker
 	HttpHealthStatusMapper health.HttpHealthStatusMapper
+	PProfDisabled          bool
+	PathPrefix             string
 	Handlers               []Handler
-	PProfEnabled           bool
+
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
+	IdleTimeout  time.Duration
+	CloseTimeout time.Duration
 }
 
 func (o *options) init() {
-
+	if o.HttpHealthStatusMapper == nil {
+		o.HttpHealthStatusMapper = health.DefaultHttpHealthStatusMapper()
+	}
+	if !o.PProfDisabled {
+		o.Handlers = append(o.Handlers, &pprof.IndexHandler{})
+		o.Handlers = append(o.Handlers, &pprof.CmdlineHandler{})
+		o.Handlers = append(o.Handlers, &pprof.ProfileHandler{})
+		o.Handlers = append(o.Handlers, &pprof.SymbolHandler{})
+		o.Handlers = append(o.Handlers, &pprof.TraceHandler{})
+	}
+	for _, checker := range o.HealthCheckers {
+		handler := &health.CheckerHandler{
+			HealthChecker:          checker,
+			HttpHealthStatusMapper: o.HttpHealthStatusMapper,
+		}
+		o.Handlers = append(o.Handlers, handler)
+	}
 }
 
 func (o *options) apply(opts ...Option) {
@@ -38,57 +50,62 @@ func (o *options) apply(opts ...Option) {
 
 type Option func(o *options)
 
-func TLSConf(conf *tls.Config) Option {
+func TLSConfig(conf *tls.Config) Option {
 	return func(o *options) {
 		o.TLSConf = conf
 	}
 }
 
-func ConsoleCommander(commander console.Commander) Option {
+func ReadTimeout(d time.Duration) Option {
 	return func(o *options) {
-		o.ConsoleCommander = commander
+		o.ReadTimeout = d
 	}
 }
 
-func ViewController(controller view.Controller) Option {
+func WriteTimeout(d time.Duration) Option {
 	return func(o *options) {
-		o.ViewController = controller
+		o.WriteTimeout = d
 	}
 }
 
-func ResourceServer(resource resource.Server) Option {
+func IdleTimeout(d time.Duration) Option {
 	return func(o *options) {
-		o.ResourceServer = resource
+		o.IdleTimeout = d
 	}
 }
 
-func StreamRouter(router stream.Router) Option {
+func CloseTimeout(d time.Duration) Option {
 	return func(o *options) {
-		o.SteamRouter = router
+		o.CloseTimeout = d
 	}
 }
 
-func RPCProvider(provider rpc.Provider) Option {
+func PathPrefix(prefix string) Option {
 	return func(o *options) {
-		o.RPCProvider = provider
+		o.PathPrefix = prefix
 	}
 }
 
-func Scheduler(scheduler schedule.Scheduler) Option {
+func HttpHealthStatusMapper(mapper health.HttpHealthStatusMapper) Option {
 	return func(o *options) {
-		o.Scheduler = scheduler
-	}
-}
-
-func HealthCheck(checkers []health.Checker, mapper health.HttpHealthStatusMapper) Option {
-	return func(o *options) {
-		o.HealthCheckers = checkers
 		o.HttpHealthStatusMapper = mapper
+	}
+}
+
+func HealthCheckers(checkers ...health.Checker) Option {
+	return func(o *options) {
+		o.HealthCheckers = append(o.HealthCheckers, checkers...)
 	}
 }
 
 func Handlers(handlers ...Handler) Option {
 	return func(o *options) {
 		o.Handlers = append(o.Handlers, handlers...)
+	}
+}
+
+func DisablePProf() Option {
+	return func(o *options) {
+		o.PProfDisabled = true
 	}
 }

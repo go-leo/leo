@@ -1,7 +1,5 @@
 package health
 
-import "net/http"
-
 type StatusCode string
 
 // Status express state of a component or subsystem.
@@ -17,71 +15,37 @@ type status struct {
 	description string
 }
 
-func (s status) Code() StatusCode {
-	return s.code
+func (s status) Code() StatusCode    { return s.code }
+func (s status) Description() string { return s.description }
+
+func UnknownCode() StatusCode { return "Unknown" }
+
+func UpCode() StatusCode { return "Up" }
+
+func DownCode() StatusCode { return "Down" }
+
+func OutOfServiceCode() StatusCode { return "OutOfService" }
+
+func NewStatus(code StatusCode, description string) Status {
+	return status{code: code, description: description}
 }
-
-func (s status) Description() string {
-	return s.description
-}
-
-const (
-	UnknownCode      StatusCode = "Unknown"
-	UpCode           StatusCode = "Up"
-	DownCode         StatusCode = "Down"
-	OutOfServiceCode StatusCode = "OutOfService"
-)
-
-var (
-	unknownStatus      = status{code: UnknownCode}
-	upStatus           = status{code: UpCode}
-	downStatus         = status{code: DownCode}
-	outOfServiceStatus = status{code: OutOfServiceCode}
-)
 
 // UnknownStatus indicating that the component or subsystem is in an unknown state.
 func UnknownStatus(description string) Status {
-	st := unknownStatus
-	st.description = description
-	return st
+	return status{code: UnknownCode(), description: description}
 }
 
 // UpStatus indicating that the component or subsystem is functioning as expected.
 func UpStatus(description string) Status {
-	st := upStatus
-	st.description = description
-	return st
+	return status{code: UpCode(), description: description}
 }
 
 // DownStatus indicating that the component or subsystem has suffered an unexpected failure.
 func DownStatus(description string) Status {
-	st := downStatus
-	st.description = description
-	return st
+	return status{code: DownCode(), description: description}
 }
 
 // OutOfServiceStatus indicating that the component or subsystem has been taken out of service and should not be used.
 func OutOfServiceStatus(description string) Status {
-	st := outOfServiceStatus
-	st.description = description
-	return st
-}
-
-type HttpHealthStatusMapper interface {
-	MapStatus(status Status) int
-}
-
-type httpHealthStatusMapper map[StatusCode]int
-
-func (mapper httpHealthStatusMapper) MapStatus(status Status) int {
-	return mapper[status.Code()]
-}
-
-func DefaultHttpHealthStatusMapper() HttpHealthStatusMapper {
-	return httpHealthStatusMapper{
-		UnknownCode:      http.StatusOK,
-		UpCode:           http.StatusOK,
-		DownCode:         http.StatusServiceUnavailable,
-		OutOfServiceCode: http.StatusServiceUnavailable,
-	}
+	return status{code: OutOfServiceCode(), description: description}
 }
