@@ -50,21 +50,21 @@ func NewHealth(status Status, details map[string]any) Health {
 }
 
 func UnknownHealth() Health {
-	return NewHealth(unknownStatus, nil)
+	return NewHealth(UnknownStatus(""), nil)
 }
 
 func UpHealth() Health {
-	return NewHealth(upStatus, nil)
+	return NewHealth(UpStatus(""), nil)
 }
 
 func DownHealth() Health {
-	return NewHealth(downStatus, nil)
+	return NewHealth(DownStatus(""), nil)
 }
 
 func DownHealthWithError(err error) Health {
-	return NewHealth(downStatus, map[string]any{"error": err})
+	return NewHealth(DownStatus(""), map[string]any{"error": err})
 }
 
 func OutOfServiceHealth() Health {
-	return NewHealth(outOfServiceStatus, nil)
+	return NewHealth(OutOfServiceStatus(""), nil)
 }

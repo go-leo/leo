@@ -3,89 +3,75 @@ package actuator
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
+	"math"
 	"net"
 	"net/http"
+	"path"
 	"strconv"
 
-	"codeup.aliyun.com/qimao/leo/leo/actuator/internal/handler"
+	"github.com/go-leo/gox/syncx/brave"
 )
 
 type Server struct {
-	o       *options
+	options *options
 	port    int
-	httpSrv *http.Server
 }
 
 func New(port int, opts ...Option) *Server {
 	o := new(options)
 	o.apply(opts...)
 	o.init()
-	return &Server{o: o, port: port}
+	return &Server{options: o, port: port}
 }
 
-func (s *Server) Start(ctx context.Context) error {
-	address := net.JoinHostPort("", strconv.Itoa(s.port))
+func (server *Server) Run(ctx context.Context) error {
+	// listen port
+	address := net.JoinHostPort("", strconv.Itoa(server.port))
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
 
-	o := s.o
+	// handle http
 	mux := http.NewServeMux()
-	var handlers []Handler
-
-	if o.ConsoleCommander != nil {
-		handlers = append(handlers, &handler.ConsoleCommanderHandler{ConsoleCommander: o.ConsoleCommander})
+	for _, h := range server.options.Handlers {
+		mux.HandleFunc(path.Join(server.options.PathPrefix, h.Pattern()), h.Handle)
 	}
 
-	if o.ResourceServer != nil {
-		handlers = append(handlers, &handler.ResourceServerHandler{ResourceServer: o.ResourceServer})
+	// new go std http server
+	httpSrv := &http.Server{
+		Handler:        mux,
+		ReadTimeout:    server.options.ReadTimeout,
+		WriteTimeout:   server.options.WriteTimeout,
+		IdleTimeout:    server.options.IdleTimeout,
+		MaxHeaderBytes: math.MaxInt,
 	}
 
-	if o.RPCProvider != nil {
-		handlers = append(handlers, &handler.RPCProviderHandler{RPCProvider: o.RPCProvider})
+	// async run http serve
+	serveErrC := brave.GoE(
+		func() error {
+			if server.options.TLSConf != nil {
+				return httpSrv.Serve(tls.NewListener(lis, server.options.TLSConf))
+			}
+			return httpSrv.Serve(lis)
+		},
+		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
+	)
+
+	// wait until context canceled or failed to serve
+	select {
+	case <-ctx.Done():
+		// context canceled, shutdown server.
+		ctx := context.Background()
+		var cancelFunc = func() {}
+		if server.options.CloseTimeout > 0 {
+			ctx, cancelFunc = context.WithTimeout(ctx, server.options.CloseTimeout)
+		}
+		defer cancelFunc()
+		return httpSrv.Shutdown(ctx)
+	case err := <-serveErrC:
+		// failed to serve.
+		return err
 	}
-
-	if o.Scheduler != nil {
-		handlers = append(handlers, &handler.SchedulerHandler{Scheduler: o.Scheduler})
-	}
-
-	for o.SteamRouter != nil {
-		handlers = append(handlers, &handler.SteamRouterHandler{SteamRouter: o.SteamRouter})
-	}
-
-	if o.ViewController != nil {
-		handlers = append(handlers, &handler.ViewControllerHandler{ViewController: o.ViewController})
-	}
-
-	for _, healthChecker := range o.HealthCheckers {
-		handlers = append(handlers, &handler.HealthCheckerHandler{HealthChecker: healthChecker})
-	}
-
-	if o.PProfEnabled {
-		handlers = append(handlers, &handler.PProfIndexHandler{})
-		handlers = append(handlers, &handler.PProfCmdlineHandler{})
-		handlers = append(handlers, &handler.PProfProfileHandler{})
-		handlers = append(handlers, &handler.PProfSymbolHandler{})
-		handlers = append(handlers, &handler.PProfTraceHandler{})
-	}
-
-	for _, h := range o.Handlers {
-		handlers = append(handlers, h)
-	}
-
-	for _, h := range handlers {
-		mux.HandleFunc(h.Pattern(), h.Handle)
-	}
-
-	s.httpSrv = &http.Server{Handler: mux}
-
-	if s.o.TLSConf != nil {
-		return s.httpSrv.Serve(tls.NewListener(lis, s.o.TLSConf))
-	}
-	return s.httpSrv.Serve(lis)
-}
-
-func (s *Server) Stop(ctx context.Context) error {
-	return s.httpSrv.Shutdown(ctx)
 }

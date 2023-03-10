@@ -3,10 +3,6 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981 h1:zPGs5GlTifgPVykTSvWB6/+J7EefOmYqH/JuUBI3kf0=
 github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981/go.mod h1:C7Es+DLenIpPc9J6IYw4jrK0h7S9bKj4DNl8+KxGEXU=
 github.com/frankban/quicktest v1.14.3 h1:FJKSZTDHjyhriyC81FLQ0LY93eSai0ZyR/ZIkd3ZUKE=
-github.com/go-leo/gox v0.0.0-20230301121521-b42221dd5153 h1:Sm+cOO7sHRQNEi//wLP9y7mNduTJ1sZFIYe6OcQHunY=
-github.com/go-leo/gox v0.0.0-20230301121521-b42221dd5153/go.mod h1:V8+gohbz7kWJfeGbIycrm5xLWzciN638RdgtAiiblnU=
-github.com/go-leo/gox v0.0.0-20230303074937-18ebfd661c07 h1:pdQqoslLviC2QRTmUOvgC6llnibOxPYU3jBYrZsIOjU=
-github.com/go-leo/gox v0.0.0-20230303074937-18ebfd661c07/go.mod h1:V8+gohbz7kWJfeGbIycrm5xLWzciN638RdgtAiiblnU=
 github.com/go-leo/gox v0.0.0-20230303075340-5d754ff82f2b h1:u6/tLlwBWXga10leLLskKCyiUmeb3aigvZMm4xDC6wQ=
 github.com/go-leo/gox v0.0.0-20230303075340-5d754ff82f2b/go.mod h1:V8+gohbz7kWJfeGbIycrm5xLWzciN638RdgtAiiblnU=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=

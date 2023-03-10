@@ -2,7 +2,6 @@ package leo
 
 import (
 	"context"
-	"errors"
 	"os"
 	"syscall"
 
@@ -26,41 +25,15 @@ func NewApp(opts ...Option) *App {
 
 // Run 启动app
 func (app *App) Run(ctx context.Context) error {
-	app.o.InfoLogger.Infof("leo app %d starting...", os.Getpid())
-	defer app.o.InfoLogger.Infof("leo app %d stopping...", os.Getpid())
+	app.o.Logger.Infof("leo app %d starting...", os.Getpid())
+	defer app.o.Logger.Infof("leo app %d stopping...", os.Getpid())
 	ctx, causeFunc := contextx.WithSignal(ctx, app.o.ShutdownSignals...)
 	defer causeFunc(nil)
 
 	var runners []runner.Runner
-
-	if app.o.ConsoleCommander != nil {
-		runners = append(runners, runner.StartRunner(app.o.ConsoleCommander))
-	}
-
-	if app.o.ViewController != nil {
-		runners = append(runners, runner.StartStopRunner(app.o.ViewController))
-	}
-
-	if app.o.ResourceServer != nil {
-		runners = append(runners, runner.ServiceRunner(app.o.ResourceServer))
-	}
-
-	if app.o.SteamRouter != nil {
-		runners = append(runners, runner.StartStopRunner(app.o.SteamRouter))
-	}
-
-	if app.o.RPCProvider != nil {
-		runners = append(runners, runner.ServiceRunner(app.o.RPCProvider))
-	}
-
-	if app.o.Scheduler != nil {
-		runners = append(runners, runner.StartStopRunner(app.o.Scheduler))
-	}
-
 	if app.o.ActuatorServer != nil {
-		runners = append(runners, runner.StartStopRunner(app.o.ActuatorServer))
+		runners = append(runners, app.o.ActuatorServer)
 	}
-
-	mutilRunner := runner.MutilRunner(append(runners, app.o.Runners...)...)
-	return errors.Join(mutilRunner.Run(ctx), contextx.Error(ctx))
+	runners = append(runners, app.o.Runners...)
+	return runner.MutilRunner(runners...).Run(ctx)
 }
