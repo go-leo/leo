@@ -5,6 +5,8 @@ github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981/go.mod h1:C7Es+DL
 github.com/frankban/quicktest v1.14.3 h1:FJKSZTDHjyhriyC81FLQ0LY93eSai0ZyR/ZIkd3ZUKE=
 github.com/go-leo/gox v0.0.0-20230303075340-5d754ff82f2b h1:u6/tLlwBWXga10leLLskKCyiUmeb3aigvZMm4xDC6wQ=
 github.com/go-leo/gox v0.0.0-20230303075340-5d754ff82f2b/go.mod h1:V8+gohbz7kWJfeGbIycrm5xLWzciN638RdgtAiiblnU=
+github.com/go-leo/gox v0.0.0-20230312082309-96ef649a7c13 h1:s8dYusJry4wRh6MdNre2C29ijlMIL4CPc9a6wU9Ivvg=
+github.com/go-leo/gox v0.0.0-20230312082309-96ef649a7c13/go.mod h1:UsIY9lRqa1dVdtyAOhqXVCT2n59rdtsI5WgOpHjWeRM=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=
