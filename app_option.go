@@ -42,7 +42,7 @@ func ActuatorServer(server *actuator.Server) Option {
 }
 
 // ShutdownSignal 关闭信号
-func ShutdownSignal(signals []os.Signal) Option {
+func ShutdownSignal(signals ...os.Signal) Option {
 	return func(o *options) {
 		o.ShutdownSignals = signals
 	}
