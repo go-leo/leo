@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"math"
 	"net"
 	"net/http"
 	"path"
@@ -45,7 +44,7 @@ func (server *Server) Run(ctx context.Context) error {
 		ReadTimeout:    server.options.ReadTimeout,
 		WriteTimeout:   server.options.WriteTimeout,
 		IdleTimeout:    server.options.IdleTimeout,
-		MaxHeaderBytes: math.MaxInt,
+		MaxHeaderBytes: server.options.MaxHeaderBytes,
 	}
 
 	// async run http serve

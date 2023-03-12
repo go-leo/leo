@@ -16,10 +16,11 @@ type options struct {
 	PathPrefix             string
 	Handlers               []Handler
 
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-	IdleTimeout  time.Duration
-	CloseTimeout time.Duration
+	ReadTimeout    time.Duration
+	WriteTimeout   time.Duration
+	IdleTimeout    time.Duration
+	CloseTimeout   time.Duration
+	MaxHeaderBytes int
 }
 
 func (o *options) init() {
@@ -77,6 +78,12 @@ func IdleTimeout(d time.Duration) Option {
 func CloseTimeout(d time.Duration) Option {
 	return func(o *options) {
 		o.CloseTimeout = d
+	}
+}
+
+func MaxHeaderBytes(n int) Option {
+	return func(o *options) {
+		o.MaxHeaderBytes = n
 	}
 }
 
