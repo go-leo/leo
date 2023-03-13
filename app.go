@@ -6,8 +6,6 @@ import (
 	"syscall"
 
 	"github.com/go-leo/gox/contextx"
-
-	"codeup.aliyun.com/qimao/leo/leo/runner"
 )
 
 type App struct {
@@ -30,10 +28,10 @@ func (app *App) Run(ctx context.Context) error {
 	ctx, causeFunc := contextx.WithSignal(ctx, app.o.ShutdownSignals...)
 	defer causeFunc(nil)
 
-	var runners []runner.Runner
+	var runners []Runner
 	if app.o.ActuatorServer != nil {
 		runners = append(runners, app.o.ActuatorServer)
 	}
 	runners = append(runners, app.o.Runners...)
-	return runner.MutilRunner(runners...).Run(ctx)
+	return MutilRunner(runners...).Run(ctx)
 }

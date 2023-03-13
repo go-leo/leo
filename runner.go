@@ -1,4 +1,4 @@
-package runner
+package leo
 
 import (
 	"context"
@@ -8,6 +8,12 @@ import (
 	"github.com/go-leo/gox/syncx/brave"
 	"golang.org/x/sync/errgroup"
 )
+
+// Runner 启动者
+type Runner interface {
+	// Run 启动
+	Run(ctx context.Context) error
+}
 
 type mutilRunner struct {
 	runners []Runner

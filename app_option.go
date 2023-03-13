@@ -5,12 +5,11 @@ import (
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/log"
-	"codeup.aliyun.com/qimao/leo/leo/runner"
 )
 
 type options struct {
 	Logger          log.Logger
-	Runners         []runner.Runner
+	Runners         []Runner
 	ActuatorServer  *actuator.Server
 	ShutdownSignals []os.Signal
 }
@@ -29,7 +28,7 @@ func (o *options) apply(opts ...Option) {
 
 type Option func(o *options)
 
-func Runner(runners ...runner.Runner) Option {
+func Runners(runners ...Runner) Option {
 	return func(o *options) {
 		o.Runners = append(o.Runners, runners...)
 	}
@@ -41,8 +40,8 @@ func ActuatorServer(server *actuator.Server) Option {
 	}
 }
 
-// ShutdownSignal 关闭信号
-func ShutdownSignal(signals ...os.Signal) Option {
+// ShutdownSignals 关闭信号
+func ShutdownSignals(signals ...os.Signal) Option {
 	return func(o *options) {
 		o.ShutdownSignals = signals
 	}
