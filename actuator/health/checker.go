@@ -7,3 +7,7 @@ type Checker interface {
 	Check(ctx context.Context) Health
 	Name() string
 }
+
+type CheckerProvider interface {
+	HealthChecker() Checker
+}

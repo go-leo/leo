@@ -8,3 +8,7 @@ type Handler interface {
 	Pattern() string
 	Handle(http.ResponseWriter, *http.Request)
 }
+
+type HandlerProvider interface {
+	ActuatorHandler() Handler
+}
