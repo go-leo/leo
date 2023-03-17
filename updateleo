@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd ./transport/ginhttp
+go get -u codeup.aliyun.com/qimao/leo/leo
+go mod tidy
+cd ../../
+
+cd ./schedule/cron
+go get -u codeup.aliyun.com/qimao/leo/leo
+go mod tidy
+cd ../../
