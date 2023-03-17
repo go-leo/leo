@@ -15,8 +15,8 @@ import (
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"codeup.aliyun.com/qimao/leo/leo/internal/addrx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/netx/addrx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/operator"
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
