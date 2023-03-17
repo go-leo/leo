@@ -7,7 +7,10 @@ import (
 	"net"
 	"net/http"
 	"path"
+	"runtime"
 	"strconv"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
 )
 
 type Server struct {
@@ -50,8 +53,8 @@ func (server *Server) Run(ctx context.Context) error {
 
 	// async run http serve
 	serveErrC := make(chan error)
-	go func(errC chan<- error, lis net.Listener) {
-		defer close(errC)
+	go func() {
+		defer close(serveErrC)
 		err := httpSrv.Serve(lis)
 		if errors.Is(err, http.ErrServerClosed) {
 			return
@@ -59,26 +62,20 @@ func (server *Server) Run(ctx context.Context) error {
 		if err != nil {
 			serveErrC <- err
 		}
-	}(serveErrC, lis)
+	}()
+	runtime.Gosched()
 
 	// wait until context canceled or failed to serve
 	select {
 	case serveErr := <-serveErrC:
-		// failed to serve. return serve error
+		// failed to serve, return serve error
 		return serveErr
 	case <-ctx.Done():
-		// context canceled
-		// shutdown server.
-		ctx := context.Background()
-		var cancelFunc = func() {}
-		if server.options.CloseTimeout > 0 {
-			ctx, cancelFunc = context.WithTimeout(ctx, server.options.CloseTimeout)
+		// context canceled, shutdown server.
+		ctx, _ := contextx.WithSignal(context.Background())
+		if server.options.ShutdownTimeout > 0 {
+			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
-		defer cancelFunc()
-		shutdownErr := httpSrv.Shutdown(ctx)
-		// wait Serve shutdown
-		serveErr := <-serveErrC
-		// return shutdown and serve error if has error
-		return errors.Join(shutdownErr, serveErr)
+		return errors.Join(httpSrv.Shutdown(ctx), <-serveErrC)
 	}
 }

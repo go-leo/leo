@@ -2,8 +2,11 @@ package registry
 
 import (
 	"context"
+	"errors"
 	"net/url"
 )
+
+var ErrServiceDeregistered = errors.New("registry: Service deregistered")
 
 // Registrar is service Registrar
 type Registrar interface {

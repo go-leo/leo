@@ -1,11 +1,11 @@
-package http
+package ginhttp
 
 import (
 	"context"
 	"net/http"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"github.com/go-leo/gox/netx/httpx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/netx/httpx"
 )
 
 type actuatorHandler struct {

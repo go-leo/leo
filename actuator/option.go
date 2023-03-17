@@ -19,8 +19,9 @@ type options struct {
 	ReadTimeout    time.Duration
 	WriteTimeout   time.Duration
 	IdleTimeout    time.Duration
-	CloseTimeout   time.Duration
 	MaxHeaderBytes int
+
+	ShutdownTimeout time.Duration
 }
 
 func (o *options) init() {
@@ -75,12 +76,6 @@ func IdleTimeout(d time.Duration) Option {
 	}
 }
 
-func CloseTimeout(d time.Duration) Option {
-	return func(o *options) {
-		o.CloseTimeout = d
-	}
-}
-
 func MaxHeaderBytes(n int) Option {
 	return func(o *options) {
 		o.MaxHeaderBytes = n
@@ -114,5 +109,11 @@ func Handlers(handlers ...Handler) Option {
 func DisablePProf() Option {
 	return func(o *options) {
 		o.PProfDisabled = true
+	}
+}
+
+func ShutdownTimeout(d time.Duration) Option {
+	return func(o *options) {
+		o.ShutdownTimeout = d
 	}
 }
