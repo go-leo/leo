@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/go-leo/gox/syncx/brave"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -29,11 +28,14 @@ func (r *mutilRunner) Run(ctx context.Context) error {
 }
 
 func doRun(ctx context.Context, runner Runner) func() error {
-	return func() error {
-		return brave.DoE(
-			func() error { return runner.Run(ctx) },
-			func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-		)
+	return func() (err error) {
+		defer func() {
+			if p := recover(); p != nil {
+				err = fmt.Errorf("failed to run, panic triggered: %+v", p)
+			}
+		}()
+		err = runner.Run(ctx)
+		return err
 	}
 }
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-leo/gox/netx/httpx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/netx/httpx"
 )
 
 type CheckerHandler struct {

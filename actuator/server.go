@@ -3,13 +3,11 @@ package actuator
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
+	"errors"
 	"net"
 	"net/http"
 	"path"
 	"strconv"
-
-	"github.com/go-leo/gox/syncx/brave"
 )
 
 type Server struct {
@@ -31,6 +29,9 @@ func (server *Server) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if server.options.TLSConf != nil {
+		lis = tls.NewListener(lis, server.options.TLSConf)
+	}
 
 	// handle http
 	mux := http.NewServeMux()
@@ -48,29 +49,36 @@ func (server *Server) Run(ctx context.Context) error {
 	}
 
 	// async run http serve
-	serveErrC := brave.GoE(
-		func() error {
-			if server.options.TLSConf != nil {
-				return httpSrv.Serve(tls.NewListener(lis, server.options.TLSConf))
-			}
-			return httpSrv.Serve(lis)
-		},
-		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-	)
+	serveErrC := make(chan error)
+	go func(errC chan<- error, lis net.Listener) {
+		defer close(errC)
+		err := httpSrv.Serve(lis)
+		if errors.Is(err, http.ErrServerClosed) {
+			return
+		}
+		if err != nil {
+			serveErrC <- err
+		}
+	}(serveErrC, lis)
 
 	// wait until context canceled or failed to serve
 	select {
+	case serveErr := <-serveErrC:
+		// failed to serve. return serve error
+		return serveErr
 	case <-ctx.Done():
-		// context canceled, shutdown server.
+		// context canceled
+		// shutdown server.
 		ctx := context.Background()
 		var cancelFunc = func() {}
 		if server.options.CloseTimeout > 0 {
 			ctx, cancelFunc = context.WithTimeout(ctx, server.options.CloseTimeout)
 		}
 		defer cancelFunc()
-		return httpSrv.Shutdown(ctx)
-	case err := <-serveErrC:
-		// failed to serve.
-		return err
+		shutdownErr := httpSrv.Shutdown(ctx)
+		// wait Serve shutdown
+		serveErr := <-serveErrC
+		// return shutdown and serve error if has error
+		return errors.Join(shutdownErr, serveErr)
 	}
 }
