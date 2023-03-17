@@ -20,6 +20,12 @@ type Middleware interface {
 	Decorate(invoker Invoker) Invoker
 }
 
+type InvokerFunc func(ctx context.Context)
+
+func (f InvokerFunc) Invoke(ctx context.Context) {
+	f(ctx)
+}
+
 type MiddlewareFunc func(invoker Invoker) Invoker
 
 func (f MiddlewareFunc) Decorate(invoker Invoker) Invoker {
