@@ -10,7 +10,7 @@ go get -u codeup.aliyun.com/qimao/leo/leo
 go mod tidy
 cd ../../
 
-cd ./registry/nacos
+cd ./registry/nacosv2
 go get -u codeup.aliyun.com/qimao/leo/leo
 go mod tidy
 cd ../../
@@ -26,7 +26,7 @@ go mod tidy
 cd ../../
 
 
-cd ./transport/grpc
+cd ./transport/lgrpc
 go get -u codeup.aliyun.com/qimao/leo/leo
 go mod tidy
 cd ../../
