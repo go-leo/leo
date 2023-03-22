@@ -27,11 +27,5 @@ func (app *App) Run(ctx context.Context) error {
 	defer app.o.Logger.Infof("leo app %d stopping...", os.Getpid())
 	ctx, causeFunc := contextx.WithSignal(ctx, app.o.ShutdownSignals...)
 	defer causeFunc(nil)
-
-	var runners []Runner
-	if app.o.ActuatorServer != nil {
-		runners = append(runners, app.o.ActuatorServer)
-	}
-	runners = append(runners, app.o.Runners...)
-	return MutilRunner(runners...).Run(ctx)
+	return MutilRunner(app.o.Runners...).Run(ctx)
 }

@@ -3,14 +3,12 @@ package leo
 import (
 	"os"
 
-	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
 type options struct {
 	Logger          log.Logger
 	Runners         []Runner
-	ActuatorServer  *actuator.Server
 	ShutdownSignals []os.Signal
 }
 
@@ -31,12 +29,6 @@ type Option func(o *options)
 func Runners(runners ...Runner) Option {
 	return func(o *options) {
 		o.Runners = append(o.Runners, runners...)
-	}
-}
-
-func ActuatorServer(server *actuator.Server) Option {
-	return func(o *options) {
-		o.ActuatorServer = server
 	}
 }
 

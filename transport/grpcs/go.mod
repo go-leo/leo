@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/transport/grpc
+module codeup.aliyun.com/qimao/leo/leo/transport/grpcs
 
 go 1.20
 

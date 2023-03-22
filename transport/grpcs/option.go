@@ -1,4 +1,4 @@
-package grpc
+package grpcs
 
 import (
 	"crypto/tls"
@@ -10,11 +10,13 @@ import (
 )
 
 type options struct {
+	ID                 string
+	Name               string
+	MetaData           map[string]string
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 	ServerOptions      []grpc.ServerOption
 	TLSConf            *tls.Config
-	Registers          []any
 	Registrar          registry.Registrar
 	ShutdownTimeout    time.Duration
 }
@@ -29,6 +31,24 @@ func (o *options) apply(opts []Option) {
 
 func (o *options) init() {
 
+}
+
+func ID(id string) Option {
+	return func(o *options) {
+		o.ID = id
+	}
+}
+
+func Name(name string) Option {
+	return func(o *options) {
+		o.Name = name
+	}
+}
+
+func MetaData(m map[string]string) Option {
+	return func(o *options) {
+		o.MetaData = m
+	}
 }
 
 func UnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
@@ -52,12 +72,6 @@ func ServerOptions(serverOptions ...grpc.ServerOption) Option {
 func TLS(conf *tls.Config) Option {
 	return func(o *options) {
 		o.TLSConf = conf
-	}
-}
-
-func Registers(registers ...any) Option {
-	return func(o *options) {
-		o.Registers = append(o.Registers, registers...)
 	}
 }
 

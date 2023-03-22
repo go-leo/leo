@@ -1,11 +1,13 @@
-package grpc
+package grpcs
 
 import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
+	"reflect"
 	"runtime"
 	"strconv"
 
@@ -20,22 +22,26 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/netx/addrx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/reflectx"
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
 
-type Service struct {
-	Impl any
-	Desc *grpc.ServiceDesc
+// Binder 服务绑定
+type Binder struct {
+	// ServerImpl 服务的实现
+	ServerImpl any
+	// RegisterFunc 注册方法
+	RegisterFunc any
 }
 
-// Server grpc运行实体
+// Server 服务
 type Server struct {
 	port      int
 	host      string
 	options   *options
 	gRPCSrv   *grpc.Server
 	healthSrv *grpchealth.Server
-	instance  registry.ServiceInstance
+	binders   []Binder
 }
 
 func (server *Server) Run(ctx context.Context) error {
@@ -103,6 +109,15 @@ func (server *Server) runServer(ctx context.Context) error {
 	reflection.Register(server.gRPCSrv)
 
 	// register business service
+	gRPCSrvVal := reflect.ValueOf(server.gRPCSrv)
+	for _, register := range server.binders {
+		registerFunc := reflectx.Indirect(register.RegisterFunc)
+		val := reflect.ValueOf(registerFunc)
+		if val.Kind() != reflect.Func {
+			return fmt.Errorf("registerfunc is not a func kind")
+		}
+		_ = val.Call([]reflect.Value{gRPCSrvVal, reflect.ValueOf(register.ServerImpl)})
+	}
 
 	// grpc server async run serve
 	serveErrC := make(chan error)
@@ -137,11 +152,21 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 		return nil
 	}
 
+	scheme := "grpc"
+	instance := registry.NewServiceInstance(
+		server.options.ID,
+		server.options.Name,
+		server.host,
+		server.port,
+		server.options.MetaData,
+		scheme,
+	)
+
 	// registrar async run register
 	registerErrC := make(chan error)
 	go func() {
 		defer close(registerErrC)
-		err := server.options.Registrar.Register(ctx, server.instance)
+		err := server.options.Registrar.Register(ctx, instance)
 		if errors.Is(err, registry.ErrServiceDeregistered) {
 			return
 		}
@@ -163,17 +188,18 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
 		// return register and deregister error if has error
-		return errors.Join(server.options.Registrar.Deregister(ctx, server.instance), <-registerErrC)
+		return errors.Join(server.options.Registrar.Deregister(ctx, instance), <-registerErrC)
 	}
 }
 
-func New(port int, opts ...Option) *Server {
+func NewServer(port int, binders []Binder, opts ...Option) *Server {
 	o := new(options)
 	o.apply(opts)
 	o.init()
 	srv := &Server{
 		options: o,
 		port:    port,
+		binders: binders,
 	}
 	return srv
 }

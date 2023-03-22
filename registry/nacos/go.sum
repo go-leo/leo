@@ -30,8 +30,8 @@ cloud.google.com/go/storage v1.5.0/go.mod h1:tpKbwo567HUNpVclU5sGELwQWBDZ8gh0Zeo
 cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohlUTyfDhBk=
 cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RXyy7KQOVs=
 cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9ullr3+Kg0=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322022311-73470f1bf7df h1:ZGCwPr/xC7fX7xp69qtGJRLYIRXcjbyeqI8x4X3mYN8=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322022311-73470f1bf7df/go.mod h1:L7lnvhH48gnIXgGVyxQLnsk4qVGvMxZNt9JDaDN+bbY=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322030440-6e1225381348 h1:oLERlSrHCnsUSYl1mW8RY92vIR0v/ljYPhvyOFgCqJM=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322030440-6e1225381348/go.mod h1:L7lnvhH48gnIXgGVyxQLnsk4qVGvMxZNt9JDaDN+bbY=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=

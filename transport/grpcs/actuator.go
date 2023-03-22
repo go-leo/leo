@@ -1,4 +1,4 @@
-package grpc
+package grpcs
 
 import (
 	"context"
@@ -32,8 +32,9 @@ func (h *actuatorHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		methods := make([]map[string]any, 0, len(info.Methods))
 		for _, method := range info.Methods {
 			methods = append(methods, map[string]any{
-				"name":      method.Name,
-				"is_stream": method.IsServerStream,
+				"name":             method.Name,
+				"is_server_stream": method.IsServerStream,
+				"is_client_stream": method.IsClientStream,
 			})
 		}
 		serviceInfo["methods"] = methods
@@ -68,5 +69,5 @@ func (h *healthChecker) Check(ctx context.Context) health.Health {
 }
 
 func (h *healthChecker) Name() string {
-	return "/transport/http"
+	return "/transport/grpc"
 }
