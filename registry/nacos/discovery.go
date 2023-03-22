@@ -71,23 +71,23 @@ func (d *Discovery) Watch(ctx context.Context, serviceName string) (<-chan []reg
 func (d *Discovery) Stop(ctx context.Context, serviceName string, watcher <-chan []registry.ServiceInstance) error {
 	d.Lock()
 	defer d.Unlock()
-	_, ok := d.instances[serviceName]
-	if !ok {
-		return ErrServiceNotFound
-	}
-	watchers, ok := d.watchers[serviceName]
-	if !ok {
-		return nil
-	}
-	var newWatchers []chan []ServiceInstance
-	for _, w := range watchers {
-		if w != watcher {
-			newWatchers = append(newWatchers, w)
-			continue
-		}
-		close(w)
-	}
-	d.watchers[serviceName] = newWatchers
+	// _, ok := d.instances[serviceName]
+	// if !ok {
+	// 	return ErrServiceNotFound
+	// }
+	// watchers, ok := d.watchers[serviceName]
+	// if !ok {
+	// 	return nil
+	// }
+	// var newWatchers []chan []ServiceInstance
+	// for _, w := range watchers {
+	// 	if w != watcher {
+	// 		newWatchers = append(newWatchers, w)
+	// 		continue
+	// 	}
+	// 	close(w)
+	// }
+	// d.watchers[serviceName] = newWatchers
 	return nil
 }
 
@@ -248,6 +248,6 @@ func NewDiscovery() *Discovery {
 	discovery := &Discovery{
 		watchers: make(map[string][]chan []registry.ServiceInstance),
 	}
-	cache := NewServiceInstanceCache(discovery.onSetInstances)
+	// cache := NewServiceInstanceCache(discovery.onSetInstances)
 	return discovery
 }
