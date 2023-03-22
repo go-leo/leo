@@ -10,13 +10,23 @@ go get -u codeup.aliyun.com/qimao/leo/leo
 go mod tidy
 cd ../../
 
+cd ./registry/nacos
+go get -u codeup.aliyun.com/qimao/leo/leo
+go mod tidy
+cd ../../
+
 cd ./schedule/cron
 go get -u codeup.aliyun.com/qimao/leo/leo
 go mod tidy
 cd ../../
 
-
 cd ./transport/ginhttp
+go get -u codeup.aliyun.com/qimao/leo/leo
+go mod tidy
+cd ../../
+
+
+cd ./transport/grpc
 go get -u codeup.aliyun.com/qimao/leo/leo
 go mod tidy
 cd ../../
