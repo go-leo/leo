@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"net/http"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -44,10 +43,10 @@ type Server struct {
 }
 
 func (server *Server) Run(ctx context.Context) error {
-	stopGroup, ctx := errgroup.WithContext(ctx)
-	stopGroup.Go(func() error { return server.runServer(ctx) })
+	stopGroup, newCtx := errgroup.WithContext(ctx)
+	stopGroup.Go(func() error { return server.runServer(newCtx) })
 	runtime.Gosched()
-	stopGroup.Go(func() error { return server.runRegistrar(ctx) })
+	stopGroup.Go(func() error { return server.runRegistrar(newCtx) })
 	runtime.Gosched()
 	return stopGroup.Wait()
 }
@@ -117,7 +116,7 @@ func (server *Server) runServer(ctx context.Context) error {
 		defer close(serveErrC)
 		server.healthSrv.Resume()
 		err := server.gRPCSrv.Serve(lis)
-		if errors.Is(err, http.ErrServerClosed) {
+		if errors.Is(err, grpc.ErrServerStopped) {
 			return
 		}
 		if err != nil {
@@ -159,9 +158,6 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	go func() {
 		defer close(registerErrC)
 		err := server.options.Registrar.Register(ctx, instance)
-		if errors.Is(err, registry.ErrServiceDeregistered) {
-			return
-		}
 		if err != nil {
 			registerErrC <- err
 		}

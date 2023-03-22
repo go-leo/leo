@@ -15,6 +15,7 @@ import (
 type Registrar struct {
 	namingClient naming_client.INamingClient
 	nacosOptions *nacosOptions
+	deregisterC  chan struct{}
 }
 
 func (r *Registrar) Register(ctx context.Context, service registry.ServiceInstance) error {
@@ -29,14 +30,19 @@ func (r *Registrar) Register(ctx context.Context, service registry.ServiceInstan
 	if !ok {
 		return errors.New("failed to register instance")
 	}
+	<-r.deregisterC
 	return nil
 }
 
 func (r *Registrar) Deregister(ctx context.Context, service registry.ServiceInstance) error {
+	defer close(r.deregisterC)
 	param := r.toDeregisterInstance(ctx, service)
-	_, err := r.namingClient.DeregisterInstance(param)
+	ok, err := r.namingClient.DeregisterInstance(param)
 	if err != nil {
 		return err
+	}
+	if !ok {
+		return errors.New("failed to deregister instance")
 	}
 	return nil
 }
@@ -72,18 +78,18 @@ func (r *Registrar) toDeregisterInstance(ctx context.Context, service registry.S
 func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) *Registrar {
 	r := &Registrar{
 		namingClient: factory.Create(),
-	}
-	nacosOptions := &nacosOptions{
-		clusterName: "",
-		groupName:   "",
-		weight:      1.0,
-		healthy:     true,
-		enable:      true,
-		ephemeral:   true,
+		nacosOptions: &nacosOptions{
+			clusterName: "",
+			groupName:   "",
+			weight:      1.0,
+			healthy:     true,
+			enable:      true,
+			ephemeral:   true,
+		},
+		deregisterC: make(chan struct{}),
 	}
 	for _, opt := range opts {
-		opt(nacosOptions)
+		opt(r.nacosOptions)
 	}
-	r.nacosOptions = nacosOptions
 	return r
 }

@@ -138,9 +138,6 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	go func() {
 		defer close(registerErrC)
 		err := server.options.Registrar.Register(ctx, instance)
-		if errors.Is(err, registry.ErrServiceDeregistered) {
-			return
-		}
 		if err != nil {
 			registerErrC <- err
 		}
