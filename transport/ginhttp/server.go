@@ -22,11 +22,11 @@ import (
 )
 
 type Server struct {
-	port    int
-	host    string
-	options *options
-	engine  *gin.Engine
-	running *atomic.Bool
+	port      int
+	host      string
+	options   *options
+	engine    *gin.Engine
+	healthSrv *HealthServer
 }
 
 func (server *Server) Run(ctx context.Context) error {
@@ -91,6 +91,7 @@ func (server *Server) runServer(ctx context.Context) error {
 	serveErrC := make(chan error)
 	go func() {
 		defer close(serveErrC)
+		server.healthSrv.Resume()
 		err = httpSrv.Serve(lis)
 		if errors.Is(err, http.ErrServerClosed) {
 			return
@@ -112,6 +113,7 @@ func (server *Server) runServer(ctx context.Context) error {
 		if server.options.ShutdownTimeout > 0 {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
+		server.healthSrv.Shutdown()
 		return errors.Join(httpSrv.Shutdown(ctx), <-serveErrC)
 	}
 }
@@ -160,19 +162,15 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	}
 }
 
-func (server *Server) isRunning() bool {
-	return server.running.Load()
-}
-
 func NewServer(port int, engine *gin.Engine, opts ...Option) *Server {
 	o := new(options)
 	o.apply(opts...)
 	o.init()
 	return &Server{
-		port:    port,
-		host:    "",
-		options: o,
-		engine:  engine,
-		running: new(atomic.Bool),
+		port:      port,
+		host:      "",
+		options:   o,
+		engine:    engine,
+		healthSrv: &HealthServer{running: &atomic.Bool{}},
 	}
 }

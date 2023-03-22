@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/log/log/slog
+module codeup.aliyun.com/qimao/leo/leo/log/slog
 
 go 1.20
 

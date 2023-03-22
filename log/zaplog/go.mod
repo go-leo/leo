@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/log/log/zaplog
+module codeup.aliyun.com/qimao/leo/leo/log/zaplog
 
 go 1.20
 
