@@ -1,10 +1,7 @@
 package registry
 
 import (
-	"net/netip"
 	"sync"
-
-	"golang.org/x/exp/maps"
 )
 
 // ServiceInstance represents an instance of a service in a discovery system.
@@ -13,84 +10,96 @@ type ServiceInstance interface {
 	ID() string
 	// Name is service instance name.
 	Name() string
-	// Address is service host:port address
-	Address() netip.AddrPort
+	// IP is ip
+	IP() string
+	// Port is port
+	Port() int
 	// Metadata is other information the service instance carried.
 	Metadata() map[string]string
 	// Scheme is the scheme of the service instance.
-	Scheme()
+	Scheme() string
 }
 
-type DefaultServiceInstance struct {
+var _ ServiceInstance = new(serviceInstance)
+
+type serviceInstance struct {
 	id       string
 	name     string
-	address  netip.AddrPort
+	ip       string
+	port     int
 	metadata map[string]string
 	scheme   string
 }
 
-func NewDefaultServiceInstance(id string, name string, address netip.AddrPort, metadata map[string]string, scheme string) *DefaultServiceInstance {
-	return &DefaultServiceInstance{id: id, name: name, address: address, metadata: metadata, scheme: scheme}
+func NewServiceInstance(
+	id string, name string, ip string, port int,
+	metadata map[string]string, scheme string,
+) ServiceInstance {
+	return &serviceInstance{id: id, name: name, ip: ip, port: port, metadata: metadata, scheme: scheme}
 }
 
-func (d *DefaultServiceInstance) ID() string {
+func (d *serviceInstance) ID() string {
 	return d.id
 }
 
-func (d *DefaultServiceInstance) Name() string {
+func (d *serviceInstance) Name() string {
 	return d.name
 }
 
-func (d *DefaultServiceInstance) Address() netip.AddrPort {
-	return d.address
+func (d *serviceInstance) IP() string {
+	return d.ip
 }
 
-func (d *DefaultServiceInstance) Metadata() map[string]string {
+func (d *serviceInstance) Port() int {
+	return d.port
+}
+
+func (d *serviceInstance) Metadata() map[string]string {
 	return d.metadata
 }
 
-func (d *DefaultServiceInstance) Scheme() string {
+func (d *serviceInstance) Scheme() string {
 	return d.scheme
 }
 
-type SetInstancesListener interface {
-	OnSetInstances(serviceName string, instances []ServiceInstance)
+type Cache interface {
+	SetInstances(serviceName string, instances []ServiceInstance)
+	GetInstances(serviceName string) ([]ServiceInstance, bool)
+	SetServices(services []string)
+	GetServices() []string
 }
 
-type OnSetInstances func(serviceName string, instances []ServiceInstance)
-
-func (f OnSetInstances) OnSetInstances(serviceName string, instances []ServiceInstance) {
-	f(serviceName, instances)
-}
-
-type ServiceInstanceCache struct {
-	instancesMap         map[string][]ServiceInstance
-	setInstancesListener SetInstancesListener
+type MemeryCache struct {
+	instancesMap map[string][]ServiceInstance
+	services     []string
 	sync.RWMutex
 }
 
-func NewServiceInstanceCache(listener SetInstancesListener) *ServiceInstanceCache {
-	return &ServiceInstanceCache{instancesMap: make(map[string][]ServiceInstance), setInstancesListener: listener}
+func NewMemeryCache() *MemeryCache {
+	return &MemeryCache{instancesMap: make(map[string][]ServiceInstance)}
 }
 
-func (c *ServiceInstanceCache) SetInstances(serviceName string, instances []ServiceInstance) {
+func (c *MemeryCache) SetInstances(serviceName string, instances []ServiceInstance) {
 	c.Lock()
 	defer c.Unlock()
 	c.instancesMap[serviceName] = instances
-	if c.setInstancesListener != nil {
-		c.setInstancesListener.OnSetInstances(serviceName, instances)
-	}
 }
 
-func (c *ServiceInstanceCache) GetInstances(serviceName string) ([]ServiceInstance, bool) {
+func (c *MemeryCache) GetInstances(serviceName string) ([]ServiceInstance, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	instances, ok := c.instancesMap[serviceName]
 	return instances, ok
 }
 
-func (c *ServiceInstanceCache) GetServices() []string {
+func (c *MemeryCache) SetServices(services []string) {
+	c.Lock()
+	defer c.Unlock()
+	c.services = services
+}
+
+func (c *MemeryCache) GetServices() []string {
 	c.RLock()
 	defer c.RUnlock()
-	return maps.Keys(c.instancesMap)
+	return c.services
 }

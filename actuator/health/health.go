@@ -49,22 +49,22 @@ func NewHealth(status Status, details map[string]any) Health {
 	return &health{status: status, details: details}
 }
 
-func UnknownHealth() Health {
+func Unknown() Health {
 	return NewHealth(UnknownStatus(""), nil)
 }
 
-func UpHealth() Health {
+func Up() Health {
 	return NewHealth(UpStatus(""), nil)
 }
 
-func DownHealth() Health {
+func Down() Health {
 	return NewHealth(DownStatus(""), nil)
 }
 
-func DownHealthWithError(err error) Health {
+func DownWithError(err error) Health {
 	return NewHealth(DownStatus(""), map[string]any{"error": err})
 }
 
-func OutOfServiceHealth() Health {
+func OutOfService() Health {
 	return NewHealth(OutOfServiceStatus(""), nil)
 }

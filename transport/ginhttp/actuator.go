@@ -38,9 +38,9 @@ type healthChecker struct {
 
 func (h *healthChecker) Check(ctx context.Context) health.Health {
 	if h.server.isRunning() {
-		return health.UpHealth()
+		return health.Up()
 	}
-	return health.DownHealth()
+	return health.Down()
 }
 
 func (h *healthChecker) Name() string {

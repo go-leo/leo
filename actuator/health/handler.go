@@ -34,7 +34,7 @@ func (h *CheckerHandler) Handle(writer http.ResponseWriter, request *http.Reques
 func (h *CheckerHandler) Health(ctx context.Context) (r Health) {
 	defer func() {
 		if p := recover(); p != nil {
-			r = DownHealthWithError(fmt.Errorf("%v", p))
+			r = DownWithError(fmt.Errorf("%v", p))
 		}
 	}()
 	return h.HealthChecker.Check(ctx)

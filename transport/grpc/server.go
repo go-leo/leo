@@ -1,4 +1,4 @@
-package ginhttp
+package grpc
 
 import (
 	"context"
@@ -8,25 +8,34 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
-	"sync/atomic"
 
-	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	grpchealth "google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/netx/addrx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/operator"
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
 
+type Service struct {
+	Impl any
+	Desc *grpc.ServiceDesc
+}
+
+// Server grpc运行实体
 type Server struct {
-	port    int
-	host    string
-	options *options
-	engine  *gin.Engine
-	running *atomic.Bool
+	port      int
+	host      string
+	options   *options
+	gRPCSrv   *grpc.Server
+	healthSrv *grpchealth.Server
+	instance  registry.ServiceInstance
 }
 
 func (server *Server) Run(ctx context.Context) error {
@@ -77,21 +86,30 @@ func (server *Server) runServer(ctx context.Context) error {
 		return err
 	}
 
-	// new http server
-	httpSrv := &http.Server{
-		Handler:           server.engine,
-		ReadTimeout:       server.options.ReadTimeout,
-		ReadHeaderTimeout: server.options.ReadHeaderTimeout,
-		WriteTimeout:      server.options.WriteTimeout,
-		IdleTimeout:       server.options.IdleTimeout,
-		MaxHeaderBytes:    server.options.MaxHeaderBytes,
+	var serverOptions []grpc.ServerOption
+	serverOptions = append(serverOptions, server.options.ServerOptions...)
+	if server.options.TLSConf != nil {
+		serverOptions = append(serverOptions, grpc.Creds(credentials.NewTLS(server.options.TLSConf)))
 	}
+	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(server.options.UnaryInterceptors...))
+	server.gRPCSrv = grpc.NewServer(serverOptions...)
 
-	// http server async run serve
+	// register health check service
+	server.healthSrv = grpchealth.NewServer()
+	server.healthSrv.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	grpc_health_v1.RegisterHealthServer(server.gRPCSrv, server.healthSrv)
+
+	// register reflection service on gRPC server.
+	reflection.Register(server.gRPCSrv)
+
+	// register business service
+
+	// grpc server async run serve
 	serveErrC := make(chan error)
 	go func() {
 		defer close(serveErrC)
-		err = httpSrv.Serve(lis)
+		server.healthSrv.Resume()
+		err := server.gRPCSrv.Serve(lis)
 		if errors.Is(err, http.ErrServerClosed) {
 			return
 		}
@@ -101,18 +119,16 @@ func (server *Server) runServer(ctx context.Context) error {
 	}()
 	runtime.Gosched()
 
-	// wait until context canceled or http server failed to serve
+	// wait until context canceled or grpc server failed to serve
 	select {
 	case serveErr := <-serveErrC:
 		// failed to serve, return serve error
 		return serveErr
 	case <-ctx.Done():
 		// context canceled, shutdown server.
-		ctx, _ := contextx.WithSignal(context.Background())
-		if server.options.ShutdownTimeout > 0 {
-			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
-		}
-		return errors.Join(httpSrv.Shutdown(ctx), <-serveErrC)
+		server.healthSrv.Shutdown()
+		server.gRPCSrv.GracefulStop()
+		return nil
 	}
 }
 
@@ -121,20 +137,11 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 		return nil
 	}
 
-	scheme := operator.Ternary(server.options.TLSConf != nil, "https", "http")
-	instance := registry.NewServiceInstance(
-		server.options.ID,
-		server.options.Name,
-		server.host,
-		server.port,
-		server.options.MetaData,
-		scheme)
-
 	// registrar async run register
 	registerErrC := make(chan error)
 	go func() {
 		defer close(registerErrC)
-		err := server.options.Registrar.Register(ctx, instance)
+		err := server.options.Registrar.Register(ctx, server.instance)
 		if errors.Is(err, registry.ErrServiceDeregistered) {
 			return
 		}
@@ -156,23 +163,17 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
 		// return register and deregister error if has error
-		return errors.Join(server.options.Registrar.Deregister(ctx, instance), <-registerErrC)
+		return errors.Join(server.options.Registrar.Deregister(ctx, server.instance), <-registerErrC)
 	}
 }
 
-func (server *Server) isRunning() bool {
-	return server.running.Load()
-}
-
-func NewServer(port int, engine *gin.Engine, opts ...Option) *Server {
+func New(port int, opts ...Option) *Server {
 	o := new(options)
-	o.apply(opts...)
+	o.apply(opts)
 	o.init()
-	return &Server{
-		port:    port,
-		host:    "",
+	srv := &Server{
 		options: o,
-		engine:  engine,
-		running: new(atomic.Bool),
+		port:    port,
 	}
+	return srv
 }
