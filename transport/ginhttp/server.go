@@ -13,11 +13,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/go-leo/gox/contextx"
+	"github.com/go-leo/gox/netx/addrx"
+	"github.com/go-leo/gox/operator"
+
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/netx/addrx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/operator"
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
 

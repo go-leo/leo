@@ -30,8 +30,8 @@ cloud.google.com/go/storage v1.5.0/go.mod h1:tpKbwo567HUNpVclU5sGELwQWBDZ8gh0Zeo
 cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohlUTyfDhBk=
 cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RXyy7KQOVs=
 cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9ullr3+Kg0=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322075856-26e129315008 h1:Ke3ofsTNgsytEZvz8A85i4uEaNHIXTRKi3kXbsIAWiA=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322075856-26e129315008/go.mod h1:NutQvKqmWF2JE85u73S47E6B2bvhZ0L0FILmlkRrxvE=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322092925-26707913d39c h1:81uJ/QxKVC8qmVisu1ysk8CcCwKxGM7UWMVK3x6KYRs=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322092925-26707913d39c/go.mod h1:WNS5YZIXOnHl2bNi/IWXopJ4HNgz95jyCFia8JCJvvo=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
@@ -81,6 +81,8 @@ github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-kit/kit v0.9.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-kit/log v0.1.0/go.mod h1:zbhenjAZHb184qTLMA9ZjW7ThYL0H2mk7Q6pNt4vbaY=
+github.com/go-leo/gox v0.0.0-20230317121942-c48cde3ae7b5 h1:Q7O0a0FKeghiY/3+bzb/TZZMnLiiKcVdxMP/w3emjrM=
+github.com/go-leo/gox v0.0.0-20230317121942-c48cde3ae7b5/go.mod h1:UsIY9lRqa1dVdtyAOhqXVCT2n59rdtsI5WgOpHjWeRM=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-logfmt/logfmt v0.5.0/go.mod h1:wCYkCAKZfumFQihp8CzCvQ3paCTfi41vtzG1KdI/P7A=

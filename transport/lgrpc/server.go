@@ -16,11 +16,12 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/go-leo/gox/contextx"
+	"github.com/go-leo/gox/netx/addrx"
+	"github.com/go-leo/gox/reflectx"
+
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/netx/addrx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/reflectx"
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
 

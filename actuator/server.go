@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"strconv"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
+	"github.com/go-leo/gox/contextx"
 )
 
 type Server struct {

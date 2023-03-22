@@ -7,12 +7,14 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/stringx"
+	"github.com/go-leo/gox/stringx"
+
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
 
 type Registrar struct {
 	namingClient naming_client.INamingClient
+	nacosOptions *nacosOptions
 }
 
 func (r *Registrar) Register(ctx context.Context, service registry.ServiceInstance) error {
@@ -40,59 +42,48 @@ func (r *Registrar) Deregister(ctx context.Context, service registry.ServiceInst
 }
 
 func (r *Registrar) toRegisterInstance(ctx context.Context, service registry.ServiceInstance) vo.RegisterInstanceParam {
-	params := registry.ParamsFromContext(ctx)
-	weight, ok := params["Weight"].(float64)
-	if !ok {
-		weight = 1.0
-	}
-	enable, ok := params["Enable"].(bool)
-	if !ok {
-		enable = true
-	}
-	healthy, ok := params["Healthy"].(bool)
-	if !ok {
-		healthy = true
-	}
-	clusterName, _ := params["ClusterName"].(string)
-	groupName, _ := params["GroupName"].(string)
-	ephemeral, ok := params["Ephemeral"].(bool)
-	if !ok {
-		ephemeral = true
-	}
 	param := vo.RegisterInstanceParam{
 		Ip:          service.IP(),           // 服务实例IP
 		Port:        uint64(service.Port()), // 服务实例port
-		Weight:      weight,                 // 权重
-		Enable:      enable,                 // 是否上线
-		Healthy:     healthy,                // 是否健康
+		Weight:      r.nacosOptions.weight,  // 权重
+		Enable:      r.nacosOptions.enable,  // 是否上线
+		Healthy:     r.nacosOptions.healthy, // 是否健康
 		Metadata:    service.Metadata(),     // 扩展信息
-		ClusterName: clusterName,
+		ClusterName: r.nacosOptions.clusterName,
 		ServiceName: service.Name(),
-		GroupName:   groupName,
-		Ephemeral:   ephemeral, // 是否临时实例
+		GroupName:   r.nacosOptions.groupName,
+		Ephemeral:   r.nacosOptions.ephemeral, // 是否临时实例
 	}
 	return param
 }
 
 func (r *Registrar) toDeregisterInstance(ctx context.Context, service registry.ServiceInstance) vo.DeregisterInstanceParam {
-	params := registry.ParamsFromContext(ctx)
-	clusterName, _ := params["ClusterName"].(string)
-	groupName, _ := params["GroupName"].(string)
-	ephemeral, ok := params["Ephemeral"].(bool)
-	if !ok {
-		ephemeral = true
-	}
 	param := vo.DeregisterInstanceParam{
 		Ip:          service.IP(),           // 服务实例IP
 		Port:        uint64(service.Port()), // 服务实例port
-		Cluster:     clusterName,
+		Cluster:     r.nacosOptions.clusterName,
 		ServiceName: service.Name(),
-		GroupName:   groupName,
-		Ephemeral:   ephemeral, // 是否临时实例
+		GroupName:   r.nacosOptions.groupName,
+		Ephemeral:   r.nacosOptions.ephemeral, // 是否临时实例
 	}
 	return param
 }
 
-func NewRegistrar(factory NamingClientFactory) *Registrar {
-	return &Registrar{namingClient: factory.Create()}
+func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) *Registrar {
+	r := &Registrar{
+		namingClient: factory.Create(),
+	}
+	nacosOptions := &nacosOptions{
+		clusterName: "",
+		groupName:   "",
+		weight:      1.0,
+		healthy:     true,
+		enable:      true,
+		ephemeral:   true,
+	}
+	for _, opt := range opts {
+		opt(nacosOptions)
+	}
+	r.nacosOptions = nacosOptions
+	return r
 }

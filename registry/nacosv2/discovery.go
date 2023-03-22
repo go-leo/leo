@@ -168,7 +168,7 @@ func (d *Discovery) getServicesFromNacos(ctx context.Context) ([]string, error) 
 		NameSpace: nameSpace,
 		GroupName: groupName,
 		PageNo:    1,
-		PageSize:  math.MaxInt,
+		PageSize:  math.MaxInt32,
 	})
 	if err != nil {
 		return nil, err

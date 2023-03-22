@@ -3,8 +3,9 @@ module codeup.aliyun.com/qimao/leo/leo/transport/ginhttp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322075856-26e129315008
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322092925-26707913d39c
 	github.com/gin-gonic/gin v1.9.0
+	github.com/go-leo/gox v0.0.0-20230317121942-c48cde3ae7b5
 	golang.org/x/sync v0.1.0
 )
 
@@ -12,7 +13,6 @@ require (
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-leo/gox v0.0.0-20230317121942-c48cde3ae7b5 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect

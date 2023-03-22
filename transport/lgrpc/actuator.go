@@ -6,8 +6,9 @@ import (
 
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
+	"github.com/go-leo/gox/netx/httpx"
+
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"codeup.aliyun.com/qimao/leo/leo/internal/netx/httpx"
 )
 
 type actuatorHandler struct {

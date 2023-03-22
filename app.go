@@ -5,7 +5,7 @@ import (
 	"os"
 	"syscall"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/contextx"
+	"github.com/go-leo/gox/contextx"
 )
 
 type App struct {
