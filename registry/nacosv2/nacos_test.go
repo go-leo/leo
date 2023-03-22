@@ -1,4 +1,4 @@
-package nacos
+package nacosv2
 
 import "testing"
 

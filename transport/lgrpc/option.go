@@ -1,7 +1,6 @@
 package lgrpc
 
 import (
-	"crypto/tls"
 	"time"
 
 	"google.golang.org/grpc"
@@ -16,7 +15,6 @@ type options struct {
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 	ServerOptions      []grpc.ServerOption
-	TLSConf            *tls.Config
 	Registrar          registry.Registrar
 	ShutdownTimeout    time.Duration
 }
@@ -66,12 +64,6 @@ func StreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option {
 func ServerOptions(serverOptions ...grpc.ServerOption) Option {
 	return func(o *options) {
 		o.ServerOptions = serverOptions
-	}
-}
-
-func TLS(conf *tls.Config) Option {
-	return func(o *options) {
-		o.TLSConf = conf
 	}
 }
 

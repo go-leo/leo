@@ -1,4 +1,4 @@
-package nacos
+package nacosv2
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 var _ registry.Discovery = new(Discovery)
 
 type Discovery struct {
-	namingCli     naming_client.INamingClient
+	namingClient  naming_client.INamingClient
 	instanceCache registry.Cache
 	watchers      map[string][]chan []registry.ServiceInstance
 	interval      time.Duration
@@ -111,12 +111,10 @@ func (d *Discovery) onSetInstances(serviceName string, instances []registry.Serv
 func (d *Discovery) getInstancesFromNacos(ctx context.Context, serviceName string) ([]registry.ServiceInstance, error) {
 	var clusters []string
 	var groupName string
-	params, ok := registry.ParamsFromContext(ctx)
-	if ok {
-		clusters, _ = params["Clusters"].([]string)
-		groupName, _ = params["GroupName"].(string)
-	}
-	nacosServices, err := d.namingCli.GetService(vo.GetServiceParam{
+	params := registry.ParamsFromContext(ctx)
+	clusters, _ = params["Clusters"].([]string)
+	groupName, _ = params["GroupName"].(string)
+	nacosServices, err := d.namingClient.GetService(vo.GetServiceParam{
 		Clusters:    clusters,
 		ServiceName: serviceName,
 		GroupName:   groupName,
@@ -163,12 +161,10 @@ func (d *Discovery) nacosInstanceToServiceInstance(instance model.Instance) regi
 func (d *Discovery) getServicesFromNacos(ctx context.Context) ([]string, error) {
 	var nameSpace string
 	var groupName string
-	params, ok := registry.ParamsFromContext(ctx)
-	if ok {
-		nameSpace, _ = params["NameSpace"].(string)
-		groupName, _ = params["GroupName"].(string)
-	}
-	servicesInfo, err := d.namingCli.GetAllServicesInfo(vo.GetAllServiceInfoParam{
+	params := registry.ParamsFromContext(ctx)
+	nameSpace, _ = params["NameSpace"].(string)
+	groupName, _ = params["GroupName"].(string)
+	servicesInfo, err := d.namingClient.GetAllServicesInfo(vo.GetAllServiceInfoParam{
 		NameSpace: nameSpace,
 		GroupName: groupName,
 		PageNo:    1,
@@ -183,12 +179,10 @@ func (d *Discovery) getServicesFromNacos(ctx context.Context) ([]string, error) 
 func (d *Discovery) subscribe(ctx context.Context, serviceName string) error {
 	var clusters []string
 	var groupName string
-	params, ok := registry.ParamsFromContext(ctx)
-	if ok {
-		clusters, _ = params["Clusters"].([]string)
-		groupName, _ = params["GroupName"].(string)
-	}
-	err := d.namingCli.Subscribe(&vo.SubscribeParam{
+	params := registry.ParamsFromContext(ctx)
+	clusters, _ = params["Clusters"].([]string)
+	groupName, _ = params["GroupName"].(string)
+	err := d.namingClient.Subscribe(&vo.SubscribeParam{
 		ServiceName:       serviceName,
 		Clusters:          clusters,
 		GroupName:         groupName,
@@ -244,9 +238,13 @@ func (d *Discovery) loop(ctx context.Context, serviceName string) {
 	}
 }
 
-func NewDiscovery() *Discovery {
+func NewDiscovery(factory NamingClientFactory) *Discovery {
 	discovery := &Discovery{
-		watchers: make(map[string][]chan []registry.ServiceInstance),
+		namingClient:  factory.Create(),
+		instanceCache: nil,
+		watchers:      make(map[string][]chan []registry.ServiceInstance),
+		interval:      0,
+		RWMutex:       sync.RWMutex{},
 	}
 	// cache := NewServiceInstanceCache(discovery.onSetInstances)
 	return discovery

@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/registry/nacos
+module codeup.aliyun.com/qimao/leo/leo/registry/nacosv2
 
 go 1.20
 

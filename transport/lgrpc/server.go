@@ -2,7 +2,6 @@ package lgrpc
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"net"
@@ -13,7 +12,6 @@ import (
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	grpchealth "google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
@@ -77,11 +75,6 @@ func (server *Server) listenPort() (net.Listener, error) {
 	}
 	// write back port
 	server.port = addrx.ExtractPort(lis.Addr())
-
-	// new tls listener
-	if server.options.TLSConf != nil {
-		lis = tls.NewListener(lis, server.options.TLSConf)
-	}
 	return lis, nil
 }
 
@@ -94,10 +87,8 @@ func (server *Server) runServer(ctx context.Context) error {
 
 	var serverOptions []grpc.ServerOption
 	serverOptions = append(serverOptions, server.options.ServerOptions...)
-	if server.options.TLSConf != nil {
-		serverOptions = append(serverOptions, grpc.Creds(credentials.NewTLS(server.options.TLSConf)))
-	}
 	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(server.options.UnaryInterceptors...))
+	serverOptions = append(serverOptions, grpc.ChainStreamInterceptor(server.options.StreamInterceptors...))
 	server.gRPCSrv = grpc.NewServer(serverOptions...)
 
 	// register health check service
