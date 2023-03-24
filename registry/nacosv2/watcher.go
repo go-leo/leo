@@ -44,8 +44,8 @@ func (watcher *Watcher) StopNotify(instanceC chan<- []registry.ServiceInstance) 
 }
 
 func (watcher *Watcher) Close(ctx context.Context) error {
-	watcher.closeC <- struct{}{}
 	err := watcher.unsubscribe()
+	watcher.closeC <- struct{}{}
 	watcher.mutex.Lock()
 	watcher.instanceCs = nil
 	watcher.mutex.Unlock()
@@ -76,6 +76,8 @@ func (watcher *Watcher) notify(ctx context.Context) {
 	for _, instanceC := range watcher.instanceCs {
 		select {
 		case instanceC <- instances:
+		case <-watcher.closeC:
+			return
 		default:
 		}
 	}
