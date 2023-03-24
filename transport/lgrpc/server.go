@@ -40,9 +40,17 @@ type Server struct {
 	gRPCSrv   *grpc.Server
 	healthSrv *grpchealth.Server
 	binders   []Binder
+	lis       net.Listener
 }
 
 func (server *Server) Run(ctx context.Context) error {
+	// listen port
+	lis, err := server.listenPort()
+	if err != nil {
+		return err
+	}
+	server.lis = lis
+
 	stopGroup, newCtx := errgroup.WithContext(ctx)
 	stopGroup.Go(func() error { return server.runServer(newCtx) })
 	runtime.Gosched()
@@ -79,12 +87,6 @@ func (server *Server) listenPort() (net.Listener, error) {
 }
 
 func (server *Server) runServer(ctx context.Context) error {
-	// listen port
-	lis, err := server.listenPort()
-	if err != nil {
-		return err
-	}
-
 	var serverOptions []grpc.ServerOption
 	serverOptions = append(serverOptions, server.options.ServerOptions...)
 	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(server.options.UnaryInterceptors...))
@@ -115,7 +117,7 @@ func (server *Server) runServer(ctx context.Context) error {
 	go func() {
 		defer close(serveErrC)
 		server.healthSrv.Resume()
-		err := server.gRPCSrv.Serve(lis)
+		err := server.gRPCSrv.Serve(server.lis)
 		if errors.Is(err, grpc.ErrServerStopped) {
 			return
 		}
@@ -143,32 +145,24 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 		return nil
 	}
 
-	scheme := "grpc"
-	instance := registry.NewServiceInstance(
-		server.options.ID,
-		server.options.Name,
-		server.host,
-		server.port,
-		server.options.MetaData,
-		scheme,
-	)
+	instance := registry.Builder().
+		ID(server.options.ID).
+		Name(server.options.Name).
+		IP(server.host).
+		Port(server.port).
+		Metadata(server.options.MetaData).
+		Scheme("grpc").
+		Build()
 
-	// registrar async run register
-	registerErrC := make(chan error)
-	go func() {
-		defer close(registerErrC)
-		err := server.options.Registrar.Register(ctx, instance)
-		if err != nil {
-			registerErrC <- err
-		}
-	}()
-	runtime.Gosched()
+	// registrar register instance
+	err := server.options.Registrar.Register(ctx, instance)
+	if err != nil {
+		// failed to register. return register error
+		return err
+	}
 
 	// wait until context canceled or registrar failed to register
 	select {
-	case registerErr := <-registerErrC:
-		// failed to register. return register error
-		return registerErr
 	case <-ctx.Done():
 		// context canceled, deregister server.
 		ctx, _ := contextx.WithSignal(context.Background())
@@ -176,7 +170,7 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
 		// return register and deregister error if has error
-		return errors.Join(server.options.Registrar.Deregister(ctx, instance), <-registerErrC)
+		return server.options.Registrar.Deregister(ctx, instance)
 	}
 }
 

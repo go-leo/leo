@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/registry/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322093135-8e49cd8643e8
-	github.com/go-leo/gox v0.0.0-20230322113626-b398d50467e2
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230322115216-e9f82ca45040
+	github.com/go-leo/gox v0.0.0-20230323081259-f45bdc817f43
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
 )
 
@@ -14,7 +14,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect
@@ -24,6 +23,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.1.0 // indirect

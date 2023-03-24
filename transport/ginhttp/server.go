@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/netx/addrx"
-	"github.com/go-leo/gox/operator"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
@@ -28,9 +27,17 @@ type Server struct {
 	options   *options
 	engine    *gin.Engine
 	healthSrv *HealthServer
+	lis       net.Listener
 }
 
 func (server *Server) Run(ctx context.Context) error {
+	// listen port
+	lis, err := server.listenPort()
+	if err != nil {
+		return err
+	}
+	server.lis = lis
+
 	stopGroup, ctx := errgroup.WithContext(ctx)
 	stopGroup.Go(func() error { return server.runServer(ctx) })
 	runtime.Gosched()
@@ -64,7 +71,7 @@ func (server *Server) listenPort() (net.Listener, error) {
 	// write back port
 	server.port = addrx.ExtractPort(lis.Addr())
 
-	// new tls listener
+	// new tls lis
 	if server.options.TLSConf != nil {
 		lis = tls.NewListener(lis, server.options.TLSConf)
 	}
@@ -72,12 +79,6 @@ func (server *Server) listenPort() (net.Listener, error) {
 }
 
 func (server *Server) runServer(ctx context.Context) error {
-	// listen port
-	lis, err := server.listenPort()
-	if err != nil {
-		return err
-	}
-
 	// new http server
 	httpSrv := &http.Server{
 		Handler:           server.engine,
@@ -93,7 +94,7 @@ func (server *Server) runServer(ctx context.Context) error {
 	go func() {
 		defer close(serveErrC)
 		server.healthSrv.Resume()
-		err = httpSrv.Serve(lis)
+		err := httpSrv.Serve(server.lis)
 		if errors.Is(err, http.ErrServerClosed) {
 			return
 		}
@@ -124,31 +125,24 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 		return nil
 	}
 
-	scheme := operator.Ternary(server.options.TLSConf != nil, "https", "http")
-	instance := registry.NewServiceInstance(
-		server.options.ID,
-		server.options.Name,
-		server.host,
-		server.port,
-		server.options.MetaData,
-		scheme)
+	instance := registry.Builder().
+		ID(server.options.ID).
+		Name(server.options.Name).
+		IP(server.host).
+		Port(server.port).
+		Metadata(server.options.MetaData).
+		Scheme("http").
+		Build()
 
-	// registrar async run register
-	registerErrC := make(chan error)
-	go func() {
-		defer close(registerErrC)
-		err := server.options.Registrar.Register(ctx, instance)
-		if err != nil {
-			registerErrC <- err
-		}
-	}()
-	runtime.Gosched()
+	// registrar register instance
+	err := server.options.Registrar.Register(ctx, instance)
+	if err != nil {
+		// failed to register. return register error
+		return err
+	}
 
 	// wait until context canceled or registrar failed to register
 	select {
-	case registerErr := <-registerErrC:
-		// failed to register. return register error
-		return registerErr
 	case <-ctx.Done():
 		// context canceled, deregister server.
 		ctx, _ := contextx.WithSignal(context.Background())
@@ -156,7 +150,7 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
 		// return register and deregister error if has error
-		return errors.Join(server.options.Registrar.Deregister(ctx, instance), <-registerErrC)
+		return errors.Join(server.options.Registrar.Deregister(ctx, instance))
 	}
 }
 

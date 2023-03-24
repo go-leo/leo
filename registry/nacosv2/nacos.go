@@ -15,12 +15,10 @@ func (f NamingClientFactoryFunc) Create() naming_client.INamingClient {
 }
 
 type nacosOptions struct {
+	clusters    []string
 	clusterName string
-	groupName   string
 	weight      float64
-	healthy     bool
-	enable      bool
-	ephemeral   bool
+	nameSpace   string
 }
 
 type NacosOption func(r *nacosOptions)
@@ -31,9 +29,9 @@ func ClusterName(clusterName string) NacosOption {
 	}
 }
 
-func GroupName(groupName string) NacosOption {
+func Clusters(clusters []string) NacosOption {
 	return func(r *nacosOptions) {
-		r.groupName = groupName
+		r.clusters = clusters
 	}
 }
 
@@ -43,20 +41,8 @@ func Weight(weight float64) NacosOption {
 	}
 }
 
-func Enable(enable bool) NacosOption {
+func NameSpace(nameSpace string) NacosOption {
 	return func(r *nacosOptions) {
-		r.enable = enable
-	}
-}
-
-func Healthy(healthy bool) NacosOption {
-	return func(r *nacosOptions) {
-		r.healthy = healthy
-	}
-}
-
-func Ephemeral(ephemeral bool) NacosOption {
-	return func(r *nacosOptions) {
-		r.ephemeral = ephemeral
+		r.nameSpace = nameSpace
 	}
 }
