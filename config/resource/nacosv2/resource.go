@@ -1,15 +1,12 @@
-package file
+package nacosv2
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"path/filepath"
 	"sync"
 
-	"github.com/fsnotify/fsnotify"
-	"github.com/go-leo/gox/pathx/filepathx"
 	"github.com/go-leo/gox/slicex"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/log"
@@ -49,42 +46,39 @@ func Logger(log log.Logger) Option {
 }
 
 type Resource struct {
-	options  *options
-	filename string
+	options      *options
+	configClient config_client.IConfigClient
+	dataID       string
+	group        string
 }
 
 func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
-	return r.loadSource()
-}
-
-func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
-	w := &Watcher{
-		filename: r.filename,
-		logger:   r.options.Logger,
-	}
-	return w, w.init(ctx)
-}
-
-func (r *Resource) loadSource() (*config.Source, error) {
-	value, err := os.ReadFile(r.filename)
+	content, err := r.configClient.GetConfig(vo.ConfigParam{
+		DataId:   r.dataID,
+		Group:    r.group,
+		OnChange: nil,
+	})
 	if err != nil {
 		return nil, err
 	}
 	return &config.Source{
-		Name:      filepath.Base(r.filename),
-		Value:     value,
+		Name:      r.dataID + "." + r.group,
+		Value:     []byte(content),
 		Extension: r.options.Extension,
 	}, nil
 }
 
+func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
+	w := &Watcher{resource: r}
+	return w, w.init(ctx)
+}
+
 type Watcher struct {
-	filename  string
-	logger    log.Logger
-	resource  *Resource
-	fsWatcher *fsnotify.Watcher
-	eventCs   []chan<- config.Event
-	mutex     sync.Mutex
-	closeC    chan struct{}
+	resource *Resource
+	changeC  chan config.Event
+	eventCs  []chan<- config.Event
+	closeC   chan struct{}
+	mutex    sync.Mutex
 }
 
 func (watcher *Watcher) Notify(eventC chan<- config.Event) {
@@ -100,7 +94,10 @@ func (watcher *Watcher) StopNotify(eventC chan<- config.Event) {
 }
 
 func (watcher *Watcher) Close(ctx context.Context) error {
-	err := watcher.fsWatcher.Close()
+	err := watcher.resource.configClient.CancelListenConfig(vo.ConfigParam{
+		DataId: watcher.resource.dataID,
+		Group:  watcher.resource.group,
+	})
 	watcher.closeC <- struct{}{}
 	watcher.mutex.Lock()
 	watcher.eventCs = nil
@@ -109,22 +106,22 @@ func (watcher *Watcher) Close(ctx context.Context) error {
 }
 
 func (watcher *Watcher) init(ctx context.Context) error {
-	fsWatcher, err := fsnotify.NewWatcher()
+	err := watcher.resource.configClient.ListenConfig(vo.ConfigParam{
+		DataId: watcher.resource.dataID,
+		Group:  watcher.resource.group,
+		OnChange: func(namespace, group, dataId, data string) {
+			watcher.changeC <- config.SourceEvent(&config.Source{
+				Name:      dataId + "." + group,
+				Value:     []byte(data),
+				Extension: watcher.resource.options.Extension,
+			})
+		},
+	})
 	if err != nil {
 		return err
 	}
-	watcher.fsWatcher = fsWatcher
-	st, err := os.Lstat(watcher.filename)
-	if err != nil {
-		return err
-	}
-
-	if st.IsDir() {
-		return fmt.Errorf("%q is a directory, not a file", watcher.filename)
-	}
-	if err := watcher.fsWatcher.Add(filepath.Dir(watcher.filename)); err != nil {
-		return err
-	}
+	watcher.changeC = make(chan config.Event)
+	watcher.closeC = make(chan struct{})
 	watcher.watch()
 	return nil
 }
@@ -135,16 +132,11 @@ func (watcher *Watcher) watch() {
 			select {
 			case <-watcher.closeC:
 				return
-			case event, ok := <-watcher.fsWatcher.Events:
+			case event, ok := <-watcher.changeC:
 				if !ok {
 					return
 				}
-				watcher.handleFileChangeEvent(event)
-			case err, ok := <-watcher.fsWatcher.Errors:
-				if !ok {
-					return
-				}
-				watcher.sendError(err)
+				watcher.handleChangeEvent(event)
 			}
 		}
 	}()
@@ -155,31 +147,26 @@ func (watcher *Watcher) sendError(err error) {
 		return
 	}
 	for _, eventC := range watcher.eventCs {
-		watcher.logger.Debug("sending error event")
 		eventC <- config.ErrorEvent(err)
 	}
 }
 
-func (watcher *Watcher) handleFileChangeEvent(event fsnotify.Event) {
-	// Ignore files we're not interested in.
-	if watcher.filename != event.Name {
-		return
-	}
-	source, err := watcher.resource.loadSource()
-	if err != nil {
-		watcher.sendError(err)
+func (watcher *Watcher) handleChangeEvent(event config.Event) {
+	if event == nil {
 		return
 	}
 	for _, eventC := range watcher.eventCs {
-		eventC <- config.SourceEvent(source)
+		eventC <- event
 	}
 }
 
-func NewResource(filename string, opts ...Option) *Resource {
-	filename = filepath.Clean(filename)
+func NewResource(dataID, group string, factory ConfigClientFactoryFunc, opts ...Option) (*Resource, error) {
+	configClient, err := factory.Create()
+	if err != nil {
+		return nil, err
+	}
 	o := &options{
-		Logger:    log.Discard{},
-		Extension: filepathx.Extension(filename),
+		Logger: log.Discard{},
 	}
 	o.apply(opts...)
 	o.init()
@@ -187,8 +174,10 @@ func NewResource(filename string, opts ...Option) *Resource {
 		opt(o)
 	}
 	resource := &Resource{
-		options:  o,
-		filename: filename,
+		options:      o,
+		configClient: configClient,
+		dataID:       dataID,
+		group:        group,
 	}
-	return resource
+	return resource, nil
 }

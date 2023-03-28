@@ -94,3 +94,15 @@ func (configure *Configure) Get(key string) *Value {
 	}
 	return &Value{val: meta}
 }
+
+func (configure *Configure) Watch(ctx context.Context) (Watcher, error) {
+	var watchers []Watcher
+	for _, resource := range configure.options.Resources {
+		watcher, err := resource.Watch(ctx)
+		if err != nil {
+			return nil, err
+		}
+		watchers = append(watchers, watcher)
+	}
+	return MultiWatcher(watchers...), nil
+}

@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"errors"
 )
 
 // Resource is a loader that can be used to load source config.
@@ -15,6 +16,30 @@ type Watcher interface {
 	Notify(eventC chan<- Event)
 	StopNotify(eventC chan<- Event)
 	Close(ctx context.Context) error
+}
+
+type multiWatcher struct {
+	watchers []Watcher
+}
+
+func (w *multiWatcher) Notify(eventC chan<- Event) {
+	for _, watcher := range w.watchers {
+		watcher.Notify(eventC)
+	}
+}
+
+func (w *multiWatcher) StopNotify(eventC chan<- Event) {
+	for _, watcher := range w.watchers {
+		watcher.StopNotify(eventC)
+	}
+}
+
+func (w *multiWatcher) Close(ctx context.Context) error {
+	var errs []error
+	for _, watcher := range w.watchers {
+		errs = append(errs, watcher.Close(ctx))
+	}
+	return errors.Join(errs...)
 }
 
 // Event is a event
@@ -37,4 +62,10 @@ func SourceEvent(source *Source) Event {
 
 func ErrorEvent(err error) Event {
 	return &event{err: err}
+}
+
+func MultiWatcher(watchers ...Watcher) Watcher {
+	w := make([]Watcher, len(watchers))
+	copy(w, watchers)
+	return &multiWatcher{watchers: w}
 }
