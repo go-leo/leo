@@ -10,6 +10,8 @@ import (
 	"github.com/go-leo/gox/convx"
 )
 
+const allConfigKey = ""
+
 type Data struct {
 	configMap  map[string]any
 	configTree *trie.Trie

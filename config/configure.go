@@ -2,6 +2,15 @@ package config
 
 import (
 	"context"
+	"errors"
+
+	"github.com/go-leo/gox/stringx"
+)
+
+var (
+	ErrValueNotFound = errors.New("value not found")
+
+	ErrValueIsNil = errors.New("value is nil")
 )
 
 type options struct {
@@ -35,8 +44,8 @@ func Decoders(decoders ...Decoder) Option {
 
 type Configure struct {
 	options *options
-	valuer  *valuer
 	parser  *parser
+	data    *Data
 }
 
 func NewConfigure(opts ...Option) *Configure {
@@ -45,7 +54,6 @@ func NewConfigure(opts ...Option) *Configure {
 	o.init()
 	configurer := &Configure{
 		options: o,
-		valuer:  &valuer{},
 		parser:  &parser{Decoders: o.Decoders},
 	}
 	return configurer
@@ -68,10 +76,21 @@ func (configure *Configure) Import(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	configure.valuer.data = d
+	configure.data = d
 	return nil
 }
 
 func (configure *Configure) Get(key string) *Value {
-	return configure.valuer.Value(key)
+	if stringx.IsBlank(key) {
+		return &Value{val: configure.data.AsMap()}
+	}
+	node, ok := configure.data.AsTree().Find(key)
+	if !ok {
+		return &Value{err: ErrValueNotFound}
+	}
+	meta := node.Meta()
+	if meta == nil {
+		return &Value{err: ErrValueIsNil}
+	}
+	return &Value{val: meta}
 }
