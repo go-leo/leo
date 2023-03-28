@@ -6,9 +6,9 @@ import (
 	"github.com/go-leo/gox/stringx"
 )
 
-var ValueNotFound = errors.New("value not found")
+var ErrValueNotFound = errors.New("value not found")
 
-var Nil = errors.New("value is nil")
+var ErrValueIsNil = errors.New("value is nil")
 
 const allConfigKey = ""
 
@@ -17,17 +17,17 @@ type valuer struct {
 	data *Data
 }
 
-func (valuer *valuer) Value(key string) (*Value, error) {
+func (valuer *valuer) Value(key string) *Value {
 	if stringx.IsBlank(key) {
-		return &Value{val: valuer.data.AsMap()}, nil
+		return &Value{val: valuer.data.AsMap()}
 	}
 	node, ok := valuer.data.AsTree().Find(key)
 	if !ok {
-		return nil, ValueNotFound
+		return &Value{err: ErrValueNotFound}
 	}
 	meta := node.Meta()
 	if meta == nil {
-		return nil, Nil
+		return &Value{err: ErrValueIsNil}
 	}
-	return &Value{val: meta}, nil
+	return &Value{val: meta}
 }

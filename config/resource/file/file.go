@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/go-leo/gox/pathx/filepathx"
 	"github.com/go-leo/gox/slicex"
 
 	"codeup.aliyun.com/qimao/leo/leo/config"
@@ -178,7 +179,7 @@ func NewResource(filename string, opts ...Option) *Resource {
 	filename = filepath.Clean(filename)
 	o := &options{
 		Logger:    log.Discard{},
-		Extension: filepath.Ext(filename),
+		Extension: filepathx.Extension(filename),
 	}
 	o.apply(opts...)
 	o.init()

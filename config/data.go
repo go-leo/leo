@@ -46,13 +46,7 @@ func (d *Data) clean() {
 func (d *Data) cleanMap(configMap map[string]any) {
 	for key, val := range configMap {
 		val = d.cleanValue(val)
-		lower := strings.ToLower(key)
-		if key != lower {
-			// remove old key (not lower-cased)
-			delete(configMap, key)
-		}
-		// update map
-		configMap[lower] = val
+		configMap[key] = val
 	}
 }
 

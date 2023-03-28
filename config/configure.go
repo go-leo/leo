@@ -44,8 +44,9 @@ func NewConfigure(opts ...Option) *Configure {
 	o.apply(opts...)
 	o.init()
 	configurer := &Configure{
-		valuer: &valuer{},
-		parser: &parser{Decoders: o.Decoders},
+		options: o,
+		valuer:  &valuer{},
+		parser:  &parser{Decoders: o.Decoders},
 	}
 	return configurer
 }
@@ -71,6 +72,6 @@ func (configure *Configure) Import(ctx context.Context) error {
 	return nil
 }
 
-func (configure *Configure) Get(key string) (*Value, error) {
+func (configure *Configure) Get(key string) *Value {
 	return configure.valuer.Value(key)
 }
