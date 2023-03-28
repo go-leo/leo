@@ -11,3 +11,13 @@ type Registrar interface {
 	// Deregister the ServiceInstance from registry.
 	Deregister(ctx context.Context, instance ServiceInstance) error
 }
+
+type RegistrarFactory interface {
+	Create() (Registrar, error)
+}
+
+type RegistrarFactoryFunc func() (Registrar, error)
+
+func (f RegistrarFactoryFunc) Create() (Registrar, error) {
+	return f()
+}

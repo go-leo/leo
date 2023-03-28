@@ -19,3 +19,13 @@ type Watcher interface {
 	StopNotify(instanceC chan<- []ServiceInstance)
 	Close(ctx context.Context) error
 }
+
+type DiscoveryFactory interface {
+	Create() (Discovery, error)
+}
+
+type DiscoveryFactoryFunc func() (Discovery, error)
+
+func (f DiscoveryFactoryFunc) Create() (Discovery, error) {
+	return f()
+}
