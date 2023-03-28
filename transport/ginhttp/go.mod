@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/transport/ginhttp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230324114627-a0b640d68b55
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230328023128-22ba53e23bcc
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-leo/gox v0.0.0-20230324101034-979e59fdc6c2
 	golang.org/x/sync v0.1.0
