@@ -7,15 +7,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type YAMLDecoder struct{}
+type YAML struct{}
 
-func (d *YAMLDecoder) IsSupported(extension string) bool {
+func (YAML) IsSupported(extension string) bool {
 	if slices.Contains([]string{"yaml", "yml"}, strings.ToLower(extension)) {
 		return true
 	}
 	return false
 }
 
-func (d *YAMLDecoder) Decode(bytes []byte, m map[string]any) error {
+func (YAML) Decode(bytes []byte, m map[string]any) error {
 	return yamlx.Unmarshal(bytes, &m)
 }

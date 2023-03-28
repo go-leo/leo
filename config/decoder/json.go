@@ -7,15 +7,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type JSONDecoder struct{}
+type JSON struct{}
 
-func (d *JSONDecoder) IsSupported(extension string) bool {
+func (JSON) IsSupported(extension string) bool {
 	if slices.Contains([]string{"json"}, strings.ToLower(extension)) {
 		return true
 	}
 	return false
 }
 
-func (d *JSONDecoder) Decode(bytes []byte, m map[string]any) error {
+func (JSON) Decode(bytes []byte, m map[string]any) error {
 	return jsonx.Unmarshal(bytes, &m)
 }

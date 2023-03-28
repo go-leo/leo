@@ -7,15 +7,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type TOMLDecoder struct{}
+type TOML struct{}
 
-func (d *TOMLDecoder) IsSupported(extension string) bool {
+func (TOML) IsSupported(extension string) bool {
 	if slices.Contains([]string{"toml"}, strings.ToLower(extension)) {
 		return true
 	}
 	return false
 }
 
-func (d *TOMLDecoder) Decode(bytes []byte, m map[string]any) error {
+func (TOML) Decode(bytes []byte, m map[string]any) error {
 	return tomlx.Unmarshal(bytes, &m)
 }
