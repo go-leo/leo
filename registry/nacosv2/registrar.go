@@ -100,9 +100,13 @@ func (r *Registrar) updateInstance(ctx context.Context, instance registry.Servic
 	return nil
 }
 
-func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) *Registrar {
+func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) (*Registrar, error) {
+	namingClient, err := factory.Create()
+	if err != nil {
+		return nil, err
+	}
 	r := &Registrar{
-		namingClient: factory.Create(),
+		namingClient: namingClient,
 		nacosOptions: &nacosOptions{
 			clusters:    nil,
 			clusterName: "",
@@ -113,5 +117,5 @@ func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) *Registr
 	for _, opt := range opts {
 		opt(r.nacosOptions)
 	}
-	return r
+	return r, nil
 }

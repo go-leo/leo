@@ -53,6 +53,18 @@ type Resource struct {
 }
 
 func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
+	return r.loadSource()
+}
+
+func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
+	w := &Watcher{
+		filename: r.filename,
+		logger:   r.options.Logger,
+	}
+	return w, w.init(ctx)
+}
+
+func (r *Resource) loadSource() (*config.Source, error) {
 	value, err := os.ReadFile(r.filename)
 	if err != nil {
 		return nil, err
@@ -64,19 +76,35 @@ func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
 	}, nil
 }
 
-func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
-	w := &Watcher{
-		filename: r.filename,
-	}
-	return w, w.init(ctx)
-}
-
 type Watcher struct {
-	fsWatcher *fsnotify.Watcher
 	filename  string
+	logger    log.Logger
+	resource  *Resource
+	fsWatcher *fsnotify.Watcher
 	eventCs   []chan<- config.Event
 	mutex     sync.Mutex
 	closeC    chan struct{}
+}
+
+func (watcher *Watcher) Notify(eventC chan<- config.Event) {
+	watcher.mutex.Lock()
+	defer watcher.mutex.Unlock()
+	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
+}
+
+func (watcher *Watcher) StopNotify(eventC chan<- config.Event) {
+	watcher.mutex.Lock()
+	defer watcher.mutex.Unlock()
+	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
+}
+
+func (watcher *Watcher) Close(ctx context.Context) error {
+	err := watcher.fsWatcher.Close()
+	watcher.closeC <- struct{}{}
+	watcher.mutex.Lock()
+	watcher.eventCs = nil
+	watcher.mutex.Unlock()
+	return err
 }
 
 func (watcher *Watcher) init(ctx context.Context) error {
@@ -97,7 +125,7 @@ func (watcher *Watcher) init(ctx context.Context) error {
 		return err
 	}
 	watcher.watch()
-	return err
+	return nil
 }
 
 func (watcher *Watcher) watch() {
@@ -126,7 +154,8 @@ func (watcher *Watcher) sendError(err error) {
 		return
 	}
 	for _, eventC := range watcher.eventCs {
-		eventC <- config.ErrorEvent(err, "filename is "+watcher.filename)
+		watcher.logger.Debug("sending error event")
+		eventC <- config.ErrorEvent(err)
 	}
 }
 
@@ -135,35 +164,14 @@ func (watcher *Watcher) handleFileChangeEvent(event fsnotify.Event) {
 	if watcher.filename != event.Name {
 		return
 	}
-	value, err := os.ReadFile(watcher.filename)
+	source, err := watcher.resource.loadSource()
 	if err != nil {
 		watcher.sendError(err)
 		return
 	}
 	for _, eventC := range watcher.eventCs {
-		eventC <- config.DataEvent(value, "filename is "+watcher.filename)
+		eventC <- config.SourceEvent(source)
 	}
-}
-
-func (watcher *Watcher) Notify(eventC chan<- config.Event) {
-	watcher.mutex.Lock()
-	defer watcher.mutex.Unlock()
-	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
-}
-
-func (watcher *Watcher) StopNotify(eventC chan<- config.Event) {
-	watcher.mutex.Lock()
-	defer watcher.mutex.Unlock()
-	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
-}
-
-func (watcher *Watcher) Close(ctx context.Context) error {
-	err := watcher.fsWatcher.Close()
-	watcher.closeC <- struct{}{}
-	watcher.mutex.Lock()
-	watcher.eventCs = nil
-	watcher.mutex.Unlock()
-	return err
 }
 
 func NewResource(filename string, opts ...Option) *Resource {

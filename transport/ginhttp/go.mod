@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/transport/ginhttp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230324020840-f57ad6f44353
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230324114627-a0b640d68b55
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-leo/gox v0.0.0-20230324101034-979e59fdc6c2
 	golang.org/x/sync v0.1.0
@@ -21,7 +21,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

@@ -19,33 +19,22 @@ type Watcher interface {
 
 // Event is a event
 type Event interface {
-	Data() []byte
-	Err() error
-	Description() string
-}
-
-func DataEvent(data []byte, desc string) Event {
-	return &event{data: data, desc: desc}
-}
-
-func ErrorEvent(err error, desc string) Event {
-	return &event{err: err, desc: desc}
+	Get() (*Source, error)
 }
 
 type event struct {
-	data []byte
-	err  error
-	desc string
+	source *Source
+	err    error
 }
 
-func (e event) Data() []byte {
-	return e.data
+func (e event) Get() (*Source, error) {
+	return e.source, e.err
 }
 
-func (e event) Err() error {
-	return e.err
+func SourceEvent(source *Source) Event {
+	return &event{source: source}
 }
 
-func (e event) Description() string {
-	return e.desc
+func ErrorEvent(err error) Event {
+	return &event{err: err}
 }

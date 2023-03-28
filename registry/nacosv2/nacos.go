@@ -5,12 +5,12 @@ import (
 )
 
 type NamingClientFactory interface {
-	Create() naming_client.INamingClient
+	Create() (naming_client.INamingClient, error)
 }
 
-type NamingClientFactoryFunc func() naming_client.INamingClient
+type NamingClientFactoryFunc func() (naming_client.INamingClient, error)
 
-func (f NamingClientFactoryFunc) Create() naming_client.INamingClient {
+func (f NamingClientFactoryFunc) Create() (naming_client.INamingClient, error) {
 	return f()
 }
 

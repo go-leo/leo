@@ -104,9 +104,13 @@ func (d *Discovery) getServices(ctx context.Context) ([]string, error) {
 	return servicesInfo.Doms, nil
 }
 
-func NewDiscovery(factory NamingClientFactoryFunc, opts ...NacosOption) *Discovery {
+func NewDiscovery(factory NamingClientFactoryFunc, opts ...NacosOption) (*Discovery, error) {
+	namingClient, err := factory.Create()
+	if err != nil {
+		return nil, err
+	}
 	discovery := &Discovery{
-		namingClient: factory.Create(),
+		namingClient: namingClient,
 		nacosOptions: &nacosOptions{
 			clusters:    []string{},
 			clusterName: "",
@@ -116,5 +120,5 @@ func NewDiscovery(factory NamingClientFactoryFunc, opts ...NacosOption) *Discove
 	for _, opt := range opts {
 		opt(discovery.nacosOptions)
 	}
-	return discovery
+	return discovery, nil
 }

@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/transport/lgrpc
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230324020840-f57ad6f44353
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230324114627-a0b640d68b55
 	github.com/go-leo/gox v0.0.0-20230324101034-979e59fdc6c2
 	golang.org/x/sync v0.1.0
 	google.golang.org/grpc v1.53.0
