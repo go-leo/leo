@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/log/zaplog
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230329063736-2fac84091ef3
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230329064201-c643b2704b86
 	go.uber.org/zap v1.24.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )

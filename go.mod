@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230329063300-d31382004777
+	github.com/go-leo/gox v0.0.0-20230329124043-ce2c6c073309
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
 )
@@ -12,6 +12,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect

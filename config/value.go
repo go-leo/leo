@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-leo/gox/convx"
-	"github.com/go-leo/gox/encodingx/mapstructure"
+	"github.com/go-leo/gox/encodingx/mapstructurex"
 )
 
 type Value struct {
@@ -208,26 +208,20 @@ func (v Value) BoolMap() (map[string]bool, error) {
 	return convx.ToStringMapBoolE(v.val)
 }
 
-func (v Value) MapStructure(output any) error {
+func (v Value) Scan(output any) error {
 	if v.err != nil {
 		return v.err
 	}
-	c := &mapstructure.DecoderConfig{
-		Result:           output,
-		WeaklyTypedInput: true,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			mapstructure.StringToSliceHookFunc(","),
-			mapstructure.StringToTimeDurationHookFunc(),
-			mapstructure.StringToIPHookFunc(),
-			mapstructure.StringToIPNetHookFunc(),
-			mapstructure.StringToTimeHookFunc(time.RFC3339),
-			mapstructure.WeaklyTypedHook,
-			mapstructure.TextUnmarshallerHookFunc(),
-		),
-	}
-	decoder, err := mapstructure.NewDecoder(c)
-	if err != nil {
-		return err
-	}
-	return decoder.Decode(v.val)
+	return mapstructurex.Unmarshal(
+		v.val,
+		output,
+		mapstructurex.StringToSlice(","),
+		mapstructurex.StringToTimeDuration(),
+		mapstructurex.StringToIP(),
+		mapstructurex.StringToIPNet(),
+		mapstructurex.StringToTimeTime(time.RFC3339),
+		mapstructurex.WeaklyTyped(),
+		mapstructurex.RecursiveStructToMap(),
+		mapstructurex.TextUnmarshaller(),
+	)
 }
