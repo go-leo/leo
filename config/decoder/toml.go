@@ -10,7 +10,7 @@ import (
 type TOML struct{}
 
 func (TOML) IsSupported(extension string) bool {
-	if slices.Contains([]string{"toml"}, strings.ToLower(extension)) {
+	if slices.Contains([]string{"toml", ".toml"}, strings.ToLower(extension)) {
 		return true
 	}
 	return false

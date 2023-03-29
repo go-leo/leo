@@ -1,5 +1,17 @@
 #!/bin/sh
 
+cd ./config/resource/file
+go get -u codeup.aliyun.com/qimao/leo/leo
+go get -u github.com/go-leo/gox
+go mod tidy
+cd ../../../
+
+cd ./config/resource/nacosv2
+go get -u codeup.aliyun.com/qimao/leo/leo
+go get -u github.com/go-leo/gox
+go mod tidy
+cd ../../../
+
 cd ./log/slog
 go get -u codeup.aliyun.com/qimao/leo/leo
 go get -u github.com/go-leo/gox

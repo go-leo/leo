@@ -10,7 +10,7 @@ import (
 type YAML struct{}
 
 func (YAML) IsSupported(extension string) bool {
-	if slices.Contains([]string{"yaml", "yml"}, strings.ToLower(extension)) {
+	if slices.Contains([]string{"yaml", ".yaml", "yml", ".yml"}, strings.ToLower(extension)) {
 		return true
 	}
 	return false
