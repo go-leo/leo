@@ -33,7 +33,6 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-
 }
 
 func Extension(Extension string) Option {

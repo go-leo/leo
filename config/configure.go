@@ -27,7 +27,6 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-
 }
 
 func Resources(resources ...Resource) Option {

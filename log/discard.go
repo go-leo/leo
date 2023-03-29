@@ -115,17 +115,13 @@ func (d Discard) Panicf(template string, args ...any) {
 }
 
 func (d Discard) PanicF(fields ...Field) {
-
 }
 
 func (d Discard) Fatal(args ...any) {
-
 }
 
 func (d Discard) Fatalf(template string, args ...any) {
-
 }
 
 func (d Discard) FatalF(fields ...Field) {
-
 }

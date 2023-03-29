@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-leo/gox/netx/httpx"
+	"github.com/go-leo/gox/netx/httpx/render"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 )
@@ -30,7 +30,7 @@ func (h *actuatorHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	resp["routes"] = routes
-	_ = httpx.WriteJSON(w, resp)
+	_ = render.JSON(w, resp, render.PureJSON())
 }
 
 type healthChecker struct {

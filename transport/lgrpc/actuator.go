@@ -4,9 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/go-leo/gox/netx/httpx/render"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
-
-	"github.com/go-leo/gox/netx/httpx"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 )
@@ -43,7 +42,7 @@ func (h *actuatorHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		services[name] = serviceInfo
 	}
 	resp["services"] = services
-	_ = httpx.WriteJSON(w, resp)
+	_ = render.JSON(w, resp, render.PureJSON())
 }
 
 type healthChecker struct {

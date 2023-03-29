@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-leo/gox/netx/httpx"
+	"github.com/go-leo/gox/netx/httpx/render"
 )
 
 type CheckerHandler struct {
@@ -28,7 +28,7 @@ func (h *CheckerHandler) Handle(writer http.ResponseWriter, request *http.Reques
 		},
 		Details: heal.Details(),
 	}
-	_ = httpx.WriteJSON(writer, resp)
+	_ = render.JSON(writer, resp, render.PureJSON())
 }
 
 func (h *CheckerHandler) Health(ctx context.Context) (r Health) {
