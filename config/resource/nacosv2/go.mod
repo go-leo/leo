@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230329064201-c643b2704b86
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230329124626-20bc09caf8ac
 	github.com/go-leo/gox v0.0.0-20230329124043-ce2c6c073309
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
 )
@@ -29,7 +29,6 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
