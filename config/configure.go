@@ -47,7 +47,7 @@ type Configure struct {
 	data    *Data
 }
 
-func NewConfigure(opts ...Option) *Configure {
+func NewConfigure(ctx context.Context, opts ...Option) (*Configure, error) {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
@@ -55,10 +55,10 @@ func NewConfigure(opts ...Option) *Configure {
 		options: o,
 		parser:  &parser{Decoders: o.Decoders},
 	}
-	return configurer
+	return configurer, configurer.init(ctx)
 }
 
-func (configure *Configure) Import(ctx context.Context) error {
+func (configure *Configure) init(ctx context.Context) error {
 	var ds []*Data
 	for _, resource := range configure.options.Resources {
 		source, err := resource.Load(ctx)
