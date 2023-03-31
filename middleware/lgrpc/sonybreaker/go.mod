@@ -1,11 +1,15 @@
-module codeup.aliyun.com/qimao/leo/leo/transport/lgrpc/middleware/context
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcsonybreaker
 
 go 1.20
 
-require google.golang.org/grpc v1.53.0
+require (
+	github.com/sony/gobreaker v0.5.0
+	google.golang.org/grpc v1.53.0
+)
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/stretchr/testify v1.8.2 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect

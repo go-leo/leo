@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230329124626-20bc09caf8ac
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230330122733-e2b7330d8693
 	github.com/go-leo/gox v0.0.0-20230329124043-ce2c6c073309
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
 )
@@ -24,7 +24,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect

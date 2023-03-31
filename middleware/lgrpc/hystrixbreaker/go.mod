@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/transport/lgrpc/middleware/hystrixbreaker
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpchystrixbreaker
 
 go 1.20
 
