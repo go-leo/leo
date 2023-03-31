@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"errors"
+	"sync"
 
 	"github.com/go-leo/gox/stringx"
 )
@@ -45,20 +46,28 @@ type Configure struct {
 	options *options
 	parser  *parser
 	data    *Data
+	mutex   sync.RWMutex
 }
 
-func NewConfigure(ctx context.Context, opts ...Option) (*Configure, error) {
-	o := &options{}
-	o.apply(opts...)
-	o.init()
-	configurer := &Configure{
-		options: o,
-		parser:  &parser{Decoders: o.Decoders},
-	}
-	return configurer, configurer.init(ctx)
+func (configure *Configure) Refresh(ctx context.Context) error {
+	configure.mutex.Lock()
+	defer configure.mutex.Unlock()
+	return configure.read(ctx)
 }
 
-func (configure *Configure) init(ctx context.Context) error {
+func (configure *Configure) Get(key string) *Value {
+	configure.mutex.RLock()
+	defer configure.mutex.RUnlock()
+	return configure.get(key)
+}
+
+func (configure *Configure) Watch(ctx context.Context) (Watcher, error) {
+	configure.mutex.RLock()
+	defer configure.mutex.RUnlock()
+	return configure.watch(ctx)
+}
+
+func (configure *Configure) read(ctx context.Context) error {
 	var ds []*Data
 	for _, resource := range configure.options.Resources {
 		source, err := resource.Load(ctx)
@@ -79,7 +88,7 @@ func (configure *Configure) init(ctx context.Context) error {
 	return nil
 }
 
-func (configure *Configure) Get(key string) *Value {
+func (configure *Configure) get(key string) *Value {
 	if stringx.IsBlank(key) {
 		return &Value{val: configure.data.AsMap()}
 	}
@@ -94,7 +103,7 @@ func (configure *Configure) Get(key string) *Value {
 	return &Value{val: meta}
 }
 
-func (configure *Configure) Watch(ctx context.Context) (Watcher, error) {
+func (configure *Configure) watch(ctx context.Context) (Watcher, error) {
 	var watchers []Watcher
 	for _, resource := range configure.options.Resources {
 		watcher, err := resource.Watch(ctx)
@@ -104,4 +113,15 @@ func (configure *Configure) Watch(ctx context.Context) (Watcher, error) {
 		watchers = append(watchers, watcher)
 	}
 	return MultiWatcher(watchers...), nil
+}
+
+func NewConfigure(ctx context.Context, opts ...Option) (*Configure, error) {
+	o := &options{}
+	o.apply(opts...)
+	o.init()
+	configurer := &Configure{
+		options: o,
+		parser:  &parser{Decoders: o.Decoders},
+	}
+	return configurer, configurer.read(ctx)
 }
