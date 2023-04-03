@@ -15,34 +15,34 @@ func (f NamingClientFactoryFunc) Create() (naming_client.INamingClient, error) {
 }
 
 type nacosOptions struct {
-	clusters    []string
-	clusterName string
-	weight      float64
-	nameSpace   string
+	Clusters    []string
+	ClusterName string
+	Weight      float64
+	Namespace   string
 }
 
 type NacosOption func(r *nacosOptions)
 
 func ClusterName(clusterName string) NacosOption {
 	return func(r *nacosOptions) {
-		r.clusterName = clusterName
+		r.ClusterName = clusterName
 	}
 }
 
 func Clusters(clusters []string) NacosOption {
 	return func(r *nacosOptions) {
-		r.clusters = clusters
+		r.Clusters = clusters
 	}
 }
 
 func Weight(weight float64) NacosOption {
 	return func(r *nacosOptions) {
-		r.weight = weight
+		r.Weight = weight
 	}
 }
 
 func NameSpace(nameSpace string) NacosOption {
 	return func(r *nacosOptions) {
-		r.nameSpace = nameSpace
+		r.Namespace = nameSpace
 	}
 }

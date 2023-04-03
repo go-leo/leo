@@ -41,11 +41,11 @@ func (r *Registrar) register(ctx context.Context, instance registry.ServiceInsta
 	param := vo.RegisterInstanceParam{
 		Ip:          instance.IP(),           // 服务实例IP
 		Port:        uint64(instance.Port()), // 服务实例port
-		Weight:      r.nacosOptions.weight,   // 权重
+		Weight:      r.nacosOptions.Weight,   // 权重
 		Enable:      true,                    // 是否上线
 		Healthy:     true,                    // 是否健康
 		Metadata:    metadata,                // 扩展信息
-		ClusterName: r.nacosOptions.clusterName,
+		ClusterName: r.nacosOptions.ClusterName,
 		ServiceName: instance.Name(),
 		GroupName:   instance.Scheme(),
 		Ephemeral:   true, // 是否临时实例
@@ -64,7 +64,7 @@ func (r *Registrar) deregister(ctx context.Context, instance registry.ServiceIns
 	param := vo.DeregisterInstanceParam{
 		Ip:          instance.IP(),           // 服务实例IP
 		Port:        uint64(instance.Port()), // 服务实例port
-		Cluster:     r.nacosOptions.clusterName,
+		Cluster:     r.nacosOptions.ClusterName,
 		ServiceName: instance.Name(),
 		GroupName:   instance.Scheme(),
 		Ephemeral:   true, // 是否临时实例
@@ -83,10 +83,10 @@ func (r *Registrar) updateInstance(ctx context.Context, instance registry.Servic
 	param := vo.UpdateInstanceParam{
 		Ip:          instance.IP(),
 		Port:        uint64(instance.Port()),
-		Weight:      r.nacosOptions.weight,
+		Weight:      r.nacosOptions.Weight,
 		Enable:      health,
 		Healthy:     health,
-		ClusterName: r.nacosOptions.clusterName,
+		ClusterName: r.nacosOptions.ClusterName,
 		ServiceName: instance.Name(),
 		GroupName:   instance.Scheme(),
 	}
@@ -108,10 +108,10 @@ func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) (*Regist
 	r := &Registrar{
 		namingClient: namingClient,
 		nacosOptions: &nacosOptions{
-			clusters:    nil,
-			clusterName: "",
-			weight:      10,
-			nameSpace:   "",
+			Clusters:    nil,
+			ClusterName: "",
+			Weight:      10,
+			Namespace:   "",
 		},
 	}
 	for _, opt := range opts {

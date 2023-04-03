@@ -42,7 +42,7 @@ func (d *Discovery) Watch(ctx context.Context, instance registry.ServiceInstance
 
 func (d *Discovery) getInstances(ctx context.Context, instance registry.ServiceInstance) ([]registry.ServiceInstance, error) {
 	nacosServices, err := d.namingClient.SelectInstances(vo.SelectInstancesParam{
-		Clusters:    d.nacosOptions.clusters,
+		Clusters:    d.nacosOptions.Clusters,
 		ServiceName: instance.Name(),
 		GroupName:   instance.Scheme(),
 		HealthyOnly: true,
@@ -94,7 +94,7 @@ func (d *Discovery) nacosHostsToServiceInstances(hosts []model.Instance, service
 
 func (d *Discovery) getServices(ctx context.Context) ([]string, error) {
 	servicesInfo, err := d.namingClient.GetAllServicesInfo(vo.GetAllServiceInfoParam{
-		NameSpace: d.nacosOptions.nameSpace,
+		NameSpace: d.nacosOptions.Namespace,
 		PageNo:    1,
 		PageSize:  math.MaxInt32,
 	})
@@ -112,9 +112,9 @@ func NewDiscovery(factory NamingClientFactoryFunc, opts ...NacosOption) (*Discov
 	discovery := &Discovery{
 		namingClient: namingClient,
 		nacosOptions: &nacosOptions{
-			clusters:    []string{},
-			clusterName: "",
-			weight:      1.0,
+			Clusters:    []string{},
+			ClusterName: "",
+			Weight:      1.0,
 		},
 	}
 	for _, opt := range opts {

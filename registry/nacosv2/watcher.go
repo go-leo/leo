@@ -24,7 +24,7 @@ type Watcher struct {
 func (watcher *Watcher) init(ctx context.Context) error {
 	watcher.subscribeParam = &vo.SubscribeParam{
 		ServiceName:       watcher.instance.Name(),
-		Clusters:          watcher.discovery.nacosOptions.clusters,
+		Clusters:          watcher.discovery.nacosOptions.Clusters,
 		GroupName:         watcher.instance.Scheme(),
 		SubscribeCallback: watcher.subscribeCallback(ctx),
 	}
