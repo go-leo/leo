@@ -9,7 +9,7 @@ type Decoder interface {
 	// IsSupported return true if the extension that the Decoder support (excluding the '.').
 	IsSupported(extension string) bool
 	// Decode bytes to map
-	Decode([]byte, map[string]any) error
+	Decode(data []byte, m map[string]any) error
 }
 
 type parser struct {

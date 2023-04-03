@@ -1,5 +1,5 @@
-github.com/go-leo/gox v0.0.0-20230329124043-ce2c6c073309 h1:DPLHO8LWiD71B65y0PDrP8InfDsns+TSrLkKzhvKbKw=
-github.com/go-leo/gox v0.0.0-20230329124043-ce2c6c073309/go.mod h1:fwFJZWDHE8lYBnrYdtPg9HPIkTjHBhnot8WhnADrH0E=
+github.com/go-leo/gox v0.0.0-20230403040505-1bf8d7e8125b h1:BOQfbgy53bM4uy3EVzJjpcfX9kIDXOZReRg88ZWfuwU=
+github.com/go-leo/gox v0.0.0-20230403040505-1bf8d7e8125b/go.mod h1:p9YTdGhWGrnmpb26aD4oL24VQ+sbADI73RvNfQbqsUQ=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.2 h1:ROPKBNFfQgOUMifHyP+KYbvpjbdoFNs+aK7DXlji0Tw=
 github.com/golang/protobuf v1.5.2/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=

@@ -16,6 +16,6 @@ func (YAML) IsSupported(extension string) bool {
 	return false
 }
 
-func (YAML) Decode(bytes []byte, m map[string]any) error {
-	return yamlx.Unmarshal(bytes, &m)
+func (YAML) Decode(data []byte, m map[string]any) error {
+	return yamlx.Unmarshal(data, &m)
 }

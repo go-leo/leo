@@ -33,14 +33,14 @@ func (o *options) init() {
 }
 
 func Extension(Extension string) Option {
-	return func(loader *options) {
-		loader.Extension = Extension
+	return func(o *options) {
+		o.Extension = Extension
 	}
 }
 
 func Logger(log log.Logger) Option {
-	return func(loader *options) {
-		loader.Logger = log
+	return func(o *options) {
+		o.Logger = log
 	}
 }
 
@@ -169,9 +169,6 @@ func NewResource(dataID, group string, factory ConfigClientFactoryFunc, opts ...
 	}
 	o.apply(opts...)
 	o.init()
-	for _, opt := range opts {
-		opt(o)
-	}
 	resource := &Resource{
 		options:      o,
 		configClient: configClient,

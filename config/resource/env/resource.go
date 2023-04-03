@@ -1,0 +1,307 @@
+package env
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/go-leo/gox/pathx/filepathx"
+	"github.com/go-leo/gox/slicex"
+	"github.com/go-leo/gox/stringx"
+
+	"codeup.aliyun.com/qimao/leo/leo/config"
+	"codeup.aliyun.com/qimao/leo/leo/log"
+)
+
+var _ config.Resource = new(Resource)
+
+var _ config.Watcher = new(DotEnvWatcher)
+
+type options struct {
+	Prefix         string
+	Extension      string
+	DotEnvFilename string
+	Logger         log.Logger
+}
+
+type Option func(o *options)
+
+func (o *options) apply(opts ...Option) {
+	for _, opt := range opts {
+		opt(o)
+	}
+}
+
+func (o *options) init() {
+	if stringx.IsNotBlank(o.DotEnvFilename) && stringx.IsBlank(o.Extension) {
+		o.Extension = filepathx.Extension(o.DotEnvFilename)
+	}
+	if stringx.IsBlank(o.DotEnvFilename) && stringx.IsBlank(o.Extension) {
+		o.Extension = "env"
+	}
+}
+
+func Prefix(prefix string) Option {
+	return func(o *options) {
+		o.Prefix = prefix
+	}
+}
+
+func Extension(Extension string) Option {
+	return func(o *options) {
+		o.Extension = Extension
+	}
+}
+
+func DotEnvFilename(filename string) Option {
+	return func(o *options) {
+		o.DotEnvFilename = filename
+	}
+}
+
+func Logger(log log.Logger) Option {
+	return func(o *options) {
+		o.Logger = log
+	}
+}
+
+type Resource struct {
+	options *options
+}
+
+func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
+	return r.loadSource()
+}
+
+func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
+	if stringx.IsBlank(r.options.DotEnvFilename) {
+		source, err := r.loadFromEnv()
+		if err != nil {
+			return nil, err
+		}
+		w := &EnvWatcher{resource: r, source: source}
+		return w, w.init(ctx)
+	}
+	w := &DotEnvWatcher{resource: r}
+	return w, w.init(ctx)
+}
+
+func (r *Resource) loadSource() (*config.Source, error) {
+	if stringx.IsBlank(r.options.DotEnvFilename) {
+		return r.loadFromEnv()
+	}
+	return r.loadFromDotEnv()
+}
+
+func (r *Resource) loadFromEnv() (*config.Source, error) {
+	environs := os.Environ()
+	prefix := r.options.Prefix
+	var filterEnvirons []string
+	for _, environ := range environs {
+		if strings.HasPrefix(environ, prefix) {
+			filterEnvirons = append(filterEnvirons, environ)
+		}
+	}
+	return &config.Source{
+		Name:      "environ",
+		Value:     []byte(strings.Join(filterEnvirons, "\n")),
+		Extension: r.options.Extension,
+	}, nil
+}
+
+func (r *Resource) loadFromDotEnv() (*config.Source, error) {
+	value, err := os.ReadFile(r.options.DotEnvFilename)
+	if err != nil {
+		return nil, err
+	}
+	return &config.Source{
+		Name:      filepath.Base(r.options.DotEnvFilename),
+		Value:     value,
+		Extension: r.options.Extension,
+	}, nil
+}
+
+type DotEnvWatcher struct {
+	resource  *Resource
+	fsWatcher *fsnotify.Watcher
+	eventCs   []chan<- config.Event
+	closeC    chan struct{}
+	mutex     sync.Mutex
+}
+
+func (watcher *DotEnvWatcher) Notify(eventC chan<- config.Event) {
+	watcher.mutex.Lock()
+	defer watcher.mutex.Unlock()
+	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
+}
+
+func (watcher *DotEnvWatcher) StopNotify(eventC chan<- config.Event) {
+	watcher.mutex.Lock()
+	defer watcher.mutex.Unlock()
+	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
+}
+
+func (watcher *DotEnvWatcher) Close(ctx context.Context) error {
+	err := watcher.fsWatcher.Close()
+	watcher.closeC <- struct{}{}
+	watcher.mutex.Lock()
+	watcher.eventCs = nil
+	watcher.mutex.Unlock()
+	return err
+}
+
+func (watcher *DotEnvWatcher) init(ctx context.Context) error {
+	fsWatcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
+	}
+	watcher.fsWatcher = fsWatcher
+	filename := watcher.resource.options.DotEnvFilename
+	st, err := os.Lstat(filename)
+	if err != nil {
+		return err
+	}
+
+	if st.IsDir() {
+		return fmt.Errorf("%q is a directory, not a file", filename)
+	}
+	if err := watcher.fsWatcher.Add(filepath.Dir(filename)); err != nil {
+		return err
+	}
+	watcher.closeC = make(chan struct{})
+	watcher.watch()
+	return nil
+}
+
+func (watcher *DotEnvWatcher) watch() {
+	go func() {
+		for {
+			select {
+			case <-watcher.closeC:
+				return
+			case event, ok := <-watcher.fsWatcher.Events:
+				if !ok {
+					return
+				}
+				watcher.handleFileChangeEvent(event)
+			case err, ok := <-watcher.fsWatcher.Errors:
+				if !ok {
+					return
+				}
+				watcher.sendError(err)
+			}
+		}
+	}()
+}
+
+func (watcher *DotEnvWatcher) sendError(err error) {
+	if err == nil {
+		return
+	}
+	for _, eventC := range watcher.eventCs {
+		watcher.resource.options.Logger.Debug("sending error event")
+		eventC <- config.ErrorEvent(err)
+	}
+}
+
+func (watcher *DotEnvWatcher) handleFileChangeEvent(event fsnotify.Event) {
+	// Ignore files we're not interested in.
+	filename := watcher.resource.options.DotEnvFilename
+	if filename != event.Name {
+		return
+	}
+	source, err := watcher.resource.loadFromDotEnv()
+	if err != nil {
+		watcher.sendError(err)
+		return
+	}
+	for _, eventC := range watcher.eventCs {
+		eventC <- config.SourceEvent(source)
+	}
+}
+
+type EnvWatcher struct {
+	resource *Resource
+	source   *config.Source
+	eventCs  []chan<- config.Event
+	closeC   chan struct{}
+	mutex    sync.Mutex
+}
+
+func (watcher *EnvWatcher) Notify(eventC chan<- config.Event) {
+	watcher.mutex.Lock()
+	defer watcher.mutex.Unlock()
+	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
+}
+
+func (watcher *EnvWatcher) StopNotify(eventC chan<- config.Event) {
+	watcher.mutex.Lock()
+	defer watcher.mutex.Unlock()
+	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
+}
+
+func (watcher *EnvWatcher) Close(ctx context.Context) error {
+	watcher.closeC <- struct{}{}
+	watcher.mutex.Lock()
+	watcher.eventCs = nil
+	watcher.mutex.Unlock()
+	return nil
+}
+
+func (watcher *EnvWatcher) init(ctx context.Context) error {
+	watcher.closeC = make(chan struct{})
+	watcher.watch()
+	return nil
+}
+
+func (watcher *EnvWatcher) watch() {
+	go func() {
+		for {
+			select {
+			case <-watcher.closeC:
+				return
+			default:
+				source, err := watcher.resource.loadFromDotEnv()
+				if err != nil {
+					watcher.sendError(err)
+					return
+				}
+				if string(source.Value) == string(watcher.source.Value) {
+					time.Sleep(time.Second)
+					continue
+				}
+				watcher.source = source
+				for _, eventC := range watcher.eventCs {
+					eventC <- config.SourceEvent(source)
+				}
+			}
+		}
+	}()
+}
+
+func (watcher *EnvWatcher) sendError(err error) {
+	if err == nil {
+		return
+	}
+	for _, eventC := range watcher.eventCs {
+		watcher.resource.options.Logger.Debug("sending error event")
+		eventC <- config.ErrorEvent(err)
+	}
+}
+
+func NewResource(opts ...Option) *Resource {
+	o := &options{
+		Logger: log.Discard{},
+	}
+	o.apply(opts...)
+	o.init()
+	resource := &Resource{
+		options: o,
+	}
+	return resource
+}

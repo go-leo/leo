@@ -3,7 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230329124043-ce2c6c073309
+	github.com/go-leo/gox v0.0.0-20230403040505-1bf8d7e8125b
+	github.com/joho/godotenv v1.5.1
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
 )

@@ -16,6 +16,6 @@ func (JSON) IsSupported(extension string) bool {
 	return false
 }
 
-func (JSON) Decode(bytes []byte, m map[string]any) error {
-	return jsonx.Unmarshal(bytes, &m)
+func (JSON) Decode(data []byte, m map[string]any) error {
+	return jsonx.Unmarshal(data, &m)
 }

@@ -16,6 +16,6 @@ func (TOML) IsSupported(extension string) bool {
 	return false
 }
 
-func (TOML) Decode(bytes []byte, m map[string]any) error {
-	return tomlx.Unmarshal(bytes, &m)
+func (TOML) Decode(data []byte, m map[string]any) error {
+	return tomlx.Unmarshal(data, &m)
 }

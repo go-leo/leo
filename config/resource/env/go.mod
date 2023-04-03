@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/config/resource/file
+module codeup.aliyun.com/qimao/leo/leo/config/resource/env
 
 go 1.20
 
