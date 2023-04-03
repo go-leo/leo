@@ -3,9 +3,9 @@ module codeup.aliyun.com/qimao/leo/leo/transport/ginhttp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230403014648-09e2c1d9a962
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230403052655-9b46c22eae29
 	github.com/gin-gonic/gin v1.9.0
-	github.com/go-leo/gox v0.0.0-20230403040505-1bf8d7e8125b
+	github.com/go-leo/gox v0.0.0-20230403061358-ffb4dcdc50bb
 	golang.org/x/sync v0.1.0
 )
 

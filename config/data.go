@@ -116,14 +116,14 @@ func (d *Data) mergeMaps(src, tgt map[string]any, itgt map[any]any) error {
 		// key ignore case, not exist, set
 		tgtKey, ok := d.keyExists(srcKey, tgt)
 		if !ok {
-			d.setToTarget(srcKey, srcKey, tgt, itgt)
+			d.setToTarget(srcKey, srcVal, tgt, itgt)
 			continue
 		}
 
 		// care about case, not exist, set
 		tgtVal, ok := tgt[tgtKey]
 		if !ok {
-			d.setToTarget(srcKey, srcKey, tgt, itgt)
+			d.setToTarget(srcKey, srcVal, tgt, itgt)
 			continue
 		}
 
