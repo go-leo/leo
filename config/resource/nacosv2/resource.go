@@ -13,7 +13,6 @@ import (
 )
 
 var _ config.Resource = new(Resource)
-
 var _ config.Watcher = new(watcher)
 
 type options struct {
@@ -32,9 +31,9 @@ func (o *options) apply(opts ...Option) {
 func (o *options) init() {
 }
 
-func Extension(Extension string) Option {
+func Extension(ext string) Option {
 	return func(o *options) {
-		o.Extension = Extension
+		o.Extension = ext
 	}
 }
 
@@ -105,6 +104,12 @@ func (watcher *watcher) Close(ctx context.Context) error {
 }
 
 func (watcher *watcher) init(ctx context.Context) error {
+	watcher.changeC = make(chan config.Event)
+	watcher.closeC = make(chan struct{})
+	return watcher.watch()
+}
+
+func (watcher *watcher) watch() error {
 	err := watcher.resource.configClient.ListenConfig(vo.ConfigParam{
 		DataId: watcher.resource.dataID,
 		Group:  watcher.resource.group,
@@ -119,13 +124,6 @@ func (watcher *watcher) init(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	watcher.changeC = make(chan config.Event)
-	watcher.closeC = make(chan struct{})
-	watcher.watch()
-	return nil
-}
-
-func (watcher *watcher) watch() {
 	go func() {
 		for {
 			select {
@@ -139,6 +137,7 @@ func (watcher *watcher) watch() {
 			}
 		}
 	}()
+	return nil
 }
 
 func (watcher *watcher) sendError(err error) {

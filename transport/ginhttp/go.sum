@@ -1,5 +1,5 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230403052655-9b46c22eae29 h1:tmKy4f/mdXaQupJnfmOLGBuWRcKi4Gy3vr1Lfptbe8Y=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230403052655-9b46c22eae29/go.mod h1:PvaSj7cUIrDxIKDB/vkUCRlRqEhxYqUeWXEOWvsx1Vk=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230406020516-0c680e3d3c65 h1:bdZJGt2QaDq74b1tpi1HgzsNLuyY5+aL0JJKv7qAgvY=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230406020516-0c680e3d3c65/go.mod h1:/jD0tMTBrdQjnguLYewNqbudAhlUjQL8mzbVaAeUbq4=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=

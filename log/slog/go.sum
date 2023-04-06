@@ -1,5 +1,5 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230403052655-9b46c22eae29 h1:tmKy4f/mdXaQupJnfmOLGBuWRcKi4Gy3vr1Lfptbe8Y=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230403052655-9b46c22eae29/go.mod h1:PvaSj7cUIrDxIKDB/vkUCRlRqEhxYqUeWXEOWvsx1Vk=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230406020516-0c680e3d3c65 h1:bdZJGt2QaDq74b1tpi1HgzsNLuyY5+aL0JJKv7qAgvY=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230406020516-0c680e3d3c65/go.mod h1:/jD0tMTBrdQjnguLYewNqbudAhlUjQL8mzbVaAeUbq4=
 codeup.aliyun.com/qimao/leo/log/slog v0.0.0-20230312080736-fed9651f979c h1:869Y0HTvAVaz1UL+keOih8PSp8Fu6BB1PyVb2lFOHx0=
 codeup.aliyun.com/qimao/leo/log/slog v0.0.0-20230312080736-fed9651f979c/go.mod h1:knx60kRW9oOk3kcAmqeF6PZOdVGRPBlAVe3Kxb7ewaI=
 golang.org/x/exp v0.0.0-20230321023759-10a507213a29 h1:ooxPy7fPvB4kwsA2h+iBNHkAbp/4JxTSwCmvdjEYmug=

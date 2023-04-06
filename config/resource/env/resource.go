@@ -19,8 +19,8 @@ import (
 )
 
 var _ config.Resource = new(Resource)
-
 var _ config.Watcher = new(dotEnvWatcher)
+var _ config.Watcher = new(environWatcher)
 
 type options struct {
 	Prefix         string
@@ -52,9 +52,9 @@ func Prefix(prefix string) Option {
 	}
 }
 
-func Extension(Extension string) Option {
+func Extension(ext string) Option {
 	return func(o *options) {
-		o.Extension = Extension
+		o.Extension = ext
 	}
 }
 
@@ -265,14 +265,13 @@ func (watcher *environWatcher) watch() {
 			select {
 			case <-watcher.closeC:
 				return
-			default:
-				source, err := watcher.resource.loadFromDotEnv()
+			case <-time.After(time.Second):
+				source, err := watcher.resource.loadFromEnv()
 				if err != nil {
 					watcher.sendError(err)
-					return
+					continue
 				}
 				if string(source.Value) == string(watcher.source.Value) {
-					time.Sleep(time.Second)
 					continue
 				}
 				watcher.source = source

@@ -16,7 +16,6 @@ import (
 )
 
 var _ config.Resource = new(Resource)
-
 var _ config.Watcher = new(watcher)
 
 type options struct {
@@ -35,9 +34,9 @@ func (o *options) apply(opts ...Option) {
 func (o *options) init() {
 }
 
-func Extension(Extension string) Option {
+func Extension(ext string) Option {
 	return func(o *options) {
-		o.Extension = Extension
+		o.Extension = ext
 	}
 }
 
