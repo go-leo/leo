@@ -1,9 +1,8 @@
-package text
+package passthrough
 
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/go-leo/gox/slicex"
 
@@ -36,36 +35,29 @@ func Logger(log log.Logger) Option {
 }
 
 type Resource struct {
-	options   *options
-	text      *[]byte
-	name      string
-	extension string
+	options *options
+	source  *config.Source
 }
 
 func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
-	return r.loadSource(ctx)
+	return r.source, nil
 }
 
 func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
-	source, _ := r.loadSource(ctx)
-	w := &watcher{resource: r, source: source}
+	w := &watcher{resource: r}
 	return w, w.init(ctx)
-}
-
-func (r *Resource) loadSource(ctx context.Context) (*config.Source, error) {
-	return &config.Source{
-		Name:      r.name,
-		Value:     *r.text,
-		Extension: r.extension,
-	}, nil
 }
 
 type watcher struct {
 	resource *Resource
-	source   *config.Source
 	eventCs  []chan<- config.Event
-	closeC   chan struct{}
 	mutex    sync.Mutex
+}
+
+func (watcher *watcher) Update(source *config.Source) {
+	for _, eventC := range watcher.eventCs {
+		eventC <- config.SourceEvent(source)
+	}
 }
 
 func (watcher *watcher) Notify(eventC chan<- config.Event) {
@@ -81,41 +73,16 @@ func (watcher *watcher) StopNotify(eventC chan<- config.Event) {
 }
 
 func (watcher *watcher) Close(ctx context.Context) error {
-	watcher.closeC <- struct{}{}
 	watcher.mutex.Lock()
+	watcher.resource.source.DeleteObserver(watcher)
 	watcher.eventCs = nil
 	watcher.mutex.Unlock()
 	return nil
 }
 
 func (watcher *watcher) init(ctx context.Context) error {
-	watcher.closeC = make(chan struct{})
-	watcher.watch()
+	watcher.resource.source.AddObserver(watcher)
 	return nil
-}
-
-func (watcher *watcher) watch() {
-	go func() {
-		for {
-			select {
-			case <-watcher.closeC:
-				return
-			case <-time.After(time.Second):
-				source, err := watcher.resource.loadSource(context.Background())
-				if err != nil {
-					watcher.sendError(err)
-					continue
-				}
-				if string(source.Value) == string(watcher.source.Value) {
-					continue
-				}
-				watcher.source = source
-				for _, eventC := range watcher.eventCs {
-					eventC <- config.SourceEvent(source)
-				}
-			}
-		}
-	}()
 }
 
 func (watcher *watcher) sendError(err error) {
@@ -128,17 +95,15 @@ func (watcher *watcher) sendError(err error) {
 	}
 }
 
-func NewResource(text *[]byte, name string, extension string, opts ...Option) *Resource {
+func NewResource(source *config.Source, opts ...Option) *Resource {
 	o := &options{
 		Logger: log.Discard{},
 	}
 	o.apply(opts...)
 	o.init()
 	resource := &Resource{
-		options:   o,
-		text:      text,
-		name:      name,
-		extension: extension,
+		options: o,
+		source:  source,
 	}
 	return resource
 }

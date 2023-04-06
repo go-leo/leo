@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/config/resource/text
+module codeup.aliyun.com/qimao/leo/leo/config/resource/passthrough
 
 go 1.20
 

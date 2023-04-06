@@ -65,11 +65,11 @@ func (r *Resource) loadSource() (*config.Source, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &config.Source{
-		Name:      filepath.Base(r.filename),
-		Value:     value,
-		Extension: r.options.Extension,
-	}, nil
+	return config.NewSource(
+		filepath.Base(r.filename),
+		value,
+		r.options.Extension,
+	), nil
 }
 
 type watcher struct {

@@ -107,11 +107,11 @@ func (r *Resource) loadFromEnv() (*config.Source, error) {
 			filterEnvirons = append(filterEnvirons, environ)
 		}
 	}
-	return &config.Source{
-		Name:      "environ",
-		Value:     []byte(strings.Join(filterEnvirons, "\n")),
-		Extension: r.options.Extension,
-	}, nil
+	return config.NewSource(
+		"environ",
+		[]byte(strings.Join(filterEnvirons, "\n")),
+		r.options.Extension,
+	), nil
 }
 
 func (r *Resource) loadFromDotEnv() (*config.Source, error) {
@@ -119,11 +119,11 @@ func (r *Resource) loadFromDotEnv() (*config.Source, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &config.Source{
-		Name:      filepath.Base(r.options.DotEnvFilename),
-		Value:     value,
-		Extension: r.options.Extension,
-	}, nil
+	return config.NewSource(
+		filepath.Base(r.options.DotEnvFilename),
+		value,
+		r.options.Extension,
+	), nil
 }
 
 type dotEnvWatcher struct {
@@ -271,7 +271,7 @@ func (watcher *environWatcher) watch() {
 					watcher.sendError(err)
 					continue
 				}
-				if string(source.Value) == string(watcher.source.Value) {
+				if string(source.Value()) == string(watcher.source.Value()) {
 					continue
 				}
 				watcher.source = source

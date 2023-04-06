@@ -59,11 +59,11 @@ func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &config.Source{
-		Name:      r.dataID + "." + r.group,
-		Value:     []byte(content),
-		Extension: r.options.Extension,
-	}, nil
+	return config.NewSource(
+		r.dataID+"."+r.group,
+		[]byte(content),
+		r.options.Extension,
+	), nil
 }
 
 func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
@@ -114,11 +114,12 @@ func (watcher *watcher) watch() error {
 		DataId: watcher.resource.dataID,
 		Group:  watcher.resource.group,
 		OnChange: func(namespace, group, dataId, data string) {
-			watcher.changeC <- config.SourceEvent(&config.Source{
-				Name:      dataId + "." + group,
-				Value:     []byte(data),
-				Extension: watcher.resource.options.Extension,
-			})
+			source := config.NewSource(
+				dataId+"."+group,
+				[]byte(data),
+				watcher.resource.options.Extension,
+			)
+			watcher.changeC <- config.SourceEvent(source)
 		},
 	})
 	if err != nil {
