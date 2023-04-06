@@ -14,7 +14,7 @@ import (
 
 var _ config.Resource = new(Resource)
 
-var _ config.Watcher = new(Watcher)
+var _ config.Watcher = new(watcher)
 
 type options struct {
 	Logger    log.Logger
@@ -68,11 +68,11 @@ func (r *Resource) Load(ctx context.Context) (*config.Source, error) {
 }
 
 func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
-	w := &Watcher{resource: r}
+	w := &watcher{resource: r}
 	return w, w.init(ctx)
 }
 
-type Watcher struct {
+type watcher struct {
 	resource *Resource
 	changeC  chan config.Event
 	eventCs  []chan<- config.Event
@@ -80,19 +80,19 @@ type Watcher struct {
 	mutex    sync.Mutex
 }
 
-func (watcher *Watcher) Notify(eventC chan<- config.Event) {
+func (watcher *watcher) Notify(eventC chan<- config.Event) {
 	watcher.mutex.Lock()
 	defer watcher.mutex.Unlock()
 	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
 }
 
-func (watcher *Watcher) StopNotify(eventC chan<- config.Event) {
+func (watcher *watcher) StopNotify(eventC chan<- config.Event) {
 	watcher.mutex.Lock()
 	defer watcher.mutex.Unlock()
 	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
 }
 
-func (watcher *Watcher) Close(ctx context.Context) error {
+func (watcher *watcher) Close(ctx context.Context) error {
 	err := watcher.resource.configClient.CancelListenConfig(vo.ConfigParam{
 		DataId: watcher.resource.dataID,
 		Group:  watcher.resource.group,
@@ -104,7 +104,7 @@ func (watcher *Watcher) Close(ctx context.Context) error {
 	return err
 }
 
-func (watcher *Watcher) init(ctx context.Context) error {
+func (watcher *watcher) init(ctx context.Context) error {
 	err := watcher.resource.configClient.ListenConfig(vo.ConfigParam{
 		DataId: watcher.resource.dataID,
 		Group:  watcher.resource.group,
@@ -125,7 +125,7 @@ func (watcher *Watcher) init(ctx context.Context) error {
 	return nil
 }
 
-func (watcher *Watcher) watch() {
+func (watcher *watcher) watch() {
 	go func() {
 		for {
 			select {
@@ -141,7 +141,7 @@ func (watcher *Watcher) watch() {
 	}()
 }
 
-func (watcher *Watcher) sendError(err error) {
+func (watcher *watcher) sendError(err error) {
 	if err == nil {
 		return
 	}
@@ -150,7 +150,7 @@ func (watcher *Watcher) sendError(err error) {
 	}
 }
 
-func (watcher *Watcher) handleChangeEvent(event config.Event) {
+func (watcher *watcher) handleChangeEvent(event config.Event) {
 	if event == nil {
 		return
 	}

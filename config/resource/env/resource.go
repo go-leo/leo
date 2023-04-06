@@ -20,7 +20,7 @@ import (
 
 var _ config.Resource = new(Resource)
 
-var _ config.Watcher = new(DotEnvWatcher)
+var _ config.Watcher = new(dotEnvWatcher)
 
 type options struct {
 	Prefix         string
@@ -84,10 +84,10 @@ func (r *Resource) Watch(ctx context.Context) (config.Watcher, error) {
 		if err != nil {
 			return nil, err
 		}
-		w := &EnvWatcher{resource: r, source: source}
+		w := &environWatcher{resource: r, source: source}
 		return w, w.init(ctx)
 	}
-	w := &DotEnvWatcher{resource: r}
+	w := &dotEnvWatcher{resource: r}
 	return w, w.init(ctx)
 }
 
@@ -126,7 +126,7 @@ func (r *Resource) loadFromDotEnv() (*config.Source, error) {
 	}, nil
 }
 
-type DotEnvWatcher struct {
+type dotEnvWatcher struct {
 	resource  *Resource
 	fsWatcher *fsnotify.Watcher
 	eventCs   []chan<- config.Event
@@ -134,19 +134,19 @@ type DotEnvWatcher struct {
 	mutex     sync.Mutex
 }
 
-func (watcher *DotEnvWatcher) Notify(eventC chan<- config.Event) {
+func (watcher *dotEnvWatcher) Notify(eventC chan<- config.Event) {
 	watcher.mutex.Lock()
 	defer watcher.mutex.Unlock()
 	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
 }
 
-func (watcher *DotEnvWatcher) StopNotify(eventC chan<- config.Event) {
+func (watcher *dotEnvWatcher) StopNotify(eventC chan<- config.Event) {
 	watcher.mutex.Lock()
 	defer watcher.mutex.Unlock()
 	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
 }
 
-func (watcher *DotEnvWatcher) Close(ctx context.Context) error {
+func (watcher *dotEnvWatcher) Close(ctx context.Context) error {
 	err := watcher.fsWatcher.Close()
 	watcher.closeC <- struct{}{}
 	watcher.mutex.Lock()
@@ -155,7 +155,7 @@ func (watcher *DotEnvWatcher) Close(ctx context.Context) error {
 	return err
 }
 
-func (watcher *DotEnvWatcher) init(ctx context.Context) error {
+func (watcher *dotEnvWatcher) init(ctx context.Context) error {
 	fsWatcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
@@ -178,7 +178,7 @@ func (watcher *DotEnvWatcher) init(ctx context.Context) error {
 	return nil
 }
 
-func (watcher *DotEnvWatcher) watch() {
+func (watcher *dotEnvWatcher) watch() {
 	go func() {
 		for {
 			select {
@@ -199,7 +199,7 @@ func (watcher *DotEnvWatcher) watch() {
 	}()
 }
 
-func (watcher *DotEnvWatcher) sendError(err error) {
+func (watcher *dotEnvWatcher) sendError(err error) {
 	if err == nil {
 		return
 	}
@@ -209,7 +209,7 @@ func (watcher *DotEnvWatcher) sendError(err error) {
 	}
 }
 
-func (watcher *DotEnvWatcher) handleFileChangeEvent(event fsnotify.Event) {
+func (watcher *dotEnvWatcher) handleFileChangeEvent(event fsnotify.Event) {
 	// Ignore files we're not interested in.
 	filename := watcher.resource.options.DotEnvFilename
 	if filename != event.Name {
@@ -225,7 +225,7 @@ func (watcher *DotEnvWatcher) handleFileChangeEvent(event fsnotify.Event) {
 	}
 }
 
-type EnvWatcher struct {
+type environWatcher struct {
 	resource *Resource
 	source   *config.Source
 	eventCs  []chan<- config.Event
@@ -233,19 +233,19 @@ type EnvWatcher struct {
 	mutex    sync.Mutex
 }
 
-func (watcher *EnvWatcher) Notify(eventC chan<- config.Event) {
+func (watcher *environWatcher) Notify(eventC chan<- config.Event) {
 	watcher.mutex.Lock()
 	defer watcher.mutex.Unlock()
 	watcher.eventCs = slicex.AppendIfNotContains(watcher.eventCs, eventC)
 }
 
-func (watcher *EnvWatcher) StopNotify(eventC chan<- config.Event) {
+func (watcher *environWatcher) StopNotify(eventC chan<- config.Event) {
 	watcher.mutex.Lock()
 	defer watcher.mutex.Unlock()
 	watcher.eventCs = slicex.Remove(watcher.eventCs, eventC)
 }
 
-func (watcher *EnvWatcher) Close(ctx context.Context) error {
+func (watcher *environWatcher) Close(ctx context.Context) error {
 	watcher.closeC <- struct{}{}
 	watcher.mutex.Lock()
 	watcher.eventCs = nil
@@ -253,13 +253,13 @@ func (watcher *EnvWatcher) Close(ctx context.Context) error {
 	return nil
 }
 
-func (watcher *EnvWatcher) init(ctx context.Context) error {
+func (watcher *environWatcher) init(ctx context.Context) error {
 	watcher.closeC = make(chan struct{})
 	watcher.watch()
 	return nil
 }
 
-func (watcher *EnvWatcher) watch() {
+func (watcher *environWatcher) watch() {
 	go func() {
 		for {
 			select {
@@ -284,7 +284,7 @@ func (watcher *EnvWatcher) watch() {
 	}()
 }
 
-func (watcher *EnvWatcher) sendError(err error) {
+func (watcher *environWatcher) sendError(err error) {
 	if err == nil {
 		return
 	}
