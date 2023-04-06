@@ -18,16 +18,16 @@ type parser struct {
 
 func (p *parser) Parse(s *Source) (*Data, error) {
 	for _, decoder := range p.Decoders {
-		if !decoder.IsSupported(s.Extension) {
+		if !decoder.IsSupported(s.Extension()) {
 			continue
 		}
 		configMap := make(map[string]any)
-		err := decoder.Decode(s.Value, configMap)
+		err := decoder.Decode(s.Value(), configMap)
 		if err != nil {
 			return nil, err
 		}
 		d := newData(configMap)
 		return d, nil
 	}
-	return nil, fmt.Errorf("unknown extension %s", s.Extension)
+	return nil, fmt.Errorf("unknown extension %s", s.Extension())
 }
