@@ -9,7 +9,7 @@
 ### 安装leo-cli
 
 ```shell
-go install codeup.aliyun.com/qimao/leo/leo/cmd/leo@@latest
+go install codeup.aliyun.com/qimao/leo/leo/cmd/leo@latest
 ```
 
 ### 查看leo-cli帮助
