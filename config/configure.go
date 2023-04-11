@@ -115,13 +115,44 @@ func (configure *Configure) watch(ctx context.Context) (Watcher, error) {
 	return MultiWatcher(watchers...), nil
 }
 
-func NewConfigure(ctx context.Context, opts ...Option) (*Configure, error) {
+// Config is an interface abstraction for dynamic configuration
+type Config interface {
+	Refresh(ctx context.Context) error
+	Get(key string) *Value
+	Watch(ctx context.Context) (Watcher, error)
+}
+
+func NewConfigure(ctx context.Context, opts ...Option) (Config, error) {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
-	configurer := &Configure{
+	configure := &Configure{
 		options: o,
 		parser:  &parser{Decoders: o.Decoders},
 	}
-	return configurer, configurer.read(ctx)
+	return configure, configure.read(ctx)
+}
+
+var (
+	// Default Config Manager
+	DefaultConfig = newConfig()
+)
+
+// NewConfig returns new config
+func newConfig() Config {
+	c, _ := NewConfigure(context.Background())
+	return c
+}
+
+// Get a value from the config
+func Get(path string) *Value {
+	return DefaultConfig.Get(path)
+}
+
+// Watch a value for changes
+func Watch(ctx context.Context) (Watcher, error) {
+	return DefaultConfig.Watch(ctx)
+}
+func Refresh(ctx context.Context) error {
+	return DefaultConfig.Refresh(ctx)
 }
