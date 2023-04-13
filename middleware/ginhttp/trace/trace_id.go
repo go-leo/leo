@@ -11,7 +11,7 @@ import (
 
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func FromContext(ctx context.Context) (string, bool) {
+func NewTraceIDContext(ctx context.Context) (string, bool) {
 	spanContext := trace.SpanContextFromContext(ctx)
 	if spanContext.HasTraceID() {
 		return spanContext.TraceID().String(), true
@@ -19,8 +19,16 @@ func FromContext(ctx context.Context) (string, bool) {
 	return "", false
 }
 
-func FromContextOrGenerate(ctx context.Context) string {
-	traceId, ok := FromContext(ctx)
+func FromTraceIDContext(ctx context.Context) (string, bool) {
+	spanContext := trace.SpanContextFromContext(ctx)
+	if spanContext.HasTraceID() {
+		return spanContext.TraceID().String(), true
+	}
+	return "", false
+}
+
+func FromTraceIDContextOrGenerate(ctx context.Context) string {
+	traceId, ok := FromTraceIDContext(ctx)
 	if ok {
 		return traceId
 	}

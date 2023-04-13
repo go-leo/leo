@@ -6,21 +6,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
-	o := defaultOptions()
-	o.apply(opts...)
-	return unaryServerInterceptor(o.contextFunc)
-}
-
-func StreamServerInterceptor(opts ...Option) grpc.StreamServerInterceptor {
-	o := defaultOptions()
-	o.apply(opts...)
-	return streamServerInterceptor(o.contextFunc)
-}
-
-func unaryServerInterceptor(
+func UnaryServerInterceptor(
 	contextFunc func(ctx context.Context) context.Context,
 ) grpc.UnaryServerInterceptor {
+	if contextFunc == nil {
+		contextFunc = func(ctx context.Context) context.Context { return ctx }
+	}
 	return func(
 		ctx context.Context,
 		req interface{},
@@ -33,9 +24,12 @@ func unaryServerInterceptor(
 	}
 }
 
-func streamServerInterceptor(
+func StreamServerInterceptor(
 	contextFunc func(ctx context.Context) context.Context,
 ) grpc.StreamServerInterceptor {
+	if contextFunc == nil {
+		contextFunc = func(ctx context.Context) context.Context { return ctx }
+	}
 	return func(
 		srv interface{},
 		stream grpc.ServerStream,
