@@ -193,13 +193,10 @@ func (l *Logger) With(fields ...log.Field) log.Logger {
 	return l.clone(l.fieldsToAttrs(fields...)...)
 }
 
-func (l *Logger) WithContext(ctx context.Context, keys ...string) log.Logger {
+func (l *Logger) WithContext(ctx context.Context, creators ...log.FieldCreator) log.Logger {
 	var fields []log.Field
-	for _, key := range keys {
-		value := ctx.Value(key)
-		if value != nil {
-			fields = append(fields, log.F{K: key, V: value})
-		}
+	for _, creator := range creators {
+		fields = append(fields, creator.Create(ctx)...)
 	}
 	return l.clone(l.fieldsToAttrs(fields...)...)
 }

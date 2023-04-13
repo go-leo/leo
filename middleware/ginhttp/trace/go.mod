@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/traxe
+module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/trace
 
 go 1.20
 

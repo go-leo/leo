@@ -47,7 +47,8 @@ type Logger interface {
 
 	// With returns a new Logger with additional fields.
 	With(fields ...Field) Logger
-	WithContext(ctx context.Context, keys ...string) Logger
+	// WithContext returns a new Logger with additional fields from context.
+	WithContext(ctx context.Context, creators ...FieldCreator) Logger
 
 	// Clone return new Logger instance.
 	Clone() Logger

@@ -69,7 +69,7 @@ func (d Discard) With(fields ...Field) Logger {
 	return d
 }
 
-func (d Discard) WithContext(ctx context.Context, keys ...string) Logger {
+func (d Discard) WithContext(ctx context.Context, creators ...FieldCreator) Logger {
 	return d
 }
 

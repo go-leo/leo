@@ -1,8 +1,33 @@
 package log
 
+import "context"
+
 type Field interface {
 	Key() string
 	Value() any
+}
+
+type FieldCreator interface {
+	Create(ctx context.Context) []Field
+}
+
+type FieldCreatorFunc func(ctx context.Context) []Field
+
+func (f FieldCreatorFunc) Create(ctx context.Context) []Field {
+	return f(ctx)
+}
+
+func KeyFieldCreator(keys ...string) func(ctx context.Context) []Field {
+	return func(ctx context.Context) []Field {
+		fields := make([]Field, 0, len(keys))
+		for _, key := range keys {
+			value := ctx.Value(key)
+			if value != nil {
+				fields = append(fields, F{K: key, V: value})
+			}
+		}
+		return fields
+	}
 }
 
 // F is field
