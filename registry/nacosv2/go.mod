@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/registry/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230411062526-7b322547b5e5
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230413035204-5f014729145f
 	github.com/go-leo/gox v0.0.0-20230403061358-ffb4dcdc50bb
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
 )
