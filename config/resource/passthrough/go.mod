@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/passthrough
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230413035204-5f014729145f
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230413073051-619be68efefb
 	github.com/go-leo/gox v0.0.0-20230403061358-ffb4dcdc50bb
 )
 

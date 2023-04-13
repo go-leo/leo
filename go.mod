@@ -3,6 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
+	codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230413073051-619be68efefb
 	github.com/go-leo/gox v0.0.0-20230403061358-ffb4dcdc50bb
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
@@ -21,5 +22,6 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
