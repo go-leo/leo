@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcrecovery
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/recovery
 
 go 1.20
 

@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcratelimiter
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/ratelimiter
 
 go 1.20
 

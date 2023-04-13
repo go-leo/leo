@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/schedule/cron
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230406065123-9759bbf40bee
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230411062526-7b322547b5e5
 	github.com/go-leo/gox v0.0.0-20230403061358-ffb4dcdc50bb
 	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29

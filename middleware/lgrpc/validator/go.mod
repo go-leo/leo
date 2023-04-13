@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcvalidator
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/validator
 
 go 1.20
 

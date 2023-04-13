@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpccontext
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/context
 
 go 1.20
 

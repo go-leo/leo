@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcauth
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/auth
 
 go 1.20
 

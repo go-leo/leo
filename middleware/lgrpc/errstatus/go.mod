@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcerrstatus
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/errstatus
 
 go 1.20
 

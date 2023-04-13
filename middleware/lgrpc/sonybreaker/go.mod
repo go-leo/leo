@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpcsonybreaker
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/sonybreaker
 
 go 1.20
 
