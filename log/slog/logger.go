@@ -189,8 +189,19 @@ func (l *Logger) SkipCaller(calldepth int) log.Logger {
 	return l
 }
 
-func (l *Logger) With(fs ...log.Field) log.Logger {
-	return l.clone(l.fieldsToAttrs(fs...)...)
+func (l *Logger) With(fields ...log.Field) log.Logger {
+	return l.clone(l.fieldsToAttrs(fields...)...)
+}
+
+func (l *Logger) WithContext(ctx context.Context, keys ...string) log.Logger {
+	var fields []log.Field
+	for _, key := range keys {
+		value := ctx.Value(key)
+		if value != nil {
+			fields = append(fields, log.F{K: key, V: value})
+		}
+	}
+	return l.clone(l.fieldsToAttrs(fields...)...)
 }
 
 func (l *Logger) Clone() log.Logger {

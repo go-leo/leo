@@ -1,6 +1,9 @@
 package log
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 // Logger is a interface to log messages.
 type Logger interface {
@@ -44,6 +47,7 @@ type Logger interface {
 
 	// With returns a new Logger with additional fields.
 	With(fields ...Field) Logger
+	WithContext(ctx context.Context, keys ...string) Logger
 
 	// Clone return new Logger instance.
 	Clone() Logger

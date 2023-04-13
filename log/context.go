@@ -5,13 +5,13 @@ import "context"
 type logKey struct{}
 
 // NewContext creates a new context with a Logger.
-func NewContext(ctx context.Context, l Logger) context.Context {
-	return context.WithValue(ctx, logKey{}, l)
+func NewContext(ctx context.Context, l Logger, keys ...string) context.Context {
+	return context.WithValue(ctx, logKey{}, l.WithContext(ctx, keys...))
 }
 
-func NewContextClosure(l Logger) func(context.Context) context.Context {
+func NewContextClosure(l Logger, keys ...string) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
-		return context.WithValue(ctx, logKey{}, l)
+		return NewContext(ctx, l, keys...)
 	}
 }
 

@@ -1,6 +1,7 @@
 package log
 
 import (
+	"context"
 	"net/http"
 )
 
@@ -65,6 +66,10 @@ func (d Discard) SkipCaller(depth int) Logger {
 }
 
 func (d Discard) With(fields ...Field) Logger {
+	return d
+}
+
+func (d Discard) WithContext(ctx context.Context, keys ...string) Logger {
 	return d
 }
 

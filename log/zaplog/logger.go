@@ -1,6 +1,7 @@
 package zaplog
 
 import (
+	"context"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -109,6 +110,17 @@ func (l *Logger) SkipCaller(depth int) log.Logger {
 }
 
 func (l *Logger) With(fields ...log.Field) log.Logger {
+	return l.clone(zap.Fields(toZapFields(fields...)...))
+}
+
+func (l *Logger) WithContext(ctx context.Context, keys ...string) log.Logger {
+	var fields []log.Field
+	for _, key := range keys {
+		value := ctx.Value(key)
+		if value != nil {
+			fields = append(fields, log.F{K: key, V: value})
+		}
+	}
 	return l.clone(zap.Fields(toZapFields(fields...)...))
 }
 
