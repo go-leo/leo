@@ -14,6 +14,12 @@ type Runner interface {
 	Run(ctx context.Context) error
 }
 
+type RunnerFunc func(ctx context.Context) error
+
+func (f RunnerFunc) Run(ctx context.Context) error {
+	return f(ctx)
+}
+
 type mutilRunner struct {
 	runners []Runner
 }

@@ -1,6 +1,7 @@
 package leo
 
 import (
+	"context"
 	"os"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
@@ -29,6 +30,14 @@ type Option func(o *options)
 func Runners(runners ...Runner) Option {
 	return func(o *options) {
 		o.Runners = append(o.Runners, runners...)
+	}
+}
+
+func RunnerFuncs(runners ...func(ctx context.Context) error) Option {
+	return func(o *options) {
+		for _, runner := range runners {
+			o.Runners = append(o.Runners, RunnerFunc(runner))
+		}
 	}
 }
 
