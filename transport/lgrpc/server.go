@@ -3,9 +3,7 @@ package lgrpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
-	"reflect"
 	"runtime"
 	"strconv"
 
@@ -17,7 +15,6 @@ import (
 
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/netx/addrx"
-	"github.com/go-leo/gox/reflectx"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
@@ -25,11 +22,14 @@ import (
 )
 
 // Binder 服务绑定
-type Binder struct {
-	// ServerImpl 服务的实现
-	ServerImpl any
-	// RegisterFunc 注册方法
-	RegisterFunc any
+type Binder interface {
+	Bind(gRPCSrv *grpc.Server)
+}
+
+type BinderFunc func(gRPCSrv *grpc.Server)
+
+func (f BinderFunc) Bind(gRPCSrv *grpc.Server) {
+	f(gRPCSrv)
 }
 
 // Server 服务
@@ -39,7 +39,7 @@ type Server struct {
 	options   *options
 	gRPCSrv   *grpc.Server
 	healthSrv *grpchealth.Server
-	binders   []Binder
+	binder    Binder
 	lis       net.Listener
 }
 
@@ -102,15 +102,7 @@ func (server *Server) runServer(ctx context.Context) error {
 	reflection.Register(server.gRPCSrv)
 
 	// register business service
-	gRPCSrvVal := reflect.ValueOf(server.gRPCSrv)
-	for _, register := range server.binders {
-		registerFunc := reflectx.Indirect(register.RegisterFunc)
-		val := reflect.ValueOf(registerFunc)
-		if val.Kind() != reflect.Func {
-			return fmt.Errorf("registerfunc is not a func kind")
-		}
-		_ = val.Call([]reflect.Value{gRPCSrvVal, reflect.ValueOf(register.ServerImpl)})
-	}
+	server.binder.Bind(server.gRPCSrv)
 
 	// grpc server async run serve
 	serveErrC := make(chan error)
@@ -174,14 +166,14 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	}
 }
 
-func NewServer(port int, binders []Binder, opts ...Option) *Server {
+func NewServer(port int, binder func(gRPCSrv *grpc.Server), opts ...Option) *Server {
 	o := new(options)
 	o.apply(opts)
 	o.init()
 	srv := &Server{
 		options: o,
 		port:    port,
-		binders: binders,
+		binder:  BinderFunc(binder),
 	}
 	return srv
 }
