@@ -1,8 +1,8 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230413073051-619be68efefb h1:ZROlCUmtlIUSuaDNYoBar8B7Rp0ywIeH6lF2TPiMxD0=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230413073051-619be68efefb/go.mod h1:/jD0tMTBrdQjnguLYewNqbudAhlUjQL8mzbVaAeUbq4=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230419054956-9158cda06000 h1:DxkPagoj1ToCW/xI4KgTFcBPpsprYgVN+37z3zo5pjA=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230419054956-9158cda06000/go.mod h1:OC3O1AQeGtqYEQePL4buB3MZtALLmq+sT2sgHezGsk0=
 codeup.aliyun.com/qimao/leo/log/slog v0.0.0-20230312080736-fed9651f979c h1:869Y0HTvAVaz1UL+keOih8PSp8Fu6BB1PyVb2lFOHx0=
 codeup.aliyun.com/qimao/leo/log/slog v0.0.0-20230312080736-fed9651f979c/go.mod h1:knx60kRW9oOk3kcAmqeF6PZOdVGRPBlAVe3Kxb7ewaI=
-golang.org/x/exp v0.0.0-20230321023759-10a507213a29 h1:ooxPy7fPvB4kwsA2h+iBNHkAbp/4JxTSwCmvdjEYmug=
-golang.org/x/exp v0.0.0-20230321023759-10a507213a29/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
+golang.org/x/exp v0.0.0-20230418202329-0354be287a23 h1:4NKENAGIctmZYLK9W+X1kDK8ObBFqOSCJM6WE7CvkJY=
+golang.org/x/exp v0.0.0-20230418202329-0354be287a23/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
 gopkg.in/natefinch/lumberjack.v2 v2.2.1 h1:bBRl1b0OH9s/DuPhuXpNl+VtCaJXFZ5/uEFST95x9zc=
 gopkg.in/natefinch/lumberjack.v2 v2.2.1/go.mod h1:YD8tP3GAjkrDg1eZH7EGmyESg/lsYskCTPBJVb9jqSc=

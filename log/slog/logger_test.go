@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
-	"codeup.aliyun.com/qimao/leo/log/slog"
+	"codeup.aliyun.com/qimao/leo/leo/log/slog"
 )
 
 func TestDebugSlog(t *testing.T) {
