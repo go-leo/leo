@@ -186,7 +186,7 @@ func (l *Logger) FatalF(fs ...log.Field) {
 func (l *Logger) SkipCaller(calldepth int) log.Logger {
 	cloned := l.clone().(*Logger)
 	cloned.callDepth = calldepth
-	return l
+	return cloned
 }
 
 func (l *Logger) With(fields ...log.Field) log.Logger {
