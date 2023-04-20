@@ -9,12 +9,15 @@ import (
 )
 
 type options struct {
-	TLSConf                *tls.Config
+	TLSConf *tls.Config
+
 	HealthCheckers         []health.Checker
 	HttpHealthStatusMapper health.HttpHealthStatusMapper
-	PProfDisabled          bool
-	PathPrefix             string
-	Handlers               []Handler
+	StatusAggregator       health.StatusAggregator
+
+	PProfDisabled bool
+	PathPrefix    string
+	Handlers      []Handler
 
 	ReadTimeout    time.Duration
 	WriteTimeout   time.Duration
@@ -28,6 +31,9 @@ func (o *options) init() {
 	if o.HttpHealthStatusMapper == nil {
 		o.HttpHealthStatusMapper = health.DefaultHttpHealthStatusMapper()
 	}
+	if o.StatusAggregator == nil {
+		o.StatusAggregator = health.DefaultStatusAggregator()
+	}
 	if !o.PProfDisabled {
 		o.Handlers = append(o.Handlers, &pprof.IndexHandler{})
 		o.Handlers = append(o.Handlers, &pprof.CmdlineHandler{})
@@ -35,13 +41,22 @@ func (o *options) init() {
 		o.Handlers = append(o.Handlers, &pprof.SymbolHandler{})
 		o.Handlers = append(o.Handlers, &pprof.TraceHandler{})
 	}
-	for _, checker := range o.HealthCheckers {
-		handler := &health.CheckerHandler{
-			HealthChecker:          checker,
+	if len(o.HealthCheckers) > 0 {
+		handler := &health.MultiCheckerHandler{
+			HealthCheckers:         o.HealthCheckers,
 			HttpHealthStatusMapper: o.HttpHealthStatusMapper,
+			StatusAggregator:       o.StatusAggregator,
 		}
 		o.Handlers = append(o.Handlers, handler)
+		for _, checker := range o.HealthCheckers {
+			handler := &health.CheckerHandler{
+				HealthChecker:          checker,
+				HttpHealthStatusMapper: o.HttpHealthStatusMapper,
+			}
+			o.Handlers = append(o.Handlers, handler)
+		}
 	}
+
 }
 
 func (o *options) apply(opts ...Option) {
@@ -88,15 +103,21 @@ func PathPrefix(prefix string) Option {
 	}
 }
 
+func HealthCheckers(checkers ...health.Checker) Option {
+	return func(o *options) {
+		o.HealthCheckers = append(o.HealthCheckers, checkers...)
+	}
+}
+
 func HttpHealthStatusMapper(mapper health.HttpHealthStatusMapper) Option {
 	return func(o *options) {
 		o.HttpHealthStatusMapper = mapper
 	}
 }
 
-func HealthCheckers(checkers ...health.Checker) Option {
+func StatusAggregator(aggregator health.StatusAggregator) Option {
 	return func(o *options) {
-		o.HealthCheckers = append(o.HealthCheckers, checkers...)
+		o.StatusAggregator = aggregator
 	}
 }
 

@@ -21,26 +21,15 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )
 
-// Binder 服务绑定
-type Binder interface {
-	Bind(gRPCSrv *grpc.Server)
-}
-
-type BinderFunc func(gRPCSrv *grpc.Server)
-
-func (f BinderFunc) Bind(gRPCSrv *grpc.Server) {
-	f(gRPCSrv)
-}
-
 // Server 服务
 type Server struct {
-	port      int
-	host      string
-	options   *options
-	gRPCSrv   *grpc.Server
-	healthSrv *grpchealth.Server
-	binder    Binder
-	lis       net.Listener
+	port               int
+	host               string
+	options            *options
+	gRPCSrv            *grpc.Server
+	healthSrv          *grpchealth.Server
+	lis                net.Listener
+	registerServiceMap map[*grpc.ServiceDesc]any
 }
 
 func (server *Server) Run(ctx context.Context) error {
@@ -65,6 +54,17 @@ func (server *Server) ActuatorHandler() actuator.Handler {
 
 func (server *Server) HealthChecker() health.Checker {
 	return &healthChecker{server: server}
+}
+
+func (server *Server) RegisterService(sd *grpc.ServiceDesc, ss any) {
+	server.registerServiceMap[sd] = ss
+}
+
+func (server *Server) GetServiceInfo() map[string]grpc.ServiceInfo {
+	if server.gRPCSrv == nil {
+		return nil
+	}
+	return server.gRPCSrv.GetServiceInfo()
 }
 
 func (server *Server) listenPort() (net.Listener, error) {
@@ -102,8 +102,9 @@ func (server *Server) runServer(ctx context.Context) error {
 	reflection.Register(server.gRPCSrv)
 
 	// register business service
-	server.binder.Bind(server.gRPCSrv)
-
+	for sd, ss := range server.registerServiceMap {
+		server.gRPCSrv.RegisterService(sd, ss)
+	}
 	// grpc server async run serve
 	serveErrC := make(chan error)
 	go func() {
@@ -166,14 +167,14 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	}
 }
 
-func NewServer(port int, binder func(gRPCSrv *grpc.Server), opts ...Option) *Server {
+func NewServer(port int, opts ...Option) *Server {
 	o := new(options)
 	o.apply(opts)
 	o.init()
 	srv := &Server{
-		options: o,
-		port:    port,
-		binder:  BinderFunc(binder),
+		options:            o,
+		port:               port,
+		registerServiceMap: make(map[*grpc.ServiceDesc]any),
 	}
 	return srv
 }
