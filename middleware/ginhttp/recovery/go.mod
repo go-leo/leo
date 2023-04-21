@@ -1,16 +1,10 @@
-module codeup.aliyun.com/qimao/leo/leo/transport/ginhttp
+module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/recovery
 
 go 1.20
 
-require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230420095548-1137802a4a45
-	github.com/gin-gonic/gin v1.9.0
-	github.com/go-leo/gox v0.0.0-20230420124928-6db4553b0ee9
-	golang.org/x/sync v0.1.0
-)
+require github.com/gin-gonic/gin v1.9.0
 
 require (
-	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/bytedance/sonic v1.8.7 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -18,6 +12,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.12.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.3 // indirect
@@ -29,7 +24,6 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
-	golang.org/x/exp v0.0.0-20230418202329-0354be287a23 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

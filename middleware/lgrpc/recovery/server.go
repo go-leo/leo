@@ -12,8 +12,8 @@ import (
 func UnaryServerInterceptor(handles ...func(context.Context, any) error) grpc.UnaryServerInterceptor {
 	var handle func(context.Context, any) error
 	if len(handles) == 0 {
-		handle = func(ctx context.Context, p any) (err error) {
-			return status.Errorf(codes.Internal, "panic triggered: %+v, stack: %s", err, runtimex.Stack(0))
+		handle = func(ctx context.Context, p any) error {
+			return status.Errorf(codes.Internal, "panic triggered: %+v, stack: %s", p, runtimex.Stack(0))
 		}
 	} else {
 		handle = handles[0]
@@ -36,8 +36,8 @@ func UnaryServerInterceptor(handles ...func(context.Context, any) error) grpc.Un
 func StreamServerInterceptor(handles ...func(context.Context, any) error) grpc.StreamServerInterceptor {
 	var handle func(context.Context, any) error
 	if len(handles) == 0 {
-		handle = func(ctx context.Context, p any) (err error) {
-			return status.Errorf(codes.Internal, "panic triggered: %+v, stack: %s", err, runtimex.Stack(0))
+		handle = func(ctx context.Context, p any) error {
+			return status.Errorf(codes.Internal, "panic triggered: %+v, stack: %s", p, runtimex.Stack(0))
 		}
 	} else {
 		handle = handles[0]
