@@ -3,11 +3,9 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/requestid
 go 1.20
 
 require (
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230421104315-5afb63733b54
 	github.com/gin-gonic/gin v1.9.0
-	github.com/go-leo/leo v1.2.10
-	github.com/go-leo/stringx v1.0.1
-	go.opentelemetry.io/otel/trace v1.14.0
-	google.golang.org/grpc v1.54.0
+	github.com/go-leo/gox v0.0.0-20230420124928-6db4553b0ee9
 )
 
 require (
@@ -27,7 +25,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	go.opentelemetry.io/otel v1.14.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
