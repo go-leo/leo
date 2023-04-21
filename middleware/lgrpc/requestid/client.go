@@ -29,6 +29,7 @@ func UnaryClientInterceptor(opts ...Option) grpc.UnaryClientInterceptor {
 		requestID, _ = requestid.FromContext(ctx)
 		if stringx.IsNotBlank(requestID) {
 			ctx = toOutgoing(ctx, o, requestID)
+			o.handler(ctx, requestID)
 			return invoker(ctx, method, req, reply, cc, opts...)
 		}
 
@@ -36,6 +37,7 @@ func UnaryClientInterceptor(opts ...Option) grpc.UnaryClientInterceptor {
 		requestID, _ = fromIncoming(ctx, o)
 		if stringx.IsNotBlank(requestID) {
 			ctx = toOutgoing(requestid.NewContext(ctx, requestID), o, requestID)
+			o.handler(ctx, requestID)
 			return invoker(ctx, method, req, reply, cc, opts...)
 		}
 
@@ -49,6 +51,7 @@ func UnaryClientInterceptor(opts ...Option) grpc.UnaryClientInterceptor {
 		// 4. generate
 		requestID = o.generator()
 		ctx = toOutgoing(requestid.NewContext(ctx, requestID), o, requestID)
+		o.handler(ctx, requestID)
 		return invoker(ctx, method, req, reply, cc, opts...)
 	}
 }
@@ -94,6 +97,7 @@ func StreamClientInterceptor(opts ...Option) grpc.StreamClientInterceptor {
 		requestID, _ = requestid.FromContext(ctx)
 		if stringx.IsNotBlank(requestID) {
 			ctx = toOutgoing(ctx, o, requestID)
+			o.handler(ctx, requestID)
 			return streamer(ctx, desc, cc, method, opts...)
 		}
 
@@ -101,6 +105,7 @@ func StreamClientInterceptor(opts ...Option) grpc.StreamClientInterceptor {
 		requestID, _ = fromIncoming(ctx, o)
 		if stringx.IsNotBlank(requestID) {
 			ctx = toOutgoing(requestid.NewContext(ctx, requestID), o, requestID)
+			o.handler(ctx, requestID)
 			return streamer(ctx, desc, cc, method, opts...)
 		}
 
@@ -114,6 +119,7 @@ func StreamClientInterceptor(opts ...Option) grpc.StreamClientInterceptor {
 		// 4. generate
 		requestID = o.generator()
 		ctx = toOutgoing(requestid.NewContext(ctx, requestID), o, requestID)
+		o.handler(ctx, requestID)
 		return streamer(ctx, desc, cc, method, opts...)
 	}
 }

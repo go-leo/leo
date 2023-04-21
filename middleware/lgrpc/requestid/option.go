@@ -1,11 +1,11 @@
 package requestid
 
 import (
+	"context"
 	"encoding/hex"
 	"math/rand"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-leo/gox/stringx"
 )
 
@@ -14,7 +14,7 @@ var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 type options struct {
 	generator func() string
 	headerKey string
-	handler   func(c *gin.Context, requestID string)
+	handler   func(c context.Context, requestID string)
 }
 
 func (o *options) apply(opts ...Option) {
@@ -34,6 +34,9 @@ func (o *options) init() {
 	}
 	if stringx.IsBlank(o.headerKey) {
 		o.headerKey = "X-Request-ID"
+	}
+	if o.handler == nil {
+		o.handler = func(_ context.Context, _ string) {}
 	}
 }
 
@@ -55,7 +58,7 @@ func CustomHeaderKey(key string) Option {
 }
 
 // Handler set handler function for request id with context
-func Handler(handler func(c *gin.Context, requestID string)) Option {
+func Handler(handler func(c context.Context, requestID string)) Option {
 	return func(cfg *options) {
 		cfg.handler = handler
 	}
