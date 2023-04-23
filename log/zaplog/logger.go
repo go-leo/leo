@@ -2,7 +2,6 @@ package zaplog
 
 import (
 	"context"
-	"net/http"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -99,10 +98,6 @@ func (l *Logger) EnableFatal() {
 
 func (l *Logger) IsFatalEnabled() bool {
 	return l.level.Enabled(zapcore.FatalLevel)
-}
-
-func (l *Logger) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-	l.level.ServeHTTP(resp, req)
 }
 
 func (l *Logger) SkipCaller(depth int) log.Logger {

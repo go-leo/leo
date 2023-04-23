@@ -2,7 +2,6 @@ package log
 
 import (
 	"context"
-	"net/http"
 )
 
 var _ Logger = new(Discard)
@@ -56,9 +55,6 @@ func (d Discard) EnableFatal() {
 
 func (d Discard) IsFatalEnabled() bool {
 	return true
-}
-
-func (d Discard) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (d Discard) SkipCaller(depth int) Logger {

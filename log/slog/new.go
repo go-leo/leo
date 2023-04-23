@@ -38,7 +38,7 @@ func New(level *slog.LevelVar, opts ...Option) *Logger {
 		level:     level,
 		Logger:    slog.New(handler),
 		field:     nil,
-		callDepth: 2,
+		callDepth: 3,
 	}
 }
 

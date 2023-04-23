@@ -3,9 +3,10 @@ package slog
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
+	"runtime"
 	"strings"
+	"time"
 
 	"golang.org/x/exp/slog"
 
@@ -205,31 +206,47 @@ func (l *Logger) Clone() log.Logger {
 	return l.clone()
 }
 
-func (l *Logger) ServeHTTP(http.ResponseWriter, *http.Request) {}
-
 func (l *Logger) log(level slog.Level, a ...any) {
-	l.Logger.LogAttrs(context.Background(), level, fmt.Sprint(a...))
+	msg := fmt.Sprint(a...)
+	if !l.Logger.Enabled(context.Background(), level) {
+		return
+	}
+	var pcs [1]uintptr
+	runtime.Callers(l.callDepth, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	_ = l.Logger.Handler().Handle(context.Background(), r)
 }
 
 func (l *Logger) logf(level slog.Level, format string, a ...any) {
-	l.Logger.Log(context.Background(), level, fmt.Sprintf(format, a...))
+	msg := fmt.Sprintf(format, a...)
+	if !l.Logger.Enabled(context.Background(), level) {
+		return
+	}
+	var pcs [1]uintptr
+	runtime.Callers(l.callDepth, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	_ = l.Logger.Handler().Handle(context.Background(), r)
 }
 
 func (l *Logger) logF(level slog.Level, fs ...log.Field) {
 	var msg string
-	var args []slog.Attr
+	var attrs []slog.Attr
 	for _, f := range fs {
 		if log.IsMsgField(f) {
 			msg = f.Value().(string)
 			continue
 		}
 		if log.IsErrField(f) {
-			args = append(args, slog.String("error", fmt.Sprintf("%v", f.Value())))
+			attrs = append(attrs, slog.String("error", fmt.Sprintf("%v", f.Value())))
 			continue
 		}
-		args = append(args, slog.Any(f.Key(), f.Value()))
+		attrs = append(attrs, slog.Any(f.Key(), f.Value()))
 	}
-	l.Logger.LogAttrs(context.Background(), level, msg, args...)
+	var pcs [1]uintptr
+	runtime.Callers(l.callDepth, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r.AddAttrs(attrs...)
+	_ = l.Logger.Handler().Handle(context.Background(), r)
 }
 
 func (l *Logger) fieldsToAttrs(fs ...log.Field) []any {

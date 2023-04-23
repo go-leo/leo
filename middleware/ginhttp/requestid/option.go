@@ -12,9 +12,10 @@ import (
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 type options struct {
-	generator func() string
-	headerKey string
-	handler   func(c *gin.Context, requestID string)
+	Generator              func() string
+	HeaderKey              string
+	Handler                func(c *gin.Context, requestID string)
+	RewriteW3CTraceContext bool
 }
 
 func (o *options) apply(opts ...Option) {
@@ -24,19 +25,19 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-	if o.generator == nil {
-		o.generator = func() string {
+	if o.Generator == nil {
+		o.Generator = func() string {
 			var tid [16]byte
 			randSource.Read(tid[:])
 			requestID := hex.EncodeToString(tid[:])
 			return requestID
 		}
 	}
-	if stringx.IsBlank(o.headerKey) {
-		o.headerKey = "X-Request-ID"
+	if stringx.IsBlank(o.HeaderKey) {
+		o.HeaderKey = "X-Request-ID"
 	}
-	if o.handler == nil {
-		o.handler = func(_ *gin.Context, _ string) {}
+	if o.Handler == nil {
+		o.Handler = func(_ *gin.Context, _ string) {}
 	}
 
 }
@@ -44,23 +45,29 @@ func (o *options) init() {
 // Option for queue system
 type Option func(*options)
 
-// IDGenerator set id generator function
+// IDGenerator set id Generator function
 func IDGenerator(g func() string) Option {
 	return func(cfg *options) {
-		cfg.generator = g
+		cfg.Generator = g
 	}
 }
 
 // CustomHeaderKey set custom header key for request id
 func CustomHeaderKey(key string) Option {
 	return func(cfg *options) {
-		cfg.headerKey = key
+		cfg.HeaderKey = key
 	}
 }
 
-// Handler set handler function for request id with context
+// Handler set Handler function for request id with context
 func Handler(handler func(c *gin.Context, requestID string)) Option {
 	return func(cfg *options) {
-		cfg.handler = handler
+		cfg.Handler = handler
+	}
+}
+
+func RewriteW3CTraceContext() Option {
+	return func(o *options) {
+		o.RewriteW3CTraceContext = true
 	}
 }

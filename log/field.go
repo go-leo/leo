@@ -48,7 +48,7 @@ func (f F) Value() any {
 
 const (
 	msgKey = "msg"
-	errKey = "err"
+	errKey = "error"
 )
 
 func MsgField(msg string) Field {

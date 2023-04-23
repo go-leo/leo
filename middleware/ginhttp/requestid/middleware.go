@@ -1,14 +1,14 @@
 package requestid
 
 import (
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-leo/gox/stringx"
-
-	"codeup.aliyun.com/qimao/leo/leo/pkg/requestid"
 )
 
-// New initializes the RequestID middleware.
-func New(opts ...Option) gin.HandlerFunc {
+// Middleware return the RequestID middleware.
+func Middleware(opts ...Option) gin.HandlerFunc {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
@@ -16,33 +16,50 @@ func New(opts ...Option) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestID string
 
-		// 1. from context
-		requestID, _ = requestid.FromContext(c.Request.Context())
+		// 1. from header
+		requestID = c.GetHeader(o.HeaderKey)
 		if stringx.IsNotBlank(requestID) {
 			next(c, o, requestID)
 			return
 		}
 
-		// 2. from header
-		requestID = c.GetHeader(o.headerKey)
+		// 2. from TraceContext, TraceContext is a propagator that supports the W3C Trace Context format
+		// (https://www.w3.org/TR/trace-context/)
+		requestID, _ = fromTrace(c)
 		if stringx.IsNotBlank(requestID) {
-			c.Request = c.Request.WithContext(requestid.NewContext(c.Request.Context(), requestID))
 			next(c, o, requestID)
 			return
 		}
 
 		// 3. generate
-		requestID = o.generator()
-		c.Request.Header.Add(o.headerKey, requestID)
-		c.Request = c.Request.WithContext(requestid.NewContext(c.Request.Context(), requestID))
-		next(c, o, requestID)
+		requestID = o.Generator()
 		next(c, o, requestID)
 	}
 }
 
+var traceCtxRegExp = regexp.MustCompile("^(?P<version>[0-9a-f]{2})-(?P<traceID>[a-f0-9]{32})-(?P<spanID>[a-f0-9]{16})-(?P<traceFlags>[a-f0-9]{2})(?:-.*)?$")
+
+const traceparentHeader = "traceparent"
+
+func fromTrace(c *gin.Context) (string, bool) {
+	h := c.GetHeader(traceparentHeader)
+	if h == "" {
+		return "", false
+	}
+	matches := traceCtxRegExp.FindStringSubmatch(h)
+	if len(matches) == 0 {
+		return "", false
+	}
+	if len(matches[2]) != 32 {
+		return "", false
+	}
+	return matches[2][:32], true
+}
+
 func next(c *gin.Context, o *options, requestID string) {
-	o.handler(c, requestID)
+	c.Request = c.Request.WithContext(NewContext(c.Request.Context(), requestID))
+	o.Handler(c, requestID)
 	// Set the id to ensure that the X-Request-ID is in the response
-	c.Header(o.headerKey, requestID)
+	c.Header(o.HeaderKey, requestID)
 	c.Next()
 }

@@ -2,7 +2,6 @@ package log
 
 import (
 	"context"
-	"net/http"
 )
 
 // Logger is a interface to log messages.
@@ -35,12 +34,6 @@ type Logger interface {
 	EnableFatal()
 	// IsFatalEnabled return True if this Logger is enabled for the Fatal Level, false otherwise.
 	IsFatalEnabled() bool
-	// Handler is a http endpoint that can report on or change the current logging Level.
-	// The GET request returns a JSON description of the current logging Level like
-	// The PUT request changes the logging Level. It is perfectly safe to change the
-	// logging Level while a program is running.
-	http.Handler
-
 	// SkipCaller returns a Logger that will offset the call stack by the specified number of frames
 	// when logging call site information.
 	SkipCaller(depth int) Logger

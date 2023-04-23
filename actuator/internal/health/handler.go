@@ -6,11 +6,13 @@ import (
 	"net/http"
 
 	"github.com/go-leo/gox/netx/httpx/render"
+
+	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 )
 
 type CheckerHandler struct {
-	HealthChecker          Checker
-	HttpHealthStatusMapper HttpHealthStatusMapper
+	HealthChecker          health.Checker
+	HttpHealthStatusMapper health.HttpHealthStatusMapper
 }
 
 func (h *CheckerHandler) Pattern() string {
@@ -31,19 +33,19 @@ func (h *CheckerHandler) Handle(writer http.ResponseWriter, request *http.Reques
 	_ = render.JSON(writer, resp, render.PureJSON())
 }
 
-func (h *CheckerHandler) HealthCheck(ctx context.Context) (r Health) {
+func (h *CheckerHandler) HealthCheck(ctx context.Context) (r health.Health) {
 	defer func() {
 		if p := recover(); p != nil {
-			r = DownWithError(fmt.Errorf("%v", p))
+			r = health.DownWithError(fmt.Errorf("%v", p))
 		}
 	}()
 	return h.HealthChecker.Check(ctx)
 }
 
 type MultiCheckerHandler struct {
-	HealthCheckers         []Checker
-	HttpHealthStatusMapper HttpHealthStatusMapper
-	StatusAggregator       StatusAggregator
+	HealthCheckers         []health.Checker
+	HttpHealthStatusMapper health.HttpHealthStatusMapper
+	StatusAggregator       health.StatusAggregator
 }
 
 func (h *MultiCheckerHandler) Pattern() string {
@@ -52,17 +54,17 @@ func (h *MultiCheckerHandler) Pattern() string {
 
 func (h *MultiCheckerHandler) Handle(writer http.ResponseWriter, request *http.Request) {
 	components := make(map[string]*Response)
-	var statuses []Status
+	var statuses []health.Status
 	for _, healthChecker := range h.HealthCheckers {
-		health := h.HealthCheck(request.Context(), healthChecker)
-		st := health.Status()
+		healthCheck := h.HealthCheck(request.Context(), healthChecker)
+		st := healthCheck.Status()
 		statuses = append(statuses, st)
 		components[healthChecker.Name()] = &Response{
 			Status: ResponseStatus{
 				Code:        string(st.Code()),
 				Description: st.Description(),
 			},
-			Details: health.Details(),
+			Details: healthCheck.Details(),
 		}
 	}
 	st := h.StatusAggregator.AggregateStatus(statuses...)
@@ -77,10 +79,10 @@ func (h *MultiCheckerHandler) Handle(writer http.ResponseWriter, request *http.R
 	_ = render.JSON(writer, resp, render.PureJSON())
 }
 
-func (h *MultiCheckerHandler) HealthCheck(ctx context.Context, healthChecker Checker) (r Health) {
+func (h *MultiCheckerHandler) HealthCheck(ctx context.Context, healthChecker health.Checker) (r health.Health) {
 	defer func() {
 		if p := recover(); p != nil {
-			r = DownWithError(fmt.Errorf("%v", p))
+			r = health.DownWithError(fmt.Errorf("%v", p))
 		}
 	}()
 	return healthChecker.Check(ctx)

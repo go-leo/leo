@@ -5,7 +5,10 @@ import (
 	"time"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
-	"codeup.aliyun.com/qimao/leo/leo/actuator/pprof"
+	internalhealth "codeup.aliyun.com/qimao/leo/leo/actuator/internal/health"
+	internallog "codeup.aliyun.com/qimao/leo/leo/actuator/internal/log"
+	"codeup.aliyun.com/qimao/leo/leo/actuator/internal/pprof"
+	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
 type options struct {
@@ -24,32 +27,27 @@ type options struct {
 	IdleTimeout    time.Duration
 	MaxHeaderBytes int
 
+	Logger log.Logger
+
 	ShutdownTimeout time.Duration
 }
 
 func (o *options) init() {
-	if o.HttpHealthStatusMapper == nil {
-		o.HttpHealthStatusMapper = health.DefaultHttpHealthStatusMapper()
-	}
-	if o.StatusAggregator == nil {
-		o.StatusAggregator = health.DefaultStatusAggregator()
-	}
-	if !o.PProfDisabled {
-		o.Handlers = append(o.Handlers, &pprof.IndexHandler{})
-		o.Handlers = append(o.Handlers, &pprof.CmdlineHandler{})
-		o.Handlers = append(o.Handlers, &pprof.ProfileHandler{})
-		o.Handlers = append(o.Handlers, &pprof.SymbolHandler{})
-		o.Handlers = append(o.Handlers, &pprof.TraceHandler{})
-	}
 	if len(o.HealthCheckers) > 0 {
-		handler := &health.MultiCheckerHandler{
+		if o.HttpHealthStatusMapper == nil {
+			o.HttpHealthStatusMapper = health.DefaultHttpHealthStatusMapper()
+		}
+		if o.StatusAggregator == nil {
+			o.StatusAggregator = health.DefaultStatusAggregator()
+		}
+		handler := &internalhealth.MultiCheckerHandler{
 			HealthCheckers:         o.HealthCheckers,
 			HttpHealthStatusMapper: o.HttpHealthStatusMapper,
 			StatusAggregator:       o.StatusAggregator,
 		}
 		o.Handlers = append(o.Handlers, handler)
 		for _, checker := range o.HealthCheckers {
-			handler := &health.CheckerHandler{
+			handler := &internalhealth.CheckerHandler{
 				HealthChecker:          checker,
 				HttpHealthStatusMapper: o.HttpHealthStatusMapper,
 			}
@@ -57,6 +55,17 @@ func (o *options) init() {
 		}
 	}
 
+	if !o.PProfDisabled {
+		o.Handlers = append(o.Handlers, &pprof.IndexHandler{})
+		o.Handlers = append(o.Handlers, &pprof.CmdlineHandler{})
+		o.Handlers = append(o.Handlers, &pprof.ProfileHandler{})
+		o.Handlers = append(o.Handlers, &pprof.SymbolHandler{})
+		o.Handlers = append(o.Handlers, &pprof.TraceHandler{})
+	}
+
+	if o.Logger != nil {
+		o.Handlers = append(o.Handlers, &internallog.Handler{Logger: o.Logger})
+	}
 }
 
 func (o *options) apply(opts ...Option) {
@@ -115,7 +124,7 @@ func HttpHealthStatusMapper(mapper health.HttpHealthStatusMapper) Option {
 	}
 }
 
-func StatusAggregator(aggregator health.StatusAggregator) Option {
+func HealthStatusAggregator(aggregator health.StatusAggregator) Option {
 	return func(o *options) {
 		o.StatusAggregator = aggregator
 	}
@@ -130,6 +139,12 @@ func Handlers(handlers ...Handler) Option {
 func DisablePProf() Option {
 	return func(o *options) {
 		o.PProfDisabled = true
+	}
+}
+
+func Logger(logger log.Logger) Option {
+	return func(o *options) {
+		o.Logger = logger
 	}
 }
 

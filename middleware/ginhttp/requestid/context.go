@@ -2,13 +2,13 @@ package requestid
 
 import "context"
 
-type key struct{}
+const key = "codeup.aliyun.com/qimao/leo/leo/requestid"
 
 func FromContext(ctx context.Context) (string, bool) {
-	val, ok := ctx.Value(key{}).(string)
+	val, ok := ctx.Value(key).(string)
 	return val, ok
 }
 
 func NewContext(ctx context.Context, v string) context.Context {
-	return context.WithValue(ctx, key{}, v)
+	return context.WithValue(ctx, key, v)
 }

@@ -2,19 +2,24 @@ package log
 
 import (
 	"context"
+
 	"github.com/gin-gonic/gin"
 )
 
 type logKey struct{}
 
 // NewContext creates a new context with a Logger.
-func NewContext(ctx context.Context, l Logger, creators ...FieldCreator) context.Context {
+func NewContext(ctx context.Context, l Logger, fieldFuncs ...func(ctx context.Context) []Field) context.Context {
+	creators := make([]FieldCreator, 0, len(fieldFuncs))
+	for _, f := range fieldFuncs {
+		creators = append(creators, FieldCreatorFunc(f))
+	}
 	return context.WithValue(ctx, logKey{}, l.WithContext(ctx, creators...))
 }
 
-func NewContextClosure(l Logger, creators ...FieldCreator) func(context.Context) context.Context {
+func NewContextClosure(l Logger, fieldFuncs ...func(ctx context.Context) []Field) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
-		return NewContext(ctx, l, creators...)
+		return NewContext(ctx, l, fieldFuncs...)
 	}
 }
 
