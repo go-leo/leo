@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/file
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230420095548-1137802a4a45
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230423063812-8fb5eda43a17
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-leo/gox v0.0.0-20230420124928-6db4553b0ee9
 )
@@ -29,7 +29,7 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
-	golang.org/x/exp v0.0.0-20230418202329-0354be287a23 // indirect
+	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

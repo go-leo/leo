@@ -3,10 +3,10 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230413073051-619be68efefb
+	codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230423063812-8fb5eda43a17
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-leo/gox v0.0.0-20230420124928-6db4553b0ee9
-	golang.org/x/exp v0.0.0-20230418202329-0354be287a23
+	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb
 	golang.org/x/sync v0.1.0
 )
 

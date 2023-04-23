@@ -25,7 +25,7 @@ recursive_list_dir $root
 for gomod in ${gomods[@]}
 do
     cd $gomod
-    go get -u codeup.aliyun.com/qimao/leo/leo
+    go get -u codeup.aliyun.com/qimao/leo/...
     go get -u github.com/go-leo/gox
     go mod tidy
     cd $root
