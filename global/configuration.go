@@ -8,8 +8,6 @@ import (
 
 	"github.com/go-leo/otelx/metricx"
 	"github.com/go-leo/otelx/tracex"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/attribute"
 
 	"github.com/go-leo/stringx"
@@ -356,14 +354,6 @@ func (logConf LoggerConfig) NewLogger() log.Logger {
 
 func (metricConf Metrics) NewMetric(ctx context.Context) (*metricx.Metric, error) {
 	// 注册prometheus官方的GoCollector和ProcessCollector
-	err := prometheus.Register(collectors.NewGoCollector())
-	if err != nil {
-		return nil, err
-	}
-	err = prometheus.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
-	if err != nil {
-		return nil, err
-	}
 	return metricx.NewMetric(ctx)
 }
 
