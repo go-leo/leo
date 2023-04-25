@@ -27,8 +27,9 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	serverHandledHistogram, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
 		Float64Histogram(
-			"grpc.server.handling.seconds",
-			instrument.WithDescription("Histogram of response latency (seconds) of gRPC that had been application-level handled by the server."),
+			"grpc.server.handling",
+			instrument.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
+			instrument.WithUnit("ms"),
 		)
 	if e != nil {
 		otel.Handle(e)
@@ -37,7 +38,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	// 请求计数器
 	serverStartedCounter, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		Int64Counter("grpc.server.started.total",
+		Int64Counter("grpc.server.started",
 			instrument.WithDescription("Total number of RPCs started on the server."),
 		)
 	if e != nil {
@@ -46,7 +47,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	}
 	serverHandledCounter, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		Int64Counter("grpc.server.handled.total",
+		Int64Counter("grpc.server.handled",
 			instrument.WithDescription("Total number of RPCs completed on the server, regardless of success or failure."),
 		)
 	if e != nil {
@@ -55,7 +56,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	}
 	serverStreamMsgReceived, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		Int64Counter("grpc.server.msg.received.total",
+		Int64Counter("grpc.server.msg.received",
 			instrument.WithDescription("Total number of RPC stream messages received on the server."),
 		)
 	if e != nil {
@@ -64,7 +65,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	}
 	serverStreamMsgSent, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		Int64Counter("grpc.server.msg.sent.total",
+		Int64Counter("grpc.server.msg.sent",
 			instrument.WithDescription("Total number of gRPC stream messages sent by the server."),
 		)
 	if e != nil {
