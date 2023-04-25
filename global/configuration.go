@@ -355,13 +355,16 @@ func (logConf LoggerConfig) NewLogger() log.Logger {
 }
 
 func (metricConf Metrics) NewMetric(ctx context.Context) (*metricx.Metric, error) {
-	var opts []metricx.Option
 	// 注册prometheus官方的GoCollector和ProcessCollector
-	registry := prometheus.NewRegistry()
-	_ = registry.Register(collectors.NewGoCollector())
-	_ = registry.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
-	opts = append(opts, metricx.Prometheus(&metricx.PrometheusOptions{Registerer: registry}))
-	return metricx.NewMetric(ctx, opts...)
+	err := prometheus.Register(collectors.NewGoCollector())
+	if err != nil {
+		return nil, err
+	}
+	err = prometheus.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+	if err != nil {
+		return nil, err
+	}
+	return metricx.NewMetric(ctx)
 }
 
 func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
