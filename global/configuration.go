@@ -354,7 +354,7 @@ func (logConf LoggerConfig) NewLogger() log.Logger {
 
 func (metricConf Metrics) NewMetric(ctx context.Context) (*metricx.Metric, error) {
 	// 注册prometheus官方的GoCollector和ProcessCollector
-	return metricx.NewMetric(ctx)
+	return metricx.NewMetric(ctx, metricx.Prometheus(&metricx.PrometheusOptions{}))
 }
 
 func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
