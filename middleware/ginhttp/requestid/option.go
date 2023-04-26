@@ -12,10 +12,10 @@ import (
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 type options struct {
-	Generator              func() string
-	HeaderKey              string
-	Handler                func(c *gin.Context, requestID string)
-	RewriteW3CTraceContext bool
+	Generator           func() string
+	HeaderKey           string
+	Handler             func(c *gin.Context, requestID string)
+	RewriteTraceContext bool
 }
 
 func (o *options) apply(opts ...Option) {
@@ -66,8 +66,9 @@ func Handler(handler func(c *gin.Context, requestID string)) Option {
 	}
 }
 
-func RewriteW3CTraceContext() Option {
+// RewriteTraceContext rewrite trace context if trace context not exist
+func RewriteTraceContext() Option {
 	return func(o *options) {
-		o.RewriteW3CTraceContext = true
+		o.RewriteTraceContext = true
 	}
 }
