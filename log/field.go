@@ -56,10 +56,7 @@ func MsgField(msg string) Field {
 }
 
 func IsMsgField(f Field) bool {
-	if f.Key() == msgKey {
-		return true
-	}
-	return false
+	return f.Key() == msgKey
 }
 
 func ErrField(err error) Field {
@@ -67,8 +64,5 @@ func ErrField(err error) Field {
 }
 
 func IsErrField(f Field) bool {
-	if f.Key() == errKey {
-		return true
-	}
-	return false
+	return f.Key() == errKey
 }

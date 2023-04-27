@@ -10,10 +10,7 @@ import (
 type JSON struct{}
 
 func (JSON) IsSupported(extension string) bool {
-	if slices.Contains([]string{"json", ".json"}, strings.ToLower(extension)) {
-		return true
-	}
-	return false
+	return slices.Contains([]string{"json", ".json"}, strings.ToLower(extension))
 }
 
 func (JSON) Decode(data []byte, m map[string]any) error {
