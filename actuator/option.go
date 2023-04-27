@@ -47,11 +47,11 @@ func (o *options) init() {
 		}
 		o.Handlers = append(o.Handlers, handler)
 		for _, checker := range o.HealthCheckers {
-			handler := &internalhealth.CheckerHandler{
+			handlers := &internalhealth.CheckerHandler{
 				HealthChecker:          checker,
 				HttpHealthStatusMapper: o.HttpHealthStatusMapper,
 			}
-			o.Handlers = append(o.Handlers, handler)
+			o.Handlers = append(o.Handlers, handlers)
 		}
 	}
 

@@ -20,15 +20,15 @@ func (h *CheckerHandler) Pattern() string {
 }
 
 func (h *CheckerHandler) Handle(writer http.ResponseWriter, request *http.Request) {
-	health := h.HealthCheck(request.Context())
-	st := health.Status()
+	healthHandle := h.HealthCheck(request.Context())
+	st := healthHandle.Status()
 	writer.WriteHeader(h.HttpHealthStatusMapper.MapStatus(st))
 	resp := &Response{
 		Status: ResponseStatus{
 			Code:        string(st.Code()),
 			Description: st.Description(),
 		},
-		Details: health.Details(),
+		Details: healthHandle.Details(),
 	}
 	_ = render.JSON(writer, resp, render.PureJSON())
 }
