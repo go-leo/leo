@@ -1,6 +1,7 @@
 package actuator
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/actuator/internal/metric"
 	"crypto/tls"
 	"time"
 
@@ -18,9 +19,10 @@ type options struct {
 	HttpHealthStatusMapper health.HttpHealthStatusMapper
 	StatusAggregator       health.StatusAggregator
 
-	PProfDisabled bool
-	PathPrefix    string
-	Handlers      []Handler
+	PProfDisabled  bool
+	MetricDisabled bool
+	PathPrefix     string
+	Handlers       []Handler
 
 	ReadTimeout    time.Duration
 	WriteTimeout   time.Duration
@@ -61,6 +63,10 @@ func (o *options) init() {
 		o.Handlers = append(o.Handlers, &pprof.ProfileHandler{})
 		o.Handlers = append(o.Handlers, &pprof.SymbolHandler{})
 		o.Handlers = append(o.Handlers, &pprof.TraceHandler{})
+	}
+
+	if !o.MetricDisabled {
+		o.Handlers = append(o.Handlers, &metric.MetricHandler{})
 	}
 
 	if o.Logger != nil {
@@ -139,6 +145,11 @@ func Handlers(handlers ...Handler) Option {
 func DisablePProf() Option {
 	return func(o *options) {
 		o.PProfDisabled = true
+	}
+}
+func DisableMetric() Option {
+	return func(o *options) {
+		o.MetricDisabled = true
 	}
 }
 
