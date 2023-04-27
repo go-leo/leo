@@ -3,13 +3,13 @@ module codeup.aliyun.com/qimao/leo/leo/log/slog
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230423063812-8fb5eda43a17
-	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230426022755-7c3370f63944
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
-	github.com/bytedance/sonic v1.8.7 // indirect
+	github.com/bytedance/sonic v1.8.8 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.9.0 // indirect

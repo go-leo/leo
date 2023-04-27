@@ -74,7 +74,9 @@ func (server *Server) Run(ctx context.Context) error {
 		// context canceled, shutdown server.
 		ctx, _ := contextx.WithSignal(context.Background())
 		if server.options.ShutdownTimeout > 0 {
-			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, server.options.ShutdownTimeout)
+			defer cancel()
 		}
 		return errors.Join(httpSrv.Shutdown(ctx), <-serveErrC)
 	}

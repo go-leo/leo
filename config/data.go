@@ -53,17 +53,16 @@ func (d *Data) cleanMap(configMap map[string]any) {
 }
 
 func (d *Data) cleanValue(val any) any {
-	switch val.(type) {
+	switch realVal := val.(type) {
 	case map[any]any:
 		// nested map: cast and recursively clean
-		val = convx.ToStringMap(val)
-		d.cleanMap(val.(map[string]any))
+		d.cleanMap(convx.ToStringMap(val))
 	case map[string]any:
 		// nested map: recursively clean
-		d.cleanMap(val.(map[string]any))
+		d.cleanMap(realVal)
 	case []any:
 		// nested array: recursively clean
-		d.cleanSlice(val.([]any))
+		d.cleanSlice(realVal)
 	}
 	return val
 }

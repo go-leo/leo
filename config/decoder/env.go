@@ -10,10 +10,7 @@ import (
 type ENV struct{}
 
 func (ENV) IsSupported(extension string) bool {
-	if slices.Contains([]string{"env", ".env"}, strings.ToLower(extension)) {
-		return true
-	}
-	return false
+	return slices.Contains([]string{"env", ".env"}, strings.ToLower(extension))
 }
 
 func (ENV) Decode(data []byte, m map[string]any) error {
