@@ -32,7 +32,10 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	for _, skip := range o.Skips {
 		skipMap[skip] = struct{}{}
 	}
-	traceInterceptor := otelgrpc.UnaryServerInterceptor(otelgrpc.WithPropagators(o.Propagators), otelgrpc.WithTracerProvider(o.TracerProvider))
+	traceInterceptor := otelgrpc.UnaryServerInterceptor(
+		otelgrpc.WithPropagators(o.Propagators),
+		otelgrpc.WithTracerProvider(o.TracerProvider),
+	)
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 		if _, ok := skipMap[info.FullMethod]; ok {
 			return handler(ctx, req)
