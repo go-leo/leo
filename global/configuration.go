@@ -9,6 +9,7 @@ import (
 	"github.com/go-leo/otelx/metricx"
 	"github.com/go-leo/otelx/tracex"
 	"go.opentelemetry.io/otel/attribute"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	"github.com/go-leo/stringx"
 
@@ -385,7 +386,7 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 		return tracex.NewTrace(
 			ctx,
 			tracex.Writer(&tracex.WriterOptions{Writer: writer, PrettyPrint: writerConf.PrettyPrint}),
-			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
 			tracex.Attributes(Attributes...),
 		)
 	case jaegerConf.Enabled:
@@ -396,7 +397,7 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 				Username: jaegerConf.Username,
 				Password: jaegerConf.Password,
 			}),
-			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
 			tracex.Attributes(Attributes...),
 		)
 	case zipkinConf.Enabled:
@@ -405,7 +406,7 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 			tracex.Zipkin(&tracex.ZipkinOptions{
 				URL: zipkinConf.URL,
 			}),
-			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
 			tracex.Attributes(Attributes...),
 		)
 	case httpConf.Enabled:
@@ -421,7 +422,7 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 				Timeout: httpConf.Timeout,
 				URLPath: httpConf.URLPath,
 			}),
-			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
 			tracex.Attributes(Attributes...),
 		)
 	case gRPCConf.Enabled:
@@ -440,7 +441,7 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 				Timeout: gRPCConf.Timeout,
 				// ServiceConfig:      "",
 			}),
-			tracex.SampleRate(traceConf.Sampler.Rate),
+			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
 			tracex.Attributes(Attributes...),
 		)
 	}
