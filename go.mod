@@ -13,8 +13,8 @@ require (
 	github.com/go-leo/backoffx v1.0.0
 	github.com/go-leo/iox v1.0.0
 	github.com/go-leo/netx v1.0.9
-	github.com/go-leo/otelx/metricx v0.0.0-20230427115352-8e929fb51c70
-	github.com/go-leo/otelx/tracex v0.0.0-20230427115352-8e929fb51c70
+	github.com/go-leo/otelx/metricx v0.0.0-20230428023656-85fde98c8f67
+	github.com/go-leo/otelx/tracex v0.0.0-20230428023656-85fde98c8f67
 	github.com/go-leo/stringx v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/consul/api v1.13.0
@@ -59,7 +59,7 @@ require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-leo/gox v0.0.0-20230403061358-ffb4dcdc50bb // indirect
-	github.com/go-leo/otelx/resourcex v0.0.0-20230413115446-2508cb3df328 // indirect
+	github.com/go-leo/otelx/resourcex v0.0.0-20230427115315-544520c5f2d5 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
