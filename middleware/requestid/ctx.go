@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	"go.opentelemetry.io/otel/trace"
@@ -15,7 +16,7 @@ import (
 	"github.com/go-leo/leo/runner/net/http/header"
 )
 
-var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
+var randPool = sync.Pool{New: func() any { return rand.New(rand.NewSource(time.Now().UnixNano())) }}
 
 const outerKey = "x-leo-request-id"
 
@@ -96,6 +97,8 @@ func FromAnyWhere(ctx context.Context) (requestID string, generated bool) {
 		return requestID, true
 	}
 	// 4. generate
+	randSource := randPool.Get().(*rand.Rand)
+	defer randPool.Put(randSource)
 	var tid [16]byte
 	randSource.Read(tid[:])
 	requestID = hex.EncodeToString(tid[:])

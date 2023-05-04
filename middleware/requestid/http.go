@@ -3,6 +3,7 @@ package requestid
 import (
 	"context"
 	"encoding/hex"
+	"math/rand"
 
 	"github.com/gin-gonic/gin"
 
@@ -30,6 +31,8 @@ func HTTPClientMiddleware() client.Interceptor {
 			return ToHeader(ctx, requestID)
 		}
 		// 4. generate
+		randSource := randPool.Get().(*rand.Rand)
+		defer randPool.Put(randSource)
 		var tid [16]byte
 		randSource.Read(tid[:])
 		requestID = hex.EncodeToString(tid[:])
@@ -56,6 +59,8 @@ func GinMiddleware() gin.HandlerFunc {
 			return NewContext(ctx, requestID)
 		}
 		// 4. generate
+		randSource := randPool.Get().(*rand.Rand)
+		defer randPool.Put(randSource)
 		var tid [16]byte
 		randSource.Read(tid[:])
 		requestID = hex.EncodeToString(tid[:])
