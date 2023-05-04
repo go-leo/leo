@@ -2,8 +2,6 @@ package requestid
 
 import (
 	"context"
-	"encoding/hex"
-	"math/rand"
 
 	"github.com/gin-gonic/gin"
 

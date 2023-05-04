@@ -97,12 +97,7 @@ func FromAnyWhere(ctx context.Context) (requestID string, generated bool) {
 		return requestID, true
 	}
 	// 4. generate
-	randSource := randPool.Get().(*rand.Rand)
-	defer randPool.Put(randSource)
-	var tid [16]byte
-	randSource.Read(tid[:])
-	requestID = hex.EncodeToString(tid[:])
-	return requestID, false
+	return generate(), false
 }
 
 func generate() (requestID string) {

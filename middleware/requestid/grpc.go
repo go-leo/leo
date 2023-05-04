@@ -2,7 +2,6 @@ package requestid
 
 import (
 	"context"
-	"encoding/hex"
 
 	"google.golang.org/grpc"
 
