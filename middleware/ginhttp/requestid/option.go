@@ -3,13 +3,12 @@ package requestid
 import (
 	"encoding/hex"
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-leo/gox/stringx"
 )
-
-var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 type options struct {
 	Generator           func() string
@@ -26,12 +25,15 @@ func (o *options) apply(opts ...Option) {
 
 func (o *options) init() {
 	if o.Generator == nil {
-		o.Generator = func() string {
-			var tid [16]byte
-			randSource.Read(tid[:])
-			requestID := hex.EncodeToString(tid[:])
-			return requestID
-		}
+		o.Generator = func(randPool *sync.Pool) func() string {
+			return func() string {
+				randSource := randPool.Get().(*rand.Rand)
+				defer randPool.Put(randSource)
+				var tid [16]byte
+				randSource.Read(tid[:])
+				return hex.EncodeToString(tid[:])
+			}
+		}(&sync.Pool{New: func() any { return rand.New(rand.NewSource(time.Now().UnixNano())) }})
 	}
 	if stringx.IsBlank(o.HeaderKey) {
 		o.HeaderKey = "X-Request-ID"
