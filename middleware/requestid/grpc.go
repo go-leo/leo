@@ -34,9 +34,7 @@ func GRPCClientMiddleware() grpc.UnaryClientInterceptor {
 			return ToOutgoing(NewContext(ctx, requestID), requestID)
 		}
 		// 5. generate
-		var tid [16]byte
-		randSource.Read(tid[:])
-		requestID = hex.EncodeToString(tid[:])
+		requestID = generate()
 		return ToOutgoing(NewContext(ctx, requestID), requestID)
 	})
 }
@@ -60,9 +58,7 @@ func GRPCServerMiddleware() grpc.UnaryServerInterceptor {
 			return NewContext(ctx, requestID)
 		}
 		// 4. generate
-		var tid [16]byte
-		randSource.Read(tid[:])
-		requestID = hex.EncodeToString(tid[:])
+		requestID = generate()
 		return NewContext(ctx, requestID)
 	})
 }

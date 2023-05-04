@@ -104,3 +104,12 @@ func FromAnyWhere(ctx context.Context) (requestID string, generated bool) {
 	requestID = hex.EncodeToString(tid[:])
 	return requestID, false
 }
+
+func generate() (requestID string) {
+	var tid [16]byte
+	randSource := randPool.Get().(*rand.Rand)
+	randSource.Read(tid[:])
+	randPool.Put(randSource)
+	requestID = hex.EncodeToString(tid[:])
+	return
+}
