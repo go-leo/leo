@@ -15,6 +15,7 @@ func NewContext(ctx context.Context, l Logger, fieldFuncs ...func(ctx context.Co
 	return context.WithValue(ctx, logKey{}, l.WithContext(ctx, creators...))
 }
 
+// 用于给ctx添加指定kv的集合，业务中常在中间件中使用
 func NewContextClosure(l Logger, fieldFuncs ...func(ctx context.Context) []Field) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return NewContext(ctx, l, fieldFuncs...)
