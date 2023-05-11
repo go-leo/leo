@@ -130,29 +130,28 @@ func NewConfigure(ctx context.Context, opts ...Option) (Config, error) {
 		options: o,
 		parser:  &parser{Decoders: o.Decoders},
 	}
+	defaultConfig = configure
 	return configure, configure.read(ctx)
 }
 
 var (
 	// Default Config Manager
-	DefaultConfig = newConfig()
+	defaultConfig Config
 )
 
-// NewConfig returns new config
-func newConfig() Config {
-	c, _ := NewConfigure(context.Background())
-	return c
+func SetConfig(l Config) {
+	defaultConfig = l
 }
 
 // Get a value from the config
 func Get(path string) *Value {
-	return DefaultConfig.Get(path)
+	return defaultConfig.Get(path)
 }
 
 // Watch a value for changes
 func Watch(ctx context.Context) (Watcher, error) {
-	return DefaultConfig.Watch(ctx)
+	return defaultConfig.Watch(ctx)
 }
 func Refresh(ctx context.Context) error {
-	return DefaultConfig.Refresh(ctx)
+	return defaultConfig.Refresh(ctx)
 }

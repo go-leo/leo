@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	global    log.Logger = slog.New(slog.LevelAdapt(log.LevelDebug), slog.Console(true), slog.PlainText())
+	global    log.Logger = slog.New(slog.LevelAdapt(log.LevelDebug), slog.JSON())
 	globalLog log.Logger = global.SkipCaller(4)
 	logLocker sync.RWMutex
 )
@@ -24,12 +24,10 @@ func Logger() log.Logger {
 	return global
 }
 
-func SetLogger(l log.Logger) func() {
+func SetLogger(l log.Logger) {
 	logLocker.Lock()
 	defer logLocker.Unlock()
-	prev := global
-	//global = l.SkipCaller(-3)
-	return func() { SetLogger(prev) }
+	global = l
 }
 
 // Debug logs a message at debug level.
@@ -45,7 +43,8 @@ func Debugf(format string, a ...interface{}) {
 
 // Info logs a message at info level.
 func Info(a ...interface{}) {
-	globalLog.SkipCaller(4).Info(a...)
+	// globalLog.SkipCaller(4).Info(a...)
+	globalLog.Info(a...)
 
 }
 

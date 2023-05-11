@@ -30,6 +30,10 @@ type Server struct {
 	lis       net.Listener
 }
 
+type RegisterServer interface {
+	Register(router *gin.Engine)
+}
+
 func (server *Server) Run(ctx context.Context) error {
 	// listen port
 	lis, err := server.listenPort()
