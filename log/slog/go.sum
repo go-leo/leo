@@ -1,5 +1,7 @@
 codeup.aliyun.com/qimao/leo/leo v0.0.0-20230426022755-7c3370f63944 h1:bOo2/VedNeaiRIuAhnRwUYTNkDgqPE3pIpcJQyZc2vA=
 codeup.aliyun.com/qimao/leo/leo v0.0.0-20230426022755-7c3370f63944/go.mod h1:CC/h7E/gG0Y2SJRPcVVTo6Ce1KoBKgcs00Ls0sqNnzQ=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230511115500-89ec5383c5e9 h1:ZqkiuOxcG5J/BPnfeTYE5VYP9r/5ttOCUa+POIgwWCo=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230511115500-89ec5383c5e9/go.mod h1:+e/LadZlYvWQOuNTlVU/cwYnnDEHPmAgnLAWISVZcfc=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.8.8 h1:Kj4AYbZSeENfyXicsYppYKO0K2YWab+i2UTSY7Ukz9Q=
 github.com/bytedance/sonic v1.8.8/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
@@ -13,6 +15,8 @@ github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.9.0 h1:OjyFBKICoexlu99ctXNR2gg+c5pKrKMuyjgARg9qeY8=
 github.com/gin-gonic/gin v1.9.0/go.mod h1:W1Me9+hsUSyj3CePGrd1/QrKJMSJ1Tu/0hFEH89961k=
+github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1 h1:RWh/a3S1/QrPcd+foNujFO8Qlg9DGmhFwPb8LbynOtQ=
+github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
 github.com/go-playground/locales v0.14.1 h1:EWaQ/wswjilfKLTECiXz7Rh+3BjFhfDFKv/oXslEjJA=
 github.com/go-playground/locales v0.14.1/go.mod h1:hxrqLVvrK65+Rwrd5Fc6F2O76J/NuW9t0sjnWqG1slY=
@@ -68,6 +72,8 @@ golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 h1:5llv2sWeaMSnA3w2kS57ouQQ4
 golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53/go.mod h1:V1LtkGg67GoY2N1AnLN78QLrzxkLyJw7RJb1gzOOz9w=
 golang.org/x/net v0.9.0 h1:aWJ/m6xSmxWBx+V0XRHTlrYrPG56jKsLdTFmsSsCzOM=
 golang.org/x/net v0.9.0/go.mod h1:d48xBJpPfHeWQsugry2m+kC02ZBRGRgulfHnEXEuWns=
+golang.org/x/sync v0.2.0 h1:PUR+T4wwASmuSTYdKjYHI5TD22Wy5ogLU5qZCOLxBrI=
+golang.org/x/sync v0.2.0/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.7.0 h1:3jlCCIQZPdOYu1h8BkNvLz8Kgwtae2cagcG/VamtZRU=
