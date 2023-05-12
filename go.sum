@@ -1,5 +1,5 @@
-codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230512005420-a9dceab526a6 h1:b7pVqEwnd4T8fwSJMspv/pCqSNRLmKN1cDouzcpjiY4=
-codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230512005420-a9dceab526a6/go.mod h1:zP/8ahV9qYchkjWst0T3LvgU4VzvRVZ8dndwZvX7nfM=
+codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230512011339-d947a8deb56a h1:+8mfEZQLhqBPK7D/om9tUGt14MrSOmkDlKDmovkeh+Y=
+codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230512011339-d947a8deb56a/go.mod h1:jdZBPRwLLq6X/P2TtuqKx53aCNaB1sxAuUjFx+iHtfw=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

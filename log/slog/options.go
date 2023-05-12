@@ -31,7 +31,7 @@ func (o *options) apply(opts ...Option) {
 func (o *options) init() {
 	if o.Encoder == nil {
 		o.Encoder = func(handlerOptions *slog.HandlerOptions, w io.Writer) slog.Handler {
-			return handlerOptions.NewJSONHandler(w)
+			return slog.NewJSONHandler(w, handlerOptions)
 		}
 	}
 	if o.FileOptions == nil && !o.Console {
@@ -70,7 +70,7 @@ func Fields(fields ...log.Field) Option {
 func JSON() Option {
 	return func(o *options) {
 		o.Encoder = func(handlerOptions *slog.HandlerOptions, w io.Writer) slog.Handler {
-			return handlerOptions.NewJSONHandler(w)
+			return slog.NewJSONHandler(w, handlerOptions)
 		}
 	}
 }
@@ -78,7 +78,7 @@ func JSON() Option {
 func PlainText() Option {
 	return func(o *options) {
 		o.Encoder = func(handlerOptions *slog.HandlerOptions, w io.Writer) slog.Handler {
-			return handlerOptions.NewTextHandler(w)
+			return slog.NewTextHandler(w, handlerOptions)
 		}
 	}
 }
