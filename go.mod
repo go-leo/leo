@@ -3,11 +3,11 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230426022755-7c3370f63944
-	github.com/go-leo/gox v0.0.0-20230427013300-792e216a0aab
+	codeup.aliyun.com/qimao/leo/leo/log/slog v0.0.0-20230511131224-7882227c342d
+	github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1
 	github.com/prometheus/client_golang v1.15.0
-	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
-	golang.org/x/sync v0.1.0
+	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
+	golang.org/x/sync v0.2.0
 )
 
 require (
