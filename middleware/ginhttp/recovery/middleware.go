@@ -50,3 +50,22 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// 用于panic后自定义返回结构
+func HandleRecovery(c *gin.Context, err any) {
+	c.Set("panic", true)
+	c.JSON(http.StatusOK, gin.H{
+		"msg":  "服务器异常:" + errorToString(err),
+		"code": 500,
+	})
+}
+
+// recover错误，转string
+func errorToString(r interface{}) string {
+	switch v := r.(type) {
+	case error:
+		return v.Error()
+	default:
+		return r.(string)
+	}
+}
