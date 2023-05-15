@@ -3,9 +3,9 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/log
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230512011339-d947a8deb56a
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515063225-1bbf0e0f9c9e
 	github.com/gin-gonic/gin v1.9.0
-	github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1
+	github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9
 )
 
 require (

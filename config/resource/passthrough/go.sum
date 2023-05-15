@@ -1,9 +1,9 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230512011339-d947a8deb56a h1:NvVAqxjgq3t+9WXYLLo/A9SfjR8XPHn5zXP9cepsidw=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230512011339-d947a8deb56a/go.mod h1:LqDr6MNqlOEi8hVX4Y8nRM9a+VJYbVgzMyc5Ph71/q4=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515063225-1bbf0e0f9c9e h1:/5YF4gMSrxGPjKNDN4i8rr47GSwEtQ3VwBrWnB2gDr8=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515063225-1bbf0e0f9c9e/go.mod h1:yhE8yQvsyGfjh7cLW+YWf+q9v1XR34qTK+lgBpvUuw4=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=
-github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1 h1:RWh/a3S1/QrPcd+foNujFO8Qlg9DGmhFwPb8LbynOtQ=
-github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
+github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9 h1:ICqQ/e9Y5I5/OYE/k7N9yKqKiGTt+7u/fJcbYPzevmE=
+github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=

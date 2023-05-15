@@ -1,8 +1,8 @@
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1 h1:RWh/a3S1/QrPcd+foNujFO8Qlg9DGmhFwPb8LbynOtQ=
-github.com/go-leo/gox v0.0.0-20230508072314-277d05ed47c1/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
+github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9 h1:ICqQ/e9Y5I5/OYE/k7N9yKqKiGTt+7u/fJcbYPzevmE=
+github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg=
 github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=
