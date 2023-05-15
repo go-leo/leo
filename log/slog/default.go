@@ -1,33 +1,27 @@
-package global
+package slog
 
 import (
 	"os"
 	"sync"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
-	"codeup.aliyun.com/qimao/leo/leo/log/slog"
 )
 
 var (
-	global    log.Logger = slog.New(slog.LevelAdapt(log.LevelDebug), slog.JSON())
+	global    log.Logger = New(LevelAdapt(log.LevelDebug), JSON())
 	globalLog log.Logger = global.SkipCaller(4)
 	logLocker sync.RWMutex
 )
-
-// 支持两种模式：
-// 1. 通过global.SetLogger()设置全局logger，实现in current process打印log
-// 2. 当前包内部定义info,debug等函数用于非上下文场景便捷使用
-
-func Logger() log.Logger {
-	logLocker.RLock()
-	defer logLocker.RUnlock()
-	return global
-}
 
 func SetLogger(l log.Logger) {
 	logLocker.Lock()
 	defer logLocker.Unlock()
 	global = l
+}
+func GetLogger() log.Logger {
+	logLocker.Lock()
+	defer logLocker.Unlock()
+	return globalLog
 }
 
 // Debug logs a message at debug level.
