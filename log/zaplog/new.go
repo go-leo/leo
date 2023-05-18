@@ -6,9 +6,11 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
-func New(level zap.AtomicLevel, opts ...Option) *Logger {
+func New(level zap.AtomicLevel, opts ...Option) log.Logger {
 	o := new(options)
 	o.apply(opts...)
 	o.init()
@@ -23,7 +25,7 @@ func New(level zap.AtomicLevel, opts ...Option) *Logger {
 	}
 	core := zapcore.NewTee(cores...)
 	zl := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1), zap.Fields(o.Fields...))
-	return &Logger{level: level, zl: zl, zsl: zl.Sugar()}
+	return &logger{level: level, zl: zl, zsl: zl.Sugar()}
 }
 
 func newConsoleCore(enc zapcore.Encoder, level zap.AtomicLevel) []zapcore.Core {

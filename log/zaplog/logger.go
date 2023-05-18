@@ -9,15 +9,15 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
-var _ log.Logger = new(Logger)
+var _ log.Logger = new(logger)
 
-type Logger struct {
+type logger struct {
 	level zap.AtomicLevel
 	zl    *zap.Logger
 	zsl   *zap.SugaredLogger
 }
 
-func (l *Logger) SetLevel(lvl log.Level) {
+func (l *logger) SetLevel(lvl log.Level) {
 	switch lvl.Code() {
 	case log.LevelDebugCode:
 		l.EnableDebug()
@@ -34,7 +34,7 @@ func (l *Logger) SetLevel(lvl log.Level) {
 	}
 }
 
-func (l *Logger) GetLevel() log.Level {
+func (l *logger) GetLevel() log.Level {
 	switch l.level.Level() {
 	case zapcore.DebugLevel:
 		return log.LevelDebug
@@ -52,63 +52,63 @@ func (l *Logger) GetLevel() log.Level {
 	return nil
 }
 
-func (l *Logger) EnableDebug() {
+func (l *logger) EnableDebug() {
 	l.level.SetLevel(zapcore.DebugLevel)
 }
 
-func (l *Logger) IsDebugEnabled() bool {
+func (l *logger) IsDebugEnabled() bool {
 	return l.level.Enabled(zapcore.DebugLevel)
 }
 
-func (l *Logger) EnableInfo() {
+func (l *logger) EnableInfo() {
 	l.level.SetLevel(zapcore.InfoLevel)
 }
 
-func (l *Logger) IsInfoEnabled() bool {
+func (l *logger) IsInfoEnabled() bool {
 	return l.level.Enabled(zapcore.InfoLevel)
 }
 
-func (l *Logger) EnableWarn() {
+func (l *logger) EnableWarn() {
 	l.level.SetLevel(zapcore.WarnLevel)
 }
 
-func (l *Logger) IsWarnEnabled() bool {
+func (l *logger) IsWarnEnabled() bool {
 	return l.level.Enabled(zapcore.WarnLevel)
 }
 
-func (l *Logger) EnableError() {
+func (l *logger) EnableError() {
 	l.level.SetLevel(zapcore.ErrorLevel)
 }
 
-func (l *Logger) IsErrorEnabled() bool {
+func (l *logger) IsErrorEnabled() bool {
 	return l.level.Enabled(zap.ErrorLevel)
 }
 
-func (l *Logger) EnablePanic() {
+func (l *logger) EnablePanic() {
 	l.level.Enabled(zapcore.PanicLevel)
 }
 
-func (l *Logger) IsPanicEnabled() bool {
+func (l *logger) IsPanicEnabled() bool {
 	return l.level.Enabled(zapcore.PanicLevel)
 }
 
-func (l *Logger) EnableFatal() {
+func (l *logger) EnableFatal() {
 	l.level.SetLevel(zapcore.FatalLevel)
 }
 
-func (l *Logger) IsFatalEnabled() bool {
+func (l *logger) IsFatalEnabled() bool {
 	return l.level.Enabled(zapcore.FatalLevel)
 }
 
-func (l *Logger) SkipCaller(depth int) log.Logger {
+func (l *logger) SkipCaller(depth int) log.Logger {
 	return l.clone(zap.WithCaller(true), zap.AddCallerSkip(depth))
 }
 
-func (l *Logger) With(fields ...log.Field) log.Logger {
+func (l *logger) With(fields ...log.Field) log.Logger {
 	return l.clone(zap.Fields(toZapFields(fields...)...))
 }
 
-func (l *Logger) WithContext(ctx context.Context, creators ...log.FieldCreator) log.Logger {
+func (l *logger) WithContext(ctx context.Context, creators ...log.FieldCreator) log.Logger {
 	var fields []log.Field
 	for _, creator := range creators {
 		fields = append(fields, creator.Create(ctx)...)
@@ -116,89 +116,89 @@ func (l *Logger) WithContext(ctx context.Context, creators ...log.FieldCreator) 
 	return l.clone(zap.Fields(toZapFields(fields...)...))
 }
 
-func (l *Logger) Clone() log.Logger {
+func (l *logger) Clone() log.Logger {
 	return l.clone()
 }
 
-func (l *Logger) Debug(args ...any) {
+func (l *logger) Debug(args ...any) {
 	l.zsl.Debug(args...)
 }
 
-func (l *Logger) Debugf(template string, args ...any) {
+func (l *logger) Debugf(template string, args ...any) {
 	l.zsl.Debugf(template, args...)
 }
 
-func (l *Logger) DebugF(fields ...log.Field) {
+func (l *logger) DebugF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Debug("", fs...)
 }
 
-func (l *Logger) Info(args ...any) {
+func (l *logger) Info(args ...any) {
 	l.zsl.Info(args...)
 }
 
-func (l *Logger) Infof(template string, args ...any) {
+func (l *logger) Infof(template string, args ...any) {
 	l.zsl.Infof(template, args...)
 }
 
-func (l *Logger) InfoF(fields ...log.Field) {
+func (l *logger) InfoF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Info("", fs...)
 }
 
-func (l *Logger) Warn(args ...any) {
+func (l *logger) Warn(args ...any) {
 	l.zsl.Warn(args...)
 }
 
-func (l *Logger) Warnf(template string, args ...any) {
+func (l *logger) Warnf(template string, args ...any) {
 	l.zsl.Warnf(template, args...)
 }
 
-func (l *Logger) WarnF(fields ...log.Field) {
+func (l *logger) WarnF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Warn("", fs...)
 }
 
-func (l *Logger) Error(args ...any) {
+func (l *logger) Error(args ...any) {
 	l.zsl.Error(args...)
 }
 
-func (l *Logger) Errorf(template string, args ...any) {
+func (l *logger) Errorf(template string, args ...any) {
 	l.zsl.Errorf(template, args...)
 }
 
-func (l *Logger) ErrorF(fields ...log.Field) {
+func (l *logger) ErrorF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Error("", fs...)
 }
 
-func (l *Logger) Panic(args ...any) {
+func (l *logger) Panic(args ...any) {
 	l.zsl.Panic(args...)
 }
 
-func (l *Logger) Panicf(template string, args ...any) {
+func (l *logger) Panicf(template string, args ...any) {
 	l.zsl.Panicf(template, args...)
 }
 
-func (l *Logger) PanicF(fields ...log.Field) {
+func (l *logger) PanicF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Panic("", fs...)
 }
 
-func (l *Logger) Fatal(args ...any) {
+func (l *logger) Fatal(args ...any) {
 	l.zsl.Fatal(args...)
 }
 
-func (l *Logger) Fatalf(template string, args ...any) {
+func (l *logger) Fatalf(template string, args ...any) {
 	l.zsl.Fatalf(template, args...)
 }
 
-func (l *Logger) FatalF(fields ...log.Field) {
+func (l *logger) FatalF(fields ...log.Field) {
 	fs := toZapFields(fields...)
 	l.zl.Fatal("", fs...)
 }
 
-func (l *Logger) clone(opts ...zap.Option) log.Logger {
+func (l *logger) clone(opts ...zap.Option) log.Logger {
 	cloned := *l
 	cloned.zl = l.zl.WithOptions(opts...)
 	cloned.zsl = cloned.zl.Sugar()

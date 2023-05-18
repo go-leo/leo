@@ -1,14 +1,14 @@
-package slog_test
+package zaplog_test
 
 import (
 	"testing"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
-	"codeup.aliyun.com/qimao/leo/leo/log/slog"
+	"codeup.aliyun.com/qimao/leo/leo/log/zaplog"
 )
 
 func TestDebugSlog(t *testing.T) {
-	logger := slog.Logger()
+	logger := zaplog.Logger()
 	if !logger.IsDebugEnabled() {
 		t.Errorf("debug level failed")
 		return
@@ -98,7 +98,7 @@ func TestDebugSlog(t *testing.T) {
 }
 
 func TestInfoSlog(t *testing.T) {
-	logger := slog.New(slog.LevelAdapt(log.LevelInfo))
+	logger := zaplog.New(zaplog.LevelAdapt(log.LevelInfo))
 	if logger.IsDebugEnabled() {
 		t.Errorf("debug level failed")
 		return
@@ -188,7 +188,7 @@ func TestInfoSlog(t *testing.T) {
 }
 
 func TestWarnSlog(t *testing.T) {
-	logger := slog.New(slog.LevelAdapt(log.LevelWarn))
+	logger := zaplog.New(zaplog.LevelAdapt(log.LevelWarn))
 	if logger.IsDebugEnabled() {
 		t.Errorf("debug level failed")
 		return
@@ -279,7 +279,7 @@ func TestWarnSlog(t *testing.T) {
 
 func TestErrorSlog(t *testing.T) {
 	var logger log.Logger
-	logger = slog.New(slog.LevelAdapt(log.LevelError))
+	logger = zaplog.New(zaplog.LevelAdapt(log.LevelError))
 	if logger.IsDebugEnabled() {
 		t.Errorf("debug level failed")
 		return
@@ -366,4 +366,18 @@ func TestErrorSlog(t *testing.T) {
 	}
 	logger.Error("this is with Fields Error log")
 	logger.Errorf("this is with Fields %s log", "Errorf")
+}
+
+func TestLog(t *testing.T) {
+	zaplog.Debug("this is Debug log")
+	zaplog.Debugf("this is %s log", "Debugf")
+
+	zaplog.Info("this is Info log")
+	zaplog.Infof("this is %s log", "Infof")
+
+	zaplog.Warn("this is Warn log")
+	zaplog.Warnf("this is %s log", "Warnf")
+
+	zaplog.Error("this is Error log")
+	zaplog.Errorf("this is %s log", "Errorf")
 }

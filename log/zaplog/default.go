@@ -1,4 +1,4 @@
-package slog
+package zaplog
 
 import (
 	"os"
@@ -21,8 +21,9 @@ func SetLogger(l log.Logger) {
 	logLocker.Lock()
 	defer logLocker.Unlock()
 	global = l
-	globalLog = global.SkipCaller(4)
+	globalLog = global.SkipCaller(1)
 }
+
 func Logger() log.Logger {
 	logLocker.Lock()
 	defer logLocker.Unlock()

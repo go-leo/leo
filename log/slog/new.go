@@ -10,7 +10,7 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
-func New(level *slog.LevelVar, opts ...Option) *Logger {
+func New(level *slog.LevelVar, opts ...Option) log.Logger {
 	o := new(options)
 	o.apply(opts...)
 	o.init()
@@ -34,7 +34,7 @@ func New(level *slog.LevelVar, opts ...Option) *Logger {
 	}
 
 	handler := o.Encoder(handlerOptions, w)
-	return &Logger{
+	return &logger{
 		level:     level,
 		Logger:    slog.New(handler),
 		field:     nil,
