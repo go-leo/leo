@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"os/signal"
 	"runtime"
 	"strconv"
 
@@ -13,7 +14,6 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/netx/addrx"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
@@ -158,7 +158,7 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	select {
 	case <-ctx.Done():
 		// context canceled, deregister server.
-		ctx, _ := contextx.WithSignal(context.Background())
+		ctx, _ := signal.NotifyContext(context.Background())
 		if server.options.ShutdownTimeout > 0 {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}

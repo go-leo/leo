@@ -1,14 +1,23 @@
-package message
+package stream
 
 import (
 	"context"
-	"io"
 )
 
 // Publisher is message queue publisher
 type Publisher interface {
 	Publish(ctx context.Context, topic string, msg ...*Message) (any, error)
 	Close(ctx context.Context) error
+}
+
+type noopPublisher struct{}
+
+func (pub *noopPublisher) Publish(ctx context.Context, topic string, msg ...*Message) (any, error) {
+	return struct{}{}, nil
+}
+
+func (pub *noopPublisher) Close(ctx context.Context) error {
+	return nil
 }
 
 type multiPublisher struct {
@@ -38,7 +47,6 @@ func (pub *multiPublisher) Close(ctx context.Context) error {
 }
 
 func MultiPublisher(publishers ...Publisher) Publisher {
-	io.MultiWriter()
 	allPublishers := make([]Publisher, 0, len(publishers))
 	for _, w := range publishers {
 		if mw, ok := w.(*multiPublisher); ok {
@@ -48,21 +56,4 @@ func MultiPublisher(publishers ...Publisher) Publisher {
 		}
 	}
 	return &multiPublisher{publishers: allPublishers}
-}
-
-type PublisherDecorator interface {
-	Decorate(pub Publisher) Publisher
-}
-
-type PublisherDecoratorFunc func(pub Publisher) Publisher
-
-func (f PublisherDecoratorFunc) Decorate(pub Publisher) Publisher {
-	return f(pub)
-}
-
-func ChainPublishers(pub Publisher, mwf ...PublisherDecoratorFunc) Publisher {
-	for i := len(mwf) - 1; i >= 0; i-- {
-		pub = mwf[i].Decorate(pub)
-	}
-	return pub
 }

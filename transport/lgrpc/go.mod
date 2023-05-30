@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/transport/lgrpc
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515063225-1bbf0e0f9c9e
-	github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515093543-c42284b29ee1
+	github.com/go-leo/gox v0.0.0-20230517130055-1c138d6cc06a
 	golang.org/x/sync v0.2.0
 	google.golang.org/grpc v1.55.0
 )
@@ -25,7 +25,7 @@ require (
 	github.com/prometheus/common v0.43.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea // indirect
+	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

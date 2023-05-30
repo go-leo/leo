@@ -1,4 +1,4 @@
-package message
+package stream
 
 // A Header represents the key-value pairs in a header.
 type Header map[string][]string

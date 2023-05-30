@@ -1,9 +1,9 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515063225-1bbf0e0f9c9e h1:/5YF4gMSrxGPjKNDN4i8rr47GSwEtQ3VwBrWnB2gDr8=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515063225-1bbf0e0f9c9e/go.mod h1:yhE8yQvsyGfjh7cLW+YWf+q9v1XR34qTK+lgBpvUuw4=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515093543-c42284b29ee1 h1:3nAI9afVKGttMhnDXBOSKTql+96MtWHgUIxd28ZTmMk=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230515093543-c42284b29ee1/go.mod h1:qz78FUTHBVwvdPTqC4nbjgfi+nDUcGF69UkRQZ8qIBk=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=
-github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9 h1:ICqQ/e9Y5I5/OYE/k7N9yKqKiGTt+7u/fJcbYPzevmE=
-github.com/go-leo/gox v0.0.0-20230515081950-592a491269c9/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
+github.com/go-leo/gox v0.0.0-20230517130055-1c138d6cc06a h1:jUeBGjl4THZUBDqTHoQ3u5E8W4JDTdf50o4DL+r2/CQ=
+github.com/go-leo/gox v0.0.0-20230517130055-1c138d6cc06a/go.mod h1:zXs2zcZPO4kKSZgPR3dexrbxm78X59xq+gTDpq0fu48=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
@@ -13,6 +13,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=
 github.com/rogpeppe/go-internal v1.10.0/go.mod h1:UQnix2H7Ngw/k4C5ijL5+65zddjncjaFoBhdsK/akog=
 github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
-golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea h1:vLCWI/yYrdEHyN2JzIzPO3aaQJHQdp89IZBA/+azVC4=
-golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea/go.mod h1:V1LtkGg67GoY2N1AnLN78QLrzxkLyJw7RJb1gzOOz9w=
+golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc h1:mCRnTeVUjcrhlRmO0VK8a6k6Rrf6TF9htwo2pJVSjIU=
+golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc/go.mod h1:V1LtkGg67GoY2N1AnLN78QLrzxkLyJw7RJb1gzOOz9w=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

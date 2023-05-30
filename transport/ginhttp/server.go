@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"os/signal"
 	"runtime"
 	"strconv"
 	"sync/atomic"
@@ -13,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/netx/addrx"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
@@ -115,7 +115,7 @@ func (server *Server) runServer(ctx context.Context) error {
 		return serveErr
 	case <-ctx.Done():
 		// context canceled, shutdown server.
-		ctx, _ := contextx.WithSignal(context.Background())
+		ctx, _ := signal.NotifyContext(context.Background())
 		if server.options.ShutdownTimeout > 0 {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}
@@ -149,7 +149,7 @@ func (server *Server) runRegistrar(ctx context.Context) error {
 	select {
 	case <-ctx.Done():
 		// context canceled, deregister server.
-		ctx, _ := contextx.WithSignal(context.Background())
+		ctx, _ := signal.NotifyContext(context.Background())
 		if server.options.ShutdownTimeout > 0 {
 			ctx, _ = context.WithTimeout(ctx, server.options.ShutdownTimeout)
 		}

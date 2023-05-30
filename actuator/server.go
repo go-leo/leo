@@ -6,11 +6,10 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"os/signal"
 	"path"
 	"runtime"
 	"strconv"
-
-	"github.com/go-leo/gox/contextx"
 )
 
 type Server struct {
@@ -72,7 +71,7 @@ func (server *Server) Run(ctx context.Context) error {
 		return serveErr
 	case <-ctx.Done():
 		// context canceled, shutdown server.
-		ctx, _ := contextx.WithSignal(context.Background())
+		ctx, _ := signal.NotifyContext(context.Background())
 		if server.options.ShutdownTimeout > 0 {
 			var cancel context.CancelFunc
 			ctx, cancel = context.WithTimeout(ctx, server.options.ShutdownTimeout)

@@ -1,4 +1,4 @@
-package confluentkafka
+package kafka
 
 // const (
 // 	KeyKey           = "Key"
