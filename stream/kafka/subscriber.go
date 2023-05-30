@@ -1,152 +1,128 @@
 package kafka
 
-//
-// import (
-// 	"context"
-//
-// 	confluentkafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
-//
-// 	"codeup.aliyun.com/qimao/leo/stream"
-// )
-//
-// var _ stream.Subscriber = new(Subscriber)
-//
-// type Subscriber struct {
-// 	topic          string
-// 	consumer       *confluentkafka.Consumer
-// 	chanBufferSize int
-// 	rebalanceCb    confluentkafka.RebalanceCb
-// 	messageDecoder func(ctx context.Context, kafkaMsg *confluentkafka.Message) (stream.Message, error)
-// 	onNack         func(message stream.Message)
-// }
-//
-// func (sub *Subscriber) Topic() string {
-// 	return sub.topic
-// }
-//
-// func (sub *Subscriber) Subscribe(ctx context.Context) (<-chan stream.Message, <-chan error) {
-// 	msgC := make(chan stream.Message, sub.chanBufferSize)
-// 	errC := make(chan error, sub.chanBufferSize)
-// 	go sub.consumeMsg(ctx, msgC, errC)
-// 	return msgC, errC
-// }
-//
-// func (sub *Subscriber) Close(_ context.Context) error {
-// 	return sub.consumer.Close()
-// }
-//
-// func (sub *Subscriber) consumeMsg(ctx context.Context, msgC chan stream.Message, errC chan error) {
-// 	defer close(msgC)
-// 	defer close(errC)
-// 	if err := sub.consumer.Subscribe(sub.topic, sub.rebalanceCb); err != nil {
-// 		errC <- err
-// 		return
-// 	}
-// 	defer func() {
-// 		if err := sub.consumer.Unsubscribe(); err != nil {
-// 			errC <- err
-// 			return
-// 		}
-// 	}()
-// 	for {
-// 		select {
-// 		case <-ctx.Done():
-// 			return
-// 		default:
-// 			kafkaMsg, err := sub.consumer.ReadMessage(-1)
-// 			if err != nil {
-// 				errC <- err
-// 			} else {
-// 				message, err := sub.messageDecoder(ctx, kafkaMsg)
-// 				if err != nil {
-// 					errC <- err
-// 					continue
-// 				}
-// 				sub.handleMsg(ctx, message, kafkaMsg, msgC)
-// 			}
-//
-// 		}
-// 	}
-// }
-//
-// func (sub *Subscriber) handleMsg(
-// 	ctx context.Context,
-// 	message stream.Message,
-// 	kafkaMsg *confluentkafka.Message,
-// 	msgC chan stream.Message,
-// ) {
-// 	commitFunc := func() (any, error) {
-// 		return sub.consumer.CommitMessage(kafkaMsg)
-// 	}
-// 	ackedC := message.Acked(commitFunc)
-// 	nackedC := message.Nacked(commitFunc)
-// 	msgC <- message
-// 	select {
-// 	case <-ctx.Done():
-// 		return
-// 	case <-ackedC:
-// 		return
-// 	case <-nackedC:
-// 		if sub.onNack != nil {
-// 			sub.onNack(message)
-// 		}
-// 		return
-// 	}
-// }
-//
-// type SubscriberBuilder struct {
-// 	topic          string
-// 	consumer       *confluentkafka.Consumer
-// 	chanBufferSize int
-// 	rebalanceCb    confluentkafka.RebalanceCb
-// 	messageDecoder func(ctx context.Context, kafkaMsg *confluentkafka.Message) (stream.Message, error)
-// 	onNack         func(message stream.Message)
-// }
-//
-// func (builder *SubscriberBuilder) SetTopic(topic string) *SubscriberBuilder {
-// 	builder.topic = topic
-// 	return builder
-// }
-//
-// func (builder *SubscriberBuilder) SetConsumer(consumer *confluentkafka.Consumer) *SubscriberBuilder {
-// 	builder.consumer = consumer
-// 	return builder
-// }
-//
-// func (builder *SubscriberBuilder) SetChanBufferSize(chanBufferSize int) *SubscriberBuilder {
-// 	builder.chanBufferSize = chanBufferSize
-// 	return builder
-// }
-//
-// func (builder *SubscriberBuilder) SetRebalanceCb(rebalanceCb confluentkafka.RebalanceCb) *SubscriberBuilder {
-// 	builder.rebalanceCb = rebalanceCb
-// 	return builder
-// }
-//
-// func (builder *SubscriberBuilder) SetMessageDecoder(messageDecoder func(ctx context.Context, kafkaMsg *confluentkafka.Message) (stream.Message, error)) *SubscriberBuilder {
-// 	builder.messageDecoder = messageDecoder
-// 	return builder
-// }
-//
-// func (builder *SubscriberBuilder) SetOnNack(onNack func(message stream.Message)) *SubscriberBuilder {
-// 	builder.onNack = onNack
-// 	return builder
-// }
-//
-// func (builder *SubscriberBuilder) Build() *Subscriber {
-// 	if builder.messageDecoder == nil {
-// 		builder.messageDecoder = DefaultMessageDecoder
-// 	}
-// 	return &Subscriber{
-// 		topic:          builder.topic,
-// 		consumer:       builder.consumer,
-// 		chanBufferSize: builder.chanBufferSize,
-// 		rebalanceCb:    builder.rebalanceCb,
-// 		messageDecoder: builder.messageDecoder,
-// 		onNack:         builder.onNack,
-// 	}
-// }
-//
-// func NewSubscriberBuilder() *SubscriberBuilder {
-// 	return &SubscriberBuilder{}
-// }
+import (
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"context"
+	"fmt"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"sync/atomic"
+)
+
+var _ stream.Subscriber = new(Subscriber)
+
+type Subscriber struct {
+	o          *options
+	consumer   *kafka.Consumer
+	subscribed atomic.Bool
+	closed     atomic.Bool
+	closeC     chan struct{}
+}
+
+func (sub *Subscriber) Subscribe(ctx context.Context, topic string, msgC chan<- *stream.Message, errC chan<- error) error {
+	if sub.closed.Load() {
+		return stream.ErrSubscriberClosed
+	}
+	if !sub.subscribed.CompareAndSwap(false, true) {
+		return stream.ErrSubscriberAlreadySubscribed
+	}
+	if err := sub.consumer.Subscribe(topic, sub.o.RebalanceCb); err != nil {
+		return err
+	}
+	go sub.consumeMsg(ctx, msgC, errC)
+	return nil
+}
+
+func (sub *Subscriber) Close(ctx context.Context) error {
+	if !sub.closed.CompareAndSwap(false, true) {
+		return nil
+	}
+	close(sub.closeC)
+	return sub.consumer.Close()
+}
+
+func (sub *Subscriber) consumeMsg(ctx context.Context, msgC chan<- *stream.Message, errC chan<- error) {
+	defer func() {
+		if _, err := sub.consumer.Commit(); err != nil {
+			errC <- err
+		}
+		if err := sub.consumer.Unsubscribe(); err != nil {
+			errC <- err
+		}
+	}()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-sub.closeC:
+			return
+		default:
+			ev := sub.consumer.Poll(100)
+			if ev == nil {
+				continue
+			}
+			switch e := ev.(type) {
+			case *kafka.Message:
+				if e.TopicPartition.Error != nil {
+					err := fmt.Errorf(
+						"partition specific error, topic:%s, partition: %d, offset: %d, error: %w",
+						*e.TopicPartition.Topic,
+						e.TopicPartition.Partition,
+						e.TopicPartition.Offset,
+						e.TopicPartition.Error,
+					)
+					errC <- err
+					continue
+				}
+				sub.handleMsg(ctx, e, msgC, errC)
+			case kafka.Error:
+				if e.IsTimeout() {
+					continue
+				}
+				errC <- e
+			default:
+				continue
+			}
+		}
+	}
+
+}
+
+func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, msgC chan<- *stream.Message, errC chan<- error) {
+	msg, err := sub.o.Marshaler.Unmarshal(kafkaMsg)
+	if err != nil {
+		errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
+		return
+	}
+
+	ackC := make(chan struct{})
+	msg.NotifyAck(ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
+		return sub.consumer.CommitMessage(kafkaMsg)
+	})
+
+	nackC := make(chan struct{})
+	msg.NotifyNack(nackC, func(ctx context.Context, msg *stream.Message) (any, error) {
+		return nil, nil
+	})
+
+	select {
+	case <-ctx.Done():
+		return
+	case <-sub.closeC:
+		return
+	case msgC <- msg:
+	}
+
+	select {
+	case <-ctx.Done():
+		return
+	case <-sub.closeC:
+		return
+	case <-ackC:
+		return
+	case <-nackC:
+		if sub.o.NackHandler != nil {
+			sub.o.NackHandler(msg)
+		}
+		return
+	}
+}

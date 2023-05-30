@@ -67,3 +67,16 @@ func (h Header) Clone() Header {
 	}
 	return h2
 }
+
+// Len returns the number of items in Header.
+func (h Header) Len() int {
+	return len(h)
+}
+
+// Range iterates the header
+func (h Header) Range(fn func(key string, values []string)) Header {
+	for key, values := range h {
+		fn(key, values)
+	}
+	return h
+}

@@ -2,7 +2,12 @@ package stream
 
 import (
 	"context"
+	"errors"
 )
+
+var ErrSubscriberClosed = errors.New("subscriber is closed")
+
+var ErrSubscriberAlreadySubscribed = errors.New("subscriber is already subscribed")
 
 // Subscriber is message queue subscriber
 type Subscriber interface {

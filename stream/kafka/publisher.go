@@ -3,52 +3,90 @@ package kafka
 import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
-	"time"
-
+	"errors"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"sync"
+	"sync/atomic"
 )
 
 var _ stream.Publisher = new(Publisher)
 
 type Publisher struct {
-	producer     *kafka.Producer
-	flushTimeout time.Duration
-}
-
-func (pub *Publisher) Topic() string {
-	return pub.topic
+	producer *kafka.Producer
+	o        *options
+	wg       sync.WaitGroup
+	closed   atomic.Bool
 }
 
 func (pub *Publisher) Publish(ctx context.Context, topic string, messages ...*stream.Message) (any, error) {
-	var errs []error
-	deliveryChan := make(chan confluentkafka.Event, len(messages))
+	if len(messages) == 0 {
+		return nil, nil
+	}
+	if pub.closed.Load() {
+		return nil, stream.ErrPublisherClosed
+	}
+
+	pub.wg.Add(1)
+	defer pub.wg.Done()
+
+	deliveryChan := make(chan kafka.Event, 1)
 	defer close(deliveryChan)
 
-	for _, m := range messages {
-		kafkaMsg, err := pub.messageEncoder(ctx, pub, m)
+	result := make([]*PublishResult, 0, len(messages))
+	for _, msg := range messages {
+		kafkaMsg, err := pub.o.Marshaler.Marshal(ctx, topic, msg)
 		if err != nil {
 			return nil, err
 		}
 		if err := pub.producer.Produce(kafkaMsg, deliveryChan); err != nil {
 			return nil, err
 		}
-	}
-
-	event := <-deliveryChan
-	if msg, ok := event.(*confluentkafka.Message); ok {
-		if msg.TopicPartition.Error != nil {
-			errs = append(errs, msg.TopicPartition.Error)
-		} else {
-
+		event, ok := (<-deliveryChan).(*kafka.Message)
+		if !ok {
+			continue
 		}
-		return event, nil
+		produceResult := &PublishResult{
+			Topic:     *event.TopicPartition.Topic,
+			Partition: event.TopicPartition.Partition,
+			Offset:    int64(event.TopicPartition.Offset),
+			Msg:       msg,
+		}
+		result = append(result, produceResult)
 	}
-
-	return msg, nil
+	return result, nil
 }
 
 func (pub *Publisher) Close(_ context.Context) error {
-	pub.producer.Flush(int(pub.flushTimeout.Milliseconds()))
+	if !pub.closed.CompareAndSwap(false, true) {
+		return nil
+	}
+	pub.closed.Store(true)
+	pub.wg.Wait()
+	pub.producer.Flush(int(pub.o.ShutdownTimeout.Milliseconds()))
 	pub.producer.Close()
 	return nil
+}
+
+type PublishResult struct {
+	Topic     string
+	Partition int32
+	Offset    int64
+	Msg       *stream.Message
+}
+
+func NewPublisher(factory func() (*kafka.Producer, error), opts ...Option) (*Publisher, error) {
+	if factory == nil {
+		return nil, errors.New("factory is nil")
+	}
+	producer, err := factory()
+	if err != nil {
+		return nil, err
+	}
+	o := &options{}
+	o.apply(opts...)
+	o.init()
+	return &Publisher{
+		o:        o,
+		producer: producer,
+	}, nil
 }

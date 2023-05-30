@@ -2,7 +2,10 @@ package stream
 
 import (
 	"context"
+	"errors"
 )
+
+var ErrPublisherClosed = errors.New("publisher is closed")
 
 // Publisher is message queue publisher
 type Publisher interface {
