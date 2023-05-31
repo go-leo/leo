@@ -131,13 +131,7 @@ func (h *handler) Handle(ctx context.Context) error {
 	for {
 		select {
 		case msg := <-h.MessageC:
-			publish, err := h.handleMessage(ctx, msg)
-			if publish != nil {
-				h.Logger.InfoF(log.F{K: "msg_id", V: msg.ID}, log.F{K: "publish", V: publish})
-			}
-			if err != nil {
-				h.Logger.ErrorF(log.F{K: "msg_id", V: msg.ID}, log.ErrField(err))
-			}
+			h.handleMessage(ctx, msg)
 		case <-ctx.Done():
 			return h.close()
 		}
@@ -145,36 +139,51 @@ func (h *handler) Handle(ctx context.Context) error {
 	}
 }
 
-func (h *handler) handleMessage(ctx context.Context, msg *Message) (any, error) {
+func (h *handler) handleMessage(ctx context.Context, msg *Message) {
 	// handle message
 	messages, err := h.HandleFunc(ctx, msg)
 	if err != nil {
-		return nil, errors.Join(fmt.Errorf("failed to handle message, %w", err), h.nackMessage(ctx, msg))
+		h.Logger.ErrorF(h.msgIDField(msg), log.ErrField(fmt.Errorf("failed to handle message, %w", err)))
+		h.nackMessage(ctx, msg)
+		return
 	}
 	// if publisher is nil, ack message
 	if slicex.IsEmpty(messages) || h.Publisher == nil {
-		return nil, h.ackMessage(ctx, msg)
+		h.ackMessage(ctx, msg)
+		return
 	}
 	// publish message
 	publish, err := h.Publisher.Publish(ctx, h.PublishTopic, messages...)
 	if err != nil {
-		return nil, errors.Join(fmt.Errorf("failed to publish message, %w", err), h.nackMessage(ctx, msg))
+		h.Logger.ErrorF(h.msgIDField(msg), log.ErrField(fmt.Errorf("failed to publish message, %w", err)))
+		h.nackMessage(ctx, msg)
+		return
 	}
-	return publish, h.ackMessage(ctx, msg)
+	h.Logger.InfoF(h.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully published message, %v", publish)))
+	return
 }
 
-func (h *handler) ackMessage(ctx context.Context, msg *Message) error {
-	if err := msg.Ack(ctx); err != nil {
-		return fmt.Errorf("failed to ack message: %w", err)
-	}
-	return nil
+func (h *handler) msgIDField(msg *Message) log.F {
+	return log.F{K: "msg_id", V: msg.ID}
 }
 
-func (h *handler) nackMessage(ctx context.Context, msg *Message) error {
-	if err := msg.Nack(ctx); err != nil {
-		return fmt.Errorf("failed to nack message, %w", err)
+func (h *handler) ackMessage(ctx context.Context, msg *Message) {
+	res, err := msg.Ack(ctx)
+	if err != nil {
+		h.Logger.ErrorF(h.msgIDField(msg), log.ErrField(fmt.Errorf("failed to ack message: %w", err)))
+		return
 	}
-	return nil
+	h.Logger.DebugF(h.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully acked message: %v", res)))
+	return
+}
+
+func (h *handler) nackMessage(ctx context.Context, msg *Message) {
+	res, err := msg.Nack(ctx)
+	if err != nil {
+		h.Logger.ErrorF(h.msgIDField(msg), log.ErrField(fmt.Errorf("failed to nack message: %w", err)))
+		return
+	}
+	h.Logger.DebugF(h.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully nacked message: %v", res)))
 }
 
 func (h *handler) close() error {

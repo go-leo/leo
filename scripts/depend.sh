@@ -27,6 +27,7 @@ do
     cd $gomod
     go get -u codeup.aliyun.com/qimao/leo/...
     go get -u github.com/go-leo/gox
+    go get -u golang.org/x/...
     go mod tidy
     cd $root
 done
