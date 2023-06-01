@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metrics
+module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metric
 
 go 1.20
 

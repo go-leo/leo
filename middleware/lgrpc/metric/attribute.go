@@ -1,4 +1,4 @@
-package metrics
+package metric
 
 import (
 	"strings"
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	kInstrumentationName = "codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metrics"
+	kInstrumentationName = "codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metric"
 )
 
 var (
