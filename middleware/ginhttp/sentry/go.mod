@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/getsentry/sentry-go v0.21.0
-	github.com/gin-gonic/gin v1.9.0
+	github.com/gin-gonic/gin v1.9.1
 )
 
 require (

@@ -2,7 +2,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/context
 
 go 1.20
 
-require github.com/gin-gonic/gin v1.9.0
+require github.com/gin-gonic/gin v1.9.1
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

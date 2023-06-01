@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/requestid
 go 1.20
 
 require (
-	github.com/gin-gonic/gin v1.9.0
-	github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090
+	github.com/gin-gonic/gin v1.9.1
+	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
 )
 
 require (

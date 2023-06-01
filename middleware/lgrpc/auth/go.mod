@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/auth
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090
+	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
 	google.golang.org/grpc v1.55.0
 )
 

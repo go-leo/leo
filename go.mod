@@ -3,10 +3,10 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090
+	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
 	github.com/prometheus/client_golang v1.15.1
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sync v0.2.0
+	k8s.io/utils v0.0.0-20230505201702-9f6742963106
 )
 
 require (
@@ -15,7 +15,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -26,6 +25,7 @@ require (
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/log/slog
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601075508-5255319a7656
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )

@@ -3,9 +3,9 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/env
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601075508-5255319a7656
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090
+	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
 )
 
 require (
