@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/text
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601075508-5255319a7656
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601094130-64df19cf0781
 	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )

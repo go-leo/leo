@@ -174,7 +174,7 @@ func (watcher *watcher) handleFileChangeEvent(event fsnotify.Event) {
 func NewResource(filename string, opts ...Option) *Resource {
 	filename = filepath.Clean(filename)
 	o := &options{
-		Logger:    log.Discard{},
+		Logger:    log.L(),
 		Extension: filepathx.Extension(filename),
 	}
 	o.apply(opts...)

@@ -165,7 +165,7 @@ func NewResource(dataID, group string, factory ConfigClientFactoryFunc, opts ...
 		return nil, err
 	}
 	o := &options{
-		Logger: log.Discard{},
+		Logger: log.L(),
 	}
 	o.apply(opts...)
 	o.init()

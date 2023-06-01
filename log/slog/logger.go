@@ -107,7 +107,7 @@ func (l *logger) IsFatalEnabled() bool {
 }
 
 func (l *logger) SetDefault() log.Logger {
-	log.SetLogger(l.SkipCaller(l.callDepth + 1))
+	log.SetLogger(l.SkipCaller(4))
 	return l
 }
 

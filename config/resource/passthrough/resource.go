@@ -97,7 +97,7 @@ func (watcher *watcher) sendError(err error) {
 
 func NewResource(source *config.Source, opts ...Option) *Resource {
 	o := &options{
-		Logger: log.Discard{},
+		Logger: log.L(),
 	}
 	o.apply(opts...)
 	o.init()

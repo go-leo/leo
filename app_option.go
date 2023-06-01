@@ -15,7 +15,7 @@ type options struct {
 
 func (o *options) init() {
 	if o.Logger == nil {
-		o.Logger = log.Discard{}
+		o.Logger = log.L()
 	}
 }
 

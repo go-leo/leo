@@ -295,7 +295,7 @@ func (watcher *environWatcher) sendError(err error) {
 
 func NewResource(opts ...Option) *Resource {
 	o := &options{
-		Logger: log.Discard{},
+		Logger: log.L(),
 	}
 	o.apply(opts...)
 	o.init()
