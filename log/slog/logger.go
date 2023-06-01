@@ -16,11 +16,13 @@ import (
 var _ log.Logger = new(logger)
 
 type logger struct {
-	o         *options
-	level     *slog.LevelVar
-	Logger    *slog.Logger
-	field     []log.Field
-	callDepth int
+	o      *options
+	level  *slog.LevelVar
+	Logger *slog.Logger
+	field  []log.Field
+	skip   int
+
+	//callDepth int
 }
 
 func (l *logger) SetLevel(lvl log.Level) {
@@ -107,13 +109,13 @@ func (l *logger) IsFatalEnabled() bool {
 }
 
 func (l *logger) SetDefault() log.Logger {
-	log.SetLogger(l.SkipCaller(4))
+	log.SetLogger(l)
 	return l
 }
 
-func (l *logger) SkipCaller(calldepth int) log.Logger {
+func (l *logger) SkipCaller(skip int) log.Logger {
 	cloned := l.clone().(*logger)
-	cloned.callDepth = calldepth
+	cloned.skip = cloned.skip + skip
 	return cloned
 }
 
@@ -217,7 +219,7 @@ func (l *logger) log(level slog.Level, a ...any) {
 		return
 	}
 	var pcs [1]uintptr
-	runtime.Callers(l.callDepth, pcs[:])
+	runtime.Callers(l.callDepth(), pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	_ = l.Logger.Handler().Handle(context.Background(), r)
 }
@@ -228,7 +230,7 @@ func (l *logger) logf(level slog.Level, format string, a ...any) {
 		return
 	}
 	var pcs [1]uintptr
-	runtime.Callers(l.callDepth, pcs[:])
+	runtime.Callers(l.callDepth(), pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	_ = l.Logger.Handler().Handle(context.Background(), r)
 }
@@ -248,7 +250,7 @@ func (l *logger) logF(level slog.Level, fs ...log.Field) {
 		attrs = append(attrs, slog.Any(f.Key(), f.Value()))
 	}
 	var pcs [1]uintptr
-	runtime.Callers(l.callDepth, pcs[:])
+	runtime.Callers(l.callDepth(), pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	r.AddAttrs(attrs...)
 	_ = l.Logger.Handler().Handle(context.Background(), r)
@@ -270,6 +272,10 @@ func (l *logger) clone(a ...any) log.Logger {
 	cloned.Logger = l.Logger.With(a...)
 	l.Logger.With()
 	return &cloned
+}
+
+func (l *logger) callDepth() int {
+	return 3 + l.skip
 }
 
 type fields []log.Field

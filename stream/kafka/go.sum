@@ -581,8 +581,8 @@ cloud.google.com/go/workflows v1.7.0/go.mod h1:JhSrZuVZWuiDfKEFxU0/F1PQjmpnpcoIS
 cloud.google.com/go/workflows v1.8.0/go.mod h1:ysGhmEajwZxGn1OhGOGKsTXc5PyxOc0vfKf5Af+to4M=
 cloud.google.com/go/workflows v1.9.0/go.mod h1:ZGkj1aFIOd9c8Gerkjjq7OW7I5+l6cSvT3ujaO/WwSA=
 cloud.google.com/go/workflows v1.10.0/go.mod h1:fZ8LmRmZQWacon9UCX1r/g/DfAXx5VcPALq2CxzdePw=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601094130-64df19cf0781 h1:3Bp3ItlKrctrW6FS2JolIFubPUK3gj1l2GJW3hGmrHk=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601094130-64df19cf0781/go.mod h1:C4NPXB9ToNGoDrasDFStNVkJMPY5A/kJUI1aTQFIPBA=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601110536-2d8ff9ca4e61 h1:JOQCcrJbpMtlge6MZYAu0M3ov5EUO0sC3Fo1BU0AMd4=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601110536-2d8ff9ca4e61/go.mod h1:C4NPXB9ToNGoDrasDFStNVkJMPY5A/kJUI1aTQFIPBA=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 gioui.org v0.0.0-20210308172011-57750fc8a0a6/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
 git.sr.ht/~sbinet/gg v0.3.1/go.mod h1:KGYtlADtqsqANL9ueOFkWymvzUvLMQllU5Ixo+8v3pc=

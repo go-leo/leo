@@ -1,11 +1,11 @@
 package slog
 
 import (
-	"io"
-	"os"
-
 	"golang.org/x/exp/slog"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"io"
+	"os"
+	"strings"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )
@@ -35,10 +35,10 @@ func New(level *slog.LevelVar, opts ...Option) log.Logger {
 
 	handler := o.Encoder(handlerOptions, w)
 	return &logger{
-		level:     level,
-		Logger:    slog.New(handler),
-		field:     nil,
-		callDepth: 3,
+		level:  level,
+		Logger: slog.New(handler),
+		field:  nil,
+		skip:   0,
 	}
 }
 
@@ -53,6 +53,15 @@ func fileWriter(fileOptions *fileOptions) *lumberjack.Logger {
 
 func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.LevelKey {
+
+	}
+	if a.Key == slog.TimeKey {
+
+	}
+
+	switch a.Key {
+	case slog.TimeKey:
+	case slog.LevelKey:
 		level := a.Value.Any().(slog.Level)
 		switch level {
 		case sLogLevelDebug:
@@ -67,7 +76,26 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 			a.Value = slog.StringValue(log.LevelPanicName)
 		case sLogLevelFatal:
 			a.Value = slog.StringValue(log.LevelFatalName)
+		default:
+			a.Value = slog.StringValue("unknown")
 		}
+	case slog.SourceKey:
+		source := a.Value.Any().(*slog.Source)
+		if index := strings.LastIndex(source.File, "/"); index > 0 {
+			index = strings.LastIndex(source.File[:index], "/")
+			if index > 0 {
+				source.File = source.File[index+1:]
+			}
+		}
+		if index := strings.LastIndex(source.Function, "/"); index > 0 {
+			index = strings.LastIndex(source.Function[:index], "/")
+			if index > 0 {
+				source.Function = source.Function[index+1:]
+			}
+		}
+
+	case slog.MessageKey:
+
 	}
 	return a
 }

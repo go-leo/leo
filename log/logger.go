@@ -40,7 +40,7 @@ type Logger interface {
 
 	// SkipCaller returns a Logger that will offset the call stack by the specified number of frames
 	// when logging call site information.
-	SkipCaller(depth int) Logger
+	SkipCaller(skip int) Logger
 
 	// With returns a new Logger with additional fields.
 	With(fields ...Field) Logger

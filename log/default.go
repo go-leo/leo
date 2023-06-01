@@ -5,94 +5,106 @@ import (
 )
 
 var (
-	defaultLogger Logger
-	defaultMu     sync.RWMutex
+	dl        Logger
+	l         Logger
+	defaultMu sync.RWMutex
 )
 
 func init() {
-	defaultLogger = &Discard{}
+	SetLogger(&Discard{})
 }
 
-func SetLogger(l Logger) {
+func SetLogger(logger Logger) {
 	defaultMu.Lock()
 	defer defaultMu.Unlock()
-	defaultLogger = l
+	l = logger
+	dl = l.SkipCaller(1)
 }
 
 func L() Logger {
+	var logger Logger
 	defaultMu.RLock()
-	defer defaultMu.RUnlock()
-	return defaultLogger
+	logger = l
+	defaultMu.RUnlock()
+	return logger
+}
+
+func dL() Logger {
+	var logger Logger
+	defaultMu.RLock()
+	logger = dl
+	defaultMu.RUnlock()
+	return logger
 }
 
 func Debug(args ...any) {
-	L().Debug(args...)
+	dL().Debug(args...)
 }
 
 func Debugf(template string, args ...any) {
-	L().Debugf(template, args...)
+	dL().Debugf(template, args...)
 }
 
 func DebugF(fields ...Field) {
-	L().DebugF(fields...)
+	dL().DebugF(fields...)
 }
 
 func Info(args ...any) {
-	L().Info(args...)
+	dL().Info(args...)
 }
 
 func Infof(template string, args ...any) {
-	L().Infof(template, args...)
+	dL().Infof(template, args...)
 }
 
 func InfoF(fields ...Field) {
-	L().InfoF(fields...)
+	dL().InfoF(fields...)
 }
 
 func Warn(args ...any) {
-	L().Warn(args...)
+	dL().Warn(args...)
 }
 
 func Warnf(template string, args ...any) {
-	L().Warnf(template, args...)
+	dL().Warnf(template, args...)
 }
 
 func WarnF(fields ...Field) {
-	L().WarnF(fields...)
+	dL().WarnF(fields...)
 }
 
 func Error(args ...any) {
-	L().Error(args...)
+	dL().Error(args...)
 }
 
 func Errorf(template string, args ...any) {
-	L().Errorf(template, args...)
+	dL().Errorf(template, args...)
 }
 
 func ErrorF(fields ...Field) {
-	L().ErrorF(fields...)
+	dL().ErrorF(fields...)
 }
 
 func Panic(args ...any) {
-	L().Panic(args...)
+	dL().Panic(args...)
 }
 
 func Panicf(template string, args ...any) {
-	L().Panicf(template, args...)
+	dL().Panicf(template, args...)
 }
 
 func PanicF(fields ...Field) {
-	L().PanicF(fields...)
+	dL().PanicF(fields...)
 }
 
 func Fatal(args ...any) {
-	L().Fatal(args...)
+	dL().Fatal(args...)
 }
 
 func Fatalf(template string, args ...any) {
-	L().Fatalf(template, args...)
+	dL().Fatalf(template, args...)
 }
 
 func FatalF(fields ...Field) {
-	L().FatalF(fields...)
+	dL().FatalF(fields...)
 }

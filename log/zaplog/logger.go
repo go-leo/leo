@@ -101,12 +101,12 @@ func (l *logger) IsFatalEnabled() bool {
 }
 
 func (l *logger) SetDefault() log.Logger {
-	log.SetLogger(l.SkipCaller(1))
+	log.SetLogger(l)
 	return l
 }
 
-func (l *logger) SkipCaller(depth int) log.Logger {
-	return l.clone(zap.WithCaller(true), zap.AddCallerSkip(depth))
+func (l *logger) SkipCaller(skip int) log.Logger {
+	return l.clone(zap.WithCaller(true), zap.AddCallerSkip(skip))
 }
 
 func (l *logger) With(fields ...log.Field) log.Logger {
