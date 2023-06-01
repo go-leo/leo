@@ -3,9 +3,9 @@ module codeup.aliyun.com/qimao/leo/leo/stream/kafka
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230530112658-f9c49a302e03
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a
 	github.com/confluentinc/confluent-kafka-go/v2 v2.1.1
-	github.com/go-leo/gox v0.0.0-20230531105215-75383dced8be
+	github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090
 )
 
 require (

@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230531105215-75383dced8be
+	github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090
 	github.com/prometheus/client_golang v1.15.1
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sync v0.2.0

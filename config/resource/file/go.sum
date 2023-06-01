@@ -1,11 +1,11 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230530112658-f9c49a302e03 h1:/iAaul75Xl+9VXWz5OmQ32Q20hh4Nc3vm3DP9ZUHjDg=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230530112658-f9c49a302e03/go.mod h1:QP2V5CKaeBWOH/BhQG/TSyV4wcq23RJdt9dNGDFrpIk=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a h1:a0VgONqSQpP+IlNTNE6SsMo8Eu/nI4MGShFi+T9qNRg=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a/go.mod h1:tW/g8nTvb/oitIjabZjovjLjWFy2vDuSMoVGA87gP04=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
-github.com/go-leo/gox v0.0.0-20230531105215-75383dced8be h1:1czrBiI+sliqiIzg0oT2dtZ2170DdpkZtc0eY5JZruk=
-github.com/go-leo/gox v0.0.0-20230531105215-75383dced8be/go.mod h1:uxG+jwGzcJLMvQGzJ7bQIZLcyoqwMXtUs/hEo6jvowg=
+github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090 h1:pJTtr6cToHkoJJIz2Wbw58wg7Ji8/WZ+DxxzcOB8kRc=
+github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090/go.mod h1:XjD9SMyXe2XHZJ5t07OqUEX+0YTT3p3Frz547mBxSRA=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=

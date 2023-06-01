@@ -32,36 +32,30 @@ func (o *options) init() {
 
 func Handler(
 	subscriber Subscriber,
-	subscribeTopic string,
 	handleFunc func(ctx context.Context, msg *Message) ([]*Message, error),
 	publisher Publisher,
-	publishTopic string,
 ) Option {
 	return func(o *options) {
 		o.Handlers = append(o.Handlers, &handler{
-			Subscriber:     subscriber,
-			SubscribeTopic: subscribeTopic,
-			MessageC:       make(chan *Message, 1),
-			ErrorC:         make(chan error, 1),
-			HandleFunc:     handleFunc,
-			Publisher:      publisher,
-			PublishTopic:   publishTopic,
+			Subscriber: subscriber,
+			MessageC:   make(chan *Message, 1),
+			ErrorC:     make(chan error, 1),
+			HandleFunc: handleFunc,
+			Publisher:  publisher,
 		})
 	}
 }
 
 func NoPublishHandler(
 	subscriber Subscriber,
-	subscribeTopic string,
 	handleFunc func(ctx context.Context, msg *Message) error,
 ) Option {
 	return func(o *options) {
 		o.Handlers = append(o.Handlers, &handler{
-			Subscriber:     subscriber,
-			SubscribeTopic: subscribeTopic,
-			MessageC:       make(chan *Message, 1),
-			ErrorC:         make(chan error, 1),
-			HandleFunc:     func(ctx context.Context, msg *Message) ([]*Message, error) { return nil, handleFunc(ctx, msg) },
+			Subscriber: subscriber,
+			MessageC:   make(chan *Message, 1),
+			ErrorC:     make(chan error, 1),
+			HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) { return nil, handleFunc(ctx, msg) },
 		})
 	}
 }
@@ -109,22 +103,20 @@ func (s *Streamer) runHandlers(ctx context.Context) error {
 }
 
 type handler struct {
-	Streamer       *Streamer
-	Subscriber     Subscriber
-	SubscribeTopic string
-	MessageC       chan *Message
-	ErrorC         chan error
-	HandleFunc     func(ctx context.Context, msg *Message) ([]*Message, error)
-	Publisher      Publisher
-	PublishTopic   string
-	Logger         log.Logger
+	Streamer   *Streamer
+	Subscriber Subscriber
+	MessageC   chan *Message
+	ErrorC     chan error
+	HandleFunc func(ctx context.Context, msg *Message) ([]*Message, error)
+	Publisher  Publisher
+	Logger     log.Logger
 }
 
 func (h *handler) Handle(ctx context.Context) error {
 	if h.Subscriber == nil {
 		return errors.New("subscriber is nil")
 	}
-	err := h.Subscriber.Subscribe(ctx, h.SubscribeTopic, h.MessageC, h.ErrorC)
+	err := h.Subscriber.Subscribe(ctx, h.MessageC, h.ErrorC)
 	if err != nil {
 		return err
 	}
@@ -153,7 +145,7 @@ func (h *handler) handleMessage(ctx context.Context, msg *Message) {
 		return
 	}
 	// publish message
-	publish, err := h.Publisher.Publish(ctx, h.PublishTopic, messages...)
+	publish, err := h.Publisher.Publish(ctx, messages...)
 	if err != nil {
 		h.Logger.ErrorF(h.msgIDField(msg), log.ErrField(fmt.Errorf("failed to publish message, %w", err)))
 		h.nackMessage(ctx, msg)

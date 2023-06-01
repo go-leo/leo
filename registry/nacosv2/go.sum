@@ -30,8 +30,8 @@ cloud.google.com/go/storage v1.5.0/go.mod h1:tpKbwo567HUNpVclU5sGELwQWBDZ8gh0Zeo
 cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohlUTyfDhBk=
 cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RXyy7KQOVs=
 cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9ullr3+Kg0=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230530112658-f9c49a302e03 h1:/iAaul75Xl+9VXWz5OmQ32Q20hh4Nc3vm3DP9ZUHjDg=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230530112658-f9c49a302e03/go.mod h1:QP2V5CKaeBWOH/BhQG/TSyV4wcq23RJdt9dNGDFrpIk=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a h1:a0VgONqSQpP+IlNTNE6SsMo8Eu/nI4MGShFi+T9qNRg=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230531121147-a67ee669366a/go.mod h1:tW/g8nTvb/oitIjabZjovjLjWFy2vDuSMoVGA87gP04=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
@@ -81,8 +81,8 @@ github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-kit/kit v0.9.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-kit/log v0.1.0/go.mod h1:zbhenjAZHb184qTLMA9ZjW7ThYL0H2mk7Q6pNt4vbaY=
-github.com/go-leo/gox v0.0.0-20230531105215-75383dced8be h1:1czrBiI+sliqiIzg0oT2dtZ2170DdpkZtc0eY5JZruk=
-github.com/go-leo/gox v0.0.0-20230531105215-75383dced8be/go.mod h1:uxG+jwGzcJLMvQGzJ7bQIZLcyoqwMXtUs/hEo6jvowg=
+github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090 h1:pJTtr6cToHkoJJIz2Wbw58wg7Ji8/WZ+DxxzcOB8kRc=
+github.com/go-leo/gox v0.0.0-20230601010905-fdd06de30090/go.mod h1:XjD9SMyXe2XHZJ5t07OqUEX+0YTT3p3Frz547mBxSRA=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-logfmt/logfmt v0.5.0/go.mod h1:wCYkCAKZfumFQihp8CzCvQ3paCTfi41vtzG1KdI/P7A=

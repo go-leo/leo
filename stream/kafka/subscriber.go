@@ -3,6 +3,7 @@ package kafka
 import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"sync/atomic"
@@ -13,19 +14,24 @@ var _ stream.Subscriber = new(Subscriber)
 type Subscriber struct {
 	o          *options
 	consumer   *kafka.Consumer
+	topic      string
 	subscribed atomic.Bool
 	closed     atomic.Bool
 	closeC     chan struct{}
 }
 
-func (sub *Subscriber) Subscribe(ctx context.Context, topic string, msgC chan<- *stream.Message, errC chan<- error) error {
+func (sub *Subscriber) Topic() string {
+	return sub.topic
+}
+
+func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Message, errC chan<- error) error {
 	if sub.closed.Load() {
 		return stream.ErrSubscriberClosed
 	}
 	if !sub.subscribed.CompareAndSwap(false, true) {
 		return stream.ErrSubscriberAlreadySubscribed
 	}
-	if err := sub.consumer.Subscribe(topic, sub.o.RebalanceCb); err != nil {
+	if err := sub.consumer.Subscribe(sub.topic, sub.o.RebalanceCb); err != nil {
 		return err
 	}
 	go sub.consumeMsg(ctx, msgC, errC)
@@ -125,4 +131,18 @@ func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, m
 		}
 		return
 	}
+}
+
+func NewSubscriber(topic string, factory func() (*kafka.Consumer, error), opts ...Option) (*Subscriber, error) {
+	if factory == nil {
+		return nil, errors.New("factory is nil")
+	}
+	consumer, err := factory()
+	if err != nil {
+		return nil, err
+	}
+	o := &options{}
+	o.apply(opts...)
+	o.init()
+	return &Subscriber{consumer: consumer, topic: topic, o: o}, nil
 }

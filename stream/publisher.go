@@ -3,19 +3,26 @@ package stream
 import (
 	"context"
 	"errors"
+	"golang.org/x/exp/maps"
+	"strings"
 )
 
 var ErrPublisherClosed = errors.New("publisher is closed")
 
 // Publisher is message queue publisher
 type Publisher interface {
-	Publish(ctx context.Context, topic string, msg ...*Message) (any, error)
+	Topic() string
+	Publish(ctx context.Context, msg ...*Message) (any, error)
 	Close(ctx context.Context) error
 }
 
 type noopPublisher struct{}
 
-func (pub *noopPublisher) Publish(ctx context.Context, topic string, msg ...*Message) (any, error) {
+func (pub *noopPublisher) Topic() string {
+	return ""
+}
+
+func (pub *noopPublisher) Publish(ctx context.Context, msg ...*Message) (any, error) {
 	return struct{}{}, nil
 }
 
@@ -27,10 +34,18 @@ type multiPublisher struct {
 	publishers []Publisher
 }
 
-func (pub *multiPublisher) Publish(ctx context.Context, topic string, msg ...*Message) (any, error) {
+func (pub *multiPublisher) Topic() string {
+	topics := make(map[string]struct{})
+	for _, publisher := range pub.publishers {
+		topics[publisher.Topic()] = struct{}{}
+	}
+	return strings.Join(maps.Keys(topics), ",")
+}
+
+func (pub *multiPublisher) Publish(ctx context.Context, msg ...*Message) (any, error) {
 	var allRes []any
 	for _, w := range pub.publishers {
-		res, err := w.Publish(ctx, topic, msg...)
+		res, err := w.Publish(ctx, msg...)
 		if err != nil {
 			return nil, err
 		}

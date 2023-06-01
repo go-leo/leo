@@ -16,9 +16,14 @@ type Publisher struct {
 	o        *options
 	wg       sync.WaitGroup
 	closed   atomic.Bool
+	topic    string
 }
 
-func (pub *Publisher) Publish(ctx context.Context, topic string, messages ...*stream.Message) (any, error) {
+func (pub *Publisher) Topic() string {
+	return pub.topic
+}
+
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (any, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -34,7 +39,7 @@ func (pub *Publisher) Publish(ctx context.Context, topic string, messages ...*st
 
 	result := make([]*PublishResult, 0, len(messages))
 	for _, msg := range messages {
-		kafkaMsg, err := pub.o.Marshaler.Marshal(ctx, topic, msg)
+		kafkaMsg, err := pub.o.Marshaler.Marshal(ctx, pub.topic, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +79,7 @@ type PublishResult struct {
 	Msg       *stream.Message
 }
 
-func NewPublisher(factory func() (*kafka.Producer, error), opts ...Option) (*Publisher, error) {
+func NewPublisher(topic string, factory func() (*kafka.Producer, error), opts ...Option) (*Publisher, error) {
 	if factory == nil {
 		return nil, errors.New("factory is nil")
 	}
@@ -88,5 +93,6 @@ func NewPublisher(factory func() (*kafka.Producer, error), opts ...Option) (*Pub
 	return &Publisher{
 		o:        o,
 		producer: producer,
+		topic:    topic,
 	}, nil
 }
