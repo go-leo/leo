@@ -15,28 +15,18 @@ func NewContext(ctx context.Context, l Logger, fieldFuncs ...func(ctx context.Co
 	return context.WithValue(ctx, logKey{}, l.WithContext(ctx, creators...))
 }
 
-// 用于给ctx添加指定kv的集合，业务中常在中间件中使用
+// NewContextClosure 用于给ctx添加指定kv的集合，业务中常在中间件中使用
 func NewContextClosure(l Logger, fieldFuncs ...func(ctx context.Context) []Field) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return NewContext(ctx, l, fieldFuncs...)
 	}
 }
 
-// FromContext returns a Logger from ctx.
-func FromContext(ctx context.Context) (Logger, bool) {
+// FromContext returns a Logger from ctx.  If no Logger is found, this returns default Logger.
+func FromContext(ctx context.Context) Logger {
 	l, ok := ctx.Value(logKey{}).(Logger)
 	if !ok {
-		return nil, false
+		return L()
 	}
-	return l, true
-}
-
-// FromContextOrDiscard returns a Logger from ctx.  If no Logger is found, this
-// returns a Logger that discards all log messages.
-func FromContextOrDiscard(ctx context.Context) Logger {
-	l, ok := ctx.Value(logKey{}).(Logger)
-	if ok {
-		return l
-	}
-	return Discard{}
+	return l
 }

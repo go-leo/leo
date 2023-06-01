@@ -34,6 +34,10 @@ type Logger interface {
 	EnableFatal()
 	// IsFatalEnabled return True if this Logger is enabled for the Fatal Level, false otherwise.
 	IsFatalEnabled() bool
+
+	// SetDefault set default logger
+	SetDefault() Logger
+
 	// SkipCaller returns a Logger that will offset the call stack by the specified number of frames
 	// when logging call site information.
 	SkipCaller(depth int) Logger

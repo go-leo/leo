@@ -100,6 +100,11 @@ func (l *logger) IsFatalEnabled() bool {
 	return l.level.Enabled(zapcore.FatalLevel)
 }
 
+func (l *logger) SetDefault() log.Logger {
+	log.SetLogger(l.SkipCaller(1))
+	return l
+}
+
 func (l *logger) SkipCaller(depth int) log.Logger {
 	return l.clone(zap.WithCaller(true), zap.AddCallerSkip(depth))
 }

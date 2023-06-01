@@ -7,96 +7,6 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/log/zaplog"
 )
 
-func TestDebugSlog(t *testing.T) {
-	logger := zaplog.Logger()
-	if !logger.IsDebugEnabled() {
-		t.Errorf("debug level failed")
-		return
-	}
-	logger.Debug("this is Debug log")
-	logger.Debugf("this is %s log", "Debugf")
-
-	if !logger.IsInfoEnabled() {
-		t.Errorf("info level failed")
-		return
-	}
-	logger.Info("this is Info log")
-	logger.Infof("this is %s log", "Infof")
-
-	if !logger.IsWarnEnabled() {
-		t.Errorf("warn level failed")
-		return
-	}
-	logger.Warn("this is Warn log")
-	logger.Warnf("this is %s log", "Warnf")
-
-	if !logger.IsErrorEnabled() {
-		t.Errorf("error level failed")
-		return
-	}
-	logger.Error("this is Error log")
-	logger.Errorf("this is %s log", "Errorf")
-
-	logger.With(log.F{K: "TraceID", V: "1234567"})
-
-	if !logger.IsDebugEnabled() {
-		t.Errorf("debug level failed")
-		return
-	}
-	logger.Debug("this is with traceID Debug log")
-	logger.Debugf("this is  with traceID %s log", "Debugf")
-
-	if !logger.IsInfoEnabled() {
-		t.Errorf("info level failed")
-		return
-	}
-	logger.Info("this is with traceID Info log")
-	logger.Infof("this is with traceID %s log", "Infof")
-
-	if !logger.IsWarnEnabled() {
-		t.Errorf("warn level failed")
-		return
-	}
-	logger.Warn("this is with traceID Warn log")
-	logger.Warnf("this is with traceID %s log", "Warnf")
-
-	if !logger.IsErrorEnabled() {
-		t.Errorf("error level failed")
-		return
-	}
-	logger.Error("this is with traceID Error log")
-	logger.Errorf("this is with traceID %s log", "Errorf")
-
-	logger.With(log.F{K: "user", V: "jax"}, log.F{K: "platform", V: "Android"})
-	if !logger.IsDebugEnabled() {
-		t.Errorf("debug level failed")
-		return
-	}
-	logger.Debug("this is with Fields Debug log")
-	logger.Debugf("this is with Fields %s log", "Debugf")
-
-	if !logger.IsInfoEnabled() {
-		t.Errorf("info level failed")
-		return
-	}
-	logger.Info("this is with Fields Info log")
-	logger.Infof("this is with Fields %s log", "Infof")
-
-	if !logger.IsWarnEnabled() {
-		t.Errorf("warn level failed")
-		return
-	}
-	logger.Warn("this is with Fields Warn log")
-	logger.Warnf("this is with Fields %s log", "Warnf")
-
-	if !logger.IsErrorEnabled() {
-		t.Errorf("error level failed")
-		return
-	}
-	logger.Error("this is with Fields Error log")
-	logger.Errorf("this is with Fields %s log", "Errorf")
-}
-
 func TestInfoSlog(t *testing.T) {
 	logger := zaplog.New(zaplog.LevelAdapt(log.LevelInfo))
 	if logger.IsDebugEnabled() {
@@ -369,15 +279,15 @@ func TestErrorSlog(t *testing.T) {
 }
 
 func TestLog(t *testing.T) {
-	zaplog.Debug("this is Debug log")
-	zaplog.Debugf("this is %s log", "Debugf")
+	log.Debug("this is Debug log")
+	log.Debugf("this is %s log", "Debugf")
 
-	zaplog.Info("this is Info log")
-	zaplog.Infof("this is %s log", "Infof")
+	log.Info("this is Info log")
+	log.Infof("this is %s log", "Infof")
 
-	zaplog.Warn("this is Warn log")
-	zaplog.Warnf("this is %s log", "Warnf")
+	log.Warn("this is Warn log")
+	log.Warnf("this is %s log", "Warnf")
 
-	zaplog.Error("this is Error log")
-	zaplog.Errorf("this is %s log", "Errorf")
+	log.Error("this is Error log")
+	log.Errorf("this is %s log", "Errorf")
 }

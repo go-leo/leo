@@ -106,6 +106,33 @@ func (l *logger) IsFatalEnabled() bool {
 	return l.Logger.Enabled(context.Background(), sLogLevelFatal)
 }
 
+func (l *logger) SetDefault() log.Logger {
+	log.SetLogger(l.SkipCaller(l.callDepth + 1))
+	return l
+}
+
+func (l *logger) SkipCaller(calldepth int) log.Logger {
+	cloned := l.clone().(*logger)
+	cloned.callDepth = calldepth
+	return cloned
+}
+
+func (l *logger) With(fields ...log.Field) log.Logger {
+	return l.clone(l.fieldsToAttrs(fields...)...)
+}
+
+func (l *logger) WithContext(ctx context.Context, creators ...log.FieldCreator) log.Logger {
+	var fields []log.Field
+	for _, creator := range creators {
+		fields = append(fields, creator.Create(ctx)...)
+	}
+	return l.clone(l.fieldsToAttrs(fields...)...)
+}
+
+func (l *logger) Clone() log.Logger {
+	return l.clone()
+}
+
 func (l *logger) Debug(a ...any) {
 	l.log(sLogLevelDebug, a...)
 }
@@ -182,28 +209,6 @@ func (l *logger) Fatalf(format string, a ...any) {
 func (l *logger) FatalF(fs ...log.Field) {
 	l.logF(sLogLevelError, fs...)
 	os.Exit(1)
-}
-
-func (l *logger) SkipCaller(calldepth int) log.Logger {
-	cloned := l.clone().(*logger)
-	cloned.callDepth = calldepth
-	return cloned
-}
-
-func (l *logger) With(fields ...log.Field) log.Logger {
-	return l.clone(l.fieldsToAttrs(fields...)...)
-}
-
-func (l *logger) WithContext(ctx context.Context, creators ...log.FieldCreator) log.Logger {
-	var fields []log.Field
-	for _, creator := range creators {
-		fields = append(fields, creator.Create(ctx)...)
-	}
-	return l.clone(l.fieldsToAttrs(fields...)...)
-}
-
-func (l *logger) Clone() log.Logger {
-	return l.clone()
 }
 
 func (l *logger) log(level slog.Level, a ...any) {

@@ -61,6 +61,11 @@ func (d Discard) SkipCaller(depth int) Logger {
 	return d
 }
 
+func (d Discard) SetDefault() Logger {
+	SetLogger(d)
+	return d
+}
+
 func (d Discard) With(fields ...Field) Logger {
 	return d
 }
