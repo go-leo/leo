@@ -16,8 +16,6 @@ const (
 var (
 	vRPCSystemGRPCServer = semconv.RPCSystemKey.String("grpc.server")
 	vRPCSystemGRPCClient = semconv.RPCSystemKey.String("grpc.client")
-	vRPCSystemHTTPServer = semconv.RPCSystemKey.String("http.server")
-	vRPCSystemHTTPClient = semconv.RPCSystemKey.String("http.client")
 )
 
 func parseFullMethod(fullMethod string) []attribute.KeyValue {
