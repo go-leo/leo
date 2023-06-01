@@ -1,6 +1,8 @@
 package stream
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/actuator"
+	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"context"
 	"errors"
@@ -8,6 +10,7 @@ import (
 	"github.com/go-leo/gox/slicex"
 	"os/signal"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -17,6 +20,7 @@ type options struct {
 	Handlers        []*handler
 	ShutdownTimeout time.Duration
 	Logger          log.Logger
+	ErrorC          chan error
 }
 
 type Option func(o *options)
@@ -28,6 +32,9 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
+	if o.Logger == nil {
+		o.Logger = log.Discard{}
+	}
 }
 
 func Handler(
@@ -38,8 +45,6 @@ func Handler(
 	return func(o *options) {
 		o.Handlers = append(o.Handlers, &handler{
 			Subscriber: subscriber,
-			MessageC:   make(chan *Message, 1),
-			ErrorC:     make(chan error, 1),
 			HandleFunc: handleFunc,
 			Publisher:  publisher,
 		})
@@ -53,8 +58,6 @@ func NoPublishHandler(
 	return func(o *options) {
 		o.Handlers = append(o.Handlers, &handler{
 			Subscriber: subscriber,
-			MessageC:   make(chan *Message, 1),
-			ErrorC:     make(chan error, 1),
 			HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) { return nil, handleFunc(ctx, msg) },
 		})
 	}
@@ -73,9 +76,9 @@ func ShutdownTimeout(timeout time.Duration) Option {
 }
 
 type Streamer struct {
-	options   *options
-	lock      sync.RWMutex
-	isRunning bool
+	options *options
+	lock    sync.RWMutex
+	running *atomic.Bool
 }
 
 func (s *Streamer) Run(ctx context.Context) error {
@@ -83,23 +86,32 @@ func (s *Streamer) Run(ctx context.Context) error {
 	defer s.lock.Unlock()
 
 	// check streamer is running
-	if s.isRunning {
-		return errors.New("streamer was ran")
+	if !s.running.CompareAndSwap(false, true) {
+		return errors.New("streamer is running")
 	}
-	s.isRunning = true
 
 	// async run all handlers to subscribe
-	return s.runHandlers(ctx)
-}
-
-func (s *Streamer) runHandlers(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, handler := range s.options.Handlers {
 		handler := handler
 		handler.Streamer = s
+		handler.Logger = s.options.Logger
 		eg.Go(func() error { return handler.Handle(ctx) })
 	}
-	return eg.Wait()
+	err := eg.Wait()
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Streamer) ActuatorHandler() actuator.Handler {
+	return &actuatorHandler{streamer: s}
+}
+
+func (s *Streamer) HealthChecker() health.Checker {
+	return &healthChecker{streamer: s}
 }
 
 type handler struct {

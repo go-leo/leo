@@ -23,6 +23,10 @@ func (pub *Publisher) Topic() string {
 	return pub.topic
 }
 
+func (pub *Publisher) Queue() string {
+	return "kafka"
+}
+
 func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (any, error) {
 	if len(messages) == 0 {
 		return nil, nil

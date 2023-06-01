@@ -24,6 +24,10 @@ func (sub *Subscriber) Topic() string {
 	return sub.topic
 }
 
+func (sub *Subscriber) Queue() string {
+	return "kafka"
+}
+
 func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Message, errC chan<- error) error {
 	if sub.closed.Load() {
 		return stream.ErrSubscriberClosed

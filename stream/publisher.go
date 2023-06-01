@@ -3,7 +3,7 @@ package stream
 import (
 	"context"
 	"errors"
-	"golang.org/x/exp/maps"
+	"k8s.io/utils/strings/slices"
 	"strings"
 )
 
@@ -12,6 +12,7 @@ var ErrPublisherClosed = errors.New("publisher is closed")
 // Publisher is message queue publisher
 type Publisher interface {
 	Topic() string
+	Queue() string
 	Publish(ctx context.Context, msg ...*Message) (any, error)
 	Close(ctx context.Context) error
 }
@@ -19,6 +20,10 @@ type Publisher interface {
 type noopPublisher struct{}
 
 func (pub *noopPublisher) Topic() string {
+	return ""
+}
+
+func (pub *noopPublisher) Queue() string {
 	return ""
 }
 
@@ -35,11 +40,25 @@ type multiPublisher struct {
 }
 
 func (pub *multiPublisher) Topic() string {
-	topics := make(map[string]struct{})
+	var topics []string
 	for _, publisher := range pub.publishers {
-		topics[publisher.Topic()] = struct{}{}
+		if slices.Contains(topics, publisher.Topic()) {
+			continue
+		}
+		topics = append(topics, publisher.Topic())
 	}
-	return strings.Join(maps.Keys(topics), ",")
+	return strings.Join(topics, ",")
+}
+
+func (pub *multiPublisher) Queue() string {
+	var queues []string
+	for _, publisher := range pub.publishers {
+		if slices.Contains(queues, publisher.Queue()) {
+			continue
+		}
+		queues = append(queues, publisher.Queue())
+	}
+	return strings.Join(queues, ",")
 }
 
 func (pub *multiPublisher) Publish(ctx context.Context, msg ...*Message) (any, error) {
