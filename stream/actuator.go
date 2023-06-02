@@ -44,9 +44,10 @@ type healthChecker struct {
 	streamer *Streamer
 }
 
-// TODO
 func (h *healthChecker) Check(ctx context.Context) health.Health {
-	return health.Up()
+	if h.streamer.isAlive() {
+		return health.Up()
+	}
 	return health.Down()
 }
 

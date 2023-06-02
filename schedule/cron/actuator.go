@@ -38,7 +38,7 @@ type healthChecker struct {
 }
 
 func (h *healthChecker) Check(ctx context.Context) health.Health {
-	if h.scheduler.isRunning() {
+	if h.scheduler.isAlive() {
 		return health.Up()
 	}
 	return health.Down()

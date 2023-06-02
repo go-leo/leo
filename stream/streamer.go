@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/slicex"
 	"os/signal"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -17,10 +16,11 @@ import (
 )
 
 type options struct {
-	Handlers        []*handler
-	ShutdownTimeout time.Duration
-	Logger          log.Logger
-	ErrorC          chan error
+	Handlers          []*handler
+	MessageBufferSize int
+	ErrorC            chan error
+	Logger            log.Logger
+	ShutdownTimeout   time.Duration
 }
 
 type Option func(o *options)
@@ -32,8 +32,11 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
+	if o.MessageBufferSize <= 0 {
+		o.MessageBufferSize = 1
+	}
 	if o.Logger == nil {
-		o.Logger = log.Discard{}
+		o.Logger = log.L()
 	}
 }
 
@@ -57,9 +60,21 @@ func NoPublishHandler(
 ) Option {
 	return func(o *options) {
 		o.Handlers = append(o.Handlers, &handler{
-			Subscriber: subscriber,
-			HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) { return nil, handleFunc(ctx, msg) },
+			Subscriber:          subscriber,
+			NoPublishHandleFunc: handleFunc,
 		})
+	}
+}
+
+func MessageBufferSize(size int) Option {
+	return func(o *options) {
+		o.MessageBufferSize = size
+	}
+}
+
+func ErrorC(errC chan error) Option {
+	return func(o *options) {
+		o.ErrorC = errC
 	}
 }
 
@@ -77,33 +92,44 @@ func ShutdownTimeout(timeout time.Duration) Option {
 
 type Streamer struct {
 	options *options
-	lock    sync.RWMutex
-	running *atomic.Bool
+	run     atomic.Bool
+	alive   atomic.Bool
 }
 
 func (s *Streamer) Run(ctx context.Context) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	// check streamer is running
-	if !s.running.CompareAndSwap(false, true) {
-		return errors.New("streamer is running")
+	// check streamer is run
+	if !s.run.CompareAndSwap(false, true) {
+		return errors.New("scheduler is run")
 	}
-
-	// async run all handlers to subscribe
+	s.alive.Store(true)
 	eg, ctx := errgroup.WithContext(ctx)
+	eg.Go(func() error {
+		<-ctx.Done()
+		s.alive.Store(false)
+		return nil
+	})
+	// async run all handlers to subscribe
 	for _, handler := range s.options.Handlers {
 		handler := handler
+		if handler.Subscriber == nil {
+			return errors.New("subscriber is nil")
+		}
+		if handler.HandleFunc == nil && handler.NoPublishHandleFunc == nil {
+			return errors.New("handle func is nil")
+		}
 		handler.Streamer = s
+		handler.MessageC = make(chan *Message, s.options.MessageBufferSize)
+		handler.ErrorC = s.options.ErrorC
+		if handler.NoPublishHandleFunc != nil && handler.HandleFunc == nil {
+			handler.HandleFunc = func(ctx context.Context, msg *Message) ([]*Message, error) {
+				return nil, handler.NoPublishHandleFunc(ctx, msg)
+			}
+		}
 		handler.Logger = s.options.Logger
 		eg.Go(func() error { return handler.Handle(ctx) })
 	}
 	err := eg.Wait()
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (s *Streamer) ActuatorHandler() actuator.Handler {
@@ -114,14 +140,19 @@ func (s *Streamer) HealthChecker() health.Checker {
 	return &healthChecker{streamer: s}
 }
 
+func (s *Streamer) isAlive() bool {
+	return s.alive.Load()
+}
+
 type handler struct {
-	Streamer   *Streamer
-	Subscriber Subscriber
-	MessageC   chan *Message
-	ErrorC     chan error
-	HandleFunc func(ctx context.Context, msg *Message) ([]*Message, error)
-	Publisher  Publisher
-	Logger     log.Logger
+	Streamer            *Streamer
+	Subscriber          Subscriber
+	MessageC            chan *Message
+	ErrorC              chan error
+	HandleFunc          func(ctx context.Context, msg *Message) ([]*Message, error)
+	Publisher           Publisher
+	NoPublishHandleFunc func(ctx context.Context, msg *Message) error
+	Logger              log.Logger
 }
 
 func (h *handler) Handle(ctx context.Context) error {
@@ -139,7 +170,6 @@ func (h *handler) Handle(ctx context.Context) error {
 		case <-ctx.Done():
 			return h.close()
 		}
-
 	}
 }
 
@@ -151,8 +181,13 @@ func (h *handler) handleMessage(ctx context.Context, msg *Message) {
 		h.nackMessage(ctx, msg)
 		return
 	}
+	// if messages is empty, ack message
+	if slicex.IsEmpty(messages) {
+		h.ackMessage(ctx, msg)
+		return
+	}
 	// if publisher is nil, ack message
-	if slicex.IsEmpty(messages) || h.Publisher == nil {
+	if h.Publisher == nil {
 		h.ackMessage(ctx, msg)
 		return
 	}
@@ -163,7 +198,8 @@ func (h *handler) handleMessage(ctx context.Context, msg *Message) {
 		h.nackMessage(ctx, msg)
 		return
 	}
-	h.Logger.InfoF(h.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully published message, %v", publish)))
+	h.Logger.DebugF(h.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully published message, %v", publish)))
+	h.ackMessage(ctx, msg)
 	return
 }
 

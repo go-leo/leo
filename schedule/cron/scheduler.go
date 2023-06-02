@@ -25,8 +25,9 @@ type Scheduler struct {
 	cron        *cron.Cron
 	taskJobMap  map[schedule.Task]*cronJob
 	middlewares []schedule.Middleware
-	mutex       *sync.RWMutex
-	running     *atomic.Bool
+	mutex       sync.RWMutex
+	run         atomic.Bool
+	alive       atomic.Bool
 }
 
 func NewScheduler(opts ...Option) *Scheduler {
@@ -37,8 +38,6 @@ func NewScheduler(opts ...Option) *Scheduler {
 		cron:        cron.New(o.cronOptions()...),
 		taskJobMap:  make(map[schedule.Task]*cronJob),
 		middlewares: o.Middlewares,
-		mutex:       &sync.RWMutex{},
-		running:     &atomic.Bool{},
 	}
 	err := scheduler.AddTasks(o.Task...)
 	if err != nil {
@@ -48,14 +47,17 @@ func NewScheduler(opts ...Option) *Scheduler {
 }
 
 func (s *Scheduler) Run(ctx context.Context) error {
+	if !s.run.CompareAndSwap(false, true) {
+		return errors.New("scheduler is run")
+	}
+	s.alive.Store(true)
 	s.mutex.RLock()
 	// 异步开启cron
 	s.startCron(ctx)
 	s.mutex.RUnlock()
-	s.running.Store(true)
 	// 等待context被cancel
 	<-ctx.Done()
-	s.running.Store(false)
+	s.alive.Store(false)
 	// 停止cron
 	s.stopCron(ctx)
 	return nil
@@ -141,6 +143,6 @@ func (s *Scheduler) removeJob(job *cronJob) {
 	s.cron.Remove(job.EntryID)
 }
 
-func (s *Scheduler) isRunning() bool {
-	return s.running.Load()
+func (s *Scheduler) isAlive() bool {
+	return s.alive.Load()
 }
