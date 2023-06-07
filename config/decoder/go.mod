@@ -3,12 +3,12 @@ module codeup.aliyun.com/qimao/leo/leo/config/decoder
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230602114633-c29b352eb675
+	github.com/go-leo/gox v0.0.0-20230607084658-694cc92fdb76
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )
 
 require (
-	github.com/BurntSushi/toml v1.3.0 // indirect
+	github.com/BurntSushi/toml v1.3.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

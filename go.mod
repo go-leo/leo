@@ -3,14 +3,14 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230602114633-c29b352eb675
+	github.com/go-leo/gox v0.0.0-20230607084658-694cc92fdb76
 	github.com/prometheus/client_golang v1.15.1
 	golang.org/x/sync v0.2.0
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106
 )
 
 require (
-	github.com/BurntSushi/toml v1.3.0 // indirect
+	github.com/BurntSushi/toml v1.3.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
