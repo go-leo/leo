@@ -3,13 +3,13 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601110536-2d8ff9ca4e61
-	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601123942-174a75bebcc0
+	github.com/go-leo/gox v0.0.0-20230602114633-c29b352eb675
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.2
 )
 
 require (
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.354 // indirect
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.356 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect

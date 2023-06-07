@@ -1,8 +1,8 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601110536-2d8ff9ca4e61 h1:JOQCcrJbpMtlge6MZYAu0M3ov5EUO0sC3Fo1BU0AMd4=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601110536-2d8ff9ca4e61/go.mod h1:C4NPXB9ToNGoDrasDFStNVkJMPY5A/kJUI1aTQFIPBA=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601123942-174a75bebcc0 h1:iZDzTnbQBHc/BytddQt4hG9tzLupoNirRhv21XGA/pk=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230601123942-174a75bebcc0/go.mod h1:O/McL+I3zzU4OzqSU8UW3JC7yYgVEhbVEiJqHjHT6S8=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79 h1:kIECvi7BkRvQkUKc0ms/Yllq9OXK9b4mGwQsn4XfJHo=
-github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79/go.mod h1:XjD9SMyXe2XHZJ5t07OqUEX+0YTT3p3Frz547mBxSRA=
+github.com/go-leo/gox v0.0.0-20230602114633-c29b352eb675 h1:ykTIh4sR8aowW0pGiDBjIPb+5Bpf7f52K3T8ppbjTLA=
+github.com/go-leo/gox v0.0.0-20230602114633-c29b352eb675/go.mod h1:XjD9SMyXe2XHZJ5t07OqUEX+0YTT3p3Frz547mBxSRA=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg=
 github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=

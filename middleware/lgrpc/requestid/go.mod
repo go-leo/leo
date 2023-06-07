@@ -1,9 +1,9 @@
 module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/requestid
 
-go 1.13
+go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230601020255-79008d1f0c79
+	github.com/go-leo/gox v0.0.0-20230602114633-c29b352eb675
 	github.com/stretchr/testify v1.8.2 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	google.golang.org/genproto v0.0.0-20230530153820-e85fd2cbaebc // indirect

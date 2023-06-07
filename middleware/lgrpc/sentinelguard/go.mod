@@ -1,6 +1,6 @@
 module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/sentinelguard
 
-go 1.13
+go 1.20
 
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
@@ -10,6 +10,7 @@ require (
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.5 // indirect
 	github.com/stretchr/testify v1.8.3
+	github.com/tklauser/numcpus v0.6.1 // indirect
 	google.golang.org/genproto v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/grpc v1.55.0
