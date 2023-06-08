@@ -3,11 +3,12 @@ module codeup.aliyun.com/qimao/leo/leo/transport/ginhttp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607090825-1d3d65d29353
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41
 	github.com/gin-gonic/gin v1.9.1
-
 	golang.org/x/sync v0.2.0
 )
+
+require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41
 
 require (
 	github.com/BurntSushi/toml v1.3.1 // indirect

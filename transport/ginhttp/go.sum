@@ -1,5 +1,7 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607090825-1d3d65d29353 h1:+8nApnFen7zW4K+8wgCprCXcz1ysFn/KmherPQMIFOM=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607090825-1d3d65d29353/go.mod h1:wwG5sK5wElHRrSNEqS/NyWZX5IcOOxnOESFEUv9W6aU=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41 h1:5PSDtEPP3jRRySrL4qBXkMm/1jSHzJAwjqa8YS8npgg=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41/go.mod h1:q1kqERGUJM4E9KtGTLa3SbHEvJFmkv7cGutbDySl8Go=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41 h1:IaQdWr0ByOHP9zQkHnqrrjEGMfbpLua/TEm/36Oa9us=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41/go.mod h1:esEh6Be8bo3Mt5uJ2VBr11+wXUFtWENNenA+KIpsPks=
 github.com/BurntSushi/toml v1.3.1 h1:rHnDkSK+/g6DlREUK73PkmIs60pqrnuduK+JmP++JmU=
 github.com/BurntSushi/toml v1.3.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
@@ -22,8 +24,6 @@ github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.9.1 h1:4idEAncQnU5cB7BeOkPtxjfCSye0AAm1R0RVIqJ+Jmg=
 github.com/gin-gonic/gin v1.9.1/go.mod h1:hPrL7YrpYKXt5YId3A/Tnip5kqbEAP+KLuI3SUcPTeU=
- h1:pp71A8YLhIfqYmxQOG8+67cQ0g3yxhnRhhfkT8wECBQ=
-/go.mod h1:XjD9SMyXe2XHZJ5t07OqUEX+0YTT3p3Frz547mBxSRA=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
 github.com/go-playground/locales v0.14.1 h1:EWaQ/wswjilfKLTECiXz7Rh+3BjFhfDFKv/oXslEjJA=
 github.com/go-playground/locales v0.14.1/go.mod h1:hxrqLVvrK65+Rwrd5Fc6F2O76J/NuW9t0sjnWqG1slY=

@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metric
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop v0.0.0-20230607091859-4f4ff909cc6d
+	codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop v0.0.0-20230608100153-f7651fb12d41
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/metric v1.16.0
 	google.golang.org/grpc v1.55.0
