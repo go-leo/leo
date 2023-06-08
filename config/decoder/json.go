@@ -3,7 +3,7 @@ package decoder
 import (
 	"strings"
 
-	"github.com/go-leo/gox/encodingx/jsonx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/jsonx"
 	"golang.org/x/exp/slices"
 )
 

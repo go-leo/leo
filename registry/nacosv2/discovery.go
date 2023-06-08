@@ -4,8 +4,8 @@ import (
 	"context"
 	"math"
 
-	"github.com/go-leo/gox/mapx"
-	"github.com/go-leo/gox/stringx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mapx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/model"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"

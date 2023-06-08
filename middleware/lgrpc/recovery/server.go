@@ -3,7 +3,7 @@ package recovery
 import (
 	"context"
 
-	"github.com/go-leo/gox/runtimex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/runtimex"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

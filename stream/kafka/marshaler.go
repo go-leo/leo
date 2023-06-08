@@ -1,11 +1,11 @@
 package kafka
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/operator"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/go-leo/gox/operator"
-	"github.com/go-leo/gox/stringx"
 	"strconv"
 	"time"
 )

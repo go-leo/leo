@@ -3,11 +3,11 @@ package stream
 import (
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-leo/gox/slicex"
 	"os/signal"
 	"sync/atomic"
 	"time"

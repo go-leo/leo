@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"strings"
 
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/gin-gonic/gin"
-	"github.com/go-leo/gox/mathx/randx"
-	"github.com/go-leo/gox/stringx"
 )
 
 // Middleware return the RequestID middleware.

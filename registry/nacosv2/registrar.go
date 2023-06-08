@@ -7,7 +7,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 
-	"github.com/go-leo/gox/stringx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 
 	"codeup.aliyun.com/qimao/leo/leo/registry"
 )

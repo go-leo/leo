@@ -1,5 +1,5 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607090825-1d3d65d29353 h1:+8nApnFen7zW4K+8wgCprCXcz1ysFn/KmherPQMIFOM=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607090825-1d3d65d29353/go.mod h1:wwG5sK5wElHRrSNEqS/NyWZX5IcOOxnOESFEUv9W6aU=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607091859-4f4ff909cc6d h1:ma1WSYqpFu0llFqTiTvL5wg4ni9l1NxvZHbQx6kNQNw=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230607091859-4f4ff909cc6d/go.mod h1:unWgiyoBiK3UW5SBLTlZCWSLrPWQExM+k3lEfhjUDL4=
 golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 h1:k/i9J1pBpvlfR+9QsetwPyERsqu1GIbi967PQMq3Ivc=
 golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1/go.mod h1:V1LtkGg67GoY2N1AnLN78QLrzxkLyJw7RJb1gzOOz9w=
 gopkg.in/natefinch/lumberjack.v2 v2.2.1 h1:bBRl1b0OH9s/DuPhuXpNl+VtCaJXFZ5/uEFST95x9zc=

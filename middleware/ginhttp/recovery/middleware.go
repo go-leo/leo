@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/runtimex"
 	"github.com/gin-gonic/gin"
-	"github.com/go-leo/gox/runtimex"
 )
 
 func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {

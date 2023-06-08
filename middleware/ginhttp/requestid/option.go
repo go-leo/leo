@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/gin-gonic/gin"
-	"github.com/go-leo/gox/stringx"
 )
 
 type options struct {

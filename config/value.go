@@ -3,8 +3,8 @@ package config
 import (
 	"time"
 
-	"github.com/go-leo/gox/convx"
-	"github.com/go-leo/gox/encodingx/mapstructurex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/mapstructurex"
 )
 
 type Value struct {

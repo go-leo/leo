@@ -3,8 +3,8 @@ package registry
 import (
 	"fmt"
 
-	"github.com/go-leo/gox/mathx/randx"
-	"github.com/go-leo/gox/stringx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 )
 
 // ServiceInstance represents an instance of a service in a discovery system.

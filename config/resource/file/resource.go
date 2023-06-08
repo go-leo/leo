@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"sync"
 
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/pathx/filepathx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-leo/gox/pathx/filepathx"
-	"github.com/go-leo/gox/slicex"
 
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/log"

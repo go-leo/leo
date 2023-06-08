@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/go-leo/gox/netx/httpx/render"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/netx/httpx/render"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )

@@ -3,7 +3,7 @@ package decoder
 import (
 	"strings"
 
-	"github.com/go-leo/gox/encodingx/yamlx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/yamlx"
 	"golang.org/x/exp/slices"
 )
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-leo/gox/containerx/trie"
-	"github.com/go-leo/gox/convx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/containerx/trie"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 )
 
 const allConfigKey = ""

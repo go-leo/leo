@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-leo/gox v0.0.0-20230607084658-694cc92fdb76
+
 )
 
 require (

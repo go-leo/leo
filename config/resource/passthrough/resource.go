@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/go-leo/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/log"

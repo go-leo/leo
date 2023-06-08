@@ -1,7 +1,7 @@
 package text
 
 import (
-	"github.com/go-leo/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 	"golang.org/x/exp/slices"
 	"sync"
 	"sync/atomic"

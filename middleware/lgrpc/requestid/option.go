@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-leo/gox/stringx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 )
 
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))

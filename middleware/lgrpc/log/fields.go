@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-leo/gox/stringx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )

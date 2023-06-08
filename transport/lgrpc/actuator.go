@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-leo/gox/netx/httpx/render"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/netx/httpx/render"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"

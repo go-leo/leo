@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-leo/gox/netx/addrx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/netx/addrx"
 
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"

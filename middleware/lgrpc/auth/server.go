@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/go-leo/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

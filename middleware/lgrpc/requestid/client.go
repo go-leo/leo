@@ -3,7 +3,7 @@ package requestid
 import (
 	"context"
 
-	"github.com/go-leo/gox/stringx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )

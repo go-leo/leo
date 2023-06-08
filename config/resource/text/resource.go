@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"codeup.aliyun.com/qimao/leo/leo/config"
-	"github.com/go-leo/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 )
 
 var _ config.Resource = new(Resource)

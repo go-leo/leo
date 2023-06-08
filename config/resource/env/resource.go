@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/pathx/filepathx"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-leo/gox/pathx/filepathx"
-	"github.com/go-leo/gox/slicex"
-	"github.com/go-leo/gox/stringx"
 
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/log"

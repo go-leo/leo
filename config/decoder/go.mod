@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/config/decoder
 go 1.20
 
 require (
-	github.com/go-leo/gox v0.0.0-20230607084658-694cc92fdb76
+
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )
 

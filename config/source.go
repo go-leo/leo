@@ -3,7 +3,7 @@ package config
 import (
 	"sync"
 
-	"github.com/go-leo/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 )
 
 type Source struct {
