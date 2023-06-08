@@ -6,6 +6,8 @@ package tomlx
 import (
 	"io"
 
+	"github.com/pelletier/go-toml/v2"
+
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx"
 )
 

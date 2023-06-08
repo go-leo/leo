@@ -3,6 +3,8 @@ package yamlx
 import (
 	"io"
 
+	"gopkg.in/yaml.v3"
+
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx"
 )
 
