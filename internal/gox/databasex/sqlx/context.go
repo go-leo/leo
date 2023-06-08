@@ -3,8 +3,6 @@ package sqlx
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 )
 
 type dbKey struct{}
@@ -18,14 +16,14 @@ func FromContext(ctx context.Context) (*sql.DB, bool) {
 	return value, ok
 }
 
-func BeginTx(ctx context.Context) (context.Context, error) {
-	db, ok := FromContext(ctx)
-	if !ok {
-		return ctx, errors.New("not found db from context")
-	}
-	tx, err := db.BeginTx(ctx, &sql.TxOptions{})
-	if err != nil {
-		return ctx, fmt.Errorf("failed to begin tx, %w", err)
-	}
-
-}
+//func BeginTx(ctx context.Context) (context.Context, error) {
+//	db, ok := FromContext(ctx)
+//	if !ok {
+//		return ctx, errors.New("not found db from context")
+//	}
+//	tx, err := db.BeginTx(ctx, &sql.TxOptions{})
+//	if err != nil {
+//		return ctx, fmt.Errorf("failed to begin tx, %w", err)
+//	}
+//
+//}
