@@ -1,5 +1,5 @@
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41 h1:IaQdWr0ByOHP9zQkHnqrrjEGMfbpLua/TEm/36Oa9us=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41/go.mod h1:esEh6Be8bo3Mt5uJ2VBr11+wXUFtWENNenA+KIpsPks=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf h1:vQ6mUiQQ9zxZ9Xd+Xq0FTtZYV/CViW1rPhssEHKPcZ4=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf/go.mod h1:oBx921Tn84yyc9V290k6CmzkXyi3UuAYuRn5pJ6qEGg=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg=
 github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=

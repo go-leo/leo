@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/recovery
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf
 	google.golang.org/grpc v1.55.0
 )
 

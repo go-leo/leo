@@ -1,7 +1,7 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41 h1:5PSDtEPP3jRRySrL4qBXkMm/1jSHzJAwjqa8YS8npgg=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41/go.mod h1:q1kqERGUJM4E9KtGTLa3SbHEvJFmkv7cGutbDySl8Go=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41 h1:IaQdWr0ByOHP9zQkHnqrrjEGMfbpLua/TEm/36Oa9us=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41/go.mod h1:esEh6Be8bo3Mt5uJ2VBr11+wXUFtWENNenA+KIpsPks=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608101254-a28da9073fbf h1:rHu2bDc2DR+e6QOxzS4HjB4lEIKfu/1aJq9sM0j+kUM=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608101254-a28da9073fbf/go.mod h1:7At3ps6AHYWIZC9KIyUIb2zx0Tict04HrU9sfP3Eo8k=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf h1:vQ6mUiQQ9zxZ9Xd+Xq0FTtZYV/CViW1rPhssEHKPcZ4=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf/go.mod h1:oBx921Tn84yyc9V290k6CmzkXyi3UuAYuRn5pJ6qEGg=
 github.com/BurntSushi/toml v1.3.1 h1:rHnDkSK+/g6DlREUK73PkmIs60pqrnuduK+JmP++JmU=
 github.com/BurntSushi/toml v1.3.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

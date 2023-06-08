@@ -30,10 +30,10 @@ cloud.google.com/go/storage v1.5.0/go.mod h1:tpKbwo567HUNpVclU5sGELwQWBDZ8gh0Zeo
 cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohlUTyfDhBk=
 cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RXyy7KQOVs=
 cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9ullr3+Kg0=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41 h1:5PSDtEPP3jRRySrL4qBXkMm/1jSHzJAwjqa8YS8npgg=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41/go.mod h1:q1kqERGUJM4E9KtGTLa3SbHEvJFmkv7cGutbDySl8Go=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41 h1:IaQdWr0ByOHP9zQkHnqrrjEGMfbpLua/TEm/36Oa9us=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41/go.mod h1:esEh6Be8bo3Mt5uJ2VBr11+wXUFtWENNenA+KIpsPks=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608101254-a28da9073fbf h1:rHu2bDc2DR+e6QOxzS4HjB4lEIKfu/1aJq9sM0j+kUM=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608101254-a28da9073fbf/go.mod h1:7At3ps6AHYWIZC9KIyUIb2zx0Tict04HrU9sfP3Eo8k=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf h1:vQ6mUiQQ9zxZ9Xd+Xq0FTtZYV/CViW1rPhssEHKPcZ4=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf/go.mod h1:oBx921Tn84yyc9V290k6CmzkXyi3UuAYuRn5pJ6qEGg=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
@@ -241,6 +241,7 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.3 h1:RP3t2pwF7cMEbC1dqtB6poj3niw/9gnV4Cjg5oW5gtY=
+github.com/stretchr/testify v1.8.3/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/uber/jaeger-client-go v2.30.0+incompatible h1:D6wyKGCecFaSRUpo8lCVbaOOb6ThwMmTEbhRwtKR97o=
 github.com/uber/jaeger-client-go v2.30.0+incompatible/go.mod h1:WVhlPFC8FDjOFMMWRy2pZqQJSXxYSwNYOkTr/Z6d3Kk=
 github.com/uber/jaeger-lib v2.4.1+incompatible h1:td4jdvLcExb4cBISKIpHuGoVXh+dVKhn2Um6rjCsSsg=

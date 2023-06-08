@@ -3,12 +3,13 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/auth
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf
 	google.golang.org/grpc v1.55.0
 )
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/stretchr/testify v1.8.3 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect

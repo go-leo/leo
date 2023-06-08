@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/schedule/cron
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608101254-a28da9073fbf
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf
 	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )
@@ -19,6 +19,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/prometheus/client_golang v1.15.1 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
@@ -26,4 +27,5 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -3,11 +3,11 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608100153-f7651fb12d41
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230608101254-a28da9073fbf
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.2
 )
 
-require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608100153-f7651fb12d41
+require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230608101254-a28da9073fbf
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.362 // indirect
@@ -26,6 +26,7 @@ require (
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
+	github.com/stretchr/testify v1.8.3 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
