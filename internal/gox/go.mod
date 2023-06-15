@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/internal/gox
 go 1.20
 
 require (
-	github.com/BurntSushi/toml v1.3.1
+	github.com/BurntSushi/toml v1.3.2
 	github.com/frankban/quicktest v1.14.4
 	github.com/goccy/go-json v0.10.2
 	github.com/joho/godotenv v1.5.1
@@ -12,7 +12,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.8
 	github.com/stretchr/testify v1.8.3
 	github.com/ugorji/go/codec v1.2.11
-	golang.org/x/crypto v0.9.0
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/yaml.v3 v3.0.1
