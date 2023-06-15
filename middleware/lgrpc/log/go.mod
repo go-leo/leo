@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/log
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032733-f7ee4e22f05e
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032733-f7ee4e22f05e
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524
 	google.golang.org/grpc v1.55.0
 )
 
