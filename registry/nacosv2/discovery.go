@@ -4,7 +4,6 @@ import (
 	"context"
 	"math"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mapx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/model"
@@ -71,7 +70,7 @@ func (d *Discovery) nacosHostsToServiceInstances(hosts []model.Instance, service
 		}
 		metadata := instance.Metadata
 		var id string
-		if mapx.IsNotEmpty(metadata) {
+		if len(metadata) > 0 {
 			id = metadata[kInstanceId]
 			delete(metadata, kInstanceId)
 		}
