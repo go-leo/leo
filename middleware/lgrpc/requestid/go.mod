@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/requestid
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032408-1517ea504f2e
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032733-f7ee4e22f05e
 	google.golang.org/grpc v1.55.0
 )
 

@@ -3,12 +3,12 @@ module codeup.aliyun.com/qimao/leo/leo/transport/lgrpc
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032408-1517ea504f2e
+	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032733-f7ee4e22f05e
 	golang.org/x/sync v0.3.0
 	google.golang.org/grpc v1.55.0
 )
 
-require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032408-1517ea504f2e
+require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032733-f7ee4e22f05e
 
 require (
 	github.com/BurntSushi/toml v1.3.2 // indirect

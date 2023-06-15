@@ -1,7 +1,7 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032408-1517ea504f2e h1:HTCjPO3VditktZwjIkb6G78kAq39RgzyrQXiDYV16iQ=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032408-1517ea504f2e/go.mod h1:8fqc1qJUYD1KOHKomyfRLirJyzl2GraugRRknXTPWy8=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032408-1517ea504f2e h1:IJ9S47H3BuP0iGwqtEXwF/XbyHWLsI8cr9AHaE2/n/Y=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032408-1517ea504f2e/go.mod h1:g8PnJxeQM4z8Xwdt814bBeHQ32vvWGGmHOCnUJP71Qw=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032733-f7ee4e22f05e h1:1XfqzxF/OqTOoDAkOsHLQQXsGgvdc9A4cZXz9MEYXlc=
+codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615032733-f7ee4e22f05e/go.mod h1:aB/RMVbJpNWT0H1Eei7X8Ep/KGNDSlnFgusdgzMZKQ4=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032733-f7ee4e22f05e h1:hgSmXCGRFWzwB/Z4AGAaAEdhHsQdKkFvhuK2Bgp9Nt0=
+codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615032733-f7ee4e22f05e/go.mod h1:ouF6h0I0wxAVgXrK2ttXR2bp8k+NuGo59QxkG4nyXXk=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.9.1 h1:6iJ6NqdoxCDr6mbY8h18oSO+cShGSMRGCEo7F2h0x8s=
 github.com/bytedance/sonic v1.9.1/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
