@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metric
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop v0.0.0-20230615090731-6cb9fa87d524
+	codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop v0.0.1
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/metric v1.16.0
 	google.golang.org/grpc v1.55.0
@@ -20,3 +20,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
+
+replace codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop => ../../../middleware/lgrpc/noop

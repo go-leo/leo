@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/log
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524
+	codeup.aliyun.com/qimao/leo/leo v0.0.1
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
 	google.golang.org/grpc v1.55.0
 )
 
@@ -16,3 +16,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
+
+replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox
+
+replace codeup.aliyun.com/qimao/leo/leo => ../../../

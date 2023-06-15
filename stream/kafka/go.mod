@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/stream/kafka
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524
+	codeup.aliyun.com/qimao/leo/leo v0.0.1
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
 	github.com/confluentinc/confluent-kafka-go/v2 v2.1.1
 
 )
@@ -39,3 +39,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106 // indirect
 )
+
+replace codeup.aliyun.com/qimao/leo/leo => ../..
+
+replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../internal/gox

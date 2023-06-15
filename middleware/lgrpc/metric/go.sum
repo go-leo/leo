@@ -1,5 +1,3 @@
-codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop v0.0.0-20230615090731-6cb9fa87d524 h1:hdL+D5DsSncBmU9NFoSTQ0DvucaFABT06/NxLm4RUCE=
-codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/noop v0.0.0-20230615090731-6cb9fa87d524/go.mod h1:onT4ZHPNQ85kmGCzO1QQLtxEmsLpI74h5JjzDh/Pmrw=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
 github.com/go-logr/logr v1.2.4 h1:g01GSCwiDw2xSZfjJ2/T9M+S6pFdcNtFYsp+Y43HYDQ=

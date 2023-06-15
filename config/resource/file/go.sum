@@ -1,7 +1,3 @@
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524 h1:C3QpiZzgWnGf/l7bn9IzmDtBRev3qIRep32JYWLdpOk=
-codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524/go.mod h1:Zql1rzPpOKLhADFUhaUoUuw4obF1qAs/GCDzUVhRK20=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524 h1:Z3ZxxOABOwa4J8LMh0GsORrO2Uh37Gs8yChIXltZtPg=
-codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524/go.mod h1:Ftu74J9Uyx6tSVQnBWW92aRQPmY7GGU04WUXe/9HSz8=
 github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=

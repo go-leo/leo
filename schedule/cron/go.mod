@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/schedule/cron
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524
+	codeup.aliyun.com/qimao/leo/leo v0.0.1
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
 	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )
@@ -29,3 +29,7 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace codeup.aliyun.com/qimao/leo/leo => ../..
+
+replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../internal/gox

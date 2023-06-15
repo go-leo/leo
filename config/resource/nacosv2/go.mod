@@ -3,11 +3,11 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.0-20230615090731-6cb9fa87d524
+	codeup.aliyun.com/qimao/leo/leo v0.0.1
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.2
 )
 
-require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.0-20230615090731-6cb9fa87d524
+require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.377 // indirect
@@ -41,3 +41,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
+
+replace codeup.aliyun.com/qimao/leo/leo => ../../../
+
+replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox
