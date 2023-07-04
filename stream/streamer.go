@@ -246,3 +246,7 @@ func (h *handler) close() error {
 	}
 	return errors.Join(errs...)
 }
+
+func NewStreamer() *Streamer {
+	return &Streamer{}
+}

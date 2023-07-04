@@ -38,19 +38,6 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 	if err := sub.consumer.Subscribe(sub.topic, sub.o.RebalanceCb); err != nil {
 		return err
 	}
-	go sub.consumeMsg(ctx, msgC, errC)
-	return nil
-}
-
-func (sub *Subscriber) Close(ctx context.Context) error {
-	if !sub.closed.CompareAndSwap(false, true) {
-		return nil
-	}
-	close(sub.closeC)
-	return sub.consumer.Close()
-}
-
-func (sub *Subscriber) consumeMsg(ctx context.Context, msgC chan<- *stream.Message, errC chan<- error) {
 	defer func() {
 		if _, err := sub.consumer.Commit(); err != nil {
 			errC <- err
@@ -62,11 +49,11 @@ func (sub *Subscriber) consumeMsg(ctx context.Context, msgC chan<- *stream.Messa
 	for {
 		select {
 		case <-ctx.Done():
-			return
+			return nil
 		case <-sub.closeC:
-			return
+			return nil
 		default:
-			ev := sub.consumer.Poll(100)
+			ev := sub.consumer.Poll(int(sub.o.PollTimeout.Milliseconds()))
 			if ev == nil {
 				continue
 			}
@@ -88,13 +75,26 @@ func (sub *Subscriber) consumeMsg(ctx context.Context, msgC chan<- *stream.Messa
 				if e.IsTimeout() {
 					continue
 				}
+				if e.IsRetriable() {
+					continue
+				}
+				if e.IsFatal() {
+					return e
+				}
 				errC <- e
 			default:
 				continue
 			}
 		}
 	}
+}
 
+func (sub *Subscriber) Close(ctx context.Context) error {
+	if !sub.closed.CompareAndSwap(false, true) {
+		return nil
+	}
+	close(sub.closeC)
+	return sub.consumer.Close()
 }
 
 func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, msgC chan<- *stream.Message, errC chan<- error) {
@@ -105,12 +105,12 @@ func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, m
 	}
 
 	ackC := make(chan struct{})
-	msg.NotifyAck(ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
+	stream.NotifyAck(msg, ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
 		return sub.consumer.CommitMessage(kafkaMsg)
 	})
 
 	nackC := make(chan struct{})
-	msg.NotifyNack(nackC, func(ctx context.Context, msg *stream.Message) (any, error) {
+	stream.NotifyNack(msg, nackC, func(ctx context.Context, msg *stream.Message) (any, error) {
 		return nil, nil
 	})
 

@@ -1,10 +1,12 @@
 package kafka
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/operator"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
+	"encoding/hex"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"strconv"
 	"time"
@@ -20,6 +22,7 @@ const (
 	MetadataKey      = "Metadata"
 	TopicKey         = "Topic"
 	ErrorKey         = "Error"
+	IDKey            = "X-Leo-Stream-ID"
 )
 
 // Marshaler marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
@@ -28,8 +31,7 @@ type Marshaler interface {
 	Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, error)
 }
 
-type DefaultMarshaler struct {
-}
+type DefaultMarshaler struct{}
 
 func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream.Message) (*kafka.Message, error) {
 	header := msg.Header
@@ -64,6 +66,10 @@ func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream
 		}
 	})
 
+	if len(msg.ID) > 0 {
+		kafkaHeaders = append(kafkaHeaders, kafka.Header{Key: IDKey, Value: []byte(msg.ID)})
+	}
+
 	kafkaMsg := &kafka.Message{
 		TopicPartition: kafka.TopicPartition{
 			Topic:     &topic,
@@ -80,6 +86,29 @@ func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream
 }
 
 func (d DefaultMarshaler) Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, error) {
-	//TODO implement me
-	panic("implement me")
+	var id string
+	header := stream.Header{}
+	for _, h := range kafkaMsg.Headers {
+		if h.Key == IDKey {
+			id = string(h.Value)
+			continue
+		}
+		header.Set(h.Key, string(h.Value))
+	}
+	if len(id) <= 0 {
+		r := randx.Get()
+		var tid [16]byte
+		r.Read(tid[:])
+		id = hex.EncodeToString(tid[:])
+		defer randx.Put(r)
+	} else {
+
+	}
+
+	return &stream.Message{
+		ID:      id,
+		Time:    kafkaMsg.Timestamp,
+		Payload: kafkaMsg.Value,
+		Header:  header,
+	}, nil
 }

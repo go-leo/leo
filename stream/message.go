@@ -21,7 +21,7 @@ type Message struct {
 	Payload []byte
 	Header  Header
 
-	sync.Mutex
+	m sync.Mutex
 
 	ackC    chan struct{}
 	ackFunc func(ctx context.Context, msg *Message) (any, error)
@@ -33,29 +33,15 @@ type Message struct {
 }
 
 func (m *Message) Ack(ctx context.Context) (any, error) {
-	m.Lock()
-	defer m.Unlock()
+	m.m.Lock()
+	defer m.m.Unlock()
 	return m.ack(ctx)
 }
 
 func (m *Message) Nack(ctx context.Context) (any, error) {
-	m.Lock()
-	defer m.Unlock()
+	m.m.Lock()
+	defer m.m.Unlock()
 	return m.nack(ctx)
-}
-
-func (m *Message) NotifyAck(ackC chan struct{}, ackFunc func(ctx context.Context, msg *Message) (any, error)) {
-	m.Lock()
-	defer m.Unlock()
-	m.ackC = ackC
-	m.ackFunc = ackFunc
-}
-
-func (m *Message) NotifyNack(nackC chan struct{}, nackFunc func(ctx context.Context, msg *Message) (any, error)) {
-	m.Lock()
-	defer m.Unlock()
-	m.nackC = nackC
-	m.nackFunc = nackFunc
 }
 
 func (m *Message) ack(ctx context.Context) (any, error) {
@@ -104,4 +90,18 @@ func (m *Message) nack(ctx context.Context) (any, error) {
 	nackResult, err := m.nackFunc(ctx, m)
 	m.nackC <- struct{}{}
 	return nackResult, err
+}
+
+func NotifyAck(m *Message, ackC chan struct{}, ackFunc func(ctx context.Context, msg *Message) (any, error)) {
+	m.m.Lock()
+	defer m.m.Unlock()
+	m.ackC = ackC
+	m.ackFunc = ackFunc
+}
+
+func NotifyNack(m *Message, nackC chan struct{}, nackFunc func(ctx context.Context, msg *Message) (any, error)) {
+	m.m.Lock()
+	defer m.m.Unlock()
+	m.nackC = nackC
+	m.nackFunc = nackFunc
 }

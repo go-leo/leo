@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
-	github.com/prometheus/client_golang v1.15.1
+	github.com/prometheus/client_golang v1.16.0
 	golang.org/x/sync v0.3.0
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106
 )
