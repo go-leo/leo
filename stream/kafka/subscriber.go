@@ -41,6 +41,11 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 	defer func() {
 		if _, err := sub.consumer.Commit(); err != nil {
 			errC <- err
+			if errC != nil {
+				errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
+				return
+			}
+			sub.o.Logger.Error("failed to commit kafka message, %w", err)
 		}
 		if err := sub.consumer.Unsubscribe(); err != nil {
 			errC <- err

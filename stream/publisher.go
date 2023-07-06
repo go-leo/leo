@@ -17,24 +17,6 @@ type Publisher interface {
 	Close(ctx context.Context) error
 }
 
-type noopPublisher struct{}
-
-func (pub *noopPublisher) Topic() string {
-	return ""
-}
-
-func (pub *noopPublisher) Queue() string {
-	return ""
-}
-
-func (pub *noopPublisher) Publish(ctx context.Context, msg ...*Message) (any, error) {
-	return struct{}{}, nil
-}
-
-func (pub *noopPublisher) Close(ctx context.Context) error {
-	return nil
-}
-
 type multiPublisher struct {
 	publishers []Publisher
 }

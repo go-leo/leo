@@ -1,12 +1,14 @@
 package kafka
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"time"
 )
 
 type options struct {
+	Logger          log.Logger
 	Marshaler       Marshaler
 	ShutdownTimeout time.Duration
 	RebalanceCb     kafka.RebalanceCb
@@ -31,6 +33,12 @@ func (o *options) init() {
 	}
 	if o.PollTimeout <= 0 {
 		o.PollTimeout = 100 * time.Millisecond
+	}
+}
+
+func Logger(l log.Logger) Option {
+	return func(o *options) {
+		o.Logger = l
 	}
 }
 

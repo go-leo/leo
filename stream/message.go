@@ -60,22 +60,6 @@ func (m *Message) ack(ctx context.Context) (any, error) {
 	return ackResult, err
 }
 
-func (m *Message) tryAck(ctx context.Context) (any, error) {
-	if m.acked {
-		return nil, nil
-	}
-	if m.nacked {
-		return nil, nil
-	}
-	if m.ackFunc == nil {
-		return nil, ErrAckNotImplemented
-	}
-	m.acked = true
-	ackResult, err := m.ackFunc(ctx, m)
-	m.ackC <- struct{}{}
-	return ackResult, err
-}
-
 func (m *Message) nack(ctx context.Context) (any, error) {
 	if m.nacked {
 		return nil, ErrMessageNacked
