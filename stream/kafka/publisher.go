@@ -4,6 +4,7 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"sync"
 	"sync/atomic"
@@ -27,7 +28,7 @@ func (pub *Publisher) Queue() string {
 	return "kafka"
 }
 
-func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (any, error) {
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.PublishResult, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -41,7 +42,7 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	deliveryChan := make(chan kafka.Event, 1)
 	defer close(deliveryChan)
 
-	result := make([]*PublishResult, 0, len(messages))
+	var result stream.PublishResults
 	for _, msg := range messages {
 		kafkaMsg, err := pub.o.Marshaller.Marshal(ctx, pub.topic, msg)
 		if err != nil {
@@ -80,6 +81,10 @@ type PublishResult struct {
 	Partition int32
 	Offset    int64
 	Msg       *stream.Message
+}
+
+func (p PublishResult) String() string {
+	return fmt.Sprintf("%d@%d", p.Offset, p.Partition)
 }
 
 func NewPublisher(topic string, factory func() (*kafka.Producer, error), opts ...Option) (*Publisher, error) {

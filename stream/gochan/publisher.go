@@ -25,7 +25,7 @@ func (pub *Publisher) Queue() string {
 	return "gochan"
 }
 
-func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (any, error) {
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.PublishResult, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -36,7 +36,7 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	pub.wg.Add(1)
 	defer pub.wg.Done()
 
-	result := make([]*PublishResult, 0, len(messages))
+	var result stream.PublishResults
 	for _, msg := range messages {
 		goChanMsg, err := pub.o.Marshaller.Marshal(ctx, pub.topic, msg)
 		if err != nil {
@@ -58,6 +58,10 @@ func (pub *Publisher) Close(_ context.Context) error {
 
 type PublishResult struct {
 	Msg []byte
+}
+
+func (p PublishResult) String() string {
+	return string(p.Msg)
 }
 
 func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) *Publisher {

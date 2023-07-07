@@ -29,7 +29,7 @@ func (pub *Publisher) Queue() string {
 	return "amqp"
 }
 
-func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (any, error) {
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.PublishResult, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -41,8 +41,8 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	return pub.publishMessages(ctx, messages, pub.o.ExchangeName(pub.topic), pub.o.RoutingKeys(pub.topic))
 }
 
-func (pub *Publisher) publishMessages(ctx context.Context, messages []*stream.Message, exchangeName string, routingKeys []string) ([]*PublishResult, error) {
-	results := make([]*PublishResult, 0, len(messages))
+func (pub *Publisher) publishMessages(ctx context.Context, messages []*stream.Message, exchangeName string, routingKeys []string) (stream.PublishResult, error) {
+	var results stream.PublishResults
 	for _, routingKey := range routingKeys {
 		for _, msg := range messages {
 			publishing, err := pub.convertMessage(ctx, msg)
@@ -102,6 +102,10 @@ type PublishResult struct {
 	Acked        bool
 	ExchangeName string
 	RoutingKey   string
+}
+
+func (p PublishResult) String() string {
+	return p.ExchangeName + "/" + p.RoutingKey
 }
 
 func NewPublisher(topic string, factory func(topic string) (*amqp091.Connection, error), opts ...Option) (*Publisher, error) {

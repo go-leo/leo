@@ -9,11 +9,25 @@ import (
 
 var ErrPublisherClosed = errors.New("publisher is closed")
 
+type PublishResult interface {
+	String() string
+}
+
+type PublishResults []PublishResult
+
+func (r PublishResults) String() string {
+	var values []string
+	for _, result := range r {
+		values = append(values, result.String())
+	}
+	return strings.Join(values, ", ")
+}
+
 // Publisher is message queue publisher
 type Publisher interface {
 	Topic() string
 	Queue() string
-	Publish(ctx context.Context, msg ...*Message) (any, error)
+	Publish(ctx context.Context, msg ...*Message) (PublishResult, error)
 	Close(ctx context.Context) error
 }
 
@@ -43,8 +57,8 @@ func (pub *multiPublisher) Queue() string {
 	return strings.Join(queues, ",")
 }
 
-func (pub *multiPublisher) Publish(ctx context.Context, msg ...*Message) (any, error) {
-	var allRes []any
+func (pub *multiPublisher) Publish(ctx context.Context, msg ...*Message) (PublishResult, error) {
+	var allRes PublishResults
 	for _, w := range pub.publishers {
 		res, err := w.Publish(ctx, msg...)
 		if err != nil {
