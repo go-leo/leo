@@ -7,7 +7,8 @@ require (
 	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
 	github.com/confluentinc/confluent-kafka-go/v2 v2.1.1
 	github.com/stretchr/testify v1.8.3
-
+	github.com/ugorji/go v1.2.11
+	github.com/ugorji/go/codec v1.2.11
 )
 
 require (
