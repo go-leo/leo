@@ -156,7 +156,6 @@ func (s *Streamer) addHandles() error {
 			Publisher:       nil,
 			MsgC:            msgC,
 			ErrC:            errC,
-			Logger:          s.options.Logger,
 			ShutdownTimeout: s.options.ShutdownTimeout,
 			Interceptors:    s.options.Interceptors,
 		})
@@ -178,7 +177,6 @@ func (s *Streamer) addHandles() error {
 			Publisher:       publisher,
 			MsgC:            msgC,
 			ErrC:            errC,
-			Logger:          s.options.Logger,
 			ShutdownTimeout: s.options.ShutdownTimeout,
 			Interceptors:    s.options.Interceptors,
 		})

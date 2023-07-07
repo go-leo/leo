@@ -1,6 +1,7 @@
 package amqp
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"errors"
@@ -105,7 +106,7 @@ type PublishResult struct {
 }
 
 func (p PublishResult) String() string {
-	return p.ExchangeName + "/" + p.RoutingKey
+	return p.ExchangeName + "/" + p.RoutingKey + "/" + convx.ToString(p.Acked)
 }
 
 func NewPublisher(topic string, factory func(topic string) (*amqp091.Connection, error), opts ...Option) (*Publisher, error) {

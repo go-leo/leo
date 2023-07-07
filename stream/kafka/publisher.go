@@ -84,7 +84,7 @@ type PublishResult struct {
 }
 
 func (p PublishResult) String() string {
-	return fmt.Sprintf("%d@%d", p.Offset, p.Partition)
+	return fmt.Sprintf("%d@%d/%s", p.Offset, p.Partition, p.Topic)
 }
 
 func NewPublisher(topic string, factory func() (*kafka.Producer, error), opts ...Option) (*Publisher, error) {

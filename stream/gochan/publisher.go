@@ -61,7 +61,7 @@ type PublishResult struct {
 }
 
 func (p PublishResult) String() string {
-	return string(p.Msg)
+	return "ok"
 }
 
 func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) *Publisher {

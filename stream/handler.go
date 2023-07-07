@@ -25,7 +25,6 @@ type handlerWrapper struct {
 	Subscriber      Subscriber
 	HandleFunc      func(ctx context.Context, msg *Message) ([]*Message, error)
 	Publisher       Publisher
-	Logger          log.Logger
 	MsgC            chan *Message
 	ErrC            chan error
 	Interceptors    []Interceptor
@@ -85,13 +84,11 @@ func (handler *handlerWrapper) handleMessage(ctx context.Context, msg *Message) 
 	}
 
 	// publish message
-	publish, err := handler.Publisher.Publish(ctx, messages...)
-	if err != nil {
+	if _, err := handler.Publisher.Publish(ctx, messages...); err != nil {
 		handler.ErrC <- fmt.Errorf("failed to publish message, %w", err)
 		handler.nackMessage(ctx, msg)
 		return
 	}
-	handler.Logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully published message, %v", publish)))
 	handler.ackMessage(ctx, msg)
 	return
 }
@@ -101,7 +98,7 @@ func (handler *handlerWrapper) msgIDField(msg *Message) log.F {
 }
 
 func (handler *handlerWrapper) ackMessage(ctx context.Context, msg *Message) {
-	res, err := msg.Ack(ctx)
+	_, err := msg.Ack(ctx)
 	if err != nil {
 		if errors.Is(err, ErrMessageNacked) || errors.Is(err, ErrMessageAcked) {
 			return
@@ -109,12 +106,11 @@ func (handler *handlerWrapper) ackMessage(ctx context.Context, msg *Message) {
 		handler.ErrC <- fmt.Errorf("failed to ack message: %w", err)
 		return
 	}
-	handler.Logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully acked message: %v", res)))
 	return
 }
 
 func (handler *handlerWrapper) nackMessage(ctx context.Context, msg *Message) {
-	res, err := msg.Nack(ctx)
+	_, err := msg.Nack(ctx)
 	if err != nil {
 		if errors.Is(err, ErrMessageNacked) || errors.Is(err, ErrMessageAcked) {
 			return
@@ -122,7 +118,6 @@ func (handler *handlerWrapper) nackMessage(ctx context.Context, msg *Message) {
 		handler.ErrC <- fmt.Errorf("failed to nack message: %w", err)
 		return
 	}
-	handler.Logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully nacked message: %v", res)))
 }
 
 func (handler *handlerWrapper) close() error {
