@@ -15,7 +15,7 @@ type options struct {
 	Handlers          []Handler
 	PubSubHandlers    []PubSubHandler
 	MessageBufferSize int
-	ErrorHandler      func(error)
+	ErrorHandler      func(err error)
 	Logger            log.Logger
 	ShutdownTimeout   time.Duration
 }
@@ -33,7 +33,7 @@ func (o *options) init() {
 		o.MessageBufferSize = 1
 	}
 	if o.ErrorHandler == nil {
-		o.ErrorHandler = func(error) {}
+		o.ErrorHandler = func(err error) {}
 	}
 	if o.Logger == nil {
 		o.Logger = log.L()
@@ -58,7 +58,7 @@ func MessageBufferSize(size int) Option {
 	}
 }
 
-func ErrorHandler(f func(error)) Option {
+func ErrorHandler(f func(err error)) Option {
 	return func(o *options) {
 		o.ErrorHandler = f
 	}
@@ -107,7 +107,18 @@ func (s *Streamer) Run(ctx context.Context) error {
 
 	// async run all handlers to subscribe
 	for _, handler := range s.handlerWrappers {
+		handler := handler
 		eg.Go(func() error { return handler.handle(ctx) })
+		eg.Go(func() error {
+			for {
+				select {
+				case <-ctx.Done():
+					return nil
+				case err := <-handler.errC:
+					s.options.ErrorHandler(err)
+				}
+			}
+		})
 	}
 	return eg.Wait()
 }
@@ -126,15 +137,16 @@ func (s *Streamer) addHandles() error {
 		if err != nil {
 			return err
 		}
+		msgC := make(chan *Message, s.options.MessageBufferSize)
+		errC := make(chan error, s.options.MessageBufferSize)
 		s.handlerWrappers = append(s.handlerWrappers, &handlerWrapper{
 			subscriber: subscriber,
 			handleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) {
 				return nil, handler.Handle(ctx, msg)
 			},
 			publisher:       nil,
-			msgC:            make(chan *Message, s.options.MessageBufferSize),
-			errC:            make(chan error, s.options.MessageBufferSize),
-			errorHandler:    s.options.ErrorHandler,
+			msgC:            msgC,
+			errC:            errC,
 			logger:          s.options.Logger,
 			shutdownTimeout: s.options.ShutdownTimeout,
 			running:         atomic.Bool{},
@@ -149,13 +161,14 @@ func (s *Streamer) addHandles() error {
 		if err != nil {
 			return err
 		}
+		msgC := make(chan *Message, s.options.MessageBufferSize)
+		errC := make(chan error, s.options.MessageBufferSize)
 		s.handlerWrappers = append(s.handlerWrappers, &handlerWrapper{
 			subscriber:      subscriber,
 			handleFunc:      handler.Handle,
 			publisher:       publisher,
-			msgC:            make(chan *Message, s.options.MessageBufferSize),
-			errC:            make(chan error, s.options.MessageBufferSize),
-			errorHandler:    s.options.ErrorHandler,
+			msgC:            msgC,
+			errC:            errC,
 			logger:          s.options.Logger,
 			shutdownTimeout: s.options.ShutdownTimeout,
 			running:         atomic.Bool{},

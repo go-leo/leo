@@ -20,8 +20,7 @@ func TestKafkaPublisher(t *testing.T) {
 		}
 	}()
 
-	publisher, err := gochan.NewPublisher(topic, goChan)
-	assert.NoError(t, err)
+	publisher := gochan.NewPublisher(topic, goChan)
 	assert.Equal(t, topic, publisher.Topic())
 	assert.Equal(t, "gochan", publisher.Queue())
 	var messages = []*stream.Message{
@@ -76,8 +75,7 @@ func TestKafkaPublisherMultiMessage(t *testing.T) {
 		}
 	}()
 
-	publisher, err := gochan.NewPublisher(topic, goChan)
-	assert.NoError(t, err)
+	publisher := gochan.NewPublisher(topic, goChan)
 	assert.Equal(t, topic, publisher.Topic())
 	assert.Equal(t, "gochan", publisher.Queue())
 

@@ -3,7 +3,6 @@ package gochan
 import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
-	"errors"
 	"sync"
 	"sync/atomic"
 )
@@ -39,7 +38,7 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 
 	result := make([]*PublishResult, 0, len(messages))
 	for _, msg := range messages {
-		goChanMsg, err := pub.o.Marshaler.Marshal(ctx, pub.topic, msg)
+		goChanMsg, err := pub.o.Marshaller.Marshal(ctx, pub.topic, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -61,10 +60,7 @@ type PublishResult struct {
 	Msg []byte
 }
 
-func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) (*Publisher, error) {
-	if goChan == nil {
-		return nil, errors.New("goChan is nil")
-	}
+func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) *Publisher {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
@@ -72,5 +68,5 @@ func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) (*Publishe
 		o:      o,
 		goChan: goChan,
 		topic:  topic,
-	}, nil
+	}
 }

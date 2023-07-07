@@ -3,7 +3,6 @@ package gochan
 import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
-	"errors"
 	"fmt"
 	"sync/atomic"
 )
@@ -56,7 +55,7 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 }
 
 func (sub *Subscriber) handleMsg(ctx context.Context, goChanMsg []byte, msgC chan<- *stream.Message, errC chan<- error) {
-	msg, err := sub.o.Marshaler.Unmarshal(goChanMsg)
+	msg, err := sub.o.Marshaller.Unmarshal(goChanMsg)
 	if err != nil {
 		if errC != nil {
 			errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
@@ -98,12 +97,16 @@ func (sub *Subscriber) handleMsg(ctx context.Context, goChanMsg []byte, msgC cha
 	}
 }
 
-func NewSubscriber(topic string, goChan <-chan []byte, opts ...Option) (*Subscriber, error) {
-	if goChan == nil {
-		return nil, errors.New("factory is nil")
-	}
+func NewSubscriber(topic string, goChan <-chan []byte, opts ...Option) *Subscriber {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
-	return &Subscriber{goChan: goChan, topic: topic, o: o}, nil
+	return &Subscriber{
+		o:          o,
+		topic:      topic,
+		subscribed: atomic.Bool{},
+		closed:     atomic.Bool{},
+		closeC:     make(chan struct{}),
+		goChan:     goChan,
+	}
 }

@@ -21,17 +21,16 @@ func TestSubscriber(t *testing.T) {
 		}
 	}()
 
-	subscriber, err := gochan.NewSubscriber(topic, goChan, gochan.NackHandler(func(msg *stream.Message) {
+	subscriber := gochan.NewSubscriber(topic, goChan, gochan.NackHandler(func(msg *stream.Message) {
 		t.Log("nack msg: ", string(msg.Payload))
 	}))
-	assert.NoError(t, err)
 	assert.Equal(t, topic, subscriber.Topic())
 	assert.Equal(t, "gochan", subscriber.Queue())
 	msgC := make(chan *stream.Message, 1)
 	errC := make(chan error, 1)
 
 	go func() {
-		err = subscriber.Subscribe(context.Background(), msgC, errC)
+		err := subscriber.Subscribe(context.Background(), msgC, errC)
 		assert.NoError(t, err)
 	}()
 

@@ -14,7 +14,7 @@ import (
 
 type options struct {
 	Logger      log.Logger
-	Marshaler   Marshaller
+	Marshaller  Marshaller
 	NackHandler func(msg *stream.Message)
 }
 
@@ -27,8 +27,8 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-	if o.Marshaler == nil {
-		o.Marshaler = DefaultMarshaller{}
+	if o.Marshaller == nil {
+		o.Marshaller = DefaultMarshaller{}
 	}
 }
 
@@ -38,9 +38,9 @@ func Logger(l log.Logger) Option {
 	}
 }
 
-func MessageMarshaler(m Marshaller) Option {
+func MessageMarshaller(m Marshaller) Option {
 	return func(o *options) {
-		o.Marshaler = m
+		o.Marshaller = m
 	}
 }
 

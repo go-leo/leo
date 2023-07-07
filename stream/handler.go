@@ -31,7 +31,6 @@ type handlerWrapper struct {
 	errC            chan error
 	shutdownTimeout time.Duration
 	running         atomic.Bool
-	errorHandler    func(error)
 }
 
 func (handler *handlerWrapper) handle(ctx context.Context) error {
@@ -56,6 +55,8 @@ func (handler *handlerWrapper) handle(ctx context.Context) error {
 }
 
 func (handler *handlerWrapper) handleMessage(ctx context.Context, msg *Message) {
+	ctx, cancelFunc := context.WithCancel(ctx)
+	defer cancelFunc()
 	// handle message
 	messages, err := handler.handleFunc(ctx, msg)
 	if err != nil {
