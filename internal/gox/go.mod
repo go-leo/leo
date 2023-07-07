@@ -11,9 +11,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pelletier/go-toml/v2 v2.0.8
 	github.com/stretchr/testify v1.8.3
-	github.com/ugorji/go/codec v1.2.11
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
-	google.golang.org/protobuf v1.30.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

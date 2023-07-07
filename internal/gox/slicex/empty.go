@@ -4,7 +4,3 @@ package slicex
 func IsEmpty[S ~[]E, E any](s S) bool {
 	return len(s) <= 0
 }
-
-func IsNotEmpty[S ~[]E, E any](s S) bool {
-	return len(s) > 0
-}
