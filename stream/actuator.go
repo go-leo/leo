@@ -27,16 +27,16 @@ func (h *actuatorHandler) actuatorResponse() map[string]any {
 	var handlers []map[string]any
 	for _, handler := range h.streamer.handlerWrappers {
 		handlerMap := map[string]any{}
-		if handler.subscriber != nil {
+		if handler.Subscriber != nil {
 			handlerMap["subscriber"] = map[string]any{
-				"topic": handler.subscriber.Topic(),
-				"queue": handler.subscriber.Queue(),
+				"topic": handler.Subscriber.Topic(),
+				"queue": handler.Subscriber.Queue(),
 			}
 		}
-		if handler.publisher != nil {
+		if handler.Publisher != nil {
 			handlerMap["publisher"] = map[string]any{
-				"topic": handler.publisher.Topic(),
-				"queue": handler.publisher.Queue(),
+				"topic": handler.Publisher.Topic(),
+				"queue": handler.Publisher.Queue(),
 			}
 		}
 		handlers = append(handlers, handlerMap)

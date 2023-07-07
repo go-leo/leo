@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"os/signal"
-	"sync/atomic"
 	"time"
 )
 
@@ -23,20 +22,20 @@ type Handler interface {
 }
 
 type handlerWrapper struct {
-	subscriber      Subscriber
-	handleFunc      func(ctx context.Context, msg *Message) ([]*Message, error)
-	publisher       Publisher
-	logger          log.Logger
-	msgC            chan *Message
-	errC            chan error
-	shutdownTimeout time.Duration
-	running         atomic.Bool
+	Subscriber      Subscriber
+	HandleFunc      func(ctx context.Context, msg *Message) ([]*Message, error)
+	Publisher       Publisher
+	Logger          log.Logger
+	MsgC            chan *Message
+	ErrC            chan error
+	Interceptors    []Interceptor
+	ShutdownTimeout time.Duration
 }
 
 func (handler *handlerWrapper) handle(ctx context.Context) error {
 	errC := make(chan error)
 	go func() {
-		err := handler.subscriber.Subscribe(ctx, handler.msgC, handler.errC)
+		err := handler.Subscriber.Subscribe(ctx, handler.MsgC, handler.ErrC)
 		if err != nil {
 			errC <- err
 		}
@@ -46,7 +45,7 @@ func (handler *handlerWrapper) handle(ctx context.Context) error {
 		select {
 		case err := <-errC:
 			return err
-		case msg := <-handler.msgC:
+		case msg := <-handler.MsgC:
 			handler.handleMessage(ctx, msg)
 		case <-ctx.Done():
 			return handler.close()
@@ -57,15 +56,24 @@ func (handler *handlerWrapper) handle(ctx context.Context) error {
 func (handler *handlerWrapper) handleMessage(ctx context.Context, msg *Message) {
 	ctx, cancelFunc := context.WithCancel(ctx)
 	defer cancelFunc()
-	// handle message
-	messages, err := handler.handleFunc(ctx, msg)
+
+	// intercept message
+	ctx, msg, err := interceptMessage(ctx, msg, handler.Interceptors...)
 	if err != nil {
-		handler.errC <- fmt.Errorf("failed to handle message, %w", err)
+		handler.ErrC <- fmt.Errorf("failed to handle message, %w", err)
+		handler.nackMessage(ctx, msg)
+		return
+	}
+
+	// handle message
+	messages, err := handler.HandleFunc(ctx, msg)
+	if err != nil {
+		handler.ErrC <- fmt.Errorf("failed to handle message, %w", err)
 		handler.nackMessage(ctx, msg)
 		return
 	}
 	// if publisher is nil, ack message
-	if handler.publisher == nil {
+	if handler.Publisher == nil {
 		handler.ackMessage(ctx, msg)
 		return
 	}
@@ -77,13 +85,13 @@ func (handler *handlerWrapper) handleMessage(ctx context.Context, msg *Message) 
 	}
 
 	// publish message
-	publish, err := handler.publisher.Publish(ctx, messages...)
+	publish, err := handler.Publisher.Publish(ctx, messages...)
 	if err != nil {
-		handler.errC <- fmt.Errorf("failed to publish message, %w", err)
+		handler.ErrC <- fmt.Errorf("failed to publish message, %w", err)
 		handler.nackMessage(ctx, msg)
 		return
 	}
-	handler.logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully published message, %v", publish)))
+	handler.Logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully published message, %v", publish)))
 	handler.ackMessage(ctx, msg)
 	return
 }
@@ -98,10 +106,10 @@ func (handler *handlerWrapper) ackMessage(ctx context.Context, msg *Message) {
 		if errors.Is(err, ErrMessageNacked) || errors.Is(err, ErrMessageAcked) {
 			return
 		}
-		handler.errC <- fmt.Errorf("failed to ack message: %w", err)
+		handler.ErrC <- fmt.Errorf("failed to ack message: %w", err)
 		return
 	}
-	handler.logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully acked message: %v", res)))
+	handler.Logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully acked message: %v", res)))
 	return
 }
 
@@ -111,28 +119,28 @@ func (handler *handlerWrapper) nackMessage(ctx context.Context, msg *Message) {
 		if errors.Is(err, ErrMessageNacked) || errors.Is(err, ErrMessageAcked) {
 			return
 		}
-		handler.errC <- fmt.Errorf("failed to nack message: %w", err)
+		handler.ErrC <- fmt.Errorf("failed to nack message: %w", err)
 		return
 	}
-	handler.logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully nacked message: %v", res)))
+	handler.Logger.DebugF(handler.msgIDField(msg), log.MsgField(fmt.Sprintf("successfully nacked message: %v", res)))
 }
 
 func (handler *handlerWrapper) close() error {
 	ctx, cancel := signal.NotifyContext(context.Background())
 	defer cancel()
-	shutdownTimeout := handler.shutdownTimeout
+	shutdownTimeout := handler.ShutdownTimeout
 	if shutdownTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, shutdownTimeout)
 		defer cancel()
 	}
 	var errs []error
-	if err := handler.subscriber.Close(ctx); err != nil {
+	if err := handler.Subscriber.Close(ctx); err != nil {
 		errs = append(errs, err)
 	}
-	if handler.publisher == nil {
+	if handler.Publisher == nil {
 		return errors.Join(errs...)
 	}
-	if err := handler.publisher.Close(ctx); err != nil {
+	if err := handler.Publisher.Close(ctx); err != nil {
 		errs = append(errs, err)
 	}
 	return errors.Join(errs...)

@@ -89,3 +89,24 @@ func NotifyNack(m *Message, nackC chan struct{}, nackFunc func(ctx context.Conte
 	m.nackC = nackC
 	m.nackFunc = nackFunc
 }
+
+type Interceptor interface {
+	Intercept(ctx context.Context, msg *Message) (context.Context, *Message, error)
+}
+
+type InterceptorFunc func(msg *Message) (context.Context, *Message, error)
+
+func (f InterceptorFunc) Intercept(ctx context.Context, msg *Message) (context.Context, *Message, error) {
+	return f(msg)
+}
+
+func interceptMessage(ctx context.Context, msg *Message, dec ...Interceptor) (context.Context, *Message, error) {
+	var err error
+	for i := len(dec) - 1; i >= 0; i-- {
+		ctx, msg, err = dec[i].Intercept(ctx, msg)
+		if err != nil {
+			return ctx, nil, err
+		}
+	}
+	return ctx, msg, nil
+}

@@ -18,6 +18,7 @@ type options struct {
 	ErrorHandler      func(err error)
 	Logger            log.Logger
 	ShutdownTimeout   time.Duration
+	Interceptors      []Interceptor
 }
 
 type Option func(o *options)
@@ -49,6 +50,14 @@ func Handlers(h ...Handler) Option {
 func PubSubHandlers(h ...PubSubHandler) Option {
 	return func(o *options) {
 		o.PubSubHandlers = append(o.PubSubHandlers, h...)
+	}
+}
+
+func Interceptors(f ...InterceptorFunc) Option {
+	return func(o *options) {
+		for _, fn := range f {
+			o.Interceptors = append(o.Interceptors, fn)
+		}
 	}
 }
 
@@ -114,7 +123,7 @@ func (s *Streamer) Run(ctx context.Context) error {
 				select {
 				case <-ctx.Done():
 					return nil
-				case err := <-handler.errC:
+				case err := <-handler.ErrC:
 					s.options.ErrorHandler(err)
 				}
 			}
@@ -140,16 +149,16 @@ func (s *Streamer) addHandles() error {
 		msgC := make(chan *Message, s.options.MessageBufferSize)
 		errC := make(chan error, s.options.MessageBufferSize)
 		s.handlerWrappers = append(s.handlerWrappers, &handlerWrapper{
-			subscriber: subscriber,
-			handleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) {
+			Subscriber: subscriber,
+			HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) {
 				return nil, handler.Handle(ctx, msg)
 			},
-			publisher:       nil,
-			msgC:            msgC,
-			errC:            errC,
-			logger:          s.options.Logger,
-			shutdownTimeout: s.options.ShutdownTimeout,
-			running:         atomic.Bool{},
+			Publisher:       nil,
+			MsgC:            msgC,
+			ErrC:            errC,
+			Logger:          s.options.Logger,
+			ShutdownTimeout: s.options.ShutdownTimeout,
+			Interceptors:    s.options.Interceptors,
 		})
 	}
 	for _, handler := range s.options.PubSubHandlers {
@@ -164,14 +173,14 @@ func (s *Streamer) addHandles() error {
 		msgC := make(chan *Message, s.options.MessageBufferSize)
 		errC := make(chan error, s.options.MessageBufferSize)
 		s.handlerWrappers = append(s.handlerWrappers, &handlerWrapper{
-			subscriber:      subscriber,
-			handleFunc:      handler.Handle,
-			publisher:       publisher,
-			msgC:            msgC,
-			errC:            errC,
-			logger:          s.options.Logger,
-			shutdownTimeout: s.options.ShutdownTimeout,
-			running:         atomic.Bool{},
+			Subscriber:      subscriber,
+			HandleFunc:      handler.Handle,
+			Publisher:       publisher,
+			MsgC:            msgC,
+			ErrC:            errC,
+			Logger:          s.options.Logger,
+			ShutdownTimeout: s.options.ShutdownTimeout,
+			Interceptors:    s.options.Interceptors,
 		})
 	}
 	return nil
