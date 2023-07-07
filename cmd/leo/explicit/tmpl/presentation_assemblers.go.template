@@ -1,0 +1,9 @@
+package {{ .Package }}
+
+type Assemblers struct {
+
+}
+
+func NewAssemblers() *Assemblers {
+	return &Assemblers{}
+}

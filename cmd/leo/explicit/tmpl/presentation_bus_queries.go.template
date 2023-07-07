@@ -1,0 +1,9 @@
+package {{ .Package }}
+
+type Queries struct {
+
+}
+
+func NewQueries() *Queries {
+	return &Queries{}
+}

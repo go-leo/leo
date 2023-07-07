@@ -1,0 +1,16 @@
+//go:build wireinject
+// +build wireinject
+
+// The build tag makes sure the stub is not built in the final build.
+// path: {{ .WireFilePath }}
+package main
+
+import (
+	"github.com/google/wire"
+
+	"{{ .ModuleName }}/internal/{{ .AppPath }}"
+)
+
+var Provider = wire.NewSet(
+	{{ .AppBaseName }}.Provider,
+)

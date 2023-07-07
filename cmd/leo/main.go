@@ -1,6 +1,7 @@
 package main
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/explicit"
 	"log"
 
 	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/project"
@@ -15,6 +16,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(project.CmdNew)
+	rootCmd.AddCommand(explicit.Cmd)
 }
 
 func main() {

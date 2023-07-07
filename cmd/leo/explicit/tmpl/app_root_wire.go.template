@@ -1,0 +1,17 @@
+package {{ .AppBaseName }}
+
+import (
+	"github.com/google/wire"
+
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/domain"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/infrastructure"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/presentation"
+)
+
+var Provider = wire.NewSet(
+	presentation.Provider,
+	application.Provider,
+	domain.Provider,
+	infrastructure.Provider,
+)

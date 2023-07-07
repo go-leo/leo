@@ -1,0 +1,11 @@
+package {{ .Package }}
+
+import (
+	"github.com/google/wire"
+
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/infrastructure/{{ .Package }}/adapter"
+)
+
+var Provider = wire.NewSet(
+	adapter.Provider,
+)

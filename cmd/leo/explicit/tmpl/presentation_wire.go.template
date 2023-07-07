@@ -1,0 +1,21 @@
+package {{ .Package }}
+
+import (
+	"github.com/google/wire"
+
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/assembler"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/bus"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/console"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/controller"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/provider"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/subscriber"
+)
+
+var Provider = wire.NewSet(
+	assembler.Provider,
+	bus.Provider,
+	console.Provider,
+	controller.Provider,
+	provider.Provider,
+	subscriber.Provider,
+)
