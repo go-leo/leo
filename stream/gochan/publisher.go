@@ -37,14 +37,14 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	pub.wg.Add(1)
 	defer pub.wg.Done()
 
-	result := make([]string, 0, len(messages))
+	result := make([]*PublishResult, 0, len(messages))
 	for _, msg := range messages {
-		kafkaMsg, err := pub.o.Marshaler.Marshal(ctx, pub.topic, msg)
+		goChanMsg, err := pub.o.Marshaler.Marshal(ctx, pub.topic, msg)
 		if err != nil {
 			return nil, err
 		}
-		pub.goChan <- kafkaMsg
-		result = append(result, "ok")
+		pub.goChan <- goChanMsg
+		result = append(result, &PublishResult{Msg: goChanMsg})
 	}
 	return result, nil
 }
@@ -53,9 +53,12 @@ func (pub *Publisher) Close(_ context.Context) error {
 	if !pub.closed.CompareAndSwap(false, true) {
 		return nil
 	}
-	pub.closed.Store(true)
 	pub.wg.Wait()
 	return nil
+}
+
+type PublishResult struct {
+	Msg []byte
 }
 
 func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) (*Publisher, error) {

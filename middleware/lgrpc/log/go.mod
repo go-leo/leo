@@ -19,4 +19,4 @@ require (
 
 replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox
 
-replace codeup.aliyun.com/qimao/leo/leo => ../../../
+replace codeup.aliyun.com/qimao/leo/leo => ../../..

@@ -5,17 +5,17 @@ import (
 	"context"
 )
 
-type Marshaler interface {
+type Marshaller interface {
 	Marshal(ctx context.Context, topic string, msg *stream.Message) ([]byte, error)
 	Unmarshal(goChanMsg []byte) (*stream.Message, error)
 }
 
-type DefaultMarshaler struct{}
+type DefaultMarshaller struct{}
 
-func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream.Message) ([]byte, error) {
+func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, msg *stream.Message) ([]byte, error) {
 	return msg.Payload, nil
 }
 
-func (d DefaultMarshaler) Unmarshal(goChanMsg []byte) (*stream.Message, error) {
+func (d DefaultMarshaller) Unmarshal(goChanMsg []byte) (*stream.Message, error) {
 	return &stream.Message{Payload: goChanMsg}, nil
 }

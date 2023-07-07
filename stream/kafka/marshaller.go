@@ -2,38 +2,30 @@ package kafka
 
 import (
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/operator"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
-	"encoding/hex"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"strconv"
 	"time"
 )
 
 const (
-	KeyKey           = "Key"
-	PartitionKey     = "Partition"
-	OffsetKey        = "Offset"
-	TimestampKey     = "Timestamp"
-	TimestampTypeKey = "TimestampType"
-	OpaqueKey        = "Opaque"
-	MetadataKey      = "Metadata"
-	TopicKey         = "Topic"
-	ErrorKey         = "Error"
-	IDKey            = "X-Leo-Stream-ID"
+	KeyKey       = "Key"
+	PartitionKey = "Partition"
+	OpaqueKey    = "Opaque"
+	IDKey        = "X-Leo-Stream-ID"
 )
 
-// Marshaler marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
-type Marshaler interface {
+// Marshaller marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
+type Marshaller interface {
 	Marshal(ctx context.Context, topic string, msg *stream.Message) (*kafka.Message, error)
 	Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, error)
 }
 
-type DefaultMarshaler struct{}
+type DefaultMarshaller struct{}
 
-func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream.Message) (*kafka.Message, error) {
+func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, msg *stream.Message) (*kafka.Message, error) {
 	header := msg.Header
 
 	// partition
@@ -66,8 +58,12 @@ func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream
 		}
 	})
 
-	if len(msg.ID) > 0 {
-		kafkaHeaders = append(kafkaHeaders, kafka.Header{Key: IDKey, Value: []byte(msg.ID)})
+	if len(msg.ID) <= 0 {
+		kafkaHeaders = append(kafkaHeaders, kafka.Header{Key: IDKey, Value: []byte(randx.WordString(32))})
+	}
+
+	if msg.Time.IsZero() {
+		msg.Time = time.Now()
 	}
 
 	kafkaMsg := &kafka.Message{
@@ -77,7 +73,7 @@ func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream
 		},
 		Value:         msg.Payload,
 		Key:           []byte(key),
-		Timestamp:     operator.Ternary(!msg.Time.IsZero(), msg.Time, time.Now()),
+		Timestamp:     msg.Time,
 		TimestampType: kafka.TimestampCreateTime,
 		Opaque:        opaque,
 		Headers:       kafkaHeaders,
@@ -85,7 +81,7 @@ func (d DefaultMarshaler) Marshal(ctx context.Context, topic string, msg *stream
 	return kafkaMsg, nil
 }
 
-func (d DefaultMarshaler) Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, error) {
+func (d DefaultMarshaller) Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, error) {
 	var id string
 	header := stream.Header{}
 	for _, h := range kafkaMsg.Headers {
@@ -93,18 +89,13 @@ func (d DefaultMarshaler) Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, e
 			id = string(h.Value)
 			continue
 		}
-		header.Set(h.Key, string(h.Value))
+		header.Add(h.Key, string(h.Value))
 	}
 	if len(id) <= 0 {
-		r := randx.Get()
-		var tid [16]byte
-		r.Read(tid[:])
-		id = hex.EncodeToString(tid[:])
-		defer randx.Put(r)
+		id = randx.WordString(32)
 	} else {
 
 	}
-
 	return &stream.Message{
 		ID:      id,
 		Time:    kafkaMsg.Timestamp,

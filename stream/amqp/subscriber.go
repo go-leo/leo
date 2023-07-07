@@ -1,11 +1,11 @@
-package kafka
+package amqp
 
 import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/rabbitmq/amqp091-go"
 	"sync/atomic"
 )
 
@@ -13,12 +13,13 @@ var _ stream.Subscriber = new(Subscriber)
 
 type Subscriber struct {
 	o          *options
-	consumer   *kafka.Consumer
+	channel    *amqp091.Channel
 	topic      string
 	subscribed atomic.Bool
 	closed     atomic.Bool
 	closeC     chan struct{}
 	stopC      chan struct{}
+	connect    *amqp091.Connection
 }
 
 func (sub *Subscriber) Topic() string {
@@ -26,7 +27,7 @@ func (sub *Subscriber) Topic() string {
 }
 
 func (sub *Subscriber) Queue() string {
-	return "kafka"
+	return "amqp"
 }
 
 func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Message, errC chan<- error) error {
@@ -36,20 +37,18 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 	if !sub.subscribed.CompareAndSwap(false, true) {
 		return stream.ErrSubscriberAlreadySubscribed
 	}
-	if err := sub.consumer.Subscribe(sub.topic, sub.o.RebalanceCb); err != nil {
+	queue := sub.o.QueueName(sub.topic)
+	deliveryC, err := sub.channel.Consume(queue, sub.o.ConsumeOption.Tag, sub.o.ConsumeOption.AutoAck, sub.o.ConsumeOption.Exclusive, sub.o.ConsumeOption.NoLocal, sub.o.ConsumeOption.NoWait, sub.o.ConsumeOption.Table)
+	if err != nil {
 		return err
 	}
 	defer func() {
-		if _, err := sub.consumer.Commit(); err != nil {
-			errC <- err
+		if err := sub.channel.Cancel(sub.o.ConsumeOption.Tag, sub.o.ConsumeOption.NoWait); err != nil {
 			if errC != nil {
-				errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
+				errC <- fmt.Errorf("failed to cancel: %w", err)
 				return
 			}
-			sub.o.Logger.Error("failed to commit kafka message, %w", err)
-		}
-		if err := sub.consumer.Unsubscribe(); err != nil {
-			errC <- err
+			sub.o.Logger.Error("failed to cancel: %w", err)
 		}
 		close(sub.stopC)
 	}()
@@ -59,39 +58,8 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 			return nil
 		case <-sub.closeC:
 			return nil
-		default:
-			ev := sub.consumer.Poll(int(sub.o.PollTimeout.Milliseconds()))
-			if ev == nil {
-				continue
-			}
-			switch e := ev.(type) {
-			case *kafka.Message:
-				if e.TopicPartition.Error != nil {
-					err := fmt.Errorf(
-						"partition specific error, topic:%s, partition: %d, offset: %d, error: %w",
-						*e.TopicPartition.Topic,
-						e.TopicPartition.Partition,
-						e.TopicPartition.Offset,
-						e.TopicPartition.Error,
-					)
-					errC <- err
-					continue
-				}
-				sub.handleMsg(ctx, e, msgC, errC)
-			case kafka.Error:
-				if e.IsTimeout() {
-					continue
-				}
-				if e.IsRetriable() {
-					continue
-				}
-				if e.IsFatal() {
-					return e
-				}
-				errC <- e
-			default:
-				continue
-			}
+		case delivery := <-deliveryC:
+			sub.handleMsg(ctx, delivery, msgC, errC)
 		}
 	}
 }
@@ -101,25 +69,30 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 		return nil
 	}
 	close(sub.closeC)
-	<-sub.stopC
-	return sub.consumer.Close()
+	return errors.Join(sub.channel.Close(), sub.connect.Close())
 }
 
-func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, msgC chan<- *stream.Message, errC chan<- error) {
-	msg, err := sub.o.Marshaller.Unmarshal(kafkaMsg)
+func (sub *Subscriber) handleMsg(ctx context.Context, delivery amqp091.Delivery, msgC chan<- *stream.Message, errC chan<- error) {
+	msg, err := sub.o.Marshaller.Unmarshal(delivery)
 	if err != nil {
-		errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
+		errC <- fmt.Errorf("failed to unmarshal amqp091 delivery: %w", err)
 		return
 	}
 
 	ackC := make(chan struct{})
 	stream.NotifyAck(msg, ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
-		return sub.consumer.CommitMessage(kafkaMsg)
+		if sub.o.ConsumeOption.AutoAck {
+			return nil, nil
+		}
+		return nil, delivery.Ack(sub.o.AckOption.Multiple)
 	})
 
 	nackC := make(chan struct{})
 	stream.NotifyNack(msg, nackC, func(ctx context.Context, msg *stream.Message) (any, error) {
-		return nil, nil
+		if sub.o.ConsumeOption.AutoAck {
+			return nil, nil
+		}
+		return nil, delivery.Nack(sub.o.AckOption.Multiple, sub.o.AckOption.Requeue)
 	})
 
 	select {
@@ -145,24 +118,31 @@ func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, m
 	}
 }
 
-func NewSubscriber(topic string, factory func() (*kafka.Consumer, error), opts ...Option) (*Subscriber, error) {
+func NewSubscriber(topic string, factory func(topic string) (*amqp091.Connection, error), opts ...Option) (*Subscriber, error) {
 	if factory == nil {
 		return nil, errors.New("factory is nil")
 	}
-	consumer, err := factory()
+	connect, err := factory(topic)
+	if err != nil {
+		return nil, err
+	}
+	channel, err := connect.Channel()
 	if err != nil {
 		return nil, err
 	}
 	o := &options{}
 	o.apply(opts...)
-	o.init()
+	if err := o.init(topic, channel); err != nil {
+		return nil, err
+	}
 	return &Subscriber{
 		o:          o,
-		consumer:   consumer,
+		channel:    channel,
 		topic:      topic,
 		subscribed: atomic.Bool{},
 		closed:     atomic.Bool{},
 		closeC:     make(chan struct{}),
 		stopC:      make(chan struct{}),
+		connect:    connect,
 	}, nil
 }

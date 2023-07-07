@@ -42,6 +42,6 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
 
-replace codeup.aliyun.com/qimao/leo/leo => ../../../
+replace codeup.aliyun.com/qimao/leo/leo => ../../..
 
 replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox

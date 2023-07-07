@@ -11,6 +11,6 @@ require codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
 
 require github.com/mitchellh/mapstructure v1.5.0 // indirect
 
-replace codeup.aliyun.com/qimao/leo/leo => ../../../
+replace codeup.aliyun.com/qimao/leo/leo => ../../..
 
 replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox

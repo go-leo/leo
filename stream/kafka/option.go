@@ -9,7 +9,7 @@ import (
 
 type options struct {
 	Logger          log.Logger
-	Marshaler       Marshaler
+	Marshaller      Marshaller
 	ShutdownTimeout time.Duration
 	RebalanceCb     kafka.RebalanceCb
 	NackHandler     func(msg *stream.Message)
@@ -25,8 +25,8 @@ func (o *options) apply(opts ...Option) {
 }
 
 func (o *options) init() {
-	if o.Marshaler == nil {
-		o.Marshaler = DefaultMarshaler{}
+	if o.Marshaller == nil {
+		o.Marshaller = DefaultMarshaller{}
 	}
 	if o.ShutdownTimeout <= 0 {
 		o.ShutdownTimeout = 10 * time.Second
@@ -42,9 +42,9 @@ func Logger(l log.Logger) Option {
 	}
 }
 
-func MessageMarshaler(m Marshaler) Option {
+func MessageMarshaller(m Marshaller) Option {
 	return func(o *options) {
-		o.Marshaler = m
+		o.Marshaller = m
 	}
 }
 

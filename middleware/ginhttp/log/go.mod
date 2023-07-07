@@ -36,6 +36,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace codeup.aliyun.com/qimao/leo/leo => ../../../
+replace codeup.aliyun.com/qimao/leo/leo => ../../..
 
 replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox

@@ -15,6 +15,6 @@ require (
 	golang.org/x/sys v0.9.0 // indirect
 )
 
-replace codeup.aliyun.com/qimao/leo/leo => ../../../
+replace codeup.aliyun.com/qimao/leo/leo => ../../..
 
 replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../../internal/gox

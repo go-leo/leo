@@ -8,4 +8,4 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
-replace codeup.aliyun.com/qimao/leo/leo => ../../
+replace codeup.aliyun.com/qimao/leo/leo => ../..

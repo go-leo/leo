@@ -43,7 +43,7 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 
 	result := make([]*PublishResult, 0, len(messages))
 	for _, msg := range messages {
-		kafkaMsg, err := pub.o.Marshaler.Marshal(ctx, pub.topic, msg)
+		kafkaMsg, err := pub.o.Marshaller.Marshal(ctx, pub.topic, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -69,7 +69,6 @@ func (pub *Publisher) Close(_ context.Context) error {
 	if !pub.closed.CompareAndSwap(false, true) {
 		return nil
 	}
-	pub.closed.Store(true)
 	pub.wg.Wait()
 	pub.producer.Flush(int(pub.o.ShutdownTimeout.Milliseconds()))
 	pub.producer.Close()
