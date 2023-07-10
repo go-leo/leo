@@ -36,8 +36,11 @@ func (server *Server) Run(ctx context.Context) error {
 	}
 
 	// handle http
+	var handlers []Handler
+	handlers = append(handlers, getHandlers()...)
+	handlers = append(handlers, server.options.Handlers...)
 	mux := http.NewServeMux()
-	for _, h := range server.options.Handlers {
+	for _, h := range handlers {
 		mux.HandleFunc(path.Join(server.options.PathPrefix, h.Pattern()), h.Handle)
 	}
 
