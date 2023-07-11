@@ -1,12 +1,14 @@
 package gochan_test
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
-	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestKafkaPublisher(t *testing.T) {
@@ -23,7 +25,7 @@ func TestKafkaPublisher(t *testing.T) {
 	publisher := gochan.NewPublisher(topic, goChan)
 	assert.Equal(t, topic, publisher.Topic())
 	assert.Equal(t, "gochan", publisher.Queue())
-	var messages = []*stream.Message{
+	messages := []*stream.Message{
 		{
 			ID:      "1",
 			Time:    time.Now(),
@@ -61,7 +63,6 @@ func TestKafkaPublisher(t *testing.T) {
 		assert.NoError(t, err)
 		t.Log(publishResult)
 	}
-
 }
 
 func TestKafkaPublisherMultiMessage(t *testing.T) {
@@ -79,7 +80,7 @@ func TestKafkaPublisherMultiMessage(t *testing.T) {
 	assert.Equal(t, topic, publisher.Topic())
 	assert.Equal(t, "gochan", publisher.Queue())
 
-	var messages = []*stream.Message{
+	messages := []*stream.Message{
 		{
 			ID:      "1",
 			Time:    time.Now(),
@@ -115,5 +116,4 @@ func TestKafkaPublisherMultiMessage(t *testing.T) {
 	publishResult, err := publisher.Publish(context.Background(), messages...)
 	assert.NoError(t, err)
 	t.Log(publishResult)
-
 }

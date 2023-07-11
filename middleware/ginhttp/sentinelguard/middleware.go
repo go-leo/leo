@@ -26,7 +26,6 @@ func Middleware(opts ...Option) gin.HandlerFunc {
 			sentinel.WithResourceType(base.ResTypeWeb),
 			sentinel.WithTrafficType(base.Inbound),
 		)
-
 		if err != nil {
 			if options.blockFallback != nil {
 				options.blockFallback(c)

@@ -10,8 +10,10 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 )
 
-var _ config.Resource = new(Resource)
-var _ config.Watcher = new(watcher)
+var (
+	_ config.Resource = new(Resource)
+	_ config.Watcher  = new(watcher)
+)
 
 type Resource struct {
 	text      *Text

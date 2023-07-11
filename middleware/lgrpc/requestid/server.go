@@ -113,7 +113,6 @@ func fromTrace(ctx context.Context) (string, bool) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return "", false
-
 	}
 	vals := md.Get(traceparentHeader)
 	if len(vals) <= 0 {

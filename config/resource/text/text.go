@@ -1,10 +1,11 @@
 package text
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
-	"golang.org/x/exp/slices"
 	"sync"
 	"sync/atomic"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
+	"golang.org/x/exp/slices"
 )
 
 type Text struct {

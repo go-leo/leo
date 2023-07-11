@@ -6,5 +6,4 @@ import (
 
 var Provider = wire.NewSet(
 	NewCommands,
-	NewQueries,
 )

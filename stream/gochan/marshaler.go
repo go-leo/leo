@@ -1,8 +1,9 @@
 package gochan
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
 )
 
 type Marshaller interface {

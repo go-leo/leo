@@ -1,12 +1,14 @@
 package amqp
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
-	"github.com/rabbitmq/amqp091-go"
 	"strings"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+
+	"github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -27,8 +29,7 @@ type Marshaller interface {
 	Unmarshal(amqpMsg amqp091.Delivery) (*stream.Message, error)
 }
 
-type DefaultMarshaller struct {
-}
+type DefaultMarshaller struct{}
 
 func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, msg *stream.Message) (amqp091.Publishing, error) {
 	if len(msg.ID) == 0 {

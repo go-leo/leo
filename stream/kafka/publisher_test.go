@@ -1,13 +1,15 @@
 package kafka_test
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
-	"codeup.aliyun.com/qimao/leo/leo/stream/kafka"
 	"context"
-	kafka2 "github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"codeup.aliyun.com/qimao/leo/leo/stream/kafka"
+
+	kafka2 "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestKafkaPublisher(t *testing.T) {
@@ -28,7 +30,7 @@ func TestKafkaPublisher(t *testing.T) {
 	assert.Equal(t, topic, publisher.Topic())
 	assert.Equal(t, "kafka", publisher.Queue())
 
-	var messages = []*stream.Message{
+	messages := []*stream.Message{
 		{
 			ID:      "1",
 			Time:    time.Now(),
@@ -66,7 +68,6 @@ func TestKafkaPublisher(t *testing.T) {
 		assert.NoError(t, err)
 		t.Log(publishResult)
 	}
-
 }
 
 func TestKafkaPublisherMultiMessage(t *testing.T) {
@@ -87,7 +88,7 @@ func TestKafkaPublisherMultiMessage(t *testing.T) {
 	assert.Equal(t, topic, publisher.Topic())
 	assert.Equal(t, "kafka", publisher.Queue())
 
-	var messages = []*stream.Message{
+	messages := []*stream.Message{
 		{
 			ID:      "1",
 			Time:    time.Now(),
@@ -123,5 +124,4 @@ func TestKafkaPublisherMultiMessage(t *testing.T) {
 	publishResult, err := publisher.Publish(context.Background(), messages...)
 	assert.NoError(t, err)
 	t.Log(publishResult)
-
 }

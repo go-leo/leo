@@ -17,7 +17,6 @@ func (o *options) apply(opts ...Option) {
 type Option func(o *options)
 
 func (o *options) init() {
-
 }
 
 func Skips(skips ...Skip) Option {

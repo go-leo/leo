@@ -1,14 +1,16 @@
 package amqp_test
 
 import (
+	"context"
+	"strings"
+	"testing"
+
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/stream/amqp"
-	"context"
+
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	"testing"
 )
 
 func TestHelloWorldSubscriber(t *testing.T) {

@@ -1,13 +1,15 @@
 package kafka_test
 
 import (
+	"context"
+	"testing"
+
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/stream/kafka"
-	"context"
+
 	kafka2 "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSubscriber(t *testing.T) {

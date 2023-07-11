@@ -1,13 +1,15 @@
 package gochan_test
 
 import (
+	"context"
+	"testing"
+	"time"
+
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
-	"context"
+
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestSubscriber(t *testing.T) {

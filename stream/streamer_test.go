@@ -1,15 +1,17 @@
 package stream_test
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
-	"codeup.aliyun.com/qimao/leo/leo/stream"
-	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler(t *testing.T) {

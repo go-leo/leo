@@ -1,9 +1,10 @@
 package metric
 
 import (
-	"go.opentelemetry.io/otel/metric"
 	"net/http"
 	"time"
+
+	"go.opentelemetry.io/otel/metric"
 
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"

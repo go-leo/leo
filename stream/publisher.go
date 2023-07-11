@@ -3,8 +3,9 @@ package stream
 import (
 	"context"
 	"errors"
-	"k8s.io/utils/strings/slices"
 	"strings"
+
+	"k8s.io/utils/strings/slices"
 )
 
 var ErrPublisherClosed = errors.New("publisher is closed")

@@ -1,10 +1,11 @@
 package kafka
 
 import (
+	"time"
+
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"time"
 )
 
 type options struct {

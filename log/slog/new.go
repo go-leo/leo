@@ -1,11 +1,12 @@
 package slog
 
 import (
-	"golang.org/x/exp/slog"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
 	"strings"
+
+	"golang.org/x/exp/slog"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )
@@ -53,10 +54,8 @@ func fileWriter(fileOptions *fileOptions) *lumberjack.Logger {
 
 func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.LevelKey {
-
 	}
 	if a.Key == slog.TimeKey {
-
 	}
 
 	switch a.Key {

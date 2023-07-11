@@ -1,14 +1,16 @@
 package amqp
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rabbitmq/amqp091-go"
 	"sync"
 	"sync/atomic"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+
+	"github.com/rabbitmq/amqp091-go"
 )
 
 var _ stream.Publisher = new(Publisher)

@@ -48,5 +48,4 @@ func TestParseLevel(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(level)
-
 }

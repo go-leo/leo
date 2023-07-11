@@ -3,9 +3,10 @@ package project
 import (
 	"context"
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
 	"os"
 	"path"
+
+	"github.com/AlecAivazis/survey/v2"
 
 	"github.com/fatih/color"
 

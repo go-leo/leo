@@ -18,9 +18,11 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
-var _ config.Resource = new(Resource)
-var _ config.Watcher = new(dotEnvWatcher)
-var _ config.Watcher = new(environWatcher)
+var (
+	_ config.Resource = new(Resource)
+	_ config.Watcher  = new(dotEnvWatcher)
+	_ config.Watcher  = new(environWatcher)
+)
 
 type options struct {
 	Prefix         string

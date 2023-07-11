@@ -1,12 +1,14 @@
 package kafka
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"sync/atomic"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 var _ stream.Subscriber = new(Subscriber)

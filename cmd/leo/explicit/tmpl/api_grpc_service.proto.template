@@ -1,0 +1,17 @@
+syntax = "proto3";
+package {{ .AppPath }}.v1;
+option go_package = "{{ .ModuleName }}/api/{{ .AppPath }}/v1;{{ .AppBaseName }}";
+
+// @GORS @Path(/v1)
+service {{ .AppUpperBaseName }} {
+  // @GORS @Post @Path(/say/hello) @ProtoJSONBinding @ProtoJSONRender
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}

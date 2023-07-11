@@ -320,7 +320,6 @@ func TestFuzzySearchSorting(t *testing.T) {
 			t.Errorf("Expected %s got %s", v, actual[i])
 		}
 	}
-
 }
 
 func BenchmarkTieKeys(b *testing.B) {

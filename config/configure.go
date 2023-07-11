@@ -134,10 +134,8 @@ func NewConfigure(ctx context.Context, opts ...Option) (Config, error) {
 	return configure, configure.read(ctx)
 }
 
-var (
-	// Default Config Manager
-	defaultConfig Config
-)
+// Default Config Manager
+var defaultConfig Config
 
 func SetConfig(l Config) {
 	defaultConfig = l
@@ -152,6 +150,7 @@ func Get(path string) *Value {
 func Watch(ctx context.Context) (Watcher, error) {
 	return defaultConfig.Watch(ctx)
 }
+
 func Refresh(ctx context.Context) error {
 	return defaultConfig.Refresh(ctx)
 }

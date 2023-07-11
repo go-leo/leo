@@ -18,12 +18,13 @@ func TestUnaryClientIntercept(t *testing.T) {
 			return "client:" + method
 		}))
 	invoker := func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn,
-		opts ...grpc.CallOption) error {
+		opts ...grpc.CallOption,
+	) error {
 		return errors.New(errMsgFake)
 	}
 	method := "/grpc.testing.TestService/UnaryCall"
 	t.Run("success", func(t *testing.T) {
-		var _, err = flow.LoadRules([]*flow.Rule{
+		_, err := flow.LoadRules([]*flow.Rule{
 			{
 				Resource:               "client:" + method,
 				Threshold:              1.0,
@@ -41,7 +42,7 @@ func TestUnaryClientIntercept(t *testing.T) {
 	})
 
 	t.Run("fail", func(t *testing.T) {
-		var _, err = flow.LoadRules([]*flow.Rule{
+		_, err := flow.LoadRules([]*flow.Rule{
 			{
 				Resource:               "client:" + method,
 				Threshold:              0.0,
@@ -62,12 +63,13 @@ func TestStreamClientIntercept(t *testing.T) {
 			return "client:" + method
 		}))
 	streamer := func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string,
-		opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		opts ...grpc.CallOption,
+	) (grpc.ClientStream, error) {
 		return nil, errors.New(errMsgFake)
 	}
 	method := "/grpc.testing.TestService/StreamingOutputCall"
 	t.Run("success", func(t *testing.T) {
-		var _, err = flow.LoadRules([]*flow.Rule{
+		_, err := flow.LoadRules([]*flow.Rule{
 			{
 				Resource:               "client:/grpc.testing.TestService/StreamingOutputCall",
 				Threshold:              1.0,
@@ -87,7 +89,7 @@ func TestStreamClientIntercept(t *testing.T) {
 	})
 
 	t.Run("fail", func(t *testing.T) {
-		var _, err = flow.LoadRules([]*flow.Rule{
+		_, err := flow.LoadRules([]*flow.Rule{
 			{
 				Resource:               "client:/grpc.testing.TestService/StreamingOutputCall",
 				Threshold:              0.0,

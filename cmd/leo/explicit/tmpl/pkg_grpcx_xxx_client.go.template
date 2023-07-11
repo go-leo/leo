@@ -1,0 +1,32 @@
+package grpcx
+
+import (
+	"errors"
+	"kol/api/data"
+	"kol/api/data_nebula"
+	"kol/api/message"
+	"kol/api/promotion"
+	"kol/api/promotion_manager"
+	"kol/api/promotionmgr/rpc"
+	"kol/api/system"
+	"kol/api/user"
+	"kol/pkg/userinfo"
+	"math"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
+)
+
+func NewXXXClient(configs ConsumerConfigs) (system.XXXClient, error) {
+	config, ok := configs["system_operation_log"]
+	if !ok {
+		return nil, errors.New("not found callback config")
+	}
+	conn, err := grpc.Dial(config.Target, DialogOptions()...)
+	if err != nil {
+		return nil, err
+	}
+	return system.NewOperationLogClient(conn), nil
+}

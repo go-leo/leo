@@ -1,8 +1,9 @@
 package prometheus
 
 import (
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type MetricHandler struct{}

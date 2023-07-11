@@ -1,9 +1,10 @@
 package slog_test
 
 import (
+	"testing"
+
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/log/slog"
-	"testing"
 )
 
 func TestDebugSlog(t *testing.T) {

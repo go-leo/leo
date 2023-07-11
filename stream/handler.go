@@ -1,13 +1,14 @@
 package stream
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
-	"codeup.aliyun.com/qimao/leo/leo/log"
 	"context"
 	"errors"
 	"fmt"
 	"os/signal"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
+	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
 type PubSubHandler interface {

@@ -1,13 +1,15 @@
 package kafka
 
 import (
+	"context"
+	"strconv"
+	"time"
+
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
-	"context"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"strconv"
-	"time"
 )
 
 const (
@@ -94,7 +96,6 @@ func (d DefaultMarshaller) Unmarshal(kafkaMsg *kafka.Message) (*stream.Message, 
 	if len(id) <= 0 {
 		id = randx.WordString(32)
 	} else {
-
 	}
 	return &stream.Message{
 		ID:      id,

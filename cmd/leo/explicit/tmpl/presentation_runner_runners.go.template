@@ -1,0 +1,9 @@
+package {{ .Package }}
+
+import "codeup.aliyun.com/qimao/leo/leo"
+
+func NewRunners() []leo.RunnerFunc {
+	return []leo.RunnerFunc{
+		{{ .AppUpperBaseName }},
+	}
+}

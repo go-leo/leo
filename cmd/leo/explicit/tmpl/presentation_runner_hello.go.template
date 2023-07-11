@@ -1,0 +1,11 @@
+package runner
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	"context"
+)
+
+func {{ .AppUpperBaseName }}(ctx context.Context) error {
+	log.Info("hello world")
+	return nil
+}

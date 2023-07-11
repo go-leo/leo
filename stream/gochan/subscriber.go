@@ -1,10 +1,11 @@
 package gochan
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"fmt"
 	"sync/atomic"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
 )
 
 var _ stream.Subscriber = new(Subscriber)

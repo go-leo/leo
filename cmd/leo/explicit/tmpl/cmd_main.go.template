@@ -1,5 +1,34 @@
 package main
 
-func main() {
+import (
+	"codeup.aliyun.com/qimao/leo/leo"
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	"codeup.aliyun.com/qimao/leo/leo/log/slog"
+	"context"
+	"github.com/go-leo/gox/errorx"
+)
 
+func main() {
+	ctx := context.Background()
+	slog.New(
+		slog.LevelAdapt(errorx.Ignore(log.ParseLevel("debug"))),
+		slog.Console(true), slog.JSON(),
+	).SetDefault()
+
+	app, err := NewApp(ctx)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err := app.Run(ctx); err != nil {
+		log.Panic(err)
+	}
+}
+
+func newApp(
+	ctx context.Context,
+	runners []leo.RunnerFunc,
+) *leo.App {
+	return leo.NewApp(
+		leo.RunnerFuncs(runners...),
+	)
 }

@@ -1,14 +1,16 @@
 package stream
 
 import (
+	"context"
+	"errors"
+	"sync/atomic"
+	"time"
+
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
 	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 	"codeup.aliyun.com/qimao/leo/leo/log"
-	"context"
-	"errors"
+
 	"golang.org/x/sync/errgroup"
-	"sync/atomic"
-	"time"
 )
 
 type options struct {

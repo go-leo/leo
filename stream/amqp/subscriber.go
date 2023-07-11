@@ -1,12 +1,14 @@
 package amqp
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rabbitmq/amqp091-go"
 	"sync/atomic"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+
+	"github.com/rabbitmq/amqp091-go"
 )
 
 var _ stream.Subscriber = new(Subscriber)

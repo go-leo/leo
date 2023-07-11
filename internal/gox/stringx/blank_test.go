@@ -1,8 +1,9 @@
 package stringx_test
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"testing"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 )
 
 type str string

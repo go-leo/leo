@@ -41,7 +41,6 @@ func (o *options) init() {
 	if o.Handler == nil {
 		o.Handler = func(_ *gin.Context, _ string) {}
 	}
-
 }
 
 // Option for queue system

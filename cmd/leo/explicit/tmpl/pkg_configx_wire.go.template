@@ -1,0 +1,12 @@
+package configx
+
+import (
+	"github.com/google/wire"
+)
+
+var Provider = wire.NewSet(
+	HttpController,
+	RPCProvider,
+	RPCConsumer,
+	Actuator,
+)

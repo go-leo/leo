@@ -1,13 +1,15 @@
 package amqp_test
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/stream"
-	"codeup.aliyun.com/qimao/leo/leo/stream/amqp"
 	"context"
-	"github.com/rabbitmq/amqp091-go"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"codeup.aliyun.com/qimao/leo/leo/stream/amqp"
+
+	"github.com/rabbitmq/amqp091-go"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHelloWorldPublisher(t *testing.T) {
@@ -99,7 +101,6 @@ func TestWorkerQueuePublisher(t *testing.T) {
 	publishRes, err := publisher.Publish(ctx, &stream.Message{Payload: []byte("Hello World!")})
 	assert.NoError(t, err)
 	t.Log(publishRes)
-
 }
 
 func TestPubSubPublisher(t *testing.T) {
@@ -128,7 +129,6 @@ func TestPubSubPublisher(t *testing.T) {
 	publishRes, err := publisher.Publish(ctx, &stream.Message{Payload: []byte("Hello World!")})
 	assert.NoError(t, err)
 	t.Log(publishRes)
-
 }
 
 func TestRoutingPublisher(t *testing.T) {

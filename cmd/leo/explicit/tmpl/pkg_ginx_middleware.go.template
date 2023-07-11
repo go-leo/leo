@@ -1,0 +1,29 @@
+package ginx
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	ginctxmdw "codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/context"
+	ginlogmdw "codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/log"
+	ginrecoverymdw "codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/recovery"
+	ginrequestid "codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/requestid"
+	"context"
+	"github.com/gin-gonic/gin"
+)
+
+func Middlewares(mdws ...gin.HandlerFunc) []gin.HandlerFunc {
+	return append([]gin.HandlerFunc{
+
+		ginrequestid.Middleware(),
+		ginctxmdw.Middleware(
+			log.NewContextClosure(
+				log.L(),
+				func(ctx context.Context) []log.Field {
+					requestID, _ := ginrequestid.FromContext(ctx)
+					return []log.Field{log.F{K: "Request-ID", V: requestID}}
+				},
+			),
+		),
+		ginlogmdw.Middleware(log.FromContext),
+		ginrecoverymdw.Middleware(),
+	}, mdws...)
+}

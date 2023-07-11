@@ -1,0 +1,76 @@
+package grpcx
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	contextmdw "codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/context"
+	logmdw "codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/log"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/metric"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/recovery"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/requestid"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/trace"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/validator"
+	"context"
+	"github.com/go-leo/gox/runtimex"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/status"
+	"math"
+	"time"
+)
+
+type ProviderConfig struct {
+	Port int `mapstructure:"port" json:"port" yaml:"port"`
+}
+
+func UnaryServerInterceptors(
+	mdw ...grpc.UnaryServerInterceptor,
+) []grpc.UnaryServerInterceptor {
+	chain := []grpc.UnaryServerInterceptor{
+		metric.UnaryServerInterceptor(),
+		trace.UnaryServerInterceptor(),
+		validator.UnaryServerInterceptor(),
+		requestid.UnaryServerInterceptor(),
+		contextmdw.UnaryServerInterceptor(
+			log.NewContextClosure(
+				log.L(),
+				func(ctx context.Context) []log.Field {
+					requestID, _ := requestid.FromContext(ctx)
+					return []log.Field{log.F{K: "Request-ID", V: requestID}}
+				},
+			),
+		),
+		logmdw.UnaryServerInterceptor(log.FromContext, logmdw.WithSkip("/grpc.health.v1.Health/Check")),
+	}
+	// panic恢复中间件
+	chain = append(chain, recovery.UnaryServerInterceptor(
+		func(ctx context.Context, a any) error {
+			return status.Errorf(codes.Internal,
+				"panic triggered\n, stack: %s\n,  error: %+v", string(runtimex.Stack(3)), a)
+		}))
+	chain = append(chain, mdw...)
+	return chain
+}
+
+func ServerOptions(opts ...grpc.ServerOption) []grpc.ServerOption {
+	kp := keepalive.ServerParameters{
+		MaxConnectionIdle:     15 * time.Second, // If a client is idle for 15 seconds, send a GOAWAY
+		MaxConnectionAge:      30 * time.Second, // If any connection is alive for more than 30 seconds, send a GOAWAY
+		MaxConnectionAgeGrace: 5 * time.Second,  // Allow 5 seconds for pending RPCs to complete before forcibly closing connections
+		Time:                  5 * time.Second,  // Ping the client if it is idle for 5 seconds to ensure the connection is still active
+		Timeout:               1 * time.Second,  // Wait 1 second for the ping ack before assuming the connection is dead
+	}
+	kep := keepalive.EnforcementPolicy{
+		MinTime:             5 * time.Second, // If a client pings more than once every 5 seconds, terminate the connection
+		PermitWithoutStream: true,            // Allow pings even when there are no active streams
+	}
+	return append([]grpc.ServerOption{
+		grpc.WriteBufferSize(1024 * 1024),
+		grpc.ReadBufferSize(1024 * 1024),
+		grpc.MaxSendMsgSize(math.MaxInt32),
+		grpc.MaxRecvMsgSize(math.MaxInt32),
+		grpc.MaxConcurrentStreams(1000000),
+		grpc.KeepaliveParams(kp),
+		grpc.KeepaliveEnforcementPolicy(kep),
+	}, opts...)
+}

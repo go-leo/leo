@@ -22,7 +22,7 @@ type logger struct {
 	field  []log.Field
 	skip   int
 
-	//callDepth int
+	// callDepth int
 }
 
 func (l *logger) SetLevel(lvl log.Level) {

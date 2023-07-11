@@ -1,0 +1,32 @@
+package configx
+
+import (
+	"{{ .ModuleName }}/pkg/actuatorx"
+	"{{ .ModuleName }}/pkg/ginx"
+	"{{ .ModuleName }}/pkg/grpcx"
+)
+
+var AppConf Configuration
+
+type Configuration struct {
+	Controller *ginx.Config          `mapstructure:"controller" json:"controller" yaml:"controller"`
+	Provider   *grpcx.ProviderConfig `mapstructure:"provider" json:"provider" yaml:"provider"`
+	Consumer   grpcx.ConsumerConfigs `mapstructure:"consumer" json:"consumer" yaml:"consumer"`
+	Actuator   *actuatorx.Config     `mapstructure:"actuator" json:"actuator" yaml:"actuator"`
+}
+
+func HttpController() *ginx.Config {
+	return AppConf.Controller
+}
+
+func RPCProvider() *grpcx.ProviderConfig {
+	return AppConf.Provider
+}
+
+func RPCConsumer() grpcx.ConsumerConfigs {
+	return AppConf.Consumer
+}
+
+func Actuator() *actuatorx.Config {
+	return AppConf.Actuator
+}
