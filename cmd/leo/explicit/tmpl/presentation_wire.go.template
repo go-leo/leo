@@ -7,8 +7,8 @@ import (
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/console"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/controller"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/provider"
-	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/subscriber"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/runner"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/subscriber"
 )
 
 var Provider = wire.NewSet(
@@ -16,6 +16,6 @@ var Provider = wire.NewSet(
 	console.Provider,
 	controller.Provider,
 	provider.Provider,
-	subscriber.Provider,
 	runner.Provider,
+	subscriber.Provider,
 )

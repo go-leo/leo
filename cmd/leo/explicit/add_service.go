@@ -56,9 +56,9 @@ func addService() {
 	}
 
 	if sample {
-		newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerHelloContent, appBaseName+".go")
-		newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerRunnersContent, "runners.go")
-		newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerWireContent, "wire.go")
+		sources = append(sources, newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerRunnersContent, "runners.go"))
+		sources = append(sources, newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerWireContent, "wire.go"))
 	}
 
 	if http {
@@ -97,6 +97,10 @@ func addService() {
 	}
 
 	if err := exec.Command("make", "wire_gen").Run(); err != nil {
+		fmt.Println(err)
+	}
+
+	if err := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master").Run(); err != nil {
 		fmt.Println(err)
 	}
 

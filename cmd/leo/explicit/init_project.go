@@ -68,6 +68,9 @@ func initProject() {
 	if err := exec.Command("go", "mod", "init", module).Run(); err != nil {
 		fmt.Println(err)
 	}
+	if err := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master").Run(); err != nil {
+		fmt.Println(err)
+	}
 	if err := exec.Command("go", "mod", "tidy").Run(); err != nil {
 		fmt.Println(err)
 	}

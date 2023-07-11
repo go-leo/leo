@@ -26,9 +26,9 @@ func main() {
 
 func newApp(
 	ctx context.Context,
-	runners []leo.RunnerFunc,
+{{if .Sample }} runners []leo.RunnerFunc, {{end}}
 ) *leo.App {
 	return leo.NewApp(
-		leo.RunnerFuncs(runners...),
+{{if .Sample }} leo.RunnerFuncs(runners...), {{end}}
 	)
 }

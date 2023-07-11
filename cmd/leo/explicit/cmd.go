@@ -1,6 +1,7 @@
 package explicit
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"path"
 	"strings"
@@ -46,8 +47,8 @@ var addCmd = &cobra.Command{
 
 		if !sample && !http && !grpc && !stream && !schedule {
 			sample = true
+			fmt.Println(sample)
 		}
-
 		addService()
 	},
 }

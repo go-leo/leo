@@ -22,6 +22,7 @@ func newSource(dirPath string, text string, name string) *Source {
 			AppBaseName:      appBaseName,
 			AppUpperBaseName: appUpperBaseName,
 			Package:          filepath.Base(dirPath),
+			Sample:           sample,
 		},
 	}
 	return src
@@ -34,6 +35,7 @@ type SourceData struct {
 	WireFilePath     string
 	Package          string
 	AppUpperBaseName string
+	Sample           bool
 }
 
 type Source struct {
