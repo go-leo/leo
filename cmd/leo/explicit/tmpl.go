@@ -130,6 +130,15 @@ var (
 
 	//go:embed tmpl/pkg_grpcx_wire.go.template
 	pkggRPCxWireContent string
+
+	//go:embed tmpl/pkg_streamx_amqpx_amqp.go.template
+	pkgStreamxAMQPxAMQPContent string
+
+	//go:embed tmpl/pkg_streamx_kafkax_kafka.go.template
+	pkgStreamxKafkaxKafkaContent string
+
+	//go:embed tmpl/pkg_streamx_wire.go.template
+	pkgStreamxWireContent string
 )
 
 var (

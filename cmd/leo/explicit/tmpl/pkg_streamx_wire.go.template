@@ -1,0 +1,51 @@
+package streamx
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"{{ .ModuleName }}/pkg/streamx/amqpx"
+	"{{ .ModuleName }}/pkg/streamx/kafkax"
+	"github.com/google/wire"
+)
+
+var Provider = wire.NewSet(
+	NewSubscribers,
+	NewPublishers,
+)
+
+func NewSubscribers(kafkaConfigs kafkax.Configs, amqpConfigs amqpx.Configs) (map[string]stream.Subscriber, error) {
+	subscribers := make(map[string]stream.Subscriber)
+	kafkaSubscribers, err := kafkax.NewSubscribers(kafkaConfigs)
+	if err != nil {
+		return nil, err
+	}
+	for key, subscriber := range kafkaSubscribers {
+		subscribers[key] = subscriber
+	}
+	amqpSubscribers, err := amqpx.NewSubscribers(amqpConfigs)
+	if err != nil {
+		return nil, err
+	}
+	for key, subscriber := range amqpSubscribers {
+		subscribers[key] = subscriber
+	}
+	return subscribers, nil
+}
+
+func NewPublishers(kafkaConfigs kafkax.Configs, amqpConfigs amqpx.Configs) (map[string]stream.Publisher, error) {
+	publishers := make(map[string]stream.Publisher)
+	kafkaPublishers, err := kafkax.NewPublishers(kafkaConfigs)
+	if err != nil {
+		return nil, err
+	}
+	for key, publisher := range kafkaPublishers {
+		publishers[key] = publisher
+	}
+	amqpPublishers, err := amqpx.NewPublishers(amqpConfigs)
+	if err != nil {
+		return nil, err
+	}
+	for key, publisher := range amqpPublishers {
+		publishers[key] = publisher
+	}
+	return publishers, nil
+}

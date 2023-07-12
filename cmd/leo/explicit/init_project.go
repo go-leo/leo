@@ -26,6 +26,9 @@ func initProject() {
 		newSource(path.Join("pkg", "grpcx"), pkggRPCxClientContent, "client.go"),
 		newSource(path.Join("pkg", "grpcx"), pkggRPCxServerContent, "server.go"),
 		newSource(path.Join("pkg", "grpcx"), pkggRPCxWireContent, "wire.go"),
+		newSource(path.Join("pkg", "streamx"), pkgStreamxWireContent, "wire.go"),
+		newSource(path.Join("pkg", "streamx", "amqpx"), pkgStreamxAMQPxAMQPContent, "amqp.go"),
+		newSource(path.Join("pkg", "streamx", "kafkax"), pkgStreamxKafkaxKafkaContent, "kafka.go"),
 
 		newSource(path.Join("scripts", "shell"), scriptsShellFormatContent, "format.sh"),
 		newSource(path.Join("scripts", "shell"), scriptsShellGenContent, "gen.sh"),

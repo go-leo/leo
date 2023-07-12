@@ -1,0 +1,111 @@
+package {{ .Package }}
+
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"codeup.aliyun.com/qimao/leo/leo/stream/amqp"
+	"github.com/rabbitmq/amqp091-go"
+)
+
+type Configs map[string]*Config
+
+type Config struct {
+	URL          string   `mapstructure:"url" json:"url" yaml:"url"`
+	Topic        string   `mapstructure:"topic" json:"topic" yaml:"topic"`
+	ExchangeName string   `mapstructure:"exchange_name" json:"exchange_name" yaml:"exchange_name"`
+	QueueName    string   `mapstructure:"queue_name" json:"queue_name" yaml:"queue_name"`
+	RoutingKeys  []string `mapstructure:"routing_keys" json:"routing_keys" yaml:"routing_keys"`
+}
+
+func NewSubscribers(configs Configs) (map[string]stream.Subscriber, error) {
+	subscribers := make(map[string]stream.Subscriber)
+	for key, config := range configs {
+		subscriber, err := NewSubscriber(config)
+		if err != nil {
+			return nil, err
+		}
+		subscribers[key] = subscriber
+	}
+	return subscribers, nil
+}
+
+func NewPublishers(configs Configs) (map[string]stream.Publisher, error) {
+	publishers := make(map[string]stream.Publisher)
+	for key, config := range configs {
+		publisher, err := NewPublisher(config)
+		if err != nil {
+			return nil, err
+		}
+		publishers[key] = publisher
+	}
+	return publishers, nil
+}
+
+func NewSubscriber(conf *Config) (stream.Subscriber, error) {
+	factory := func(topic string) (*amqp091.Connection, error) {
+		return amqp091.Dial(conf.URL)
+	}
+	routingKeys := []string{""}
+	if len(conf.RoutingKeys) > 0 {
+		routingKeys = conf.RoutingKeys
+	}
+	return amqp.NewSubscriber(
+		conf.Topic,
+		factory,
+		amqp.ExchangeName(func(topic string) string { return conf.ExchangeName }),
+		amqp.QueueName(func(topic string) string { return conf.QueueName }),
+		amqp.RoutingKeys(func(topic string) []string { return routingKeys }),
+		amqp.ExchangeOptions(&amqp.ExchangeOption{
+			Kind:       "topic",
+			Durable:    true,
+			AutoDelete: false,
+			Internal:   false,
+			NoWait:     false,
+			Args:       nil,
+		}),
+		amqp.QueueOptions(&amqp.QueueOption{
+			Durable:    false,
+			AutoDelete: false,
+			Exclusive:  true,
+			NoWait:     false,
+			Args:       nil,
+		}),
+		amqp.QueueBindOptions(&amqp.QueueBindOption{
+			NoWait: false,
+			Args:   nil,
+		}),
+		amqp.ConsumeOptions(amqp.ConsumeOption{
+			Tag:       "",
+			AutoAck:   true,
+			Exclusive: false,
+			NoLocal:   false,
+			NoWait:    false,
+			Table:     nil,
+		}),
+		amqp.NackHandler(func(msg *stream.Message) {}),
+	)
+}
+
+func NewPublisher(conf *Config) (stream.Publisher, error) {
+	factory := func(topic string) (*amqp091.Connection, error) {
+		return amqp091.Dial("amqp://admin:admin123@localhost:5672/")
+	}
+	routingKeys := []string{""}
+	if len(conf.RoutingKeys) > 0 {
+		routingKeys = conf.RoutingKeys
+	}
+	return amqp.NewPublisher(
+		conf.Topic,
+		factory,
+		amqp.ExchangeName(func(topic string) string { return conf.ExchangeName }),
+		amqp.RoutingKeys(func(topic string) []string { return routingKeys }),
+		amqp.ExchangeOptions(&amqp.ExchangeOption{
+			Kind:       "topic",
+			Durable:    true,
+			AutoDelete: false,
+			Internal:   false,
+			NoWait:     false,
+			Args:       nil,
+		}),
+	)
+}

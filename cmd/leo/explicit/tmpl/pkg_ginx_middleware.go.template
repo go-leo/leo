@@ -1,4 +1,4 @@
-package ginx
+package {{ .Package }}
 
 import (
 	"codeup.aliyun.com/qimao/leo/leo/log"

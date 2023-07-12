@@ -1,0 +1,110 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"codeup.aliyun.com/qimao/leo/leo/stream/kafka"
+	confluentkafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"strconv"
+	"strings"
+)
+
+type Configs map[string]*Config
+
+type Config struct {
+	Topic                     string   `mapstructure:"topic" json:"topic" yaml:"topic"`
+	Brokers                   []string `mapstructure:"brokers" json:"brokers" yaml:"brokers"`
+	GroupID                   string   `mapstructure:"group_id" json:"group_id" yaml:"group_id"`
+	SecurityProtocol          string   `mapstructure:"security_protocol" json:"security_protocol" yaml:"security_protocol"`
+	SaslMechanism             string   `mapstructure:"sasl_mechanism" json:"sasl_mechanism" yaml:"sasl_mechanism"`
+	SaslUsername              string   `mapstructure:"sasl_username" json:"sasl_username" yaml:"sasl_username"`
+	SaslPassword              string   `mapstructure:"sasl_password" json:"sasl_password" yaml:"sasl_password"`
+	SslCaLocation             string   `mapstructure:"ssl_ca_location" json:"ssl_ca_location" yaml:"ssl_ca_location"`
+	EnableSslCertVerification bool     `mapstructure:"enable_ssl_cert_verification" json:"enable_ssl_cert_verification" yaml:"enable_ssl_cert_verification"`
+}
+
+func NewSubscribers(configs Configs) (map[string]stream.Subscriber, error) {
+	subscribers := make(map[string]stream.Subscriber)
+	for key, config := range configs {
+		subscriber, err := NewSubscriber(config)
+		if err != nil {
+			return nil, err
+		}
+		subscribers[key] = subscriber
+	}
+	return subscribers, nil
+}
+
+func NewPublishers(configs Configs) (map[string]stream.Publisher, error) {
+	publishers := make(map[string]stream.Publisher)
+	for key, config := range configs {
+		publisher, err := NewPublisher(config)
+		if err != nil {
+			return nil, err
+		}
+		publishers[key] = publisher
+	}
+	return publishers, nil
+}
+
+func NewSubscriber(conf *Config) (stream.Subscriber, error) {
+	factory := func() (*confluentkafka.Consumer, error) {
+		configMap := &confluentkafka.ConfigMap{
+			"api.version.request":       "true",
+			"auto.offset.reset":         "latest",
+			"heartbeat.interval.ms":     3000,
+			"session.timeout.ms":        30000,
+			"max.poll.interval.ms":      120000,
+			"fetch.max.bytes":           1024000,
+			"max.partition.fetch.bytes": 256000,
+			"bootstrap.servers":         strings.Join(conf.Brokers, ","),
+			"group.id":                  conf.GroupID,
+		}
+		setSecurityConfig(conf, configMap)
+		return confluentkafka.NewConsumer(configMap)
+	}
+	return kafka.NewSubscriber(
+		conf.Topic,
+		factory,
+		kafka.Logger(log.L()),
+		kafka.NackHandler(func(msg *stream.Message) {
+			log.Error("nack msg: ", string(msg.Payload))
+		}))
+}
+
+func NewPublisher(conf *Config) (stream.Publisher, error) {
+	factory := func() (*confluentkafka.Producer, error) {
+		configMap := &confluentkafka.ConfigMap{
+			"api.version.request":           "true",
+			"message.max.bytes":             1000000,
+			"linger.ms":                     500,
+			"sticky.partitioning.linger.ms": 1000,
+			"retries":                       10,
+			"retry.backoff.ms":              1000,
+			"acks":                          "1",
+			"bootstrap.servers":             strings.Join(conf.Brokers, ","),
+		}
+		setSecurityConfig(conf, configMap)
+		return confluentkafka.NewProducer(configMap)
+	}
+	return kafka.NewPublisher(conf.Topic, factory)
+}
+
+func setSecurityConfig(conf *Config, configMap *confluentkafka.ConfigMap) {
+	switch conf.SecurityProtocol {
+	case "", "PLAINTEXT":
+		configMap.SetKey("security.protocol", "plaintext")
+	case "SASL_SSL":
+		configMap.SetKey("security.protocol", "sasl_ssl")
+		configMap.SetKey("ssl.ca.location", conf.SslCaLocation)
+		configMap.SetKey("sasl.username", conf.SaslUsername)
+		configMap.SetKey("sasl.password", conf.SaslPassword)
+		configMap.SetKey("sasl.mechanism", conf.SaslMechanism)
+		configMap.SetKey("enable.ssl.certificate.verification", strconv.FormatBool(conf.EnableSslCertVerification))
+	case "SASL_PLAINTEXT":
+		configMap.SetKey("security.protocol", "sasl_plaintext")
+		configMap.SetKey("sasl.username", conf.SaslUsername)
+		configMap.SetKey("sasl.password", conf.SaslPassword)
+		configMap.SetKey("sasl.mechanism", conf.SaslMechanism)
+	}
+}

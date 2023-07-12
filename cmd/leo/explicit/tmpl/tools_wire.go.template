@@ -3,9 +3,10 @@
 
 // following https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
 
-package tools
+package {{ .Package }}
 
 import (
 	_ "github.com/google/wire/cmd/wire"
 	_ "google.golang.org/genproto/googleapis/rpc"
+	_ "github.com/ugorji/go/codec"
 )

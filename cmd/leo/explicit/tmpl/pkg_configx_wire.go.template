@@ -1,4 +1,4 @@
-package configx
+package {{ .Package }}
 
 import (
 	"github.com/google/wire"

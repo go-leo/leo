@@ -1,12 +1,14 @@
-package pkg
+package {{ .Package }}
 
 import (
 	"github.com/google/wire"
 	"{{ .ModuleName }}/pkg/configx"
 	"{{ .ModuleName }}/pkg/grpcx"
+	"{{ .ModuleName }}/pkg/streamx"
 )
 
 var Provider = wire.NewSet(
 	configx.Provider,
 	grpcx.Provider,
+	streamx.Provider,
 )

@@ -1,4 +1,4 @@
-package grpcx
+package {{ .Package }}
 
 import (
 	"codeup.aliyun.com/qimao/leo/leo/log"

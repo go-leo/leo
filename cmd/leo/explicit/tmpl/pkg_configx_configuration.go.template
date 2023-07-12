@@ -1,9 +1,11 @@
-package configx
+package {{ .Package }}
 
 import (
 	"{{ .ModuleName }}/pkg/actuatorx"
 	"{{ .ModuleName }}/pkg/ginx"
 	"{{ .ModuleName }}/pkg/grpcx"
+	"{{ .ModuleName }}/pkg/streamx/amqpx"
+    "{{ .ModuleName }}/pkg/streamx/kafkax"
 )
 
 var AppConf Configuration
@@ -13,6 +15,8 @@ type Configuration struct {
 	Provider   *grpcx.ProviderConfig `mapstructure:"provider" json:"provider" yaml:"provider"`
 	Consumer   grpcx.ConsumerConfigs `mapstructure:"consumer" json:"consumer" yaml:"consumer"`
 	Actuator   *actuatorx.Config     `mapstructure:"actuator" json:"actuator" yaml:"actuator"`
+	Kafka      kafkax.Configs        `mapstructure:"kafka" json:"kafka" yaml:"kafka"`
+    AMQP       amqpx.Configs         `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
 }
 
 func HttpController() *ginx.Config {
@@ -29,4 +33,12 @@ func RPCConsumer() grpcx.ConsumerConfigs {
 
 func Actuator() *actuatorx.Config {
 	return AppConf.Actuator
+}
+
+func Kafka() kafkax.Configs {
+	return AppConf.Kafka
+}
+
+func AMQP() amqpx.Configs {
+	return AppConf.AMQP
 }

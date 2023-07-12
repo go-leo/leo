@@ -1,4 +1,4 @@
-package ginx
+package {{ .Package }}
 
 type Config struct {
 	Port int `mapstructure:"port" json:"port" yaml:"port"`
