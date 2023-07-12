@@ -72,8 +72,7 @@ func (pub *multiPublisher) Publish(ctx context.Context, msg ...*Message) (Publis
 
 func (pub *multiPublisher) Close(ctx context.Context) error {
 	for _, w := range pub.publishers {
-		err := w.Close(ctx)
-		if err != nil {
+		if err := w.Close(ctx); err != nil {
 			return err
 		}
 	}

@@ -9,4 +9,6 @@ var Provider = wire.NewSet(
 	RPCProvider,
 	RPCConsumer,
 	Actuator,
+	Kafka,
+    AMQP,
 )

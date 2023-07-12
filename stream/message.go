@@ -20,6 +20,7 @@ type Message struct {
 	Time    time.Time
 	Payload []byte
 	Header  Header
+	Topic   string
 
 	m sync.Mutex
 
