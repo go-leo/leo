@@ -31,6 +31,12 @@ var (
 
 	//go:embed tmpl/presentation_runner_wire.go.template
 	presentationRunnerWireContent string
+
+	//go:embed tmpl/presentation_controller_hello.go.template
+	presentationControllerHelloContent string
+
+	//go:embed tmpl/presentation_controller_wire.go.template
+	presentationControllerWireContent string
 )
 
 var (
@@ -138,6 +144,9 @@ var toolsWireContent string
 var _MakefileContent string
 
 var (
+	//go:embed tmpl/api_http_hello.go.template
+	apiHttpHelloContent string
+
 	//go:embed tmpl/api_grpc_service.proto.template
 	apiGrpcServiceContent string
 )

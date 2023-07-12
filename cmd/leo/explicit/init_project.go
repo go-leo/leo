@@ -9,11 +9,11 @@ import (
 
 func initProject() {
 	sources := []*Source{
-		newSource(path.Join("api", app), "", ""),
-		newSource(path.Join("build", app), "", ""),
-		newSource(path.Join("deployments", app), "", ""),
-		newSource(path.Join("cmd", app), "", ""),
-		newSource(path.Join("internal", app), "", ""),
+		newSource(path.Join("api", appPath), "", ""),
+		newSource(path.Join("build", appPath), "", ""),
+		newSource(path.Join("deployments", appPath), "", ""),
+		newSource(path.Join("cmd", appPath), "", ""),
+		newSource(path.Join("internal", appPath), "", ""),
 
 		newSource(path.Join("pkg"), pkgWireContent, "wire.go"),
 		newSource(path.Join("pkg", "actuatorx"), pkgActuatorxConfigContent, "config.go"),
@@ -33,7 +33,7 @@ func initProject() {
 		newSource(path.Join("scripts", "shell"), scriptsShellToolsContent, "tools.sh"),
 		newSource(path.Join("scripts", "shell"), scriptsShellWireContent, "wire.sh"),
 
-		newSource(path.Join("tools", app), toolsWireContent, "tools.go"),
+		newSource(path.Join("tools", appPath), toolsWireContent, "tools.go"),
 
 		newSource(path.Join(), _MakefileContent, "Makefile"),
 	}

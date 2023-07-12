@@ -1,11 +1,26 @@
 package main
 
 import (
+	"context"
+	"os"
+	"github.com/go-leo/gox/errorx"
 	"codeup.aliyun.com/qimao/leo/leo"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/log/slog"
-	"context"
-	"github.com/go-leo/gox/errorx"
+	"codeup.aliyun.com/qimao/leo/leo/actuator"
+    "{{ .ModuleName }}/pkg/actuatorx"
+{{if .HTTP }}
+    "{{ .ModuleName }}/api/{{ .AppPath }}"
+    "{{ .ModuleName }}/pkg/ginx"
+    "codeup.aliyun.com/qimao/leo/leo/transport/ginhttp"
+    "github.com/gin-gonic/gin"
+    "github.com/go-leo/gors"
+{{end}}
+)
+
+var (
+    ID = errorx.Ignore(os.Hostname())
+    Name = "{{ .ServiceName }}"
 )
 
 func main() {
@@ -26,9 +41,40 @@ func main() {
 
 func newApp(
 	ctx context.Context,
-{{if .Sample }} runners []leo.RunnerFunc, {{end}}
+	actuatorConfig *actuatorx.Config,
+{{if .Sample }}runners []leo.RunnerFunc,{{end}}
+{{if .HTTP }}
+	{{ .AppBaseName }}Ctrl {{ .AppBaseName }}.{{ .AppUpperBaseName }},
+	ginConfig *ginx.Config,
+{{end}}
 ) *leo.App {
+{{if .HTTP }}
+    engine := gin.New()
+	engine.Use(ginx.Middlewares()...)
+	engine = gors.AppendRoutes(engine, {{ .AppBaseName }}.{{ .AppUpperBaseName }}Routes({{ .AppBaseName }}Ctrl)...)
+	httpServer := ginhttp.NewServer(
+		ginConfig.Port,
+		engine,
+		ginhttp.ID(ID),
+		ginhttp.Name(Name),
+	)
+{{end}}
+	actuatorServer := actuator.New(
+		actuatorConfig.Port,
+		actuator.Handlers(
+			{{if .HTTP }}httpServer.ActuatorHandler(),{{end}}
+		),
+		actuator.HealthCheckers(
+			{{if .HTTP }}httpServer.HealthChecker(),{{end}}
+		),
+	)
 	return leo.NewApp(
-{{if .Sample }} leo.RunnerFuncs(runners...), {{end}}
+{{if .Sample }}leo.RunnerFuncs(runners...),{{end}}
+		leo.Runners(
+			actuatorServer,
+{{if .HTTP }}
+			httpServer,
+{{end}}
+		),
 	)
 }

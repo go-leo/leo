@@ -1,0 +1,21 @@
+package {{ .AppBaseName }}
+
+import "context"
+
+//go:generate gors -service {{ .AppUpperBaseName }}
+
+// {{ .AppUpperBaseName }} is a http service
+// @GORS @Path(/v1/{{ .AppBaseName }})
+type {{ .AppUpperBaseName }} interface {
+	// SayHello hello world
+	// @GORS @POST @Path(/say/hello)  @JSONBinding  @JSONRender
+	SayHello(ctx context.Context, req *HelloRequest) (*HelloResponse, error)
+}
+
+type HelloRequest struct {
+	Name string `json:"name,omitempty"`
+}
+
+type HelloResponse struct {
+	Message string `json:"message,omitempty"`
+}

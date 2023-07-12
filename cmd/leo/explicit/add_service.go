@@ -10,63 +10,65 @@ import (
 
 func addService() {
 	sources := []*Source{
-		newSource(path.Join("api", app), "", ""),
+		newSource(path.Join("api", appPath), "", ""),
 
-		newSource(path.Join("build", app), "", ""),
+		newSource(path.Join("build", appPath), "", ""),
 
-		newSource(path.Join("deployments", app), "", ""),
+		newSource(path.Join("deployments", appPath), "", ""),
 
-		newSource(path.Join("cmd", app), cmdWireContent, "wire.go"),
-		newSource(path.Join("cmd", app), cmdMainContent, "main.go"),
+		newSource(path.Join("cmd", appPath), cmdWireContent, "wire.go"),
+		newSource(path.Join("cmd", appPath), cmdMainContent, "main.go"),
 
-		newSource(path.Join("internal", app), appRootWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath), appRootWireContent, "wire.go"),
 
-		newSource(path.Join("internal", app, "presentation"), presentationWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "presentation", "assembler"), presentationAssemblerWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "presentation", "assembler"), presentationAssemblersContent, "assemblers.go"),
-		newSource(path.Join("internal", app, "presentation", "console"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "presentation", "controller"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "presentation", "provider"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "presentation", "subscriber"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "presentation", "runner"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation"), presentationWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "assembler"), presentationAssemblerWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "assembler"), presentationAssemblersContent, "assemblers.go"),
+		newSource(path.Join("internal", appPath, "presentation", "console"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "controller"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "provider"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "subscriber"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "runner"), sampleWireContent, "wire.go"),
 
-		newSource(path.Join("internal", app, "application", "command"), applicationCommandCommandsContent, "bus.go"),
-		newSource(path.Join("internal", app, "application", "command"), applicationCommandWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "application", "query"), applicationQueryQueriesContent, "bus.go"),
-		newSource(path.Join("internal", app, "application", "query"), applicationQueryWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "application", "service"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "application"), applicationWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "application", "command"), applicationCommandCommandsContent, "bus.go"),
+		newSource(path.Join("internal", appPath, "application", "command"), applicationCommandWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "application", "query"), applicationQueryQueriesContent, "bus.go"),
+		newSource(path.Join("internal", appPath, "application", "query"), applicationQueryWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "application", "service"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "application"), applicationWireContent, "wire.go"),
 
-		newSource(path.Join("internal", app, "domain"), domainWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "domain", "model"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "domain", "service"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "domain"), domainWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "domain", "model"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "domain", "service"), sampleWireContent, "wire.go"),
 
-		newSource(path.Join("internal", app, "infrastructure"), infrastructureContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "client"), infrastructureClientWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "client", "port"), docContent, "doc.go"),
-		newSource(path.Join("internal", app, "infrastructure", "client", "adapter"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "publisher"), infrastructurePublisherWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "publisher", "port"), docContent, "doc.go"),
-		newSource(path.Join("internal", app, "infrastructure", "publisher", "adapter"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "repository"), infrastructureRepositoryWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "repository", "port"), docContent, "doc.go"),
-		newSource(path.Join("internal", app, "infrastructure", "repository", "adapter"), sampleWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "converter"), infrastructureConverterWireContent, "wire.go"),
-		newSource(path.Join("internal", app, "infrastructure", "converter"), infrastructureConvertersContent, "converters.go"),
+		newSource(path.Join("internal", appPath, "infrastructure"), infrastructureContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "client"), infrastructureClientWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "client", "port"), docContent, "doc.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "client", "adapter"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "publisher"), infrastructurePublisherWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "publisher", "port"), docContent, "doc.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "publisher", "adapter"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "repository"), infrastructureRepositoryWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "repository", "port"), docContent, "doc.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "repository", "adapter"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "converter"), infrastructureConverterWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "infrastructure", "converter"), infrastructureConvertersContent, "converters.go"),
 	}
 
 	if sample {
-		sources = append(sources, newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerHelloContent, appBaseName+".go"))
-		sources = append(sources, newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerRunnersContent, "runners.go"))
-		sources = append(sources, newSource(path.Join("internal", app, "presentation", "runner"), presentationRunnerWireContent, "wire.go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "runner"), presentationRunnerHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "runner"), presentationRunnerRunnersContent, "runners.go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "runner"), presentationRunnerWireContent, "wire.go"))
 	}
 
 	if http {
-		sources = append(sources, newSource(path.Join("api", app), apiGrpcServiceContent, appBaseName+".proto"))
+		sources = append(sources, newSource(path.Join("api", appPath), apiHttpHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "controller"), presentationControllerHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "controller"), presentationControllerWireContent, "wire.go"))
 	}
 
 	if grpc {
-		sources = append(sources, newSource(path.Join("api", app), apiGrpcServiceContent, appBaseName+".proto"))
+		sources = append(sources, newSource(path.Join("api", appPath), apiGrpcServiceContent, appBaseName+".proto"))
 	}
 
 	for _, src := range sources {
@@ -94,6 +96,10 @@ func addService() {
 			os.Exit(1)
 			return
 		}
+	}
+
+	if err := exec.Command("make", "go_gen").Run(); err != nil {
+		fmt.Println(err)
 	}
 
 	if err := exec.Command("make", "wire_gen").Run(); err != nil {

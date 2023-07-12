@@ -18,11 +18,13 @@ func newSource(dirPath string, text string, name string) *Source {
 		FilePath: filepath.Join(dirPath, name),
 		data: &SourceData{
 			ModuleName:       module,
-			AppPath:          app,
+			AppPath:          appPath,
 			AppBaseName:      appBaseName,
 			AppUpperBaseName: appUpperBaseName,
+			ServiceName:      serviceName,
 			Package:          filepath.Base(dirPath),
 			Sample:           sample,
+			HTTP:             http,
 		},
 	}
 	return src
@@ -36,6 +38,8 @@ type SourceData struct {
 	Package          string
 	AppUpperBaseName string
 	Sample           bool
+	HTTP             bool
+	ServiceName      string
 }
 
 type Source struct {

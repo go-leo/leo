@@ -9,9 +9,10 @@ import (
 
 var (
 	module           string
-	app              string
+	appPath          string
 	appBaseName      string
 	appUpperBaseName string
+	serviceName      string
 	sample           bool
 	http             bool
 	grpc             bool
@@ -42,9 +43,9 @@ var addCmd = &cobra.Command{
 	Short: "add a service",
 	Long:  "add a service. Example: leo explicit add --path user",
 	Run: func(cmd *cobra.Command, args []string) {
-		appBaseName = path.Base(app)
+		appBaseName = path.Base(appPath)
 		appUpperBaseName = strings.ToUpper(appBaseName[:1]) + appBaseName[1:]
-
+		serviceName = strings.Replace(module, "/", ".", -1) + "." + strings.Replace(appPath, "/", ".", -1)
 		if !sample && !http && !grpc && !stream && !schedule {
 			sample = true
 			fmt.Println(sample)
@@ -54,8 +55,8 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.PersistentFlags().StringVarP(&module, "module", "m", "", "model name (required)")
-	Cmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app name")
+	Cmd.PersistentFlags().StringVarP(&module, "module", "m", "", "model name, example: \"mall\",\"github.com/google/cloud\"")
+	Cmd.PersistentFlags().StringVarP(&appPath, "app", "a", "", "application path, related to cmd dir, example: \"user\",\"order/svc\"")
 	Cmd.PersistentFlags().BoolVarP(&sample, "sample", "", false, "sample application")
 	Cmd.PersistentFlags().BoolVarP(&http, "http", "", false, "http application")
 	Cmd.PersistentFlags().BoolVarP(&grpc, "grpc", "", false, "grpc application")
