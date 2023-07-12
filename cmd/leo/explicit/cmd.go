@@ -1,7 +1,6 @@
 package explicit
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"path"
 	"strings"
@@ -10,6 +9,7 @@ import (
 var (
 	module           string
 	appPath          string
+	appPathDot       string
 	appBaseName      string
 	appUpperBaseName string
 	serviceName      string
@@ -45,10 +45,10 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		appBaseName = path.Base(appPath)
 		appUpperBaseName = strings.ToUpper(appBaseName[:1]) + appBaseName[1:]
-		serviceName = strings.Replace(module, "/", ".", -1) + "." + strings.Replace(appPath, "/", ".", -1)
+		appPathDot = strings.Replace(appPath, "/", ".", -1)
+		serviceName = strings.Replace(module, "/", ".", -1) + "." + appPathDot
 		if !sample && !http && !grpc && !stream && !schedule {
 			sample = true
-			fmt.Println(sample)
 		}
 		addService()
 	},

@@ -19,12 +19,16 @@ func newSource(dirPath string, text string, name string) *Source {
 		data: &SourceData{
 			ModuleName:       module,
 			AppPath:          appPath,
+			AppPathDot:       appPathDot,
 			AppBaseName:      appBaseName,
 			AppUpperBaseName: appUpperBaseName,
 			ServiceName:      serviceName,
 			Package:          filepath.Base(dirPath),
 			Sample:           sample,
 			HTTP:             http,
+			GRPC:             grpc,
+			Schedule:         schedule,
+			Stream:           stream,
 		},
 	}
 	return src
@@ -33,13 +37,17 @@ func newSource(dirPath string, text string, name string) *Source {
 type SourceData struct {
 	ModuleName       string
 	AppPath          string
+	AppPathDot       string
 	AppBaseName      string
 	WireFilePath     string
 	Package          string
 	AppUpperBaseName string
+	ServiceName      string
 	Sample           bool
 	HTTP             bool
-	ServiceName      string
+	GRPC             bool
+	Schedule         bool
+	Stream           bool
 }
 
 type Source struct {
@@ -84,7 +92,14 @@ func (src *Source) createSource() error {
 		return err
 	}
 	_, err = file.Write(buffer.Bytes())
-	return err
+	if err != nil {
+		return err
+	}
+	err = file.Sync()
+	if err != nil {
+		return err
+	}
+	return file.Close()
 }
 
 func checkNotExist(name string) error {

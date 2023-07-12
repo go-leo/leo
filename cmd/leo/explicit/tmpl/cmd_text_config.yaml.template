@@ -1,0 +1,7 @@
+controller:
+    port: 8080
+provider:
+    port: 9090
+consumer: {}
+actuator:
+    port: 16060

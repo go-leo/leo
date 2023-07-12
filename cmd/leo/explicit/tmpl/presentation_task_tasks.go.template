@@ -1,0 +1,13 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/schedule"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+)
+
+func NewTasks(commands *command.Commands, queries *query.Queries) []schedule.Task {
+	return []schedule.Task{
+		New{{ .AppUpperBaseName }}(commands, queries),
+	}
+}

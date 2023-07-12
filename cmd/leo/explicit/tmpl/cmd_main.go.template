@@ -3,18 +3,36 @@ package main
 import (
 	"context"
 	"os"
+	_ "embed"
+
 	"github.com/go-leo/gox/errorx"
+
 	"codeup.aliyun.com/qimao/leo/leo"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/log/slog"
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
+
     "{{ .ModuleName }}/pkg/actuatorx"
+    "{{ .ModuleName }}/pkg/configx"
 {{if .HTTP }}
     "{{ .ModuleName }}/api/{{ .AppPath }}"
     "{{ .ModuleName }}/pkg/ginx"
     "codeup.aliyun.com/qimao/leo/leo/transport/ginhttp"
+
     "github.com/gin-gonic/gin"
     "github.com/go-leo/gors"
+{{end}}
+{{if .GRPC }}
+    "codeup.aliyun.com/qimao/leo/leo/transport/lgrpc"
+
+	{{ .AppBaseName }}v1 "{{ .ModuleName }}/api/{{ .AppPath }}/v1"
+	"{{ .ModuleName }}/pkg/grpcx"
+{{end}}
+{{if .Schedule }}
+    "time"
+
+    "codeup.aliyun.com/qimao/leo/leo/schedule"
+    "codeup.aliyun.com/qimao/leo/leo/schedule/cron"
 {{end}}
 )
 
@@ -23,12 +41,30 @@ var (
     Name = "{{ .ServiceName }}"
 )
 
+var (
+	//go:embed config/dev/config.yaml
+	devConfig string
+
+	//go:embed config/test/config.yaml
+	testConfig string
+
+	//go:embed config/prod/config.yaml
+	prodConfig string
+)
+
+var env = "dev"
+
 func main() {
 	ctx := context.Background()
 	slog.New(
 		slog.LevelAdapt(errorx.Ignore(log.ParseLevel("debug"))),
 		slog.Console(true), slog.JSON(),
 	).SetDefault()
+
+	err := configx.Load(ctx, env, devConfig, testConfig, prodConfig)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	app, err := NewApp(ctx)
 	if err != nil {
@@ -47,7 +83,12 @@ func newApp(
 	{{ .AppBaseName }}Ctrl {{ .AppBaseName }}.{{ .AppUpperBaseName }},
 	ginConfig *ginx.Config,
 {{end}}
-) *leo.App {
+{{if .GRPC }}
+	{{ .AppBaseName }}Srv {{ .AppBaseName }}v1.{{ .AppUpperBaseName }}Server,
+	grpcConfig *grpcx.ProviderConfig,
+{{end}}
+{{if .Schedule }}tasks []schedule.Task,{{end}}
+) (*leo.App, error) {
 {{if .HTTP }}
     engine := gin.New()
 	engine.Use(ginx.Middlewares()...)
@@ -59,22 +100,45 @@ func newApp(
 		ginhttp.Name(Name),
 	)
 {{end}}
+{{if .GRPC }}
+	grpcServer := lgrpc.NewServer(
+		grpcConfig.Port,
+		lgrpc.ID(ID),
+		lgrpc.Name(Name),
+		lgrpc.UnaryInterceptors(grpcx.UnaryServerInterceptors()...),
+		lgrpc.ServerOptions(grpcx.ServerOptions()...),
+	)
+	{{ .AppBaseName }}v1.Register{{ .AppUpperBaseName }}Server(grpcServer, {{ .AppBaseName }}Srv)
+{{end}}
+{{if .Schedule }}
+	scheduler := cron.NewScheduler(
+		cron.Seconds(),
+		cron.Location(time.Local),
+	)
+	if err := scheduler.AddTasks(tasks...); err != nil {
+		return nil, err
+	}
+{{end}}
 	actuatorServer := actuator.New(
 		actuatorConfig.Port,
 		actuator.Handlers(
 			{{if .HTTP }}httpServer.ActuatorHandler(),{{end}}
+			{{if .GRPC }}grpcServer.ActuatorHandler(),{{end}}
+			{{if .Schedule }}scheduler.ActuatorHandler(),{{end}}
 		),
 		actuator.HealthCheckers(
 			{{if .HTTP }}httpServer.HealthChecker(),{{end}}
+			{{if .GRPC }}grpcServer.HealthChecker(),{{end}}
+			{{if .Schedule }}scheduler.HealthChecker(),{{end}}
 		),
 	)
 	return leo.NewApp(
 {{if .Sample }}leo.RunnerFuncs(runners...),{{end}}
 		leo.Runners(
 			actuatorServer,
-{{if .HTTP }}
-			httpServer,
-{{end}}
+{{if .HTTP }}httpServer,{{end}}
+{{if .GRPC }}grpcServer,{{end}}
+{{if .Schedule }}scheduler,{{end}}
 		),
-	)
+	), nil
 }

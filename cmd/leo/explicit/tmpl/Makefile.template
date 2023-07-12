@@ -23,9 +23,9 @@ protoc_gen:
 .PHONY: gen
 gen:
 	@echo "--- generate code start ---"
-	@$(MAKE) wire_gen
 	@$(MAKE) go_gen
 	@$(MAKE) protoc_gen
+	@$(MAKE) wire_gen
 	@echo "--- generate code end ---"
 
 .PHONY: format

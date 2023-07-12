@@ -9,6 +9,7 @@ import (
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/provider"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/runner"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/subscriber"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/task"
 )
 
 var Provider = wire.NewSet(
@@ -18,4 +19,5 @@ var Provider = wire.NewSet(
 	provider.Provider,
 	runner.Provider,
 	subscriber.Provider,
+	task.Provider,
 )

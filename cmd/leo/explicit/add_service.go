@@ -18,6 +18,9 @@ func addService() {
 
 		newSource(path.Join("cmd", appPath), cmdWireContent, "wire.go"),
 		newSource(path.Join("cmd", appPath), cmdMainContent, "main.go"),
+		newSource(path.Join("cmd", appPath, "config", "dev"), cmdTextConfigContent, "config.yaml"),
+		newSource(path.Join("cmd", appPath, "config", "test"), cmdNacosConfigContent, "config.yaml"),
+		newSource(path.Join("cmd", appPath, "config", "prod"), cmdNacosConfigContent, "config.yaml"),
 
 		newSource(path.Join("internal", appPath), appRootWireContent, "wire.go"),
 
@@ -29,6 +32,7 @@ func addService() {
 		newSource(path.Join("internal", appPath, "presentation", "provider"), sampleWireContent, "wire.go"),
 		newSource(path.Join("internal", appPath, "presentation", "subscriber"), sampleWireContent, "wire.go"),
 		newSource(path.Join("internal", appPath, "presentation", "runner"), sampleWireContent, "wire.go"),
+		newSource(path.Join("internal", appPath, "presentation", "task"), sampleWireContent, "wire.go"),
 
 		newSource(path.Join("internal", appPath, "application", "command"), applicationCommandCommandsContent, "bus.go"),
 		newSource(path.Join("internal", appPath, "application", "command"), applicationCommandWireContent, "wire.go"),
@@ -68,7 +72,16 @@ func addService() {
 	}
 
 	if grpc {
-		sources = append(sources, newSource(path.Join("api", appPath), apiGrpcServiceContent, appBaseName+".proto"))
+		sources = append(sources, newSource(path.Join("api", appPath), apiGrpcHelloContent, appBaseName+".proto"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "provider"), presentationProviderHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "provider"), presentationProviderWireContent, "wire.go"))
+	}
+
+	if schedule {
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "task"), presentationTaskHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "task"), presentationTaskTasksContent, "tasks.go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "task"), presentationTaskWireContent, "wire.go"))
+
 	}
 
 	for _, src := range sources {
@@ -98,19 +111,52 @@ func addService() {
 		}
 	}
 
-	if err := exec.Command("make", "go_gen").Run(); err != nil {
-		fmt.Println(err)
+	if http {
+		goGenCmd := exec.Command("make", "go_gen")
+		if output, err := goGenCmd.CombinedOutput(); err != nil {
+			fmt.Println("make go_gen: ", err)
+			fmt.Printf("combined out:\n%s\n", string(output))
+		}
 	}
 
-	if err := exec.Command("make", "wire_gen").Run(); err != nil {
-		fmt.Println(err)
+	if grpc {
+		protocCmd := exec.Command("make", "protoc_gen")
+		if output, err := protocCmd.CombinedOutput(); err != nil {
+			fmt.Println("make protoc_gen: ", err)
+			fmt.Printf("combined out:\n%s\n", string(output))
+		}
 	}
 
-	if err := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master").Run(); err != nil {
-		fmt.Println(err)
+	tidyCmd := exec.Command("go", "mod", "tidy")
+	if output, err := tidyCmd.CombinedOutput(); err != nil {
+		fmt.Println("go mod tidy: ", err)
+		fmt.Printf("combined out:\n%s\n", string(output))
 	}
 
-	if err := exec.Command("go", "mod", "tidy").Run(); err != nil {
-		fmt.Println(err)
+	wireCmd := exec.Command("make", "wire_gen")
+	if output, err := wireCmd.CombinedOutput(); err != nil {
+		fmt.Println("make wire_gen: ", err)
+		fmt.Printf("combined out:\n%s\n", string(output))
 	}
+
+	//
+	//getCmd := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master")
+	//if output, err := getCmd.CombinedOutput(); err != nil {
+	//	fmt.Println("go get codeup.aliyun.com/qimao/leo/leo/...@master: ", err)
+	//	fmt.Printf("combined out:\n%s\n", string(output))
+	//}
+	//
+	//tidyCmd = exec.Command("go", "mod", "tidy")
+	//if output, err := tidyCmd.CombinedOutput(); err != nil {
+	//	fmt.Println("go mod tidy: ", err)
+	//	fmt.Printf("combined out:\n%s\n", string(output))
+	//}
+	//
+
+	//
+	//tidyCmd = exec.Command("go", "mod", "tidy")
+	//if output, err := tidyCmd.CombinedOutput(); err != nil {
+	//	fmt.Println("go mod tidy: ", err)
+	//	fmt.Printf("combined out:\n%s\n", string(output))
+	//}
 }

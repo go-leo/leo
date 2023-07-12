@@ -1,0 +1,10 @@
+package {{ .Package }}
+
+import (
+	"github.com/google/wire"
+	{{ .AppBaseName }}v1 "{{ .ModuleName }}/api/{{ .AppPath }}/v1"
+)
+
+var Provider = wire.NewSet(
+	wire.Bind(new({{ .AppBaseName }}v1.{{ .AppUpperBaseName }}Server), new(*{{ .AppUpperBaseName }})), New{{ .AppUpperBaseName }},
+)

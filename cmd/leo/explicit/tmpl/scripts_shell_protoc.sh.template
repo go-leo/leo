@@ -22,6 +22,14 @@ then
 	protoc-gen-go-gors --version
 fi
 
+protos=$(find . -name "*.proto")
+newprotos=()
+for proto in $protos
+do
+  newprotos[${#newprotos[*]}]=${proto/.\//}
+done;
+
+
 echo "--- protoc generate start ---"
 protoc \
   --proto_path=. \
@@ -33,6 +41,5 @@ protoc \
   --go-gors_out=. \
   --go-gors_opt=module={{ .ModuleName }} \
   --go-gors_opt=path_to_lower=true \
-  api/*/*proto
-
+  ${newprotos[*]}
 echo "--- protoc generate end ---"

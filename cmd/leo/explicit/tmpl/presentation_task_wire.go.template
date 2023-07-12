@@ -5,5 +5,5 @@ import (
 )
 
 var Provider = wire.NewSet(
-	NewRunners,
+	NewTasks,
 )

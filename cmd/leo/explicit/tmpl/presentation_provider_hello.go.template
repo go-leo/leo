@@ -1,0 +1,23 @@
+package {{ .Package }}
+
+import (
+	"context"
+	{{ .AppBaseName }}v1 "{{ .ModuleName }}/api/{{ .AppPath }}/v1"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+)
+
+var _ {{ .AppBaseName }}v1.{{ .AppUpperBaseName }}Server = (*{{ .AppUpperBaseName }})(nil)
+
+type {{ .AppUpperBaseName }} struct {
+	commands *command.Commands
+	queries  *query.Queries
+}
+
+func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queries) *{{ .AppUpperBaseName }} {
+	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries}
+}
+
+func (srv *{{ .AppUpperBaseName }}) SayHello(ctx context.Context, request *{{ .AppBaseName }}v1.HelloRequest) (*{{ .AppBaseName }}v1.HelloReply, error) {
+	return &{{ .AppBaseName }}v1.HelloReply{Message: "hi " + request.GetName()}, nil
+}

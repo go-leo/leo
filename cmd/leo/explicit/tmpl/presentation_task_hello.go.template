@@ -1,0 +1,31 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	"codeup.aliyun.com/qimao/leo/leo/schedule"
+	"context"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+	"time"
+)
+
+type {{ .AppUpperBaseName }} struct {
+	commands *command.Commands
+	queries  *query.Queries
+}
+
+func (task *{{ .AppUpperBaseName }}) Name() string {
+	return "{{ .AppUpperBaseName }}"
+}
+
+func (task *{{ .AppUpperBaseName }}) Expression() string {
+	return "@every 1s"
+}
+
+func (task *{{ .AppUpperBaseName }}) Invoke(ctx context.Context) {
+	log.Info("hello world ", time.Now().Format(time.DateTime))
+}
+
+func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queries) schedule.Task {
+	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries}
+}

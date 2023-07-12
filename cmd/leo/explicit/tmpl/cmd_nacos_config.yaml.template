@@ -1,0 +1,6 @@
+address: localhost
+port: 8848
+data_id: demo
+group: demo
+namespace: demo
+

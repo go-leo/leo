@@ -2,6 +2,7 @@ package explicit
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -65,13 +66,21 @@ func initProject() {
 		}
 	}
 
-	if err := exec.Command("go", "mod", "init", module).Run(); err != nil {
-		fmt.Println(err)
+	initCmd := exec.Command("go", "mod", "init", module)
+	if output, err := initCmd.CombinedOutput(); err != nil {
+		fmt.Printf("combined out:\n%s\n", string(output))
+		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
-	if err := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master").Run(); err != nil {
-		fmt.Println(err)
+
+	tidyCmd := exec.Command("go", "mod", "tidy")
+	if output, err := tidyCmd.CombinedOutput(); err != nil {
+		fmt.Printf("combined out:\n%s\n", string(output))
+		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
-	if err := exec.Command("go", "mod", "tidy").Run(); err != nil {
-		fmt.Println(err)
+
+	getCmd := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master")
+	if output, err := getCmd.CombinedOutput(); err != nil {
+		fmt.Printf("combined out:\n%s\n", string(output))
+		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
 }

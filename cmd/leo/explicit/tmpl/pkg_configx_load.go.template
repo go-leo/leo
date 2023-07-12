@@ -1,21 +1,24 @@
 package configx
 
 import (
+    "context"
+	"fmt"
+
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/config/decoder"
 	"codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2"
 	"codeup.aliyun.com/qimao/leo/leo/config/resource/text"
-	"context"
+
 	"github.com/go-leo/gox/encodingx/yamlx"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-	"os"
+
 )
 
-func Load(ctx context.Context, devConfig string, testConfig string, prodConfig string) error {
-	switch os.Getenv("RUN_MODE") {
+func Load(ctx context.Context, env string, devConfig string, testConfig string, prodConfig string) error {
+	switch env {
 	case "dev":
 		return LoadText(ctx, devConfig)
 	case "test":
@@ -23,12 +26,12 @@ func Load(ctx context.Context, devConfig string, testConfig string, prodConfig s
 	case "prod":
 		return LoadNacos(ctx, prodConfig)
 	default:
-		return LoadNacos(ctx, testConfig)
+		return fmt.Errorf("unknown env: %s", env)
 	}
 }
 
 func LoadNacos(ctx context.Context, devConfig string) error {
-	var conf Config
+	var conf NacosConfig
 	err := yamlx.Unmarshal([]byte(devConfig), &conf)
 	if err != nil {
 		return err
@@ -76,7 +79,7 @@ func LoadText(ctx context.Context, devConfig string) error {
 	return configure.Get("").Scan(&AppConf)
 }
 
-type Config struct {
+type NacosConfig struct {
 	Address   string `mapstructure:"address" json:"address" yaml:"address"`
 	Port      uint64 `mapstructure:"port" json:"port" yaml:"port"`
 	DataID    string `mapstructure:"data_id" json:"data_id" yaml:"data_id"`

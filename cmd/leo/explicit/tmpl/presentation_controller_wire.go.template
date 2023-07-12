@@ -1,4 +1,4 @@
-package controller
+package {{ .Package }}
 
 import (
 	"github.com/google/wire"

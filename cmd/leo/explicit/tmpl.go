@@ -8,6 +8,12 @@ var (
 
 	//go:embed tmpl/cmd_main.go.template
 	cmdMainContent string
+
+	//go:embed tmpl/cmd_text_config.yaml.template
+	cmdTextConfigContent string
+
+	//go:embed tmpl/cmd_nacos_config.yaml.template
+	cmdNacosConfigContent string
 )
 
 //go:embed tmpl/app_root_wire.go.template
@@ -37,6 +43,21 @@ var (
 
 	//go:embed tmpl/presentation_controller_wire.go.template
 	presentationControllerWireContent string
+
+	//go:embed tmpl/presentation_provider_hello.go.template
+	presentationProviderHelloContent string
+
+	//go:embed tmpl/presentation_provider_wire.go.template
+	presentationProviderWireContent string
+
+	//go:embed tmpl/presentation_task_hello.go.template
+	presentationTaskHelloContent string
+
+	//go:embed tmpl/presentation_task_tasks.go.template
+	presentationTaskTasksContent string
+
+	//go:embed tmpl/presentation_task_wire.go.template
+	presentationTaskWireContent string
 )
 
 var (
@@ -147,6 +168,6 @@ var (
 	//go:embed tmpl/api_http_hello.go.template
 	apiHttpHelloContent string
 
-	//go:embed tmpl/api_grpc_service.proto.template
-	apiGrpcServiceContent string
+	//go:embed tmpl/api_grpc_hello.proto.template
+	apiGrpcHelloContent string
 )
