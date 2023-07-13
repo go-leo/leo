@@ -1,0 +1,19 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+)
+
+func NewHandlers(commands *command.Commands, subscribers map[string]stream.Subscriber) []stream.Handler {
+	return []stream.Handler{
+		New{{ .AppUpperBaseName }}Handler(commands, subscribers),
+	}
+}
+
+func NewPubSubHandlers(queries *query.Queries, subscribers map[string]stream.Subscriber, publishers map[string]stream.Publisher) []stream.PubSubHandler {
+	return []stream.PubSubHandler{
+		New{{ .AppUpperBaseName }}PubSubHandler(queries, subscribers, publishers),
+	}
+}

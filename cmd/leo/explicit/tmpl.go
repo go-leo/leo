@@ -58,6 +58,15 @@ var (
 
 	//go:embed tmpl/presentation_task_wire.go.template
 	presentationTaskWireContent string
+
+	//go:embed tmpl/presentation_subscriber_handlers.go.template
+	presentationSubscriberHandlersContent string
+
+	//go:embed tmpl/presentation_subscriber_hello.go.template
+	presentationSubscriberHelloContent string
+
+	//go:embed tmpl/presentation_subscriber_wire.go.template
+	presentationSubscriberWireContent string
 )
 
 var (

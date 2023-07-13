@@ -81,7 +81,12 @@ func addService() {
 		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "task"), presentationTaskHelloContent, appBaseName+".go"))
 		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "task"), presentationTaskTasksContent, "tasks.go"))
 		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "task"), presentationTaskWireContent, "wire.go"))
+	}
 
+	if stream {
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "subscriber"), presentationSubscriberHelloContent, appBaseName+".go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "subscriber"), presentationSubscriberHandlersContent, "handlers.go"))
+		sources = append(sources, newSource(path.Join("internal", appPath, "presentation", "subscriber"), presentationSubscriberWireContent, "wire.go"))
 	}
 
 	for _, src := range sources {

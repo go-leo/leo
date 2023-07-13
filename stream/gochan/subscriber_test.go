@@ -14,12 +14,12 @@ import (
 
 func TestSubscriber(t *testing.T) {
 	topic := "leo-stream-demo"
-	goChan := make(chan []byte, 10)
+	goChan := make(chan *stream.Message, 10)
 
 	go func() {
 		for {
 			time.Sleep(time.Millisecond)
-			goChan <- []byte(time.Now().String())
+			goChan <- &stream.Message{Payload: []byte(time.Now().String())}
 		}
 	}()
 

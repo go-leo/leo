@@ -1,0 +1,69 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"context"
+	"fmt"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+	"time"
+)
+
+type {{ .AppUpperBaseName }}Handler struct {
+	commands    *command.Commands
+	queries     *query.Queries
+	subscribers map[string]stream.Subscriber
+}
+
+func (h {{ .AppUpperBaseName }}Handler) Subscriber() (stream.Subscriber, error) {
+	key := "{{ .AppBaseName }}_handler_subscriber"
+	subscriber, ok := h.subscribers[key]
+	if !ok {
+		return nil, fmt.Errorf("not found subscriber, %s ", key)
+	}
+	return subscriber, nil
+}
+
+func (h {{ .AppUpperBaseName }}Handler) Handle(ctx context.Context, msg *stream.Message) error {
+	log.Infof("{{ .AppUpperBaseName }}Handler, topic: %s, payload: %s", msg.Topic, msg.Payload)
+	return nil
+}
+
+func New{{ .AppUpperBaseName }}Handler(commands *command.Commands, subscribers map[string]stream.Subscriber) *{{ .AppUpperBaseName }}Handler {
+	return &{{ .AppUpperBaseName }}Handler{commands: commands, subscribers: subscribers}
+}
+
+type {{ .AppUpperBaseName }}PubSubHandler struct {
+	queries     *query.Queries
+	subscribers map[string]stream.Subscriber
+	publishers  map[string]stream.Publisher
+}
+
+func (h {{ .AppUpperBaseName }}PubSubHandler) Subscriber() (stream.Subscriber, error) {
+	key := "{{ .AppBaseName }}_pub_sub_handler_subscriber"
+	subscriber, ok := h.subscribers[key]
+	if !ok {
+		return nil, fmt.Errorf("not found subscriber, %s ", key)
+	}
+	return subscriber, nil
+}
+
+func (h {{ .AppUpperBaseName }}PubSubHandler) Handle(ctx context.Context, msg *stream.Message) ([]*stream.Message, error) {
+	return []*stream.Message{
+		{Time: time.Now(), Payload: append([]byte("{{ .AppUpperBaseName }}PubSubHandler"), msg.Payload...), Header: msg.Header},
+	}, nil
+}
+
+func (h {{ .AppUpperBaseName }}PubSubHandler) Publisher() (stream.Publisher, error) {
+	key := "{{ .AppBaseName }}_pub_sub_handler_publisher"
+	publisher, ok := h.publishers[key]
+	if !ok {
+		return nil, fmt.Errorf("not found publisher, %s ", key)
+	}
+	return publisher, nil
+}
+
+func New{{ .AppUpperBaseName }}PubSubHandler(queries *query.Queries, subscribers map[string]stream.Subscriber, publishers map[string]stream.Publisher) *{{ .AppUpperBaseName }}PubSubHandler {
+	return &{{ .AppUpperBaseName }}PubSubHandler{queries: queries, subscribers: subscribers, publishers: publishers}
+}
