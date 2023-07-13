@@ -179,9 +179,7 @@ func testTopicPublisher(t *testing.T, routingKey string) {
 	publisher, err := amqp.NewPublisher(
 		"logs_topic",
 		factory,
-		amqp.RoutingKeys(func(topic string) []string {
-			return []string{routingKey}
-		}),
+		amqp.RoutingKeys(func(topic string) []string { return []string{routingKey} }),
 		amqp.ExchangeName(func(topic string) string { return topic }),
 		amqp.ExchangeOptions(&amqp.ExchangeOption{
 			Kind:       "topic",

@@ -131,6 +131,18 @@ var (
 	//go:embed tmpl/pkg_grpcx_wire.go.template
 	pkggRPCxWireContent string
 
+	//go:embed tmpl/pkg_mysqlx_mysql.go.template
+	pkgMysqlxMysqlContent string
+
+	//go:embed tmpl/pkg_mysqlx_wire.go.template
+	pkgMysqlxWireContent string
+
+	//go:embed tmpl/pkg_redisx_redis.go.template
+	pkgRedisxRedisContent string
+
+	//go:embed tmpl/pkg_redisx_wire.go.template
+	pkgRedisxWireContent string
+
 	//go:embed tmpl/pkg_streamx_amqpx_amqp.go.template
 	pkgStreamxAMQPxAMQPContent string
 
