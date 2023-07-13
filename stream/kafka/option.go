@@ -9,11 +9,14 @@ import (
 )
 
 type options struct {
-	Logger          log.Logger
-	Marshaller      Marshaller
+	Logger            log.Logger
+	Marshaller        Marshaller
+	NackHandler       func(msg *stream.Message)
+	OnMessageSending  func(*stream.Message, *kafka.Message) *kafka.Message
+	OnMessageReceived func(*stream.Message, *kafka.Message) *stream.Message
+
 	ShutdownTimeout time.Duration
 	RebalanceCb     kafka.RebalanceCb
-	NackHandler     func(msg *stream.Message)
 	PollTimeout     time.Duration
 }
 
@@ -70,5 +73,17 @@ func PollTimeout(t time.Duration) Option {
 func NackHandler(h func(msg *stream.Message)) Option {
 	return func(o *options) {
 		o.NackHandler = h
+	}
+}
+
+func OnMessageSending(f func(*stream.Message, *kafka.Message) *kafka.Message) Option {
+	return func(o *options) {
+		o.OnMessageSending = f
+	}
+}
+
+func OnMessageReceived(f func(*stream.Message, *kafka.Message) *stream.Message) Option {
+	return func(o *options) {
+		o.OnMessageReceived = f
 	}
 }

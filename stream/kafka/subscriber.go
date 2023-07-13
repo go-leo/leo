@@ -108,10 +108,13 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 }
 
 func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, msgC chan<- *stream.Message, errC chan<- error) {
-	msg, err := sub.o.Marshaller.Unmarshal(kafkaMsg)
+	msg, err := sub.o.Marshaller.Unmarshal(sub.topic, kafkaMsg)
 	if err != nil {
 		errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
 		return
+	}
+	if sub.o.OnMessageReceived != nil {
+		msg = sub.o.OnMessageReceived(msg, kafkaMsg)
 	}
 
 	ackC := make(chan struct{})

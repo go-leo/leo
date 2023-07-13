@@ -15,7 +15,7 @@ type Publisher struct {
 	wg     sync.WaitGroup
 	closed atomic.Bool
 	topic  string
-	goChan chan<- []byte
+	goChan chan<- *stream.Message
 }
 
 func (pub *Publisher) Topic() string {
@@ -26,7 +26,7 @@ func (pub *Publisher) Queue() string {
 	return "gochan"
 }
 
-func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.PublishResult, error) {
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.Result, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -37,14 +37,11 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	pub.wg.Add(1)
 	defer pub.wg.Done()
 
-	var result stream.PublishResults
+	var result stream.Results
 	for _, msg := range messages {
-		goChanMsg, err := pub.o.Marshaller.Marshal(ctx, pub.topic, msg)
-		if err != nil {
-			return nil, err
-		}
-		pub.goChan <- goChanMsg
-		result = append(result, &PublishResult{Msg: goChanMsg})
+		msg.Topic = pub.topic
+		pub.goChan <- msg
+		result = append(result, &Result{Msg: msg})
 	}
 	return result, nil
 }
@@ -57,15 +54,15 @@ func (pub *Publisher) Close(_ context.Context) error {
 	return nil
 }
 
-type PublishResult struct {
-	Msg []byte
+type Result struct {
+	Msg *stream.Message
 }
 
-func (p PublishResult) String() string {
+func (p Result) String() string {
 	return "ok"
 }
 
-func NewPublisher(topic string, goChan chan<- []byte, opts ...Option) *Publisher {
+func NewPublisher(topic string, goChan chan<- *stream.Message, opts ...Option) *Publisher {
 	o := &options{}
 	o.apply(opts...)
 	o.init()

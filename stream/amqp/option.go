@@ -7,9 +7,11 @@ import (
 )
 
 type options struct {
-	Logger      log.Logger
-	Marshaller  Marshaller
-	NackHandler func(msg *stream.Message)
+	Logger            log.Logger
+	Marshaller        Marshaller
+	NackHandler       func(msg *stream.Message)
+	OnMessageSending  func(*stream.Message, amqp091.Publishing) amqp091.Publishing
+	OnMessageReceived func(*stream.Message, amqp091.Delivery) *stream.Message
 
 	ExchangeName func(topic string) string
 	QueueName    func(topic string) string
@@ -23,8 +25,6 @@ type options struct {
 
 	PublishOption PublishOption
 	ConsumeOption ConsumeOption
-
-	PublishingDecorator func(*stream.Message, amqp091.Publishing) amqp091.Publishing
 
 	AckOption AckOption
 }
@@ -89,6 +89,18 @@ func MessageMarshaller(m Marshaller) Option {
 func NackHandler(h func(msg *stream.Message)) Option {
 	return func(o *options) {
 		o.NackHandler = h
+	}
+}
+
+func OnMessageSending(f func(*stream.Message, amqp091.Publishing) amqp091.Publishing) Option {
+	return func(o *options) {
+		o.OnMessageSending = f
+	}
+}
+
+func OnMessageReceived(f func(*stream.Message, amqp091.Delivery) *stream.Message) Option {
+	return func(o *options) {
+		o.OnMessageReceived = f
 	}
 }
 

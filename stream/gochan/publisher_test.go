@@ -14,11 +14,11 @@ import (
 func TestKafkaPublisher(t *testing.T) {
 	topic := "leo-stream-demo"
 
-	goChan := make(chan []byte, 10)
+	goChan := make(chan *stream.Message, 10)
 
 	go func() {
 		for msg := range goChan {
-			t.Log("msg: ", string(msg))
+			t.Log("msg: ", string(msg.Payload))
 		}
 	}()
 
@@ -68,11 +68,11 @@ func TestKafkaPublisher(t *testing.T) {
 func TestKafkaPublisherMultiMessage(t *testing.T) {
 	topic := "leo-stream-demo"
 
-	goChan := make(chan []byte, 10)
+	goChan := make(chan *stream.Message, 10)
 
 	go func() {
 		for msg := range goChan {
-			t.Log("msg: ", string(msg))
+			t.Log("msg: ", string(msg.Payload))
 		}
 	}()
 

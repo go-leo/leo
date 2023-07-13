@@ -30,7 +30,7 @@ func (pub *Publisher) Queue() string {
 	return "kafka"
 }
 
-func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.PublishResult, error) {
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.Result, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -44,11 +44,14 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	deliveryChan := make(chan kafka.Event, 1)
 	defer close(deliveryChan)
 
-	var result stream.PublishResults
+	var result stream.Results
 	for _, msg := range messages {
 		kafkaMsg, err := pub.o.Marshaller.Marshal(ctx, pub.topic, msg)
 		if err != nil {
 			return nil, err
+		}
+		if pub.o.OnMessageSending != nil {
+			kafkaMsg = pub.o.OnMessageSending(msg, kafkaMsg)
 		}
 		if err := pub.producer.Produce(kafkaMsg, deliveryChan); err != nil {
 			return nil, err

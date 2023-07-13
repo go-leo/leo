@@ -2,7 +2,6 @@ package gochan
 
 import (
 	"context"
-	"fmt"
 	"sync/atomic"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
@@ -16,7 +15,7 @@ type Subscriber struct {
 	subscribed atomic.Bool
 	closed     atomic.Bool
 	closeC     chan struct{}
-	goChan     <-chan []byte
+	goChan     <-chan *stream.Message
 }
 
 func (sub *Subscriber) Topic() string {
@@ -55,17 +54,8 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 	return nil
 }
 
-func (sub *Subscriber) handleMsg(ctx context.Context, goChanMsg []byte, msgC chan<- *stream.Message, errC chan<- error) {
-	msg, err := sub.o.Marshaller.Unmarshal(goChanMsg)
-	if err != nil {
-		if errC != nil {
-			errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
-			return
-		}
-		sub.o.Logger.Error("failed to unmarshal message, error: %w", err)
-		return
-	}
-
+func (sub *Subscriber) handleMsg(ctx context.Context, msg *stream.Message, msgC chan<- *stream.Message, errC chan<- error) {
+	msg.Topic = sub.topic
 	ackC := make(chan struct{})
 	stream.NotifyAck(msg, ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
 		return nil, nil
@@ -98,7 +88,7 @@ func (sub *Subscriber) handleMsg(ctx context.Context, goChanMsg []byte, msgC cha
 	}
 }
 
-func NewSubscriber(topic string, goChan <-chan []byte, opts ...Option) *Subscriber {
+func NewSubscriber(topic string, goChan <-chan *stream.Message, opts ...Option) *Subscriber {
 	o := &options{}
 	o.apply(opts...)
 	o.init()

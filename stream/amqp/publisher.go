@@ -32,7 +32,7 @@ func (pub *Publisher) Queue() string {
 	return "amqp"
 }
 
-func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.PublishResult, error) {
+func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) (stream.Result, error) {
 	if len(messages) == 0 {
 		return nil, nil
 	}
@@ -44,8 +44,8 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 	return pub.publishMessages(ctx, messages, pub.o.ExchangeName(pub.topic), pub.o.RoutingKeys(pub.topic))
 }
 
-func (pub *Publisher) publishMessages(ctx context.Context, messages []*stream.Message, exchangeName string, routingKeys []string) (stream.PublishResult, error) {
-	var results stream.PublishResults
+func (pub *Publisher) publishMessages(ctx context.Context, messages []*stream.Message, exchangeName string, routingKeys []string) (stream.Result, error) {
+	var results stream.Results
 	for _, routingKey := range routingKeys {
 		for _, msg := range messages {
 			publishing, err := pub.convertMessage(ctx, msg)
@@ -67,8 +67,8 @@ func (pub *Publisher) convertMessage(ctx context.Context, msg *stream.Message) (
 	if err != nil {
 		return amqp091.Publishing{}, err
 	}
-	if pub.o.PublishingDecorator != nil {
-		publishing = pub.o.PublishingDecorator(msg, publishing)
+	if pub.o.OnMessageSending != nil {
+		publishing = pub.o.OnMessageSending(msg, publishing)
 	}
 	publishing.DeliveryMode = pub.o.PublishOption.DeliveryMode
 	return publishing, nil

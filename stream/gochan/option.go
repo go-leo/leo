@@ -5,16 +5,8 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 )
 
-//
-//import (
-//	"codeup.aliyun.com/qimao/leo/leo/stream"
-//	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-//	"time"
-//)
-
 type options struct {
 	Logger      log.Logger
-	Marshaller  Marshaller
 	NackHandler func(msg *stream.Message)
 }
 
@@ -26,21 +18,11 @@ func (o *options) apply(opts ...Option) {
 	}
 }
 
-func (o *options) init() {
-	if o.Marshaller == nil {
-		o.Marshaller = DefaultMarshaller{}
-	}
-}
+func (o *options) init() {}
 
 func Logger(l log.Logger) Option {
 	return func(o *options) {
 		o.Logger = l
-	}
-}
-
-func MessageMarshaller(m Marshaller) Option {
-	return func(o *options) {
-		o.Marshaller = m
 	}
 }
 

@@ -24,24 +24,24 @@ func (h *actuatorHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 func (h *actuatorHandler) actuatorResponse() map[string]any {
 	resp := map[string]any{}
-	var handlers []map[string]any
-	for _, handler := range h.streamer.handlerWrappers {
+	var channels []map[string]any
+	for _, channel := range h.streamer.channels {
 		handlerMap := map[string]any{}
-		if handler.Subscriber != nil {
+		if channel.Subscriber() != nil {
 			handlerMap["subscriber"] = map[string]any{
-				"topic": handler.Subscriber.Topic(),
-				"queue": handler.Subscriber.Queue(),
+				"topic": channel.Subscriber().Topic(),
+				"queue": channel.Subscriber().Queue(),
 			}
 		}
-		if handler.Publisher != nil {
+		if channel.Publisher() != nil {
 			handlerMap["publisher"] = map[string]any{
-				"topic": handler.Publisher.Topic(),
-				"queue": handler.Publisher.Queue(),
+				"topic": channel.Publisher().Topic(),
+				"queue": channel.Publisher().Queue(),
 			}
 		}
-		handlers = append(handlers, handlerMap)
+		channels = append(channels, handlerMap)
 	}
-	resp["handlers"] = handlers
+	resp["channels"] = channels
 	return resp
 }
 
