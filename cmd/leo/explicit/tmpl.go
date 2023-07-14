@@ -158,6 +158,9 @@ var (
 	//go:embed tmpl/pkg_streamx_kafkax_kafka.go.template
 	pkgStreamxKafkaxKafkaContent string
 
+	//go:embed tmpl/pkg_streamx_stream.go.template
+	pkgStreamxStreamContent string
+
 	//go:embed tmpl/pkg_streamx_wire.go.template
 	pkgStreamxWireContent string
 )

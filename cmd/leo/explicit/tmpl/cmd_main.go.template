@@ -1,39 +1,37 @@
-package {{ .Package }}
+package main
 
 import (
 	"context"
 	"os"
 	_ "embed"
-
 	"github.com/go-leo/gox/errorx"
-
 	"codeup.aliyun.com/qimao/leo/leo"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/log/slog"
 	"codeup.aliyun.com/qimao/leo/leo/actuator"
-
     "{{ .ModuleName }}/pkg/actuatorx"
     "{{ .ModuleName }}/pkg/configx"
-{{if .HTTP }}
-    "{{ .ModuleName }}/api/{{ .AppPath }}"
-    "{{ .ModuleName }}/pkg/ginx"
-    "codeup.aliyun.com/qimao/leo/leo/transport/ginhttp"
-
+{{if .HTTP -}}
     "github.com/gin-gonic/gin"
     "github.com/go-leo/gors"
-{{end}}
-{{if .GRPC }}
+    "codeup.aliyun.com/qimao/leo/leo/transport/ginhttp"
+    "{{ .ModuleName }}/api/{{ .AppPath }}"
+    "{{ .ModuleName }}/pkg/ginx"
+{{end -}}
+{{if .GRPC -}}
     "codeup.aliyun.com/qimao/leo/leo/transport/lgrpc"
-
 	{{ .AppBaseName }}v1 "{{ .ModuleName }}/api/{{ .AppPath }}/v1"
 	"{{ .ModuleName }}/pkg/grpcx"
-{{end}}
-{{if .Schedule }}
+{{end -}}
+{{if .Schedule -}}
     "time"
-
     "codeup.aliyun.com/qimao/leo/leo/schedule"
     "codeup.aliyun.com/qimao/leo/leo/schedule/cron"
-{{end}}
+{{end -}}
+{{if .Stream -}}
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	"{{ .ModuleName }}/pkg/streamx"
+{{end -}}
 )
 
 var (
@@ -78,18 +76,26 @@ func main() {
 func newApp(
 	ctx context.Context,
 	actuatorConfig *actuatorx.Config,
-{{if .Sample }}runners []leo.RunnerFunc,{{end}}
-{{if .HTTP }}
+{{if .Sample -}}
+    runners []leo.RunnerFunc,
+{{end -}}
+{{if .HTTP -}}
 	{{ .AppBaseName }}Ctrl {{ .AppBaseName }}.{{ .AppUpperBaseName }},
 	ginConfig *ginx.Config,
-{{end}}
-{{if .GRPC }}
+{{end -}}
+{{if .GRPC -}}
 	{{ .AppBaseName }}Srv {{ .AppBaseName }}v1.{{ .AppUpperBaseName }}Server,
 	grpcConfig *grpcx.ProviderConfig,
-{{end}}
-{{if .Schedule }}tasks []schedule.Task,{{end}}
+{{end -}}
+{{if .Schedule -}}
+    tasks []schedule.Task,
+{{end -}}
+{{if .Stream -}}
+	handlers []stream.Handler,
+	pubSubHandlers []stream.PubSubHandler,
+{{- end}}
 ) (*leo.App, error) {
-{{if .HTTP }}
+{{if .HTTP -}}
     engine := gin.New()
 	engine.Use(ginx.Middlewares()...)
 	engine = gors.AppendRoutes(engine, {{ .AppBaseName }}.{{ .AppUpperBaseName }}Routes({{ .AppBaseName }}Ctrl)...)
@@ -99,8 +105,9 @@ func newApp(
 		ginhttp.ID(ID),
 		ginhttp.Name(Name),
 	)
-{{end}}
-{{if .GRPC }}
+
+{{end -}}
+{{if .GRPC -}}
 	grpcServer := lgrpc.NewServer(
 		grpcConfig.Port,
 		lgrpc.ID(ID),
@@ -109,8 +116,9 @@ func newApp(
 		lgrpc.ServerOptions(grpcx.ServerOptions()...),
 	)
 	{{ .AppBaseName }}v1.Register{{ .AppUpperBaseName }}Server(grpcServer, {{ .AppBaseName }}Srv)
-{{end}}
-{{if .Schedule }}
+
+{{end -}}
+{{if .Schedule -}}
 	scheduler := cron.NewScheduler(
 		cron.Seconds(),
 		cron.Location(time.Local),
@@ -118,27 +126,40 @@ func newApp(
 	if err := scheduler.AddTasks(tasks...); err != nil {
 		return nil, err
 	}
-{{end}}
+
+{{end -}}
+{{if .Stream -}}
+	streamer := stream.NewStreamer(
+		stream.Handlers(handlers...),
+		stream.PubSubHandlers(pubSubHandlers...),
+		stream.Interceptors(streamx.Interceptors()...),
+	)
+
+{{end -}}
 	actuatorServer := actuator.New(
 		actuatorConfig.Port,
 		actuator.Handlers(
-			{{if .HTTP }}httpServer.ActuatorHandler(),{{end}}
-			{{if .GRPC }}grpcServer.ActuatorHandler(),{{end}}
-			{{if .Schedule }}scheduler.ActuatorHandler(),{{end}}
+			{{if .HTTP }}httpServer.ActuatorHandler(),{{end -}}
+			{{if .GRPC }}grpcServer.ActuatorHandler(),{{end -}}
+			{{if .Schedule }}scheduler.ActuatorHandler(),{{end -}}
+			{{if .Stream }}streamer.ActuatorHandler(),{{end}}
 		),
 		actuator.HealthCheckers(
-			{{if .HTTP }}httpServer.HealthChecker(),{{end}}
-			{{if .GRPC }}grpcServer.HealthChecker(),{{end}}
-			{{if .Schedule }}scheduler.HealthChecker(),{{end}}
+			{{if .HTTP }}httpServer.HealthChecker(),{{end -}}
+			{{if .GRPC }}grpcServer.HealthChecker(),{{end -}}
+			{{if .Schedule }}scheduler.HealthChecker(),{{end -}}
+			{{if .Stream }}streamer.HealthChecker(),{{end}}
 		),
 	)
+
 	return leo.NewApp(
-{{if .Sample }}leo.RunnerFuncs(runners...),{{end}}
+        leo.RunnerFuncs({{if .Sample }}runners...{{end}}),
 		leo.Runners(
 			actuatorServer,
-{{if .HTTP }}httpServer,{{end}}
-{{if .GRPC }}grpcServer,{{end}}
-{{if .Schedule }}scheduler,{{end}}
+{{if .HTTP }}httpServer,{{end -}}
+{{if .GRPC }}grpcServer,{{end -}}
+{{if .Schedule }}scheduler,{{end -}}
+{{if .Stream }}streamer,{{end}}
 		),
 	), nil
 }

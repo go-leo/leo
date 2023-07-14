@@ -2,6 +2,7 @@ package gochan
 
 import (
 	"context"
+	"sync"
 	"sync/atomic"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
@@ -12,10 +13,12 @@ var _ stream.Subscriber = new(Subscriber)
 type Subscriber struct {
 	o          *options
 	topic      string
+	goChan     <-chan *stream.Message
 	subscribed atomic.Bool
 	closed     atomic.Bool
 	closeC     chan struct{}
-	goChan     <-chan *stream.Message
+	stopC      chan struct{}
+	wg         sync.WaitGroup
 }
 
 func (sub *Subscriber) Topic() string {
@@ -33,7 +36,10 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 	if !sub.subscribed.CompareAndSwap(false, true) {
 		return stream.ErrSubscriberAlreadySubscribed
 	}
-
+	defer func() {
+		defer close(sub.stopC)
+		sub.wg.Wait()
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -51,10 +57,16 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 		return nil
 	}
 	close(sub.closeC)
+	select {
+	case <-ctx.Done():
+	case <-sub.stopC:
+	}
 	return nil
 }
 
 func (sub *Subscriber) handleMsg(ctx context.Context, msg *stream.Message, msgC chan<- *stream.Message, errC chan<- error) {
+	sub.wg.Add(1)
+	defer sub.wg.Done()
 	msg.Topic = sub.topic
 	ackC := make(chan struct{})
 	stream.NotifyAck(msg, ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
@@ -95,9 +107,11 @@ func NewSubscriber(topic string, goChan <-chan *stream.Message, opts ...Option) 
 	return &Subscriber{
 		o:          o,
 		topic:      topic,
+		goChan:     goChan,
 		subscribed: atomic.Bool{},
 		closed:     atomic.Bool{},
 		closeC:     make(chan struct{}),
-		goChan:     goChan,
+		stopC:      make(chan struct{}),
+		wg:         sync.WaitGroup{},
 	}
 }

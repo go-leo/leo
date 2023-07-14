@@ -1,0 +1,12 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/middleware/stream/recovery"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+)
+
+func Interceptors(other ...stream.Interceptor) []stream.Interceptor {
+	interceptors := []stream.Interceptor{recovery.Interceptor()}
+	interceptors = append(interceptors, other...)
+	return interceptors
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"sync/atomic"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
@@ -15,13 +16,14 @@ var _ stream.Subscriber = new(Subscriber)
 
 type Subscriber struct {
 	o          *options
+	connect    *amqp091.Connection
 	channel    *amqp091.Channel
 	topic      string
 	subscribed atomic.Bool
 	closed     atomic.Bool
 	closeC     chan struct{}
 	stopC      chan struct{}
-	connect    *amqp091.Connection
+	wg         sync.WaitGroup
 }
 
 func (sub *Subscriber) Topic() string {
@@ -45,14 +47,17 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 		return err
 	}
 	defer func() {
-		if err := sub.channel.Cancel(sub.o.ConsumeOption.Tag, sub.o.ConsumeOption.NoWait); err != nil {
-			if errC != nil {
-				errC <- fmt.Errorf("failed to cancel: %w", err)
-				return
-			}
-			sub.o.Logger.Error("failed to cancel: %w", err)
+		defer close(sub.stopC)
+		sub.wg.Wait()
+		err := sub.channel.Cancel(sub.o.ConsumeOption.Tag, sub.o.ConsumeOption.NoWait)
+		if err == nil {
+			return
 		}
-		close(sub.stopC)
+		if errC != nil {
+			errC <- err
+		} else {
+			sub.o.Logger.Error(err)
+		}
 	}()
 	for {
 		select {
@@ -60,7 +65,10 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 			return nil
 		case <-sub.closeC:
 			return nil
-		case delivery := <-deliveryC:
+		case delivery, ok := <-deliveryC:
+			if !ok {
+				return nil
+			}
 			sub.handleMsg(ctx, delivery, msgC, errC)
 		}
 	}
@@ -71,10 +79,16 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 		return nil
 	}
 	close(sub.closeC)
+	select {
+	case <-ctx.Done():
+	case <-sub.stopC:
+	}
 	return errors.Join(sub.channel.Close(), sub.connect.Close())
 }
 
 func (sub *Subscriber) handleMsg(ctx context.Context, delivery amqp091.Delivery, msgC chan<- *stream.Message, errC chan<- error) {
+	sub.wg.Add(1)
+	defer sub.wg.Done()
 	msg, err := sub.o.Marshaller.Unmarshal(sub.topic, delivery)
 	if err != nil {
 		errC <- fmt.Errorf("failed to unmarshal amqp091 delivery: %w", err)
@@ -142,12 +156,13 @@ func NewSubscriber(topic string, factory func(topic string) (*amqp091.Connection
 	}
 	return &Subscriber{
 		o:          o,
+		connect:    connect,
 		channel:    channel,
 		topic:      topic,
 		subscribed: atomic.Bool{},
 		closed:     atomic.Bool{},
 		closeC:     make(chan struct{}),
 		stopC:      make(chan struct{}),
-		connect:    connect,
+		wg:         sync.WaitGroup{},
 	}, nil
 }

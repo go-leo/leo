@@ -1,4 +1,4 @@
-package streamx
+package {{ .Package }}
 
 import (
 	"codeup.aliyun.com/qimao/leo/leo/stream"

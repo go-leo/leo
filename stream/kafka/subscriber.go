@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-leo/gox/errorx"
+	"sync"
 	"sync/atomic"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
@@ -21,6 +23,7 @@ type Subscriber struct {
 	closed     atomic.Bool
 	closeC     chan struct{}
 	stopC      chan struct{}
+	wg         sync.WaitGroup
 }
 
 func (sub *Subscriber) Topic() string {
@@ -42,18 +45,17 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 		return err
 	}
 	defer func() {
-		if _, err := sub.consumer.Commit(); err != nil {
-			errC <- err
-			if errC != nil {
-				errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
-				return
-			}
-			sub.o.Logger.Error("failed to commit kafka message, %w", err)
+		defer close(sub.stopC)
+		sub.wg.Wait()
+		err := errors.Join(errorx.Concern(sub.consumer.Commit()), sub.consumer.Unsubscribe())
+		if err == nil {
+			return
 		}
-		if err := sub.consumer.Unsubscribe(); err != nil {
+		if errC != nil {
 			errC <- err
+			return
 		}
-		close(sub.stopC)
+		sub.o.Logger.Error(err)
 	}()
 	for {
 		select {
@@ -76,7 +78,11 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 						e.TopicPartition.Offset,
 						e.TopicPartition.Error,
 					)
-					errC <- err
+					if errC != nil {
+						errC <- err
+						continue
+					}
+					sub.o.Logger.Error(err)
 					continue
 				}
 				sub.handleMsg(ctx, e, msgC, errC)
@@ -90,7 +96,11 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 				if e.IsFatal() {
 					return e
 				}
-				errC <- e
+				if errC != nil {
+					errC <- e
+					continue
+				}
+				sub.o.Logger.Error(e)
 			default:
 				continue
 			}
@@ -103,11 +113,16 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 		return nil
 	}
 	close(sub.closeC)
-	<-sub.stopC
+	select {
+	case <-ctx.Done():
+	case <-sub.stopC:
+	}
 	return sub.consumer.Close()
 }
 
 func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, msgC chan<- *stream.Message, errC chan<- error) {
+	sub.wg.Add(1)
+	defer sub.wg.Done()
 	msg, err := sub.o.Marshaller.Unmarshal(sub.topic, kafkaMsg)
 	if err != nil {
 		errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
@@ -119,7 +134,8 @@ func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, m
 
 	ackC := make(chan struct{})
 	stream.NotifyAck(msg, ackC, func(ctx context.Context, msg *stream.Message) (any, error) {
-		return sub.consumer.CommitMessage(kafkaMsg)
+		partitions, err := sub.consumer.CommitMessage(kafkaMsg)
+		return partitions, err
 	})
 
 	nackC := make(chan struct{})
@@ -169,5 +185,6 @@ func NewSubscriber(topic string, factory func() (*kafka.Consumer, error), opts .
 		closed:     atomic.Bool{},
 		closeC:     make(chan struct{}),
 		stopC:      make(chan struct{}),
+		wg:         sync.WaitGroup{},
 	}, nil
 }

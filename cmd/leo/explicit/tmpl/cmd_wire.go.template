@@ -3,7 +3,7 @@
 
 // The build tag makes sure the stub is not built in the final build.
 // path: {{ .WireFilePath }}
-package {{ .Package }}
+package main
 
 import (
     "codeup.aliyun.com/qimao/leo/leo"
