@@ -1,10 +1,11 @@
 package amqp
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 	"context"
 	"strings"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 

@@ -4,8 +4,10 @@ import (
 	"sync"
 )
 
-var handlers []Handler
-var handlersMu sync.RWMutex
+var (
+	handlers   []Handler
+	handlersMu sync.RWMutex
+)
 
 func RegisterHandler(handler Handler) {
 	handlersMu.Lock()

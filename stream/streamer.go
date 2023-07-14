@@ -1,12 +1,14 @@
 package stream
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/actuator"
-	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
 	"context"
 	"errors"
-	"golang.org/x/sync/errgroup"
 	"sync/atomic"
+
+	"codeup.aliyun.com/qimao/leo/leo/actuator"
+	"codeup.aliyun.com/qimao/leo/leo/actuator/health"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type Streamer struct {

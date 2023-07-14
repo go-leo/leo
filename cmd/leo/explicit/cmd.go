@@ -1,9 +1,10 @@
 package explicit
 
 import (
-	"github.com/spf13/cobra"
 	"path"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -25,7 +26,6 @@ var Cmd = &cobra.Command{
 	Short: "Create a DDD project as explicit architecture.",
 	Long:  "Create a DDD project as explicit architecture.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-
 	},
 }
 

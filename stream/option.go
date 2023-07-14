@@ -1,8 +1,9 @@
 package stream
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/log"
 	"time"
+
+	"codeup.aliyun.com/qimao/leo/leo/log"
 )
 
 type options struct {

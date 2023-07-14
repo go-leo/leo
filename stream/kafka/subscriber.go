@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-leo/gox/errorx"
 	"sync"
 	"sync/atomic"
+
+	"github.com/go-leo/gox/errorx"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 

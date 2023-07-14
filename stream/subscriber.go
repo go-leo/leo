@@ -3,8 +3,9 @@ package stream
 import (
 	"context"
 	"errors"
-	"golang.org/x/exp/slices"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 var ErrSubscriberClosed = errors.New("subscriber is closed")
