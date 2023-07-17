@@ -3,18 +3,12 @@ package {{ .Package }}
 import (
     "context"
 	"fmt"
-
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/config/decoder"
 	"codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2"
 	"codeup.aliyun.com/qimao/leo/leo/config/resource/text"
-
 	"github.com/go-leo/gox/encodingx/yamlx"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
-	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-
+	"{{ .ModuleName }}/pkg/nacosx"
 )
 
 func Load(ctx context.Context, env string, devConfig string, testConfig string, prodConfig string) error {
@@ -31,27 +25,12 @@ func Load(ctx context.Context, env string, devConfig string, testConfig string, 
 }
 
 func LoadNacos(ctx context.Context, devConfig string) error {
-	var conf NacosConfig
+	var conf nacosx.Config
 	err := yamlx.Unmarshal([]byte(devConfig), &conf)
 	if err != nil {
 		return err
 	}
-	factory := func() (config_client.IConfigClient, error) {
-		sc := []constant.ServerConfig{*constant.NewServerConfig(conf.Address, conf.Port)}
-		cc := *constant.NewClientConfig(
-			constant.WithNamespaceId(conf.Namespace),
-			constant.WithTimeoutMs(5000),
-			constant.WithNotLoadCacheAtStart(true),
-			constant.WithLogLevel("warn"),
-		)
-		return clients.NewConfigClient(
-			vo.NacosClientParam{
-				ClientConfig:  &cc,
-				ServerConfigs: sc,
-			},
-		)
-	}
-	resource, err := nacosv2.NewResource(conf.DataID, conf.Group, factory, nacosv2.Extension("yaml"))
+	resource, err := nacosv2.NewResource(conf.DataID, conf.Group, nacosx.ConfigClientFactory(&conf), nacosv2.Extension("yaml"))
 	if err != nil {
 		return err
 	}
@@ -77,12 +56,4 @@ func LoadText(ctx context.Context, devConfig string) error {
 		return err
 	}
 	return configure.Get("").Scan(&AppConf)
-}
-
-type NacosConfig struct {
-	Address   string `mapstructure:"address" json:"address" yaml:"address"`
-	Port      uint64 `mapstructure:"port" json:"port" yaml:"port"`
-	DataID    string `mapstructure:"data_id" json:"data_id" yaml:"data_id"`
-	Group     string `mapstructure:"group" json:"group" yaml:"group"`
-	Namespace string `mapstructure:"namespace" json:"namespace" yaml:"namespace"`
 }

@@ -169,6 +169,24 @@ var (
 
 	//go:embed tmpl/pkg_cachex_cache.go.template
 	pkgCachexCacheContent string
+
+	//go:embed tmpl/pkg_otelx_metric.go.template
+	pkgOtelxMetricContent string
+
+	//go:embed tmpl/pkg_otelx_trace.go.template
+	pkgOtelxTraceContent string
+
+	//go:embed tmpl/pkg_otelx_resource.go.template
+	pkgOtelxResourceContent string
+
+	//go:embed tmpl/pkg_otelx_wire.go.template
+	pkgOtelxWireContent string
+
+	//go:embed tmpl/pkg_registryx_nacos.go.template
+	pkgRegistryxNacos string
+
+	//go:embed tmpl/pkg_nacosx_config.go.template
+	pkgNacosxConfig string
 )
 
 var (

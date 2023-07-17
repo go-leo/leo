@@ -1,0 +1,65 @@
+package {{ .Package }}
+
+import (
+	"context"
+	"strings"
+
+	"github.com/go-leo/gox/stringx"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
+)
+
+type Service struct {
+	Name       string `mapstructure:"name" json:"name" yaml:"name"`
+	Namespace  string `mapstructure:"namespace" json:"namespace" yaml:"namespace"`
+	InstanceID string `mapstructure:"instance_id" json:"instance_id" yaml:"instance_id"`
+	Version    string `mapstructure:"version" json:"version" yaml:"version"`
+}
+
+func (svc *Service) Attributes() []attribute.KeyValue {
+	if svc == nil {
+		return nil
+	}
+	var attrs []attribute.KeyValue
+	if stringx.IsNotBlank(svc.Name) {
+		attrs = append(attrs, attribute.Key("service.name").String(svc.Name))
+	}
+	if stringx.IsNotBlank(svc.Namespace) {
+		attrs = append(attrs, attribute.Key("service.namespace").String(svc.Namespace))
+	}
+	if stringx.IsNotBlank(svc.InstanceID) {
+		attrs = append(attrs, attribute.Key("service.instance.id").String(svc.InstanceID))
+	}
+	if stringx.IsNotBlank(svc.Version) {
+		attrs = append(attrs, attribute.Key("service.version").String(svc.Version))
+	}
+	return attrs
+}
+
+func NewResource(ctx context.Context, svc *Service, res string, attrs ...attribute.KeyValue) *resource.Resource {
+	opts := []resource.Option{resource.WithAttributes(append(attrs, svc.Attributes()...)...)}
+	upperResFlag := strings.ToLower(res)
+	if strings.Contains(upperResFlag, "env") {
+		opts = append(opts, resource.WithFromEnv())
+	}
+	if strings.Contains(upperResFlag, "host") {
+		opts = append(opts, resource.WithHost())
+	}
+	if strings.Contains(upperResFlag, "telemetry_sdk") {
+		opts = append(opts, resource.WithTelemetrySDK())
+	}
+	if strings.Contains(upperResFlag, "os") {
+		opts = append(opts, resource.WithOS())
+	}
+	if strings.Contains(upperResFlag, "process") {
+		opts = append(opts, resource.WithProcess())
+	}
+	if strings.Contains(upperResFlag, "container") {
+		opts = append(opts, resource.WithContainer())
+	}
+	attributes, err := resource.New(ctx, opts...)
+	if err != nil {
+		return resource.Default()
+	}
+	return attributes
+}

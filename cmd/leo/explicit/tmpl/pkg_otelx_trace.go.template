@@ -1,0 +1,264 @@
+package {{ .Package }}
+
+import (
+	"context"
+	"crypto/tls"
+	"errors"
+	"github.com/go-leo/gox/stringx"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/zipkin"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"io"
+	"net/http"
+	"runtime"
+	"time"
+)
+
+type TraceConfig struct {
+	// Service 服务
+	Service *Service
+	// Attributes trace需要一些额外的信息
+	Attributes []attribute.KeyValue
+
+	// SamplingRate 采样率
+	SamplingRate float64
+
+	// GRPCExporter
+	GRPCExporter *GRPCTraceExporter
+	// HTTPExporter
+	HTTPExporter *HTTPTraceExporter
+	// JaegerExporter
+	JaegerExporter *JaegerTraceExporter
+	// ZipkinExporter
+	ZipkinExporter *ZipkinTraceExporter
+	// WriterExporter
+	WriterExporter *WriterTraceExporter
+
+	// ResourceFlag 资源
+	ResourceFlag string
+	// Sampler 自定义Sampler
+	Sampler sdktrace.Sampler
+	// IDGenerator 自定义id生成器
+	IDGenerator sdktrace.IDGenerator
+	// SpanProcessor 自定义span处理器
+	SpanProcessor sdktrace.SpanProcessor
+	// RawSpanLimits
+	RawSpanLimits *sdktrace.SpanLimits
+
+	Propagators []propagation.TextMapPropagator
+}
+
+type GRPCTraceExporter struct {
+	Endpoint           string
+	Insecure           bool
+	TLSConfig          *tls.Config
+	Headers            map[string]string
+	Compressor         string
+	DialOptions        []grpc.DialOption
+	GRPCConn           *grpc.ClientConn
+	ReconnectionPeriod time.Duration
+	Retry              *otlptracegrpc.RetryConfig
+	Timeout            time.Duration
+	ServiceConfig      string
+}
+
+type HTTPTraceExporter struct {
+	Endpoint    string
+	Insecure    bool
+	TLSConfig   *tls.Config
+	Headers     map[string]string
+	Compression otlptracehttp.Compression
+	Retry       *otlptracehttp.RetryConfig
+	Timeout     time.Duration
+	URLPath     string
+}
+
+type JaegerTraceExporter struct {
+	Endpoint string
+	Username string
+	Password string
+}
+
+type WriterTraceExporter struct {
+	// Writer 标准输入或者文件
+	Writer            io.Writer
+	PrettyPrint       bool
+	WithoutTimestamps bool
+}
+
+type ZipkinTraceExporter struct {
+	URL string
+}
+
+func NewTracerProvider(ctx context.Context, o *TraceConfig) (trace.TracerProvider, error) {
+	var exporter sdktrace.SpanExporter
+	var err error
+	switch {
+	case o.HTTPExporter != nil:
+		exporter, err = httpExporter(ctx, o.HTTPExporter)
+	case o.GRPCExporter != nil:
+		exporter, err = grpcExporter(ctx, o.GRPCExporter)
+	case o.JaegerExporter != nil:
+		exporter, err = jaegerExporter(ctx, o.JaegerExporter)
+	case o.ZipkinExporter != nil:
+		exporter, err = zipkinExporter(ctx, o.ZipkinExporter)
+	case o.WriterExporter != nil:
+		exporter, err = writerExporter(ctx, o.WriterExporter)
+	default:
+		return nil, errors.New("not found a trace ExporterProvider")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	var bcOpts []sdktrace.BatchSpanProcessorOption
+
+	tpOpts := []sdktrace.TracerProviderOption{
+		sdktrace.WithBatcher(exporter, bcOpts...),
+		sdktrace.WithResource(NewResource(ctx, o.Service, o.ResourceFlag, o.Attributes...)),
+	}
+	if o.Sampler != nil {
+		tpOpts = append(tpOpts, sdktrace.WithSampler(o.Sampler))
+	} else {
+		tpOpts = append(tpOpts, sdktrace.WithSampler(newSample(o.SamplingRate)))
+	}
+
+	if o.IDGenerator != nil {
+		tpOpts = append(tpOpts, sdktrace.WithIDGenerator(o.IDGenerator))
+	}
+	if o.SpanProcessor != nil {
+		tpOpts = append(tpOpts, sdktrace.WithSpanProcessor(o.SpanProcessor))
+	}
+	if o.RawSpanLimits != nil {
+		tpOpts = append(tpOpts, sdktrace.WithRawSpanLimits(*o.RawSpanLimits))
+	}
+	tracerProvider := sdktrace.NewTracerProvider(tpOpts...)
+	otel.SetTracerProvider(tracerProvider)
+
+	if o.Propagators == nil {
+		o.Propagators = []propagation.TextMapPropagator{propagation.Baggage{}, propagation.TraceContext{}}
+	}
+	propagator := propagation.NewCompositeTextMapPropagator(o.Propagators...)
+	otel.SetTextMapPropagator(propagator)
+	return tracerProvider, nil
+}
+
+func grpcExporter(ctx context.Context, o *GRPCTraceExporter) (sdktrace.SpanExporter, error) {
+	var grpcOpts []otlptracegrpc.Option
+	if stringx.IsNotBlank(o.Endpoint) {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithEndpoint(o.Endpoint))
+	}
+	if o.Insecure {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithInsecure())
+	}
+	if o.TLSConfig != nil {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithTLSCredentials(credentials.NewTLS(o.TLSConfig)))
+	}
+	if len(o.Headers) > 0 {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithHeaders(o.Headers))
+	}
+	if stringx.IsNotBlank(o.Compressor) {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithCompressor(o.Compressor))
+	}
+	if len(o.DialOptions) > 0 {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithDialOption(o.DialOptions...))
+	}
+	if o.GRPCConn != nil {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithGRPCConn(o.GRPCConn))
+	}
+	if o.ReconnectionPeriod > 0 {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithReconnectionPeriod(o.ReconnectionPeriod))
+	}
+	if o.Retry != nil {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithRetry(*o.Retry))
+	}
+	if o.Timeout > 0 {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithTimeout(o.Timeout))
+	}
+	if stringx.IsNotBlank(o.ServiceConfig) {
+		grpcOpts = append(grpcOpts, otlptracegrpc.WithServiceConfig(o.ServiceConfig))
+	}
+	return otlptracegrpc.New(ctx, grpcOpts...)
+}
+
+func httpExporter(ctx context.Context, o *HTTPTraceExporter) (sdktrace.SpanExporter, error) {
+	var opts []otlptracehttp.Option
+	if stringx.IsNotBlank(o.Endpoint) {
+		opts = append(opts, otlptracehttp.WithEndpoint(o.Endpoint))
+	}
+	if o.Insecure {
+		opts = append(opts, otlptracehttp.WithInsecure())
+	}
+	if o.TLSConfig != nil {
+		opts = append(opts, otlptracehttp.WithTLSClientConfig(o.TLSConfig))
+	}
+	if len(o.Headers) > 0 {
+		opts = append(opts, otlptracehttp.WithHeaders(o.Headers))
+	}
+	if o.Compression > 0 {
+		opts = append(opts, otlptracehttp.WithCompression(o.Compression))
+	}
+	if o.Retry != nil {
+		opts = append(opts, otlptracehttp.WithRetry(*o.Retry))
+	}
+	if o.Timeout > 0 {
+		opts = append(opts, otlptracehttp.WithTimeout(o.Timeout))
+	}
+	if stringx.IsNotBlank(o.URLPath) {
+		opts = append(opts, otlptracehttp.WithURLPath(o.URLPath))
+	}
+	return otlptracehttp.New(ctx, opts...)
+}
+
+func jaegerExporter(ctx context.Context, o *JaegerTraceExporter) (sdktrace.SpanExporter, error) {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.MaxIdleConnsPerHost = runtime.GOMAXPROCS(0) + 1
+	endpoint := jaeger.WithCollectorEndpoint(
+		jaeger.WithEndpoint(o.Endpoint),
+		jaeger.WithUsername(o.Username),
+		jaeger.WithPassword(o.Password),
+		jaeger.WithHTTPClient(&http.Client{Transport: transport}),
+	)
+	return jaeger.New(endpoint)
+}
+
+func writerExporter(ctx context.Context, o *WriterTraceExporter) (sdktrace.SpanExporter, error) {
+	opts := []stdouttrace.Option{
+		stdouttrace.WithWriter(o.Writer),
+	}
+	if o.PrettyPrint {
+		opts = append(opts, stdouttrace.WithPrettyPrint())
+	}
+	if o.WithoutTimestamps {
+		opts = append(opts, stdouttrace.WithoutTimestamps())
+	}
+	return stdouttrace.New(opts...)
+}
+
+func zipkinExporter(ctx context.Context, o *ZipkinTraceExporter) (sdktrace.SpanExporter, error) {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.MaxIdleConnsPerHost = runtime.GOMAXPROCS(0) + 1
+	return zipkin.New(o.URL, zipkin.WithClient(&http.Client{Transport: transport}))
+}
+
+func newSample(samplingRate float64) sdktrace.Sampler {
+	var sampler sdktrace.Sampler
+	switch {
+	case samplingRate >= 1:
+		sampler = sdktrace.AlwaysSample()
+	case samplingRate <= 0:
+		sampler = sdktrace.NeverSample()
+	default:
+		sampler = sdktrace.TraceIDRatioBased(samplingRate)
+	}
+	return sampler
+}

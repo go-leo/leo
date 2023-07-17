@@ -11,4 +11,6 @@ var Provider = wire.NewSet(
 	Actuator,
 	Kafka,
     AMQP,
+    Trace,
+    Metric,
 )

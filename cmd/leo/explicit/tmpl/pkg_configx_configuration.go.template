@@ -6,6 +6,7 @@ import (
 	"{{ .ModuleName }}/pkg/grpcx"
 	"{{ .ModuleName }}/pkg/streamx/amqpx"
     "{{ .ModuleName }}/pkg/streamx/kafkax"
+    "{{ .ModuleName }}/pkg/otelx"
 )
 
 var AppConf Configuration
@@ -16,7 +17,9 @@ type Configuration struct {
 	Consumer   grpcx.ConsumerConfigs `mapstructure:"consumer" json:"consumer" yaml:"consumer"`
 	Actuator   *actuatorx.Config     `mapstructure:"actuator" json:"actuator" yaml:"actuator"`
 	Kafka      kafkax.Configs        `mapstructure:"kafka" json:"kafka" yaml:"kafka"`
-    AMQP       amqpx.Configs         `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
+	AMQP       amqpx.Configs         `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
+	Trace      *otelx.TraceConfig    `mapstructure:"trace" json:"trace" yaml:"trace"`
+	Metric     *otelx.MetricConfig   `mapstructure:"metric" json:"metric" yaml:"metric"`
 }
 
 func HttpController() *ginx.Config {
@@ -41,4 +44,12 @@ func Kafka() kafkax.Configs {
 
 func AMQP() amqpx.Configs {
 	return AppConf.AMQP
+}
+
+func Trace() *otelx.TraceConfig {
+	return AppConf.Trace
+}
+
+func Metric() *otelx.MetricConfig {
+	return AppConf.Metric
 }

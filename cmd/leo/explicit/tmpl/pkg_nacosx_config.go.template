@@ -1,0 +1,50 @@
+package {{ .Package }}
+
+import (
+	"github.com/nacos-group/nacos-sdk-go/v2/clients"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
+	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+)
+
+type Config struct {
+	Address   string `mapstructure:"address" json:"address" yaml:"address"`
+	Port      uint64 `mapstructure:"port" json:"port" yaml:"port"`
+	DataID    string `mapstructure:"data_id" json:"data_id" yaml:"data_id"`
+	Group     string `mapstructure:"group" json:"group" yaml:"group"`
+	Namespace string `mapstructure:"namespace" json:"namespace" yaml:"namespace"`
+}
+
+func ConfigClientFactory(conf *Config) func() (config_client.IConfigClient, error) {
+	return func() (config_client.IConfigClient, error) {
+		sc := []constant.ServerConfig{*constant.NewServerConfig(conf.Address, conf.Port)}
+		cc := *constant.NewClientConfig(
+			constant.WithNamespaceId(conf.Namespace),
+			constant.WithTimeoutMs(5000),
+			constant.WithNotLoadCacheAtStart(true),
+			constant.WithLogLevel("warn"),
+		)
+		return clients.NewConfigClient(
+			vo.NacosClientParam{
+				ClientConfig:  &cc,
+				ServerConfigs: sc,
+			},
+		)
+	}
+}
+
+func RegistryClientFactory(conf *Config) func() (naming_client.INamingClient, error) {
+	return func() (naming_client.INamingClient, error) {
+		cc := constant.NewClientConfig(
+			constant.WithNamespaceId(conf.Namespace),
+			constant.WithNotLoadCacheAtStart(true),
+			constant.WithUpdateCacheWhenEmpty(true),
+		)
+		sc := []constant.ServerConfig{
+			*constant.NewServerConfig(conf.Address, conf.Port),
+		}
+		clientParam := vo.NacosClientParam{ClientConfig: cc, ServerConfigs: sc}
+		return clients.NewNamingClient(clientParam)
+	}
+}
