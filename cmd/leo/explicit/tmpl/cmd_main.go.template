@@ -102,16 +102,16 @@ func newApp(
 	httpServer := ginhttp.NewServer(
 		ginConfig.Port,
 		engine,
-		ginhttp.ID(ID),
-		ginhttp.Name(Name),
+		ginhttp.ID(ID+".grpc"),
+		ginhttp.Name(Name+".http"),
 	)
 
 {{end -}}
 {{if .GRPC -}}
 	grpcServer := lgrpc.NewServer(
 		grpcConfig.Port,
-		lgrpc.ID(ID),
-		lgrpc.Name(Name),
+		lgrpc.ID(ID+".grpc"),
+		lgrpc.Name(Name+".grpc"),
 		lgrpc.UnaryInterceptors(grpcx.UnaryServerInterceptors()...),
 		lgrpc.ServerOptions(grpcx.ServerOptions()...),
 	)

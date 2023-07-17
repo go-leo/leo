@@ -163,6 +163,12 @@ var (
 
 	//go:embed tmpl/pkg_streamx_wire.go.template
 	pkgStreamxWireContent string
+
+	//go:embed tmpl/pkg_idx_id.go.template
+	pkgIDxIDContent string
+
+	//go:embed tmpl/pkg_cachex_cache.go.template
+	pkgCachexCacheContent string
 )
 
 var (
