@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/explicit"
+	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/upgrade"
 
 	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/project"
 	"github.com/spf13/cobra"
@@ -18,6 +19,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(project.CmdNew)
 	rootCmd.AddCommand(explicit.Cmd)
+	rootCmd.AddCommand(upgrade.CmdUpgrade)
 }
 
 func main() {
