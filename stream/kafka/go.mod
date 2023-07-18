@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/stream/kafka
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.2
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.2
+	codeup.aliyun.com/qimao/leo/leo v0.0.3
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.3
 	github.com/confluentinc/confluent-kafka-go/v2 v2.1.1
 	github.com/go-leo/gox v0.0.0-20230616023204-abcd5dbca361
 	github.com/stretchr/testify v1.8.3

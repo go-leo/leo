@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.2
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.3
 	github.com/stretchr/testify v1.8.3
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sync v0.3.0
