@@ -64,6 +64,14 @@ func (sub *multiSubscriber) Close(ctx context.Context) error {
 	return nil
 }
 
-func MultiSubscriber(subscribers []Subscriber) Subscriber {
-	return &multiSubscriber{subscribers: subscribers}
+func MultiSubscriber(subscribers ...Subscriber) Subscriber {
+	allSubscribers := make([]Subscriber, 0, len(subscribers))
+	for _, w := range subscribers {
+		if mw, ok := w.(*multiSubscriber); ok {
+			allSubscribers = append(allSubscribers, mw.subscribers...)
+		} else {
+			allSubscribers = append(allSubscribers, w)
+		}
+	}
+	return &multiSubscriber{subscribers: allSubscribers}
 }
