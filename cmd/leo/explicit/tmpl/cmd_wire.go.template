@@ -7,10 +7,10 @@ package main
 
 import (
     "codeup.aliyun.com/qimao/leo/leo"
-	"context"
-	"github.com/google/wire"
+    "context"
+    "github.com/google/wire"
     "{{ .ModuleName }}/pkg"
-	"{{ .ModuleName }}/internal/{{ .AppPath }}"
+    "{{ .ModuleName }}/internal/{{ .AppPath }}"
 )
 
 var Provider = wire.NewSet(
@@ -18,9 +18,7 @@ var Provider = wire.NewSet(
 	pkg.Provider,
 )
 
-func NewApp(
-	ctx context.Context,
-) (*leo.App, error) {
+func NewApp(ctx context.Context,) (*leo.App, error) {
 	wire.Build(Provider, newApp)
 	return nil, nil
 }

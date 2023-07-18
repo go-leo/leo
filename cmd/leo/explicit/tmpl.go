@@ -183,10 +183,13 @@ var (
 	pkgOtelxWireContent string
 
 	//go:embed tmpl/pkg_registryx_nacos.go.template
-	pkgRegistryxNacos string
+	pkgRegistryxNacosContent string
+
+	//go:embed tmpl/pkg_registryx_wire.go.template
+	pkgRegistryxWireContent string
 
 	//go:embed tmpl/pkg_nacosx_config.go.template
-	pkgNacosxConfig string
+	pkgNacosxConfigContent string
 )
 
 var (

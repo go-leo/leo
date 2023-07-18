@@ -8,6 +8,7 @@ import (
 	"{{ .ModuleName }}/pkg/redisx"
 	"{{ .ModuleName }}/pkg/streamx"
 	"{{ .ModuleName }}/pkg/otelx"
+	"{{ .ModuleName }}/pkg/registryx"
 )
 
 var Provider = wire.NewSet(
@@ -17,4 +18,5 @@ var Provider = wire.NewSet(
 	redisx.Provider,
 	streamx.Provider,
 	otelx.Provider,
+	registryx.Provider,
 )

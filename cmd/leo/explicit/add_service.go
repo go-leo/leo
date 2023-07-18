@@ -120,7 +120,7 @@ func addService() {
 		goGenCmd := exec.Command("make", "go_gen")
 		if output, err := goGenCmd.CombinedOutput(); err != nil {
 			fmt.Println("make go_gen: ", err)
-			fmt.Printf("combined out:\n%s\n", string(output))
+			fmt.Printf("\n%s\n", string(output))
 		}
 	}
 
@@ -128,40 +128,19 @@ func addService() {
 		protocCmd := exec.Command("make", "protoc_gen")
 		if output, err := protocCmd.CombinedOutput(); err != nil {
 			fmt.Println("make protoc_gen: ", err)
-			fmt.Printf("combined out:\n%s\n", string(output))
+			fmt.Printf("\n%s\n", string(output))
 		}
 	}
 
 	tidyCmd := exec.Command("go", "mod", "tidy")
 	if output, err := tidyCmd.CombinedOutput(); err != nil {
 		fmt.Println("go mod tidy: ", err)
-		fmt.Printf("combined out:\n%s\n", string(output))
+		fmt.Printf("\n%s\n", string(output))
 	}
 
 	wireCmd := exec.Command("make", "wire_gen")
 	if output, err := wireCmd.CombinedOutput(); err != nil {
 		fmt.Println("make wire_gen: ", err)
-		fmt.Printf("combined out:\n%s\n", string(output))
+		fmt.Printf("\n%s\n", string(output))
 	}
-
-	//
-	//getCmd := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master")
-	//if output, err := getCmd.CombinedOutput(); err != nil {
-	//	fmt.Println("go get codeup.aliyun.com/qimao/leo/leo/...@master: ", err)
-	//	fmt.Printf("combined out:\n%s\n", string(output))
-	//}
-	//
-	//tidyCmd = exec.Command("go", "mod", "tidy")
-	//if output, err := tidyCmd.CombinedOutput(); err != nil {
-	//	fmt.Println("go mod tidy: ", err)
-	//	fmt.Printf("combined out:\n%s\n", string(output))
-	//}
-	//
-
-	//
-	//tidyCmd = exec.Command("go", "mod", "tidy")
-	//if output, err := tidyCmd.CombinedOutput(); err != nil {
-	//	fmt.Println("go mod tidy: ", err)
-	//	fmt.Printf("combined out:\n%s\n", string(output))
-	//}
 }

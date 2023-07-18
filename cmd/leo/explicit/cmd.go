@@ -1,6 +1,9 @@
 package explicit
 
 import (
+	"fmt"
+	"os"
+	"os/exec"
 	"path"
 	"strings"
 
@@ -41,8 +44,25 @@ var initCmd = &cobra.Command{
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "add a service",
-	Long:  "add a service. Example: leo explicit add --path user",
+	Long:  "add a service. Example: leo explicit add --app user",
+	PreRun: func(cmd *cobra.Command, args []string) {
+	},
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(module) == 0 {
+			goListCmd := exec.Command("go", "list", "-m")
+			output, err := goListCmd.CombinedOutput()
+			if err != nil {
+				fmt.Println("go list -m: ", err)
+				fmt.Printf("\n%s\n", string(output))
+				os.Exit(1)
+			}
+			if len(output) <= 0 {
+				fmt.Printf("module is empty")
+				os.Exit(1)
+			}
+			module = strings.TrimSpace(string(output))
+		}
+
 		appBaseName = path.Base(appPath)
 		appUpperBaseName = strings.ToUpper(appBaseName[:1]) + appBaseName[1:]
 		appPathDot = strings.Replace(appPath, "/", ".", -1)
@@ -56,17 +76,16 @@ var addCmd = &cobra.Command{
 
 func init() {
 	Cmd.PersistentFlags().StringVarP(&module, "module", "m", "", "model name, example: \"mall\",\"github.com/google/cloud\"")
-	Cmd.PersistentFlags().StringVarP(&appPath, "app", "a", "", "application path, related to cmd dir, example: \"user\",\"order/svc\"")
-	Cmd.PersistentFlags().BoolVarP(&sample, "sample", "", false, "sample application")
-	Cmd.PersistentFlags().BoolVarP(&http, "http", "", false, "http application")
-	Cmd.PersistentFlags().BoolVarP(&grpc, "grpc", "", false, "grpc application")
-	Cmd.PersistentFlags().BoolVarP(&stream, "stream", "", false, "stream application")
-	Cmd.PersistentFlags().BoolVarP(&schedule, "schedule", "", false, "schedule application")
 
 	_ = initCmd.MarkPersistentFlagRequired("module")
 	Cmd.AddCommand(initCmd)
 
-	_ = initCmd.MarkPersistentFlagRequired("module")
-	_ = initCmd.MarkPersistentFlagRequired("app")
+	addCmd.PersistentFlags().StringVarP(&appPath, "app", "a", "", "application path, related to cmd dir, example: \"user\",\"order/svc\"")
+	addCmd.PersistentFlags().BoolVarP(&sample, "sample", "", false, "sample application")
+	addCmd.PersistentFlags().BoolVarP(&http, "http", "", false, "http application")
+	addCmd.PersistentFlags().BoolVarP(&grpc, "grpc", "", false, "grpc application")
+	addCmd.PersistentFlags().BoolVarP(&stream, "stream", "", false, "stream application")
+	addCmd.PersistentFlags().BoolVarP(&schedule, "schedule", "", false, "schedule application")
+	_ = addCmd.MarkPersistentFlagRequired("app")
 	Cmd.AddCommand(addCmd)
 }

@@ -1,0 +1,12 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/registry"
+	"codeup.aliyun.com/qimao/leo/leo/registry/nacosv2"
+	"github.com/google/wire"
+)
+
+var Provider = wire.NewSet(
+	wire.Bind(new(registry.Discovery), new(*nacosv2.Discovery)),NewNacosDiscovery,
+	wire.Bind(new(registry.Registrar), new(*nacosv2.Registrar)),NewNacosRegistrar,
+)

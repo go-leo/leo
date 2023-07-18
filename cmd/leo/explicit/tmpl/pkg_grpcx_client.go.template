@@ -1,6 +1,12 @@
 package {{ .Package }}
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	logmdw "codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/log"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/requestid"
+	"codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/trace"
+	"codeup.aliyun.com/qimao/leo/leo/registry"
+	"codeup.aliyun.com/qimao/leo/leo/transport/lgrpc"
 	"math"
 	"time"
 
@@ -15,13 +21,27 @@ type ConsumerConfig struct {
 	Target string `mapstructure:"target" json:"target" yaml:"target"`
 }
 
-func DialogOptions(chains ...grpc.UnaryClientInterceptor) []grpc.DialOption {
+func UnaryClientInterceptor(mdw ...grpc.UnaryClientInterceptor) grpc.DialOption {
+	chain := []grpc.UnaryClientInterceptor{
+		trace.UnaryClientInterceptor(),
+		requestid.UnaryClientInterceptor(),
+		logmdw.UnaryClientInterceptor(log.FromContext),
+	}
+	chain = append(chain, mdw...)
+	return grpc.WithChainUnaryInterceptor(chain...)
+}
+
+func DiscoveryResolver(discovery registry.Discovery, scheme string) grpc.DialOption {
+	return grpc.WithResolvers(lgrpc.NewResolverBuilder(discovery, scheme))
+}
+
+func DialogOptions(opts ...grpc.DialOption) []grpc.DialOption {
 	kp := keepalive.ClientParameters{
 		Time:                10 * time.Second, // send pings every 10 seconds if there is no activity
 		Timeout:             time.Second,      // wait 1 second for ping ack before considering the connection dead
 		PermitWithoutStream: true,             // send pings even without active streams
 	}
-	return []grpc.DialOption{
+	options := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithWriteBufferSize(1024 * 1024),
 		grpc.WithReadBufferSize(1024 * 1024),
@@ -31,6 +51,7 @@ func DialogOptions(chains ...grpc.UnaryClientInterceptor) []grpc.DialOption {
 		),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`),
 		grpc.WithKeepaliveParams(kp),
-		grpc.WithChainUnaryInterceptor(chains...),
 	}
+	options = append(options, opts...)
+	return options
 }

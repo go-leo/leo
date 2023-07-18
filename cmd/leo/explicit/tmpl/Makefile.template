@@ -45,5 +45,6 @@ test:
 .PHONY: build
 build:
 	@echo "--- go build start ---"
-	go build -o bin/$(path) -a -ldflags "-w -s -X main.Version=$(GIT_VERSION)" -tags=jsoniter,musl ./cmd/$(path)
+	go build -o bin/$(path) -a -ldflags "-w -s -X main.Version=$(GIT_VERSION)" -tags=jsoniter ./cmd/$(path)
 	@echo "--- go build end ---"
+

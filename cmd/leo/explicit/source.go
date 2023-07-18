@@ -3,6 +3,7 @@ package explicit
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"go/format"
 	"os"
 	"path"
@@ -21,9 +22,10 @@ func newSource(dirPath string, text string, name string) *Source {
 			AppPath:          appPath,
 			AppPathDot:       appPathDot,
 			AppBaseName:      appBaseName,
+			WireFilePath:     "",
+			Package:          filepath.Base(dirPath),
 			AppUpperBaseName: appUpperBaseName,
 			ServiceName:      serviceName,
-			Package:          filepath.Base(dirPath),
 			Sample:           sample,
 			HTTP:             http,
 			GRPC:             grpc,
@@ -83,15 +85,15 @@ func (src *Source) createSource() error {
 	if err != nil {
 		return err
 	}
+	content := buffer.Bytes()
 	if path.Ext(src.FilePath) == ".go" {
-		source, err := format.Source(buffer.Bytes())
+		content, err = format.Source(content)
 		if err != nil {
-			return err
+			fmt.Println("")
+			return fmt.Errorf("%s\n%s", err.Error(), content)
 		}
-		_, err = file.Write(source)
-		return err
 	}
-	_, err = file.Write(buffer.Bytes())
+	_, err = file.Write(content)
 	if err != nil {
 		return err
 	}

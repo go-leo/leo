@@ -30,3 +30,12 @@ func FromContext(ctx context.Context) Logger {
 	}
 	return l
 }
+
+// FromContextOrDiscard returns a Logger from ctx.  If no Logger is found, this returns discard Logger.
+func FromContextOrDiscard(ctx context.Context) Logger {
+	l, ok := ctx.Value(logKey{}).(Logger)
+	if !ok {
+		return &Discard{}
+	}
+	return l
+}

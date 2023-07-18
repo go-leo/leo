@@ -7,11 +7,13 @@ import (
 	"{{ .ModuleName }}/pkg/streamx/amqpx"
     "{{ .ModuleName }}/pkg/streamx/kafkax"
     "{{ .ModuleName }}/pkg/otelx"
+    "{{ .ModuleName }}/pkg/nacosx"
 )
 
 var AppConf Configuration
 
 type Configuration struct {
+    Nacos      *nacosx.Config        `mapstructure:"nacos" json:"nacos" yaml:"nacos"`
 	Controller *ginx.Config          `mapstructure:"controller" json:"controller" yaml:"controller"`
 	Provider   *grpcx.ProviderConfig `mapstructure:"provider" json:"provider" yaml:"provider"`
 	Consumer   grpcx.ConsumerConfigs `mapstructure:"consumer" json:"consumer" yaml:"consumer"`
@@ -20,6 +22,10 @@ type Configuration struct {
 	AMQP       amqpx.Configs         `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
 	Trace      *otelx.TraceConfig    `mapstructure:"trace" json:"trace" yaml:"trace"`
 	Metric     *otelx.MetricConfig   `mapstructure:"metric" json:"metric" yaml:"metric"`
+}
+
+func Nacos() *nacosx.Config {
+	return AppConf.Nacos
 }
 
 func HttpController() *ginx.Config {

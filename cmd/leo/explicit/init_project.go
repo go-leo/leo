@@ -40,8 +40,9 @@ func initProject() {
 		newSource(path.Join("pkg", "otelx"), pkgOtelxTraceContent, "trace.go"),
 		newSource(path.Join("pkg", "otelx"), pkgOtelxResourceContent, "resource.go"),
 		newSource(path.Join("pkg", "otelx"), pkgOtelxWireContent, "wire.go"),
-		newSource(path.Join("pkg", "nacosx"), pkgNacosxConfig, "nacos.go"),
-		newSource(path.Join("pkg", "registryx"), pkgRegistryxNacos, "nacos.go"),
+		newSource(path.Join("pkg", "nacosx"), pkgNacosxConfigContent, "nacos.go"),
+		newSource(path.Join("pkg", "registryx"), pkgRegistryxNacosContent, "nacos.go"),
+		newSource(path.Join("pkg", "registryx"), pkgRegistryxWireContent, "wire.go"),
 
 		newSource(path.Join("scripts", "shell"), scriptsShellFormatContent, "format.sh"),
 		newSource(path.Join("scripts", "shell"), scriptsShellGenContent, "gen.sh"),
@@ -84,19 +85,19 @@ func initProject() {
 
 	initCmd := exec.Command("go", "mod", "init", module)
 	if output, err := initCmd.CombinedOutput(); err != nil {
-		fmt.Printf("combined out:\n%s\n", string(output))
+		fmt.Printf("\n%s\n", string(output))
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
 
 	tidyCmd := exec.Command("go", "mod", "tidy")
 	if output, err := tidyCmd.CombinedOutput(); err != nil {
-		fmt.Printf("combined out:\n%s\n", string(output))
+		fmt.Printf("\n%s\n", string(output))
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
 
 	getCmd := exec.Command("go", "get", "codeup.aliyun.com/qimao/leo/leo/...@master")
 	if output, err := getCmd.CombinedOutput(); err != nil {
-		fmt.Printf("combined out:\n%s\n", string(output))
+		fmt.Printf("\n%s\n", string(output))
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
 }

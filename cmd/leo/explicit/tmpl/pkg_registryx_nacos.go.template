@@ -3,23 +3,12 @@ package {{ .Package }}
 import (
 	"codeup.aliyun.com/qimao/leo/leo/registry/nacosv2"
 	"github.com/demo/pkg/nacosx"
-	"github.com/go-leo/gox/encodingx/yamlx"
 )
 
-func NewNacosDiscovery(config string) (*nacosv2.Discovery, error) {
-	var conf nacosx.Config
-	err := yamlx.Unmarshal([]byte(config), &conf)
-	if err != nil {
-		return nil, err
-	}
-	return nacosv2.NewDiscovery(nacosx.RegistryClientFactory(&conf))
+func NewNacosDiscovery(conf *nacosx.Config) (*nacosv2.Discovery, error) {
+	return nacosv2.NewDiscovery(nacosx.RegistryClientFactory(conf))
 }
 
-func NewNacosRegistrar(config string) (*nacosv2.Registrar, error) {
-	var conf nacosx.Config
-	err := yamlx.Unmarshal([]byte(config), &conf)
-	if err != nil {
-		return nil, err
-	}
-	return nacosv2.NewRegistrar(nacosx.RegistryClientFactory(&conf))
+func NewNacosRegistrar(conf *nacosx.Config) (*nacosv2.Registrar, error) {
+	return nacosv2.NewRegistrar(nacosx.RegistryClientFactory(conf))
 }

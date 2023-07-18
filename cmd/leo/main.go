@@ -1,6 +1,7 @@
 package main
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/version"
 	"log"
 
 	"codeup.aliyun.com/qimao/leo/leo/cmd/leo/explicit"
@@ -17,6 +18,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.AddCommand(version.Cmd)
 	rootCmd.AddCommand(project.CmdNew)
 	rootCmd.AddCommand(explicit.Cmd)
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
