@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/stream/recovery
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.1
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.1
+	codeup.aliyun.com/qimao/leo/leo v0.0.2
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.2
 )
 
 require (
