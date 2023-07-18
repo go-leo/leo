@@ -91,17 +91,17 @@ func NewPublisher(conf *Config) (stream.Publisher, error) {
 }
 
 func setSecurityConfig(conf *Config, configMap *confluentkafka.ConfigMap) {
-	switch conf.SecurityProtocol {
-	case "", "PLAINTEXT":
+	switch strings.ToLower(conf.SecurityProtocol) {
+	case "", "plaintext":
 		configMap.SetKey("security.protocol", "plaintext")
-	case "SASL_SSL":
+	case "sasl_ssl":
 		configMap.SetKey("security.protocol", "sasl_ssl")
 		configMap.SetKey("ssl.ca.location", conf.SslCaLocation)
 		configMap.SetKey("sasl.username", conf.SaslUsername)
 		configMap.SetKey("sasl.password", conf.SaslPassword)
 		configMap.SetKey("sasl.mechanism", conf.SaslMechanism)
 		configMap.SetKey("enable.ssl.certificate.verification", strconv.FormatBool(conf.EnableSslCertVerification))
-	case "SASL_PLAINTEXT":
+	case "sasl_plaintext":
 		configMap.SetKey("security.protocol", "sasl_plaintext")
 		configMap.SetKey("sasl.username", conf.SaslUsername)
 		configMap.SetKey("sasl.password", conf.SaslPassword)
