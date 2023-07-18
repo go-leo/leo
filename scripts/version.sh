@@ -39,5 +39,7 @@ done
 
 for tag in ${tags[@]}
 do
+#    echo $tag
     git tag $tag
+    git push origin $tag
 done

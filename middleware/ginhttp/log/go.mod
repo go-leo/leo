@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/log
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.3
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.3
+	codeup.aliyun.com/qimao/leo/leo v0.0.5
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.5
 	github.com/gin-gonic/gin v1.9.1
 
 )
