@@ -2,7 +2,7 @@ package {{ .Package }}
 
 import (
 	"codeup.aliyun.com/qimao/leo/leo/registry/nacosv2"
-	"github.com/demo/pkg/nacosx"
+	"{{ .ModuleName }}/pkg/nacosx"
 )
 
 func NewNacosDiscovery(conf *nacosx.Config) (*nacosv2.Discovery, error) {
