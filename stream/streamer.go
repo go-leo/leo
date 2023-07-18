@@ -68,47 +68,59 @@ func (s *Streamer) HealthChecker() health.Checker {
 
 func (s *Streamer) addChannels() error {
 	for _, handler := range s.options.Handlers {
-		handler := handler
-		subscriber, err := handler.Subscriber()
-		if err != nil {
+		if err := s.addHandler(handler); err != nil {
 			return err
 		}
-		msgC := make(chan *Message, s.options.MessageBufferSize)
-		errC := make(chan error, s.options.MessageBufferSize)
-		s.channels = append(s.channels, &channel{
-			subscriber: subscriber,
-			HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) {
-				return nil, handler.Handle(ctx, msg)
-			},
-			publisher:       nil,
-			MsgC:            msgC,
-			ErrC:            errC,
-			ShutdownTimeout: s.options.ShutdownTimeout,
-			Interceptor:     chainInterceptors(s.options.Interceptors),
-		})
 	}
 	for _, handler := range s.options.PubSubHandlers {
-		handler := handler
-		subscriber, err := handler.Subscriber()
-		if err != nil {
+		if err := s.addHandler(handler); err != nil {
 			return err
 		}
-		publisher, err := handler.Publisher()
-		if err != nil {
-			return err
-		}
-		msgC := make(chan *Message, s.options.MessageBufferSize)
-		errC := make(chan error, s.options.MessageBufferSize)
-		s.channels = append(s.channels, &channel{
-			subscriber:      subscriber,
-			HandleFunc:      handler.Handle,
-			publisher:       publisher,
-			MsgC:            msgC,
-			ErrC:            errC,
-			ShutdownTimeout: s.options.ShutdownTimeout,
-			Interceptor:     chainInterceptors(s.options.Interceptors),
-		})
 	}
+	return nil
+}
+
+func (s *Streamer) addHandler(handler Handler) error {
+	subscriber, err := handler.Subscriber()
+	if err != nil {
+		return err
+	}
+	msgC := make(chan *Message, s.options.MessageBufferSize)
+	errC := make(chan error, s.options.MessageBufferSize)
+	s.channels = append(s.channels, &channel{
+		subscriber: subscriber,
+		HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) {
+			return nil, handler.Handle(ctx, msg)
+		},
+		publisher:       nil,
+		MsgC:            msgC,
+		ErrC:            errC,
+		ShutdownTimeout: s.options.ShutdownTimeout,
+		Interceptor:     chainInterceptors(s.options.Interceptors),
+	})
+	return nil
+}
+
+func (s *Streamer) AddPubSubHandler(handler PubSubHandler) error {
+	subscriber, err := handler.Subscriber()
+	if err != nil {
+		return err
+	}
+	publisher, err := handler.Publisher()
+	if err != nil {
+		return err
+	}
+	msgC := make(chan *Message, s.options.MessageBufferSize)
+	errC := make(chan error, s.options.MessageBufferSize)
+	s.channels = append(s.channels, &channel{
+		subscriber:      subscriber,
+		HandleFunc:      handler.Handle,
+		publisher:       publisher,
+		MsgC:            msgC,
+		ErrC:            errC,
+		ShutdownTimeout: s.options.ShutdownTimeout,
+		Interceptor:     chainInterceptors(s.options.Interceptors),
+	})
 	return nil
 }
 
