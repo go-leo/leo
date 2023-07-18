@@ -68,6 +68,7 @@ func (s *Streamer) HealthChecker() health.Checker {
 
 func (s *Streamer) addChannels() error {
 	for _, handler := range s.options.Handlers {
+		handler := handler
 		subscriber, err := handler.Subscriber()
 		if err != nil {
 			return err
@@ -75,8 +76,10 @@ func (s *Streamer) addChannels() error {
 		msgC := make(chan *Message, s.options.MessageBufferSize)
 		errC := make(chan error, s.options.MessageBufferSize)
 		s.channels = append(s.channels, &channel{
-			subscriber:      subscriber,
-			HandleFunc:      func(ctx context.Context, msg *Message) ([]*Message, error) { return nil, handler.Handle(ctx, msg) },
+			subscriber: subscriber,
+			HandleFunc: func(ctx context.Context, msg *Message) ([]*Message, error) {
+				return nil, handler.Handle(ctx, msg)
+			},
 			publisher:       nil,
 			MsgC:            msgC,
 			ErrC:            errC,
@@ -85,6 +88,7 @@ func (s *Streamer) addChannels() error {
 		})
 	}
 	for _, handler := range s.options.PubSubHandlers {
+		handler := handler
 		subscriber, err := handler.Subscriber()
 		if err != nil {
 			return err
