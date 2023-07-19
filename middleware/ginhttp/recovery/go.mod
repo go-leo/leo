@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/recovery
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.5
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.6
 	github.com/gin-gonic/gin v1.9.1
 
 )

@@ -73,7 +73,7 @@ func (s *Streamer) addChannels() error {
 		}
 	}
 	for _, handler := range s.options.PubSubHandlers {
-		if err := s.addHandler(handler); err != nil {
+		if err := s.AddPubSubHandler(handler); err != nil {
 			return err
 		}
 	}

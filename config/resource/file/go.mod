@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/file
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.5
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.5
+	codeup.aliyun.com/qimao/leo/leo v0.0.6
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.6
 	github.com/fsnotify/fsnotify v1.6.0
 
 )
