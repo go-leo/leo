@@ -1,18 +1,21 @@
 package {{ .Package }}
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/log"
-	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"context"
 	"fmt"
+	"time"
+	"codeup.aliyun.com/qimao/leo/leo/log"
+	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
-	"time"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/presentation/assembler"
+
 )
 
 type {{ .AppUpperBaseName }}Handler struct {
 	commands    *command.Commands
 	queries     *query.Queries
+	assemblers  *assembler.Assemblers
 	subscribers map[string]stream.Subscriber
 }
 
@@ -30,12 +33,13 @@ func (h {{ .AppUpperBaseName }}Handler) Handle(ctx context.Context, msg *stream.
 	return nil
 }
 
-func New{{ .AppUpperBaseName }}Handler(commands *command.Commands, subscribers map[string]stream.Subscriber) *{{ .AppUpperBaseName }}Handler {
-	return &{{ .AppUpperBaseName }}Handler{commands: commands, subscribers: subscribers}
+func New{{ .AppUpperBaseName }}Handler(commands *command.Commands, assemblers *assembler.Assemblers, subscribers map[string]stream.Subscriber) *{{ .AppUpperBaseName }}Handler {
+	return &{{ .AppUpperBaseName }}Handler{commands: commands, assemblers:assemblers, subscribers: subscribers}
 }
 
 type {{ .AppUpperBaseName }}PubSubHandler struct {
 	queries     *query.Queries
+	assemblers  *assembler.Assemblers
 	subscribers map[string]stream.Subscriber
 	publishers  map[string]stream.Publisher
 }
@@ -64,6 +68,6 @@ func (h {{ .AppUpperBaseName }}PubSubHandler) Publisher() (stream.Publisher, err
 	return publisher, nil
 }
 
-func New{{ .AppUpperBaseName }}PubSubHandler(queries *query.Queries, subscribers map[string]stream.Subscriber, publishers map[string]stream.Publisher) *{{ .AppUpperBaseName }}PubSubHandler {
-	return &{{ .AppUpperBaseName }}PubSubHandler{queries: queries, subscribers: subscribers, publishers: publishers}
+func New{{ .AppUpperBaseName }}PubSubHandler(queries *query.Queries, assemblers *assembler.Assemblers,subscribers map[string]stream.Subscriber, publishers map[string]stream.Publisher) *{{ .AppUpperBaseName }}PubSubHandler {
+	return &{{ .AppUpperBaseName }}PubSubHandler{queries: queries, assemblers:assemblers, subscribers: subscribers, publishers: publishers}
 }

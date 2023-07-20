@@ -5,17 +5,19 @@ import (
 	{{ .AppBaseName }}v1 "{{ .ModuleName }}/api/{{ .AppPath }}/v1"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/presentation/assembler"
 )
 
 var _ {{ .AppBaseName }}v1.{{ .AppUpperBaseName }}Server = (*{{ .AppUpperBaseName }})(nil)
 
 type {{ .AppUpperBaseName }} struct {
-	commands *command.Commands
-	queries  *query.Queries
+	commands   *command.Commands
+	queries    *query.Queries
+	assemblers *assembler.Assemblers
 }
 
-func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queries) *{{ .AppUpperBaseName }} {
-	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries}
+func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queries, assemblers *assembler.Assemblers) *{{ .AppUpperBaseName }} {
+	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries, assemblers: assemblers}
 }
 
 func (srv *{{ .AppUpperBaseName }}) SayHello(ctx context.Context, request *{{ .AppBaseName }}v1.HelloRequest) (*{{ .AppBaseName }}v1.HelloReply, error) {

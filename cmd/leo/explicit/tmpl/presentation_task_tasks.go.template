@@ -4,10 +4,11 @@ import (
 	"codeup.aliyun.com/qimao/leo/leo/schedule"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/presentation/assembler"
 )
 
-func NewTasks(commands *command.Commands, queries *query.Queries) []schedule.Task {
+func NewTasks(commands *command.Commands, queries *query.Queries, assemblers *assembler.Assemblers) []schedule.Task {
 	return []schedule.Task{
-		New{{ .AppUpperBaseName }}(commands, queries),
+		New{{ .AppUpperBaseName }}(commands, queries, assemblers),
 	}
 }

@@ -1,17 +1,20 @@
 package {{ .Package }}
 
 import (
+    "context"
+	"time"
 	"codeup.aliyun.com/qimao/leo/leo/log"
 	"codeup.aliyun.com/qimao/leo/leo/schedule"
-	"context"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/command"
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/application/query"
-	"time"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/presentation/assembler"
+
 )
 
 type {{ .AppUpperBaseName }} struct {
-	commands *command.Commands
-	queries  *query.Queries
+	commands   *command.Commands
+	queries    *query.Queries
+	assemblers *assembler.Assemblers
 }
 
 func (task *{{ .AppUpperBaseName }}) Name() string {
@@ -26,6 +29,6 @@ func (task *{{ .AppUpperBaseName }}) Invoke(ctx context.Context) {
 	log.Info("hello world ", time.Now().Format(time.DateTime))
 }
 
-func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queries) schedule.Task {
-	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries}
+func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queries, assemblers *assembler.Assemblers) schedule.Task {
+	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries, assemblers: assemblers}
 }
