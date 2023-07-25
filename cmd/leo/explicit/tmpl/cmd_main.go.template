@@ -102,7 +102,7 @@ func newApp(
 	httpServer := ginhttp.NewServer(
 		ginConfig.Port,
 		engine,
-		ginhttp.ID(ID+".grpc"),
+		ginhttp.ID(ID+".http"),
 		ginhttp.Name(Name+".http"),
 	)
 
