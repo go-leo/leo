@@ -20,6 +20,6 @@ func New{{ .AppUpperBaseName }}(commands *command.Commands, queries *query.Queri
 	return &{{ .AppUpperBaseName }}{commands: commands, queries: queries, assemblers: assemblers}
 }
 
-func (srv *{{ .AppUpperBaseName }}) SayHello(ctx context.Context, request *{{ .AppBaseName }}v1.HelloRequest) (*{{ .AppBaseName }}v1.HelloReply, error) {
+func (pvd *{{ .AppUpperBaseName }}) SayHello(ctx context.Context, request *{{ .AppBaseName }}v1.HelloRequest) (*{{ .AppBaseName }}v1.HelloReply, error) {
 	return &{{ .AppBaseName }}v1.HelloReply{Message: "hi " + request.GetName()}, nil
 }
