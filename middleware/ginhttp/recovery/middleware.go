@@ -2,21 +2,20 @@ package recovery
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"strings"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/runtimex"
 	"github.com/gin-gonic/gin"
 )
 
+// Deprecated: 在 go 1.16后，这个方法在gin中已经有了，不需要自己实现
 func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 	var handle func(*gin.Context, any) error
 	if len(handlers) == 0 {
 		handle = func(c *gin.Context, p any) error {
-			return fmt.Errorf("panic triggered: %+v, stack: %s", p, runtimex.Stack(0))
+			return nil
 		}
 	} else {
 		handle = handlers[0]
