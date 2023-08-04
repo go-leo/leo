@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	codeup.aliyun.com/qimao/leo/lib v0.0.2-0.20230804065905-45784b405956 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

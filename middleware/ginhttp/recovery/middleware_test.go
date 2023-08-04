@@ -11,7 +11,7 @@ import (
 func TestMiddlewareHandleRecovery(t *testing.T) {
 	// Create a new Gin router and set the recovery middleware
 	router := gin.New()
-	router.Use(gin.CustomRecovery(HandleRecovery))
+	router.Use(Middleware(HandleRecoveryWithErr))
 	// Test case 1: Simulate a panic inside a handler
 	router.GET("/panic", func(c *gin.Context) {
 		panic("Simulated panic")
@@ -27,7 +27,7 @@ func TestMiddlewareHandleRecovery(t *testing.T) {
 		url          string
 		expectedCode int
 	}{
-		{"/panic", http.StatusOK},
+		{"/panic", http.StatusInternalServerError},
 		{"/normal", http.StatusOK},
 	}
 
