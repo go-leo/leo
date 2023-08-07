@@ -2,13 +2,11 @@ package recovery
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"strings"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/runtimex"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +14,7 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 	var handle func(*gin.Context, any) error
 	if len(handlers) == 0 {
 		handle = func(c *gin.Context, p any) error {
-			return fmt.Errorf("panic triggered: %+v, stack: %s", p, runtimex.Stack(0))
+			return nil
 		}
 	} else {
 		handle = handlers[0]
@@ -37,13 +35,12 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 						}
 					}
 				}
-
 				if brokenPipe {
 					// If the connection is dead, we can't write a status to it.
-					_ = c.Error(handle(c, r)) // nolint: errcheck
+					c.Error(r.(error)) // nolint: errcheck
 					c.Abort()
 				} else {
-					_ = c.AbortWithError(http.StatusInternalServerError, handle(c, r))
+					handle(c, r)
 				}
 			}
 		}()
@@ -53,11 +50,20 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 
 // 用于panic后自定义返回结构
 func HandleRecovery(c *gin.Context, err any) {
-	c.Set("panic", true)
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusInternalServerError, gin.H{
 		"msg":  "服务器异常:" + errorToString(err),
 		"code": 500,
 	})
+}
+
+// 用于panic后自定义返回结构
+func HandleRecoveryWithErr(c *gin.Context, err any) error {
+	msg := "服务器异常:" + errorToString(err)
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"msg":  msg,
+		"code": 500,
+	})
+	return errors.New(msg)
 }
 
 // recover错误，转string

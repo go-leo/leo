@@ -27,7 +27,7 @@ func SentryInit(SentryCfg *Sentry) {
 func Middleware(rePanic bool) gin.HandlerFunc {
 	// 这里是指sentry上报逻辑，所以要开启true，因为这里截胡后，后面的中间件就不知道有没有panic了
 	return sentrygin.New(sentrygin.Options{
-		Repanic: !rePanic,
+		Repanic: rePanic,
 	})
 }
 

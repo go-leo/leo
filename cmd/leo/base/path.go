@@ -83,11 +83,12 @@ func copyDir(src, dst string, replaces, ignores []string) error {
 		if fd.IsDir() {
 			e = copyDir(srcfp, dstfp, replaces, ignores)
 		} else {
-			e = copyFile(srcfp, dstfp, replaces)
-			if strings.Contains(dst, "/") {
-				name := getNameFromPath(dst)
-				e = copyFile(dstfp, dstfp, []string{"/cmd/server", "/cmd/" + name})
+			replacesed := replaces
+			// 关键处：替换模版中关键字 （import）
+			if len(replacesed) >= 1 {
+				replacesed = append(replacesed, "/cmd/server", "/cmd/"+getNameFromPath(replacesed[1]))
 			}
+			e = copyFile(srcfp, dstfp, replacesed)
 		}
 		if e != nil {
 			return e

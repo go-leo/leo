@@ -1,3 +1,5 @@
+codeup.aliyun.com/qimao/leo/lib v0.0.2-0.20230804065905-45784b405956 h1:oqfeho+l7Ks1g8Hpt3byEiYTaY3IzSwM3VCRj46yUrI=
+codeup.aliyun.com/qimao/leo/lib v0.0.2-0.20230804065905-45784b405956/go.mod h1:CbE94It+E8bv083mYiTppJ6Zd25oABuATCWe6ooVH4s=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
