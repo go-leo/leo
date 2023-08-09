@@ -81,7 +81,6 @@ func (channel *channel) handleMessage(ctx context.Context, msg *Message) {
 		return
 	}
 	channel.ackMessage(ctx, msg)
-	return
 }
 
 func invoke(ctx context.Context, msg *Message, channel Channel) error {
@@ -116,7 +115,6 @@ func (channel *channel) ackMessage(ctx context.Context, msg *Message) {
 		channel.ErrC <- fmt.Errorf("failed to ack message: %w", err)
 		return
 	}
-	return
 }
 
 func (channel *channel) nackMessage(ctx context.Context, msg *Message) {

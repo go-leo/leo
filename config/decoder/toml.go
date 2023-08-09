@@ -3,7 +3,7 @@ package decoder
 import (
 	"strings"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/tomlx"
+	"github.com/BurntSushi/toml"
 	"golang.org/x/exp/slices"
 )
 
@@ -14,5 +14,5 @@ func (TOML) IsSupported(extension string) bool {
 }
 
 func (TOML) Decode(data []byte, m map[string]any) error {
-	return tomlx.Unmarshal(data, &m)
+	return toml.Unmarshal(data, &m)
 }

@@ -18,10 +18,16 @@ type Observer interface {
 	onChanged(newText, oldText string)
 }
 
-type ObserverFunc func(newText, oldText string)
+func ObserverFunc(f func(newText, oldText string)) Observer {
+	return &observerFunc{f: f}
+}
 
-func (f ObserverFunc) onChanged(newText, oldText string) {
-	f(newText, oldText)
+type observerFunc struct {
+	f func(newText, oldText string)
+}
+
+func (f observerFunc) onChanged(newText, oldText string) {
+	f.f(newText, oldText)
 }
 
 func NewText(t string) *Text {

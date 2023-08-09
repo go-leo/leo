@@ -1,10 +1,9 @@
 package decoder
 
 import (
-	"strings"
-
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/jsonx"
+	"encoding/json"
 	"golang.org/x/exp/slices"
+	"strings"
 )
 
 type JSON struct{}
@@ -14,5 +13,5 @@ func (JSON) IsSupported(extension string) bool {
 }
 
 func (JSON) Decode(data []byte, m map[string]any) error {
-	return jsonx.Unmarshal(data, &m)
+	return json.Unmarshal(data, &m)
 }

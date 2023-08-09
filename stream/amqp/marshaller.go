@@ -2,10 +2,9 @@ package amqp
 
 import (
 	"context"
+	"github.com/spf13/cast"
 	"strings"
 	"time"
-
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 
@@ -41,7 +40,7 @@ func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, msg *strea
 func (d DefaultMarshaller) Unmarshal(topic string, amqpMsg amqp091.Delivery) (*stream.Message, error) {
 	header := stream.Header{}
 	for key, value := range amqpMsg.Headers {
-		header.Add(key, convx.ToString(value))
+		header.Add(key, cast.ToString(value))
 	}
 	return &stream.Message{
 		Time:    amqpMsg.Timestamp,

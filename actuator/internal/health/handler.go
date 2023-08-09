@@ -30,7 +30,7 @@ func (h *CheckerHandler) Handle(writer http.ResponseWriter, request *http.Reques
 		},
 		Details: healthHandle.Details(),
 	}
-	_ = render.JSON(writer, resp, render.PureJSON())
+	_ = render.JSON(writer, resp)
 }
 
 func (h *CheckerHandler) HealthCheck(ctx context.Context) (r health.Health) {
@@ -76,7 +76,7 @@ func (h *MultiCheckerHandler) Handle(writer http.ResponseWriter, request *http.R
 		},
 		Components: components,
 	}
-	_ = render.JSON(writer, resp, render.PureJSON())
+	_ = render.JSON(writer, resp)
 }
 
 func (h *MultiCheckerHandler) HealthCheck(ctx context.Context, healthChecker health.Checker) (r health.Health) {

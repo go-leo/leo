@@ -2,12 +2,11 @@ package config
 
 import (
 	"fmt"
+	"github.com/derekparker/trie"
+	"github.com/spf13/cast"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/containerx/trie"
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 )
 
 const allConfigKey = ""
@@ -56,7 +55,7 @@ func (d *Data) cleanValue(val any) any {
 	switch realVal := val.(type) {
 	case map[any]any:
 		// nested map: cast and recursively clean
-		d.cleanMap(convx.ToStringMap(val))
+		d.cleanMap(cast.ToStringMap(val))
 	case map[string]any:
 		// nested map: recursively clean
 		d.cleanMap(realVal)
@@ -82,7 +81,7 @@ func (d *Data) mapToTrie(key string, config any, tree *trie.Trie) {
 	switch m := config.(type) {
 	case map[any]any:
 		for subKey, conf := range m {
-			key := d.getKey(key, convx.ToString(subKey))
+			key := d.getKey(key, cast.ToString(subKey))
 			d.mapToTrie(key, conf, tree)
 		}
 	case map[string]any:

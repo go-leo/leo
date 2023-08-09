@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	"sync"
 	"sync/atomic"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 
 	"github.com/rabbitmq/amqp091-go"
@@ -108,7 +108,7 @@ type PublishResult struct {
 }
 
 func (p PublishResult) String() string {
-	return p.ExchangeName + "/" + p.RoutingKey + "/" + convx.ToString(p.Acked)
+	return p.ExchangeName + "/" + p.RoutingKey + "/" + cast.ToString(p.Acked)
 }
 
 func NewPublisher(topic string, factory func(topic string) (*amqp091.Connection, error), opts ...Option) (*Publisher, error) {

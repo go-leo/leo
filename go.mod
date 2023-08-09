@@ -4,6 +4,9 @@ go 1.20
 
 require (
 	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.7
+	github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981
+	github.com/mitchellh/mapstructure v1.5.0
+	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.3
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sync v0.3.0
@@ -11,13 +14,7 @@ require (
 )
 
 require (
-	codeup.aliyun.com/qimao/leo/lib v0.0.2-0.20230804065905-45784b405956 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

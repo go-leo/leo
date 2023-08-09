@@ -1,10 +1,9 @@
 package config
 
 import (
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 	"time"
-
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/convx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/mapstructurex"
 )
 
 type Value struct {
@@ -16,212 +15,227 @@ func (v Value) TimeInLocal() (time.Time, error) {
 	if v.err != nil {
 		return time.Time{}, v.err
 	}
-	return convx.ToTimeInDefaultLocationE(v.val, time.Local)
+	return cast.ToTimeInDefaultLocationE(v.val, time.Local)
 }
 
 func (v Value) TimeInUTC() (time.Time, error) {
 	if v.err != nil {
 		return time.Time{}, v.err
 	}
-	return convx.ToTimeInDefaultLocationE(v.val, time.UTC)
+	return cast.ToTimeInDefaultLocationE(v.val, time.UTC)
 }
 
 func (v Value) Duration() (time.Duration, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToDurationE(v.val)
+	return cast.ToDurationE(v.val)
 }
 
 func (v Value) Bool() (bool, error) {
 	if v.err != nil {
 		return false, v.err
 	}
-	return convx.ToBoolE(v.val)
+	return cast.ToBoolE(v.val)
 }
 
 func (v Value) Float64() (float64, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToFloat64E(v.val)
+	return cast.ToFloat64E(v.val)
 }
 
 func (v Value) Float32() (float32, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToFloat32E(v.val)
+	return cast.ToFloat32E(v.val)
 }
 
 func (v Value) Int64() (int64, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToInt64E(v.val)
+	return cast.ToInt64E(v.val)
 }
 
 func (v Value) Int32() (int32, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToInt32E(v.val)
+	return cast.ToInt32E(v.val)
 }
 
 func (v Value) Int16() (int16, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToInt16E(v.val)
+	return cast.ToInt16E(v.val)
 }
 
 func (v Value) Int8() (int8, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToInt8E(v.val)
+	return cast.ToInt8E(v.val)
 }
 
 func (v Value) Int() (int, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToIntE(v.val)
+	return cast.ToIntE(v.val)
 }
 
 func (v Value) UInt64() (uint64, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToUint64E(v.val)
+	return cast.ToUint64E(v.val)
 }
 
 func (v Value) UInt32() (uint32, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToUint32E(v.val)
+	return cast.ToUint32E(v.val)
 }
 
 func (v Value) UInt16() (uint16, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToUint16E(v.val)
+	return cast.ToUint16E(v.val)
 }
 
 func (v Value) UInt8() (uint8, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToUint8E(v.val)
+	return cast.ToUint8E(v.val)
 }
 
 func (v Value) UInt() (uint, error) {
 	if v.err != nil {
 		return 0, v.err
 	}
-	return convx.ToUintE(v.val)
+	return cast.ToUintE(v.val)
 }
 
 func (v Value) String() (string, error) {
 	if v.err != nil {
 		return "", v.err
 	}
-	return convx.ToStringE(v.val)
+	return cast.ToStringE(v.val)
 }
 
 func (v Value) Slice() ([]any, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToSliceE(v.val)
+	return cast.ToSliceE(v.val)
 }
 
 func (v Value) BoolSlice() ([]bool, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToBoolSliceE(v.val)
+	return cast.ToBoolSliceE(v.val)
 }
 
 func (v Value) StringSlice() ([]string, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringSliceE(v.val)
+	return cast.ToStringSliceE(v.val)
 }
 
 func (v Value) IntSlice() ([]int, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToIntSliceE(v.val)
+	return cast.ToIntSliceE(v.val)
 }
 
 func (v Value) DurationSlice() ([]time.Duration, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToDurationSliceE(v.val)
+	return cast.ToDurationSliceE(v.val)
 }
 
 func (v Value) Map() (map[string]any, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringMapE(v.val)
+	return cast.ToStringMapE(v.val)
 }
 
 func (v Value) StringMap() (map[string]string, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringMapStringE(v.val)
+	return cast.ToStringMapStringE(v.val)
 }
 
 func (v Value) StringSliceMap() (map[string][]string, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringMapStringSliceE(v.val)
+	return cast.ToStringMapStringSliceE(v.val)
 }
 
 func (v Value) IntMap() (map[string]int, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringMapIntE(v.val)
+	return cast.ToStringMapIntE(v.val)
 }
 
 func (v Value) Int64Map() (map[string]int64, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringMapInt64E(v.val)
+	return cast.ToStringMapInt64E(v.val)
 }
 
 func (v Value) BoolMap() (map[string]bool, error) {
 	if v.err != nil {
 		return nil, v.err
 	}
-	return convx.ToStringMapBoolE(v.val)
+	return cast.ToStringMapBoolE(v.val)
 }
 
 func (v Value) Scan(output any) error {
 	if v.err != nil {
 		return v.err
 	}
-	return mapstructurex.Unmarshal(
-		v.val,
-		output,
-		mapstructurex.StringToSlice(","),
-		mapstructurex.StringToTimeDuration(),
-		mapstructurex.StringToIP(),
-		mapstructurex.StringToIPNet(),
-		mapstructurex.StringToTimeTime(time.RFC3339),
-		mapstructurex.WeaklyTyped(),
-		mapstructurex.RecursiveStructToMap(),
-		mapstructurex.TextUnmarshaller(),
-	)
+	config := DefaultMapStructureConfig
+	config.Result = output
+	decoder, err := mapstructure.NewDecoder(&config)
+	if err != nil {
+		return err
+	}
+	return decoder.Decode(v.val)
+}
+
+var DefaultMapStructureConfig = mapstructure.DecoderConfig{
+	DecodeHook: mapstructure.ComposeDecodeHookFunc(
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToIPHookFunc(),
+		mapstructure.StringToIPNetHookFunc(),
+		mapstructure.WeaklyTypedHook,
+		mapstructure.RecursiveStructToMapHookFunc(),
+		mapstructure.TextUnmarshallerHookFunc()),
+	ErrorUnused:          false,
+	ErrorUnset:           false,
+	ZeroFields:           false,
+	WeaklyTypedInput:     false,
+	Squash:               false,
+	Metadata:             nil,
+	Result:               nil,
+	TagName:              "",
+	IgnoreUntaggedFields: false,
+	MatchName:            nil,
 }

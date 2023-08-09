@@ -19,7 +19,7 @@ func (h *actuatorHandler) Pattern() string {
 
 func (h *actuatorHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	resp := h.actuatorResponse()
-	_ = render.JSON(w, resp, render.PureJSON())
+	_ = render.JSON(w, resp)
 }
 
 func (h *actuatorHandler) actuatorResponse() map[string]any {

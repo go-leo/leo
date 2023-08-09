@@ -42,7 +42,7 @@ func (h *actuatorHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		services[name] = serviceInfo
 	}
 	resp["services"] = services
-	_ = render.JSON(w, resp, render.PureJSON())
+	_ = render.JSON(w, resp)
 }
 
 type healthChecker struct {

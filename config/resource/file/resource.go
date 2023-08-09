@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/pathx/filepathx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 	"github.com/fsnotify/fsnotify"
 
@@ -177,7 +177,7 @@ func NewResource(filename string, opts ...Option) *Resource {
 	filename = filepath.Clean(filename)
 	o := &options{
 		Logger:    log.L(),
-		Extension: filepathx.Extension(filename),
+		Extension: strings.TrimPrefix(filepath.Ext(filename), "."),
 	}
 	o.apply(opts...)
 	o.init()

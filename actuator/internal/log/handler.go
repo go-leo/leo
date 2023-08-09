@@ -29,20 +29,19 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case http.MethodGet:
-		_ = render.JSON(w, payload{Level: h.Logger.GetLevel().Name()}, render.PureJSON())
+		_ = render.JSON(w, payload{Level: h.Logger.GetLevel().Name()})
 	case http.MethodPut:
 		requestedLvl, err := decodePutRequest(r.Header.Get("Content-Type"), r)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			_ = render.JSON(w, errorResponse{Error: err.Error()}, render.PureJSON())
+			_ = render.JSON(w, errorResponse{Error: err.Error()})
 			return
 		}
 		h.Logger.SetLevel(requestedLvl)
-		_ = render.JSON(w, payload{Level: h.Logger.GetLevel().Name()}, render.PureJSON())
+		_ = render.JSON(w, payload{Level: h.Logger.GetLevel().Name()})
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		_ = render.JSON(w, errorResponse{Error: "Only GET and PUT are supported."}, render.PureJSON())
-
+		_ = render.JSON(w, errorResponse{Error: "Only GET and PUT are supported."})
 	}
 }
 

@@ -50,9 +50,7 @@ func PubSubHandlers(h ...PubSubHandler) Option {
 
 func Interceptors(f ...Interceptor) Option {
 	return func(o *options) {
-		for _, fn := range f {
-			o.Interceptors = append(o.Interceptors, fn)
-		}
+		o.Interceptors = append(o.Interceptors, f...)
 	}
 }
 

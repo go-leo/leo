@@ -1,9 +1,9 @@
 package decoder
 
 import (
+	"gopkg.in/yaml.v3"
 	"strings"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/encodingx/yamlx"
 	"golang.org/x/exp/slices"
 )
 
@@ -14,5 +14,5 @@ func (YAML) IsSupported(extension string) bool {
 }
 
 func (YAML) Decode(data []byte, m map[string]any) error {
-	return yamlx.Unmarshal(data, &m)
+	return yaml.Unmarshal(data, &m)
 }

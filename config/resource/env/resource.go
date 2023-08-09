@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/pathx/filepathx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/slicex"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/fsnotify/fsnotify"
@@ -41,7 +40,7 @@ func (o *options) apply(opts ...Option) {
 
 func (o *options) init() {
 	if stringx.IsNotBlank(o.DotEnvFilename) && stringx.IsBlank(o.Extension) {
-		o.Extension = filepathx.Extension(o.DotEnvFilename)
+		o.Extension = strings.TrimPrefix(filepath.Ext(o.DotEnvFilename), ".")
 	}
 	if stringx.IsBlank(o.DotEnvFilename) && stringx.IsBlank(o.Extension) {
 		o.Extension = "env"
