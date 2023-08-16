@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"html/template"
 	"reflect"
@@ -763,19 +764,19 @@ func TestBoolMap(t *testing.T) {
 
 func TestScan(t *testing.T) {
 	type Family struct {
-		LastName string
+		LastName string `mapstructure:"LastName" json:"last_name" yaml:"last_name"`
 	}
 	type Location struct {
-		City string
+		City string `mapstructure:"City" json:"city" yaml:"city"`
 	}
 	type Person struct {
-		Family    `mapstructure:",squash"`
-		Location  `mapstructure:",squash"`
-		FirstName string
-		Name      string
-		Age       int
-		Emails    []string
-		Extra     map[string]string
+		Family    `mapstructure:",squash" json:"family" yaml:"family"`
+		Location  `mapstructure:",squash" json:"location" yaml:"location"`
+		FirstName string            `mapstructure:"FirstName" json:"first_name" yaml:"first_name"`
+		Name      string            `mapstructure:"Name" json:"name" yaml:"name"`
+		Age       int               `mapstructure:"Age" json:"age" yaml:"age"`
+		Emails    []string          `mapstructure:"Emails" json:"emails" yaml:"emails"`
+		Extra     map[string]string `mapstructure:"Extra" json:"extra" yaml:"extra"`
 	}
 
 	input := map[string]interface{}{
@@ -809,4 +810,7 @@ func TestScan(t *testing.T) {
 			"twitter": "mitchellh",
 		},
 	}, result)
+
+	data, _ := json.Marshal(&result)
+	fmt.Println(string(data))
 }

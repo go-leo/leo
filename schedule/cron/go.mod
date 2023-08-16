@@ -9,13 +9,6 @@ require (
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )
 
-require (
-	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
-)
-
 replace codeup.aliyun.com/qimao/leo/leo => ../..
 
 replace codeup.aliyun.com/qimao/leo/leo/internal/gox => ../../internal/gox

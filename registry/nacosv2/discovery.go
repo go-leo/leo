@@ -43,7 +43,7 @@ func (d *Discovery) getInstances(ctx context.Context, instance registry.ServiceI
 	nacosServices, err := d.namingClient.SelectInstances(vo.SelectInstancesParam{
 		Clusters:    d.nacosOptions.Clusters,
 		ServiceName: instance.Name(),
-		GroupName:   instance.Scheme(),
+		GroupName:   groupName(d.nacosOptions, instance),
 		HealthyOnly: true,
 	})
 	if err != nil {
@@ -114,6 +114,8 @@ func NewDiscovery(factory NamingClientFactoryFunc, opts ...NacosOption) (*Discov
 			Clusters:    []string{},
 			ClusterName: "",
 			Weight:      1.0,
+			Namespace:   "",
+			GroupName:   "",
 		},
 	}
 	for _, opt := range opts {

@@ -2,10 +2,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/recovery
 
 go 1.20
 
-require (
-	github.com/gin-gonic/gin v1.9.1
-
-)
+require github.com/gin-gonic/gin v1.9.1
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

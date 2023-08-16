@@ -47,7 +47,7 @@ func (r *Registrar) register(ctx context.Context, instance registry.ServiceInsta
 		Metadata:    metadata,                // 扩展信息
 		ClusterName: r.nacosOptions.ClusterName,
 		ServiceName: instance.Name(),
-		GroupName:   instance.Scheme(),
+		GroupName:   groupName(r.nacosOptions, instance),
 		Ephemeral:   true, // 是否临时实例
 	}
 	ok, err := r.namingClient.RegisterInstance(param)
@@ -66,7 +66,7 @@ func (r *Registrar) deregister(ctx context.Context, instance registry.ServiceIns
 		Port:        uint64(instance.Port()), // 服务实例port
 		Cluster:     r.nacosOptions.ClusterName,
 		ServiceName: instance.Name(),
-		GroupName:   instance.Scheme(),
+		GroupName:   groupName(r.nacosOptions, instance),
 		Ephemeral:   true, // 是否临时实例
 	}
 	ok, err := r.namingClient.DeregisterInstance(param)
@@ -75,27 +75,6 @@ func (r *Registrar) deregister(ctx context.Context, instance registry.ServiceIns
 	}
 	if !ok {
 		return errors.New("failed to deregister instance")
-	}
-	return nil
-}
-
-func (r *Registrar) updateInstance(ctx context.Context, instance registry.ServiceInstance, health bool) error {
-	param := vo.UpdateInstanceParam{
-		Ip:          instance.IP(),
-		Port:        uint64(instance.Port()),
-		Weight:      r.nacosOptions.Weight,
-		Enable:      health,
-		Healthy:     health,
-		ClusterName: r.nacosOptions.ClusterName,
-		ServiceName: instance.Name(),
-		GroupName:   instance.Scheme(),
-	}
-	ok, err := r.namingClient.UpdateInstance(param)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return errors.New("failed to update instance")
 	}
 	return nil
 }
@@ -112,6 +91,7 @@ func NewRegistrar(factory NamingClientFactoryFunc, opts ...NacosOption) (*Regist
 			ClusterName: "",
 			Weight:      10,
 			Namespace:   "",
+			GroupName:   "",
 		},
 	}
 	for _, opt := range opts {

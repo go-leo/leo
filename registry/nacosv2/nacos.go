@@ -1,6 +1,7 @@
 package nacosv2
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/registry"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 )
 
@@ -19,6 +20,7 @@ type nacosOptions struct {
 	ClusterName string
 	Weight      float64
 	Namespace   string
+	GroupName   string
 }
 
 type NacosOption func(r *nacosOptions)
@@ -45,4 +47,18 @@ func NameSpace(nameSpace string) NacosOption {
 	return func(r *nacosOptions) {
 		r.Namespace = nameSpace
 	}
+}
+
+func GroupName(name string) NacosOption {
+	return func(r *nacosOptions) {
+		r.GroupName = name
+	}
+}
+
+func groupName(o *nacosOptions, instance registry.ServiceInstance) string {
+	groupName := o.GroupName
+	if len(groupName) <= 0 {
+		groupName = instance.Scheme()
+	}
+	return groupName
 }
