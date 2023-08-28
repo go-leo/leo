@@ -4,6 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"io"
+	"net/http"
+	"runtime"
+	"time"
+
 	"github.com/go-leo/gox/stringx"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -17,34 +22,23 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"io"
-	"net/http"
-	"runtime"
-	"time"
 )
 
 type TraceConfig struct {
-	// Service 服务
-	Service *Service
-	// Attributes trace需要一些额外的信息
-	Attributes []attribute.KeyValue
-
 	// SamplingRate 采样率
-	SamplingRate float64
-
-	// GRPCExporter
-	GRPCExporter *GRPCTraceExporter
-	// HTTPExporter
-	HTTPExporter *HTTPTraceExporter
-	// JaegerExporter
-	JaegerExporter *JaegerTraceExporter
-	// ZipkinExporter
-	ZipkinExporter *ZipkinTraceExporter
-	// WriterExporter
-	WriterExporter *WriterTraceExporter
-
+	SamplingRate float64 `mapstructure:"sampling_rate" json:"sampling_rate" yaml:"sampling_rate"`
+	// JaegerOptions
+	JaegerOptions *JaegerTraceExporter `mapstructure:"jaeger_options" json:"jaeger_options" yaml:"jaeger_options"`
+	// ZipkinOptions
+	ZipkinOptions *ZipkinTraceExporter `mapstructure:"zipkin_options" json:"zipkin_options" yaml:"zipkin_options"`
+	// WriterOptions
+	WriterOptions *WriterTraceExporter `mapstructure:"writer_options" json:"writer_options" yaml:"writer_options"`
+	// GRPCOptions
+	GRPCOptions *GRPCTraceExporter `mapstructure:"grpc_options" json:"grpc_options" yaml:"grpc_options"`
+	// HTTPOptions
+	HTTPOptions *HTTPTraceExporter `mapstructure:"http_options" json:"http_options" yaml:"http_options"`
 	// ResourceFlag 资源
-	ResourceFlag string
+	ResourceFlag string `mapstructure:"resource_flag" json:"resource_flag" yaml:"resource_flag"`
 	// Sampler 自定义Sampler
 	Sampler sdktrace.Sampler
 	// IDGenerator 自定义id生成器
@@ -53,66 +47,67 @@ type TraceConfig struct {
 	SpanProcessor sdktrace.SpanProcessor
 	// RawSpanLimits
 	RawSpanLimits *sdktrace.SpanLimits
-
+	// Attributes trace需要一些额外的信息
+	Attributes  []attribute.KeyValue
 	Propagators []propagation.TextMapPropagator
 }
 
 type GRPCTraceExporter struct {
-	Endpoint           string
-	Insecure           bool
+	Endpoint           string            `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	Insecure           bool              `mapstructure:"insecure" json:"insecure" yaml:"insecure"`
+	Headers            map[string]string `mapstructure:"headers" json:"headers" yaml:"headers"`
+	Compressor         string            `mapstructure:"compressor" json:"compressor" yaml:"compressor"`
+	ReconnectionPeriod time.Duration     `mapstructure:"reconnection_period" json:"reconnection_period" yaml:"reconnection_period"`
+	Timeout            time.Duration     `mapstructure:"timeout" json:"timeout" yaml:"timeout"`
+	ServiceConfig      string            `mapstructure:"service_config" json:"service_config" yaml:"service_config"`
 	TLSConfig          *tls.Config
-	Headers            map[string]string
-	Compressor         string
 	DialOptions        []grpc.DialOption
 	GRPCConn           *grpc.ClientConn
-	ReconnectionPeriod time.Duration
 	Retry              *otlptracegrpc.RetryConfig
-	Timeout            time.Duration
-	ServiceConfig      string
 }
 
 type HTTPTraceExporter struct {
-	Endpoint    string
-	Insecure    bool
+	Endpoint    string            `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	Insecure    bool              `mapstructure:"insecure" json:"insecure" yaml:"insecure"`
+	Headers     map[string]string `mapstructure:"headers" json:"headers" yaml:"headers"`
+	Timeout     time.Duration     `mapstructure:"timeout" json:"timeout" yaml:"timeout"`
+	URLPath     string            `mapstructure:"url_path" json:"url_path" yaml:"url_path"`
 	TLSConfig   *tls.Config
-	Headers     map[string]string
 	Compression otlptracehttp.Compression
 	Retry       *otlptracehttp.RetryConfig
-	Timeout     time.Duration
-	URLPath     string
 }
 
 type JaegerTraceExporter struct {
-	Endpoint string
-	Username string
-	Password string
+	Endpoint string `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	Username string `mapstructure:"username" json:"username" yaml:"username"`
+	Password string `mapstructure:"password" json:"password" yaml:"password"`
 }
 
 type WriterTraceExporter struct {
 	// Writer 标准输入或者文件
 	Writer            io.Writer
-	PrettyPrint       bool
-	WithoutTimestamps bool
+	PrettyPrint       bool `mapstructure:"pretty_print" json:"pretty_print" yaml:"pretty_print"`
+	WithoutTimestamps bool `mapstructure:"without_timestamps" json:"without_timestamps" yaml:"without_timestamps"`
 }
 
 type ZipkinTraceExporter struct {
-	URL string
+	URL string `mapstructure:"url" json:"url" yaml:"url"`
 }
 
 func NewTracerProvider(ctx context.Context, o *TraceConfig) (trace.TracerProvider, error) {
 	var exporter sdktrace.SpanExporter
 	var err error
 	switch {
-	case o.HTTPExporter != nil:
-		exporter, err = httpExporter(ctx, o.HTTPExporter)
-	case o.GRPCExporter != nil:
-		exporter, err = grpcExporter(ctx, o.GRPCExporter)
-	case o.JaegerExporter != nil:
-		exporter, err = jaegerExporter(ctx, o.JaegerExporter)
-	case o.ZipkinExporter != nil:
-		exporter, err = zipkinExporter(ctx, o.ZipkinExporter)
-	case o.WriterExporter != nil:
-		exporter, err = writerExporter(ctx, o.WriterExporter)
+	case o.JaegerOptions != nil:
+		exporter, err = jaegerTraceExporter(ctx, o.JaegerOptions)
+	case o.ZipkinOptions != nil:
+		exporter, err = zipkinTraceExporter(ctx, o.ZipkinOptions)
+	case o.HTTPOptions != nil:
+		exporter, err = httpTraceExporter(ctx, o.HTTPOptions)
+	case o.GRPCOptions != nil:
+		exporter, err = grpcTraceExporter(ctx, o.GRPCOptions)
+	case o.WriterOptions != nil:
+		exporter, err = writerTraceExporter(ctx, o.WriterOptions)
 	default:
 		return nil, errors.New("not found a trace ExporterProvider")
 	}
@@ -124,12 +119,12 @@ func NewTracerProvider(ctx context.Context, o *TraceConfig) (trace.TracerProvide
 
 	tpOpts := []sdktrace.TracerProviderOption{
 		sdktrace.WithBatcher(exporter, bcOpts...),
-		sdktrace.WithResource(NewResource(ctx, o.Service, o.ResourceFlag, o.Attributes...)),
+		sdktrace.WithResource(NewResource(ctx, o.ResourceFlag, o.Attributes...)),
 	}
 	if o.Sampler != nil {
 		tpOpts = append(tpOpts, sdktrace.WithSampler(o.Sampler))
 	} else {
-		tpOpts = append(tpOpts, sdktrace.WithSampler(newSample(o.SamplingRate)))
+		tpOpts = append(tpOpts, sdktrace.WithSampler(newSampler(o.SamplingRate)))
 	}
 
 	if o.IDGenerator != nil {
@@ -152,7 +147,25 @@ func NewTracerProvider(ctx context.Context, o *TraceConfig) (trace.TracerProvide
 	return tracerProvider, nil
 }
 
-func grpcExporter(ctx context.Context, o *GRPCTraceExporter) (sdktrace.SpanExporter, error) {
+func jaegerTraceExporter(ctx context.Context, o *JaegerTraceExporter) (sdktrace.SpanExporter, error) {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.MaxIdleConnsPerHost = runtime.GOMAXPROCS(0) + 1
+	endpoint := jaeger.WithCollectorEndpoint(
+		jaeger.WithEndpoint(o.Endpoint),
+		jaeger.WithUsername(o.Username),
+		jaeger.WithPassword(o.Password),
+		jaeger.WithHTTPClient(&http.Client{Transport: transport}),
+	)
+	return jaeger.New(endpoint)
+}
+
+func zipkinTraceExporter(ctx context.Context, o *ZipkinTraceExporter) (sdktrace.SpanExporter, error) {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.MaxIdleConnsPerHost = runtime.GOMAXPROCS(0) + 1
+	return zipkin.New(o.URL, zipkin.WithClient(&http.Client{Transport: transport}))
+}
+
+func grpcTraceExporter(ctx context.Context, o *GRPCTraceExporter) (sdktrace.SpanExporter, error) {
 	var grpcOpts []otlptracegrpc.Option
 	if stringx.IsNotBlank(o.Endpoint) {
 		grpcOpts = append(grpcOpts, otlptracegrpc.WithEndpoint(o.Endpoint))
@@ -190,7 +203,7 @@ func grpcExporter(ctx context.Context, o *GRPCTraceExporter) (sdktrace.SpanExpor
 	return otlptracegrpc.New(ctx, grpcOpts...)
 }
 
-func httpExporter(ctx context.Context, o *HTTPTraceExporter) (sdktrace.SpanExporter, error) {
+func httpTraceExporter(ctx context.Context, o *HTTPTraceExporter) (sdktrace.SpanExporter, error) {
 	var opts []otlptracehttp.Option
 	if stringx.IsNotBlank(o.Endpoint) {
 		opts = append(opts, otlptracehttp.WithEndpoint(o.Endpoint))
@@ -219,19 +232,7 @@ func httpExporter(ctx context.Context, o *HTTPTraceExporter) (sdktrace.SpanExpor
 	return otlptracehttp.New(ctx, opts...)
 }
 
-func jaegerExporter(ctx context.Context, o *JaegerTraceExporter) (sdktrace.SpanExporter, error) {
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.MaxIdleConnsPerHost = runtime.GOMAXPROCS(0) + 1
-	endpoint := jaeger.WithCollectorEndpoint(
-		jaeger.WithEndpoint(o.Endpoint),
-		jaeger.WithUsername(o.Username),
-		jaeger.WithPassword(o.Password),
-		jaeger.WithHTTPClient(&http.Client{Transport: transport}),
-	)
-	return jaeger.New(endpoint)
-}
-
-func writerExporter(ctx context.Context, o *WriterTraceExporter) (sdktrace.SpanExporter, error) {
+func writerTraceExporter(ctx context.Context, o *WriterTraceExporter) (sdktrace.SpanExporter, error) {
 	opts := []stdouttrace.Option{
 		stdouttrace.WithWriter(o.Writer),
 	}
@@ -244,18 +245,12 @@ func writerExporter(ctx context.Context, o *WriterTraceExporter) (sdktrace.SpanE
 	return stdouttrace.New(opts...)
 }
 
-func zipkinExporter(ctx context.Context, o *ZipkinTraceExporter) (sdktrace.SpanExporter, error) {
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.MaxIdleConnsPerHost = runtime.GOMAXPROCS(0) + 1
-	return zipkin.New(o.URL, zipkin.WithClient(&http.Client{Transport: transport}))
-}
-
-func newSample(samplingRate float64) sdktrace.Sampler {
+func newSampler(samplingRate float64) sdktrace.Sampler {
 	var sampler sdktrace.Sampler
 	switch {
 	case samplingRate >= 1:
 		sampler = sdktrace.AlwaysSample()
-	case samplingRate <= 0:
+	case samplingRate < 0:
 		sampler = sdktrace.NeverSample()
 	default:
 		sampler = sdktrace.TraceIDRatioBased(samplingRate)

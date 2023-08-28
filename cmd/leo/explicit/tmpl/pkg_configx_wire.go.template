@@ -5,6 +5,7 @@ import (
 )
 
 var Provider = wire.NewSet(
+    Env,
     Nacos,
 	HttpController,
 	RPCProvider,

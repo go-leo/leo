@@ -18,6 +18,8 @@ func initProject() {
 
 		newSource(path.Join("pkg"), pkgWireContent, "wire.go"),
 		newSource(path.Join("pkg", "actuatorx"), pkgActuatorxConfigContent, "config.go"),
+		newSource(path.Join("pkg", "actuatorx"), pkgActuatorxCheckersContent, "checkers.go"),
+		newSource(path.Join("pkg", "actuatorx"), pkgActuatorxHandlersContent, "handlers.go"),
 		newSource(path.Join("pkg", "configx"), pkgConfigxConfigurationContent, "config.go"),
 		newSource(path.Join("pkg", "configx"), pkgConfigxLoadContent, "load.go"),
 		newSource(path.Join("pkg", "configx"), pkgConfigxWireContent, "wire.go"),

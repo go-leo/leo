@@ -1,0 +1,8 @@
+package {{ .Package }}
+
+import "codeup.aliyun.com/qimao/leo/leo/actuator/health"
+
+func HealthCheckers(c ...health.Checker) []health.Checker {
+	return c
+}
+

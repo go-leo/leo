@@ -1,0 +1,10 @@
+package {{ .Package }}
+
+import (
+	"codeup.aliyun.com/qimao/leo/leo/actuator"
+	"codeup.aliyun.com/qimao/leo/leo/actuator/handler/prometheus"
+)
+
+func Handlers(h ...actuator.Handler) []actuator.Handler {
+	return append(h, &prometheus.MetricHandler{})
+}

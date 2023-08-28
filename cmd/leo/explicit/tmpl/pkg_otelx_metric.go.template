@@ -4,6 +4,9 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"io"
+	"time"
+
 	"github.com/go-leo/gox/stringx"
 	prome "github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel"
@@ -13,31 +16,26 @@ import (
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"io"
-	"time"
 )
 
 type MetricConfig struct {
-	// Service 服务信息
-	Service *Service `mapstructure:"service" json:"service" yaml:"service"`
+	// PrometheusOptions
+	PrometheusOptions *PrometheusMetricReader `mapstructure:"prometheus_options" json:"prometheus_options" yaml:"prometheus_options"`
 	// HTTPOptions
 	HTTPOptions *HTTPMetricReader `mapstructure:"http_options" json:"http_options" yaml:"http_options"`
 	// GRPCOptions
 	GRPCOptions *GRPCMetricReader `mapstructure:"grpc_options" json:"grpc_options" yaml:"grpc_options"`
-	// PrometheusOptions
-	PrometheusOptions *PrometheusMetricReader `mapstructure:"prometheus_options" json:"prometheus_options" yaml:"prometheus_options"`
 	// WriterOptions
-	WriterOptions *MetricReader `mapstructure:"writer_options" json:"writer_options" yaml:"writer_options"`
-	// ViewOptions
-	ViewOptions []ViewOption
-	// Attributes
-	Attributes []attribute.KeyValue
+	WriterOptions *WriterMetricReader `mapstructure:"writer_options" json:"writer_options" yaml:"writer_options"`
 	// Resources
 	ResourceFlag string `mapstructure:"resource_flag" json:"resource_flag" yaml:"resource_flag"`
+	// Attributes
+	Attributes []attribute.KeyValue
+	// ViewOptions
+	ViewOptions []ViewOption
 }
 
 type ViewOption struct {
@@ -86,7 +84,7 @@ type PrometheusMetricReader struct {
 	Aggregation       sdkmetric.AggregationSelector
 }
 
-type MetricReader struct {
+type WriterMetricReader struct {
 	// Writer 标准输入或者文件
 	Writer                 io.Writer
 	NewEncoder             func(writer io.Writer) stdoutmetric.Encoder
@@ -115,12 +113,36 @@ func NewMeterProvider(ctx context.Context, o *MetricConfig) (metric.MeterProvide
 		return nil, err
 	}
 	meterProvider := sdkmetric.NewMeterProvider(
-		sdkmetric.WithResource(NewResource(ctx, o.Service, o.ResourceFlag, o.Attributes...)),
+		sdkmetric.WithResource(NewResource(ctx, o.ResourceFlag, o.Attributes...)),
 		sdkmetric.WithReader(reader),
-		sdkmetric.WithView(newView()),
+		sdkmetric.WithView(newView(o.ViewOptions)...),
 	)
 	otel.SetMeterProvider(meterProvider)
 	return meterProvider, nil
+}
+
+func prometheusMetricReader(ctx context.Context, o *PrometheusMetricReader) (sdkmetric.Reader, error) {
+	var opts []prometheus.Option
+	if o.Registerer != nil {
+		opts = append(opts, prometheus.WithRegisterer(o.Registerer))
+	}
+	if o.Aggregation != nil {
+		opts = append(opts, prometheus.WithAggregationSelector(o.Aggregation))
+	}
+	if o.WithoutTargetInfo {
+		opts = append(opts, prometheus.WithoutTargetInfo())
+	}
+	if o.WithoutUnits {
+		opts = append(opts, prometheus.WithoutUnits())
+	}
+	if o.WithoutScopeInfo {
+		opts = append(opts, prometheus.WithoutScopeInfo())
+	}
+	exporter, err := prometheus.New(opts...)
+	if err != nil {
+		return nil, err
+	}
+	return exporter, nil
 }
 
 func grpcMetricReader(ctx context.Context, o *GRPCMetricReader) (sdkmetric.Reader, error) {
@@ -224,31 +246,7 @@ func httpMetricReader(ctx context.Context, o *HTTPMetricReader) (sdkmetric.Reade
 	return sdkmetric.NewPeriodicReader(exporter, prOpts...), nil
 }
 
-func prometheusMetricReader(ctx context.Context, o *PrometheusMetricReader) (sdkmetric.Reader, error) {
-	var opts []prometheus.Option
-	if o.Registerer != nil {
-		opts = append(opts, prometheus.WithRegisterer(o.Registerer))
-	}
-	if o.Aggregation != nil {
-		opts = append(opts, prometheus.WithAggregationSelector(o.Aggregation))
-	}
-	if o.WithoutTargetInfo {
-		opts = append(opts, prometheus.WithoutTargetInfo())
-	}
-	if o.WithoutUnits {
-		opts = append(opts, prometheus.WithoutUnits())
-	}
-	if o.WithoutScopeInfo {
-		opts = append(opts, prometheus.WithoutScopeInfo())
-	}
-	exporter, err := prometheus.New(opts...)
-	if err != nil {
-		return nil, err
-	}
-	return exporter, nil
-}
-
-func writerMetricReader(ctx context.Context, o *MetricReader) (sdkmetric.Reader, error) {
+func writerMetricReader(ctx context.Context, o *WriterMetricReader) (sdkmetric.Reader, error) {
 	var opts []stdoutmetric.Option
 	if o.Writer != nil && o.NewEncoder != nil {
 		enc := o.NewEncoder(o.Writer)
@@ -274,32 +272,10 @@ func writerMetricReader(ctx context.Context, o *MetricReader) (sdkmetric.Reader,
 	return sdkmetric.NewPeriodicReader(exporter, prOpts...), nil
 }
 
-func allowedAttr(v ...string) attribute.Filter {
-	m := make(map[string]struct{}, len(v))
-	for _, s := range v {
-		m[s] = struct{}{}
+func newView(viewOptions []ViewOption) []sdkmetric.View {
+	var views []sdkmetric.View
+	for _, option := range viewOptions {
+		views = append(views, sdkmetric.NewView(option.Criteria, option.Mask))
 	}
-	return func(kv attribute.KeyValue) bool {
-		_, ok := m[string(kv.Key)]
-		return ok
-	}
-}
-
-func newView() sdkmetric.View {
-	opt := ViewOption{
-		Criteria: sdkmetric.Instrument{
-			Scope: instrumentation.Scope{
-				Name: "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
-			},
-		},
-		Mask: sdkmetric.Stream{
-			AttributeFilter: allowedAttr(
-				"rpc.grpc.status.code",
-				"rpc.method",
-				"rpc.service",
-				"rpc.system",
-			),
-		},
-	}
-	return sdkmetric.NewView(opt.Criteria, opt.Mask)
+	return views
 }

@@ -12,7 +12,15 @@ import (
 
 var AppConf Configuration
 
+type EnvConfig struct {
+	Name      string `mapstructure:"LEO_SERVICE_NAME" json:"LEO_SERVICE_NAME" yaml:"LEO_SERVICE_NAME"`
+	Namespace string `mapstructure:"LEO_SERVICE_NAMESPACE" json:"LEO_SERVICE_NAMESPACE" yaml:"LEO_SERVICE_NAMESPACE"`
+	ID        string `mapstructure:"LEO_SERVICE_ID" json:"LEO_SERVICE_ID" yaml:"LEO_SERVICE_ID"`
+	Version   string `mapstructure:"LEO_SERVICE_VERSION" json:"LEO_SERVICE_VERSION" yaml:"LEO_SERVICE_VERSION"`
+}
+
 type Configuration struct {
+	Env        *EnvConfig            `mapstructure:"env" json:"env" yaml:"env"`
     Nacos      *nacosx.Config        `mapstructure:"nacos" json:"nacos" yaml:"nacos"`
 	Controller *ginx.Config          `mapstructure:"controller" json:"controller" yaml:"controller"`
 	Provider   *grpcx.ProviderConfig `mapstructure:"provider" json:"provider" yaml:"provider"`
@@ -22,6 +30,10 @@ type Configuration struct {
 	AMQP       amqpx.Configs         `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
 	Trace      *otelx.TraceConfig    `mapstructure:"trace" json:"trace" yaml:"trace"`
 	Metric     *otelx.MetricConfig   `mapstructure:"metric" json:"metric" yaml:"metric"`
+}
+
+func Env() *EnvConfig {
+	return AppConf.Env
 }
 
 func Nacos() *nacosx.Config {

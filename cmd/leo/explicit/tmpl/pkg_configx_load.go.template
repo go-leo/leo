@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"codeup.aliyun.com/qimao/leo/leo/config"
 	"codeup.aliyun.com/qimao/leo/leo/config/decoder"
+	"codeup.aliyun.com/qimao/leo/leo/config/resource/env"
 	"codeup.aliyun.com/qimao/leo/leo/config/resource/nacosv2"
 	"codeup.aliyun.com/qimao/leo/leo/config/resource/text"
 	"github.com/go-leo/gox/encodingx/yamlx"
@@ -12,6 +13,9 @@ import (
 )
 
 func Load(ctx context.Context, env string, devConfig string, testConfig string, prodConfig string) error {
+	if err := LoadEnv(ctx); err != nil {
+		return err
+	}
 	switch env {
 	case "dev":
 		return LoadText(ctx, devConfig)
@@ -56,4 +60,17 @@ func LoadText(ctx context.Context, devConfig string) error {
 		return err
 	}
 	return configure.Get("").Scan(&AppConf)
+}
+
+func LoadEnv(ctx context.Context) error {
+	resource := env.NewResource(env.Prefix("LEO"), env.Extension("env"))
+	configure, err := config.NewConfigure(
+		ctx,
+		config.Decoders(decoder.ENV{}),
+		config.Resources(resource),
+	)
+	if err != nil {
+		return err
+	}
+	return configure.Get("").Scan(&AppConf.Env)
 }

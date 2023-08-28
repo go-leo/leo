@@ -116,6 +116,12 @@ var (
 	//go:embed tmpl/pkg_actuatorx_config.go.template
 	pkgActuatorxConfigContent string
 
+	//go:embed tmpl/pkg_actuatorx_checkers.go.template
+	pkgActuatorxCheckersContent string
+
+	//go:embed tmpl/pkg_actuatorx_handlers.go.template
+	pkgActuatorxHandlersContent string
+
 	//go:embed tmpl/pkg_configx_configuration.go.template
 	pkgConfigxConfigurationContent string
 

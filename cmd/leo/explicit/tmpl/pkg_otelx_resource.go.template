@@ -2,6 +2,7 @@ package {{ .Package }}
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/go-leo/gox/stringx"
@@ -9,41 +10,31 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 )
 
-type Service struct {
-	Name       string `mapstructure:"name" json:"name" yaml:"name"`
-	Namespace  string `mapstructure:"namespace" json:"namespace" yaml:"namespace"`
-	InstanceID string `mapstructure:"instance_id" json:"instance_id" yaml:"instance_id"`
-	Version    string `mapstructure:"version" json:"version" yaml:"version"`
-}
-
-func (svc *Service) Attributes() []attribute.KeyValue {
-	if svc == nil {
-		return nil
-	}
+func Attributes() []attribute.KeyValue {
 	var attrs []attribute.KeyValue
-	if stringx.IsNotBlank(svc.Name) {
-		attrs = append(attrs, attribute.Key("service.name").String(svc.Name))
+	if stringx.IsNotBlank(os.Getenv("LEO_SERVICE_NAME")) {
+		attrs = append(attrs, attribute.Key("service.name").String(os.Getenv("LEO_SERVICE_NAME")))
 	}
-	if stringx.IsNotBlank(svc.Namespace) {
-		attrs = append(attrs, attribute.Key("service.namespace").String(svc.Namespace))
+	if stringx.IsNotBlank(os.Getenv("LEO_SERVICE_NAMESPACE")) {
+		attrs = append(attrs, attribute.Key("service.namespace").String(os.Getenv("LEO_SERVICE_NAMESPACE")))
 	}
-	if stringx.IsNotBlank(svc.InstanceID) {
-		attrs = append(attrs, attribute.Key("service.instance.id").String(svc.InstanceID))
+	if stringx.IsNotBlank(os.Getenv("LEO_SERVICE_ID")) {
+		attrs = append(attrs, attribute.Key("service.instance.id").String(os.Getenv("LEO_SERVICE_ID")))
 	}
-	if stringx.IsNotBlank(svc.Version) {
-		attrs = append(attrs, attribute.Key("service.version").String(svc.Version))
+	if stringx.IsNotBlank(os.Getenv("LEO_SERVICE_VERSION")) {
+		attrs = append(attrs, attribute.Key("service.version").String(os.Getenv("LEO_SERVICE_VERSION")))
 	}
 	return attrs
 }
 
-func NewResource(ctx context.Context, svc *Service, res string, attrs ...attribute.KeyValue) *resource.Resource {
-	opts := []resource.Option{resource.WithAttributes(append(attrs, svc.Attributes()...)...)}
+func NewResource(ctx context.Context, res string, attrs ...attribute.KeyValue) *resource.Resource {
+	opts := []resource.Option{resource.WithAttributes(append(attrs, Attributes()...)...)}
 	upperResFlag := strings.ToLower(res)
 	if strings.Contains(upperResFlag, "env") {
 		opts = append(opts, resource.WithFromEnv())
 	}
 	if strings.Contains(upperResFlag, "host") {
-		opts = append(opts, resource.WithHost())
+		opts = append(opts, resource.WithHost(), resource.WithHostID())
 	}
 	if strings.Contains(upperResFlag, "telemetry_sdk") {
 		opts = append(opts, resource.WithTelemetrySDK())
