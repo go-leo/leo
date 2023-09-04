@@ -5,7 +5,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 
-	"github.com/go-leo/leo/log"
+	"github.com/hmldd/leo/log"
 )
 
 type options struct {

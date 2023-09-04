@@ -18,10 +18,10 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/common/backoffx"
-	"github.com/go-leo/leo/common/nacosx"
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/registry"
+	"github.com/hmldd/leo/common/backoffx"
+	"github.com/hmldd/leo/common/nacosx"
+	"github.com/hmldd/leo/log"
+	"github.com/hmldd/leo/registry"
 )
 
 var _ registry.Registrar = new(Registrar)

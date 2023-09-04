@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-leo/leo/runner/net/http/client"
+	"github.com/hmldd/leo/runner/net/http/client"
 )
 
 func HTTPClientMiddleware() client.Interceptor {

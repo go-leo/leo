@@ -3,9 +3,9 @@ package circuitbreaker
 import (
 	"context"
 
-	"github.com/go-leo/leo/common/backoffx"
-	"github.com/go-leo/leo/common/retryx"
-	"github.com/go-leo/leo/runner/net/http/client"
+	"github.com/hmldd/leo/common/backoffx"
+	"github.com/hmldd/leo/common/retryx"
+	"github.com/hmldd/leo/runner/net/http/client"
 )
 
 func HTTPClientMiddleware(maxAttempts uint, backoffFunc backoffx.BackoffFunc, isRetriable func(error) bool) client.Interceptor {

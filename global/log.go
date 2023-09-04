@@ -3,8 +3,8 @@ package global
 import (
 	"sync"
 
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/log/zap"
+	"github.com/hmldd/leo/log"
+	"github.com/hmldd/leo/log/zap"
 )
 
 var (

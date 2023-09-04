@@ -3,7 +3,7 @@ package sortx_test
 import (
 	"testing"
 
-	"github.com/go-leo/leo/common/sortx"
+	"github.com/hmldd/leo/common/sortx"
 )
 
 func TestIntsDesc(t *testing.T) {

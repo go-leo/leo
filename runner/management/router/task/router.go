@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-leo/leo/runner/task/cron"
-	"github.com/go-leo/leo/runner/task/pubsub"
+	"github.com/hmldd/leo/runner/task/cron"
+	"github.com/hmldd/leo/runner/task/pubsub"
 )
 
 func Route(rg *gin.RouterGroup, cronJobs []*cron.Job, subJobs []*pubsub.Job) {

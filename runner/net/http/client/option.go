@@ -3,8 +3,8 @@ package client
 import (
 	"net/http"
 
-	"github.com/go-leo/leo/registry"
-	"github.com/go-leo/leo/runner/net/http/internal/codec"
+	"github.com/hmldd/leo/registry"
+	"github.com/hmldd/leo/runner/net/http/internal/codec"
 )
 
 type CodecType uint8

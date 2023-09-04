@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/runner/net/http/header"
-	"github.com/go-leo/leo/runner/net/http/internal/health"
+	"github.com/hmldd/leo/runner/net/http/header"
+	"github.com/hmldd/leo/runner/net/http/internal/health"
 )
 
 const HealthCheckPath = "/health/check"

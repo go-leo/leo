@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-leo/leo/config/medium/file"
+	"github.com/hmldd/leo/config/medium/file"
 )
 
 var confFilename = "test.yaml"

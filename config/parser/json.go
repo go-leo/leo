@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/go-leo/leo/config"
+	"github.com/hmldd/leo/config"
 )
 
 var _ config.Parser = new(JsonParser)

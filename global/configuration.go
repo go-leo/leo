@@ -13,9 +13,9 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/common/errorx"
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/log/zap"
+	"github.com/hmldd/leo/common/errorx"
+	"github.com/hmldd/leo/log"
+	"github.com/hmldd/leo/log/zap"
 )
 
 // Config 基础配置模版

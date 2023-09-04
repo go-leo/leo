@@ -3,7 +3,7 @@ package log
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-leo/leo/global"
+	"github.com/hmldd/leo/global"
 )
 
 func Route(rg *gin.RouterGroup) {

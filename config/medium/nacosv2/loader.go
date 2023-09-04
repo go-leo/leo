@@ -1,8 +1,8 @@
 package nacosv2
 
 import (
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/log"
+	"github.com/hmldd/leo/config"
+	"github.com/hmldd/leo/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 )

@@ -13,8 +13,8 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/config/medium/nacos"
+	"github.com/hmldd/leo/config"
+	"github.com/hmldd/leo/config/medium/nacos"
 )
 
 var namespaceID = "public" // nolint

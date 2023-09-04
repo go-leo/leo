@@ -5,8 +5,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/go-leo/leo/common/backoffx"
-	"github.com/go-leo/leo/common/retryx"
+	"github.com/hmldd/leo/common/backoffx"
+	"github.com/hmldd/leo/common/retryx"
 )
 
 func GRPCClientMiddleware(maxAttempts uint, backoffFunc backoffx.BackoffFunc, isRetriable func(error) bool) grpc.UnaryClientInterceptor {

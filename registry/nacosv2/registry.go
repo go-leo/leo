@@ -19,9 +19,9 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 
 	"github.com/go-leo/backoffx"
-	"github.com/go-leo/leo/log"
-	"github.com/go-leo/leo/registry"
 	"github.com/go-leo/stringx"
+	"github.com/hmldd/leo/log"
+	"github.com/hmldd/leo/registry"
 )
 
 var _ registry.Registrar = new(Registrar)

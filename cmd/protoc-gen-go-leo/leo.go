@@ -13,8 +13,8 @@ const (
 	contextPackage    = protogen.GoImportPath("context")
 	stdHTTPPackage    = protogen.GoImportPath("net/http")
 	grpcPackage       = protogen.GoImportPath("google.golang.org/grpc")
-	httpServerPackage = protogen.GoImportPath("github.com/go-leo/leo/runner/net/http/server")
-	httpClientPackage = protogen.GoImportPath("github.com/go-leo/leo/runner/net/http/client")
+	httpServerPackage = protogen.GoImportPath("github.com/hmldd/leo/runner/net/http/server")
+	httpClientPackage = protogen.GoImportPath("github.com/hmldd/leo/runner/net/http/client")
 )
 
 // generateFile generates a _grpc.pb.go file containing gRPC service definitions.

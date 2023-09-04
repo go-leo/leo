@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/grpclog"
 
-	"github.com/go-leo/leo/runner/net/http/internal/codec"
-	"github.com/go-leo/leo/runner/net/http/internal/util"
+	"github.com/hmldd/leo/runner/net/http/internal/codec"
+	"github.com/hmldd/leo/runner/net/http/internal/util"
 )
 
 // HandlerFunc将xxx.leo.pb.go里的xxx_HTTP_Handler包装gin的handler

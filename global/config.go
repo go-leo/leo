@@ -3,8 +3,8 @@ package global
 import (
 	"sync"
 
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/config/factory"
+	"github.com/hmldd/leo/config"
+	"github.com/hmldd/leo/config/factory"
 )
 
 // --config deployments/bff/local/configs/bff.yaml

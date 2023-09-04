@@ -5,7 +5,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/go-leo/leo/log"
+	"github.com/hmldd/leo/log"
 )
 
 type logger struct {

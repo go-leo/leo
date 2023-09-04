@@ -4,7 +4,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/go-leo/leo/log"
+	"github.com/hmldd/leo/log"
 )
 
 type options struct {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 
-	"github.com/go-leo/leo/runner"
+	"github.com/hmldd/leo/runner"
 )
 
 var _ runner.Runnable = new(Task)

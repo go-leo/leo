@@ -9,9 +9,9 @@ import (
 	"github.com/go-leo/netx/httpx"
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/common/filex"
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/log"
+	"github.com/hmldd/leo/common/filex"
+	"github.com/hmldd/leo/config"
+	"github.com/hmldd/leo/log"
 )
 
 var _ config.Loader = new(Loader)

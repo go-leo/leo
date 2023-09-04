@@ -11,10 +11,10 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/go-leo/leo/runner/net/http/client"
+	"github.com/hmldd/leo/runner/net/http/client"
 )
 
-const instrumentationName = "github.com/go-leo/leo"
+const instrumentationName = "github.com/hmldd/leo"
 
 func HTTPClientMiddleware(opts ...Option) client.Interceptor {
 	o := new(options)

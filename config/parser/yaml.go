@@ -5,7 +5,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/go-leo/leo/config"
+	"github.com/hmldd/leo/config"
 )
 
 var _ config.Parser = new(YamlParser)

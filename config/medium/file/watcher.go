@@ -9,8 +9,8 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/log"
+	"github.com/hmldd/leo/config"
+	"github.com/hmldd/leo/log"
 )
 
 const (

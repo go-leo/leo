@@ -1,4 +1,4 @@
-module github.com/go-leo/leo
+module github.com/hmldd/leo
 
 go 1.18
 

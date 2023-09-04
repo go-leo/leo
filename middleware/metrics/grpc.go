@@ -10,8 +10,8 @@ import (
 	"go.opentelemetry.io/otel/metric/instrument"
 	"google.golang.org/grpc"
 
-	"github.com/go-leo/leo/middleware/internal"
-	"github.com/go-leo/leo/middleware/noop"
+	"github.com/hmldd/leo/middleware/internal"
+	"github.com/hmldd/leo/middleware/noop"
 )
 
 // GRPCServerMiddleware 统计请求数和延迟

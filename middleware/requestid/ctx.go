@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/runner/net/http/header"
+	"github.com/hmldd/leo/runner/net/http/header"
 )
 
 var randPool = sync.Pool{New: func() any { return rand.New(rand.NewSource(time.Now().UnixNano())) }}

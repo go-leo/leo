@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-leo/leo/common/backoffx"
-	"github.com/go-leo/leo/common/retryx"
+	"github.com/hmldd/leo/common/backoffx"
+	"github.com/hmldd/leo/common/retryx"
 )
 
 func TestCall(t *testing.T) {

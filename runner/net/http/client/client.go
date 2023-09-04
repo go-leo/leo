@@ -9,10 +9,10 @@ import (
 	statuspb "google.golang.org/genproto/googleapis/rpc/status"
 	grpcstatus "google.golang.org/grpc/status"
 
-	"github.com/go-leo/leo/runner/net/http/header"
-	"github.com/go-leo/leo/runner/net/http/internal/codec"
-	"github.com/go-leo/leo/runner/net/http/internal/status"
-	"github.com/go-leo/leo/runner/net/http/internal/util"
+	"github.com/hmldd/leo/runner/net/http/header"
+	"github.com/hmldd/leo/runner/net/http/internal/codec"
+	"github.com/hmldd/leo/runner/net/http/internal/status"
+	"github.com/hmldd/leo/runner/net/http/internal/util"
 )
 
 var _ Interface = new(Client)

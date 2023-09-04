@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/go-leo/leo/config"
+	"github.com/hmldd/leo/config"
 )
 
 func Parsers() []config.Parser {

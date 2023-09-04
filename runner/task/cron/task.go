@@ -7,7 +7,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/go-leo/leo/runner"
+	"github.com/hmldd/leo/runner"
 )
 
 var _ runner.Runnable = new(Task)

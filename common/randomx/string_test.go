@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-leo/leo/common/randomx"
+	"github.com/hmldd/leo/common/randomx"
 )
 
 func TestNumericPermString(t *testing.T) {

@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	"github.com/go-leo/leo/runner/net/http/internal/codec"
-	"github.com/go-leo/leo/runner/net/http/internal/status"
+	"github.com/hmldd/leo/runner/net/http/internal/codec"
+	"github.com/hmldd/leo/runner/net/http/internal/status"
 )
 
 // 错误处理，把grpc的错误信息包装成http的错误处理形式

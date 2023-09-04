@@ -6,8 +6,8 @@ import (
 
 	"github.com/streadway/handy/breaker"
 
-	"github.com/go-leo/leo/common/syncx"
-	"github.com/go-leo/leo/runner/net/http/client"
+	"github.com/hmldd/leo/common/syncx"
+	"github.com/hmldd/leo/runner/net/http/client"
 )
 
 var ErrCircuitOpen = errors.New("circuit open")

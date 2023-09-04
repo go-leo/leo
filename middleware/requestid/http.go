@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	middlewarecontext "github.com/go-leo/leo/middleware/context"
-	"github.com/go-leo/leo/runner/net/http/client"
+	middlewarecontext "github.com/hmldd/leo/middleware/context"
+	"github.com/hmldd/leo/runner/net/http/client"
 )
 
 func HTTPClientMiddleware() client.Interceptor {

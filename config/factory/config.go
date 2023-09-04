@@ -8,13 +8,13 @@ import (
 
 	"github.com/go-leo/stringx"
 
-	"github.com/go-leo/leo/config"
-	"github.com/go-leo/leo/config/medium/apollo"
-	"github.com/go-leo/leo/config/medium/file"
-	"github.com/go-leo/leo/config/medium/nacos"
-	"github.com/go-leo/leo/config/medium/nacosv2"
-	"github.com/go-leo/leo/config/parser"
-	"github.com/go-leo/leo/config/valuer"
+	"github.com/hmldd/leo/config"
+	"github.com/hmldd/leo/config/medium/apollo"
+	"github.com/hmldd/leo/config/medium/file"
+	"github.com/hmldd/leo/config/medium/nacos"
+	"github.com/hmldd/leo/config/medium/nacosv2"
+	"github.com/hmldd/leo/config/parser"
+	"github.com/hmldd/leo/config/valuer"
 )
 
 type Property struct {
