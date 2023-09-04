@@ -1,6 +1,8 @@
 package nacosv2
 
 import (
+	"os"
+
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
@@ -11,11 +13,20 @@ func NewClient(host string, port uint64, namespace string) (config_client.IConfi
 	sc := make([]constant.ServerConfig, 1)
 	sc[0] = *constant.NewServerConfig(host, port)
 
-	cc := constant.NewClientConfig(
+	ops := make([]constant.ClientOption, 0, 3)
+	ops = append(
+		ops,
 		constant.WithNamespaceId(namespace),
 		constant.WithTimeoutMs(5000),
 		constant.WithNotLoadCacheAtStart(true),
 	)
+	ak := os.Getenv("NACOS_ACCESS_KEY")
+	sk := os.Getenv("NACOS_SECRET_KEY")
+	if ak != "" && sk != "" {
+		ops = append(ops, constant.WithAccessKey(ak), constant.WithSecretKey(sk))
+	}
+
+	cc := constant.NewClientConfig(ops...)
 
 	clientParam := vo.NacosClientParam{
 		ClientConfig:  cc,
