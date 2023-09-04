@@ -13,5 +13,7 @@ go install github.com/golang/mock/mockgen@latest
 go install mvdan.cc/gofumpt@latest
 go install github.com/go-leo/gors/cmd/gors@latest
 go install github.com/go-leo/gors/cmd/protoc-gen-go-gors@latest
+go install github.com/go-leo/design-pattern/cqrs/cmd/cqrs@latest
+go install github.com/go-leo/design-pattern/cqrs/cmd/protoc-gen-go-cqrs@latest
 go install codeup.aliyun.com/qimao/leo/leo/cmd/leo@latest
 echo "--- install tools end ---"
