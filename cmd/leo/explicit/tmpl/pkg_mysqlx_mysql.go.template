@@ -1,7 +1,9 @@
 package {{ .Package }}
 
 import (
+    "context"
 	"database/sql"
+    "time"
 	"github.com/jmoiron/sqlx"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -11,8 +13,9 @@ import (
 type Configs map[string]*Config
 
 type Config struct {
-	DSN     string `mapstructure:"dsn" json:"dsn" yaml:"dsn"`
-	ShowSql bool   `mapstructure:"show_sql" json:"show_sql" yaml:"show_sql"`
+	DSN     string        `mapstructure:"dsn" json:"dsn" yaml:"dsn"`
+	ShowSql bool          `mapstructure:"show_sql" json:"show_sql" yaml:"show_sql"`
+	Timeout time.Duration `mapstructure:"timeout" json:"timeout" yaml:"timeout"`
 }
 
 func NewDBs(configs Configs) (map[string]*sql.DB, error) {
@@ -32,8 +35,11 @@ func NewDB(config *Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.Ping()
-	if err != nil {
+	if config.Timeout <= 0 {
+		config.Timeout = 3 * time.Second
+	}
+	ctx, _ := context.WithTimeout(context.Background(), config.Timeout)
+	if err = db.PingContext(ctx); err != nil {
 		return nil, err
 	}
 	return db, nil

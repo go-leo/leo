@@ -22,6 +22,12 @@ then
 	protoc-gen-go-gors --version
 fi
 
+if [ ! $(command -v protoc-gen-go-cqrs) ]
+then
+	go install github.com/go-leo/design-pattern/cqrs/cmd/protoc-gen-go-cqrs@latest
+	protoc-gen-go-cqrs --version
+fi
+
 proto_files=$(find api -name "*.proto")
 
 echo "--- protoc generate start ---"
@@ -35,5 +41,7 @@ protoc \
   --go-gors_out=. \
   --go-gors_opt=module={{ .ModuleName }} \
   --go-gors_opt=path_to_lower=true \
+  --go-cqrs_out=. \
+  --go-cqrs_opt=module={{ .ModuleName }} \
   ${proto_files[*]}
 echo "--- protoc generate end ---"
