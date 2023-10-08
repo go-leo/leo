@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/lgrpc/auth
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.9
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.10
 	github.com/stretchr/testify v1.8.3
 	google.golang.org/grpc v1.55.0
 )

@@ -49,10 +49,8 @@ func (sub *multiSubscriber) Queue() string {
 
 func (sub *multiSubscriber) Subscribe(ctx context.Context, msgC chan<- *Message, errC chan<- error) error {
 	eg, ctx := errgroup.WithContext(ctx)
-	for _, w := range sub.subscribers {
-		eg.Go(func() error {
-			return w.Subscribe(ctx, msgC, errC)
-		})
+	for _, s := range sub.subscribers {
+		eg.Go(func(s Subscriber) func() error { return func() error { return s.Subscribe(ctx, msgC, errC) } }(s))
 	}
 	return eg.Wait()
 }
