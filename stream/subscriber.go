@@ -3,6 +3,7 @@ package stream
 import (
 	"context"
 	"errors"
+	"golang.org/x/sync/errgroup"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -47,12 +48,13 @@ func (sub *multiSubscriber) Queue() string {
 }
 
 func (sub *multiSubscriber) Subscribe(ctx context.Context, msgC chan<- *Message, errC chan<- error) error {
+	eg, ctx := errgroup.WithContext(ctx)
 	for _, w := range sub.subscribers {
-		if err := w.Subscribe(ctx, msgC, errC); err != nil {
-			return err
-		}
+		eg.Go(func() error {
+			return w.Subscribe(ctx, msgC, errC)
+		})
 	}
-	return nil
+	return eg.Wait()
 }
 
 func (sub *multiSubscriber) Close(ctx context.Context) error {
