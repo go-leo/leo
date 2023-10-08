@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/stream/amqp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.7
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.7
+	codeup.aliyun.com/qimao/leo/leo v0.0.9
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.9
 	github.com/rabbitmq/amqp091-go v1.8.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.3
