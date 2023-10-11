@@ -47,7 +47,6 @@ func (channel *channel) pipe(ctx context.Context) error {
 		if err != nil {
 			errC <- err
 		}
-		close(errC)
 	}()
 	for {
 		select {
