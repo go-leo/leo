@@ -1,6 +1,7 @@
 package {{ .Package }}
 
 import (
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache"
@@ -14,11 +15,24 @@ type Store interface {
 	Set(key string, val interface{})
 }
 
+// sampleCache 简单缓存
+type sampleCache struct {
+	Cache sync.Map
+}
+
+func (store *sampleCache) Get(key string) (interface{}, bool) {
+	return store.Cache.Load(key)
+}
+
+func (store *sampleCache) Set(key string, val interface{}) {
+	store.Cache.Store(key, val)
+}
+
 // ttlCache TTL缓存
 type ttlCache struct {
 	Cache cache.Cache
 	// 过期时间
-	TTL func() time.Duration
+	TTL func(key string) time.Duration
 }
 
 func (store *ttlCache) Get(key string) (interface{}, bool) {
@@ -28,7 +42,7 @@ func (store *ttlCache) Get(key string) (interface{}, bool) {
 func (store *ttlCache) Set(key string, val interface{}) {
 	ttl := cache.DefaultExpiration
 	if store.TTL != nil {
-		ttl = store.TTL()
+		ttl = store.TTL(key)
 	}
 	store.Cache.Set(key, val, ttl)
 }
@@ -46,6 +60,7 @@ func (store *lruCache) Set(key string, val interface{}) {
 	store.Cache.Add(key, val)
 }
 
+// bigCache big cache
 type bigCache struct {
 	Cache      *bigcache.BigCache
 	Marshal    func(key string, obj interface{}) ([]byte, error)
@@ -90,11 +105,15 @@ func (store *bigCache) Set(key string, val interface{}) {
 	}
 }
 
+func SampleCache() Store {
+	return &sampleCache{Cache: sync.Map{}}
+}
+
 func TTLCache(
 	expirationTime, cleanupInterval time.Duration,
 	shards int,
 	onEvicted func(string, interface{}),
-	ttl func() time.Duration,
+	ttl func(key string) time.Duration,
 ) Store {
 	c := cache.New(
 		cache.ExpirationTime(expirationTime),
