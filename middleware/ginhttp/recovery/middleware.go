@@ -2,6 +2,7 @@ package recovery
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -14,7 +15,7 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 	var handle func(*gin.Context, any) error
 	if len(handlers) == 0 {
 		handle = func(c *gin.Context, p any) error {
-			return nil
+			return c.Error(fmt.Errorf("panic triggered: %+v", p))
 		}
 	} else {
 		handle = handlers[0]
@@ -37,10 +38,10 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 				}
 				if brokenPipe {
 					// If the connection is dead, we can't write a status to it.
-					c.Error(r.(error)) // nolint: errcheck
+					_ = handle(c, r)
 					c.Abort()
 				} else {
-					handle(c, r)
+					_ = handle(c, r)
 				}
 			}
 		}()
@@ -49,21 +50,13 @@ func Middleware(handlers ...func(*gin.Context, any) error) gin.HandlerFunc {
 }
 
 // 用于panic后自定义返回结构
-func HandleRecovery(c *gin.Context, err any) {
-	c.JSON(http.StatusInternalServerError, gin.H{
-		"msg":  "服务器异常:" + errorToString(err),
-		"code": 500,
-	})
-}
-
-// 用于panic后自定义返回结构
-func HandleRecoveryWithErr(c *gin.Context, err any) error {
-	msg := "服务器异常:" + errorToString(err)
+func HandleRecoveryWithErr(c *gin.Context, p any) error {
+	msg := "服务器异常:" + errorToString(p)
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"msg":  msg,
 		"code": 500,
 	})
-	return errors.New(msg)
+	return c.Error(errors.New(msg))
 }
 
 // recover错误，转string
@@ -72,6 +65,6 @@ func errorToString(r interface{}) string {
 	case error:
 		return v.Error()
 	default:
-		return r.(string)
+		return fmt.Sprint(r)
 	}
 }
