@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/registry/nacosv2
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.10
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.10
+	codeup.aliyun.com/qimao/leo/leo v0.0.11
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.11
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.2
 )
 
@@ -24,14 +24,14 @@ require (
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/net v0.11.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sync v0.4.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
-	google.golang.org/grpc v1.55.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/grpc v1.56.1 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
 

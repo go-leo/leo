@@ -3,13 +3,13 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/stream/recovery
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.10
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.10
+	codeup.aliyun.com/qimao/leo/leo v0.0.11
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.11
 )
 
 require (
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
+	golang.org/x/sync v0.4.0 // indirect
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106 // indirect
 )
 

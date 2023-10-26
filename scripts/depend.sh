@@ -26,7 +26,9 @@ for gomod in ${gomods[@]}
 do
     cd $gomod
 #    go get -u codeup.aliyun.com/qimao/leo/...
-#    go get -u golang.org/x/...
+    go get -u golang.org/x/...
+    go get -u github.com/derekparker/trie
+    go get -u github.com/stretchr/testify
     go mod tidy
     cd $root
 done

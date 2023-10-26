@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/internal/gox
 go 1.20
 
 require (
-	github.com/stretchr/testify v1.8.3
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+	github.com/stretchr/testify v1.8.4
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 )
 
 require (

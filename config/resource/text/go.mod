@@ -3,15 +3,15 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/text
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.10
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.10
-	github.com/stretchr/testify v1.8.3
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+	codeup.aliyun.com/qimao/leo/leo v0.0.11
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.11
+	github.com/stretchr/testify v1.8.4
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/derekparker/trie v0.0.0-20221221181808-1424fce0c981 // indirect
+	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
