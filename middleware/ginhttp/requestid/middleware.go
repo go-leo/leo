@@ -1,13 +1,13 @@
 package requestid
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"regexp"
 	"strings"
-
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
-	"github.com/gin-gonic/gin"
 )
 
 // Middleware return the RequestID middleware.
@@ -67,12 +67,12 @@ func next(c *gin.Context, o *options, requestID string, isTraceContext bool) {
 		if len(requestID) > 32 {
 			requestID = requestID[:32]
 		} else if len(requestID) < 32 {
-			requestID = requestID + randx.HexString(32-len(requestID))
+			requestID = requestID + hexString(32-len(requestID))
 		}
 		h := fmt.Sprintf("%.2x-%s-%s-%s",
 			supportedVersion,
 			requestID,
-			strings.ToLower(randx.HexString(16)),
+			strings.ToLower(hexString(16)),
 			"00")
 		c.Header(traceparentHeader, h)
 	}
@@ -81,4 +81,10 @@ func next(c *gin.Context, o *options, requestID string, isTraceContext bool) {
 	// Set the id to ensure that the X-Request-ID is in the response
 	c.Header(o.HeaderKey, requestID)
 	c.Next()
+}
+
+func hexString(length int) string {
+	b := make([]byte, length)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)[:length]
 }

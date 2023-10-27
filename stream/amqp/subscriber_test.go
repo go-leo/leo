@@ -2,10 +2,10 @@ package amqp_test
 
 import (
 	"context"
+	"math/rand"
 	"strings"
 	"testing"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/stream/amqp"
 
@@ -53,7 +53,7 @@ func TestHelloWorldSubscriber(t *testing.T) {
 
 	go func() {
 		for msg := range msgC {
-			if randx.Intn(3) < 1 {
+			if rand.Intn(3) < 1 {
 				ackRes, err := msg.Nack(context.Background())
 				assert.NoError(t, err)
 				t.Log(ackRes)
@@ -120,7 +120,7 @@ func TestWorkerQueueSubscriber(t *testing.T) {
 
 	go func() {
 		for msg := range msgC {
-			if randx.Intn(3) < 1 {
+			if rand.Intn(3) < 1 {
 				ackRes, err := msg.Nack(context.Background())
 				assert.NoError(t, err)
 				t.Log(ackRes)
@@ -199,7 +199,7 @@ func TestPubSubSubscriber(t *testing.T) {
 
 	go func() {
 		for msg := range msgC {
-			if randx.Intn(3) < 1 {
+			if rand.Intn(3) < 1 {
 				ackRes, err := msg.Nack(context.Background())
 				assert.NoError(t, err)
 				t.Log(ackRes)
@@ -285,7 +285,7 @@ func testRoutingSubscriber(t *testing.T, routingKeys []string) {
 
 	go func() {
 		for msg := range msgC {
-			if randx.Intn(3) < 1 {
+			if rand.Intn(3) < 1 {
 				ackRes, err := msg.Nack(context.Background())
 				assert.NoError(t, err)
 				t.Log(ackRes)
@@ -377,7 +377,7 @@ func testTopicSubscriber(t *testing.T, routingKeys []string) {
 
 	go func() {
 		for msg := range msgC {
-			if randx.Intn(3) < 1 {
+			if rand.Intn(3) < 1 {
 				ackRes, err := msg.Nack(context.Background())
 				assert.NoError(t, err)
 				t.Log(ackRes)

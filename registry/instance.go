@@ -1,10 +1,10 @@
 package registry
 
 import (
-	"fmt"
-
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
 )
 
 // ServiceInstance represents an instance of a service in a discovery system.
@@ -99,7 +99,7 @@ func (b *ServiceInstanceBuilder) Scheme(scheme string) *ServiceInstanceBuilder {
 
 func (b *ServiceInstanceBuilder) Build() ServiceInstance {
 	if stringx.IsBlank(b.id) {
-		b.id = fmt.Sprintf("%s.%s.%d.%s", b.name, b.ip, b.port, randx.WordString(8))
+		b.id = fmt.Sprintf("%s.%s.%d.%s", b.name, b.ip, b.port, hexString(8))
 	}
 	if b.metadata == nil {
 		b.metadata = make(map[string]string)
@@ -112,6 +112,12 @@ func (b *ServiceInstanceBuilder) Build() ServiceInstance {
 		metadata: b.metadata,
 		scheme:   b.scheme,
 	}
+}
+
+func hexString(length int) string {
+	b := make([]byte, length)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)[:length]
 }
 
 func Builder() *ServiceInstanceBuilder {

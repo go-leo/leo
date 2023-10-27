@@ -2,10 +2,10 @@ package gochan_test
 
 import (
 	"context"
+	"math/rand"
 	"testing"
 	"time"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
 
@@ -38,7 +38,7 @@ func TestSubscriber(t *testing.T) {
 
 	go func() {
 		for msg := range msgC {
-			if randx.Intn(3) < 1 {
+			if rand.Intn(3) < 1 {
 				t.Log("ack msg: ", string(msg.Payload))
 				ackRes, err := msg.Ack(context.Background())
 				assert.NoError(t, err)

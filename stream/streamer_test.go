@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/mathx/randx"
 	"codeup.aliyun.com/qimao/leo/leo/stream"
 	"codeup.aliyun.com/qimao/leo/leo/stream/gochan"
 
@@ -199,7 +199,7 @@ func (h GoChanHandler) Subscriber() (stream.Subscriber, error) {
 func (h GoChanHandler) Handle(ctx context.Context, msg *stream.Message) error {
 	fmt.Println("GoChanHandler handle:", string(msg.Payload))
 	time.Sleep(time.Second)
-	if randx.Intn(5) < 1 {
+	if rand.Intn(5) < 1 {
 		return errors.New("mock error")
 	}
 	return nil
@@ -217,7 +217,7 @@ func (h GoChanPubSubHandler) Subscriber() (stream.Subscriber, error) {
 func (h GoChanPubSubHandler) Handle(ctx context.Context, msg *stream.Message) ([]*stream.Message, error) {
 	fmt.Println("GoChanPubSubHandler handle:", string(msg.Payload))
 	time.Sleep(time.Second)
-	if randx.Intn(5) < 1 {
+	if rand.Intn(5) < 1 {
 		return nil, errors.New("mock error")
 	}
 	return []*stream.Message{{Payload: []byte(string(msg.Payload) + "-1")}, {Payload: []byte(string(msg.Payload) + "-2")}}, nil
