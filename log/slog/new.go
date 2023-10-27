@@ -53,15 +53,12 @@ func fileWriter(fileOptions *fileOptions) *lumberjack.Logger {
 }
 
 func replaceAttr(groups []string, a slog.Attr) slog.Attr {
-	if a.Key == slog.LevelKey {
-	}
-	if a.Key == slog.TimeKey {
-	}
-
 	switch a.Key {
-	case slog.TimeKey:
 	case slog.LevelKey:
-		level := a.Value.Any().(slog.Level)
+		level, ok := a.Value.Any().(slog.Level)
+		if !ok {
+			return a
+		}
 		switch level {
 		case sLogLevelDebug:
 			a.Value = slog.StringValue(log.LevelDebugName)
@@ -78,8 +75,12 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 		default:
 			a.Value = slog.StringValue("unknown")
 		}
+		return a
 	case slog.SourceKey:
-		source := a.Value.Any().(*slog.Source)
+		source, ok := a.Value.Any().(*slog.Source)
+		if !ok {
+			return a
+		}
 		if index := strings.LastIndex(source.File, "/"); index > 0 {
 			index = strings.LastIndex(source.File[:index], "/")
 			if index > 0 {
@@ -92,9 +93,12 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 				source.Function = source.Function[index+1:]
 			}
 		}
-
+		return a
+	case slog.TimeKey:
+		return a
 	case slog.MessageKey:
-
+		return a
+	default:
+		return a
 	}
-	return a
 }

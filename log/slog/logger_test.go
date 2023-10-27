@@ -495,3 +495,11 @@ func TestLog(t *testing.T) {
 	log.Error("this is with Fields Error log")
 	log.Errorf("this is with Fields %s log", "Errorf")
 }
+
+func TestLevelPanic(t *testing.T) {
+	l, _ := log.ParseLevel("info")
+	slog.New(slog.LevelAdapt(l))
+	var fields []log.Field
+	fields = append(fields, log.F{K: "level", V: "king"})
+	log.L().With(fields...).Info("")
+}
