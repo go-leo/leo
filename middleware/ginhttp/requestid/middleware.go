@@ -1,7 +1,6 @@
 package requestid
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -21,7 +20,7 @@ func Middleware(opts ...Option) gin.HandlerFunc {
 
 		// 1. from header
 		requestID = c.GetHeader(o.HeaderKey)
-		if stringx.IsNotBlank(requestID) {
+		if len(requestID) != 0 {
 			next(c, o, requestID, false)
 			return
 		}
@@ -29,7 +28,7 @@ func Middleware(opts ...Option) gin.HandlerFunc {
 		// 2. from TraceContext, TraceContext is a propagator that supports the W3C Trace Context format
 		// (https://www.w3.org/TR/trace-context/)
 		requestID, _ = fromTrace(c)
-		if stringx.IsNotBlank(requestID) {
+		if len(requestID) != 0 {
 			next(c, o, requestID, true)
 			return
 		}

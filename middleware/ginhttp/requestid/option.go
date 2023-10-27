@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"codeup.aliyun.com/qimao/leo/leo/internal/gox/stringx"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,7 +34,7 @@ func (o *options) init() {
 			}
 		}(&sync.Pool{New: func() any { return rand.New(rand.NewSource(time.Now().UnixNano())) }})
 	}
-	if stringx.IsBlank(o.HeaderKey) {
+	if len(o.HeaderKey) == 0 {
 		o.HeaderKey = "X-Request-ID"
 	}
 	if o.Handler == nil {
