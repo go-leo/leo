@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/env
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.12
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.12
+	codeup.aliyun.com/qimao/leo/leo v0.0.14
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.14
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/stretchr/testify v1.8.4
 

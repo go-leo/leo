@@ -3,14 +3,14 @@ module codeup.aliyun.com/qimao/leo/leo/stream/amqp
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.12
+	codeup.aliyun.com/qimao/leo/leo v0.0.14
 	github.com/rabbitmq/amqp091-go v1.8.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
 )
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.12 // indirect
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.14 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
