@@ -89,7 +89,7 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 func (sub *Subscriber) handleMsg(ctx context.Context, delivery amqp091.Delivery, msgC chan<- *stream.Message, errC chan<- error) {
 	sub.wg.Add(1)
 	defer sub.wg.Done()
-	msg, err := sub.o.Marshaller.Unmarshal(sub.topic, delivery)
+	msg, err := sub.o.Marshaller.Unmarshal(ctx, sub.topic, delivery)
 	if err != nil {
 		errC <- fmt.Errorf("failed to unmarshal amqp091 delivery: %w", err)
 		return

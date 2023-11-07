@@ -14,7 +14,7 @@ import (
 // Marshaller marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
 type Marshaller interface {
 	Marshal(ctx context.Context, topic string, msg *stream.Message) (amqp091.Publishing, error)
-	Unmarshal(topic string, amqpMsg amqp091.Delivery) (*stream.Message, error)
+	Unmarshal(ctx context.Context, topic string, amqpMsg amqp091.Delivery) (*stream.Message, error)
 }
 
 var _ Marshaller = (*DefaultMarshaller)(nil)
@@ -37,7 +37,7 @@ func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, msg *strea
 	}, nil
 }
 
-func (d DefaultMarshaller) Unmarshal(topic string, amqpMsg amqp091.Delivery) (*stream.Message, error) {
+func (d DefaultMarshaller) Unmarshal(ctx context.Context, topic string, amqpMsg amqp091.Delivery) (*stream.Message, error) {
 	header := stream.Header{}
 	for key, value := range amqpMsg.Headers {
 		header.Add(key, cast.ToString(value))

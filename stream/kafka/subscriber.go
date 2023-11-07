@@ -124,7 +124,7 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 func (sub *Subscriber) handleMsg(ctx context.Context, kafkaMsg *kafka.Message, msgC chan<- *stream.Message, errC chan<- error) {
 	sub.wg.Add(1)
 	defer sub.wg.Done()
-	msg, err := sub.o.Marshaller.Unmarshal(sub.topic, kafkaMsg)
+	msg, err := sub.o.Marshaller.Unmarshal(ctx, sub.topic, kafkaMsg)
 	if err != nil {
 		errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
 		return

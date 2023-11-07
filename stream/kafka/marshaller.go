@@ -9,16 +9,10 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
-const (
-	KeyKey       = "Key"
-	PartitionKey = "Partition"
-	OpaqueKey    = "Opaque"
-)
-
 // Marshaller marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
 type Marshaller interface {
 	Marshal(ctx context.Context, topic string, msg *stream.Message) (*kafka.Message, error)
-	Unmarshal(topic string, kafkaMsg *kafka.Message) (*stream.Message, error)
+	Unmarshal(ctx context.Context, topic string, kafkaMsg *kafka.Message) (*stream.Message, error)
 }
 
 var _ Marshaller = (*DefaultMarshaller)(nil)
@@ -52,7 +46,7 @@ func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, msg *strea
 	return kafkaMsg, nil
 }
 
-func (d DefaultMarshaller) Unmarshal(topic string, kafkaMsg *kafka.Message) (*stream.Message, error) {
+func (d DefaultMarshaller) Unmarshal(ctx context.Context, topic string, kafkaMsg *kafka.Message) (*stream.Message, error) {
 	header := stream.Header{}
 	for _, h := range kafkaMsg.Headers {
 		header.Add(h.Key, string(h.Value))
