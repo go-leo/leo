@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.14
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.15
 	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/spf13/cast v1.5.1
