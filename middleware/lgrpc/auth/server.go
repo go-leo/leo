@@ -39,7 +39,7 @@ func DefaultAuthorizer(valid func(ctx context.Context, scheme, credentials strin
 	})
 }
 
-func UnaryServerInterceptor(authorizer AuthorizerFunc) grpc.UnaryServerInterceptor {
+func UnaryServerInterceptor(authorizer Authorizer) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if authorizerSrv, ok := info.Server.(Authorizer); ok {
 			newCtx, err := authorizerSrv.Authorize(ctx, info.FullMethod)
@@ -59,7 +59,7 @@ func UnaryServerInterceptor(authorizer AuthorizerFunc) grpc.UnaryServerIntercept
 	}
 }
 
-func StreamServerInterceptor(authorizer AuthorizerFunc) grpc.StreamServerInterceptor {
+func StreamServerInterceptor(authorizer Authorizer) grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		if authorizerSrv, ok := srv.(Authorizer); ok {
 			newCtx, err := authorizerSrv.Authorize(ss.Context(), info.FullMethod)
