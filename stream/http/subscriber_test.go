@@ -1,69 +1,96 @@
 package http_test
 
-//
-//import (
-//	"context"
-//	"math/rand"
-//	"testing"
-//
-//	"codeup.aliyun.com/qimao/leo/leo/stream"
-//	"codeup.aliyun.com/qimao/leo/leo/stream/kafka"
-//
-//	kafka2 "github.com/confluentinc/confluent-kafka-go/v2/kafka"
-//	"github.com/stretchr/testify/assert"
-//)
-//
-//func TestSubscriber(t *testing.T) {
-//	topic := "leo-stream-demo"
-//	subscriber, err := kafka.NewSubscriber(
-//		topic,
-//		func() (*kafka2.Consumer, error) {
-//			return kafka2.NewConsumer(&kafka2.ConfigMap{
-//				"api.version.request":       "true",
-//				"auto.offset.reset":         "latest",
-//				"heartbeat.interval.ms":     3000,
-//				"session.timeout.ms":        30000,
-//				"max.poll.interval.ms":      120000,
-//				"fetch.max.bytes":           1024000,
-//				"max.partition.fetch.bytes": 256000,
-//				"bootstrap.servers":         "localhost:9092",
-//				"group.id":                  "TestSubscriber",
-//			})
-//		},
-//		kafka.NackHandler(func(msg *stream.Message) {
-//			t.Log("nack msg: ", string(msg.Payload))
-//		}))
-//	assert.NoError(t, err)
-//	assert.Equal(t, topic, subscriber.Topic())
-//	assert.Equal(t, "kafka", subscriber.Queue())
-//	msgC := make(chan *stream.Message, 1)
-//	errC := make(chan error, 1)
-//
-//	go func() {
-//		err = subscriber.Subscribe(context.Background(), msgC, errC)
-//		assert.NoError(t, err)
-//	}()
-//
-//	go func() {
-//		for msg := range msgC {
-//			if rand.Intn(3) < 1 {
-//				t.Log("ack msg: ", string(msg.Payload))
-//				ackRes, err := msg.Ack(context.Background())
-//				assert.NoError(t, err)
-//				t.Log(ackRes)
-//			} else {
-//				ackRes, err := msg.Nack(context.Background())
-//				assert.NoError(t, err)
-//				t.Log(ackRes)
-//			}
-//		}
-//	}()
-//
-//	go func() {
-//		for err := range errC {
-//			t.Log(err)
-//		}
-//	}()
-//
-//	select {}
-//}
+import (
+	"codeup.aliyun.com/qimao/leo/leo/stream"
+	httpstream "codeup.aliyun.com/qimao/leo/leo/stream/http"
+	"context"
+	"github.com/stretchr/testify/assert"
+	"math/rand"
+	"net/http"
+	"testing"
+	"time"
+)
+
+func TestSubscriber(t *testing.T) {
+	topic := "leo-stream-httpstream-get-demo"
+	subscriber, err := httpstream.NewSubscriber(
+		topic,
+		http.MethodPost,
+		"/post",
+		httpstream.HttpServer(&http.Server{Addr: ":8080"}),
+	)
+	assert.NoError(t, err)
+	assert.Equal(t, topic, subscriber.Topic())
+	assert.Equal(t, "http", subscriber.Queue())
+	msgC := make(chan *stream.Message, 1)
+	errC := make(chan error, 1)
+
+	go func() {
+		err = subscriber.Subscribe(context.Background(), msgC, errC)
+		assert.NoError(t, err)
+	}()
+
+	go func() {
+		for msg := range msgC {
+			if rand.Intn(3) < 1 {
+				t.Log("ack msg: ", string(msg.Payload))
+				ackRes, err := msg.Ack(context.Background())
+				assert.NoError(t, err)
+				t.Log(ackRes)
+			} else {
+				ackRes, err := msg.Nack(context.Background())
+				assert.NoError(t, err)
+				t.Log(ackRes)
+			}
+		}
+	}()
+
+	go func() {
+		for err := range errC {
+			t.Log(err)
+		}
+	}()
+
+	select {}
+}
+
+func TestSubscriberPublisher(t *testing.T) {
+	topic := "leo-stream-httpstream-get-demo"
+	publisher := httpstream.NewPublisher(topic, http.MethodPost, "http://localhost:8080/post")
+	assert.Equal(t, topic, publisher.Topic())
+	assert.Equal(t, "http", publisher.Queue())
+
+	messages := []*stream.Message{
+		{
+			Time:    time.Now(),
+			Payload: []byte("number=1"),
+			Header:  stream.Header{"index": []string{"1"}},
+		},
+		{
+			Time:    time.Now(),
+			Payload: []byte("number=2"),
+			Header:  stream.Header{"index": []string{"2"}},
+		},
+		{
+			Time:    time.Now(),
+			Payload: []byte("number=3"),
+			Header:  stream.Header{"index": []string{"3"}},
+		},
+		{
+			Time:    time.Now(),
+			Payload: []byte("number=4"),
+			Header:  stream.Header{"index": []string{"4"}},
+		},
+		{
+			Time:    time.Now(),
+			Payload: []byte("number=5"),
+			Header:  stream.Header{"index": []string{"5"}},
+		},
+	}
+
+	for _, m := range messages {
+		publishResult, err := publisher.Publish(context.Background(), m)
+		assert.NoError(t, err)
+		t.Log(publishResult)
+	}
+}

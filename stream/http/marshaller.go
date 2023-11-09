@@ -16,7 +16,7 @@ import (
 // Marshaller marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
 type Marshaller interface {
 	Marshal(ctx context.Context, topic string, method string, url string, msg *stream.Message) (*http.Request, error)
-	Unmarshal(ctx context.Context, topic string, resp *http.Response) (*stream.Message, error)
+	Unmarshal(ctx context.Context, topic string, resp *http.Request) (*stream.Message, error)
 }
 
 var _ Marshaller = (*DefaultMarshaller)(nil)
@@ -71,7 +71,7 @@ func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, method str
 	return request, nil
 }
 
-func (d DefaultMarshaller) Unmarshal(ctx context.Context, topic string, resp *http.Response) (*stream.Message, error) {
+func (d DefaultMarshaller) Unmarshal(ctx context.Context, topic string, resp *http.Request) (*stream.Message, error) {
 	headerMap := map[string][]string(resp.Header)
 	payload, err := io.ReadAll(resp.Body)
 	if err != nil {
