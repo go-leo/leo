@@ -3,12 +3,12 @@ module codeup.aliyun.com/qimao/leo/leo/stream/http
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.16
+	codeup.aliyun.com/qimao/leo/leo v0.0.17
 	github.com/stretchr/testify v1.8.4
 )
 
 require (
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.16 // indirect
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.17 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

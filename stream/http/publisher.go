@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sync"
 	"sync/atomic"
 
@@ -17,13 +18,12 @@ type Publisher struct {
 	o      *options
 	wg     sync.WaitGroup
 	closed atomic.Bool
-	topic  string
 	method string
-	url    string
+	uri    *url.URL
 }
 
 func (pub *Publisher) Topic() string {
-	return pub.topic
+	return topic(pub.method, pub.uri.RequestURI())
 }
 
 func (pub *Publisher) Queue() string {
@@ -43,7 +43,7 @@ func (pub *Publisher) Publish(ctx context.Context, messages ...*stream.Message) 
 
 	var result stream.Results
 	for _, msg := range messages {
-		req, err := pub.o.Marshaller.Marshal(ctx, pub.topic, pub.method, pub.url, msg)
+		req, err := pub.o.Marshaller.Marshal(ctx, pub.method, pub.uri, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -86,14 +86,17 @@ func (p PublishResult) String() string {
 	return "response is nil"
 }
 
-func NewPublisher(topic, method, url string, opts ...Option) *Publisher {
+func NewPublisher(method, rawURL string, opts ...Option) (*Publisher, error) {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
+	uri, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
 	return &Publisher{
 		o:      o,
-		topic:  topic,
 		method: method,
-		url:    url,
-	}
+		uri:    uri,
+	}, nil
 }

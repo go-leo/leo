@@ -12,15 +12,12 @@ import (
 )
 
 func TestSubscriber(t *testing.T) {
-	topic := "leo-stream-httpstream-get-demo"
 	subscriber, err := httpstream.NewSubscriber(
-		topic,
 		http.MethodPost,
 		"/post",
 		httpstream.HttpServer(&http.Server{Addr: ":8080"}),
 	)
 	assert.NoError(t, err)
-	assert.Equal(t, topic, subscriber.Topic())
 	assert.Equal(t, "http", subscriber.Queue())
 	msgC := make(chan *stream.Message, 1)
 	errC := make(chan error, 1)
@@ -55,9 +52,8 @@ func TestSubscriber(t *testing.T) {
 }
 
 func TestSubscriberPublisher(t *testing.T) {
-	topic := "leo-stream-httpstream-get-demo"
-	publisher := httpstream.NewPublisher(topic, http.MethodPost, "http://localhost:8080/post")
-	assert.Equal(t, topic, publisher.Topic())
+	publisher, err := httpstream.NewPublisher(http.MethodPost, "http://localhost:8080/post")
+	assert.NoError(t, err)
 	assert.Equal(t, "http", publisher.Queue())
 
 	messages := []*stream.Message{

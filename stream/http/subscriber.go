@@ -26,17 +26,16 @@ var _ stream.Subscriber = new(Subscriber)
 type Subscriber struct {
 	o          *options
 	method     string
-	url        string
-	topic      string
 	subscribed atomic.Bool
 	closed     atomic.Bool
 	closeC     chan struct{}
 	stopC      chan struct{}
 	wg         sync.WaitGroup
+	pattern    string
 }
 
 func (sub *Subscriber) Topic() string {
-	return sub.topic
+	return topic(sub.method, sub.pattern)
 }
 
 func (sub *Subscriber) Queue() string {
@@ -57,7 +56,7 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 	if sub.o.ServeMux == nil {
 		sub.o.ServeMux = http.NewServeMux()
 	}
-	sub.o.ServeMux.HandleFunc(sub.url, func(resp http.ResponseWriter, req *http.Request) {
+	sub.o.ServeMux.HandleFunc(sub.pattern, func(resp http.ResponseWriter, req *http.Request) {
 		if req.Method != sub.method {
 			resp.WriteHeader(http.StatusMethodNotAllowed)
 			_, _ = resp.Write(Default405Body)
@@ -141,7 +140,7 @@ func (sub *Subscriber) Close(ctx context.Context) error {
 func (sub *Subscriber) handleMsg(ctx context.Context, resp http.ResponseWriter, req *http.Request, msgC chan<- *stream.Message, errC chan<- error) {
 	sub.wg.Add(1)
 	defer sub.wg.Done()
-	msg, err := sub.o.Marshaller.Unmarshal(ctx, sub.topic, req)
+	msg, err := sub.o.Marshaller.Unmarshal(ctx, req)
 	if err != nil {
 		resp.WriteHeader(http.StatusBadRequest)
 		_, _ = resp.Write(Default400Body)
@@ -207,19 +206,18 @@ func (sub *Subscriber) handleMsg(ctx context.Context, resp http.ResponseWriter, 
 	}
 }
 
-func NewSubscriber(topic string, method, url string, opts ...Option) (*Subscriber, error) {
+func NewSubscriber(method, pattern string, opts ...Option) (*Subscriber, error) {
 	o := &options{}
 	o.apply(opts...)
 	o.init()
 	return &Subscriber{
 		o:          o,
-		topic:      topic,
 		method:     method,
-		url:        url,
 		subscribed: atomic.Bool{},
 		closed:     atomic.Bool{},
 		closeC:     make(chan struct{}),
 		stopC:      make(chan struct{}),
 		wg:         sync.WaitGroup{},
+		pattern:    pattern,
 	}, nil
 }

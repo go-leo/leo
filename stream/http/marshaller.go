@@ -15,28 +15,20 @@ import (
 
 // Marshaller marshals stream's message to *kafka.Message and unmarshals *kafka.Message to stream's message.
 type Marshaller interface {
-	Marshal(ctx context.Context, topic string, method string, url string, msg *stream.Message) (*http.Request, error)
-	Unmarshal(ctx context.Context, topic string, resp *http.Request) (*stream.Message, error)
+	Marshal(ctx context.Context, method string, uri *url.URL, msg *stream.Message) (*http.Request, error)
+	Unmarshal(ctx context.Context, resp *http.Request) (*stream.Message, error)
 }
 
 var _ Marshaller = (*DefaultMarshaller)(nil)
 
 type DefaultMarshaller struct{}
 
-func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, method string, urlStr string, msg *stream.Message) (*http.Request, error) {
+func (d DefaultMarshaller) Marshal(ctx context.Context, method string, uri *url.URL, msg *stream.Message) (*http.Request, error) {
 	if len(method) <= 0 {
 		return nil, errors.New("method is empty")
 	}
-	if len(urlStr) <= 0 {
-		return nil, errors.New("url is empty")
-	}
 
-	u, err := url.Parse(urlStr)
-	if err != nil {
-		return nil, err
-	}
-
-	msg.Topic = topic
+	msg.Topic = topic(method, uri.RequestURI())
 	if msg.Time.IsZero() {
 		msg.Time = time.Now()
 	}
@@ -49,16 +41,16 @@ func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, method str
 		if err != nil {
 			return nil, err
 		}
-		uq := u.Query()
+		uq := uri.Query()
 		for key, values := range q {
 			for _, value := range values {
 				uq.Add(key, value)
 			}
 		}
-		u.RawQuery = uq.Encode()
+		uri.RawQuery = uq.Encode()
 	}
 
-	request, err := http.NewRequestWithContext(ctx, method, u.String(), body)
+	request, err := http.NewRequestWithContext(ctx, method, uri.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +63,7 @@ func (d DefaultMarshaller) Marshal(ctx context.Context, topic string, method str
 	return request, nil
 }
 
-func (d DefaultMarshaller) Unmarshal(ctx context.Context, topic string, resp *http.Request) (*stream.Message, error) {
+func (d DefaultMarshaller) Unmarshal(ctx context.Context, resp *http.Request) (*stream.Message, error) {
 	headerMap := map[string][]string(resp.Header)
 	payload, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -81,6 +73,10 @@ func (d DefaultMarshaller) Unmarshal(ctx context.Context, topic string, resp *ht
 		Time:    time.Now(),
 		Payload: payload,
 		Header:  headerMap,
-		Topic:   topic,
+		Topic:   topic(resp.Method, resp.RequestURI),
 	}, nil
+}
+
+func topic(method string, requestURI string) string {
+	return method + " " + requestURI
 }

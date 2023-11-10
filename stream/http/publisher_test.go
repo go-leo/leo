@@ -12,9 +12,8 @@ import (
 )
 
 func TestPublisherGet(t *testing.T) {
-	topic := "leo-stream-http-get-demo"
-	publisher := httpstream.NewPublisher(topic, http.MethodGet, "http://httpbin.org/get")
-	assert.Equal(t, topic, publisher.Topic())
+	publisher, err := httpstream.NewPublisher(http.MethodGet, "http://httpbin.org/get")
+	assert.NoError(t, err)
 	assert.Equal(t, "http", publisher.Queue())
 
 	messages := []*stream.Message{
@@ -53,9 +52,8 @@ func TestPublisherGet(t *testing.T) {
 }
 
 func TestPublisherPost(t *testing.T) {
-	topic := "leo-stream-http-get-demo"
-	publisher := httpstream.NewPublisher(topic, http.MethodPost, "http://httpbin.org/post")
-	assert.Equal(t, topic, publisher.Topic())
+	publisher, err := httpstream.NewPublisher(http.MethodPost, "http://httpbin.org/post")
+	assert.NoError(t, err)
 	assert.Equal(t, "http", publisher.Queue())
 
 	messages := []*stream.Message{
