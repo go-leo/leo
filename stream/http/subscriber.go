@@ -15,8 +15,10 @@ import (
 )
 
 var (
+	Default400Body = []byte("400 bad request")
 	Default405Body = []byte("405 method not allowed")
-	Default504Body = []byte("405 request has been canceled")
+	Default408Body = []byte("408 request timeout")
+	Default504Body = []byte("504 gateway timeout")
 )
 
 var _ stream.Subscriber = new(Subscriber)
@@ -68,6 +70,10 @@ func (sub *Subscriber) Subscribe(ctx context.Context, msgC chan<- *stream.Messag
 		case <-sub.closeC:
 			resp.WriteHeader(http.StatusGatewayTimeout)
 			_, _ = resp.Write(Default504Body)
+			return
+		case <-req.Context().Done():
+			resp.WriteHeader(http.StatusRequestTimeout)
+			_, _ = resp.Write(Default408Body)
 			return
 		default:
 			sub.handleMsg(ctx, resp, req, msgC, errC)
@@ -137,6 +143,8 @@ func (sub *Subscriber) handleMsg(ctx context.Context, resp http.ResponseWriter, 
 	defer sub.wg.Done()
 	msg, err := sub.o.Marshaller.Unmarshal(ctx, sub.topic, req)
 	if err != nil {
+		resp.WriteHeader(http.StatusBadRequest)
+		_, _ = resp.Write(Default400Body)
 		errC <- fmt.Errorf("failed to unmarshal kafka message: %w", err)
 		return
 	}
@@ -162,16 +170,32 @@ func (sub *Subscriber) handleMsg(ctx context.Context, resp http.ResponseWriter, 
 
 	select {
 	case <-ctx.Done():
+		resp.WriteHeader(http.StatusGatewayTimeout)
+		_, _ = resp.Write(Default504Body)
 		return
 	case <-sub.closeC:
+		resp.WriteHeader(http.StatusGatewayTimeout)
+		_, _ = resp.Write(Default504Body)
+		return
+	case <-req.Context().Done():
+		resp.WriteHeader(http.StatusRequestTimeout)
+		_, _ = resp.Write(Default408Body)
 		return
 	case msgC <- msg:
 	}
 
 	select {
 	case <-ctx.Done():
+		resp.WriteHeader(http.StatusGatewayTimeout)
+		_, _ = resp.Write(Default504Body)
 		return
 	case <-sub.closeC:
+		resp.WriteHeader(http.StatusGatewayTimeout)
+		_, _ = resp.Write(Default504Body)
+		return
+	case <-req.Context().Done():
+		resp.WriteHeader(http.StatusRequestTimeout)
+		_, _ = resp.Write(Default408Body)
 		return
 	case <-ackC:
 		return
