@@ -4,14 +4,10 @@ import (
 	"github.com/google/wire"
 
 	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/converter"
-	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/client"
-	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/publisher"
-	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/repository"
+	"{{ .ModuleName }}/internal/{{ .AppPath }}/{{ .Package }}/adapter"
 )
 
 var Provider = wire.NewSet(
 	converter.Provider,
-	client.Provider,
-	publisher.Provider,
-	repository.Provider,
+	adapter.Provider,
 )

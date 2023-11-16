@@ -93,15 +93,6 @@ var (
 	//go:embed tmpl/infrastructure_wire.go.template
 	infrastructureContent string
 
-	//go:embed tmpl/infrastructure_client_wire.go.template
-	infrastructureClientWireContent string
-
-	//go:embed tmpl/infrastructure_publisher_wire.go.template
-	infrastructurePublisherWireContent string
-
-	//go:embed tmpl/infrastructure_repository_wire.go.template
-	infrastructureRepositoryWireContent string
-
 	//go:embed tmpl/infrastructure_converters.go.template
 	infrastructureConvertersContent string
 
