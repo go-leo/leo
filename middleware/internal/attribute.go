@@ -39,7 +39,7 @@ func GRPCType() attribute.KeyValue {
 func ParseError(err error) attribute.KeyValue {
 	if err != nil {
 		s, _ := status.FromError(err)
-		return attribute.Key("grpc.code").String(s.String())
+		return attribute.Key("grpc.code").String(s.Code().String())
 	}
 	return attribute.Key("grpc.code").String(codes.OK.String())
 }

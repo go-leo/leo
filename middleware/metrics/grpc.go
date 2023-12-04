@@ -26,7 +26,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 	// 请求延迟直方图
 	serverHandledHistogram, e := global.MeterProvider().
 		Meter(internal.InstrumentationName).
-		Float64Histogram(
+		Int64Histogram(
 			"grpc.server.handling",
 			instrument.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
 			instrument.WithUnit("ms"),
@@ -93,7 +93,7 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 			serverStreamMsgSent.Add(ctx, 1, attrs...)
 		}
 		// 请求延迟直方图记录延迟
-		serverHandledHistogram.Record(ctx, time.Since(startTime).Seconds(), attrs...)
+		serverHandledHistogram.Record(ctx, time.Since(startTime).Milliseconds(), attrs...)
 		// 请求计数器加1
 		serverHandledCounter.Add(ctx, 1, append(attrs, internal.ParseError(err))...)
 		return resp, err
