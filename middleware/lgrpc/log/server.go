@@ -43,13 +43,13 @@ func UnaryServerInterceptor(loggerFactory func(ctx context.Context) log.Logger, 
 		if ok {
 			builder.PeerAddress(peerInfo.Addr.String())
 		}
-		if err != nil {
+		if o.ErrorChecker(err) {
 			builder.Error(err.Error())
 		}
 		switch {
 		case o.Payload:
 			builder.Request(req).Response(resp)
-		case o.PayloadWhenError || err != nil:
+		case o.PayloadWhenError && o.ErrorChecker(err):
 			builder.Request(req).Response(resp)
 		}
 		if err != nil {
