@@ -1,0 +1,58 @@
+{
+  "plugins": [
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/compare?from={{previousTag}}&to={{currentTag}}",
+          "types": [
+            {
+              "type": "feat",
+              "section": "Features"
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fixes"
+            },
+            {
+              "type": "refactor",
+              "section": "Code Refactoring"
+            },
+            {
+              "type": "perf",
+              "section": "Performance Improvements"
+            },
+            {
+              "type": "revert",
+              "section": "Reverts"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "docs/CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "docs/CHANGELOG.md"
+        ]
+      }
+    ]
+  ],
+  "branches": [
+    "master",
+    "develop"
+  ],
+  "dryRun": false,
+  "ci": false,
+  "pushNotes": false,
+  "tagMessage": ""
+}
+
