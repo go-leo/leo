@@ -65,7 +65,7 @@ else
     # 获取最新 tag
     latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
     # 使用正则表达式匹配版本号的最后一段
-    if [[ $latest_tag =~ \/v([[:digit:]\.]+)$ ]]; then
+    if [[ $latest_tag =~ v([[:digit:]\.]+)$ ]]; then
         last_segment=${BASH_REMATCH[1]}
     fi
 
@@ -87,6 +87,17 @@ do
        echo $dir"/"$version
     fi
 done
+
+echo "\nPress Y to tag and push tags ..."
+while true; do
+    read -n 1 -r input
+    if [[ $input = "Y" || $input = "y" ]]; then
+        break
+    else
+        echo "Invalid input. Press Y to continue..."
+    fi
+done
+
 
 # 5. 处理推送 tag 名称
 for tag in ${tags[@]}
