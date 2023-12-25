@@ -88,7 +88,8 @@ do
     fi
 done
 
-echo "\nPress Y to tag and push tags ..."
+echo ""
+echo "Press Y to tag and push tags ..."
 while true; do
     read -n 1 -r input
     if [[ $input = "Y" || $input = "y" ]]; then
