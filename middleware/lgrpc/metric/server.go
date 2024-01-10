@@ -91,7 +91,8 @@ func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
 			serverStreamMsgSent.Add(ctx, 1, opt)
 		}
 		// 请求延迟直方图记录延迟
-		serverHandledHistogram.Record(ctx, time.Since(startTime).Seconds(), opt)
+		elapsedTime := float64(time.Since(startTime)) / float64(time.Millisecond)
+		serverHandledHistogram.Record(ctx, elapsedTime, opt)
 		// 请求计数器加1
 		serverHandledCounter.Add(ctx, 1, metric.WithAttributes(append(attrs, parseError(err))...))
 		return resp, err

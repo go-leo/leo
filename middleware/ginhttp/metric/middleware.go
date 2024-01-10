@@ -34,7 +34,8 @@ func Middleware(opts ...Option) gin.HandlerFunc {
 		Meter(kInstrumentationName).
 		Float64Histogram(
 			"http.server.latency",
-			metric.WithDescription("The HTTP request latencies in seconds."),
+			metric.WithDescription("The HTTP request latencies in milliseconds."),
+			metric.WithUnit("ms"),
 		)
 	if e != nil {
 		otel.Handle(e)
@@ -99,7 +100,8 @@ func Middleware(opts ...Option) gin.HandlerFunc {
 		opt := metric.WithAttributes(attrs...)
 
 		// 请求延迟直方图记录延迟
-		latencyHistogram.Record(c.Request.Context(), time.Since(startTime).Seconds(), opt)
+		elapsedTime := float64(time.Since(startTime)) / float64(time.Millisecond)
+		latencyHistogram.Record(c.Request.Context(), elapsedTime, opt)
 
 		// 请求计数器加1
 		requestCounter.Add(c.Request.Context(), 1, opt)
