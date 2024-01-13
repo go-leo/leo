@@ -8,9 +8,9 @@ import (
 
 type MetricHandler struct{}
 
-func (h *MetricHandler) Pattern() string { return "/metrics" }
+func (MetricHandler) Pattern() string { return "/metrics" }
 
-func (h *MetricHandler) Handle(writer http.ResponseWriter, request *http.Request) {
+func (MetricHandler) Handle(writer http.ResponseWriter, request *http.Request) {
 	handel := promhttp.Handler()
 	handel.ServeHTTP(writer, request)
 }

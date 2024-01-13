@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/middleware/ginhttp/log
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.17
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.17
+	codeup.aliyun.com/qimao/leo/leo v0.0.20
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.20
 	github.com/gin-gonic/gin v1.9.1
 
 )
@@ -28,10 +28,10 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	golang.org/x/arch v0.6.0 // indirect
-	golang.org/x/crypto v0.15.0 // indirect
-	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/arch v0.7.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

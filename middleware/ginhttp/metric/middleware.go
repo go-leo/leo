@@ -30,44 +30,42 @@ func Middleware(opts ...Option) gin.HandlerFunc {
 		skipMap[skip] = struct{}{}
 	}
 	// 请求延迟直方图
-	latencyHistogram, e := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	serverHandledHistogramOpts := []metric.Float64HistogramOption{
+		metric.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
+		metric.WithUnit("ms"),
+	}
+	if len(o.BucketBoundaries) > 0 {
+		serverHandledHistogramOpts = append(serverHandledHistogramOpts, metric.WithExplicitBucketBoundaries(o.BucketBoundaries...))
+	}
+	latencyHistogram, e := o.MeterProvider.Meter(kInstrumentationName).
 		Float64Histogram(
 			"http.server.latency",
-			metric.WithDescription("The HTTP request latencies in milliseconds."),
-			metric.WithUnit("ms"),
-		)
+			serverHandledHistogramOpts...)
 	if e != nil {
 		otel.Handle(e)
 		return func(context *gin.Context) {}
 	}
 	// 请求计数器
-	requestCounter, err := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	requestCounter, err := o.MeterProvider.Meter(kInstrumentationName).
 		Int64Counter(
 			"http.server.requests",
-			metric.WithDescription("How many HTTP requests processed, partitioned by status code and HTTP method."),
-		)
+			metric.WithDescription("How many HTTP requests processed, partitioned by status code and HTTP method."))
 	if err != nil {
 		otel.Handle(err)
 		return func(context *gin.Context) {}
 	}
 	// 请求大小
-	requestSizeCounter, err := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	requestSizeCounter, err := o.MeterProvider.Meter(kInstrumentationName).
 		Int64UpDownCounter("http.server.request.size.bytes",
-			metric.WithDescription("The HTTP request sizes in bytes."),
-		)
+			metric.WithDescription("The HTTP request sizes in bytes."))
 	if err != nil {
 		otel.Handle(err)
 		return func(context *gin.Context) {}
 	}
 	// 响应大小
-	responseSizeCounter, err := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	responseSizeCounter, err := o.MeterProvider.Meter(kInstrumentationName).
 		Int64UpDownCounter("http.server.response.size.bytes",
-			metric.WithDescription("The HTTP response sizes in bytes."),
-		)
+			metric.WithDescription("The HTTP response sizes in bytes."))
 	if err != nil {
 		otel.Handle(err)
 		return func(context *gin.Context) {}

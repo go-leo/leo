@@ -20,51 +20,46 @@ func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
 	for _, skip := range o.Skips {
 		skipMap[skip] = struct{}{}
 	}
-	// 请求延迟直方图
-	serverHandledHistogram, e := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
-		Float64Histogram(
-			"grpc.server.handling",
-			metric.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
-			metric.WithUnit("ms"),
-		)
-	if e != nil {
-		otel.Handle(e)
-		return noop.UnaryServerInterceptor()
-	}
 	// 请求计数器
-	serverStartedCounter, e := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	serverStartedCounter, e := o.MeterProvider.Meter(kInstrumentationName).
 		Int64Counter("grpc.server.started",
-			metric.WithDescription("Total number of RPCs started on the server."),
-		)
+			metric.WithDescription("Total number of RPCs started on the server."))
 	if e != nil {
 		otel.Handle(e)
 		return noop.UnaryServerInterceptor()
 	}
-	serverHandledCounter, e := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	serverHandledCounter, e := o.MeterProvider.Meter(kInstrumentationName).
 		Int64Counter("grpc.server.handled",
-			metric.WithDescription("Total number of RPCs completed on the server, regardless of success or failure."),
-		)
+			metric.WithDescription("Total number of RPCs completed on the server, regardless of success or failure."))
 	if e != nil {
 		otel.Handle(e)
 		return noop.UnaryServerInterceptor()
 	}
-	serverStreamMsgReceived, e := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	serverStreamMsgReceived, e := o.MeterProvider.Meter(kInstrumentationName).
 		Int64Counter("grpc.server.msg.received",
-			metric.WithDescription("Total number of RPC stream messages received on the server."),
-		)
+			metric.WithDescription("Total number of RPC stream messages received on the server."))
 	if e != nil {
 		otel.Handle(e)
 		return noop.UnaryServerInterceptor()
 	}
-	serverStreamMsgSent, e := otel.GetMeterProvider().
-		Meter(kInstrumentationName).
+	serverStreamMsgSent, e := o.MeterProvider.Meter(kInstrumentationName).
 		Int64Counter("grpc.server.msg.sent",
-			metric.WithDescription("Total number of gRPC stream messages sent by the server."),
-		)
+			metric.WithDescription("Total number of gRPC stream messages sent by the server."))
+	if e != nil {
+		otel.Handle(e)
+		return noop.UnaryServerInterceptor()
+	}
+	// 请求延迟直方图
+	serverHandledHistogramOpts := []metric.Float64HistogramOption{
+		metric.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
+		metric.WithUnit("ms"),
+	}
+	if len(o.BucketBoundaries) > 0 {
+		serverHandledHistogramOpts = append(serverHandledHistogramOpts, metric.WithExplicitBucketBoundaries(o.BucketBoundaries...))
+	}
+	serverHandledHistogram, e := o.MeterProvider.Meter(kInstrumentationName).
+		Float64Histogram("grpc.server.handling",
+			serverHandledHistogramOpts...)
 	if e != nil {
 		otel.Handle(e)
 		return noop.UnaryServerInterceptor()
