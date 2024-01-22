@@ -5,7 +5,7 @@ go 1.20
 require (
 	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.20
 	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d
-	github.com/mitchellh/mapstructure v1.5.0
+	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3

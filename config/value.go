@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
 	"time"
+
+	"github.com/go-viper/mapstructure/v2"
+	"github.com/spf13/cast"
 )
 
 type Value struct {
