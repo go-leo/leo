@@ -1,3 +1,10 @@
+## [0.1.0](https://codeup.aliyun.com/qimao/leo/leo/compare?from=v0.0.20&to=v0.1.0) (2024-01-23)
+
+
+### Features
+
+* Replace library github.com/mitchellh/mapstructure  with library github.com/go-viper/mapstructure/v2 ([77b1526](https://codeup.aliyun.com/qimao/leo/leo/commit/77b1526c3e908c60889f8ebc7730419225a789f9))
+
 ## [0.0.19](https://codeup.aliyun.com/qimao/leo/leo/compare?from=v0.0.18&to=v0.0.19) (2024-01-10)
 
 
