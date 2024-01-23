@@ -3,7 +3,7 @@ module codeup.aliyun.com/qimao/leo/leo/cmd/leo
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.20
+	codeup.aliyun.com/qimao/leo/leo v0.1.0
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/fatih/color v1.15.0
 	github.com/spf13/cobra v1.7.0

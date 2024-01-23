@@ -3,8 +3,8 @@ module codeup.aliyun.com/qimao/leo/leo/config/resource/file
 go 1.20
 
 require (
-	codeup.aliyun.com/qimao/leo/leo v0.0.20
-	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.0.20
+	codeup.aliyun.com/qimao/leo/leo v0.1.0
+	codeup.aliyun.com/qimao/leo/leo/internal/gox v0.1.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/stretchr/testify v1.8.4
 
@@ -16,7 +16,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3 // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
