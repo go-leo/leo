@@ -48,16 +48,16 @@ func NewScheduler(opts ...Option) *Scheduler {
 
 func (s *Scheduler) Run(ctx context.Context) error {
 	if !s.run.CompareAndSwap(false, true) {
-		return errors.New("scheduler is run")
+		return errors.New("scheduler is running")
 	}
 	s.alive.Store(true)
+	defer s.alive.Store(false)
 	s.mutex.RLock()
 	// 异步开启cron
 	s.startCron(ctx)
 	s.mutex.RUnlock()
 	// 等待context被cancel
 	<-ctx.Done()
-	s.alive.Store(false)
 	// 停止cron
 	s.stopCron(ctx)
 	return nil
@@ -124,10 +124,9 @@ func (s *Scheduler) stopCron(ctx context.Context) {
 	// 移除所有job
 	for _, job := range s.taskJobMap {
 		s.removeJob(job)
-		delete(s.taskJobMap, job.Task)
 	}
 	// 停止cron
-	s.cron.Stop()
+	<-s.cron.Stop().Done()
 }
 
 func (s *Scheduler) addJob(job *cronJob) error {
@@ -144,5 +143,5 @@ func (s *Scheduler) removeJob(job *cronJob) {
 }
 
 func (s *Scheduler) isAlive() bool {
-	return s.alive.Load()
+	return s.run.Load()
 }
