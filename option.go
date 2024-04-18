@@ -1,13 +1,14 @@
 package leo
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/runner"
 	"github.com/go-kit/kit/log"
 	"os"
 )
 
 type options struct {
 	Logger          log.Logger
-	Runners         []Runner
+	Runners         []runner.Runner
 	ShutdownSignals []os.Signal
 }
 
@@ -24,7 +25,7 @@ func (o *options) init() *options {
 
 type Option func(o *options)
 
-func Runners(runners ...Runner) Option {
+func Runners(runners ...runner.Runner) Option {
 	return func(o *options) {
 		o.Runners = append(o.Runners, runners...)
 	}

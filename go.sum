@@ -2,9 +2,16 @@ github.com/go-kit/kit v0.13.1-0.20231222231659-844c3d2de01a h1:1boDuzPkilGB/92Nz
 github.com/go-kit/kit v0.13.1-0.20231222231659-844c3d2de01a/go.mod h1:phqEHMMUbyrCFCTgH48JueqrM3md2HcAZ8N3XE4FKDg=
 github.com/go-kit/log v0.2.0 h1:7i2K3eKTos3Vc0enKCfnVcgHh2olr/MyfboYq7cAcFw=
 github.com/go-kit/log v0.2.0/go.mod h1:NwTd00d/i8cPZ3xOwwiv2PO5MOcx78fFErGNcVmBjv0=
+github.com/go-kit/log v0.2.1 h1:MRVx0/zhvdseW+Gza6N9rVzU/IVzaeE1SFI4raAhmBU=
+github.com/go-kit/log v0.2.1/go.mod h1:NwTd00d/i8cPZ3xOwwiv2PO5MOcx78fFErGNcVmBjv0=
 github.com/go-leo/gox v0.0.0-20230312082309-96ef649a7c13 h1:s8dYusJry4wRh6MdNre2C29ijlMIL4CPc9a6wU9Ivvg=
 github.com/go-leo/gox v0.0.0-20230312082309-96ef649a7c13/go.mod h1:UsIY9lRqa1dVdtyAOhqXVCT2n59rdtsI5WgOpHjWeRM=
+github.com/go-leo/gox v0.0.0-20240417094930-03361060714b h1:DEJjguEwuU+ii0fk+b4kj+UC9cnAajoEr1aiBSuJFUw=
+github.com/go-leo/gox v0.0.0-20240417094930-03361060714b/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240417113656-0151cf4f694b h1:eru+FVBJhyiIRyB9ja0ei2niZXUgc6/YN3FZHahUsaY=
+github.com/go-leo/gox v0.0.0-20240417113656-0151cf4f694b/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=
 github.com/go-logfmt/logfmt v0.5.1/go.mod h1:WYhtIu8zTZfxdn5+rREduYbwxfcBr/Vr6KEVveWlfTs=
 golang.org/x/sync v0.1.0 h1:wsuoTGHzEhffawBOhz5CYhcrV4IdKZbEyZjBMuTp12o=
 golang.org/x/sync v0.1.0/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+golang.org/x/sync v0.6.0/go.mod h1:Czt+wKu1gCyEFDUtn0jG5QVvpJ6rzVqr5aXyt9drQfk=

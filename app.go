@@ -1,9 +1,10 @@
 package leo
 
 import (
+	"codeup.aliyun.com/qimao/leo/leo/runner"
 	"context"
 	"fmt"
-	"github.com/go-kit/log"
+	"github.com/go-kit/kit/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,7 +16,7 @@ type App struct {
 
 func NewApp(opts ...Option) *App {
 	o := &options{
-		Runners:         []Runner{},
+		Runners:         []runner.Runner{},
 		ShutdownSignals: []os.Signal{syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT},
 		Logger:          log.NewLogfmtLogger(os.Stdout),
 	}
@@ -30,7 +31,7 @@ func (app *App) Run(ctx context.Context) error {
 	fmt.Println("=================================")
 	ctx, causeFunc := signal.NotifyContext(ctx, app.o.ShutdownSignals...)
 	defer causeFunc()
-	var runners []Runner
+	var runners []runner.Runner
 	runners = append(runners, app.o.Runners...)
-	return MutilRunner(runners...).Run(ctx)
+	return runner.MultiRunner(runners...).Run(ctx)
 }
