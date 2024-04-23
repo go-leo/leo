@@ -1,13 +1,9 @@
 package leo
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/runner"
 	"context"
-	"fmt"
-	"github.com/go-kit/kit/log"
-	"os"
+	"github.com/go-leo/leo/v3/runner"
 	"os/signal"
-	"syscall"
 )
 
 type App struct {
@@ -15,23 +11,22 @@ type App struct {
 }
 
 func NewApp(opts ...Option) *App {
-	o := &options{
-		Runners:         []runner.Runner{},
-		ShutdownSignals: []os.Signal{syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT},
-		Logger:          log.NewLogfmtLogger(os.Stdout),
-	}
-	return &App{o: o.apply(opts...).init()}
+	o := new(options).apply(opts...).init()
+	return &App{o: o}
 }
 
 // Run 启动app
 func (app *App) Run(ctx context.Context) error {
-	fmt.Println("=================================")
-	fmt.Println(`============  /\_/\  ============`)
-	fmt.Println(`============ (='.'=) ============`)
-	fmt.Println("=================================")
-	ctx, causeFunc := signal.NotifyContext(ctx, app.o.ShutdownSignals...)
-	defer causeFunc()
-	var runners []runner.Runner
-	runners = append(runners, app.o.Runners...)
-	return runner.MultiRunner(runners...).Run(ctx)
+	if app.o.Logger != nil {
+		app.o.Logger.Log("msg", `=================================`)
+		app.o.Logger.Log("msg", `============  /\_/\  ============`)
+		app.o.Logger.Log("msg", `============ (='.'=) ============`)
+		app.o.Logger.Log("msg", `=================================`)
+	}
+	if app.o.ShutdownSignals != nil {
+		var causeFunc context.CancelFunc
+		ctx, causeFunc = signal.NotifyContext(ctx, app.o.ShutdownSignals...)
+		defer causeFunc()
+	}
+	return runner.MultiRunner(app.o.Runners...).Run(ctx)
 }

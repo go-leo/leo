@@ -1,8 +1,8 @@
 package leo
 
 import (
-	"codeup.aliyun.com/qimao/leo/leo/runner"
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
+	"github.com/go-leo/leo/v3/runner"
 	"os"
 )
 

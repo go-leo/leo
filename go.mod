@@ -1,4 +1,4 @@
-module codeup.aliyun.com/qimao/leo/leo
+module github.com/go-leo/leo/v3
 
 go 1.20
 
@@ -8,7 +8,4 @@ require (
 	golang.org/x/sync v0.6.0
 )
 
-require (
-	github.com/go-kit/kit v0.13.1-0.20231222231659-844c3d2de01a
-	github.com/go-logfmt/logfmt v0.5.1 // indirect
-)
+require github.com/go-logfmt/logfmt v0.5.1 // indirect
