@@ -1,15 +1,13 @@
 package leo
 
 import (
-	"github.com/go-kit/log"
 	"github.com/go-leo/leo/v3/runner"
 	"os"
 )
 
 type options struct {
-	Logger          log.Logger
-	Runners         []runner.Runner
-	ShutdownSignals []os.Signal
+	Runners []runner.Runner
+	Signals []os.Signal
 }
 
 func (o *options) apply(opts ...Option) *options {
@@ -31,15 +29,9 @@ func Runners(runners ...runner.Runner) Option {
 	}
 }
 
-func Logger(l log.Logger) Option {
+// Signals 信号
+func Signals(signals ...os.Signal) Option {
 	return func(o *options) {
-		o.Logger = l
-	}
-}
-
-// ShutdownSignals 关闭信号
-func ShutdownSignals(signals ...os.Signal) Option {
-	return func(o *options) {
-		o.ShutdownSignals = signals
+		o.Signals = signals
 	}
 }

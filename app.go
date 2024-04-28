@@ -17,16 +17,11 @@ func NewApp(opts ...Option) *App {
 
 // Run 启动app
 func (app *App) Run(ctx context.Context) error {
-	if app.o.Logger != nil {
-		app.o.Logger.Log("msg", `=================================`)
-		app.o.Logger.Log("msg", `============  /\_/\  ============`)
-		app.o.Logger.Log("msg", `============ (='.'=) ============`)
-		app.o.Logger.Log("msg", `=================================`)
+	if app.o.Signals == nil {
+		return runner.MultiRunner(app.o.Runners...).Run(ctx)
 	}
-	if app.o.ShutdownSignals != nil {
-		var causeFunc context.CancelFunc
-		ctx, causeFunc = signal.NotifyContext(ctx, app.o.ShutdownSignals...)
-		defer causeFunc()
-	}
+	var causeFunc context.CancelFunc
+	ctx, causeFunc = signal.NotifyContext(ctx, app.o.Signals...)
+	defer causeFunc()
 	return runner.MultiRunner(app.o.Runners...).Run(ctx)
 }
