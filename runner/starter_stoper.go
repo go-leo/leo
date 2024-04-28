@@ -3,8 +3,8 @@ package runner
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/go-leo/gox/syncx/brave"
+	"github.com/go-leo/gox/syncx"
+	"golang.org/x/sync/errgroup"
 	"runtime"
 )
 
@@ -44,22 +44,16 @@ type startStopRunner struct {
 }
 
 func (r *startStopRunner) Run(ctx context.Context) error {
-	// 如果启动失败报错，error 发送到 startErrC
-	// 如果启动成功，startErrC 将会被关闭
-	startErrC := brave.GoE(
-		func() error { return r.startStopper.Start(ctx) },
-		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-	)
+	eg, ctx := errgroup.WithContext(ctx)
+	eg.Go(func() error { return r.startStopper.Start(ctx) })
 	runtime.Gosched()
+
 	select {
-	case startErr := <-startErrC:
-		return startErr
+	case err := <-syncx.WaitNotifyE(eg):
+		return err
 	case <-ctx.Done():
-		stopErrC := brave.GoE(
-			func() error { return r.startStopper.Stop(ctx) },
-			func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-		)
-		return errors.Join(ctx.Err(), <-stopErrC)
+		err := r.startStopper.Stop(ctx)
+		return errors.Join(ctx.Err(), err)
 	}
 }
 
@@ -74,97 +68,27 @@ type priorityStartStopRunner struct {
 }
 
 func (r *priorityStartStopRunner) Run(ctx context.Context) error {
-	dominantStartErrC, subordinateStartErrC := r.start(ctx)
-	// 等待信号
-	select {
-	case err := <-dominantStartErrC:
-		// 如果主要的执行失败，次要的要停止
-		if err != nil {
-			return errors.Join(err, <-r.stopSubordinate(ctx))
-		}
-		// 主要的执行完毕，等待次要
-		return r.waitSubordinate(ctx, subordinateStartErrC)
-	case err := <-subordinateStartErrC:
-		// 如果次要的执行失败，主要的也要停止
-		if err != nil {
-			return errors.Join(err, <-r.stopDominant(ctx))
-		}
-		// 次要的执行完毕，等待次要主要
-		return r.waitDominant(ctx, dominantStartErrC)
-	case <-ctx.Done():
-		subordinateStopErrC, dominantStopErrC := r.stop(ctx)
-		return errors.Join(ctx.Err(), <-subordinateStopErrC, <-subordinateStartErrC, <-dominantStopErrC, <-dominantStartErrC)
-	}
-}
-
-func (r *priorityStartStopRunner) waitDominant(ctx context.Context, errC <-chan error) error {
-	select {
-	case err := <-errC:
-		return err
-	case <-ctx.Done():
-		return errors.Join(ctx.Err(), <-r.stopDominant(ctx))
-	}
-}
-
-func (r *priorityStartStopRunner) waitSubordinate(ctx context.Context, errC <-chan error) error {
-	select {
-	case err := <-errC:
-		return err
-	case <-ctx.Done():
-		return errors.Join(ctx.Err(), <-r.stopSubordinate(ctx))
-	}
-}
-
-func (r *priorityStartStopRunner) start(ctx context.Context) (<-chan error, <-chan error) {
+	eg, ctx := errgroup.WithContext(ctx)
 	// 主要的先运行
-	dominantStartErrC := r.startDominant(ctx)
+	eg.Go(func() error { return r.dominant.Start(ctx) })
+	runtime.Gosched()
+
 	// 次要的后运行
-	runtime.Gosched()
-	subordinateStartErrC := r.startSubordinate(ctx)
-	return dominantStartErrC, subordinateStartErrC
-}
+	eg.Go(func() error {
+		runtime.Gosched()
+		return r.subordinate.Start(ctx)
+	})
 
-func (r *priorityStartStopRunner) stop(ctx context.Context) (<-chan error, <-chan error) {
-	// 次要的先停止
-	subordinateStopErrC := r.stopSubordinate(ctx)
-	// 主要的后停止
-	runtime.Gosched()
-	dominantStopErrC := r.stopDominant(ctx)
-	return subordinateStopErrC, dominantStopErrC
-}
-
-func (r *priorityStartStopRunner) startDominant(ctx context.Context) <-chan error {
-	return brave.GoE(
-		func() error { return r.dominant.Start(ctx) },
-		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-	)
-}
-
-func (r *priorityStartStopRunner) startSubordinate(ctx context.Context) <-chan error {
-	return brave.GoE(
-		func() error {
-			runtime.Gosched()
-			return r.subordinate.Start(ctx)
-		},
-		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-	)
-}
-
-func (r *priorityStartStopRunner) stopSubordinate(ctx context.Context) <-chan error {
-	return brave.GoE(
-		func() error { return r.subordinate.Stop(ctx) },
-		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-	)
-}
-
-func (r *priorityStartStopRunner) stopDominant(ctx context.Context) <-chan error {
-	return brave.GoE(
-		func() error {
-			runtime.Gosched()
-			return r.dominant.Stop(ctx)
-		},
-		func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-	)
+	select {
+	case err := <-syncx.WaitNotifyE(eg):
+		return err
+	case <-ctx.Done():
+		// 次要的先停止
+		subStopErr := r.subordinate.Stop(ctx)
+		// 主要的后停止
+		domStopErr := r.dominant.Stop(ctx)
+		return errors.Join(ctx.Err(), subStopErr, domStopErr)
+	}
 }
 
 // StartStopRunner 启动 StartStopper

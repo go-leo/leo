@@ -2,8 +2,6 @@ package runner
 
 import (
 	"context"
-	"fmt"
-	"github.com/go-leo/gox/syncx/brave"
 	"golang.org/x/sync/errgroup"
 	"runtime"
 )
@@ -18,20 +16,11 @@ type multiRunner struct {
 func (r *multiRunner) Run(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, runner := range r.runners {
-		eg.Go(doRun(ctx, runner))
+		runner := runner
+		eg.Go(func() error { return runner.Run(ctx) })
 		runtime.Gosched()
 	}
 	return eg.Wait()
-}
-
-// doRun 运行 Runner
-func doRun(ctx context.Context, runner Runner) func() error {
-	return func() error {
-		return brave.DoE(
-			func() error { return runner.Run(ctx) },
-			func(p any) error { return fmt.Errorf("panic triggered: %+v", p) },
-		)
-	}
 }
 
 // MultiRunner 多个 Runner 合并成一个 multiRunner,
