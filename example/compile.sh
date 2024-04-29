@@ -11,4 +11,7 @@ protoc \
 --leo-grpc_out=. \
 --leo-grpc_opt=paths=source_relative \
 --leo-grpc_opt=require_unimplemented_servers=false \
+--leo-http_out=. \
+--leo-http_opt=paths=source_relative \
+--leo-http_opt=require_unimplemented_servers=false \
 api/*/*.proto

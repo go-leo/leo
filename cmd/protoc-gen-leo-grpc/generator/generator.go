@@ -67,14 +67,14 @@ func (f *Generator) GenerateServer(service *internal.Service, generatedFile *pro
 		generatedFile.P()
 	}
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.UnexportedName(), " ", grpcTransportPackage.Ident("Handler"))
+		generatedFile.P(endpoint.UnexportedName(), " ", internal.GrpcTransportPackage.Ident("Handler"))
 		generatedFile.P()
 	}
 	generatedFile.P("}")
 	generatedFile.P()
 
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P("func (s *", service.UnexportedGRPCServerName(), ") ", endpoint.Name(), "(ctx ", contextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		generatedFile.P("func (s *", service.UnexportedGRPCServerName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 		generatedFile.P("ctx, rep, err := s.", endpoint.UnexportedName(), ".ServeGRPC(ctx, request)")
 		generatedFile.P("if err != nil {")
 		generatedFile.P("return nil, err")
@@ -91,19 +91,19 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 	generatedFile.P("func New", service.GRPCServerName(), "(")
 	generatedFile.P("endpoints interface {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "() ", endpointPackage.Ident("Endpoint"))
+		generatedFile.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	generatedFile.P("},")
-	generatedFile.P("mdw []", endpointPackage.Ident("Middleware"), ",")
-	generatedFile.P("opts ...", grpcTransportPackage.Ident("ServerOption"), ",")
+	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
+	generatedFile.P("opts ...", internal.GrpcTransportPackage.Ident("ServerOption"), ",")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "(ctx ", contextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	generatedFile.P("} {")
 	generatedFile.P("return &", service.UnexportedGRPCServerName(), "{")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.UnexportedName(), ":    ", grpcTransportPackage.Ident("NewServer"), "(", endpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), func(_ ", contextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", contextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", opts...),")
+		generatedFile.P(endpoint.UnexportedName(), ":    ", internal.GrpcTransportPackage.Ident("NewServer"), "(", internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", opts...),")
 	}
 	generatedFile.P("}")
 	generatedFile.P("}")
@@ -114,12 +114,12 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 func (f *Generator) GenerateClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
 	generatedFile.P("type ", service.UnexportedGRPCClientName(), " struct {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.UnexportedName(), " ", endpointPackage.Ident("Endpoint"))
+		generatedFile.P(endpoint.UnexportedName(), " ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	generatedFile.P("}")
 	generatedFile.P()
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P("func (c *", service.UnexportedGRPCClientName(), ") ", endpoint.Name(), "(ctx ", contextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		generatedFile.P("func (c *", service.UnexportedGRPCClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 		generatedFile.P("rep, err := c.", endpoint.UnexportedName(), "(ctx, request)")
 		generatedFile.P("if err != nil {")
 		generatedFile.P("return nil, err")
@@ -133,18 +133,18 @@ func (f *Generator) GenerateClient(service *internal.Service, generatedFile *pro
 
 func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
 	generatedFile.P("func New", service.GRPCClientName(), "(")
-	generatedFile.P("conn *", grpcPackage.Ident("ClientConn"), ",")
-	generatedFile.P("mdw []", endpointPackage.Ident("Middleware"), ",")
-	generatedFile.P("opts ...", grpcTransportPackage.Ident("ClientOption"), ",")
+	generatedFile.P("conn *", internal.GrpcPackage.Ident("ClientConn"), ",")
+	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
+	generatedFile.P("opts ...", internal.GrpcTransportPackage.Ident("ClientOption"), ",")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "(ctx ", contextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	generatedFile.P("} {")
 	generatedFile.P("return &", service.UnexportedGRPCClientName(), "{")
 	for _, endpoint := range service.Endpoints {
 		_ = endpoint
-		generatedFile.P(endpoint.UnexportedName(), ":    ", endpointxPackage.Ident("Chain"), "(", grpcTransportPackage.Ident("NewClient"), "(conn, ", strconv.Quote(service.FullName()), ",", strconv.Quote(endpoint.Name()), ", func(_ ", contextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", contextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }, ", endpoint.OutputGoIdent(), "{}, opts...).Endpoint(), mdw...),")
+		generatedFile.P(endpoint.UnexportedName(), ":    ", internal.EndpointxPackage.Ident("Chain"), "(", internal.GrpcTransportPackage.Ident("NewClient"), "(conn, ", strconv.Quote(service.FullName()), ",", strconv.Quote(endpoint.Name()), ", func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }, ", endpoint.OutputGoIdent(), "{}, opts...).Endpoint(), mdw...),")
 	}
 	generatedFile.P("}")
 	generatedFile.P("}")

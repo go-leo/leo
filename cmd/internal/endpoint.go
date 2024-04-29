@@ -1,12 +1,14 @@
 package internal
 
 import (
+	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
 	"strings"
 )
 
 type Endpoint struct {
-	method *protogen.Method
+	method    *protogen.Method
+	httpRules []*annotations.HttpRule
 }
 
 func (e Endpoint) Name() string {
@@ -51,6 +53,6 @@ func (e Endpoint) ServerStreamName() string {
 	return method.Parent.GoName + "_" + method.GoName + "Server"
 }
 
-func NewEndpoint(method *protogen.Method) *Endpoint {
-	return &Endpoint{method: method}
+func NewEndpoint(method *protogen.Method, httpRules []*annotations.HttpRule) *Endpoint {
+	return &Endpoint{method: method, httpRules: httpRules}
 }

@@ -45,10 +45,7 @@ func main() {
 	fmt.Println("UpdateUser:", updateUserResp)
 
 	getUserResp, err := client.GetUser(context.Background(), &demo.GetUserRequest{
-		Name:   "tom",
-		Age:    30,
-		Salary: 30000,
-		Token:  "4108475619",
+		UserId: randx.Uint64(),
 	})
 	if err != nil {
 		panic(err)
@@ -65,7 +62,7 @@ func main() {
 	fmt.Println("GetUsers:", getUsersResp)
 
 	deleteUserResp, err := client.DeleteUser(context.Background(), &demo.DeleteUsersRequest{
-		Name: "jax",
+		UserId: randx.Uint64(),
 	})
 	if err != nil {
 		panic(err)

@@ -50,15 +50,15 @@ func (f *Generator) GenerateEndpoints(service *internal.Service, generatedFile *
 	generatedFile.P()
 	generatedFile.P("svc interface {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "(ctx ", contextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	generatedFile.P("}")
 	generatedFile.P("}")
 	generatedFile.P()
 
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P("func (e *", service.UnexportedEndpointsName(), ") ", endpoint.Name(), "() ", endpointPackage.Ident("Endpoint"), "{")
-		generatedFile.P("return func(ctx ", contextPackage.Ident("Context"), ", request any) (any, error) {")
+		generatedFile.P("func (e *", service.UnexportedEndpointsName(), ") ", endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"), "{")
+		generatedFile.P("return func(ctx ", internal.ContextPackage.Ident("Context"), ", request any) (any, error) {")
 		generatedFile.P("return e.svc.", endpoint.Name(), "(ctx, request.(*", endpoint.InputGoIdent(), "))")
 		generatedFile.P("}")
 		generatedFile.P("}")
@@ -71,12 +71,12 @@ func (f *Generator) GenerateNewEndpoints(service *internal.Service, generatedFil
 	generatedFile.P("func New", service.EndpointsName(), "(")
 	generatedFile.P("svc interface {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "(ctx ", contextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	generatedFile.P("},")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "() ", endpointPackage.Ident("Endpoint"))
+		generatedFile.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	generatedFile.P("} {")
 	generatedFile.P("return &", service.UnexportedEndpointsName(), "{svc: svc}")

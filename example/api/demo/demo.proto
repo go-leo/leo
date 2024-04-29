@@ -3,27 +3,45 @@ package pb;
 option go_package = "github.com/go-leo/cqrs/example/api/demo;demo";
 
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 service DemoService {
 
   // CreateUser sync create user
   rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : "/v1/user"
+      body : "*"
+    };
   }
 
   // UpdateUser sync update user
   rpc UpdateUser (UpdateUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : "/v1/user/{user_id}"
+      body : "*"
+    };
   }
 
   // GetUser sync get user
   rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get : "/v1/user/{user_id}"
+    };
   }
 
   // GetUsers sync get users
   rpc GetUsers (GetUsersRequest) returns (GetUsersResponse) {
+    option (google.api.http) = {
+      get : "/v1/users"
+    };
   }
 
   // DeleteUser sync delete user
   rpc DeleteUser (DeleteUsersRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : "/v1/user/{user_id}"
+    };
   }
 
 }
@@ -36,24 +54,23 @@ message CreateUserRequest {
 }
 
 message UpdateUserRequest {
-  string name = 1;
-  int32 age = 2;
-  double salary = 3;
-  string Token = 4;
+  uint64 user_id = 1;
+  string name = 2;
+  int32 age = 3;
+  double salary = 4;
+  string Token = 5;
 }
 
 message GetUserRequest {
-  string name = 1;
-  int32 age = 2;
-  double salary = 3;
-  string Token = 4;
+  uint64 user_id = 1;
 }
 
 message GetUserResponse {
-  string name = 1;
-  int32 age = 2;
-  double salary = 3;
-  string Token = 4;
+  uint64 user_id = 1;
+  string name = 2;
+  int32 age = 3;
+  double salary = 4;
+  string Token = 5;
 }
 
 message GetUsersRequest {
@@ -63,33 +80,15 @@ message GetUsersRequest {
 
 message GetUsersResponse {
   message User {
-    string name = 1;
-    int32 age = 2;
-    double salary = 3;
-    string Token = 4;
+    uint64 user_id = 1;
+    string name = 2;
+    int32 age = 3;
+    double salary = 4;
+    string Token = 5;
   }
   repeated User users = 1;
 }
 
 message DeleteUsersRequest {
-  string name = 1;
-}
-
-message AsyncGetUsersRequest {
-  int32 page_no = 1;
-  int32 page_size = 2;
-}
-
-message AsyncGetUsersResponse {
-  message User {
-    string name = 1;
-    int32 age = 2;
-    double salary = 3;
-    string Token = 4;
-  }
-  repeated User users = 1;
-}
-
-message AsyncDeleteUsersRequest {
-  repeated string names = 1;
+  uint64 user_id = 1;
 }
