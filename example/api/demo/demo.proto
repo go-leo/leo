@@ -1,0 +1,95 @@
+syntax = "proto3";
+package pb;
+option go_package = "github.com/go-leo/cqrs/example/api/demo;demo";
+
+import "google/protobuf/empty.proto";
+
+service DemoService {
+
+  // CreateUser sync create user
+  rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {
+  }
+
+  // UpdateUser sync update user
+  rpc UpdateUser (UpdateUserRequest) returns (google.protobuf.Empty) {
+  }
+
+  // GetUser sync get user
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+  }
+
+  // GetUsers sync get users
+  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse) {
+  }
+
+  // DeleteUser sync delete user
+  rpc DeleteUser (DeleteUsersRequest) returns (google.protobuf.Empty) {
+  }
+
+}
+
+message CreateUserRequest {
+  string name = 1;
+  int32 age = 2;
+  double salary = 3;
+  string Token = 4;
+}
+
+message UpdateUserRequest {
+  string name = 1;
+  int32 age = 2;
+  double salary = 3;
+  string Token = 4;
+}
+
+message GetUserRequest {
+  string name = 1;
+  int32 age = 2;
+  double salary = 3;
+  string Token = 4;
+}
+
+message GetUserResponse {
+  string name = 1;
+  int32 age = 2;
+  double salary = 3;
+  string Token = 4;
+}
+
+message GetUsersRequest {
+  int32 page_no = 1;
+  int32 page_size = 2;
+}
+
+message GetUsersResponse {
+  message User {
+    string name = 1;
+    int32 age = 2;
+    double salary = 3;
+    string Token = 4;
+  }
+  repeated User users = 1;
+}
+
+message DeleteUsersRequest {
+  string name = 1;
+}
+
+message AsyncGetUsersRequest {
+  int32 page_no = 1;
+  int32 page_size = 2;
+}
+
+message AsyncGetUsersResponse {
+  message User {
+    string name = 1;
+    int32 age = 2;
+    double salary = 3;
+    string Token = 4;
+  }
+  repeated User users = 1;
+}
+
+message AsyncDeleteUsersRequest {
+  repeated string names = 1;
+}
