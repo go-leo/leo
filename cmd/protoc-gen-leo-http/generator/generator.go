@@ -1,9 +1,13 @@
 package generator
 
 import (
+	"fmt"
+	"github.com/go-leo/gox/slicex"
 	"github.com/go-leo/leo/v3/cmd/internal"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"strconv"
+	"strings"
 )
 
 type Generator struct {
@@ -68,9 +72,107 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 		for _, httpRule := range endpoint.HttpRules() {
 			method := httpRule.Method()
 			path := httpRule.Path()
-			path, _, _ = internal.RegularizePath(path)
-			generatedFile.P("r.Methods(", strconv.Quote(method), ").Path(", strconv.Quote(path), ").Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(", internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ", "nil, nil, opts...)", ")")
-			//  func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", opts...),")
+			// 调整路径，来适应 github.com/gorilla/mux 路由规则
+			path, names, template, namedPathParameters := httpRule.RegularizePath(path)
+			_ = template
+			generatedFile.P("r.Methods(", strconv.Quote(method), ").")
+			generatedFile.P("Path(", strconv.Quote(path), ").")
+			generatedFile.P("Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(")
+			generatedFile.P(internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ")
+			generatedFile.P("func(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.HttpPackage.Ident("Request"), ") (any, error) {")
+			generatedFile.P("var req *", endpoint.InputGoIdent())
+
+			// body arguments
+			{
+				switch httpRule.Body() {
+				case "":
+				case "*":
+				default:
+				}
+			}
+			// path arguments
+			{
+				pathParameters := httpRule.PathParameters(path)
+				if len(pathParameters) > 0 {
+					generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
+					// 命名路径参数设值
+					if len(namedPathParameters) > 0 {
+						errNotFoundField := fmt.Errorf("%s, failed to find field %s", endpoint.FullName(), strings.Join(names, "."))
+						errInvalidType := fmt.Errorf("%s, %s field type invalid", endpoint.FullName(), strings.Join(names, "."))
+
+						inMessage := endpoint.Input()
+						var fields []*protogen.Field
+						for i := 0; i < len(names)-1; i++ {
+							name := names[i]
+							field := internal.FindField(name, inMessage)
+							if field == nil {
+								return errNotFoundField
+							}
+							if field.Desc.Kind() != protoreflect.MessageKind {
+								return errInvalidType
+							}
+							fields = append(fields, field)
+							inMessage = field.Message
+							var fieldNames []string
+							for _, p := range fields {
+								fieldNames = append(fieldNames, p.GoName)
+							}
+							fullFieldName := strings.Join(fieldNames, ".")
+							generatedFile.P("if req.", fullFieldName, " == nil {")
+							generatedFile.P("req.", fullFieldName, " = &", field.Message.GoIdent, "{}")
+							generatedFile.P("}")
+						}
+						field := internal.FindField(names[len(names)-1], inMessage)
+						if field == nil {
+							generatedFile.P("// 142")
+							return errNotFoundField
+						}
+						var fieldNames []string
+						for _, p := range fields {
+							fieldNames = append(fieldNames, p.GoName)
+						}
+						fieldNames = append(fieldNames, field.GoName)
+						fullFieldName := strings.Join(fieldNames, ".")
+
+						fmtSeg := []any{internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote(template)}
+						for _, namedPathParameter := range namedPathParameters {
+							fmtSeg = append(fmtSeg, ", vars[", strconv.Quote(namedPathParameter), "]")
+						}
+						switch field.Desc.Kind() {
+						case protoreflect.StringKind:
+						case protoreflect.BytesKind:
+							fmtSeg = slicex.Prepend(append(fmtSeg, ")"), "[]byte(")
+						default:
+							return errInvalidType
+						}
+						line := []any{"req.", fullFieldName, " = "}
+						line = append(line, fmtSeg...)
+						line = append(line, ")")
+						generatedFile.P(line...)
+					}
+					// 普通路径参数设值
+					// 去掉命名路径参数
+					pathParameters := slicex.Difference(pathParameters, namedPathParameters)
+					for _, pathParameter := range pathParameters {
+						field := internal.FindField(pathParameter, endpoint.Input())
+						generatedFile.P("req.", field.GoName, " = vars[", strconv.Quote(pathParameter), "]")
+					}
+				}
+			}
+
+			// query arguments
+			{
+
+			}
+
+			generatedFile.P("return nil, nil")
+			generatedFile.P("},")
+			generatedFile.P("func(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", resp any) error {")
+			generatedFile.P("return nil")
+			generatedFile.P("},")
+			generatedFile.P("opts...,")
+			generatedFile.P("))")
+
 		}
 	}
 	generatedFile.P("return r")

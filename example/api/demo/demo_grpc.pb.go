@@ -20,11 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DemoService_CreateUser_FullMethodName = "/pb.DemoService/CreateUser"
-	DemoService_UpdateUser_FullMethodName = "/pb.DemoService/UpdateUser"
-	DemoService_GetUser_FullMethodName    = "/pb.DemoService/GetUser"
-	DemoService_GetUsers_FullMethodName   = "/pb.DemoService/GetUsers"
-	DemoService_DeleteUser_FullMethodName = "/pb.DemoService/DeleteUser"
+	DemoService_CreateUser_FullMethodName = "/leo.example.demo.v1.DemoService/CreateUser"
+	DemoService_UpdateUser_FullMethodName = "/leo.example.demo.v1.DemoService/UpdateUser"
+	DemoService_GetUser_FullMethodName    = "/leo.example.demo.v1.DemoService/GetUser"
+	DemoService_GetUsers_FullMethodName   = "/leo.example.demo.v1.DemoService/GetUsers"
+	DemoService_DeleteUser_FullMethodName = "/leo.example.demo.v1.DemoService/DeleteUser"
 )
 
 // DemoServiceClient is the client API for DemoService service.
@@ -237,7 +237,7 @@ func _DemoService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var DemoService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.DemoService",
+	ServiceName: "leo.example.demo.v1.DemoService",
 	HandlerType: (*DemoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
 	"net/http"
@@ -14,6 +16,10 @@ type Endpoint struct {
 
 func (e Endpoint) Name() string {
 	return e.method.GoName
+}
+
+func (e Endpoint) FullName() string {
+	return fmt.Sprintf("/%s/%s", e.method.Parent.Desc.FullName(), e.method.Desc.Name())
 }
 
 func (e Endpoint) UnexportedName() string {
@@ -39,6 +45,14 @@ func (e Endpoint) ResponseName() string {
 
 func (e Endpoint) IsStreamingServer() bool {
 	return e.method.Desc.IsStreamingServer()
+}
+
+func (e Endpoint) Input() *protogen.Message {
+	return e.method.Input
+}
+
+func (e Endpoint) Output() *protogen.Message {
+	return e.method.Output
 }
 
 func (e Endpoint) InputGoIdent() protogen.GoIdent {
@@ -106,4 +120,50 @@ func (r *HttpRule) Path() string {
 	default:
 		return ""
 	}
+}
+
+func (r *HttpRule) RegularizePath(path string) (string, []string, string, []string) {
+	var name string
+	var parameters []string
+	var template string
+	// Find named path parameters like {name=shelves/*}
+	if matches := namedPathPattern.FindStringSubmatch(path); matches != nil {
+		name = matches[1]
+		starredPath := matches[2]
+		parts := strings.Split(starredPath, "/")
+		newParts := slices.Clone(parts)
+		templateParts := slices.Clone(parts)
+		// "things/*/otherthings/*" => "things/{thingsId}/otherthings/{otherthingsId}"
+		for i := 0; i < len(parts)-1; i += 2 {
+			namedPathParameter := singular(newParts[i])
+			newParts[i+1] = "{" + namedPathParameter + "}"
+			templateParts[i+1] = "%s"
+			parameters = append(parameters, namedPathParameter)
+		}
+		newPath := strings.Join(newParts, "/")
+		template = strings.Join(templateParts, "/")
+		path = strings.Replace(path, matches[0], newPath, 1)
+	}
+	return path, strings.Split(name, "."), template, parameters
+}
+
+func (r *HttpRule) PathParameters(path string) []string {
+	// Find simple path parameters like {id}
+	var parameters []string
+	if allMatches := pathPattern.FindAllStringSubmatch(path, -1); allMatches != nil {
+		for _, matches := range allMatches {
+			pathParameter := matches[1]
+			parameters = append(parameters, pathParameter)
+			path = strings.Replace(path, matches[1], pathParameter, 1)
+		}
+	}
+	return parameters
+}
+
+func (r *HttpRule) Body() string {
+	return r.rule.GetBody()
+}
+
+func (r *HttpRule) ResponseBody() string {
+	return r.rule.GetResponseBody()
 }

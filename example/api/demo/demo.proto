@@ -1,6 +1,6 @@
 syntax = "proto3";
-package pb;
-option go_package = "github.com/go-leo/cqrs/example/api/demo;demo";
+package leo.example.demo.v1;
+option go_package = "github.com/go-leo/leo/example/api/demo/v1;demo";
 
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";

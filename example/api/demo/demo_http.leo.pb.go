@@ -3,7 +3,7 @@
 package demo
 
 import (
-	"context"
+	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/kitx/endpointx"
@@ -27,23 +27,72 @@ func NewDemoServiceHTTPServer(
 		Path("/v1/user").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateUser(), mdw...),
-			nil,
-			nil,
-			opts...))
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				var req *CreateUserRequest
+				return nil, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+				return nil
+			},
+			opts...,
+		))
 	r.Methods("POST").
 		Path("/v1/user/{user_id}").
-		Handler(
-			http.NewServer(endpointx.Chain(endpoints.UpdateUser(), mdw...),
-				func(ctx context.Context, request2 *http1.Request) (request interface{}, err error) {
-					return nil, nil
-				},
-				func(ctx context.Context, writer http1.ResponseWriter, i interface{}) error {
-					return nil
-				},
-				opts...,
-			))
-	r.Methods("GET").Path("/v1/user/{user_id}").Handler(http.NewServer(endpointx.Chain(endpoints.GetUser(), mdw...), nil, nil, opts...))
-	r.Methods("GET").Path("/v1/users").Handler(http.NewServer(endpointx.Chain(endpoints.GetUsers(), mdw...), nil, nil, opts...))
-	r.Methods("DELETE").Path("/v1/user/{user_id}").Handler(http.NewServer(endpointx.Chain(endpoints.DeleteUser(), mdw...), nil, nil, opts...))
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.UpdateUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				var req *UpdateUserRequest
+				vars := mux.Vars(r)
+				req.UserId = vars["user_id"]
+				return nil, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+				return nil
+			},
+			opts...,
+		))
+	r.Methods("GET").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.GetUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				var req *GetUserRequest
+				vars := mux.Vars(r)
+				req.UserId = vars["user_id"]
+				return nil, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+				return nil
+			},
+			opts...,
+		))
+	r.Methods("GET").
+		Path("/v1/users").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.GetUsers(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				var req *GetUsersRequest
+				return nil, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+				return nil
+			},
+			opts...,
+		))
+	r.Methods("DELETE").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.DeleteUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				var req *DeleteUsersRequest
+				vars := mux.Vars(r)
+				req.UserId = vars["user_id"]
+				return nil, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+				return nil
+			},
+			opts...,
+		))
 	return r
 }

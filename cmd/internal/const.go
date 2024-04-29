@@ -15,7 +15,9 @@ var (
 	StatusPackage        = protogen.GoImportPath("google.golang.org/grpc/status")
 	MuxPackage           = protogen.GoImportPath("github.com/gorilla/mux")
 	HttpPackage          = protogen.GoImportPath("net/http")
+	FmtPackage           = protogen.GoImportPath("fmt")
 )
 var (
 	namedPathPattern = regexp.MustCompile("{(.+)=(.+)}")
+	pathPattern      = regexp.MustCompile("{([^=}]+)}")
 )

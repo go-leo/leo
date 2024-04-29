@@ -182,7 +182,7 @@ func NewDemoServiceGRPCClient(
 		createUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"pb.DemoService",
+				"leo.example.demo.v1.DemoService",
 				"CreateUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -193,7 +193,7 @@ func NewDemoServiceGRPCClient(
 		updateUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"pb.DemoService",
+				"leo.example.demo.v1.DemoService",
 				"UpdateUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -204,7 +204,7 @@ func NewDemoServiceGRPCClient(
 		getUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"pb.DemoService",
+				"leo.example.demo.v1.DemoService",
 				"GetUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -215,7 +215,7 @@ func NewDemoServiceGRPCClient(
 		getUsers: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"pb.DemoService",
+				"leo.example.demo.v1.DemoService",
 				"GetUsers",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -226,7 +226,7 @@ func NewDemoServiceGRPCClient(
 		deleteUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"pb.DemoService",
+				"leo.example.demo.v1.DemoService",
 				"DeleteUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
