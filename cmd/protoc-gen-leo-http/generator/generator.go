@@ -3,6 +3,7 @@ package generator
 import (
 	"github.com/go-leo/leo/v3/cmd/internal"
 	"google.golang.org/protobuf/compiler/protogen"
+	"strconv"
 )
 
 type Generator struct {
@@ -61,16 +62,18 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 	generatedFile.P("},")
 	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P("opts ...", internal.HttpTransportPackage.Ident("ServerOption"), ",")
-	generatedFile.P(") interface {")
+	generatedFile.P(") ", internal.HttpPackage.Ident("Handler"), " {")
+	generatedFile.P("r := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+		for _, httpRule := range endpoint.HttpRules() {
+			method := httpRule.Method()
+			path := httpRule.Path()
+			path, _, _ = internal.RegularizePath(path)
+			generatedFile.P("r.Methods(", strconv.Quote(method), ").Path(", strconv.Quote(path), ").Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(", internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ", "nil, nil, opts...)", ")")
+			//  func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", opts...),")
+		}
 	}
-	generatedFile.P("} {")
-	generatedFile.P("return &", service.UnexportedGRPCServerName(), "{")
-	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.UnexportedName(), ":    ", internal.HttpTransportPackage.Ident("NewServer"), "(", internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ", "func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", opts...),")
-	}
-	generatedFile.P("}")
+	generatedFile.P("return r")
 	generatedFile.P("}")
 	generatedFile.P()
 	return nil

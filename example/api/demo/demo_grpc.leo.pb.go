@@ -86,11 +86,36 @@ func NewDemoServiceGRPCServer(
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 } {
 	return &gRPCDemoServiceServer{
-		createUser: grpc.NewServer(endpointx.Chain(endpoints.CreateUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		updateUser: grpc.NewServer(endpointx.Chain(endpoints.UpdateUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		getUser:    grpc.NewServer(endpointx.Chain(endpoints.GetUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		getUsers:   grpc.NewServer(endpointx.Chain(endpoints.GetUsers(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		deleteUser: grpc.NewServer(endpointx.Chain(endpoints.DeleteUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
+		createUser: grpc.NewServer(
+			endpointx.Chain(endpoints.CreateUser(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		updateUser: grpc.NewServer(
+			endpointx.Chain(endpoints.UpdateUser(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		getUser: grpc.NewServer(
+			endpointx.Chain(endpoints.GetUser(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		getUsers: grpc.NewServer(
+			endpointx.Chain(endpoints.GetUsers(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		deleteUser: grpc.NewServer(
+			endpointx.Chain(endpoints.DeleteUser(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
 	}
 }
 
@@ -154,10 +179,60 @@ func NewDemoServiceGRPCClient(
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 } {
 	return &gRPCDemoServiceClient{
-		createUser: endpointx.Chain(grpc.NewClient(conn, "pb.DemoService", "CreateUser", func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, emptypb.Empty{}, opts...).Endpoint(), mdw...),
-		updateUser: endpointx.Chain(grpc.NewClient(conn, "pb.DemoService", "UpdateUser", func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, emptypb.Empty{}, opts...).Endpoint(), mdw...),
-		getUser:    endpointx.Chain(grpc.NewClient(conn, "pb.DemoService", "GetUser", func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, GetUserResponse{}, opts...).Endpoint(), mdw...),
-		getUsers:   endpointx.Chain(grpc.NewClient(conn, "pb.DemoService", "GetUsers", func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, GetUsersResponse{}, opts...).Endpoint(), mdw...),
-		deleteUser: endpointx.Chain(grpc.NewClient(conn, "pb.DemoService", "DeleteUser", func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, emptypb.Empty{}, opts...).Endpoint(), mdw...),
+		createUser: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"pb.DemoService",
+				"CreateUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		updateUser: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"pb.DemoService",
+				"UpdateUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getUser: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"pb.DemoService",
+				"GetUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				GetUserResponse{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getUsers: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"pb.DemoService",
+				"GetUsers",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				GetUsersResponse{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		deleteUser: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"pb.DemoService",
+				"DeleteUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
 	}
 }

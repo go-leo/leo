@@ -1,6 +1,9 @@
 package internal
 
-import "google.golang.org/protobuf/compiler/protogen"
+import (
+	"google.golang.org/protobuf/compiler/protogen"
+	"regexp"
+)
 
 var (
 	ContextPackage       = protogen.GoImportPath("context")
@@ -10,4 +13,9 @@ var (
 	GrpcPackage          = protogen.GoImportPath("google.golang.org/grpc")
 	EndpointxPackage     = protogen.GoImportPath("github.com/go-leo/kitx/endpointx")
 	StatusPackage        = protogen.GoImportPath("google.golang.org/grpc/status")
+	MuxPackage           = protogen.GoImportPath("github.com/gorilla/mux")
+	HttpPackage          = protogen.GoImportPath("net/http")
+)
+var (
+	namedPathPattern = regexp.MustCompile("{(.+)=(.+)}")
 )

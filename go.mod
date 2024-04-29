@@ -10,6 +10,7 @@ require (
 	github.com/go-leo/gors v1.5.0
 	github.com/go-leo/gox v0.0.0-20240424095953-68bffa755bc0
 	github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390
+	github.com/gorilla/mux v1.8.1
 	golang.org/x/sync v0.6.0
 	google.golang.org/genproto v0.0.0-20240205150955-31a09d347014
 	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe

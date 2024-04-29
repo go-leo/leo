@@ -3,11 +3,12 @@
 package demo
 
 import (
-	context "context"
+	"context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/kitx/endpointx"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	mux "github.com/gorilla/mux"
+	http1 "net/http"
 )
 
 func NewDemoServiceHTTPServer(
@@ -20,18 +21,29 @@ func NewDemoServiceHTTPServer(
 	},
 	mdw []endpoint.Middleware,
 	opts ...http.ServerOption,
-) interface {
-	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-} {
-	return &gRPCDemoServiceServer{
-		createUser: http.NewServer(endpointx.Chain(endpoints.CreateUser(), mdw...), f, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		updateUser: http.NewServer(endpointx.Chain(endpoints.UpdateUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		getUser:    http.NewServer(endpointx.Chain(endpoints.GetUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		getUsers:   http.NewServer(endpointx.Chain(endpoints.GetUsers(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-		deleteUser: http.NewServer(endpointx.Chain(endpoints.DeleteUser(), mdw...), func(_ context.Context, v any) (any, error) { return v, nil }, func(_ context.Context, v any) (any, error) { return v, nil }, opts...),
-	}
+) http1.Handler {
+	r := mux.NewRouter()
+	r.Methods("POST").
+		Path("/v1/user").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.CreateUser(), mdw...),
+			nil,
+			nil,
+			opts...))
+	r.Methods("POST").
+		Path("/v1/user/{user_id}").
+		Handler(
+			http.NewServer(endpointx.Chain(endpoints.UpdateUser(), mdw...),
+				func(ctx context.Context, request2 *http1.Request) (request interface{}, err error) {
+					return nil, nil
+				},
+				func(ctx context.Context, writer http1.ResponseWriter, i interface{}) error {
+					return nil
+				},
+				opts...,
+			))
+	r.Methods("GET").Path("/v1/user/{user_id}").Handler(http.NewServer(endpointx.Chain(endpoints.GetUser(), mdw...), nil, nil, opts...))
+	r.Methods("GET").Path("/v1/users").Handler(http.NewServer(endpointx.Chain(endpoints.GetUsers(), mdw...), nil, nil, opts...))
+	r.Methods("DELETE").Path("/v1/user/{user_id}").Handler(http.NewServer(endpointx.Chain(endpoints.DeleteUser(), mdw...), nil, nil, opts...))
+	return r
 }
