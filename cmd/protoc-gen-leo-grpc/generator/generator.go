@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-grpc/generator/internal"
+	"github.com/go-leo/leo/v3/cmd/internal"
 	"google.golang.org/protobuf/compiler/protogen"
 	"strconv"
 )

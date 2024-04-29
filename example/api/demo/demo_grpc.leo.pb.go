@@ -142,7 +142,7 @@ func (c *gRPCDemoServiceClient) DeleteUser(ctx context.Context, request *DeleteU
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewDemoServiceClientServer(
+func NewDemoServiceGRPCClient(
 	conn *grpc1.ClientConn,
 	mdw []endpoint.Middleware,
 	opts ...grpc.ClientOption,

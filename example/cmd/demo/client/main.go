@@ -4,8 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/go-leo/cqrs/example/api/demo"
+	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/gox/mathx/randx"
+	"github.com/go-leo/leo/v3/example/api/demo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -19,7 +20,7 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	client := demo.NewDemoServiceClient(conn)
+	client := demo.NewDemoServiceGRPCClient(conn, []endpoint.Middleware{})
 
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		Name:   randx.HexString(12),
@@ -70,32 +71,5 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("DeleteUser:", deleteUserResp)
-
-	asyncGetUsersRespStream, err := client.AsyncGetUsers(context.Background(), &demo.AsyncGetUsersRequest{
-		PageNo:   1,
-		PageSize: 10,
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("AsyncGetUsers wait...")
-	asyncGetUsersResp, err := asyncGetUsersRespStream.Recv()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("AsyncGetUsers:", asyncGetUsersResp)
-
-	asyncDeleteUsersStream, err := client.AsyncDeleteUsers(context.Background(), &demo.AsyncDeleteUsersRequest{
-		Names: []string{"jax", "tom", "jerry"},
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("AsyncDeleteUsers wait...")
-	asyncDeleteUsersResp, err := asyncDeleteUsersStream.Recv()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("AsyncDeleteUsers:", asyncDeleteUsersResp)
 
 }

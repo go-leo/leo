@@ -29,7 +29,7 @@ func (s Service) GRPCServerName() interface{} {
 }
 
 func (s Service) GRPCClientName() interface{} {
-	return s.Name() + "ClientServer"
+	return s.Name() + "GRPCClient"
 }
 
 func (s Service) UnexportedGRPCServerName() interface{} {
@@ -50,6 +50,14 @@ func (s Service) UnimplementedServerName() string {
 
 func (s Service) FullName() string {
 	return string(s.Service.Desc.FullName())
+}
+
+func (s Service) EndpointsName() interface{} {
+	return s.UnexportedName() + "Endpoints"
+}
+
+func (s Service) UnexportedEndpointsName() interface{} {
+	return s.UnexportedName() + "Endpoints"
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {
