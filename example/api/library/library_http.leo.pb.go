@@ -7,9 +7,12 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
-	endpointx "github.com/go-leo/kitx/endpointx"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	protojson "google.golang.org/protobuf/encoding/protojson"
+	io "io"
 	http1 "net/http"
+	strconv "strconv"
 )
 
 func NewLibraryServiceHTTPServer(
@@ -35,8 +38,13 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *CreateShelfRequest
-				return nil, nil
+				req := &CreateShelfRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				// message
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -48,10 +56,10 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *GetShelfRequest
+				req := &GetShelfRequest{}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -63,8 +71,15 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.ListShelves(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *ListShelvesRequest
-				return nil, nil
+				req := &ListShelvesRequest{}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseInt(queries.Get("page_size"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.PageSize = int32(v)
+				}
+				req.PageToken = queries.Get("page_token")
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -76,10 +91,10 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.DeleteShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *DeleteShelfRequest
+				req := &DeleteShelfRequest{}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -91,10 +106,17 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.MergeShelves(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *MergeShelvesRequest
+				req := &MergeShelvesRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -106,10 +128,15 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *CreateBookRequest
+				req := &CreateBookRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				// message
 				vars := mux.Vars(r)
 				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -121,10 +148,10 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *GetBookRequest
+				req := &GetBookRequest{}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -136,10 +163,17 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.ListBooks(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *ListBooksRequest
+				req := &ListBooksRequest{}
 				vars := mux.Vars(r)
 				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
-				return nil, nil
+				queries := r.URL.Query()
+				if v, err := strconv.ParseInt(queries.Get("page_size"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.PageSize = int32(v)
+				}
+				req.PageToken = queries.Get("page_token")
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -151,10 +185,10 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.DeleteBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *DeleteBookRequest
+				req := &DeleteBookRequest{}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -166,13 +200,20 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UpdateBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *UpdateBookRequest
+				req := &UpdateBookRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				// message
 				vars := mux.Vars(r)
 				if req.Book == nil {
 					req.Book = &Book{}
 				}
 				req.Book.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
-				return nil, nil
+				queries := r.URL.Query()
+				// message
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -184,10 +225,17 @@ func NewLibraryServiceHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.MoveBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *MoveBookRequest
+				req := &MoveBookRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil

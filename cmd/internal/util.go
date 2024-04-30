@@ -62,3 +62,12 @@ func GetMessageName(message protoreflect.MessageDescriptor) string {
 	}
 	return prefix + string(message.Name())
 }
+
+func FullFieldName(fields []*protogen.Field) string {
+	var fieldNames []string
+	for _, p := range fields {
+		fieldNames = append(fieldNames, p.GoName)
+	}
+	fullFieldName := strings.Join(fieldNames, ".")
+	return fullFieldName
+}

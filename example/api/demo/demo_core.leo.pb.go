@@ -5,6 +5,8 @@ package demo
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
+	http "google.golang.org/genproto/googleapis/rpc/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -15,6 +17,11 @@ type demoServiceEndpoints struct {
 		GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
 		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+		UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
+		UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
+		PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error)
 	}
 }
 
@@ -48,6 +55,36 @@ func (e *demoServiceEndpoints) DeleteUser() endpoint.Endpoint {
 	}
 }
 
+func (e *demoServiceEndpoints) UpdateUserName() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.UpdateUserName(ctx, request.(*UpdateUserNameRequest))
+	}
+}
+
+func (e *demoServiceEndpoints) UploadUsers() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.UploadUsers(ctx, request.(*httpbody.HttpBody))
+	}
+}
+
+func (e *demoServiceEndpoints) UploadUserAvatar() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.UploadUserAvatar(ctx, request.(*UploadUserAvatarRequest))
+	}
+}
+
+func (e *demoServiceEndpoints) PushUsers() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.PushUsers(ctx, request.(*http.HttpRequest))
+	}
+}
+
+func (e *demoServiceEndpoints) PushUserAvatar() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.PushUserAvatar(ctx, request.(*PushUserAvatarRequest))
+	}
+}
+
 func NewdemoServiceEndpoints(
 	svc interface {
 		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
@@ -55,6 +92,11 @@ func NewdemoServiceEndpoints(
 		GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
 		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+		UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
+		UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
+		PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error)
 	},
 ) interface {
 	CreateUser() endpoint.Endpoint
@@ -62,6 +104,11 @@ func NewdemoServiceEndpoints(
 	GetUser() endpoint.Endpoint
 	GetUsers() endpoint.Endpoint
 	DeleteUser() endpoint.Endpoint
+	UpdateUserName() endpoint.Endpoint
+	UploadUsers() endpoint.Endpoint
+	UploadUserAvatar() endpoint.Endpoint
+	PushUsers() endpoint.Endpoint
+	PushUserAvatar() endpoint.Endpoint
 } {
 	return &demoServiceEndpoints{svc: svc}
 }

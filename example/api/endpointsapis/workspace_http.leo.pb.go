@@ -7,9 +7,11 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
-	endpointx "github.com/go-leo/kitx/endpointx"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	io "io"
 	http1 "net/http"
+	strconv "strconv"
 )
 
 func NewWorkspacesHTTPServer(
@@ -29,10 +31,17 @@ func NewWorkspacesHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.ListWorkspaces(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *ListWorkspacesRequest
+				req := &ListWorkspacesRequest{}
 				vars := mux.Vars(r)
 				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars["project"], vars["location"])
-				return nil, nil
+				queries := r.URL.Query()
+				if v, err := strconv.ParseInt(queries.Get("page_size"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.PageSize = int32(v)
+				}
+				req.PageToken = queries.Get("page_token")
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -44,10 +53,10 @@ func NewWorkspacesHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetWorkspace(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *GetWorkspaceRequest
+				req := &GetWorkspaceRequest{}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars["project"], vars["location"], vars["workspace"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -59,10 +68,15 @@ func NewWorkspacesHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateWorkspace(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *CreateWorkspaceRequest
+				req := &CreateWorkspaceRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				// message
 				vars := mux.Vars(r)
 				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars["project"], vars["location"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -74,10 +88,15 @@ func NewWorkspacesHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UpdateWorkspace(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *UpdateWorkspaceRequest
+				req := &UpdateWorkspaceRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				// message
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/Workspaces/%s", vars["project"], vars["location"], vars["Workspace"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil
@@ -89,10 +108,10 @@ func NewWorkspacesHTTPServer(
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.DeleteWorkspace(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
-				var req *DeleteWorkspaceRequest
+				req := &DeleteWorkspaceRequest{}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars["project"], vars["location"], vars["workspace"])
-				return nil, nil
+				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
 				return nil

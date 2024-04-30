@@ -8,7 +8,7 @@ require (
 	github.com/go-kit/log v0.2.1
 	github.com/go-leo/cqrs v0.0.0-20240428095148-1a717d7a24c8
 	github.com/go-leo/gors v1.5.0
-	github.com/go-leo/gox v0.0.0-20240424095953-68bffa755bc0
+	github.com/go-leo/gox v0.0.0-20240430082855-e7df7230ee69
 	github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390
 	github.com/gorilla/mux v1.8.1
 	golang.org/x/sync v0.6.0

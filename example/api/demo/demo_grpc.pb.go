@@ -8,6 +8,8 @@ package demo
 
 import (
 	context "context"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
+	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,27 +22,42 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DemoService_CreateUser_FullMethodName = "/leo.example.demo.v1.DemoService/CreateUser"
-	DemoService_UpdateUser_FullMethodName = "/leo.example.demo.v1.DemoService/UpdateUser"
-	DemoService_GetUser_FullMethodName    = "/leo.example.demo.v1.DemoService/GetUser"
-	DemoService_GetUsers_FullMethodName   = "/leo.example.demo.v1.DemoService/GetUsers"
-	DemoService_DeleteUser_FullMethodName = "/leo.example.demo.v1.DemoService/DeleteUser"
+	DemoService_CreateUser_FullMethodName       = "/leo.example.demo.v1.DemoService/CreateUser"
+	DemoService_UpdateUser_FullMethodName       = "/leo.example.demo.v1.DemoService/UpdateUser"
+	DemoService_GetUser_FullMethodName          = "/leo.example.demo.v1.DemoService/GetUser"
+	DemoService_GetUsers_FullMethodName         = "/leo.example.demo.v1.DemoService/GetUsers"
+	DemoService_DeleteUser_FullMethodName       = "/leo.example.demo.v1.DemoService/DeleteUser"
+	DemoService_UpdateUserName_FullMethodName   = "/leo.example.demo.v1.DemoService/UpdateUserName"
+	DemoService_UploadUsers_FullMethodName      = "/leo.example.demo.v1.DemoService/UploadUsers"
+	DemoService_UploadUserAvatar_FullMethodName = "/leo.example.demo.v1.DemoService/UploadUserAvatar"
+	DemoService_PushUsers_FullMethodName        = "/leo.example.demo.v1.DemoService/PushUsers"
+	DemoService_PushUserAvatar_FullMethodName   = "/leo.example.demo.v1.DemoService/PushUserAvatar"
 )
 
 // DemoServiceClient is the client API for DemoService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DemoServiceClient interface {
-	// CreateUser sync create user
+	// CreateUser create user
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// UpdateUser sync update user
+	// UpdateUser update user
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// GetUser sync get user
+	// GetUser get user
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-	// GetUsers sync get users
+	// GetUsers get users
 	GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error)
-	// DeleteUser sync delete user
+	// DeleteUser delete user
 	DeleteUser(ctx context.Context, in *DeleteUsersRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// UpdateUserName update user name
+	UpdateUserName(ctx context.Context, in *UpdateUserNameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// UploadUsers upload user by csv
+	UploadUsers(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// UploadUserAvatar upload user avatar
+	UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// PushUsers push users by csv
+	PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// PushUserAvatar push user avatar
+	PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type demoServiceClient struct {
@@ -96,20 +113,75 @@ func (c *demoServiceClient) DeleteUser(ctx context.Context, in *DeleteUsersReque
 	return out, nil
 }
 
+func (c *demoServiceClient) UpdateUserName(ctx context.Context, in *UpdateUserNameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, DemoService_UpdateUserName_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *demoServiceClient) UploadUsers(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, DemoService_UploadUsers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *demoServiceClient) UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, DemoService_UploadUserAvatar_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *demoServiceClient) PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, DemoService_PushUsers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *demoServiceClient) PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, DemoService_PushUserAvatar_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DemoServiceServer is the server API for DemoService service.
 // All implementations should embed UnimplementedDemoServiceServer
 // for forward compatibility
 type DemoServiceServer interface {
-	// CreateUser sync create user
+	// CreateUser create user
 	CreateUser(context.Context, *CreateUserRequest) (*emptypb.Empty, error)
-	// UpdateUser sync update user
+	// UpdateUser update user
 	UpdateUser(context.Context, *UpdateUserRequest) (*emptypb.Empty, error)
-	// GetUser sync get user
+	// GetUser get user
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	// GetUsers sync get users
+	// GetUsers get users
 	GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error)
-	// DeleteUser sync delete user
+	// DeleteUser delete user
 	DeleteUser(context.Context, *DeleteUsersRequest) (*emptypb.Empty, error)
+	// UpdateUserName update user name
+	UpdateUserName(context.Context, *UpdateUserNameRequest) (*emptypb.Empty, error)
+	// UploadUsers upload user by csv
+	UploadUsers(context.Context, *httpbody.HttpBody) (*emptypb.Empty, error)
+	// UploadUserAvatar upload user avatar
+	UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*emptypb.Empty, error)
+	// PushUsers push users by csv
+	PushUsers(context.Context, *http.HttpRequest) (*emptypb.Empty, error)
+	// PushUserAvatar push user avatar
+	PushUserAvatar(context.Context, *PushUserAvatarRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedDemoServiceServer should be embedded to have forward compatible implementations.
@@ -130,6 +202,21 @@ func (UnimplementedDemoServiceServer) GetUsers(context.Context, *GetUsersRequest
 }
 func (UnimplementedDemoServiceServer) DeleteUser(context.Context, *DeleteUsersRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedDemoServiceServer) UpdateUserName(context.Context, *UpdateUserNameRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserName not implemented")
+}
+func (UnimplementedDemoServiceServer) UploadUsers(context.Context, *httpbody.HttpBody) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadUsers not implemented")
+}
+func (UnimplementedDemoServiceServer) UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadUserAvatar not implemented")
+}
+func (UnimplementedDemoServiceServer) PushUsers(context.Context, *http.HttpRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PushUsers not implemented")
+}
+func (UnimplementedDemoServiceServer) PushUserAvatar(context.Context, *PushUserAvatarRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PushUserAvatar not implemented")
 }
 
 // UnsafeDemoServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -233,6 +320,96 @@ func _DemoService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DemoService_UpdateUserName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DemoServiceServer).UpdateUserName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DemoService_UpdateUserName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DemoServiceServer).UpdateUserName(ctx, req.(*UpdateUserNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DemoService_UploadUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(httpbody.HttpBody)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DemoServiceServer).UploadUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DemoService_UploadUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DemoServiceServer).UploadUsers(ctx, req.(*httpbody.HttpBody))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DemoService_UploadUserAvatar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadUserAvatarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DemoServiceServer).UploadUserAvatar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DemoService_UploadUserAvatar_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DemoServiceServer).UploadUserAvatar(ctx, req.(*UploadUserAvatarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DemoService_PushUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(http.HttpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DemoServiceServer).PushUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DemoService_PushUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DemoServiceServer).PushUsers(ctx, req.(*http.HttpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DemoService_PushUserAvatar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PushUserAvatarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DemoServiceServer).PushUserAvatar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DemoService_PushUserAvatar_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DemoServiceServer).PushUserAvatar(ctx, req.(*PushUserAvatarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DemoService_ServiceDesc is the grpc.ServiceDesc for DemoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -259,6 +436,26 @@ var DemoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteUser",
 			Handler:    _DemoService_DeleteUser_Handler,
+		},
+		{
+			MethodName: "UpdateUserName",
+			Handler:    _DemoService_UpdateUserName_Handler,
+		},
+		{
+			MethodName: "UploadUsers",
+			Handler:    _DemoService_UploadUsers_Handler,
+		},
+		{
+			MethodName: "UploadUserAvatar",
+			Handler:    _DemoService_UploadUserAvatar_Handler,
+		},
+		{
+			MethodName: "PushUsers",
+			Handler:    _DemoService_PushUsers_Handler,
+		},
+		{
+			MethodName: "PushUserAvatar",
+			Handler:    _DemoService_PushUserAvatar_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
