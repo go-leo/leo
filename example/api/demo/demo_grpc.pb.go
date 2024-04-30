@@ -51,13 +51,13 @@ type DemoServiceClient interface {
 	// UpdateUserName update user name
 	UpdateUserName(ctx context.Context, in *UpdateUserNameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UploadUsers upload user by csv
-	UploadUsers(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UploadUsers(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	// UploadUserAvatar upload user avatar
-	UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*UploadUserAvatarResponse, error)
 	// PushUsers push users by csv
-	PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error)
 	// PushUserAvatar push user avatar
-	PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*PushUserAvatarResponse, error)
 }
 
 type demoServiceClient struct {
@@ -122,8 +122,8 @@ func (c *demoServiceClient) UpdateUserName(ctx context.Context, in *UpdateUserNa
 	return out, nil
 }
 
-func (c *demoServiceClient) UploadUsers(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *demoServiceClient) UploadUsers(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
+	out := new(httpbody.HttpBody)
 	err := c.cc.Invoke(ctx, DemoService_UploadUsers_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -131,8 +131,8 @@ func (c *demoServiceClient) UploadUsers(ctx context.Context, in *httpbody.HttpBo
 	return out, nil
 }
 
-func (c *demoServiceClient) UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *demoServiceClient) UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*UploadUserAvatarResponse, error) {
+	out := new(UploadUserAvatarResponse)
 	err := c.cc.Invoke(ctx, DemoService_UploadUserAvatar_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -140,8 +140,8 @@ func (c *demoServiceClient) UploadUserAvatar(ctx context.Context, in *UploadUser
 	return out, nil
 }
 
-func (c *demoServiceClient) PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *demoServiceClient) PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error) {
+	out := new(http.HttpResponse)
 	err := c.cc.Invoke(ctx, DemoService_PushUsers_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -149,8 +149,8 @@ func (c *demoServiceClient) PushUsers(ctx context.Context, in *http.HttpRequest,
 	return out, nil
 }
 
-func (c *demoServiceClient) PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *demoServiceClient) PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*PushUserAvatarResponse, error) {
+	out := new(PushUserAvatarResponse)
 	err := c.cc.Invoke(ctx, DemoService_PushUserAvatar_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -175,13 +175,13 @@ type DemoServiceServer interface {
 	// UpdateUserName update user name
 	UpdateUserName(context.Context, *UpdateUserNameRequest) (*emptypb.Empty, error)
 	// UploadUsers upload user by csv
-	UploadUsers(context.Context, *httpbody.HttpBody) (*emptypb.Empty, error)
+	UploadUsers(context.Context, *httpbody.HttpBody) (*httpbody.HttpBody, error)
 	// UploadUserAvatar upload user avatar
-	UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*emptypb.Empty, error)
+	UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
 	// PushUsers push users by csv
-	PushUsers(context.Context, *http.HttpRequest) (*emptypb.Empty, error)
+	PushUsers(context.Context, *http.HttpRequest) (*http.HttpResponse, error)
 	// PushUserAvatar push user avatar
-	PushUserAvatar(context.Context, *PushUserAvatarRequest) (*emptypb.Empty, error)
+	PushUserAvatar(context.Context, *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 }
 
 // UnimplementedDemoServiceServer should be embedded to have forward compatible implementations.
@@ -206,16 +206,16 @@ func (UnimplementedDemoServiceServer) DeleteUser(context.Context, *DeleteUsersRe
 func (UnimplementedDemoServiceServer) UpdateUserName(context.Context, *UpdateUserNameRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserName not implemented")
 }
-func (UnimplementedDemoServiceServer) UploadUsers(context.Context, *httpbody.HttpBody) (*emptypb.Empty, error) {
+func (UnimplementedDemoServiceServer) UploadUsers(context.Context, *httpbody.HttpBody) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadUsers not implemented")
 }
-func (UnimplementedDemoServiceServer) UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+func (UnimplementedDemoServiceServer) UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadUserAvatar not implemented")
 }
-func (UnimplementedDemoServiceServer) PushUsers(context.Context, *http.HttpRequest) (*emptypb.Empty, error) {
+func (UnimplementedDemoServiceServer) PushUsers(context.Context, *http.HttpRequest) (*http.HttpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PushUsers not implemented")
 }
-func (UnimplementedDemoServiceServer) PushUserAvatar(context.Context, *PushUserAvatarRequest) (*emptypb.Empty, error) {
+func (UnimplementedDemoServiceServer) PushUserAvatar(context.Context, *PushUserAvatarRequest) (*PushUserAvatarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PushUserAvatar not implemented")
 }
 

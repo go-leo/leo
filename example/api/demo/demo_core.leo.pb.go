@@ -18,10 +18,10 @@ type demoServiceEndpoints struct {
 		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 		UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
-		UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-		PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error)
+		UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error)
+		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
+		PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
+		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 	}
 }
 
@@ -93,10 +93,10 @@ func NewdemoServiceEndpoints(
 		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 		UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
-		UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-		PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error)
+		UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error)
+		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
+		PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
+		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 	},
 ) interface {
 	CreateUser() endpoint.Endpoint

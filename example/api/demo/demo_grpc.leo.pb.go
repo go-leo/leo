@@ -89,40 +89,40 @@ func (s *gRPCDemoServiceServer) UpdateUserName(ctx context.Context, request *Upd
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCDemoServiceServer) UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+func (s *gRPCDemoServiceServer) UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error) {
 	ctx, rep, err := s.uploadUsers.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	_ = ctx
-	return rep.(*emptypb.Empty), nil
+	return rep.(*httpbody.HttpBody), nil
 }
 
-func (s *gRPCDemoServiceServer) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+func (s *gRPCDemoServiceServer) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error) {
 	ctx, rep, err := s.uploadUserAvatar.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	_ = ctx
-	return rep.(*emptypb.Empty), nil
+	return rep.(*UploadUserAvatarResponse), nil
 }
 
-func (s *gRPCDemoServiceServer) PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
+func (s *gRPCDemoServiceServer) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
 	ctx, rep, err := s.pushUsers.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	_ = ctx
-	return rep.(*emptypb.Empty), nil
+	return rep.(*http.HttpResponse), nil
 }
 
-func (s *gRPCDemoServiceServer) PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error) {
+func (s *gRPCDemoServiceServer) PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error) {
 	ctx, rep, err := s.pushUserAvatar.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	_ = ctx
-	return rep.(*emptypb.Empty), nil
+	return rep.(*PushUserAvatarResponse), nil
 }
 
 func NewDemoServiceGRPCServer(
@@ -147,10 +147,10 @@ func NewDemoServiceGRPCServer(
 	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 	UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
-	UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-	PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error)
+	UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error)
+	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
+	PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
+	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 } {
 	return &gRPCDemoServiceServer{
 		createUser: grpc.NewServer(
@@ -277,36 +277,36 @@ func (c *gRPCDemoServiceClient) UpdateUserName(ctx context.Context, request *Upd
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCDemoServiceClient) UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+func (c *gRPCDemoServiceClient) UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error) {
 	rep, err := c.uploadUsers(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*emptypb.Empty), nil
+	return rep.(*httpbody.HttpBody), nil
 }
 
-func (c *gRPCDemoServiceClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+func (c *gRPCDemoServiceClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error) {
 	rep, err := c.uploadUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*emptypb.Empty), nil
+	return rep.(*UploadUserAvatarResponse), nil
 }
 
-func (c *gRPCDemoServiceClient) PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
+func (c *gRPCDemoServiceClient) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
 	rep, err := c.pushUsers(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*emptypb.Empty), nil
+	return rep.(*http.HttpResponse), nil
 }
 
-func (c *gRPCDemoServiceClient) PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error) {
+func (c *gRPCDemoServiceClient) PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error) {
 	rep, err := c.pushUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*emptypb.Empty), nil
+	return rep.(*PushUserAvatarResponse), nil
 }
 
 func NewDemoServiceGRPCClient(
@@ -320,10 +320,10 @@ func NewDemoServiceGRPCClient(
 	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 	UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
-	UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-	PushUsers(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*emptypb.Empty, error)
+	UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error)
+	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
+	PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
+	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 } {
 	return &gRPCDemoServiceClient{
 		createUser: endpointx.Chain(
@@ -399,7 +399,7 @@ func NewDemoServiceGRPCClient(
 				"UploadUsers",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
+				httpbody.HttpBody{},
 				opts...,
 			).Endpoint(),
 			mdw...),
@@ -410,7 +410,7 @@ func NewDemoServiceGRPCClient(
 				"UploadUserAvatar",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
+				UploadUserAvatarResponse{},
 				opts...,
 			).Endpoint(),
 			mdw...),
@@ -421,7 +421,7 @@ func NewDemoServiceGRPCClient(
 				"PushUsers",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
+				http.HttpResponse{},
 				opts...,
 			).Endpoint(),
 			mdw...),
@@ -432,7 +432,7 @@ func NewDemoServiceGRPCClient(
 				"PushUserAvatar",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
+				PushUserAvatarResponse{},
 				opts...,
 			).Endpoint(),
 			mdw...),

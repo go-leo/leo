@@ -13,6 +13,7 @@ import (
 	http2 "google.golang.org/genproto/googleapis/rpc/http"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	http1 "net/http"
@@ -51,7 +52,16 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -77,7 +87,16 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -335,7 +354,16 @@ func NewDemoServiceHTTPServer(
 				req.RepeatedBytes = convx.ParseBytesSlice(queries["repeated_bytes"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(GetUserResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -359,7 +387,16 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(GetUsersResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -378,7 +415,16 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -402,7 +448,16 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -421,8 +476,14 @@ func NewDemoServiceHTTPServer(
 				req.Data = body
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
-				return nil
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(httpbody.HttpBody)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				resp.GetContentType()
+				w.Header().Set("Content-Type", resp.GetContentType())
+				_, err := w.Write(resp.GetData())
+				return err
 			},
 			opts...,
 		))
@@ -446,7 +507,15 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(UploadUserAvatarResponse)
+				_ = resp
+				req.ContentType = r.Header.Get("Content-Type")
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Data = body
 				return nil
 			},
 			opts...,
@@ -472,7 +541,16 @@ func NewDemoServiceHTTPServer(
 				req.Body = body
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(http2.HttpResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -504,7 +582,16 @@ func NewDemoServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(PushUserAvatarResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,

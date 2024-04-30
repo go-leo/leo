@@ -10,6 +10,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
@@ -45,7 +46,16 @@ func NewWorkspacesHTTPServer(
 				req.PageToken = queries.Get("page_token")
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(ListWorkspacesResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -60,7 +70,16 @@ func NewWorkspacesHTTPServer(
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars["project"], vars["location"], vars["workspace"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Workspace)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -82,7 +101,16 @@ func NewWorkspacesHTTPServer(
 				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars["project"], vars["location"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Workspace)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -110,7 +138,16 @@ func NewWorkspacesHTTPServer(
 				req.UpdateMask = mask
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Workspace)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -125,7 +162,16 @@ func NewWorkspacesHTTPServer(
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars["project"], vars["location"], vars["workspace"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,

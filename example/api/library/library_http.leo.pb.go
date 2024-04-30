@@ -10,6 +10,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
@@ -49,7 +50,16 @@ func NewLibraryServiceHTTPServer(
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Shelf)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -64,7 +74,16 @@ func NewLibraryServiceHTTPServer(
 				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Shelf)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -84,7 +103,16 @@ func NewLibraryServiceHTTPServer(
 				req.PageToken = queries.Get("page_token")
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(ListShelvesResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -99,7 +127,16 @@ func NewLibraryServiceHTTPServer(
 				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -121,7 +158,16 @@ func NewLibraryServiceHTTPServer(
 				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Shelf)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -143,7 +189,16 @@ func NewLibraryServiceHTTPServer(
 				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Book)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -158,7 +213,16 @@ func NewLibraryServiceHTTPServer(
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Book)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -180,7 +244,16 @@ func NewLibraryServiceHTTPServer(
 				req.PageToken = queries.Get("page_token")
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(ListBooksResponse)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -195,7 +268,16 @@ func NewLibraryServiceHTTPServer(
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(emptypb.Empty)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -226,7 +308,16 @@ func NewLibraryServiceHTTPServer(
 				req.UpdateMask = mask
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Book)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
@@ -248,7 +339,16 @@ func NewLibraryServiceHTTPServer(
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
-			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(Book)
+				_ = resp
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
 				return nil
 			},
 			opts...,
