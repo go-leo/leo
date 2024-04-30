@@ -9,6 +9,8 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	protojson "google.golang.org/protobuf/encoding/protojson"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
 	strconv "strconv"
@@ -73,7 +75,9 @@ func NewWorkspacesHTTPServer(
 				if err != nil {
 					return nil, err
 				}
-				// message
+				if err := protojson.Unmarshal(body, req.Workspace); err != nil {
+					return nil, err
+				}
 				vars := mux.Vars(r)
 				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars["project"], vars["location"])
 				return req, nil
@@ -93,9 +97,17 @@ func NewWorkspacesHTTPServer(
 				if err != nil {
 					return nil, err
 				}
-				// message
+				if err := protojson.Unmarshal(body, req.Workspace); err != nil {
+					return nil, err
+				}
 				vars := mux.Vars(r)
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/Workspaces/%s", vars["project"], vars["location"], vars["Workspace"])
+				queries := r.URL.Query()
+				mask, err := fieldmaskpb.New(req.Workspace, queries["update_mask"]...)
+				if err != nil {
+					return nil, err
+				}
+				req.UpdateMask = mask
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {

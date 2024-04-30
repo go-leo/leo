@@ -84,8 +84,8 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 			// coveredParameters tracks the parameters that have been used in the body or path.
 			coveredParameters := make([]string, 0)
 			// body arguments
-			bodyField := httpRule.Body()
-			switch bodyField {
+			bodyParameter := httpRule.Body()
+			switch bodyParameter {
 			case "":
 				// ignore
 			case "*":
@@ -98,11 +98,11 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 					f.printStarBody(generatedFile)
 				}
 			default:
-				field := internal.FindField(bodyField, endpoint.Input())
+				field := internal.FindField(bodyParameter, endpoint.Input())
 				if field == nil {
-					return errNotFoundField(endpoint, []string{bodyField})
+					return errNotFoundField(endpoint, []string{bodyParameter})
 				}
-				coveredParameters = append(coveredParameters, bodyField)
+				coveredParameters = append(coveredParameters, bodyParameter)
 				if err := f.printFieldBody(generatedFile, field); err != nil {
 					return err
 				}
@@ -172,8 +172,7 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 			}
 
 			// query arguments
-			if bodyField != "*" {
-
+			if bodyParameter != "*" {
 				var queryFields []*protogen.Field
 				for _, field := range endpoint.Input().Fields {
 					fieldName := string(field.Desc.Name())
@@ -188,6 +187,18 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 				}
 				for _, field := range queryFields {
 					fieldName := string(field.Desc.Name())
+					if field.Message != nil && field.Message.Desc.FullName() == "google.protobuf.FieldMask" {
+						bodyField := internal.FindField(bodyParameter, endpoint.Input())
+						if bodyField == nil {
+							return errNotFoundField(endpoint, []string{bodyParameter})
+						}
+						generatedFile.P("mask, err := ", internal.FieldmaskpbPackage.Ident("New"), "(req.", bodyField.GoName, ", queries[", strconv.Quote(fieldName), "]...)")
+						generatedFile.P("if err != nil {")
+						generatedFile.P("return nil, err")
+						generatedFile.P("}")
+						generatedFile.P("req.UpdateMask = mask")
+						continue
+					}
 					left := []any{"req.", field.GoName, " = "}
 					right := []any{"queries.Get(", strconv.Quote(fieldName), ")"}
 					if field.Desc.IsList() {
@@ -499,8 +510,9 @@ func (f *Generator) printAssign(generatedFile *protogen.GeneratedFile, field *pr
 			right = append(right, "))")
 			generatedFile.P(append(left, right...)...)
 		default:
-
-			generatedFile.P("// message")
+			generatedFile.P("if err := ", internal.ProtoJsonPackage.Ident("Unmarshal"), "(body, req.", field.GoName, "); err != nil {")
+			generatedFile.P("return nil, err")
+			generatedFile.P("}")
 		}
 	case protoreflect.GroupKind:
 		generatedFile.P("// group")

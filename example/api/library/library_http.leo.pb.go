@@ -10,6 +10,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
 	strconv "strconv"
@@ -43,7 +44,9 @@ func NewLibraryServiceHTTPServer(
 				if err != nil {
 					return nil, err
 				}
-				// message
+				if err := protojson.Unmarshal(body, req.Shelf); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
@@ -133,7 +136,9 @@ func NewLibraryServiceHTTPServer(
 				if err != nil {
 					return nil, err
 				}
-				// message
+				if err := protojson.Unmarshal(body, req.Book); err != nil {
+					return nil, err
+				}
 				vars := mux.Vars(r)
 				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
@@ -205,14 +210,20 @@ func NewLibraryServiceHTTPServer(
 				if err != nil {
 					return nil, err
 				}
-				// message
+				if err := protojson.Unmarshal(body, req.Book); err != nil {
+					return nil, err
+				}
 				vars := mux.Vars(r)
 				if req.Book == nil {
 					req.Book = &Book{}
 				}
 				req.Book.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				queries := r.URL.Query()
-				// message
+				mask, err := fieldmaskpb.New(req.Book, queries["update_mask"]...)
+				if err != nil {
+					return nil, err
+				}
+				req.UpdateMask = mask
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, resp any) error {
