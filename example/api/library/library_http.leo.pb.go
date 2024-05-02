@@ -51,14 +51,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Shelf)
+				resp := obj.(*Shelf)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -75,14 +76,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Shelf)
+				resp := obj.(*Shelf)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -104,14 +106,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(ListShelvesResponse)
+				resp := obj.(*ListShelvesResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -128,14 +131,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -159,14 +163,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Shelf)
+				resp := obj.(*Shelf)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -190,14 +195,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Book)
+				resp := obj.(*Book)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -214,14 +220,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Book)
+				resp := obj.(*Book)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -245,14 +252,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(ListBooksResponse)
+				resp := obj.(*ListBooksResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -269,14 +277,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -309,14 +318,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Book)
+				resp := obj.(*Book)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -340,14 +350,15 @@ func NewLibraryServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Book)
+				resp := obj.(*Book)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},

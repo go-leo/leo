@@ -7,7 +7,6 @@ import (
 	"golang.org/x/exp/slices"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	http1 "net/http"
 	"strconv"
 )
 
@@ -538,7 +537,7 @@ func (f *Generator) printAssign(generatedFile *protogen.GeneratedFile, field *pr
 
 func (f *Generator) PrintEncodeResponseFunc(generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule) error {
 	generatedFile.P("func(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
-	generatedFile.P("resp := obj.(", endpoint.Output().GoIdent, ")")
+	generatedFile.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
 	generatedFile.P("_ = resp")
 	bodyParameter := httpRule.ResponseBody()
 	switch bodyParameter {
@@ -562,14 +561,29 @@ func (f *Generator) PrintEncodeResponseFunc(generatedFile *protogen.GeneratedFil
 func (f *Generator) PrintResponse(generatedFile *protogen.GeneratedFile, message *protogen.Message, prefix string) error {
 	switch message.Desc.FullName() {
 	case "google.api.HttpBody":
-		//f.PrintApiBody(generatedFile, nil)
-		generatedFile.P("w.WriteHeader(http1.StatusOK)")
-		generatedFile.P("resp.GetContentType()")
-		generatedFile.P("w.Header().Set("Content-Type", resp.GetContentType())")
-		generatedFile.P("_, err := w.Write(resp.GetData())")
-	case "google.rpc.HttpRequest":
-		//f.PrintRpcBody(generatedFile, nil)
+		generatedFile.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
+		generatedFile.P("w.Header().Set(", strconv.Quote("Content-Type"), ", ", prefix, ".GetContentType())")
+		generatedFile.P()
+		generatedFile.P("if ", "_, err := w.Write(", prefix, ".GetData())", "; err != nil {")
+		generatedFile.P("return err")
+		generatedFile.P("}")
+	case "google.rpc.HttpResponse":
+		generatedFile.P("w.WriteHeader(int(", prefix, ".GetStatus()))")
+		generatedFile.P("for _, header := range ", prefix, ".GetHeaders() {")
+		generatedFile.P("w.Header().Add(header.Key, header.Value)")
+		generatedFile.P("}")
+		generatedFile.P("if ", "_, err := w.Write(", prefix, ".GetBody())", "; err != nil {")
+		generatedFile.P("return err")
+		generatedFile.P("}")
 	default:
-		//f.printStarBody(generatedFile)
+		generatedFile.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
+		generatedFile.P("data, err := ", internal.ProtoJsonPackage.Ident("Marshal"), "(", prefix, ")")
+		generatedFile.P("if err != nil {")
+		generatedFile.P("return err")
+		generatedFile.P("}")
+		generatedFile.P("if _, err := w.Write(data); err != nil {")
+		generatedFile.P("return err")
+		generatedFile.P("}")
 	}
+	return nil
 }

@@ -53,14 +53,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -88,14 +89,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -355,14 +357,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(GetUserResponse)
+				resp := obj.(*GetUserResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -388,14 +391,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(GetUsersResponse)
+				resp := obj.(*GetUsersResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -416,14 +420,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -449,14 +454,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -477,13 +483,15 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(httpbody.HttpBody)
+				resp := obj.(*httpbody.HttpBody)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				resp.GetContentType()
 				w.Header().Set("Content-Type", resp.GetContentType())
-				_, err := w.Write(resp.GetData())
-				return err
+
+				if _, err := w.Write(resp.GetData()); err != nil {
+					return err
+				}
+				return nil
 			},
 			opts...,
 		))
@@ -508,14 +516,14 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(UploadUserAvatarResponse)
+				resp := obj.(*UploadUserAvatarResponse)
 				_ = resp
-				req.ContentType = r.Header.Get("Content-Type")
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, err
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", resp.Body.GetContentType())
+
+				if _, err := w.Write(resp.Body.GetData()); err != nil {
+					return err
 				}
-				req.Data = body
 				return nil
 			},
 			opts...,
@@ -542,14 +550,14 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(http2.HttpResponse)
+				resp := obj.(*http2.HttpResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, err
+				w.WriteHeader(int(resp.GetStatus()))
+				for _, header := range resp.GetHeaders() {
+					w.Header().Add(header.Key, header.Value)
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(resp.GetBody()); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -583,14 +591,14 @@ func NewDemoServiceHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(PushUserAvatarResponse)
+				resp := obj.(*PushUserAvatarResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, err
+				w.WriteHeader(int(resp.Body.GetStatus()))
+				for _, header := range resp.Body.GetHeaders() {
+					w.Header().Add(header.Key, header.Value)
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(resp.Body.GetBody()); err != nil {
+					return err
 				}
 				return nil
 			},

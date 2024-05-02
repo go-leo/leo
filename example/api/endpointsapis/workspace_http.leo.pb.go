@@ -47,14 +47,15 @@ func NewWorkspacesHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(ListWorkspacesResponse)
+				resp := obj.(*ListWorkspacesResponse)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -71,14 +72,15 @@ func NewWorkspacesHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Workspace)
+				resp := obj.(*Workspace)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -102,14 +104,15 @@ func NewWorkspacesHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Workspace)
+				resp := obj.(*Workspace)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -139,14 +142,15 @@ func NewWorkspacesHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(Workspace)
+				resp := obj.(*Workspace)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
@@ -163,14 +167,15 @@ func NewWorkspacesHTTPServer(
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(emptypb.Empty)
+				resp := obj.(*emptypb.Empty)
 				_ = resp
-				body, err := io.ReadAll(r.Body)
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
 				if err != nil {
-					return nil, err
+					return err
 				}
-				if err := protojson.Unmarshal(body, req); err != nil {
-					return nil, err
+				if _, err := w.Write(data); err != nil {
+					return err
 				}
 				return nil
 			},
