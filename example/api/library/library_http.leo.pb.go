@@ -9,11 +9,13 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	grpc "google.golang.org/grpc"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
+	url "net/url"
 	strconv "strconv"
 )
 
@@ -365,4 +367,270 @@ func NewLibraryServiceHTTPServer(
 			opts...,
 		))
 	return r
+}
+
+type httpLibraryServiceClient struct {
+	createShelf  endpoint.Endpoint
+	getShelf     endpoint.Endpoint
+	listShelves  endpoint.Endpoint
+	deleteShelf  endpoint.Endpoint
+	mergeShelves endpoint.Endpoint
+	createBook   endpoint.Endpoint
+	getBook      endpoint.Endpoint
+	listBooks    endpoint.Endpoint
+	deleteBook   endpoint.Endpoint
+	updateBook   endpoint.Endpoint
+	moveBook     endpoint.Endpoint
+}
+
+func (c *httpLibraryServiceClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	rep, err := c.createShelf(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *httpLibraryServiceClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	rep, err := c.getShelf(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *httpLibraryServiceClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	rep, err := c.listShelves(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*ListShelvesResponse), nil
+}
+
+func (c *httpLibraryServiceClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteShelf(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpLibraryServiceClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	rep, err := c.mergeShelves(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *httpLibraryServiceClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	rep, err := c.createBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func (c *httpLibraryServiceClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	rep, err := c.getBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func (c *httpLibraryServiceClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	rep, err := c.listBooks(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*ListBooksResponse), nil
+}
+
+func (c *httpLibraryServiceClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpLibraryServiceClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	rep, err := c.updateBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func (c *httpLibraryServiceClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	rep, err := c.moveBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func NewLibraryServiceHTTPClient(
+	conn *grpc.ClientConn,
+	mdw []endpoint.Middleware,
+	opts ...http.ClientOption,
+) interface {
+	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
+	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
+	ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
+	DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
+	MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
+	CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error)
+	GetBook(ctx context.Context, request *GetBookRequest) (*Book, error)
+	ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
+	DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
+	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
+	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
+} {
+	return &httpLibraryServiceClient{
+		createShelf: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/shelves"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getShelf: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/shelves/{shelf}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		listShelves: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/shelves"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		deleteShelf: endpointx.Chain(
+			http.NewClient(
+				"DELETE",
+				&url.URL{Path: "/v1/shelves/{shelf}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		mergeShelves: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/shelves/{shelf}:merge"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		createBook: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/shelves/{shelf}/books"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getBook: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		listBooks: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/shelves/{shelf}/books"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		deleteBook: endpointx.Chain(
+			http.NewClient(
+				"DELETE",
+				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		updateBook: endpointx.Chain(
+			http.NewClient(
+				"PATCH",
+				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		moveBook: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}:move"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+	}
 }

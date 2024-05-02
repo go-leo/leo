@@ -11,12 +11,14 @@ import (
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http2 "google.golang.org/genproto/googleapis/rpc/http"
+	grpc "google.golang.org/grpc"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	http1 "net/http"
+	url "net/url"
 	strconv "strconv"
 )
 
@@ -605,4 +607,247 @@ func NewDemoServiceHTTPServer(
 			opts...,
 		))
 	return r
+}
+
+type httpDemoServiceClient struct {
+	createUser       endpoint.Endpoint
+	updateUser       endpoint.Endpoint
+	getUser          endpoint.Endpoint
+	getUsers         endpoint.Endpoint
+	deleteUser       endpoint.Endpoint
+	updateUserName   endpoint.Endpoint
+	uploadUsers      endpoint.Endpoint
+	uploadUserAvatar endpoint.Endpoint
+	pushUsers        endpoint.Endpoint
+	pushUserAvatar   endpoint.Endpoint
+}
+
+func (c *httpDemoServiceClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+	rep, err := c.createUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpDemoServiceClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	rep, err := c.updateUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpDemoServiceClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	rep, err := c.getUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*GetUserResponse), nil
+}
+
+func (c *httpDemoServiceClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	rep, err := c.getUsers(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*GetUsersResponse), nil
+}
+
+func (c *httpDemoServiceClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpDemoServiceClient) UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error) {
+	rep, err := c.updateUserName(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpDemoServiceClient) UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error) {
+	rep, err := c.uploadUsers(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func (c *httpDemoServiceClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error) {
+	rep, err := c.uploadUserAvatar(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*UploadUserAvatarResponse), nil
+}
+
+func (c *httpDemoServiceClient) PushUsers(ctx context.Context, request *http2.HttpRequest) (*http2.HttpResponse, error) {
+	rep, err := c.pushUsers(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*http2.HttpResponse), nil
+}
+
+func (c *httpDemoServiceClient) PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error) {
+	rep, err := c.pushUserAvatar(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*PushUserAvatarResponse), nil
+}
+
+func NewDemoServiceHTTPClient(
+	conn *grpc.ClientConn,
+	mdw []endpoint.Middleware,
+	opts ...http.ClientOption,
+) interface {
+	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
+	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
+	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
+	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
+	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+	UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
+	UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error)
+	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
+	PushUsers(ctx context.Context, request *http2.HttpRequest) (*http2.HttpResponse, error)
+	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+} {
+	return &httpDemoServiceClient{
+		createUser: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/user"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		updateUser: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/user/{user_id}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getUser: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/user/{user_id}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getUsers: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/users"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		deleteUser: endpointx.Chain(
+			http.NewClient(
+				"DELETE",
+				&url.URL{Path: "/v1/user/{user_id}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		updateUserName: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/user/{user_id}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		uploadUsers: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/users"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		uploadUserAvatar: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/user/{user_id}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		pushUsers: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/users/push"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		pushUserAvatar: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/user{user_id}/push"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+	}
 }

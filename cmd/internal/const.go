@@ -7,6 +7,7 @@ import (
 
 var (
 	ContextPackage       = protogen.GoImportPath("context")
+	UrlPackage           = protogen.GoImportPath("net/url")
 	GrpcTransportPackage = protogen.GoImportPath("github.com/go-kit/kit/transport/grpc")
 	HttpTransportPackage = protogen.GoImportPath("github.com/go-kit/kit/transport/http")
 	EndpointPackage      = protogen.GoImportPath("github.com/go-kit/kit/endpoint")

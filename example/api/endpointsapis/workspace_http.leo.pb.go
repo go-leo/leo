@@ -9,11 +9,13 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	grpc "google.golang.org/grpc"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
+	url "net/url"
 	strconv "strconv"
 )
 
@@ -182,4 +184,132 @@ func NewWorkspacesHTTPServer(
 			opts...,
 		))
 	return r
+}
+
+type httpWorkspacesClient struct {
+	listWorkspaces  endpoint.Endpoint
+	getWorkspace    endpoint.Endpoint
+	createWorkspace endpoint.Endpoint
+	updateWorkspace endpoint.Endpoint
+	deleteWorkspace endpoint.Endpoint
+}
+
+func (c *httpWorkspacesClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+	rep, err := c.listWorkspaces(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*ListWorkspacesResponse), nil
+}
+
+func (c *httpWorkspacesClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+	rep, err := c.getWorkspace(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Workspace), nil
+}
+
+func (c *httpWorkspacesClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+	rep, err := c.createWorkspace(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Workspace), nil
+}
+
+func (c *httpWorkspacesClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+	rep, err := c.updateWorkspace(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Workspace), nil
+}
+
+func (c *httpWorkspacesClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteWorkspace(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewWorkspacesHTTPClient(
+	conn *grpc.ClientConn,
+	mdw []endpoint.Middleware,
+	opts ...http.ClientOption,
+) interface {
+	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
+	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
+	CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
+	UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
+	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
+} {
+	return &httpWorkspacesClient{
+		listWorkspaces: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/projects/{project}/locations/{location}/workspaces"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getWorkspace: endpointx.Chain(
+			http.NewClient(
+				"GET",
+				&url.URL{Path: "/v1/projects/{project}/locations/{location}/workspaces/{workspace}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		createWorkspace: endpointx.Chain(
+			http.NewClient(
+				"POST",
+				&url.URL{Path: "/v1/projects/{project}/locations/{location}/workspaces"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		updateWorkspace: endpointx.Chain(
+			http.NewClient(
+				"PATCH",
+				&url.URL{Path: "/v1/projects/{project}/locations/{location}/Workspaces/{Workspace}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		deleteWorkspace: endpointx.Chain(
+			http.NewClient(
+				"DELETE",
+				&url.URL{Path: "/v1/projects/{project}/locations/{location}/workspaces/{workspace}"},
+				func(ctx context.Context, r *http1.Request, obj interface{}) error {
+					return nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+	}
 }

@@ -11,7 +11,7 @@ import (
 
 type Endpoint struct {
 	method    *protogen.Method
-	httpRules []*HttpRule
+	httpRules *HttpRule
 }
 
 func (e Endpoint) Name() string {
@@ -68,16 +68,12 @@ func (e Endpoint) ServerStreamName() string {
 	return method.Parent.GoName + "_" + method.GoName + "Server"
 }
 
-func (e Endpoint) HttpRules() []*HttpRule {
+func (e Endpoint) HttpRule() *HttpRule {
 	return e.httpRules
 }
 
-func NewEndpoint(method *protogen.Method, rawRules []*annotations.HttpRule) *Endpoint {
-	rules := make([]*HttpRule, 0, len(rawRules))
-	for _, rule := range rawRules {
-		rules = append(rules, &HttpRule{rule: rule})
-	}
-	return &Endpoint{method: method, httpRules: rules}
+func NewEndpoint(method *protogen.Method, rule *annotations.HttpRule) *Endpoint {
+	return &Endpoint{method: method, httpRules: &HttpRule{rule: rule}}
 }
 
 type HttpRule struct {

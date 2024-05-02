@@ -87,14 +87,18 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
 				return nil, fmt.Errorf("unsupport stream method: %s", fmName)
 			}
-			rules := make([]*annotations.HttpRule, 0)
 			extHTTP := proto.GetExtension(method.Desc.Options(), annotations.E_Http)
-			if extHTTP != nil && extHTTP != annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
-				rule := extHTTP.(*annotations.HttpRule)
-				rules = append(rules, rule)
-				rules = append(rules, rule.AdditionalBindings...)
+			if extHTTP == nil {
+				return nil, fmt.Errorf("missing http rule: %s", fmName)
 			}
-			endpoints = append(endpoints, NewEndpoint(method, rules))
+			if extHTTP == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
+				return nil, fmt.Errorf("missing http rule: %s", fmName)
+			}
+			rule := extHTTP.(*annotations.HttpRule)
+			if len(rule.AdditionalBindings) > 0 {
+				return nil, fmt.Errorf("unsupport additional bindings: %s", fmName)
+			}
+			endpoints = append(endpoints, NewEndpoint(method, rule))
 		}
 		services = append(services, &Service{Service: service, Endpoints: endpoints})
 	}

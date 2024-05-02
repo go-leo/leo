@@ -7,6 +7,8 @@ import (
 	"github.com/go-leo/gox/errorx"
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
+	"google.golang.org/genproto/googleapis/api/httpbody"
+	"google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -73,6 +75,31 @@ func (d demoService) GetUsers(ctx context.Context, request *demo.GetUsersRequest
 func (d demoService) DeleteUser(ctx context.Context, request *demo.DeleteUsersRequest) (*emptypb.Empty, error) {
 	fmt.Println("delete users:", string(errorx.Ignore(protojson.Marshal(request))))
 	return new(emptypb.Empty), nil
+}
+
+func (d demoService) UpdateUserName(ctx context.Context, request *demo.UpdateUserNameRequest) (*emptypb.Empty, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d demoService) UploadUsers(ctx context.Context, body *httpbody.HttpBody) (*httpbody.HttpBody, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d demoService) UploadUserAvatar(ctx context.Context, request *demo.UploadUserAvatarRequest) (*demo.UploadUserAvatarResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d demoService) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d demoService) PushUserAvatar(ctx context.Context, request *demo.PushUserAvatarRequest) (*demo.PushUserAvatarResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func newDemoService() demo.DemoServiceServer {

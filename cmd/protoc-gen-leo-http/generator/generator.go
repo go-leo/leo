@@ -41,19 +41,17 @@ func (f *Generator) GenerateFile() error {
 			return err
 		}
 	}
-	//
-	//for _, service := range f.Services {
-	//	if err := f.GenerateClient(service, g); err != nil {
-	//		return err
-	//	}
-	//}
-	//
-	//for _, service := range f.Services {
-	//	if err := f.GenerateNewClient(service, g); err != nil {
-	//		return err
-	//	}
-	//}
+	for _, service := range f.Services {
+		if err := f.GenerateClient(service, g); err != nil {
+			return err
+		}
+	}
 
+	for _, service := range f.Services {
+		if err := f.GenerateNewClient(service, g); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -69,27 +67,25 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 	generatedFile.P(") ", internal.HttpPackage.Ident("Handler"), " {")
 	generatedFile.P("r := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
-		for _, httpRule := range endpoint.HttpRules() {
-			method := httpRule.Method()
-			path := httpRule.Path()
-			// 调整路径，来适应 github.com/gorilla/mux 路由规则
-			path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(path)
-			generatedFile.P("r.Methods(", strconv.Quote(method), ").")
-			generatedFile.P("Path(", strconv.Quote(path), ").")
-			generatedFile.P("Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(")
-			generatedFile.P(internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ")
-			if err := f.PrintDecodeRequestFunc(generatedFile, endpoint, httpRule, path, namedPathNames, namedPathTemplate, namedPathParameters); err != nil {
-				return err
-			}
-			if err := f.PrintEncodeResponseFunc(generatedFile, endpoint, httpRule); err != nil {
-				return err
-			}
-
-			generatedFile.P("},")
-			generatedFile.P("opts...,")
-			generatedFile.P("))")
-
+		httpRule := endpoint.HttpRule()
+		method := httpRule.Method()
+		path := httpRule.Path()
+		// 调整路径，来适应 github.com/gorilla/mux 路由规则
+		path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(path)
+		generatedFile.P("r.Methods(", strconv.Quote(method), ").")
+		generatedFile.P("Path(", strconv.Quote(path), ").")
+		generatedFile.P("Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(")
+		generatedFile.P(internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ")
+		if err := f.PrintDecodeRequestFunc(generatedFile, endpoint, httpRule, path, namedPathNames, namedPathTemplate, namedPathParameters); err != nil {
+			return err
 		}
+		if err := f.PrintEncodeResponseFunc(generatedFile, endpoint, httpRule); err != nil {
+			return err
+		}
+
+		generatedFile.P("},")
+		generatedFile.P("opts...,")
+		generatedFile.P("))")
 	}
 	generatedFile.P("return r")
 	generatedFile.P("}")
@@ -585,5 +581,81 @@ func (f *Generator) PrintResponse(generatedFile *protogen.GeneratedFile, message
 		generatedFile.P("return err")
 		generatedFile.P("}")
 	}
+	return nil
+}
+
+func (f *Generator) GenerateClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
+	generatedFile.P("type ", service.UnexportedHTTPClientName(), " struct {")
+	for _, endpoint := range service.Endpoints {
+		generatedFile.P(endpoint.UnexportedName(), " ", internal.EndpointPackage.Ident("Endpoint"))
+	}
+	generatedFile.P("}")
+	generatedFile.P()
+	for _, endpoint := range service.Endpoints {
+		generatedFile.P("func (c *", service.UnexportedHTTPClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		generatedFile.P("rep, err := c.", endpoint.UnexportedName(), "(ctx, request)")
+		generatedFile.P("if err != nil {")
+		generatedFile.P("return nil, err")
+		generatedFile.P("}")
+		generatedFile.P("return rep.(*", endpoint.OutputGoIdent(), "), nil")
+		generatedFile.P("}")
+		generatedFile.P()
+	}
+	return nil
+}
+
+func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
+	generatedFile.P("func New", service.HTTPClientName(), "(")
+	generatedFile.P("conn *", internal.GrpcPackage.Ident("ClientConn"), ",")
+	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
+	generatedFile.P("opts ...", internal.HttpTransportPackage.Ident("ClientOption"), ",")
+	generatedFile.P(") interface {")
+	for _, endpoint := range service.Endpoints {
+		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+	}
+	generatedFile.P("} {")
+	generatedFile.P("return &", service.UnexportedHTTPClientName(), "{")
+	for _, endpoint := range service.Endpoints {
+		httpRule := endpoint.HttpRule()
+		method := httpRule.Method()
+		path := httpRule.Path()
+		// 调整路径，来适应 github.com/gorilla/mux 路由规则
+		path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(path)
+		_ = namedPathNames
+		_ = namedPathTemplate
+		_ = namedPathParameters
+		generatedFile.P(endpoint.UnexportedName(), ":    ", internal.EndpointxPackage.Ident("Chain"), "(")
+		generatedFile.P(internal.HttpTransportPackage.Ident("NewClient"), "(")
+		generatedFile.P(strconv.Quote(method), ", ")
+		generatedFile.P("&", internal.UrlPackage.Ident("URL"), "{Path: ", strconv.Quote(path), "},")
+		if err := f.PrintEncodeRequestFunc(generatedFile); err != nil {
+			return err
+		}
+		if err := f.PrintDecodeResponseFunc(generatedFile); err != nil {
+			return err
+		}
+		generatedFile.P("opts...,")
+		generatedFile.P(").Endpoint(),")
+		generatedFile.P("mdw...),")
+	}
+	generatedFile.P("}")
+	generatedFile.P("}")
+	generatedFile.P()
+	return nil
+}
+
+func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile) error {
+	generatedFile.P("func(ctx context.Context, r *http1.Request, obj interface{}) error {")
+	generatedFile.P("return nil")
+	generatedFile.P("},")
+
+	return nil
+}
+
+func (f *Generator) PrintDecodeResponseFunc(generatedFile *protogen.GeneratedFile) error {
+	generatedFile.P("func(ctx context.Context, r *http1.Response) (interface{}, error) {")
+	generatedFile.P("return nil, nil")
+	generatedFile.P("},")
+
 	return nil
 }
