@@ -25,6 +25,7 @@ var (
 	ProtoPackage         = protogen.GoImportPath("google.golang.org/protobuf/proto")
 	WrapperspbPackage    = protogen.GoImportPath("google.golang.org/protobuf/types/known/wrapperspb")
 	FieldmaskpbPackage   = protogen.GoImportPath("google.golang.org/protobuf/types/known/fieldmaskpb")
+	BytesPackage         = protogen.GoImportPath("bytes")
 )
 
 var (

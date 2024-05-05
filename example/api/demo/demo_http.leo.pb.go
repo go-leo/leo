@@ -3,6 +3,7 @@
 package demo
 
 import (
+	bytes "bytes"
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
@@ -11,14 +12,12 @@ import (
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http2 "google.golang.org/genproto/googleapis/rpc/http"
-	grpc "google.golang.org/grpc"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	http1 "net/http"
-	url "net/url"
 	strconv "strconv"
 )
 
@@ -39,7 +38,8 @@ func NewDemoServiceHTTPServer(
 	opts ...http.ServerOption,
 ) http1.Handler {
 	r := mux.NewRouter()
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/CreateUser").
+		Methods("POST").
 		Path("/v1/user").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateUser(), mdw...),
@@ -69,7 +69,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/UpdateUser").
+		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UpdateUser(), mdw...),
@@ -105,7 +106,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("GET").
+	r.Name("/leo.example.demo.v1.DemoService/GetUser").
+		Methods("GET").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetUser(), mdw...),
@@ -373,7 +375,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("GET").
+	r.Name("/leo.example.demo.v1.DemoService/GetUsers").
+		Methods("GET").
 		Path("/v1/users").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetUsers(), mdw...),
@@ -407,7 +410,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("DELETE").
+	r.Name("/leo.example.demo.v1.DemoService/DeleteUser").
+		Methods("DELETE").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.DeleteUser(), mdw...),
@@ -436,7 +440,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
+		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UpdateUserName(), mdw...),
@@ -470,7 +475,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/UploadUsers").
+		Methods("POST").
 		Path("/v1/users").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UploadUsers(), mdw...),
@@ -497,7 +503,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
+		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UploadUserAvatar(), mdw...),
@@ -530,7 +537,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/PushUsers").
+		Methods("POST").
 		Path("/v1/users/push").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.PushUsers(), mdw...),
@@ -565,7 +573,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
+		Methods("POST").
 		Path("/v1/user{user_id}/push").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.PushUserAvatar(), mdw...),
@@ -703,7 +712,7 @@ func (c *httpDemoServiceClient) PushUserAvatar(ctx context.Context, request *Pus
 }
 
 func NewDemoServiceHTTPClient(
-	conn *grpc.ClientConn,
+	instance string,
 	mdw []endpoint.Middleware,
 	opts ...http.ClientOption,
 ) interface {
@@ -718,13 +727,50 @@ func NewDemoServiceHTTPClient(
 	PushUsers(ctx context.Context, request *http2.HttpRequest) (*http2.HttpResponse, error)
 	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 } {
+	r := mux.NewRouter()
+	r.Name("/leo.example.demo.v1.DemoService/CreateUser").
+		Methods("POST").
+		Path("/v1/user")
+	r.Name("/leo.example.demo.v1.DemoService/UpdateUser").
+		Methods("POST").
+		Path("/v1/user/{user_id}")
+	r.Name("/leo.example.demo.v1.DemoService/GetUser").
+		Methods("GET").
+		Path("/v1/user/{user_id}")
+	r.Name("/leo.example.demo.v1.DemoService/GetUsers").
+		Methods("GET").
+		Path("/v1/users")
+	r.Name("/leo.example.demo.v1.DemoService/DeleteUser").
+		Methods("DELETE").
+		Path("/v1/user/{user_id}")
+	r.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
+		Methods("POST").
+		Path("/v1/user/{user_id}")
+	r.Name("/leo.example.demo.v1.DemoService/UploadUsers").
+		Methods("POST").
+		Path("/v1/users")
+	r.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
+		Methods("POST").
+		Path("/v1/user/{user_id}")
+	r.Name("/leo.example.demo.v1.DemoService/PushUsers").
+		Methods("POST").
+		Path("/v1/users/push")
+	r.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
+		Methods("POST").
+		Path("/v1/user{user_id}/push")
 	return &httpDemoServiceClient{
 		createUser: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/user"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*CreateUserRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -733,11 +779,17 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		updateUser: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/user/{user_id}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*UpdateUserRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -746,11 +798,10 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		getUser: endpointx.Chain(
-			http.NewClient(
-				"GET",
-				&url.URL{Path: "/v1/user/{user_id}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*GetUserRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -759,11 +810,10 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		getUsers: endpointx.Chain(
-			http.NewClient(
-				"GET",
-				&url.URL{Path: "/v1/users"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*GetUsersRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -772,11 +822,10 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		deleteUser: endpointx.Chain(
-			http.NewClient(
-				"DELETE",
-				&url.URL{Path: "/v1/user/{user_id}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*DeleteUsersRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -785,11 +834,15 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		updateUserName: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/user/{user_id}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*UpdateUserNameRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					req.Name = string(body)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -798,11 +851,22 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		uploadUsers: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/users"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*httpbody.HttpBody)
+					req.ContentType = r.Header.Get("Content-Type")
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					req.Data = body
+					r, err := http1.NewRequest("POST", "/v1/users", bytes.NewReader(req.GetData()))
+					if err != nil {
+						return nil, err
+					}
+					r.Header.Set("Content-Type", req.GetContentType())
+					return r, nil
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -811,11 +875,16 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		uploadUserAvatar: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/user/{user_id}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*UploadUserAvatarRequest)
+					req.Avatar.ContentType = r.Header.Get("Content-Type")
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					req.Avatar.Data = body
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -824,11 +893,23 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		pushUsers: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/users/push"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*http2.HttpRequest)
+					req.Method = r.Method
+					req.Uri = r.RequestURI
+					req.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
+					for key, values := range r.Header {
+						for _, value := range values {
+							req.Headers = append(req.Headers, &http2.HttpHeader{Key: key, Value: value})
+						}
+					}
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					req.Body = body
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -837,11 +918,23 @@ func NewDemoServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		pushUserAvatar: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/user{user_id}/push"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*PushUserAvatarRequest)
+					req.Avatar.Method = r.Method
+					req.Avatar.Uri = r.RequestURI
+					req.Avatar.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
+					for key, values := range r.Header {
+						for _, value := range values {
+							req.Avatar.Headers = append(req.Avatar.Headers, &http2.HttpHeader{Key: key, Value: value})
+						}
+					}
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					req.Avatar.Body = body
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil

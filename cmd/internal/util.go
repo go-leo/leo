@@ -40,11 +40,21 @@ func singular(plural string) string {
 
 func FindField(name string, inMessage *protogen.Message) *protogen.Field {
 	for _, field := range inMessage.Fields {
-		if string(field.Desc.Name()) == name || field.Desc.JSONName() == name {
+		if FieldNameEquals(name, field) {
 			return field
 		}
 	}
 	return nil
+}
+
+func FieldNameEquals(name string, field *protogen.Field) bool {
+	if string(field.Desc.Name()) == name {
+		return true
+	}
+	if field.Desc.JSONName() == name {
+		return true
+	}
+	return false
 }
 
 // FullMessageTypeName builds the full type name of a message.

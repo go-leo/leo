@@ -4,18 +4,15 @@ package library
 
 import (
 	context "context"
-	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
-	grpc "google.golang.org/grpc"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	io "io"
 	http1 "net/http"
-	url "net/url"
 	strconv "strconv"
 )
 
@@ -37,7 +34,8 @@ func NewLibraryServiceHTTPServer(
 	opts ...http.ServerOption,
 ) http1.Handler {
 	r := mux.NewRouter()
-	r.Methods("POST").
+	r.Name("/google.example.library.v1.LibraryService/CreateShelf").
+		Methods("POST").
 		Path("/v1/shelves").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateShelf(), mdw...),
@@ -67,14 +65,15 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("GET").
+	r.Name("/google.example.library.v1.LibraryService/GetShelf").
+		Methods("GET").
 		Path("/v1/shelves/{shelf}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetShelfRequest{}
-				vars := mux.Vars(r)
-				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
+				queries := r.URL.Query()
+				req.Name = queries.Get("name")
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -92,7 +91,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("GET").
+	r.Name("/google.example.library.v1.LibraryService/ListShelves").
+		Methods("GET").
 		Path("/v1/shelves").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.ListShelves(), mdw...),
@@ -122,14 +122,15 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("DELETE").
+	r.Name("/google.example.library.v1.LibraryService/DeleteShelf").
+		Methods("DELETE").
 		Path("/v1/shelves/{shelf}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.DeleteShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteShelfRequest{}
-				vars := mux.Vars(r)
-				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
+				queries := r.URL.Query()
+				req.Name = queries.Get("name")
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -147,7 +148,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/google.example.library.v1.LibraryService/MergeShelves").
+		Methods("POST").
 		Path("/v1/shelves/{shelf}:merge").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.MergeShelves(), mdw...),
@@ -160,8 +162,6 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req); err != nil {
 					return nil, err
 				}
-				vars := mux.Vars(r)
-				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -179,7 +179,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/google.example.library.v1.LibraryService/CreateBook").
+		Methods("POST").
 		Path("/v1/shelves/{shelf}/books").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.CreateBook(), mdw...),
@@ -192,8 +193,8 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req.Book); err != nil {
 					return nil, err
 				}
-				vars := mux.Vars(r)
-				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
+				queries := r.URL.Query()
+				req.Parent = queries.Get("parent")
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -211,14 +212,15 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("GET").
+	r.Name("/google.example.library.v1.LibraryService/GetBook").
+		Methods("GET").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.GetBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetBookRequest{}
-				vars := mux.Vars(r)
-				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
+				queries := r.URL.Query()
+				req.Name = queries.Get("name")
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -236,15 +238,15 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("GET").
+	r.Name("/google.example.library.v1.LibraryService/ListBooks").
+		Methods("GET").
 		Path("/v1/shelves/{shelf}/books").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.ListBooks(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &ListBooksRequest{}
-				vars := mux.Vars(r)
-				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
 				queries := r.URL.Query()
+				req.Parent = queries.Get("parent")
 				if v, err := strconv.ParseInt(queries.Get("page_size"), 10, 32); err != nil {
 					return nil, err
 				} else {
@@ -268,14 +270,15 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("DELETE").
+	r.Name("/google.example.library.v1.LibraryService/DeleteBook").
+		Methods("DELETE").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.DeleteBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteBookRequest{}
-				vars := mux.Vars(r)
-				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
+				queries := r.URL.Query()
+				req.Name = queries.Get("name")
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -293,7 +296,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("PATCH").
+	r.Name("/google.example.library.v1.LibraryService/UpdateBook").
+		Methods("PATCH").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.UpdateBook(), mdw...),
@@ -306,11 +310,6 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req.Book); err != nil {
 					return nil, err
 				}
-				vars := mux.Vars(r)
-				if req.Book == nil {
-					req.Book = &Book{}
-				}
-				req.Book.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				queries := r.URL.Query()
 				mask, err := fieldmaskpb.New(req.Book, queries["update_mask"]...)
 				if err != nil {
@@ -334,7 +333,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Methods("POST").
+	r.Name("/google.example.library.v1.LibraryService/MoveBook").
+		Methods("POST").
 		Path("/v1/shelves/{shelf}/books/{book}:move").
 		Handler(http.NewServer(
 			endpointx.Chain(endpoints.MoveBook(), mdw...),
@@ -347,8 +347,6 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req); err != nil {
 					return nil, err
 				}
-				vars := mux.Vars(r)
-				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -472,7 +470,7 @@ func (c *httpLibraryServiceClient) MoveBook(ctx context.Context, request *MoveBo
 }
 
 func NewLibraryServiceHTTPClient(
-	conn *grpc.ClientConn,
+	instance string,
 	mdw []endpoint.Middleware,
 	opts ...http.ClientOption,
 ) interface {
@@ -488,13 +486,53 @@ func NewLibraryServiceHTTPClient(
 	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 } {
+	r := mux.NewRouter()
+	r.Name("/google.example.library.v1.LibraryService/CreateShelf").
+		Methods("POST").
+		Path("/v1/shelves")
+	r.Name("/google.example.library.v1.LibraryService/GetShelf").
+		Methods("GET").
+		Path("/v1/shelves/{shelf}")
+	r.Name("/google.example.library.v1.LibraryService/ListShelves").
+		Methods("GET").
+		Path("/v1/shelves")
+	r.Name("/google.example.library.v1.LibraryService/DeleteShelf").
+		Methods("DELETE").
+		Path("/v1/shelves/{shelf}")
+	r.Name("/google.example.library.v1.LibraryService/MergeShelves").
+		Methods("POST").
+		Path("/v1/shelves/{shelf}:merge")
+	r.Name("/google.example.library.v1.LibraryService/CreateBook").
+		Methods("POST").
+		Path("/v1/shelves/{shelf}/books")
+	r.Name("/google.example.library.v1.LibraryService/GetBook").
+		Methods("GET").
+		Path("/v1/shelves/{shelf}/books/{book}")
+	r.Name("/google.example.library.v1.LibraryService/ListBooks").
+		Methods("GET").
+		Path("/v1/shelves/{shelf}/books")
+	r.Name("/google.example.library.v1.LibraryService/DeleteBook").
+		Methods("DELETE").
+		Path("/v1/shelves/{shelf}/books/{book}")
+	r.Name("/google.example.library.v1.LibraryService/UpdateBook").
+		Methods("PATCH").
+		Path("/v1/shelves/{shelf}/books/{book}")
+	r.Name("/google.example.library.v1.LibraryService/MoveBook").
+		Methods("POST").
+		Path("/v1/shelves/{shelf}/books/{book}:move")
 	return &httpLibraryServiceClient{
 		createShelf: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/shelves"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*CreateShelfRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req.Shelf); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -503,11 +541,10 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		getShelf: endpointx.Chain(
-			http.NewClient(
-				"GET",
-				&url.URL{Path: "/v1/shelves/{shelf}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*GetShelfRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -516,11 +553,10 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		listShelves: endpointx.Chain(
-			http.NewClient(
-				"GET",
-				&url.URL{Path: "/v1/shelves"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*ListShelvesRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -529,11 +565,10 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		deleteShelf: endpointx.Chain(
-			http.NewClient(
-				"DELETE",
-				&url.URL{Path: "/v1/shelves/{shelf}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*DeleteShelfRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -542,11 +577,17 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		mergeShelves: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/shelves/{shelf}:merge"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*MergeShelvesRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -555,11 +596,17 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		createBook: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/shelves/{shelf}/books"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*CreateBookRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req.Book); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -568,11 +615,10 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		getBook: endpointx.Chain(
-			http.NewClient(
-				"GET",
-				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*GetBookRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -581,11 +627,10 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		listBooks: endpointx.Chain(
-			http.NewClient(
-				"GET",
-				&url.URL{Path: "/v1/shelves/{shelf}/books"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*ListBooksRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -594,11 +639,10 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		deleteBook: endpointx.Chain(
-			http.NewClient(
-				"DELETE",
-				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*DeleteBookRequest)
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -607,11 +651,17 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		updateBook: endpointx.Chain(
-			http.NewClient(
-				"PATCH",
-				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*UpdateBookRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req.Book); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -620,11 +670,17 @@ func NewLibraryServiceHTTPClient(
 			).Endpoint(),
 			mdw...),
 		moveBook: endpointx.Chain(
-			http.NewClient(
-				"POST",
-				&url.URL{Path: "/v1/shelves/{shelf}/books/{book}:move"},
-				func(ctx context.Context, r *http1.Request, obj interface{}) error {
-					return nil
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*MoveBookRequest)
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					if err := protojson.Unmarshal(body, req); err != nil {
+						return nil, err
+					}
+					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil

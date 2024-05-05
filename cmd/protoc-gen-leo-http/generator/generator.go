@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"strconv"
+	"sync"
 )
 
 type Generator struct {
@@ -68,15 +69,14 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 	generatedFile.P("r := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
-		method := httpRule.Method()
-		path := httpRule.Path()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则
-		path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(path)
-		generatedFile.P("r.Methods(", strconv.Quote(method), ").")
+		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
+		generatedFile.P("r.Name(", strconv.Quote(endpoint.FullName()), ").")
+		generatedFile.P("Methods(", strconv.Quote(httpRule.Method()), ").")
 		generatedFile.P("Path(", strconv.Quote(path), ").")
 		generatedFile.P("Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(")
 		generatedFile.P(internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ")
-		if err := f.PrintDecodeRequestFunc(generatedFile, endpoint, httpRule, path, namedPathNames, namedPathTemplate, namedPathParameters); err != nil {
+		if err := f.PrintDecodeRequestFunc(generatedFile, endpoint); err != nil {
 			return err
 		}
 		if err := f.PrintEncodeResponseFunc(generatedFile, endpoint, httpRule); err != nil {
@@ -94,11 +94,14 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 }
 
 func (f *Generator) PrintDecodeRequestFunc(
-	generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule,
-	path string, namedPathNames []string, namedPathTemplate string, namedPathParameters []string,
+	generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint,
 ) error {
 	generatedFile.P("func(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.HttpPackage.Ident("Request"), ") (any, error) {")
 	generatedFile.P("req := &", endpoint.InputGoIdent(), "{}")
+
+	httpRule := endpoint.HttpRule()
+	path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
+	pathParameters := slicex.Difference(httpRule.PathParameters(path), namedPathParameters)
 
 	// coveredParameters tracks the parameters that have been used in the body or path.
 	coveredParameters := make([]string, 0)
@@ -110,7 +113,7 @@ func (f *Generator) PrintDecodeRequestFunc(
 	case "*":
 		switch endpoint.Input().Desc.FullName() {
 		case "google.api.HttpBody":
-			f.PrintApiBody(generatedFile, nil)
+			f.PrintApiFromBody(generatedFile, nil)
 		case "google.rpc.HttpRequest":
 			f.PrintRpcBody(generatedFile, nil)
 		default:
@@ -127,10 +130,12 @@ func (f *Generator) PrintDecodeRequestFunc(
 		}
 	}
 
+	var pathOnce sync.Once
 	// path arguments
-	pathParameters := httpRule.PathParameters(path)
 	if len(pathParameters) > 0 {
-		generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
+		pathOnce.Do(func() {
+			generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
+		})
 		// 命名路径参数设值
 		if len(namedPathParameters) > 0 {
 			coveredParameters = append(coveredParameters, namedPathNames[0])
@@ -173,10 +178,13 @@ func (f *Generator) PrintDecodeRequestFunc(
 			line = append(line, ")")
 			generatedFile.P(line...)
 		}
+
 		// 普通路径参数设值
 		// 去掉命名路径参数
-		pathParameters := slicex.Difference(pathParameters, namedPathParameters)
 		for _, pathParameter := range pathParameters {
+			pathOnce.Do(func() {
+				generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
+			})
 			coveredParameters = append(coveredParameters, pathParameter)
 			field := internal.FindField(pathParameter, endpoint.Input())
 			if field == nil {
@@ -234,7 +242,7 @@ func (f *Generator) PrintDecodeRequestFunc(
 	return nil
 }
 
-func (f *Generator) PrintApiBody(generatedFile *protogen.GeneratedFile, field *protogen.Field) {
+func (f *Generator) PrintApiFromBody(generatedFile *protogen.GeneratedFile, field *protogen.Field) {
 	prefix := "req."
 	if field != nil {
 		prefix = prefix + field.GoName + "."
@@ -271,7 +279,7 @@ func (f *Generator) printFieldBody(generatedFile *protogen.GeneratedFile, field 
 	message := field.Message
 	switch {
 	case message != nil && message.Desc.FullName() == "google.api.HttpBody":
-		f.PrintApiBody(generatedFile, field)
+		f.PrintApiFromBody(generatedFile, field)
 	case message != nil && message.Desc.FullName() == "google.rpc.HttpRequest":
 		f.PrintRpcBody(generatedFile, field)
 	default:
@@ -606,7 +614,7 @@ func (f *Generator) GenerateClient(service *internal.Service, generatedFile *pro
 
 func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
 	generatedFile.P("func New", service.HTTPClientName(), "(")
-	generatedFile.P("conn *", internal.GrpcPackage.Ident("ClientConn"), ",")
+	generatedFile.P("instance string,")
 	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P("opts ...", internal.HttpTransportPackage.Ident("ClientOption"), ",")
 	generatedFile.P(") interface {")
@@ -614,21 +622,20 @@ func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *
 		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	generatedFile.P("} {")
-	generatedFile.P("return &", service.UnexportedHTTPClientName(), "{")
+	generatedFile.P("r := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
-		method := httpRule.Method()
-		path := httpRule.Path()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则
-		path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(path)
-		_ = namedPathNames
-		_ = namedPathTemplate
-		_ = namedPathParameters
+		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
+		generatedFile.P("r.Name(", strconv.Quote(endpoint.FullName()), ").")
+		generatedFile.P("Methods(", strconv.Quote(httpRule.Method()), ").")
+		generatedFile.P("Path(", strconv.Quote(path), ")")
+	}
+	generatedFile.P("return &", service.UnexportedHTTPClientName(), "{")
+	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.UnexportedName(), ":    ", internal.EndpointxPackage.Ident("Chain"), "(")
-		generatedFile.P(internal.HttpTransportPackage.Ident("NewClient"), "(")
-		generatedFile.P(strconv.Quote(method), ", ")
-		generatedFile.P("&", internal.UrlPackage.Ident("URL"), "{Path: ", strconv.Quote(path), "},")
-		if err := f.PrintEncodeRequestFunc(generatedFile); err != nil {
+		generatedFile.P(internal.HttpTransportPackage.Ident("NewExplicitClient"), "(")
+		if err := f.PrintEncodeRequestFunc(generatedFile, endpoint); err != nil {
 			return err
 		}
 		if err := f.PrintDecodeResponseFunc(generatedFile); err != nil {
@@ -644,11 +651,42 @@ func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *
 	return nil
 }
 
-func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("func(ctx context.Context, r *http1.Request, obj interface{}) error {")
-	generatedFile.P("return nil")
-	generatedFile.P("},")
+func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	generatedFile.P("func(ctx context.Context, obj interface{}) (*http1.Request, error) {")
+	generatedFile.P("req := obj.(*", endpoint.InputGoIdent(), ")")
+	httpRule := endpoint.HttpRule()
+	// 调整路径，来适应 github.com/gorilla/mux 路由规则
+	//path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
 
+	// coveredParameters tracks the parameters that have been used in the body or path.
+	coveredParameters := make([]string, 0)
+	// body arguments
+	bodyParameter := httpRule.Body()
+	switch bodyParameter {
+	case "":
+		// ignore
+	case "*":
+		switch endpoint.Input().Desc.FullName() {
+		case "google.api.HttpBody":
+			f.PrintApiToBody(generatedFile, endpoint, nil)
+		case "google.rpc.HttpRequest":
+			f.PrintRpcBody(generatedFile, nil)
+		default:
+			f.printStarBody(generatedFile)
+		}
+	default:
+		field := internal.FindField(bodyParameter, endpoint.Input())
+		if field == nil {
+			return errNotFoundField(endpoint, []string{bodyParameter})
+		}
+		coveredParameters = append(coveredParameters, bodyParameter)
+		if err := f.printFieldBody(generatedFile, field); err != nil {
+			return err
+		}
+	}
+
+	generatedFile.P("	return nil, nil")
+	generatedFile.P("},")
 	return nil
 }
 
@@ -658,4 +696,26 @@ func (f *Generator) PrintDecodeResponseFunc(generatedFile *protogen.GeneratedFil
 	generatedFile.P("},")
 
 	return nil
+}
+
+func (f *Generator) PrintApiToBody(generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint, field *protogen.Field) {
+	prefix := "req."
+	if field != nil {
+		prefix = prefix + field.GoName + "."
+	}
+	generatedFile.P(prefix, "ContentType = r.Header.Get(", strconv.Quote("Content-Type"), ")")
+	generatedFile.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
+	generatedFile.P("if err != nil {")
+	generatedFile.P("return nil, err")
+	generatedFile.P("}")
+	generatedFile.P(prefix, "Data = body")
+
+	rule := endpoint.HttpRule()
+
+	generatedFile.P("r, err := ", internal.HttpPackage.Ident("NewRequest"), "(", strconv.Quote(rule.Method()), ", ", strconv.Quote("/v1/users"), ", ", internal.BytesPackage.Ident("NewReader"), "(req.GetData()))")
+	generatedFile.P("if err != nil {")
+	generatedFile.P("return nil, err")
+	generatedFile.P("}")
+	generatedFile.P("r.Header.Set(", strconv.Quote("Content-Type"), ", ", prefix, "GetContentType())")
+	generatedFile.P("return r, nil")
 }

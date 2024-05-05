@@ -22,17 +22,6 @@ func main() {
 	defer conn.Close()
 	client := demo.NewDemoServiceHTTPClient(conn, []endpoint.Middleware{})
 
-	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
-		Name:   randx.HexString(12),
-		Age:    randx.Int31n(50),
-		Salary: float64(randx.Int31n(100000)),
-		Token:  randx.NumericString(16),
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("CreateUser:", createUserResp)
-
 	updateUserResp, err := client.UpdateUser(context.Background(), &demo.UpdateUserRequest{
 		Name:   randx.HexString(12),
 		Age:    randx.Int31n(50),
@@ -43,6 +32,17 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("UpdateUser:", updateUserResp)
+
+	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
+		Name:   randx.HexString(12),
+		Age:    randx.Int31n(50),
+		Salary: float64(randx.Int31n(100000)),
+		Token:  randx.NumericString(16),
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("CreateUser:", createUserResp)
 
 	getUserResp, err := client.GetUser(context.Background(), &demo.GetUserRequest{
 		UserId: randx.Uint64(),
