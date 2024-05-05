@@ -2,9 +2,7 @@ package generator
 
 import (
 	"fmt"
-	"github.com/go-leo/gox/slicex"
 	"github.com/go-leo/leo/v3/cmd/internal"
-	"golang.org/x/exp/slices"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"strconv"
@@ -100,18 +98,13 @@ func (f *Generator) PrintDecodeRequestFunc(
 	generatedFile.P("req := &", endpoint.InputGoIdent(), "{}")
 
 	httpRule := endpoint.HttpRule()
-	path, namedPathNames, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
-	pathParameters := slicex.Difference(httpRule.PathParameters(path), namedPathParameters)
+	bodyMessage, bodyField, namedPathFields, pathFields, queryFields, err := endpoint.ParseParameters()
+	if err != nil {
+		return err
+	}
 
-	// coveredParameters tracks the parameters that have been used in the body or path.
-	coveredParameters := make([]string, 0)
-	// body arguments
-	bodyParameter := httpRule.Body()
-	switch bodyParameter {
-	case "":
-		// ignore
-	case "*":
-		switch endpoint.Input().Desc.FullName() {
+	if bodyMessage != nil {
+		switch bodyMessage.Desc.FullName() {
 		case "google.api.HttpBody":
 			f.PrintApiFromBody(generatedFile, nil)
 		case "google.rpc.HttpRequest":
@@ -119,121 +112,72 @@ func (f *Generator) PrintDecodeRequestFunc(
 		default:
 			f.printStarBody(generatedFile)
 		}
-	default:
-		field := internal.FindField(bodyParameter, endpoint.Input())
-		if field == nil {
-			return errNotFoundField(endpoint, []string{bodyParameter})
-		}
-		coveredParameters = append(coveredParameters, bodyParameter)
-		if err := f.printFieldBody(generatedFile, field); err != nil {
+	} else if bodyField != nil {
+		if err := f.printFieldBody(generatedFile, bodyField); err != nil {
 			return err
 		}
 	}
 
 	var pathOnce sync.Once
-	// path arguments
-	if len(pathParameters) > 0 {
+	for i, namedPathField := range namedPathFields {
 		pathOnce.Do(func() {
 			generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
 		})
-		// 命名路径参数设值
-		if len(namedPathParameters) > 0 {
-			coveredParameters = append(coveredParameters, namedPathNames[0])
-			inMessage := endpoint.Input()
-			var fields []*protogen.Field
-			for i := 0; i < len(namedPathNames)-1; i++ {
-				name := namedPathNames[i]
-				field := internal.FindField(name, inMessage)
-				if field == nil {
-					return errNotFoundField(endpoint, namedPathNames)
-				}
-				if field.Desc.Kind() != protoreflect.MessageKind {
-					return errInvalidType(endpoint, namedPathNames)
-				}
-				fields = append(fields, field)
-				inMessage = field.Message
-				fullFieldName := internal.FullFieldName(fields)
-				generatedFile.P("if req.", fullFieldName, " == nil {")
-				generatedFile.P("req.", fullFieldName, " = &", field.Message.GoIdent, "{}")
-				generatedFile.P("}")
-			}
-			field := internal.FindField(namedPathNames[len(namedPathNames)-1], inMessage)
-			if field == nil {
-				return errNotFoundField(endpoint, namedPathNames)
-			}
-			fullFieldName := internal.FullFieldName(append(fields, field))
-			fmtSeg := []any{internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote(namedPathTemplate)}
+		fullFieldName := internal.FullFieldName(namedPathFields[:i+1])
+		if i < len(namedPathFields)-1 {
+			generatedFile.P("if req.", fullFieldName, " == nil {")
+			generatedFile.P("req.", fullFieldName, " = &", namedPathField.Message.GoIdent, "{}")
+			generatedFile.P("}")
+		} else {
+			_, _, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
+			left := []any{"req.", fullFieldName, " = "}
+			right := []any{internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote(namedPathTemplate)}
 			for _, namedPathParameter := range namedPathParameters {
-				fmtSeg = append(fmtSeg, ", vars[", strconv.Quote(namedPathParameter), "]")
+				right = append(right, ", vars[", strconv.Quote(namedPathParameter), "]")
 			}
-			switch field.Desc.Kind() {
-			case protoreflect.StringKind:
-			case protoreflect.BytesKind:
-				fmtSeg = slicex.Prepend(append(fmtSeg, ")"), "[]byte(")
-			default:
-				return errInvalidType(endpoint, namedPathNames)
-			}
-			line := []any{"req.", fullFieldName, " = "}
-			line = append(line, fmtSeg...)
-			line = append(line, ")")
-			generatedFile.P(line...)
-		}
-
-		// 普通路径参数设值
-		// 去掉命名路径参数
-		for _, pathParameter := range pathParameters {
-			pathOnce.Do(func() {
-				generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
-			})
-			coveredParameters = append(coveredParameters, pathParameter)
-			field := internal.FindField(pathParameter, endpoint.Input())
-			if field == nil {
-				return errNotFoundField(endpoint, []string{pathParameter})
-			}
-			left := []any{"req.", field.GoName, " = "}
-			right := []any{"vars[", strconv.Quote(pathParameter), "]"}
-			if err := f.printAssign(generatedFile, field, left, right, false); err != nil {
+			right = append(right, ")")
+			if err := f.printAssign(generatedFile, namedPathField, left, right, false); err != nil {
 				return err
 			}
 		}
 	}
 
-	// query arguments
-	if bodyParameter != "*" {
-		var queryFields []*protogen.Field
-		for _, field := range endpoint.Input().Fields {
-			fieldName := string(field.Desc.Name())
-			if slices.Contains(coveredParameters, fieldName) {
-				continue
-			}
-			queryFields = append(queryFields, field)
+	for _, pathField := range pathFields {
+		pathOnce.Do(func() {
+			generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
+		})
+		left := []any{"req.", pathField.GoName, " = "}
+		right := []any{"vars[", strconv.Quote(string(pathField.Desc.Name())), "]"}
+		if err := f.printAssign(generatedFile, pathField, left, right, false); err != nil {
+			return err
+		}
+	}
 
-		}
-		if len(queryFields) > 0 {
+	var queryOnce sync.Once
+	for _, field := range queryFields {
+		queryOnce.Do(func() {
 			generatedFile.P("queries := r.URL.Query()")
-		}
-		for _, field := range queryFields {
-			fieldName := string(field.Desc.Name())
-			if field.Message != nil && field.Message.Desc.FullName() == "google.protobuf.FieldMask" {
-				bodyField := internal.FindField(bodyParameter, endpoint.Input())
-				if bodyField == nil {
-					return errNotFoundField(endpoint, []string{bodyParameter})
-				}
+		})
+		fieldName := string(field.Desc.Name())
+		if field.Message != nil && field.Message.Desc.FullName() == "google.protobuf.FieldMask" {
+			if bodyField != nil {
 				generatedFile.P("mask, err := ", internal.FieldmaskpbPackage.Ident("New"), "(req.", bodyField.GoName, ", queries[", strconv.Quote(fieldName), "]...)")
-				generatedFile.P("if err != nil {")
-				generatedFile.P("return nil, err")
-				generatedFile.P("}")
-				generatedFile.P("req.UpdateMask = mask")
-				continue
+			} else if bodyMessage != nil {
+				generatedFile.P("mask, err := ", internal.FieldmaskpbPackage.Ident("New"), "(req", ", queries[", strconv.Quote(fieldName), "]...)")
 			}
-			left := []any{"req.", field.GoName, " = "}
-			right := []any{"queries.Get(", strconv.Quote(fieldName), ")"}
-			if field.Desc.IsList() {
-				right = []any{"queries[", strconv.Quote(fieldName), "]"}
-			}
-			if err := f.printAssign(generatedFile, field, left, right, field.Desc.IsList()); err != nil {
-				return err
-			}
+			generatedFile.P("if err != nil {")
+			generatedFile.P("return nil, err")
+			generatedFile.P("}")
+			generatedFile.P("req.UpdateMask = mask")
+			continue
+		}
+		left := []any{"req.", field.GoName, " = "}
+		right := []any{"queries.Get(", strconv.Quote(fieldName), ")"}
+		if field.Desc.IsList() {
+			right = []any{"queries[", strconv.Quote(fieldName), "]"}
+		}
+		if err := f.printAssign(generatedFile, field, left, right, field.Desc.IsList()); err != nil {
+			return err
 		}
 	}
 

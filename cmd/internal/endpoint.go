@@ -2,16 +2,18 @@ package internal
 
 import (
 	"fmt"
+	"github.com/go-leo/gox/slicex"
 	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"net/http"
 	"strings"
 )
 
 type Endpoint struct {
-	method    *protogen.Method
-	httpRules *HttpRule
+	method   *protogen.Method
+	httpRule *HttpRule
 }
 
 func (e Endpoint) Name() string {
@@ -69,11 +71,97 @@ func (e Endpoint) ServerStreamName() string {
 }
 
 func (e Endpoint) HttpRule() *HttpRule {
-	return e.httpRules
+	return e.httpRule
+}
+
+func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*protogen.Field, []*protogen.Field, []*protogen.Field, error) {
+	httpRule := e.httpRule
+	bodyParameter := httpRule.Body()
+	path, namedPathName, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
+	pathParameters := slicex.Difference(httpRule.PathParameters(path), namedPathParameters)
+
+	// body arguments
+	var bodyMessage *protogen.Message
+	var bodyField *protogen.Field
+	switch bodyParameter {
+	case "":
+		// ignore
+	case "*":
+		bodyMessage = e.Input()
+	default:
+		bodyField = FindField(bodyParameter, e.Input())
+		if bodyField == nil {
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find body field %s", e.FullName(), bodyParameter)
+		}
+	}
+
+	// namedPathParameters
+	var namedPathFields []*protogen.Field
+	message := e.Input()
+	if len(namedPathName) > 0 {
+		namedPathParameters := strings.Split(namedPathName, ".")
+		for i, namedPathParameter := range namedPathParameters {
+			field := FindField(namedPathParameter, message)
+			if field == nil {
+				return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, failed to find named path field %s", e.FullName(), namedPathName, namedPathParameter)
+			}
+			if i == len(namedPathParameters)-1 {
+				switch field.Desc.Kind() {
+				case protoreflect.StringKind:
+				case protoreflect.BytesKind:
+				case protoreflect.MessageKind:
+					switch field.Message.Desc.FullName() {
+					case "google.protobuf.StringValue":
+					case "google.protobuf.BytesValue":
+					default:
+						return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path field message type %s invalid", e.FullName(), namedPathName, field.Desc.Kind())
+					}
+				default:
+					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path field type %s invalid", e.FullName(), namedPathName, field.Desc.Kind())
+				}
+			} else {
+				if field.Desc.Kind() != protoreflect.MessageKind {
+					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s in %s is not message, %s", e.FullName(), field.Desc.Name(), namedPathName, field.Desc.Kind())
+				}
+			}
+			namedPathFields = append(namedPathFields, field)
+			message = field.Message
+		}
+	}
+
+	var pathFields []*protogen.Field
+	for _, pathParameter := range pathParameters {
+		field := FindField(pathParameter, e.Input())
+		if field == nil {
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find path field %s", e.FullName(), bodyParameter)
+		}
+		pathFields = append(pathFields, field)
+	}
+
+	var queryFields []*protogen.Field
+	if bodyMessage != nil {
+		return bodyMessage, bodyField, namedPathFields, pathFields, queryFields, nil
+	}
+	for _, field := range e.Input().Fields {
+		if field == bodyField {
+			continue
+		}
+		if slices.Contains(namedPathFields, field) {
+			continue
+		}
+		if slices.Contains(namedPathFields, field) {
+			continue
+		}
+		if slices.Contains(pathFields, field) {
+			continue
+		}
+		queryFields = append(queryFields, field)
+	}
+	return bodyMessage, bodyField, namedPathFields, pathFields, queryFields, nil
 }
 
 func NewEndpoint(method *protogen.Method, rule *annotations.HttpRule) *Endpoint {
-	return &Endpoint{method: method, httpRules: &HttpRule{rule: rule}}
+	return &Endpoint{method: method, httpRule: &HttpRule{rule: rule}}
 }
 
 type HttpRule struct {
@@ -118,7 +206,7 @@ func (r *HttpRule) Path() string {
 	}
 }
 
-func (r *HttpRule) RegularizePath(path string) (string, []string, string, []string) {
+func (r *HttpRule) RegularizePath(path string) (string, string, string, []string) {
 	var name string
 	var parameters []string
 	var template string
@@ -140,7 +228,7 @@ func (r *HttpRule) RegularizePath(path string) (string, []string, string, []stri
 		template = strings.Join(templateParts, "/")
 		path = strings.Replace(path, matches[0], newPath, 1)
 	}
-	return path, strings.Split(name, "."), template, parameters
+	return path, name, template, parameters
 }
 
 func (r *HttpRule) PathParameters(path string) []string {

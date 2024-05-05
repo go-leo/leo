@@ -4,6 +4,7 @@ package endpointsapis
 
 import (
 	context "context"
+	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -35,8 +36,9 @@ func NewWorkspacesHTTPServer(
 			endpointx.Chain(endpoints.ListWorkspaces(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &ListWorkspacesRequest{}
+				vars := mux.Vars(r)
+				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars["project"], vars["location"])
 				queries := r.URL.Query()
-				req.Parent = queries.Get("parent")
 				if v, err := strconv.ParseInt(queries.Get("page_size"), 10, 32); err != nil {
 					return nil, err
 				} else {
@@ -67,8 +69,8 @@ func NewWorkspacesHTTPServer(
 			endpointx.Chain(endpoints.GetWorkspace(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetWorkspaceRequest{}
-				queries := r.URL.Query()
-				req.Name = queries.Get("name")
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars["project"], vars["location"], vars["workspace"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -100,8 +102,8 @@ func NewWorkspacesHTTPServer(
 				if err := protojson.Unmarshal(body, req.Workspace); err != nil {
 					return nil, err
 				}
-				queries := r.URL.Query()
-				req.Parent = queries.Get("parent")
+				vars := mux.Vars(r)
+				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars["project"], vars["location"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -133,8 +135,9 @@ func NewWorkspacesHTTPServer(
 				if err := protojson.Unmarshal(body, req.Workspace); err != nil {
 					return nil, err
 				}
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("projects/%s/locations/%s/Workspaces/%s", vars["project"], vars["location"], vars["Workspace"])
 				queries := r.URL.Query()
-				req.Name = queries.Get("name")
 				mask, err := fieldmaskpb.New(req.Workspace, queries["update_mask"]...)
 				if err != nil {
 					return nil, err
@@ -164,8 +167,8 @@ func NewWorkspacesHTTPServer(
 			endpointx.Chain(endpoints.DeleteWorkspace(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteWorkspaceRequest{}
-				queries := r.URL.Query()
-				req.Name = queries.Get("name")
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars["project"], vars["location"], vars["workspace"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {

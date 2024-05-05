@@ -4,6 +4,7 @@ package library
 
 import (
 	context "context"
+	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -72,8 +73,8 @@ func NewLibraryServiceHTTPServer(
 			endpointx.Chain(endpoints.GetShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetShelfRequest{}
-				queries := r.URL.Query()
-				req.Name = queries.Get("name")
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -129,8 +130,8 @@ func NewLibraryServiceHTTPServer(
 			endpointx.Chain(endpoints.DeleteShelf(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteShelfRequest{}
-				queries := r.URL.Query()
-				req.Name = queries.Get("name")
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -162,6 +163,8 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req); err != nil {
 					return nil, err
 				}
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -193,8 +196,8 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req.Book); err != nil {
 					return nil, err
 				}
-				queries := r.URL.Query()
-				req.Parent = queries.Get("parent")
+				vars := mux.Vars(r)
+				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -219,8 +222,8 @@ func NewLibraryServiceHTTPServer(
 			endpointx.Chain(endpoints.GetBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetBookRequest{}
-				queries := r.URL.Query()
-				req.Name = queries.Get("name")
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -245,8 +248,9 @@ func NewLibraryServiceHTTPServer(
 			endpointx.Chain(endpoints.ListBooks(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &ListBooksRequest{}
+				vars := mux.Vars(r)
+				req.Parent = fmt.Sprintf("shelves/%s", vars["shelf"])
 				queries := r.URL.Query()
-				req.Parent = queries.Get("parent")
 				if v, err := strconv.ParseInt(queries.Get("page_size"), 10, 32); err != nil {
 					return nil, err
 				} else {
@@ -277,8 +281,8 @@ func NewLibraryServiceHTTPServer(
 			endpointx.Chain(endpoints.DeleteBook(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteBookRequest{}
-				queries := r.URL.Query()
-				req.Name = queries.Get("name")
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -310,6 +314,11 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req.Book); err != nil {
 					return nil, err
 				}
+				vars := mux.Vars(r)
+				if req.Book == nil {
+					req.Book = &Book{}
+				}
+				req.Book.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				queries := r.URL.Query()
 				mask, err := fieldmaskpb.New(req.Book, queries["update_mask"]...)
 				if err != nil {
@@ -347,6 +356,8 @@ func NewLibraryServiceHTTPServer(
 				if err := protojson.Unmarshal(body, req); err != nil {
 					return nil, err
 				}
+				vars := mux.Vars(r)
+				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars["shelf"], vars["book"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
