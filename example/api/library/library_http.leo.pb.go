@@ -3,6 +3,7 @@
 package library
 
 import (
+	bytes "bytes"
 	context "context"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
@@ -536,14 +537,17 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateShelfRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req.Shelf)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req.Shelf); err != nil {
+					body := bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -555,7 +559,12 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetShelfRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -567,7 +576,12 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ListShelvesRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -579,7 +593,12 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteShelfRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -591,14 +610,17 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*MergeShelvesRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req); err != nil {
+					body = bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -610,14 +632,17 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateBookRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req.Book)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req.Book); err != nil {
+					body := bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -629,7 +654,12 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetBookRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -641,7 +671,12 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ListBooksRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -653,7 +688,12 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteBookRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -665,14 +705,17 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateBookRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req.Book)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req.Book); err != nil {
+					body := bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "PATCH", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -684,14 +727,17 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*MoveBookRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req); err != nil {
+					body = bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil

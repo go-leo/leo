@@ -3,6 +3,7 @@
 package endpointsapis
 
 import (
+	bytes "bytes"
 	context "context"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
@@ -269,7 +270,12 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ListWorkspacesRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -281,7 +287,12 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetWorkspaceRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -293,14 +304,17 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateWorkspaceRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req.Workspace)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req.Workspace); err != nil {
+					body := bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -312,14 +326,17 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateWorkspaceRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req.Workspace)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req.Workspace); err != nil {
+					body := bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "PATCH", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -331,7 +348,12 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteWorkspaceRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil

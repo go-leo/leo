@@ -32,6 +32,7 @@ const (
 	DemoService_UploadUserAvatar_FullMethodName = "/leo.example.demo.v1.DemoService/UploadUserAvatar"
 	DemoService_PushUsers_FullMethodName        = "/leo.example.demo.v1.DemoService/PushUsers"
 	DemoService_PushUserAvatar_FullMethodName   = "/leo.example.demo.v1.DemoService/PushUserAvatar"
+	DemoService_ModifyUser_FullMethodName       = "/leo.example.demo.v1.DemoService/ModifyUser"
 )
 
 // DemoServiceClient is the client API for DemoService service.
@@ -58,6 +59,8 @@ type DemoServiceClient interface {
 	PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error)
 	// PushUserAvatar push user avatar
 	PushUserAvatar(ctx context.Context, in *PushUserAvatarRequest, opts ...grpc.CallOption) (*PushUserAvatarResponse, error)
+	// GetUser get user
+	ModifyUser(ctx context.Context, in *ModifyUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type demoServiceClient struct {
@@ -158,6 +161,15 @@ func (c *demoServiceClient) PushUserAvatar(ctx context.Context, in *PushUserAvat
 	return out, nil
 }
 
+func (c *demoServiceClient) ModifyUser(ctx context.Context, in *ModifyUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, DemoService_ModifyUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DemoServiceServer is the server API for DemoService service.
 // All implementations should embed UnimplementedDemoServiceServer
 // for forward compatibility
@@ -182,6 +194,8 @@ type DemoServiceServer interface {
 	PushUsers(context.Context, *http.HttpRequest) (*http.HttpResponse, error)
 	// PushUserAvatar push user avatar
 	PushUserAvatar(context.Context, *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+	// GetUser get user
+	ModifyUser(context.Context, *ModifyUserRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedDemoServiceServer should be embedded to have forward compatible implementations.
@@ -217,6 +231,9 @@ func (UnimplementedDemoServiceServer) PushUsers(context.Context, *http.HttpReque
 }
 func (UnimplementedDemoServiceServer) PushUserAvatar(context.Context, *PushUserAvatarRequest) (*PushUserAvatarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PushUserAvatar not implemented")
+}
+func (UnimplementedDemoServiceServer) ModifyUser(context.Context, *ModifyUserRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyUser not implemented")
 }
 
 // UnsafeDemoServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -410,6 +427,24 @@ func _DemoService_PushUserAvatar_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DemoService_ModifyUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DemoServiceServer).ModifyUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DemoService_ModifyUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DemoServiceServer).ModifyUser(ctx, req.(*ModifyUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DemoService_ServiceDesc is the grpc.ServiceDesc for DemoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +491,10 @@ var DemoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PushUserAvatar",
 			Handler:    _DemoService_PushUserAvatar_Handler,
+		},
+		{
+			MethodName: "ModifyUser",
+			Handler:    _DemoService_ModifyUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -19,6 +19,7 @@ import (
 	io "io"
 	http1 "net/http"
 	strconv "strconv"
+	strings "strings"
 )
 
 func NewDemoServiceHTTPServer(
@@ -33,6 +34,7 @@ func NewDemoServiceHTTPServer(
 		UploadUserAvatar() endpoint.Endpoint
 		PushUsers() endpoint.Endpoint
 		PushUserAvatar() endpoint.Endpoint
+		ModifyUser() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...http.ServerOption,
@@ -615,6 +617,279 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
+	r.Name("/leo.example.demo.v1.DemoService/ModifyUser").
+		Methods("PUT").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.ModifyUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &ModifyUserRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if v, err := strconv.ParseInt(string(body), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseUint(vars["user_id"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.UserId = v
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				req.Bytes = []byte(queries.Get("bytes"))
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.OptBytes = []byte(queries.Get("opt_bytes"))
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				req.WrapBytes = wrapperspb.Bytes([]byte(queries.Get("wrap_bytes")))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				req.RepBytes = convx.ParseBytesSlice(queries["rep_bytes"])
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
 	return r
 }
 
@@ -629,6 +904,7 @@ type httpDemoServiceClient struct {
 	uploadUserAvatar endpoint.Endpoint
 	pushUsers        endpoint.Endpoint
 	pushUserAvatar   endpoint.Endpoint
+	modifyUser       endpoint.Endpoint
 }
 
 func (c *httpDemoServiceClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
@@ -711,6 +987,14 @@ func (c *httpDemoServiceClient) PushUserAvatar(ctx context.Context, request *Pus
 	return rep.(*PushUserAvatarResponse), nil
 }
 
+func (c *httpDemoServiceClient) ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error) {
+	rep, err := c.modifyUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewDemoServiceHTTPClient(
 	instance string,
 	mdw []endpoint.Middleware,
@@ -726,6 +1010,7 @@ func NewDemoServiceHTTPClient(
 	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
 	PushUsers(ctx context.Context, request *http2.HttpRequest) (*http2.HttpResponse, error)
 	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+	ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 } {
 	r := mux.NewRouter()
 	r.Name("/leo.example.demo.v1.DemoService/CreateUser").
@@ -758,19 +1043,25 @@ func NewDemoServiceHTTPClient(
 	r.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
 		Methods("POST").
 		Path("/v1/user{user_id}/push")
+	r.Name("/leo.example.demo.v1.DemoService/ModifyUser").
+		Methods("PUT").
+		Path("/v1/user/{user_id}")
 	return &httpDemoServiceClient{
 		createUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateUserRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req); err != nil {
+					body = bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -782,14 +1073,17 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateUserRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
-					if err := protojson.Unmarshal(body, req); err != nil {
+					body = bytes.NewBuffer(data)
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					if err != nil {
 						return nil, err
 					}
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -801,7 +1095,12 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetUserRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -813,7 +1112,12 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetUsersRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -825,7 +1129,12 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteUsersRequest)
-					return nil, nil
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -837,12 +1146,12 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateUserNameRequest)
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
 					if err != nil {
 						return nil, err
 					}
-					req.Name = string(body)
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -854,19 +1163,13 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*httpbody.HttpBody)
-					req.ContentType = r.Header.Get("Content-Type")
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					body = bytes.NewBuffer(req.GetData())
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
 					if err != nil {
 						return nil, err
 					}
-					req.Data = body
-					r, err := http1.NewRequest("POST", "/v1/users", bytes.NewReader(req.GetData()))
-					if err != nil {
-						return nil, err
-					}
-					r.Header.Set("Content-Type", req.GetContentType())
 					return r, nil
-					return nil, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -878,13 +1181,13 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UploadUserAvatarRequest)
-					req.Avatar.ContentType = r.Header.Get("Content-Type")
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					body = bytes.NewBuffer(req.Avatar.GetData())
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
 					if err != nil {
 						return nil, err
 					}
-					req.Avatar.Data = body
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -896,20 +1199,13 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*http2.HttpRequest)
-					req.Method = r.Method
-					req.Uri = r.RequestURI
-					req.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
-					for key, values := range r.Header {
-						for _, value := range values {
-							req.Headers = append(req.Headers, &http2.HttpHeader{Key: key, Value: value})
-						}
-					}
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					body = bytes.NewBuffer(req.GetBody())
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
 					if err != nil {
 						return nil, err
 					}
-					req.Body = body
-					return nil, nil
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
@@ -921,20 +1217,33 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*PushUserAvatarRequest)
-					req.Avatar.Method = r.Method
-					req.Avatar.Uri = r.RequestURI
-					req.Avatar.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
-					for key, values := range r.Header {
-						for _, value := range values {
-							req.Avatar.Headers = append(req.Avatar.Headers, &http2.HttpHeader{Key: key, Value: value})
-						}
-					}
-					body, err := io.ReadAll(r.Body)
+					var body io.Reader
+					body = bytes.NewBuffer(req.Avatar.GetBody())
+					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
 					if err != nil {
 						return nil, err
 					}
-					req.Avatar.Body = body
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		modifyUser: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req := obj.(*ModifyUserRequest)
+					var body io.Reader
+					if req.OptInt32 != nil {
+						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					r, err := http1.NewRequestWithContext(ctx, "PUT", "", body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil

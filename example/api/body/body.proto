@@ -1,0 +1,297 @@
+syntax = "proto3";
+package leo.example.demo.v1;
+option go_package = "github.com/go-leo/leo/example/api/body/v1;body";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+import "google/rpc/http.proto";
+import "google/protobuf/wrappers.proto";
+
+service Body {
+  rpc Bool (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/bool"
+      body : "bool"
+    };
+  }
+
+  rpc OptBool (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_bool"
+      body : "opt_bool"
+    };
+  }
+
+  rpc RepBool (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_bool"
+      body : "rep_bool"
+    };
+  }
+
+  rpc WrapBool (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_bool"
+      body : "wrap_bool"
+    };
+  }
+
+  rpc Int32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/int32"
+      body : "int32"
+    };
+  }
+
+  rpc OptInt32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_int32"
+      body : "opt_int32"
+    };
+  }
+
+  rpc RepInt32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_int32"
+      body : "rep_int32"
+    };
+  }
+
+  rpc WrapInt32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_int32"
+      body : "wrap_int32"
+    };
+  }
+
+  rpc Uint32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/uint32"
+      body : "uint32"
+    };
+  }
+
+  rpc OptUint32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_uint32"
+      body : "opt_uint32"
+    };
+  }
+
+  rpc RepUint32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_uint32"
+      body : "rep_uint32"
+    };
+  }
+
+  rpc WrapUint32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_uint32"
+      body : "wrap_uint32"
+    };
+  }
+
+  rpc Fixed32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/fixed32"
+      body : "fixed32"
+    };
+  }
+
+  rpc OptFixed32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_fixed32"
+      body : "opt_fixed32"
+    };
+  }
+
+  rpc RepFixed32 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_fixed32"
+      body : "rep_fixed32"
+    };
+  }
+
+  rpc Int64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/int64"
+      body : "int64"
+    };
+  }
+
+  rpc OptInt64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_int64"
+      body : "opt_int64"
+    };
+  }
+
+  rpc RepInt64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_int64"
+      body : "rep_int64"
+    };
+  }
+
+  rpc WrapInt64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_int64"
+      body : "wrap_int64"
+    };
+  }
+
+  rpc Sint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/sint64"
+      body : "sint64"
+    };
+  }
+
+  rpc OptSint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_sint64"
+      body : "opt_sint64"
+    };
+  }
+
+  rpc RepSint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_sint64"
+      body : "rep_sint64"
+    };
+  }
+
+  rpc Sfixed64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/sfixed64"
+      body : "sfixed64"
+    };
+  }
+
+  rpc OptSfixed64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_sfixed64"
+      body : "opt_sfixed64"
+    };
+  }
+
+  rpc RepSfixed64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_sfixed64"
+      body : "rep_sfixed64"
+    };
+  }
+
+
+  rpc Uint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/uint64"
+      body : "uint64"
+    };
+  }
+
+  rpc OptUint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_uint64"
+      body : "opt_uint64"
+    };
+  }
+
+  rpc RepUint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_uint64"
+      body : "rep_uint64"
+    };
+  }
+
+  rpc WrapUint64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_uint64"
+      body : "wrap_uint64"
+    };
+  }
+
+  rpc Fixed64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/fixed64"
+      body : "fixed64"
+    };
+  }
+
+  rpc OptFixed64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_fixed64"
+      body : "opt_fixed64"
+    };
+  }
+
+  rpc RepFixed64 (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_fixed64"
+      body : "rep_fixed64"
+    };
+  }
+}
+
+message BodyRequest {
+  bool bool = 2;
+  int32 int32 = 3;
+  sint32 sint32 = 4;
+  uint32 uint32 = 6;
+  int64 int64 = 7;
+  sint64 sint64 = 8;
+  uint64 uint64 = 9;
+  sfixed32 sfixed32 = 10;
+  fixed32 fixed32 = 11;
+  float float = 12;
+  sfixed64 sfixed64 = 13;
+  fixed64 fixed64 = 14;
+  double  double = 15;
+  string string = 16;
+  bytes bytes = 17;
+
+  optional bool opt_bool = 22;
+  optional int32 opt_int32 = 23;
+  optional sint32 opt_sint32 = 24;
+  optional uint32 opt_uint32 = 26;
+  optional int64 opt_int64 = 27;
+  optional sint64 opt_sint64 = 28;
+  optional uint64 opt_uint64 = 29;
+  optional sfixed32 opt_sfixed32 = 30;
+  optional fixed32 opt_fixed32 = 31;
+  optional float opt_float = 32;
+  optional sfixed64 opt_sfixed64 = 33;
+  optional fixed64 opt_fixed64 = 34;
+  optional double  opt_double = 35;
+  optional string opt_string = 36;
+  optional bytes opt_bytes = 37;
+
+  google.protobuf.DoubleValue wrap_double = 42;
+  google.protobuf.FloatValue wrap_float = 43;
+  google.protobuf.Int64Value wrap_int64 = 44;
+  google.protobuf.UInt64Value wrap_uint64 = 45;
+  google.protobuf.Int32Value wrap_int32 = 46;
+  google.protobuf.UInt32Value wrap_uint32 = 47;
+  google.protobuf.BoolValue wrap_bool = 48;
+  google.protobuf.StringValue wrap_string = 49;
+  google.protobuf.BytesValue wrap_bytes = 50;
+
+  repeated bool rep_bool = 52;
+  repeated int32 rep_int32 = 53;
+  repeated sint32 rep_sint32 =54;
+  repeated uint32 rep_uint32 = 56;
+  repeated int64 rep_int64 = 57;
+  repeated sint64 rep_sint64 = 58;
+  repeated uint64 rep_uint64 = 59;
+  repeated sfixed32 rep_sfixed32 = 60;
+  repeated fixed32 rep_fixed32 = 61;
+  repeated float rep_float = 62;
+  repeated sfixed64 rep_sfixed64 = 63;
+  repeated fixed64 rep_fixed64 = 64;
+  repeated double  rep_double = 65;
+  repeated  string rep_string = 66;
+  repeated bytes rep_bytes = 67;
+
+}

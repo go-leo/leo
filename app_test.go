@@ -2,13 +2,31 @@ package leo
 
 import (
 	"context"
-	"os"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"testing"
-
-	"github.com/go-kit/log"
 )
 
 func TestNewApp(t *testing.T) {
-	app := NewApp(Logger(log.NewJSONLogger(os.Stdout)))
+	app := NewApp()
 	_ = app.Run(context.Background())
+}
+
+func TestWrapperspb(t *testing.T) {
+	value := wrapperspb.Bool(true)
+	data, err := protojson.Marshal(value)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(string(data))
+}
+
+func TestStructpb(t *testing.T) {
+	value := structpb.NewBoolValue(true)
+	data, err := protojson.Marshal(value)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(string(data))
 }

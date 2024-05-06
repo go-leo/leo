@@ -33,6 +33,8 @@ type gRPCDemoServiceServer struct {
 	pushUsers grpc.Handler
 
 	pushUserAvatar grpc.Handler
+
+	modifyUser grpc.Handler
 }
 
 func (s *gRPCDemoServiceServer) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
@@ -125,6 +127,15 @@ func (s *gRPCDemoServiceServer) PushUserAvatar(ctx context.Context, request *Pus
 	return rep.(*PushUserAvatarResponse), nil
 }
 
+func (s *gRPCDemoServiceServer) ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.modifyUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewDemoServiceGRPCServer(
 	endpoints interface {
 		CreateUser() endpoint.Endpoint
@@ -137,6 +148,7 @@ func NewDemoServiceGRPCServer(
 		UploadUserAvatar() endpoint.Endpoint
 		PushUsers() endpoint.Endpoint
 		PushUserAvatar() endpoint.Endpoint
+		ModifyUser() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...grpc.ServerOption,
@@ -151,6 +163,7 @@ func NewDemoServiceGRPCServer(
 	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
 	PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
 	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+	ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 } {
 	return &gRPCDemoServiceServer{
 		createUser: grpc.NewServer(
@@ -213,6 +226,12 @@ func NewDemoServiceGRPCServer(
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
+		modifyUser: grpc.NewServer(
+			endpointx.Chain(endpoints.ModifyUser(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
 	}
 }
 
@@ -227,6 +246,7 @@ type gRPCDemoServiceClient struct {
 	uploadUserAvatar endpoint.Endpoint
 	pushUsers        endpoint.Endpoint
 	pushUserAvatar   endpoint.Endpoint
+	modifyUser       endpoint.Endpoint
 }
 
 func (c *gRPCDemoServiceClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
@@ -309,6 +329,14 @@ func (c *gRPCDemoServiceClient) PushUserAvatar(ctx context.Context, request *Pus
 	return rep.(*PushUserAvatarResponse), nil
 }
 
+func (c *gRPCDemoServiceClient) ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error) {
+	rep, err := c.modifyUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewDemoServiceGRPCClient(
 	conn *grpc1.ClientConn,
 	mdw []endpoint.Middleware,
@@ -324,6 +352,7 @@ func NewDemoServiceGRPCClient(
 	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
 	PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
 	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+	ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 } {
 	return &gRPCDemoServiceClient{
 		createUser: endpointx.Chain(
@@ -433,6 +462,17 @@ func NewDemoServiceGRPCClient(
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				PushUserAvatarResponse{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		modifyUser: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.DemoService",
+				"ModifyUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
 			mdw...),

@@ -22,6 +22,7 @@ type demoServiceEndpoints struct {
 		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
 		PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
 		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+		ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 	}
 }
 
@@ -85,6 +86,12 @@ func (e *demoServiceEndpoints) PushUserAvatar() endpoint.Endpoint {
 	}
 }
 
+func (e *demoServiceEndpoints) ModifyUser() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.ModifyUser(ctx, request.(*ModifyUserRequest))
+	}
+}
+
 func NewdemoServiceEndpoints(
 	svc interface {
 		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
@@ -97,6 +104,7 @@ func NewdemoServiceEndpoints(
 		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
 		PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
 		PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
+		ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 	},
 ) interface {
 	CreateUser() endpoint.Endpoint
@@ -109,6 +117,7 @@ func NewdemoServiceEndpoints(
 	UploadUserAvatar() endpoint.Endpoint
 	PushUsers() endpoint.Endpoint
 	PushUserAvatar() endpoint.Endpoint
+	ModifyUser() endpoint.Endpoint
 } {
 	return &demoServiceEndpoints{svc: svc}
 }
