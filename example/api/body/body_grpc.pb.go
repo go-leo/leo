@@ -68,6 +68,12 @@ const (
 	Body_OptBytes_FullMethodName    = "/leo.example.demo.v1.Body/OptBytes"
 	Body_RepBytes_FullMethodName    = "/leo.example.demo.v1.Body/RepBytes"
 	Body_WrapBytes_FullMethodName   = "/leo.example.demo.v1.Body/WrapBytes"
+	Body_Enum_FullMethodName        = "/leo.example.demo.v1.Body/Enum"
+	Body_OptEnum_FullMethodName     = "/leo.example.demo.v1.Body/OptEnum"
+	Body_RepEnum_FullMethodName     = "/leo.example.demo.v1.Body/RepEnum"
+	Body_Dictionary_FullMethodName  = "/leo.example.demo.v1.Body/Dictionary"
+	Body_HttpBody_FullMethodName    = "/leo.example.demo.v1.Body/HttpBody"
+	Body_HttpRequest_FullMethodName = "/leo.example.demo.v1.Body/HttpRequest"
 )
 
 // BodyClient is the client API for Body service.
@@ -122,6 +128,12 @@ type BodyClient interface {
 	OptBytes(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RepBytes(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	WrapBytes(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Enum(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptEnum(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepEnum(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Dictionary(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	HttpBody(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	HttpRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bodyClient struct {
@@ -564,6 +576,60 @@ func (c *bodyClient) WrapBytes(ctx context.Context, in *BodyRequest, opts ...grp
 	return out, nil
 }
 
+func (c *bodyClient) Enum(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_Enum_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptEnum(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptEnum_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepEnum(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepEnum_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) Dictionary(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_Dictionary_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) HttpBody(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_HttpBody_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) HttpRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_HttpRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BodyServer is the server API for Body service.
 // All implementations should embed UnimplementedBodyServer
 // for forward compatibility
@@ -616,6 +682,12 @@ type BodyServer interface {
 	OptBytes(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	RepBytes(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	WrapBytes(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	Enum(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptEnum(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepEnum(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	Dictionary(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	HttpBody(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	HttpRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedBodyServer should be embedded to have forward compatible implementations.
@@ -765,6 +837,24 @@ func (UnimplementedBodyServer) RepBytes(context.Context, *BodyRequest) (*emptypb
 }
 func (UnimplementedBodyServer) WrapBytes(context.Context, *BodyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WrapBytes not implemented")
+}
+func (UnimplementedBodyServer) Enum(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Enum not implemented")
+}
+func (UnimplementedBodyServer) OptEnum(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptEnum not implemented")
+}
+func (UnimplementedBodyServer) RepEnum(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepEnum not implemented")
+}
+func (UnimplementedBodyServer) Dictionary(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Dictionary not implemented")
+}
+func (UnimplementedBodyServer) HttpBody(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HttpBody not implemented")
+}
+func (UnimplementedBodyServer) HttpRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HttpRequest not implemented")
 }
 
 // UnsafeBodyServer may be embedded to opt out of forward compatibility for this service.
@@ -1642,6 +1732,114 @@ func _Body_WrapBytes_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Body_Enum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).Enum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_Enum_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).Enum(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptEnum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptEnum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptEnum_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptEnum(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepEnum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepEnum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepEnum_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepEnum(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_Dictionary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).Dictionary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_Dictionary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).Dictionary(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_HttpBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).HttpBody(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_HttpBody_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).HttpBody(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_HttpRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).HttpRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_HttpRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).HttpRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Body_ServiceDesc is the grpc.ServiceDesc for Body service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1840,6 +2038,30 @@ var Body_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WrapBytes",
 			Handler:    _Body_WrapBytes_Handler,
+		},
+		{
+			MethodName: "Enum",
+			Handler:    _Body_Enum_Handler,
+		},
+		{
+			MethodName: "OptEnum",
+			Handler:    _Body_OptEnum_Handler,
+		},
+		{
+			MethodName: "RepEnum",
+			Handler:    _Body_RepEnum_Handler,
+		},
+		{
+			MethodName: "Dictionary",
+			Handler:    _Body_Dictionary_Handler,
+		},
+		{
+			MethodName: "HttpBody",
+			Handler:    _Body_HttpBody_Handler,
+		},
+		{
+			MethodName: "HttpRequest",
+			Handler:    _Body_HttpRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

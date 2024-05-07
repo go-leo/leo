@@ -58,6 +58,12 @@ type bodyEndpoints struct {
 		OptBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		RepBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		WrapBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		Enum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		OptEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		RepEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	}
 }
 
@@ -349,6 +355,42 @@ func (e *bodyEndpoints) WrapBytes() endpoint.Endpoint {
 	}
 }
 
+func (e *bodyEndpoints) Enum() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.Enum(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) OptEnum() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.OptEnum(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) RepEnum() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.RepEnum(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) Dictionary() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.Dictionary(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) HttpBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpBody(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) HttpRequest() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpRequest(ctx, request.(*BodyRequest))
+	}
+}
+
 func NewbodyEndpoints(
 	svc interface {
 		Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
@@ -399,6 +441,12 @@ func NewbodyEndpoints(
 		OptBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		RepBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		WrapBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		Enum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		OptEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		RepEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	},
 ) interface {
 	Bool() endpoint.Endpoint
@@ -449,6 +497,12 @@ func NewbodyEndpoints(
 	OptBytes() endpoint.Endpoint
 	RepBytes() endpoint.Endpoint
 	WrapBytes() endpoint.Endpoint
+	Enum() endpoint.Endpoint
+	OptEnum() endpoint.Endpoint
+	RepEnum() endpoint.Endpoint
+	Dictionary() endpoint.Endpoint
+	HttpBody() endpoint.Endpoint
+	HttpRequest() endpoint.Endpoint
 } {
 	return &bodyEndpoints{svc: svc}
 }

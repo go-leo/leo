@@ -107,6 +107,18 @@ type gRPCBodyServer struct {
 	repBytes grpc.Handler
 
 	wrapBytes grpc.Handler
+
+	enum grpc.Handler
+
+	optEnum grpc.Handler
+
+	repEnum grpc.Handler
+
+	dictionary grpc.Handler
+
+	httpBody grpc.Handler
+
+	httpRequest grpc.Handler
 }
 
 func (s *gRPCBodyServer) Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
@@ -541,6 +553,60 @@ func (s *gRPCBodyServer) WrapBytes(ctx context.Context, request *BodyRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
+func (s *gRPCBodyServer) Enum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.enum.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) OptEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.optEnum.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) RepEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.repEnum.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.dictionary.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.httpBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.httpRequest.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewBodyGRPCServer(
 	endpoints interface {
 		Bool() endpoint.Endpoint
@@ -591,6 +657,12 @@ func NewBodyGRPCServer(
 		OptBytes() endpoint.Endpoint
 		RepBytes() endpoint.Endpoint
 		WrapBytes() endpoint.Endpoint
+		Enum() endpoint.Endpoint
+		OptEnum() endpoint.Endpoint
+		RepEnum() endpoint.Endpoint
+		Dictionary() endpoint.Endpoint
+		HttpBody() endpoint.Endpoint
+		HttpRequest() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...grpc.ServerOption,
@@ -643,6 +715,12 @@ func NewBodyGRPCServer(
 	OptBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	RepBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	WrapBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	Enum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	OptEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	RepEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 } {
 	return &gRPCBodyServer{
 		bool: grpc.NewServer(
@@ -933,6 +1011,42 @@ func NewBodyGRPCServer(
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
+		enum: grpc.NewServer(
+			endpointx.Chain(endpoints.Enum(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		optEnum: grpc.NewServer(
+			endpointx.Chain(endpoints.OptEnum(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		repEnum: grpc.NewServer(
+			endpointx.Chain(endpoints.RepEnum(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		dictionary: grpc.NewServer(
+			endpointx.Chain(endpoints.Dictionary(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		httpBody: grpc.NewServer(
+			endpointx.Chain(endpoints.HttpBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		httpRequest: grpc.NewServer(
+			endpointx.Chain(endpoints.HttpRequest(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
 	}
 }
 
@@ -985,6 +1099,12 @@ type gRPCBodyClient struct {
 	optBytes    endpoint.Endpoint
 	repBytes    endpoint.Endpoint
 	wrapBytes   endpoint.Endpoint
+	enum        endpoint.Endpoint
+	optEnum     endpoint.Endpoint
+	repEnum     endpoint.Endpoint
+	dictionary  endpoint.Endpoint
+	httpBody    endpoint.Endpoint
+	httpRequest endpoint.Endpoint
 }
 
 func (c *gRPCBodyClient) Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
@@ -1371,6 +1491,54 @@ func (c *gRPCBodyClient) WrapBytes(ctx context.Context, request *BodyRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
+func (c *gRPCBodyClient) Enum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.enum(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) OptEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.optEnum(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) RepEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.repEnum(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.dictionary(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.httpBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.httpRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewBodyGRPCClient(
 	conn *grpc1.ClientConn,
 	mdw []endpoint.Middleware,
@@ -1424,6 +1592,12 @@ func NewBodyGRPCClient(
 	OptBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	RepBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	WrapBytes(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	Enum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	OptEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	RepEnum(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 } {
 	return &gRPCBodyClient{
 		bool: endpointx.Chain(
@@ -1948,6 +2122,72 @@ func NewBodyGRPCClient(
 				conn,
 				"leo.example.demo.v1.Body",
 				"WrapBytes",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		enum: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"Enum",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		optEnum: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"OptEnum",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		repEnum: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"RepEnum",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		dictionary: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"Dictionary",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		httpBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"HttpBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		httpRequest: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"HttpRequest",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},

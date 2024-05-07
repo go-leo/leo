@@ -347,6 +347,48 @@ service Body {
       body : "wrap_bytes"
     };
   }
+
+  rpc Enum (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/status"
+      body : "status"
+    };
+  }
+
+  rpc OptEnum (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/opt_status"
+      body : "opt_status"
+    };
+  }
+
+  rpc RepEnum (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/rep_status"
+      body : "rep_status"
+    };
+  }
+
+  rpc Dictionary (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/dictionary"
+      body : "dictionary"
+    };
+  }
+
+  rpc HttpBody (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/http_body"
+      body : "http_body"
+    };
+  }
+
+  rpc HttpRequest (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/http_request"
+      body : "http_request"
+    };
+  }
 }
 
 message BodyRequest {
@@ -394,7 +436,7 @@ message BodyRequest {
 
   repeated bool rep_bool = 52;
   repeated int32 rep_int32 = 53;
-  repeated sint32 rep_sint32 =54;
+  repeated sint32 rep_sint32 = 54;
   repeated uint32 rep_uint32 = 56;
   repeated int64 rep_int64 = 57;
   repeated sint64 rep_sint64 = 58;
@@ -408,4 +450,19 @@ message BodyRequest {
   repeated  string rep_string = 66;
   repeated bytes rep_bytes = 67;
 
+  enum Status {
+    UNKNOWN = 0;
+    OK = 1;
+    CANCELLED = 2;
+    UNKNOWN_ERROR = 3;
+  }
+  Status status = 68;
+  optional Status opt_status = 69;
+  repeated Status rep_status = 70;
+
+  map<string, string> dictionary = 71;
+
+  google.api.HttpBody http_body = 72;
+
+  google.rpc.HttpRequest http_request = 73;
 }

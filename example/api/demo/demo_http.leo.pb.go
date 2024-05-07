@@ -1179,7 +1179,7 @@ func NewDemoServiceHTTPClient(
 					var method = "POST"
 					var url = "/v1/users"
 					var body io.Reader
-					body = bytes.NewBuffer(req.GetData())
+					body = bytes.NewBuffer(req.Data)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1199,7 +1199,9 @@ func NewDemoServiceHTTPClient(
 					var method = "POST"
 					var url = "/v1/user/{user_id}"
 					var body io.Reader
-					body = bytes.NewBuffer(req.Avatar.GetData())
+					if req.Avatar != nil {
+						body = bytes.NewReader(req.Avatar.Data)
+					}
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1219,7 +1221,7 @@ func NewDemoServiceHTTPClient(
 					var method = "POST"
 					var url = "/v1/users/push"
 					var body io.Reader
-					body = bytes.NewBuffer(req.GetBody())
+					body = bytes.NewBuffer(req.Body)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1239,7 +1241,9 @@ func NewDemoServiceHTTPClient(
 					var method = "POST"
 					var url = "/v1/user{user_id}/push"
 					var body io.Reader
-					body = bytes.NewBuffer(req.Avatar.GetBody())
+					if req.Avatar != nil {
+						body = bytes.NewReader(req.Avatar.Body)
+					}
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err

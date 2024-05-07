@@ -544,7 +544,7 @@ func NewLibraryServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					body := bytes.NewBuffer(data)
+					body = bytes.NewBuffer(data)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -649,7 +649,7 @@ func NewLibraryServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					body := bytes.NewBuffer(data)
+					body = bytes.NewBuffer(data)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -730,7 +730,7 @@ func NewLibraryServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					body := bytes.NewBuffer(data)
+					body = bytes.NewBuffer(data)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
