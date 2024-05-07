@@ -628,9 +628,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatBool"), "(*", "req.", field.GoName, ")"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatBool"), "(", "req.", field.GoName, ")"}
-				//format := append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "("}, srcValue...), []any{".Value", ", 'f', -1, 64)"}...)
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatBool"), "("}, srcValue...), []any{")"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
@@ -641,8 +640,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(*", "req.", field.GoName, "), 10)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(", "req.", field.GoName, "), 10)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{"), 10)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
@@ -653,8 +652,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(*", "req.", field.GoName, "), 10)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(", "req.", field.GoName, "), 10)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(uint64("}, srcValue...), []any{"), 10)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
@@ -665,8 +664,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(*", "req.", field.GoName, ", 10)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(", "req.", field.GoName, ", 10)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "("}, srcValue...), []any{", 10)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
@@ -677,8 +676,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatUint"), "(*", "req.", field.GoName, ", 10)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatUint"), "(", "req.", field.GoName, ", 10)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "("}, srcValue...), []any{", 10)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.FloatKind:
@@ -689,8 +688,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(float64(*", "req.", field.GoName, "), 'f', -1, 32)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(float64(", "req.", field.GoName, "), 'f', -1, 32)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(float64("}, srcValue...), []any{"), 'f', -1, 32)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.DoubleKind:
@@ -701,8 +700,8 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(*", "req.", field.GoName, ", 'f', -1, 64)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(", "req.", field.GoName, ", 'f', -1, 64)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "("}, srcValue...), []any{", 'f', -1, 64)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.StringKind:
@@ -710,11 +709,11 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 			if isList {
 				f.PrintListFieldBody(generatedFile, srcValue)
 			} else if isOptional {
-				format := []any{"*req.", field.GoName}
+				format := []any{"*", "req.", field.GoName}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{"req.", field.GoName}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{}, srcValue...), []any{}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.BytesKind:
@@ -723,10 +722,10 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				f.PrintListFieldBody(generatedFile, srcValue)
 			} else if isOptional {
 				format := []any{"req.", field.GoName}
-				f.PrintFieldBody(generatedFile, internal.BytesPackage, format)
+				f.PrintSampleFieldBody(generatedFile, internal.BytesPackage, format)
 			} else {
-				format := []any{"req.", field.GoName}
-				f.PrintFieldBody(generatedFile, internal.BytesPackage, format)
+				format := append(append([]any{}, srcValue...), []any{}...)
+				f.PrintSampleFieldBody(generatedFile, internal.BytesPackage, format)
 			}
 
 		case protoreflect.EnumKind:
@@ -734,11 +733,11 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 			if isList {
 				f.PrintListFieldBody(generatedFile, srcValue)
 			} else if isOptional {
-				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(*req.", field.GoName, "), 10)"}
+				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(*", "req.", field.GoName, "), 10)"}
 				f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 			} else {
-				format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(req.", field.GoName, "), 10)"}
-				f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				format := append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{"), 10)"}...)
+				f.PrintSampleFieldBody(generatedFile, internal.StringsPackage, format)
 			}
 
 		case protoreflect.MessageKind:
@@ -827,7 +826,7 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	return nil
 }
 
-func (f *Generator) PrintFieldBody(generatedFile *protogen.GeneratedFile, readerPkg protogen.GoImportPath, format []any) {
+func (f *Generator) PrintSampleFieldBody(generatedFile *protogen.GeneratedFile, readerPkg protogen.GoImportPath, format []any) {
 	generatedFile.P(append(append([]any{"body = ", readerPkg.Ident("NewReader"), "("}, format...), ")")...)
 }
 
