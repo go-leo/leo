@@ -596,10 +596,13 @@ func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *
 }
 
 func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	httpRule := endpoint.HttpRule()
 	generatedFile.P("func(ctx context.Context, obj interface{}) (*http1.Request, error) {")
 	generatedFile.P("req := obj.(*", endpoint.InputGoIdent(), ")")
+	generatedFile.P("var method = ", strconv.Quote(httpRule.Method()))
+	path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
+	generatedFile.P("var url = ", strconv.Quote(path))
 	generatedFile.P("var body ", internal.IOPackage.Ident("Reader"))
-	httpRule := endpoint.HttpRule()
 	_ = httpRule
 	bodyMessage, bodyField, namedPathFields, pathFields, queryFields, err := endpoint.ParseParameters()
 	if err != nil {
@@ -636,9 +639,11 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				if isList {
 					f.PrintListFieldBody(generatedFile, field)
 				} else if isOptional {
-					f.PrintOptionalFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatBool"), "(*req.", field.GoName, ")"})
+					format := []any{internal.StrconvPackage.Ident("FormatBool"), "(*req.", field.GoName, ")"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 				} else {
-					f.PrintFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatBool"), "(req.", field.GoName, ")"})
+					format := []any{internal.StrconvPackage.Ident("FormatBool"), "(req.", field.GoName, ")"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
 				}
 			case protoreflect.EnumKind:
 				generatedFile.P("// enum")
@@ -647,76 +652,128 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 				// int32
 				if isList {
 					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(*req.", field.GoName, "), 10)"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 				} else {
-					if isOptional {
-						f.PrintOptionalFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(*req.", field.GoName, "), 10)"})
-					} else {
-						f.PrintFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(req.", field.GoName, "), 10)"})
-					}
+					format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(req.", field.GoName, "), 10)"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
 				}
+
 			case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
 				// uint32
 				if isList {
 					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(*req.", field.GoName, "), 10)"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 				} else {
-					if isOptional {
-						f.PrintOptionalFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(*req.", field.GoName, "), 10)"})
-					} else {
-						f.PrintFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(req.", field.GoName, "), 10)"})
-					}
+					format := []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(req.", field.GoName, "), 10)"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
 				}
+
 			case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
 				// int64
 				if isList {
 					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{internal.StrconvPackage.Ident("FormatInt"), "(*req.", field.GoName, ", 10)"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 				} else {
-					if isOptional {
-						f.PrintOptionalFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatInt"), "(*req.", field.GoName, ", 10)"})
-					} else {
-						f.PrintFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatInt"), "(req.", field.GoName, ", 10)"})
-					}
+					format := []any{internal.StrconvPackage.Ident("FormatInt"), "(req.", field.GoName, ", 10)"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
 				}
+
 			case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
 				// uint64
 				if isList {
 					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{internal.StrconvPackage.Ident("FormatUint"), "(*req.", field.GoName, ", 10)"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
 				} else {
-					if isOptional {
-						f.PrintOptionalFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatUint"), "(*req.", field.GoName, ", 10)"})
-					} else {
-						f.PrintFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatUint"), "(req.", field.GoName, ", 10)"})
-					}
+					format := []any{internal.StrconvPackage.Ident("FormatUint"), "(req.", field.GoName, ", 10)"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
 				}
+
 			case protoreflect.FloatKind:
 				// float32
+				if isList {
+					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(float64(*req.", field.GoName, "), 'f', -1, 32)"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
+				} else {
+					format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(float64(req.", field.GoName, "), 'f', -1, 32)"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				}
 
 			case protoreflect.DoubleKind:
 				// float64
+				if isList {
+					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(*req.", field.GoName, ", 'f', -1, 64)"}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
+				} else {
+					format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(req.", field.GoName, ", 'f', -1, 64)"}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				}
 
 			case protoreflect.StringKind:
 				// string
-
+				if isList {
+					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{"*req.", field.GoName}
+					f.PrintOptionalFieldBody(generatedFile, internal.StringsPackage, field, format)
+				} else {
+					format := []any{"req.", field.GoName}
+					f.PrintFieldBody(generatedFile, internal.StringsPackage, format)
+				}
 			case protoreflect.BytesKind:
 				// []byte
+				if isList {
+					f.PrintListFieldBody(generatedFile, field)
+				} else if isOptional {
+					format := []any{"req.", field.GoName}
+					generatedFile.P(append(append([]any{"body = ", internal.BytesPackage.Ident("NewReader"), "("}, format...), ")")...)
+				} else {
+					format := []any{"req.", field.GoName}
+					generatedFile.P(append(append([]any{"body = ", internal.BytesPackage.Ident("NewReader"), "("}, format...), ")")...)
+				}
 
 			case protoreflect.MessageKind:
 				switch field.Message.Desc.FullName() {
 				case "google.protobuf.DoubleValue":
+					format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(req.", field.GoName, ".Value, 'f', -1, 64)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.FloatValue":
+					format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(float64(req.", field.GoName, ".Value), 'f', -1, 32)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.Int64Value":
-					f.PrintWrapFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatInt"), "(req.", field.GoName, ".GetValue(), 10)"})
+					format := []any{internal.StrconvPackage.Ident("FormatInt"), "(req.", field.GoName, ".Value, 10)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.UInt64Value":
-					f.PrintWrapFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatUint"), "(req.", field.GoName, ".GetValue(), 10)"})
+					format := []any{internal.StrconvPackage.Ident("FormatUint"), "(req.", field.GoName, ".Value, 10)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.Int32Value":
-					f.PrintWrapFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(req.", field.GoName, ".GetValue()), 10)"})
+					format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64(req.", field.GoName, ".Value), 10)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.UInt32Value":
-					f.PrintWrapFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(req.", field.GoName, ".GetValue()), 10)"})
+					format := []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(req.", field.GoName, ".Value), 10)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.BoolValue":
-					f.PrintWrapFieldBody(generatedFile, field, []any{internal.StrconvPackage.Ident("FormatBool"), "(req.", field.GoName, ".GetValue())"})
+					format := []any{internal.StrconvPackage.Ident("FormatBool"), "(req.", field.GoName, ".Value)"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.StringValue":
-
+					format := []any{"req.", field.GoName, ".Value"}
+					f.PrintWrapFieldBody(generatedFile, field, format)
 				case "google.protobuf.BytesValue":
-
+					format := []any{"req.", field.GoName, ".Value"}
+					generatedFile.P("if req.", field.GoName, " != nil {")
+					generatedFile.P(append(append([]any{"body = ", internal.BytesPackage.Ident("NewReader"), "("}, format...), ")")...)
+					generatedFile.P("}")
 				default:
 					generatedFile.P("data, err := ", internal.ProtoJsonPackage.Ident("Marshal"), "(req.", bodyField.GoName, ")")
 					generatedFile.P("if err != nil {")
@@ -800,7 +857,7 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	//	}
 	//}
 
-	generatedFile.P("r, err := http1.NewRequestWithContext(ctx, ", strconv.Quote(httpRule.Method()), ", ", strconv.Quote(""), ", body)")
+	generatedFile.P("r, err := http1.NewRequestWithContext(ctx, method, url, body)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
@@ -810,19 +867,19 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	return nil
 }
 
-func (f *Generator) PrintFieldBody(generatedFile *protogen.GeneratedFile, field *protogen.Field, v []any) {
-	generatedFile.P(append(append([]any{"body = ", internal.StringsPackage.Ident("NewReader"), "("}, v...), ")")...)
+func (f *Generator) PrintFieldBody(generatedFile *protogen.GeneratedFile, ReaderPkg protogen.GoImportPath, format []any) {
+	generatedFile.P(append(append([]any{"body = ", ReaderPkg.Ident("NewReader"), "("}, format...), ")")...)
 }
 
-func (f *Generator) PrintOptionalFieldBody(generatedFile *protogen.GeneratedFile, field *protogen.Field, v []any) {
+func (f *Generator) PrintOptionalFieldBody(generatedFile *protogen.GeneratedFile, ReaderPkg protogen.GoImportPath, field *protogen.Field, format []any) {
 	generatedFile.P("if req.", field.GoName, " != nil {")
-	generatedFile.P(append(append([]any{"body = ", internal.StringsPackage.Ident("NewReader"), "("}, v...), ")")...)
+	generatedFile.P(append(append([]any{"body = ", ReaderPkg.Ident("NewReader"), "("}, format...), ")")...)
 	generatedFile.P("}")
 }
 
-func (f *Generator) PrintWrapFieldBody(generatedFile *protogen.GeneratedFile, field *protogen.Field, v []any) {
+func (f *Generator) PrintWrapFieldBody(generatedFile *protogen.GeneratedFile, field *protogen.Field, format []any) {
 	generatedFile.P("if req.", field.GoName, " != nil {")
-	generatedFile.P(append(append([]any{"body = ", internal.StringsPackage.Ident("NewReader"), "("}, v...), ")")...)
+	generatedFile.P(append(append([]any{"body = ", internal.StringsPackage.Ident("NewReader"), "("}, format...), ")")...)
 	generatedFile.P("}")
 }
 

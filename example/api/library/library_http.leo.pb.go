@@ -537,13 +537,15 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateShelfRequest)
+					var method = "POST"
+					var url = "/v1/shelves"
 					var body io.Reader
 					data, err := protojson.Marshal(req.Shelf)
 					if err != nil {
 						return nil, err
 					}
 					body := bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -559,8 +561,10 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetShelfRequest)
+					var method = "GET"
+					var url = "/v1/shelves/{shelf}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -576,8 +580,10 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ListShelvesRequest)
+					var method = "GET"
+					var url = "/v1/shelves"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -593,8 +599,10 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteShelfRequest)
+					var method = "DELETE"
+					var url = "/v1/shelves/{shelf}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -610,13 +618,15 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*MergeShelvesRequest)
+					var method = "POST"
+					var url = "/v1/shelves/{shelf}:merge"
 					var body io.Reader
 					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -632,13 +642,15 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateBookRequest)
+					var method = "POST"
+					var url = "/v1/shelves/{shelf}/books"
 					var body io.Reader
 					data, err := protojson.Marshal(req.Book)
 					if err != nil {
 						return nil, err
 					}
 					body := bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -654,8 +666,10 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetBookRequest)
+					var method = "GET"
+					var url = "/v1/shelves/{shelf}/books/{book}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -671,8 +685,10 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ListBooksRequest)
+					var method = "GET"
+					var url = "/v1/shelves/{shelf}/books"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -688,8 +704,10 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteBookRequest)
+					var method = "DELETE"
+					var url = "/v1/shelves/{shelf}/books/{book}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -705,13 +723,15 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateBookRequest)
+					var method = "PATCH"
+					var url = "/v1/shelves/{shelf}/books/{book}"
 					var body io.Reader
 					data, err := protojson.Marshal(req.Book)
 					if err != nil {
 						return nil, err
 					}
 					body := bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "PATCH", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -727,13 +747,15 @@ func NewLibraryServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*MoveBookRequest)
+					var method = "POST"
+					var url = "/v1/shelves/{shelf}/books/{book}:move"
 					var body io.Reader
 					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}

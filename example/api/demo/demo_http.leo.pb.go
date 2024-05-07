@@ -1051,13 +1051,15 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateUserRequest)
+					var method = "POST"
+					var url = "/v1/user"
 					var body io.Reader
 					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1073,13 +1075,15 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateUserRequest)
+					var method = "POST"
+					var url = "/v1/user/{user_id}"
 					var body io.Reader
 					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1095,8 +1099,10 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetUserRequest)
+					var method = "GET"
+					var url = "/v1/user/{user_id}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1112,8 +1118,10 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetUsersRequest)
+					var method = "GET"
+					var url = "/v1/users"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1129,8 +1137,10 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteUsersRequest)
+					var method = "DELETE"
+					var url = "/v1/user/{user_id}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1146,8 +1156,11 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateUserNameRequest)
+					var method = "POST"
+					var url = "/v1/user/{user_id}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					body = strings.NewReader(req.Name)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1163,9 +1176,11 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*httpbody.HttpBody)
+					var method = "POST"
+					var url = "/v1/users"
 					var body io.Reader
 					body = bytes.NewBuffer(req.GetData())
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1181,9 +1196,11 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UploadUserAvatarRequest)
+					var method = "POST"
+					var url = "/v1/user/{user_id}"
 					var body io.Reader
 					body = bytes.NewBuffer(req.Avatar.GetData())
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1199,9 +1216,11 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*http2.HttpRequest)
+					var method = "POST"
+					var url = "/v1/users/push"
 					var body io.Reader
 					body = bytes.NewBuffer(req.GetBody())
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1217,9 +1236,11 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*PushUserAvatarRequest)
+					var method = "POST"
+					var url = "/v1/user{user_id}/push"
 					var body io.Reader
 					body = bytes.NewBuffer(req.Avatar.GetBody())
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -1235,11 +1256,13 @@ func NewDemoServiceHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ModifyUserRequest)
+					var method = "PUT"
+					var url = "/v1/user/{user_id}"
 					var body io.Reader
 					if req.OptInt32 != nil {
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
 					}
-					r, err := http1.NewRequestWithContext(ctx, "PUT", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}

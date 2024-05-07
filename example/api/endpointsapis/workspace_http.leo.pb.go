@@ -270,8 +270,10 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*ListWorkspacesRequest)
+					var method = "GET"
+					var url = "/v1/projects/{project}/locations/{location}/workspaces"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -287,8 +289,10 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*GetWorkspaceRequest)
+					var method = "GET"
+					var url = "/v1/projects/{project}/locations/{location}/workspaces/{workspace}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "GET", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -304,13 +308,15 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*CreateWorkspaceRequest)
+					var method = "POST"
+					var url = "/v1/projects/{project}/locations/{location}/workspaces"
 					var body io.Reader
 					data, err := protojson.Marshal(req.Workspace)
 					if err != nil {
 						return nil, err
 					}
 					body := bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "POST", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -326,13 +332,15 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*UpdateWorkspaceRequest)
+					var method = "PATCH"
+					var url = "/v1/projects/{project}/locations/{location}/Workspaces/{Workspace}"
 					var body io.Reader
 					data, err := protojson.Marshal(req.Workspace)
 					if err != nil {
 						return nil, err
 					}
 					body := bytes.NewBuffer(data)
-					r, err := http1.NewRequestWithContext(ctx, "PATCH", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
@@ -348,8 +356,10 @@ func NewWorkspacesHTTPClient(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req := obj.(*DeleteWorkspaceRequest)
+					var method = "DELETE"
+					var url = "/v1/projects/{project}/locations/{location}/workspaces/{workspace}"
 					var body io.Reader
-					r, err := http1.NewRequestWithContext(ctx, "DELETE", "", body)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
 					}
