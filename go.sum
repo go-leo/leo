@@ -27,10 +27,6 @@ github.com/go-leo/cqrs v0.0.0-20240428095148-1a717d7a24c8 h1:rjaAJrcdMDNBKV9GyBS
 github.com/go-leo/cqrs v0.0.0-20240428095148-1a717d7a24c8/go.mod h1:cJ98a/Hrc88lQtA5ciolG95tcy2l5nkouTDxM4hWVuU=
 github.com/go-leo/gors v1.5.0 h1:zXllIds1Frqc6+Z3Yyw/HKseIM8XxMdb/OEnRaTQ9no=
 github.com/go-leo/gors v1.5.0/go.mod h1:xu1m2a8cIVWmDeoYgrEhkVAqgP6VSJzGttAh+HZTivc=
-github.com/go-leo/gox v0.0.0-20240424095953-68bffa755bc0 h1:177OSMkJjA8hIXz9qHNyB7t2e6ZbePRS1D/+VAo07cg=
-github.com/go-leo/gox v0.0.0-20240424095953-68bffa755bc0/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
-github.com/go-leo/gox v0.0.0-20240430081617-cbc982cbb23d h1:rhUZxElbURqxXE57eMm7bow0gp8a4KxFpeZwkReSoCI=
-github.com/go-leo/gox v0.0.0-20240430081617-cbc982cbb23d/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/gox v0.0.0-20240430082855-e7df7230ee69 h1:55CM4nwdNbGkjIOR3/r2uD8YaLmN2X/b8vdVtKe+njQ=
 github.com/go-leo/gox v0.0.0-20240430082855-e7df7230ee69/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390 h1:C36V5ogQAEExR0RQ4Z4zRrKeiu0DduyAjgKsJoCmnqM=
