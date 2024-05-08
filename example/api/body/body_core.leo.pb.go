@@ -5,7 +5,13 @@ package body
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
+	http "google.golang.org/genproto/googleapis/rpc/http"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type bodyEndpoints struct {
@@ -64,6 +70,27 @@ type bodyEndpoints struct {
 		Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error)
+		WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error)
+		WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error)
+		WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error)
+		WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error)
+		WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error)
+		WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error)
+		WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error)
+		WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error)
+		HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+		HttpRequestBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+		ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error)
+		ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error)
+		StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error)
+		TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error)
+		DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error)
 	}
 }
 
@@ -391,6 +418,132 @@ func (e *bodyEndpoints) HttpRequest() endpoint.Endpoint {
 	}
 }
 
+func (e *bodyEndpoints) ValueRequest() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.ValueRequest(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) ListValueRequest() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.ListValueRequest(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) StructRequest() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.StructRequest(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) TimestampRequest() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.TimestampRequest(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) DurationRequest() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.DurationRequest(ctx, request.(*BodyRequest))
+	}
+}
+
+func (e *bodyEndpoints) WrapDoubleBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapDoubleBody(ctx, request.(*wrapperspb.DoubleValue))
+	}
+}
+
+func (e *bodyEndpoints) WrapFloatBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapFloatBody(ctx, request.(*wrapperspb.FloatValue))
+	}
+}
+
+func (e *bodyEndpoints) WrapInt64Body() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapInt64Body(ctx, request.(*wrapperspb.Int64Value))
+	}
+}
+
+func (e *bodyEndpoints) WrapUint64Body() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapUint64Body(ctx, request.(*wrapperspb.UInt64Value))
+	}
+}
+
+func (e *bodyEndpoints) WrapInt32Body() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapInt32Body(ctx, request.(*wrapperspb.Int32Value))
+	}
+}
+
+func (e *bodyEndpoints) WrapUint32Body() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapUint32Body(ctx, request.(*wrapperspb.UInt32Value))
+	}
+}
+
+func (e *bodyEndpoints) WrapBoolBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapBoolBody(ctx, request.(*wrapperspb.BoolValue))
+	}
+}
+
+func (e *bodyEndpoints) WrapStringBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapStringBody(ctx, request.(*wrapperspb.StringValue))
+	}
+}
+
+func (e *bodyEndpoints) WrapBytesBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.WrapBytesBody(ctx, request.(*wrapperspb.BytesValue))
+	}
+}
+
+func (e *bodyEndpoints) HttpBodyBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpBodyBody(ctx, request.(*httpbody.HttpBody))
+	}
+}
+
+func (e *bodyEndpoints) HttpRequestBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpRequestBody(ctx, request.(*http.HttpRequest))
+	}
+}
+
+func (e *bodyEndpoints) ValueBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.ValueBody(ctx, request.(*structpb.Value))
+	}
+}
+
+func (e *bodyEndpoints) ListValueBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.ListValueBody(ctx, request.(*structpb.ListValue))
+	}
+}
+
+func (e *bodyEndpoints) StructBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.StructBody(ctx, request.(*structpb.Struct))
+	}
+}
+
+func (e *bodyEndpoints) TimestampBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.TimestampBody(ctx, request.(*timestamppb.Timestamp))
+	}
+}
+
+func (e *bodyEndpoints) DurationBody() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.DurationBody(ctx, request.(*durationpb.Duration))
+	}
+}
+
 func NewbodyEndpoints(
 	svc interface {
 		Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
@@ -447,6 +600,27 @@ func NewbodyEndpoints(
 		Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 		HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+		WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error)
+		WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error)
+		WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error)
+		WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error)
+		WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error)
+		WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error)
+		WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error)
+		WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error)
+		WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error)
+		HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+		HttpRequestBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+		ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error)
+		ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error)
+		StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error)
+		TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error)
+		DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error)
 	},
 ) interface {
 	Bool() endpoint.Endpoint
@@ -503,6 +677,27 @@ func NewbodyEndpoints(
 	Dictionary() endpoint.Endpoint
 	HttpBody() endpoint.Endpoint
 	HttpRequest() endpoint.Endpoint
+	ValueRequest() endpoint.Endpoint
+	ListValueRequest() endpoint.Endpoint
+	StructRequest() endpoint.Endpoint
+	TimestampRequest() endpoint.Endpoint
+	DurationRequest() endpoint.Endpoint
+	WrapDoubleBody() endpoint.Endpoint
+	WrapFloatBody() endpoint.Endpoint
+	WrapInt64Body() endpoint.Endpoint
+	WrapUint64Body() endpoint.Endpoint
+	WrapInt32Body() endpoint.Endpoint
+	WrapUint32Body() endpoint.Endpoint
+	WrapBoolBody() endpoint.Endpoint
+	WrapStringBody() endpoint.Endpoint
+	WrapBytesBody() endpoint.Endpoint
+	HttpBodyBody() endpoint.Endpoint
+	HttpRequestBody() endpoint.Endpoint
+	ValueBody() endpoint.Endpoint
+	ListValueBody() endpoint.Endpoint
+	StructBody() endpoint.Endpoint
+	TimestampBody() endpoint.Endpoint
+	DurationBody() endpoint.Endpoint
 } {
 	return &bodyEndpoints{svc: svc}
 }

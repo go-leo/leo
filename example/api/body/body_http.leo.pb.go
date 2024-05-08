@@ -6,15 +6,20 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
+	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	convx "github.com/go-leo/gox/convx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http2 "google.golang.org/genproto/googleapis/rpc/http"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	http1 "net/http"
@@ -78,12 +83,33 @@ func NewBodyHTTPServer(
 		Dictionary() endpoint.Endpoint
 		HttpBody() endpoint.Endpoint
 		HttpRequest() endpoint.Endpoint
+		ValueRequest() endpoint.Endpoint
+		ListValueRequest() endpoint.Endpoint
+		StructRequest() endpoint.Endpoint
+		TimestampRequest() endpoint.Endpoint
+		DurationRequest() endpoint.Endpoint
+		WrapDoubleBody() endpoint.Endpoint
+		WrapFloatBody() endpoint.Endpoint
+		WrapInt64Body() endpoint.Endpoint
+		WrapUint64Body() endpoint.Endpoint
+		WrapInt32Body() endpoint.Endpoint
+		WrapUint32Body() endpoint.Endpoint
+		WrapBoolBody() endpoint.Endpoint
+		WrapStringBody() endpoint.Endpoint
+		WrapBytesBody() endpoint.Endpoint
+		HttpBodyBody() endpoint.Endpoint
+		HttpRequestBody() endpoint.Endpoint
+		ValueBody() endpoint.Endpoint
+		ListValueBody() endpoint.Endpoint
+		StructBody() endpoint.Endpoint
+		TimestampBody() endpoint.Endpoint
+		DurationBody() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...http.ServerOption,
 ) http1.Handler {
-	r := mux.NewRouter()
-	r.Name("/leo.example.demo.v1.Body/Bool").
+	router := mux.NewRouter()
+	router.Name("/leo.example.demo.v1.Body/Bool").
 		Methods("PUT").
 		Path("/v1/bool").
 		Handler(http.NewServer(
@@ -345,6 +371,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -362,7 +403,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptBool").
+	router.Name("/leo.example.demo.v1.Body/OptBool").
 		Methods("PUT").
 		Path("/v1/opt_bool").
 		Handler(http.NewServer(
@@ -624,6 +665,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -641,7 +697,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepBool").
+	router.Name("/leo.example.demo.v1.Body/RepBool").
 		Methods("PUT").
 		Path("/v1/rep_bool").
 		Handler(http.NewServer(
@@ -903,6 +959,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -920,7 +991,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapBool").
+	router.Name("/leo.example.demo.v1.Body/WrapBool").
 		Methods("PUT").
 		Path("/v1/wrap_bool").
 		Handler(http.NewServer(
@@ -1182,6 +1253,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1199,7 +1285,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Int32").
+	router.Name("/leo.example.demo.v1.Body/Int32").
 		Methods("PUT").
 		Path("/v1/int32").
 		Handler(http.NewServer(
@@ -1461,6 +1547,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1478,7 +1579,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptInt32").
+	router.Name("/leo.example.demo.v1.Body/OptInt32").
 		Methods("PUT").
 		Path("/v1/opt_int32").
 		Handler(http.NewServer(
@@ -1740,6 +1841,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1757,7 +1873,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepInt32").
+	router.Name("/leo.example.demo.v1.Body/RepInt32").
 		Methods("PUT").
 		Path("/v1/rep_int32").
 		Handler(http.NewServer(
@@ -2019,6 +2135,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -2036,7 +2167,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapInt32").
+	router.Name("/leo.example.demo.v1.Body/WrapInt32").
 		Methods("PUT").
 		Path("/v1/wrap_int32").
 		Handler(http.NewServer(
@@ -2298,6 +2429,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -2315,7 +2461,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Uint32").
+	router.Name("/leo.example.demo.v1.Body/Uint32").
 		Methods("PUT").
 		Path("/v1/uint32").
 		Handler(http.NewServer(
@@ -2577,6 +2723,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -2594,7 +2755,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptUint32").
+	router.Name("/leo.example.demo.v1.Body/OptUint32").
 		Methods("PUT").
 		Path("/v1/opt_uint32").
 		Handler(http.NewServer(
@@ -2856,6 +3017,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -2873,7 +3049,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepUint32").
+	router.Name("/leo.example.demo.v1.Body/RepUint32").
 		Methods("PUT").
 		Path("/v1/rep_uint32").
 		Handler(http.NewServer(
@@ -3135,6 +3311,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -3152,7 +3343,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapUint32").
+	router.Name("/leo.example.demo.v1.Body/WrapUint32").
 		Methods("PUT").
 		Path("/v1/wrap_uint32").
 		Handler(http.NewServer(
@@ -3414,6 +3605,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -3431,7 +3637,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Fixed32").
+	router.Name("/leo.example.demo.v1.Body/Fixed32").
 		Methods("PUT").
 		Path("/v1/fixed32").
 		Handler(http.NewServer(
@@ -3693,6 +3899,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -3710,7 +3931,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptFixed32").
+	router.Name("/leo.example.demo.v1.Body/OptFixed32").
 		Methods("PUT").
 		Path("/v1/opt_fixed32").
 		Handler(http.NewServer(
@@ -3972,6 +4193,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -3989,7 +4225,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepFixed32").
+	router.Name("/leo.example.demo.v1.Body/RepFixed32").
 		Methods("PUT").
 		Path("/v1/rep_fixed32").
 		Handler(http.NewServer(
@@ -4251,6 +4487,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -4268,7 +4519,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Int64").
+	router.Name("/leo.example.demo.v1.Body/Int64").
 		Methods("PUT").
 		Path("/v1/int64").
 		Handler(http.NewServer(
@@ -4530,6 +4781,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -4547,7 +4813,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptInt64").
+	router.Name("/leo.example.demo.v1.Body/OptInt64").
 		Methods("PUT").
 		Path("/v1/opt_int64").
 		Handler(http.NewServer(
@@ -4809,6 +5075,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -4826,7 +5107,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepInt64").
+	router.Name("/leo.example.demo.v1.Body/RepInt64").
 		Methods("PUT").
 		Path("/v1/rep_int64").
 		Handler(http.NewServer(
@@ -5088,6 +5369,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -5105,7 +5401,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapInt64").
+	router.Name("/leo.example.demo.v1.Body/WrapInt64").
 		Methods("PUT").
 		Path("/v1/wrap_int64").
 		Handler(http.NewServer(
@@ -5367,6 +5663,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -5384,7 +5695,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Sint64").
+	router.Name("/leo.example.demo.v1.Body/Sint64").
 		Methods("PUT").
 		Path("/v1/sint64").
 		Handler(http.NewServer(
@@ -5646,6 +5957,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -5663,7 +5989,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptSint64").
+	router.Name("/leo.example.demo.v1.Body/OptSint64").
 		Methods("PUT").
 		Path("/v1/opt_sint64").
 		Handler(http.NewServer(
@@ -5925,6 +6251,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -5942,7 +6283,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepSint64").
+	router.Name("/leo.example.demo.v1.Body/RepSint64").
 		Methods("PUT").
 		Path("/v1/rep_sint64").
 		Handler(http.NewServer(
@@ -6204,6 +6545,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -6221,7 +6577,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Sfixed64").
+	router.Name("/leo.example.demo.v1.Body/Sfixed64").
 		Methods("PUT").
 		Path("/v1/sfixed64").
 		Handler(http.NewServer(
@@ -6483,6 +6839,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -6500,7 +6871,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptSfixed64").
+	router.Name("/leo.example.demo.v1.Body/OptSfixed64").
 		Methods("PUT").
 		Path("/v1/opt_sfixed64").
 		Handler(http.NewServer(
@@ -6762,6 +7133,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -6779,7 +7165,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepSfixed64").
+	router.Name("/leo.example.demo.v1.Body/RepSfixed64").
 		Methods("PUT").
 		Path("/v1/rep_sfixed64").
 		Handler(http.NewServer(
@@ -7041,6 +7427,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -7058,7 +7459,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Uint64").
+	router.Name("/leo.example.demo.v1.Body/Uint64").
 		Methods("PUT").
 		Path("/v1/uint64").
 		Handler(http.NewServer(
@@ -7320,6 +7721,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -7337,7 +7753,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptUint64").
+	router.Name("/leo.example.demo.v1.Body/OptUint64").
 		Methods("PUT").
 		Path("/v1/opt_uint64").
 		Handler(http.NewServer(
@@ -7599,6 +8015,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -7616,7 +8047,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepUint64").
+	router.Name("/leo.example.demo.v1.Body/RepUint64").
 		Methods("PUT").
 		Path("/v1/rep_uint64").
 		Handler(http.NewServer(
@@ -7878,6 +8309,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -7895,7 +8341,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapUint64").
+	router.Name("/leo.example.demo.v1.Body/WrapUint64").
 		Methods("PUT").
 		Path("/v1/wrap_uint64").
 		Handler(http.NewServer(
@@ -8157,6 +8603,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -8174,7 +8635,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Fixed64").
+	router.Name("/leo.example.demo.v1.Body/Fixed64").
 		Methods("PUT").
 		Path("/v1/fixed64").
 		Handler(http.NewServer(
@@ -8436,6 +8897,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -8453,7 +8929,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptFixed64").
+	router.Name("/leo.example.demo.v1.Body/OptFixed64").
 		Methods("PUT").
 		Path("/v1/opt_fixed64").
 		Handler(http.NewServer(
@@ -8715,6 +9191,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -8732,7 +9223,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepFixed64").
+	router.Name("/leo.example.demo.v1.Body/RepFixed64").
 		Methods("PUT").
 		Path("/v1/rep_fixed64").
 		Handler(http.NewServer(
@@ -8994,6 +9485,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -9011,7 +9517,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Float32").
+	router.Name("/leo.example.demo.v1.Body/Float32").
 		Methods("PUT").
 		Path("/v1/float").
 		Handler(http.NewServer(
@@ -9273,6 +9779,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -9290,7 +9811,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptFloat32").
+	router.Name("/leo.example.demo.v1.Body/OptFloat32").
 		Methods("PUT").
 		Path("/v1/opt_float").
 		Handler(http.NewServer(
@@ -9552,6 +10073,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -9569,7 +10105,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepFloat32").
+	router.Name("/leo.example.demo.v1.Body/RepFloat32").
 		Methods("PUT").
 		Path("/v1/rep_float").
 		Handler(http.NewServer(
@@ -9831,6 +10367,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -9848,7 +10399,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapFloat32").
+	router.Name("/leo.example.demo.v1.Body/WrapFloat32").
 		Methods("PUT").
 		Path("/v1/wrap_float").
 		Handler(http.NewServer(
@@ -10110,6 +10661,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -10127,7 +10693,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Float64").
+	router.Name("/leo.example.demo.v1.Body/Float64").
 		Methods("PUT").
 		Path("/v1/double").
 		Handler(http.NewServer(
@@ -10389,6 +10955,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -10406,7 +10987,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptFloat64").
+	router.Name("/leo.example.demo.v1.Body/OptFloat64").
 		Methods("PUT").
 		Path("/v1/opt_double").
 		Handler(http.NewServer(
@@ -10668,6 +11249,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -10685,7 +11281,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepFloat64").
+	router.Name("/leo.example.demo.v1.Body/RepFloat64").
 		Methods("PUT").
 		Path("/v1/rep_double").
 		Handler(http.NewServer(
@@ -10947,6 +11543,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -10964,7 +11575,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapFloat64").
+	router.Name("/leo.example.demo.v1.Body/WrapFloat64").
 		Methods("PUT").
 		Path("/v1/wrap_double").
 		Handler(http.NewServer(
@@ -11226,6 +11837,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -11243,7 +11869,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/String").
+	router.Name("/leo.example.demo.v1.Body/String").
 		Methods("PUT").
 		Path("/v1/string").
 		Handler(http.NewServer(
@@ -11505,6 +12131,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -11522,7 +12163,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptString").
+	router.Name("/leo.example.demo.v1.Body/OptString").
 		Methods("PUT").
 		Path("/v1/opt_string").
 		Handler(http.NewServer(
@@ -11784,6 +12425,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -11801,7 +12457,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepString").
+	router.Name("/leo.example.demo.v1.Body/RepString").
 		Methods("PUT").
 		Path("/v1/rep_string").
 		Handler(http.NewServer(
@@ -12063,6 +12719,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -12080,7 +12751,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapString").
+	router.Name("/leo.example.demo.v1.Body/WrapString").
 		Methods("PUT").
 		Path("/v1/wrap_string").
 		Handler(http.NewServer(
@@ -12342,6 +13013,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -12359,7 +13045,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Bytes").
+	router.Name("/leo.example.demo.v1.Body/Bytes").
 		Methods("PUT").
 		Path("/v1/bytes").
 		Handler(http.NewServer(
@@ -12621,6 +13307,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -12638,7 +13339,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptBytes").
+	router.Name("/leo.example.demo.v1.Body/OptBytes").
 		Methods("PUT").
 		Path("/v1/opt_bytes").
 		Handler(http.NewServer(
@@ -12900,6 +13601,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -12917,7 +13633,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepBytes").
+	router.Name("/leo.example.demo.v1.Body/RepBytes").
 		Methods("PUT").
 		Path("/v1/rep_bytes").
 		Handler(http.NewServer(
@@ -13179,6 +13895,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -13196,7 +13927,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/WrapBytes").
+	router.Name("/leo.example.demo.v1.Body/WrapBytes").
 		Methods("PUT").
 		Path("/v1/wrap_bytes").
 		Handler(http.NewServer(
@@ -13458,6 +14189,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -13475,7 +14221,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Enum").
+	router.Name("/leo.example.demo.v1.Body/Enum").
 		Methods("PUT").
 		Path("/v1/status").
 		Handler(http.NewServer(
@@ -13737,6 +14483,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -13754,7 +14515,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/OptEnum").
+	router.Name("/leo.example.demo.v1.Body/OptEnum").
 		Methods("PUT").
 		Path("/v1/opt_status").
 		Handler(http.NewServer(
@@ -14016,6 +14777,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -14033,7 +14809,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/RepEnum").
+	router.Name("/leo.example.demo.v1.Body/RepEnum").
 		Methods("PUT").
 		Path("/v1/rep_status").
 		Handler(http.NewServer(
@@ -14295,6 +15071,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -14312,7 +15103,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/Dictionary").
+	router.Name("/leo.example.demo.v1.Body/Dictionary").
 		Methods("PUT").
 		Path("/v1/dictionary").
 		Handler(http.NewServer(
@@ -14574,6 +15365,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -14591,7 +15397,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/HttpBody").
+	router.Name("/leo.example.demo.v1.Body/HttpBody").
 		Methods("PUT").
 		Path("/v1/http_body").
 		Handler(http.NewServer(
@@ -14852,6 +15658,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -14869,7 +15690,7 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.Body/HttpRequest").
+	router.Name("/leo.example.demo.v1.Body/HttpRequest").
 		Methods("PUT").
 		Path("/v1/http_request").
 		Handler(http.NewServer(
@@ -15137,6 +15958,21 @@ func NewBodyHTTPServer(
 				if err := protojson.Unmarshal(body, req.HttpBody); err != nil {
 					return nil, err
 				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -15154,64 +15990,2056 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	return r
+	router.Name("/leo.example.demo.v1.Body/ValueRequest").
+		Methods("PUT").
+		Path("/v1/value").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.ValueRequest(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &BodyRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				req.Bytes = []byte(queries.Get("bytes"))
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.OptBytes = []byte(queries.Get("opt_bytes"))
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				req.WrapBytes = wrapperspb.Bytes([]byte(queries.Get("wrap_bytes")))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				req.RepBytes = convx.ParseBytesSlice(queries["rep_bytes"])
+				// enum
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Dictionary); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpBody); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/ListValueRequest").
+		Methods("PUT").
+		Path("/v1/list_value").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.ListValueRequest(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &BodyRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				req.Bytes = []byte(queries.Get("bytes"))
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.OptBytes = []byte(queries.Get("opt_bytes"))
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				req.WrapBytes = wrapperspb.Bytes([]byte(queries.Get("wrap_bytes")))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				req.RepBytes = convx.ParseBytesSlice(queries["rep_bytes"])
+				// enum
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Dictionary); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpBody); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/StructRequest").
+		Methods("PUT").
+		Path("/v1/struct").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.StructRequest(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &BodyRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				req.Bytes = []byte(queries.Get("bytes"))
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.OptBytes = []byte(queries.Get("opt_bytes"))
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				req.WrapBytes = wrapperspb.Bytes([]byte(queries.Get("wrap_bytes")))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				req.RepBytes = convx.ParseBytesSlice(queries["rep_bytes"])
+				// enum
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Dictionary); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpBody); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/TimestampRequest").
+		Methods("PUT").
+		Path("/v1/timestamp").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.TimestampRequest(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &BodyRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				req.Bytes = []byte(queries.Get("bytes"))
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.OptBytes = []byte(queries.Get("opt_bytes"))
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				req.WrapBytes = wrapperspb.Bytes([]byte(queries.Get("wrap_bytes")))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				req.RepBytes = convx.ParseBytesSlice(queries["rep_bytes"])
+				// enum
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Dictionary); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpBody); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/DurationRequest").
+		Methods("PUT").
+		Path("/v1/duration").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.DurationRequest(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &BodyRequest{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				req.Bytes = []byte(queries.Get("bytes"))
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.OptBytes = []byte(queries.Get("opt_bytes"))
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				req.WrapBytes = wrapperspb.Bytes([]byte(queries.Get("wrap_bytes")))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				req.RepBytes = convx.ParseBytesSlice(queries["rep_bytes"])
+				// enum
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Dictionary); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpBody); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.HttpRequest); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Value); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.ListValue); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Struct); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapDoubleBody").
+		Methods("PUT").
+		Path("/v1/wrap_double_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapDoubleBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.DoubleValue{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapFloatBody").
+		Methods("PUT").
+		Path("/v1/wrap_float_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapFloatBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.FloatValue{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapInt64Body").
+		Methods("PUT").
+		Path("/v1/wrap_int64_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapInt64Body(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.Int64Value{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapUint64Body").
+		Methods("PUT").
+		Path("/v1/wrap_uint64_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapUint64Body(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.UInt64Value{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapInt32Body").
+		Methods("PUT").
+		Path("/v1/wrap_int32_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapInt32Body(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.Int32Value{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapUint32Body").
+		Methods("PUT").
+		Path("/v1/wrap_uint32_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapUint32Body(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.UInt32Value{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapBoolBody").
+		Methods("PUT").
+		Path("/v1/wrap_bool_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapBoolBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.BoolValue{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapStringBody").
+		Methods("PUT").
+		Path("/v1/wrap_string_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapStringBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.StringValue{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/WrapBytesBody").
+		Methods("PUT").
+		Path("/v1/wrap_bytes_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.WrapBytesBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &wrapperspb.BytesValue{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/HttpBodyBody").
+		Methods("PUT").
+		Path("/v1/http_body_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.HttpBodyBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &httpbody.HttpBody{}
+				req.ContentType = r.Header.Get("Content-Type")
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Data = body
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/HttpRequestBody").
+		Methods("PUT").
+		Path("/v1/http_request_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.HttpRequestBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &http2.HttpRequest{}
+				req.Method = r.Method
+				req.Uri = r.RequestURI
+				req.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
+				for key, values := range r.Header {
+					for _, value := range values {
+						req.Headers = append(req.Headers, &http2.HttpHeader{Key: key, Value: value})
+					}
+				}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Body = body
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/ValueBody").
+		Methods("PUT").
+		Path("/v1/value_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.ValueBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &structpb.Value{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/ListValueBody").
+		Methods("PUT").
+		Path("/v1/list_value_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.ListValueBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &structpb.ListValue{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/StructBody").
+		Methods("PUT").
+		Path("/v1/struct_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.StructBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &structpb.Struct{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/TimestampBody").
+		Methods("PUT").
+		Path("/v1/timestamp_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.TimestampBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &timestamppb.Timestamp{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.Name("/leo.example.demo.v1.Body/DurationBody").
+		Methods("PUT").
+		Path("/v1/duration_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.DurationBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &durationpb.Duration{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	return router
 }
 
 type httpBodyClient struct {
-	bool        endpoint.Endpoint
-	optBool     endpoint.Endpoint
-	repBool     endpoint.Endpoint
-	wrapBool    endpoint.Endpoint
-	int32       endpoint.Endpoint
-	optInt32    endpoint.Endpoint
-	repInt32    endpoint.Endpoint
-	wrapInt32   endpoint.Endpoint
-	uint32      endpoint.Endpoint
-	optUint32   endpoint.Endpoint
-	repUint32   endpoint.Endpoint
-	wrapUint32  endpoint.Endpoint
-	fixed32     endpoint.Endpoint
-	optFixed32  endpoint.Endpoint
-	repFixed32  endpoint.Endpoint
-	int64       endpoint.Endpoint
-	optInt64    endpoint.Endpoint
-	repInt64    endpoint.Endpoint
-	wrapInt64   endpoint.Endpoint
-	sint64      endpoint.Endpoint
-	optSint64   endpoint.Endpoint
-	repSint64   endpoint.Endpoint
-	sfixed64    endpoint.Endpoint
-	optSfixed64 endpoint.Endpoint
-	repSfixed64 endpoint.Endpoint
-	uint64      endpoint.Endpoint
-	optUint64   endpoint.Endpoint
-	repUint64   endpoint.Endpoint
-	wrapUint64  endpoint.Endpoint
-	fixed64     endpoint.Endpoint
-	optFixed64  endpoint.Endpoint
-	repFixed64  endpoint.Endpoint
-	float32     endpoint.Endpoint
-	optFloat32  endpoint.Endpoint
-	repFloat32  endpoint.Endpoint
-	wrapFloat32 endpoint.Endpoint
-	float64     endpoint.Endpoint
-	optFloat64  endpoint.Endpoint
-	repFloat64  endpoint.Endpoint
-	wrapFloat64 endpoint.Endpoint
-	string      endpoint.Endpoint
-	optString   endpoint.Endpoint
-	repString   endpoint.Endpoint
-	wrapString  endpoint.Endpoint
-	bytes       endpoint.Endpoint
-	optBytes    endpoint.Endpoint
-	repBytes    endpoint.Endpoint
-	wrapBytes   endpoint.Endpoint
-	enum        endpoint.Endpoint
-	optEnum     endpoint.Endpoint
-	repEnum     endpoint.Endpoint
-	dictionary  endpoint.Endpoint
-	httpBody    endpoint.Endpoint
-	httpRequest endpoint.Endpoint
+	bool             endpoint.Endpoint
+	optBool          endpoint.Endpoint
+	repBool          endpoint.Endpoint
+	wrapBool         endpoint.Endpoint
+	int32            endpoint.Endpoint
+	optInt32         endpoint.Endpoint
+	repInt32         endpoint.Endpoint
+	wrapInt32        endpoint.Endpoint
+	uint32           endpoint.Endpoint
+	optUint32        endpoint.Endpoint
+	repUint32        endpoint.Endpoint
+	wrapUint32       endpoint.Endpoint
+	fixed32          endpoint.Endpoint
+	optFixed32       endpoint.Endpoint
+	repFixed32       endpoint.Endpoint
+	int64            endpoint.Endpoint
+	optInt64         endpoint.Endpoint
+	repInt64         endpoint.Endpoint
+	wrapInt64        endpoint.Endpoint
+	sint64           endpoint.Endpoint
+	optSint64        endpoint.Endpoint
+	repSint64        endpoint.Endpoint
+	sfixed64         endpoint.Endpoint
+	optSfixed64      endpoint.Endpoint
+	repSfixed64      endpoint.Endpoint
+	uint64           endpoint.Endpoint
+	optUint64        endpoint.Endpoint
+	repUint64        endpoint.Endpoint
+	wrapUint64       endpoint.Endpoint
+	fixed64          endpoint.Endpoint
+	optFixed64       endpoint.Endpoint
+	repFixed64       endpoint.Endpoint
+	float32          endpoint.Endpoint
+	optFloat32       endpoint.Endpoint
+	repFloat32       endpoint.Endpoint
+	wrapFloat32      endpoint.Endpoint
+	float64          endpoint.Endpoint
+	optFloat64       endpoint.Endpoint
+	repFloat64       endpoint.Endpoint
+	wrapFloat64      endpoint.Endpoint
+	string           endpoint.Endpoint
+	optString        endpoint.Endpoint
+	repString        endpoint.Endpoint
+	wrapString       endpoint.Endpoint
+	bytes            endpoint.Endpoint
+	optBytes         endpoint.Endpoint
+	repBytes         endpoint.Endpoint
+	wrapBytes        endpoint.Endpoint
+	enum             endpoint.Endpoint
+	optEnum          endpoint.Endpoint
+	repEnum          endpoint.Endpoint
+	dictionary       endpoint.Endpoint
+	httpBody         endpoint.Endpoint
+	httpRequest      endpoint.Endpoint
+	valueRequest     endpoint.Endpoint
+	listValueRequest endpoint.Endpoint
+	structRequest    endpoint.Endpoint
+	timestampRequest endpoint.Endpoint
+	durationRequest  endpoint.Endpoint
+	wrapDoubleBody   endpoint.Endpoint
+	wrapFloatBody    endpoint.Endpoint
+	wrapInt64Body    endpoint.Endpoint
+	wrapUint64Body   endpoint.Endpoint
+	wrapInt32Body    endpoint.Endpoint
+	wrapUint32Body   endpoint.Endpoint
+	wrapBoolBody     endpoint.Endpoint
+	wrapStringBody   endpoint.Endpoint
+	wrapBytesBody    endpoint.Endpoint
+	httpBodyBody     endpoint.Endpoint
+	httpRequestBody  endpoint.Endpoint
+	valueBody        endpoint.Endpoint
+	listValueBody    endpoint.Endpoint
+	structBody       endpoint.Endpoint
+	timestampBody    endpoint.Endpoint
+	durationBody     endpoint.Endpoint
 }
 
 func (c *httpBodyClient) Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
@@ -15646,6 +18474,174 @@ func (c *httpBodyClient) HttpRequest(ctx context.Context, request *BodyRequest) 
 	return rep.(*emptypb.Empty), nil
 }
 
+func (c *httpBodyClient) ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.valueRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.listValueRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.structRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.timestampRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.durationRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapDoubleBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapFloatBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapInt64Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapUint64Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapInt32Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapUint32Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapBoolBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapStringBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapBytesBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+	rep, err := c.httpBodyBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) HttpRequestBody(ctx context.Context, request *http2.HttpRequest) (*emptypb.Empty, error) {
+	rep, err := c.httpRequestBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error) {
+	rep, err := c.valueBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error) {
+	rep, err := c.listValueBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error) {
+	rep, err := c.structBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error) {
+	rep, err := c.timestampBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpBodyClient) DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error) {
+	rep, err := c.durationBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewBodyHTTPClient(
 	instance string,
 	mdw []endpoint.Middleware,
@@ -15705,179 +18701,200 @@ func NewBodyHTTPClient(
 	Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error)
+	WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error)
+	WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error)
+	WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error)
+	WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error)
+	WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error)
+	WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error)
+	WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error)
+	WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error)
+	HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+	HttpRequestBody(ctx context.Context, request *http2.HttpRequest) (*emptypb.Empty, error)
+	ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error)
+	ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error)
+	StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error)
+	TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error)
+	DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error)
 } {
-	r := mux.NewRouter()
-	r.Name("/leo.example.demo.v1.Body/Bool").
-		Methods("PUT").
+	router := mux.NewRouter()
+	router.Name("/leo.example.demo.v1.Body/Bool").
 		Path("/v1/bool")
-	r.Name("/leo.example.demo.v1.Body/OptBool").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptBool").
 		Path("/v1/opt_bool")
-	r.Name("/leo.example.demo.v1.Body/RepBool").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepBool").
 		Path("/v1/rep_bool")
-	r.Name("/leo.example.demo.v1.Body/WrapBool").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapBool").
 		Path("/v1/wrap_bool")
-	r.Name("/leo.example.demo.v1.Body/Int32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Int32").
 		Path("/v1/int32")
-	r.Name("/leo.example.demo.v1.Body/OptInt32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptInt32").
 		Path("/v1/opt_int32")
-	r.Name("/leo.example.demo.v1.Body/RepInt32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepInt32").
 		Path("/v1/rep_int32")
-	r.Name("/leo.example.demo.v1.Body/WrapInt32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapInt32").
 		Path("/v1/wrap_int32")
-	r.Name("/leo.example.demo.v1.Body/Uint32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Uint32").
 		Path("/v1/uint32")
-	r.Name("/leo.example.demo.v1.Body/OptUint32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptUint32").
 		Path("/v1/opt_uint32")
-	r.Name("/leo.example.demo.v1.Body/RepUint32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepUint32").
 		Path("/v1/rep_uint32")
-	r.Name("/leo.example.demo.v1.Body/WrapUint32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapUint32").
 		Path("/v1/wrap_uint32")
-	r.Name("/leo.example.demo.v1.Body/Fixed32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Fixed32").
 		Path("/v1/fixed32")
-	r.Name("/leo.example.demo.v1.Body/OptFixed32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptFixed32").
 		Path("/v1/opt_fixed32")
-	r.Name("/leo.example.demo.v1.Body/RepFixed32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepFixed32").
 		Path("/v1/rep_fixed32")
-	r.Name("/leo.example.demo.v1.Body/Int64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Int64").
 		Path("/v1/int64")
-	r.Name("/leo.example.demo.v1.Body/OptInt64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptInt64").
 		Path("/v1/opt_int64")
-	r.Name("/leo.example.demo.v1.Body/RepInt64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepInt64").
 		Path("/v1/rep_int64")
-	r.Name("/leo.example.demo.v1.Body/WrapInt64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapInt64").
 		Path("/v1/wrap_int64")
-	r.Name("/leo.example.demo.v1.Body/Sint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Sint64").
 		Path("/v1/sint64")
-	r.Name("/leo.example.demo.v1.Body/OptSint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptSint64").
 		Path("/v1/opt_sint64")
-	r.Name("/leo.example.demo.v1.Body/RepSint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepSint64").
 		Path("/v1/rep_sint64")
-	r.Name("/leo.example.demo.v1.Body/Sfixed64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Sfixed64").
 		Path("/v1/sfixed64")
-	r.Name("/leo.example.demo.v1.Body/OptSfixed64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptSfixed64").
 		Path("/v1/opt_sfixed64")
-	r.Name("/leo.example.demo.v1.Body/RepSfixed64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepSfixed64").
 		Path("/v1/rep_sfixed64")
-	r.Name("/leo.example.demo.v1.Body/Uint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Uint64").
 		Path("/v1/uint64")
-	r.Name("/leo.example.demo.v1.Body/OptUint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptUint64").
 		Path("/v1/opt_uint64")
-	r.Name("/leo.example.demo.v1.Body/RepUint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepUint64").
 		Path("/v1/rep_uint64")
-	r.Name("/leo.example.demo.v1.Body/WrapUint64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapUint64").
 		Path("/v1/wrap_uint64")
-	r.Name("/leo.example.demo.v1.Body/Fixed64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Fixed64").
 		Path("/v1/fixed64")
-	r.Name("/leo.example.demo.v1.Body/OptFixed64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptFixed64").
 		Path("/v1/opt_fixed64")
-	r.Name("/leo.example.demo.v1.Body/RepFixed64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepFixed64").
 		Path("/v1/rep_fixed64")
-	r.Name("/leo.example.demo.v1.Body/Float32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Float32").
 		Path("/v1/float")
-	r.Name("/leo.example.demo.v1.Body/OptFloat32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptFloat32").
 		Path("/v1/opt_float")
-	r.Name("/leo.example.demo.v1.Body/RepFloat32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepFloat32").
 		Path("/v1/rep_float")
-	r.Name("/leo.example.demo.v1.Body/WrapFloat32").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapFloat32").
 		Path("/v1/wrap_float")
-	r.Name("/leo.example.demo.v1.Body/Float64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Float64").
 		Path("/v1/double")
-	r.Name("/leo.example.demo.v1.Body/OptFloat64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptFloat64").
 		Path("/v1/opt_double")
-	r.Name("/leo.example.demo.v1.Body/RepFloat64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepFloat64").
 		Path("/v1/rep_double")
-	r.Name("/leo.example.demo.v1.Body/WrapFloat64").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapFloat64").
 		Path("/v1/wrap_double")
-	r.Name("/leo.example.demo.v1.Body/String").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/String").
 		Path("/v1/string")
-	r.Name("/leo.example.demo.v1.Body/OptString").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptString").
 		Path("/v1/opt_string")
-	r.Name("/leo.example.demo.v1.Body/RepString").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepString").
 		Path("/v1/rep_string")
-	r.Name("/leo.example.demo.v1.Body/WrapString").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapString").
 		Path("/v1/wrap_string")
-	r.Name("/leo.example.demo.v1.Body/Bytes").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Bytes").
 		Path("/v1/bytes")
-	r.Name("/leo.example.demo.v1.Body/OptBytes").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptBytes").
 		Path("/v1/opt_bytes")
-	r.Name("/leo.example.demo.v1.Body/RepBytes").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepBytes").
 		Path("/v1/rep_bytes")
-	r.Name("/leo.example.demo.v1.Body/WrapBytes").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/WrapBytes").
 		Path("/v1/wrap_bytes")
-	r.Name("/leo.example.demo.v1.Body/Enum").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Enum").
 		Path("/v1/status")
-	r.Name("/leo.example.demo.v1.Body/OptEnum").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/OptEnum").
 		Path("/v1/opt_status")
-	r.Name("/leo.example.demo.v1.Body/RepEnum").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/RepEnum").
 		Path("/v1/rep_status")
-	r.Name("/leo.example.demo.v1.Body/Dictionary").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/Dictionary").
 		Path("/v1/dictionary")
-	r.Name("/leo.example.demo.v1.Body/HttpBody").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/HttpBody").
 		Path("/v1/http_body")
-	r.Name("/leo.example.demo.v1.Body/HttpRequest").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.Body/HttpRequest").
 		Path("/v1/http_request")
+	router.Name("/leo.example.demo.v1.Body/ValueRequest").
+		Path("/v1/value")
+	router.Name("/leo.example.demo.v1.Body/ListValueRequest").
+		Path("/v1/list_value")
+	router.Name("/leo.example.demo.v1.Body/StructRequest").
+		Path("/v1/struct")
+	router.Name("/leo.example.demo.v1.Body/TimestampRequest").
+		Path("/v1/timestamp")
+	router.Name("/leo.example.demo.v1.Body/DurationRequest").
+		Path("/v1/duration")
+	router.Name("/leo.example.demo.v1.Body/WrapDoubleBody").
+		Path("/v1/wrap_double_body")
+	router.Name("/leo.example.demo.v1.Body/WrapFloatBody").
+		Path("/v1/wrap_float_body")
+	router.Name("/leo.example.demo.v1.Body/WrapInt64Body").
+		Path("/v1/wrap_int64_body")
+	router.Name("/leo.example.demo.v1.Body/WrapUint64Body").
+		Path("/v1/wrap_uint64_body")
+	router.Name("/leo.example.demo.v1.Body/WrapInt32Body").
+		Path("/v1/wrap_int32_body")
+	router.Name("/leo.example.demo.v1.Body/WrapUint32Body").
+		Path("/v1/wrap_uint32_body")
+	router.Name("/leo.example.demo.v1.Body/WrapBoolBody").
+		Path("/v1/wrap_bool_body")
+	router.Name("/leo.example.demo.v1.Body/WrapStringBody").
+		Path("/v1/wrap_string_body")
+	router.Name("/leo.example.demo.v1.Body/WrapBytesBody").
+		Path("/v1/wrap_bytes_body")
+	router.Name("/leo.example.demo.v1.Body/HttpBodyBody").
+		Path("/v1/http_body_body")
+	router.Name("/leo.example.demo.v1.Body/HttpRequestBody").
+		Path("/v1/http_request_body")
+	router.Name("/leo.example.demo.v1.Body/ValueBody").
+		Path("/v1/value_body")
+	router.Name("/leo.example.demo.v1.Body/ListValueBody").
+		Path("/v1/list_value_body")
+	router.Name("/leo.example.demo.v1.Body/StructBody").
+		Path("/v1/struct_body")
+	router.Name("/leo.example.demo.v1.Body/TimestampBody").
+		Path("/v1/timestamp_body")
+	router.Name("/leo.example.demo.v1.Body/DurationBody").
+		Path("/v1/duration_body")
 	return &httpBodyClient{
 		bool: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/bool"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatBool(req.Bool))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Bool").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -15893,13 +18910,25 @@ func NewBodyHTTPClient(
 		optBool: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_bool"
+					var url string
 					var body io.Reader
 					if req.OptBool != nil {
 						body = strings.NewReader(strconv.FormatBool(*req.OptBool))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptBool").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -15915,15 +18944,27 @@ func NewBodyHTTPClient(
 		repBool: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_bool"
+					var url string
 					var body io.Reader
 					if req.RepBool != nil {
 						if err := json.NewDecoder(body).Decode(req.RepBool); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepBool").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -15939,13 +18980,25 @@ func NewBodyHTTPClient(
 		wrapBool: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_bool"
+					var url string
 					var body io.Reader
 					if req.WrapBool != nil {
 						body = strings.NewReader(strconv.FormatBool(req.WrapBool.Value))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapBool").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -15961,11 +19014,23 @@ func NewBodyHTTPClient(
 		int32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/int32"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(int64(req.Int32), 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Int32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -15981,13 +19046,25 @@ func NewBodyHTTPClient(
 		optInt32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_int32"
+					var url string
 					var body io.Reader
 					if req.OptInt32 != nil {
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptInt32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16003,15 +19080,27 @@ func NewBodyHTTPClient(
 		repInt32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_int32"
+					var url string
 					var body io.Reader
 					if req.RepInt32 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepInt32); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepInt32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16027,13 +19116,25 @@ func NewBodyHTTPClient(
 		wrapInt32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_int32"
+					var url string
 					var body io.Reader
 					if req.WrapInt32 != nil {
 						body = strings.NewReader(strconv.FormatInt(int64(req.WrapInt32.Value), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16049,11 +19150,23 @@ func NewBodyHTTPClient(
 		uint32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/uint32"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(uint64(req.Uint32), 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Uint32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16069,13 +19182,25 @@ func NewBodyHTTPClient(
 		optUint32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_uint32"
+					var url string
 					var body io.Reader
 					if req.OptUint32 != nil {
 						body = strings.NewReader(strconv.FormatUint(uint64(*req.OptUint32), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptUint32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16091,15 +19216,27 @@ func NewBodyHTTPClient(
 		repUint32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_uint32"
+					var url string
 					var body io.Reader
 					if req.RepUint32 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepUint32); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepUint32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16115,13 +19252,25 @@ func NewBodyHTTPClient(
 		wrapUint32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_uint32"
+					var url string
 					var body io.Reader
 					if req.WrapUint32 != nil {
 						body = strings.NewReader(strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16137,11 +19286,23 @@ func NewBodyHTTPClient(
 		fixed32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/fixed32"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(uint64(req.Fixed32), 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Fixed32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16157,13 +19318,25 @@ func NewBodyHTTPClient(
 		optFixed32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_fixed32"
+					var url string
 					var body io.Reader
 					if req.OptFixed32 != nil {
 						body = strings.NewReader(strconv.FormatUint(uint64(*req.OptFixed32), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptFixed32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16179,15 +19352,27 @@ func NewBodyHTTPClient(
 		repFixed32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_fixed32"
+					var url string
 					var body io.Reader
 					if req.RepFixed32 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepFixed32); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepFixed32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16203,11 +19388,23 @@ func NewBodyHTTPClient(
 		int64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/int64"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(req.Int64, 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Int64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16223,13 +19420,25 @@ func NewBodyHTTPClient(
 		optInt64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_int64"
+					var url string
 					var body io.Reader
 					if req.OptInt64 != nil {
 						body = strings.NewReader(strconv.FormatInt(*req.OptInt64, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptInt64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16245,15 +19454,27 @@ func NewBodyHTTPClient(
 		repInt64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_int64"
+					var url string
 					var body io.Reader
 					if req.RepInt64 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepInt64); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepInt64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16269,13 +19490,25 @@ func NewBodyHTTPClient(
 		wrapInt64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_int64"
+					var url string
 					var body io.Reader
 					if req.WrapInt64 != nil {
 						body = strings.NewReader(strconv.FormatInt(req.WrapInt64.Value, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16291,11 +19524,23 @@ func NewBodyHTTPClient(
 		sint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/sint64"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(req.Sint64, 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Sint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16311,13 +19556,25 @@ func NewBodyHTTPClient(
 		optSint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_sint64"
+					var url string
 					var body io.Reader
 					if req.OptSint64 != nil {
 						body = strings.NewReader(strconv.FormatInt(*req.OptSint64, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptSint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16333,15 +19590,27 @@ func NewBodyHTTPClient(
 		repSint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_sint64"
+					var url string
 					var body io.Reader
 					if req.RepSint64 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepSint64); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepSint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16357,11 +19626,23 @@ func NewBodyHTTPClient(
 		sfixed64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/sfixed64"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(req.Sfixed64, 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Sfixed64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16377,13 +19658,25 @@ func NewBodyHTTPClient(
 		optSfixed64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_sfixed64"
+					var url string
 					var body io.Reader
 					if req.OptSfixed64 != nil {
 						body = strings.NewReader(strconv.FormatInt(*req.OptSfixed64, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptSfixed64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16399,15 +19692,27 @@ func NewBodyHTTPClient(
 		repSfixed64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_sfixed64"
+					var url string
 					var body io.Reader
 					if req.RepSfixed64 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepSfixed64); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepSfixed64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16423,11 +19728,23 @@ func NewBodyHTTPClient(
 		uint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/uint64"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(req.Uint64, 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Uint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16443,13 +19760,25 @@ func NewBodyHTTPClient(
 		optUint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_uint64"
+					var url string
 					var body io.Reader
 					if req.OptUint64 != nil {
 						body = strings.NewReader(strconv.FormatUint(*req.OptUint64, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptUint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16465,15 +19794,27 @@ func NewBodyHTTPClient(
 		repUint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_uint64"
+					var url string
 					var body io.Reader
 					if req.RepUint64 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepUint64); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepUint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16489,13 +19830,25 @@ func NewBodyHTTPClient(
 		wrapUint64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_uint64"
+					var url string
 					var body io.Reader
 					if req.WrapUint64 != nil {
 						body = strings.NewReader(strconv.FormatUint(req.WrapUint64.Value, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16511,11 +19864,23 @@ func NewBodyHTTPClient(
 		fixed64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/fixed64"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(req.Fixed64, 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Fixed64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16531,13 +19896,25 @@ func NewBodyHTTPClient(
 		optFixed64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_fixed64"
+					var url string
 					var body io.Reader
 					if req.OptFixed64 != nil {
 						body = strings.NewReader(strconv.FormatUint(*req.OptFixed64, 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptFixed64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16553,15 +19930,27 @@ func NewBodyHTTPClient(
 		repFixed64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_fixed64"
+					var url string
 					var body io.Reader
 					if req.RepFixed64 != nil {
 						if err := json.NewDecoder(body).Decode(req.RepFixed64); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepFixed64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16577,11 +19966,23 @@ func NewBodyHTTPClient(
 		float32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/float"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Float32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16597,13 +19998,25 @@ func NewBodyHTTPClient(
 		optFloat32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_float"
+					var url string
 					var body io.Reader
 					if req.OptFloat != nil {
 						body = strings.NewReader(strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptFloat32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16619,15 +20032,27 @@ func NewBodyHTTPClient(
 		repFloat32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_float"
+					var url string
 					var body io.Reader
 					if req.RepFloat != nil {
 						if err := json.NewDecoder(body).Decode(req.RepFloat); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepFloat32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16643,13 +20068,25 @@ func NewBodyHTTPClient(
 		wrapFloat32: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_float"
+					var url string
 					var body io.Reader
 					if req.WrapFloat != nil {
 						body = strings.NewReader(strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapFloat32").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16665,11 +20102,23 @@ func NewBodyHTTPClient(
 		float64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/double"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatFloat(req.Double, 'f', -1, 64))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Float64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16685,13 +20134,25 @@ func NewBodyHTTPClient(
 		optFloat64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_double"
+					var url string
 					var body io.Reader
 					if req.OptDouble != nil {
 						body = strings.NewReader(strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptFloat64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16707,15 +20168,27 @@ func NewBodyHTTPClient(
 		repFloat64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_double"
+					var url string
 					var body io.Reader
 					if req.RepDouble != nil {
 						if err := json.NewDecoder(body).Decode(req.RepDouble); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepFloat64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16731,13 +20204,25 @@ func NewBodyHTTPClient(
 		wrapFloat64: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_double"
+					var url string
 					var body io.Reader
 					if req.WrapDouble != nil {
 						body = strings.NewReader(strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapFloat64").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16753,11 +20238,23 @@ func NewBodyHTTPClient(
 		string: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/string"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(req.String_)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/String").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16773,13 +20270,25 @@ func NewBodyHTTPClient(
 		optString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_string"
+					var url string
 					var body io.Reader
 					if req.OptString != nil {
 						body = strings.NewReader(*req.OptString)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptString").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16795,15 +20304,27 @@ func NewBodyHTTPClient(
 		repString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_string"
+					var url string
 					var body io.Reader
 					if req.RepString != nil {
 						if err := json.NewDecoder(body).Decode(req.RepString); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepString").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16819,13 +20340,25 @@ func NewBodyHTTPClient(
 		wrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_string"
+					var url string
 					var body io.Reader
 					if req.WrapString != nil {
 						body = strings.NewReader(req.WrapString.Value)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapString").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16841,11 +20374,23 @@ func NewBodyHTTPClient(
 		bytes: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/bytes"
+					var url string
 					var body io.Reader
 					body = bytes.NewReader(req.Bytes)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Bytes").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16861,11 +20406,23 @@ func NewBodyHTTPClient(
 		optBytes: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_bytes"
+					var url string
 					var body io.Reader
 					body = bytes.NewReader(req.OptBytes)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptBytes").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16881,15 +20438,27 @@ func NewBodyHTTPClient(
 		repBytes: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_bytes"
+					var url string
 					var body io.Reader
 					if req.RepBytes != nil {
 						if err := json.NewDecoder(body).Decode(req.RepBytes); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepBytes").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16905,13 +20474,25 @@ func NewBodyHTTPClient(
 		wrapBytes: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/wrap_bytes"
+					var url string
 					var body io.Reader
 					if req.WrapBytes != nil {
 						body = bytes.NewReader(req.WrapBytes.Value)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapBytes").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16927,11 +20508,23 @@ func NewBodyHTTPClient(
 		enum: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/status"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(int64(req.Status), 10))
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Enum").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16947,13 +20540,25 @@ func NewBodyHTTPClient(
 		optEnum: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/opt_status"
+					var url string
 					var body io.Reader
 					if req.OptStatus != nil {
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptStatus), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/OptEnum").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16969,15 +20574,27 @@ func NewBodyHTTPClient(
 		repEnum: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/rep_status"
+					var url string
 					var body io.Reader
 					if req.RepStatus != nil {
 						if err := json.NewDecoder(body).Decode(req.RepStatus); err != nil {
 							return nil, err
 						}
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/RepEnum").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -16993,15 +20610,27 @@ func NewBodyHTTPClient(
 		dictionary: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/dictionary"
+					var url string
 					var body io.Reader
 					data, err := json.Marshal(req.Dictionary)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/Dictionary").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -17017,13 +20646,25 @@ func NewBodyHTTPClient(
 		httpBody: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/http_body"
+					var url string
 					var body io.Reader
 					if req.HttpBody != nil {
 						body = bytes.NewReader(req.HttpBody.Data)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/HttpBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -17039,13 +20680,759 @@ func NewBodyHTTPClient(
 		httpRequest: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*BodyRequest)
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/http_request"
+					var url string
 					var body io.Reader
 					if req.HttpRequest != nil {
 						body = bytes.NewReader(req.HttpRequest.Body)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/HttpRequest").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		valueRequest: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req.Value)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/ValueRequest").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		listValueRequest: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req.ListValue)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/ListValueRequest").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		structRequest: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req.Struct)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/StructRequest").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		timestampRequest: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req.Timestamp)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/TimestampRequest").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		durationRequest: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*BodyRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req.Duration)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/DurationRequest").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapDoubleBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.DoubleValue)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatFloat(req.Value, 'f', -1, 64))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapDoubleBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapFloatBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.FloatValue)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatFloat(float64(req.Value), 'f', -1, 32))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapFloatBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapInt64Body: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.Int64Value)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatInt(req.Value, 10))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt64Body").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapUint64Body: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.UInt64Value)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatUint(req.Value, 10))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint64Body").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapInt32Body: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.Int32Value)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatInt(int64(req.Value), 10))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt32Body").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapUint32Body: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.UInt32Value)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatUint(uint64(req.Value), 10))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint32Body").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapBoolBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.BoolValue)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(strconv.FormatBool(req.Value))
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapBoolBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapStringBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.StringValue)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = strings.NewReader(req.Value)
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapStringBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapBytesBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*wrapperspb.BytesValue)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = bytes.NewReader(req.Value)
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/WrapBytesBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		httpBodyBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*httpbody.HttpBody)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = bytes.NewReader(req.Data)
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/HttpBodyBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		httpRequestBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*http2.HttpRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					if req != nil {
+						body = bytes.NewReader(req.Body)
+					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/HttpRequestBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		valueBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*structpb.Value)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/ValueBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		listValueBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*structpb.ListValue)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/ListValueBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		structBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*structpb.Struct)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/StructBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		timestampBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*timestamppb.Timestamp)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/TimestampBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		durationBody: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*durationpb.Duration)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
+					var method = "PUT"
+					var url string
+					var body io.Reader
+					data, err := protojson.Marshal(req)
+					if err != nil {
+						return nil, err
+					}
+					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.Body/DurationBody").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err

@@ -5,6 +5,7 @@ package demo
 import (
 	bytes "bytes"
 	context "context"
+	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	convx "github.com/go-leo/gox/convx"
@@ -39,8 +40,8 @@ func NewDemoServiceHTTPServer(
 	mdw []endpoint.Middleware,
 	opts ...http.ServerOption,
 ) http1.Handler {
-	r := mux.NewRouter()
-	r.Name("/leo.example.demo.v1.DemoService/CreateUser").
+	router := mux.NewRouter()
+	router.Name("/leo.example.demo.v1.DemoService/CreateUser").
 		Methods("POST").
 		Path("/v1/user").
 		Handler(http.NewServer(
@@ -71,7 +72,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/UpdateUser").
+	router.Name("/leo.example.demo.v1.DemoService/UpdateUser").
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -108,7 +109,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/GetUser").
+	router.Name("/leo.example.demo.v1.DemoService/GetUser").
 		Methods("GET").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -377,7 +378,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/GetUsers").
+	router.Name("/leo.example.demo.v1.DemoService/GetUsers").
 		Methods("GET").
 		Path("/v1/users").
 		Handler(http.NewServer(
@@ -412,7 +413,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/DeleteUser").
+	router.Name("/leo.example.demo.v1.DemoService/DeleteUser").
 		Methods("DELETE").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -442,7 +443,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
+	router.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -477,7 +478,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/UploadUsers").
+	router.Name("/leo.example.demo.v1.DemoService/UploadUsers").
 		Methods("POST").
 		Path("/v1/users").
 		Handler(http.NewServer(
@@ -505,7 +506,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
+	router.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -539,7 +540,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/PushUsers").
+	router.Name("/leo.example.demo.v1.DemoService/PushUsers").
 		Methods("POST").
 		Path("/v1/users/push").
 		Handler(http.NewServer(
@@ -575,7 +576,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
+	router.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
 		Methods("POST").
 		Path("/v1/user{user_id}/push").
 		Handler(http.NewServer(
@@ -617,7 +618,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	r.Name("/leo.example.demo.v1.DemoService/ModifyUser").
+	router.Name("/leo.example.demo.v1.DemoService/ModifyUser").
 		Methods("PUT").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -890,7 +891,7 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	return r
+	return router
 }
 
 type httpDemoServiceClient struct {
@@ -1012,53 +1013,54 @@ func NewDemoServiceHTTPClient(
 	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
 	ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 } {
-	r := mux.NewRouter()
-	r.Name("/leo.example.demo.v1.DemoService/CreateUser").
-		Methods("POST").
+	router := mux.NewRouter()
+	router.Name("/leo.example.demo.v1.DemoService/CreateUser").
 		Path("/v1/user")
-	r.Name("/leo.example.demo.v1.DemoService/UpdateUser").
-		Methods("POST").
+	router.Name("/leo.example.demo.v1.DemoService/UpdateUser").
 		Path("/v1/user/{user_id}")
-	r.Name("/leo.example.demo.v1.DemoService/GetUser").
-		Methods("GET").
+	router.Name("/leo.example.demo.v1.DemoService/GetUser").
 		Path("/v1/user/{user_id}")
-	r.Name("/leo.example.demo.v1.DemoService/GetUsers").
-		Methods("GET").
+	router.Name("/leo.example.demo.v1.DemoService/GetUsers").
 		Path("/v1/users")
-	r.Name("/leo.example.demo.v1.DemoService/DeleteUser").
-		Methods("DELETE").
+	router.Name("/leo.example.demo.v1.DemoService/DeleteUser").
 		Path("/v1/user/{user_id}")
-	r.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
-		Methods("POST").
+	router.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
 		Path("/v1/user/{user_id}")
-	r.Name("/leo.example.demo.v1.DemoService/UploadUsers").
-		Methods("POST").
+	router.Name("/leo.example.demo.v1.DemoService/UploadUsers").
 		Path("/v1/users")
-	r.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
-		Methods("POST").
+	router.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
 		Path("/v1/user/{user_id}")
-	r.Name("/leo.example.demo.v1.DemoService/PushUsers").
-		Methods("POST").
+	router.Name("/leo.example.demo.v1.DemoService/PushUsers").
 		Path("/v1/users/push")
-	r.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
-		Methods("POST").
+	router.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
 		Path("/v1/user{user_id}/push")
-	r.Name("/leo.example.demo.v1.DemoService/ModifyUser").
-		Methods("PUT").
+	router.Name("/leo.example.demo.v1.DemoService/ModifyUser").
 		Path("/v1/user/{user_id}")
 	return &httpDemoServiceClient{
 		createUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*CreateUserRequest)
+					req, ok := obj.(*CreateUserRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/user"
+					var url string
 					var body io.Reader
 					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/CreateUser").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1074,15 +1076,27 @@ func NewDemoServiceHTTPClient(
 		updateUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*UpdateUserRequest)
+					req, ok := obj.(*UpdateUserRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/user/{user_id}"
+					var url string
 					var body io.Reader
 					data, err := protojson.Marshal(req)
 					if err != nil {
 						return nil, err
 					}
 					body = bytes.NewBuffer(data)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/UpdateUser").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1098,10 +1112,22 @@ func NewDemoServiceHTTPClient(
 		getUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*GetUserRequest)
+					req, ok := obj.(*GetUserRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "GET"
-					var url = "/v1/user/{user_id}"
+					var url string
 					var body io.Reader
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/GetUser").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1117,10 +1143,22 @@ func NewDemoServiceHTTPClient(
 		getUsers: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*GetUsersRequest)
+					req, ok := obj.(*GetUsersRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "GET"
-					var url = "/v1/users"
+					var url string
 					var body io.Reader
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/GetUsers").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1136,10 +1174,22 @@ func NewDemoServiceHTTPClient(
 		deleteUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*DeleteUsersRequest)
+					req, ok := obj.(*DeleteUsersRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "DELETE"
-					var url = "/v1/user/{user_id}"
+					var url string
 					var body io.Reader
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/DeleteUser").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1155,11 +1205,23 @@ func NewDemoServiceHTTPClient(
 		updateUserName: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*UpdateUserNameRequest)
+					req, ok := obj.(*UpdateUserNameRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/user/{user_id}"
+					var url string
 					var body io.Reader
 					body = strings.NewReader(req.Name)
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/UpdateUserName").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1175,13 +1237,25 @@ func NewDemoServiceHTTPClient(
 		uploadUsers: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*httpbody.HttpBody)
+					req, ok := obj.(*httpbody.HttpBody)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/users"
+					var url string
 					var body io.Reader
 					if req != nil {
 						body = bytes.NewReader(req.Data)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/UploadUsers").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1197,13 +1271,25 @@ func NewDemoServiceHTTPClient(
 		uploadUserAvatar: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*UploadUserAvatarRequest)
+					req, ok := obj.(*UploadUserAvatarRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/user/{user_id}"
+					var url string
 					var body io.Reader
 					if req.Avatar != nil {
 						body = bytes.NewReader(req.Avatar.Data)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1219,13 +1305,25 @@ func NewDemoServiceHTTPClient(
 		pushUsers: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*http2.HttpRequest)
+					req, ok := obj.(*http2.HttpRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/users/push"
+					var url string
 					var body io.Reader
 					if req != nil {
 						body = bytes.NewReader(req.Body)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/PushUsers").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1241,13 +1339,25 @@ func NewDemoServiceHTTPClient(
 		pushUserAvatar: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*PushUserAvatarRequest)
+					req, ok := obj.(*PushUserAvatarRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "POST"
-					var url = "/v1/user{user_id}/push"
+					var url string
 					var body io.Reader
 					if req.Avatar != nil {
 						body = bytes.NewReader(req.Avatar.Body)
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err
@@ -1263,13 +1373,25 @@ func NewDemoServiceHTTPClient(
 		modifyUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req := obj.(*ModifyUserRequest)
+					req, ok := obj.(*ModifyUserRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, fmt.Errorf("request object is nil")
+					}
 					var method = "PUT"
-					var url = "/v1/user/{user_id}"
+					var url string
 					var body io.Reader
 					if req.OptInt32 != nil {
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
 					}
+					var pairs []string
+					path, err := router.Name("/leo.example.demo.v1.DemoService/ModifyUser").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
 						return nil, err

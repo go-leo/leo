@@ -7,8 +7,14 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/kitx/endpointx"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
+	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type gRPCBodyServer struct {
@@ -119,6 +125,48 @@ type gRPCBodyServer struct {
 	httpBody grpc.Handler
 
 	httpRequest grpc.Handler
+
+	valueRequest grpc.Handler
+
+	listValueRequest grpc.Handler
+
+	structRequest grpc.Handler
+
+	timestampRequest grpc.Handler
+
+	durationRequest grpc.Handler
+
+	wrapDoubleBody grpc.Handler
+
+	wrapFloatBody grpc.Handler
+
+	wrapInt64Body grpc.Handler
+
+	wrapUint64Body grpc.Handler
+
+	wrapInt32Body grpc.Handler
+
+	wrapUint32Body grpc.Handler
+
+	wrapBoolBody grpc.Handler
+
+	wrapStringBody grpc.Handler
+
+	wrapBytesBody grpc.Handler
+
+	httpBodyBody grpc.Handler
+
+	httpRequestBody grpc.Handler
+
+	valueBody grpc.Handler
+
+	listValueBody grpc.Handler
+
+	structBody grpc.Handler
+
+	timestampBody grpc.Handler
+
+	durationBody grpc.Handler
 }
 
 func (s *gRPCBodyServer) Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
@@ -607,6 +655,195 @@ func (s *gRPCBodyServer) HttpRequest(ctx context.Context, request *BodyRequest) 
 	return rep.(*emptypb.Empty), nil
 }
 
+func (s *gRPCBodyServer) ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.valueRequest.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.listValueRequest.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.structRequest.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.timestampRequest.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.durationRequest.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapDoubleBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapFloatBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapInt64Body.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapUint64Body.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapInt32Body.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapUint32Body.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapBoolBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapStringBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error) {
+	ctx, rep, err := s.wrapBytesBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+	ctx, rep, err := s.httpBodyBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) HttpRequestBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.httpRequestBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error) {
+	ctx, rep, err := s.valueBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error) {
+	ctx, rep, err := s.listValueBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error) {
+	ctx, rep, err := s.structBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error) {
+	ctx, rep, err := s.timestampBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *gRPCBodyServer) DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error) {
+	ctx, rep, err := s.durationBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewBodyGRPCServer(
 	endpoints interface {
 		Bool() endpoint.Endpoint
@@ -663,6 +900,27 @@ func NewBodyGRPCServer(
 		Dictionary() endpoint.Endpoint
 		HttpBody() endpoint.Endpoint
 		HttpRequest() endpoint.Endpoint
+		ValueRequest() endpoint.Endpoint
+		ListValueRequest() endpoint.Endpoint
+		StructRequest() endpoint.Endpoint
+		TimestampRequest() endpoint.Endpoint
+		DurationRequest() endpoint.Endpoint
+		WrapDoubleBody() endpoint.Endpoint
+		WrapFloatBody() endpoint.Endpoint
+		WrapInt64Body() endpoint.Endpoint
+		WrapUint64Body() endpoint.Endpoint
+		WrapInt32Body() endpoint.Endpoint
+		WrapUint32Body() endpoint.Endpoint
+		WrapBoolBody() endpoint.Endpoint
+		WrapStringBody() endpoint.Endpoint
+		WrapBytesBody() endpoint.Endpoint
+		HttpBodyBody() endpoint.Endpoint
+		HttpRequestBody() endpoint.Endpoint
+		ValueBody() endpoint.Endpoint
+		ListValueBody() endpoint.Endpoint
+		StructBody() endpoint.Endpoint
+		TimestampBody() endpoint.Endpoint
+		DurationBody() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...grpc.ServerOption,
@@ -721,6 +979,27 @@ func NewBodyGRPCServer(
 	Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error)
+	WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error)
+	WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error)
+	WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error)
+	WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error)
+	WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error)
+	WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error)
+	WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error)
+	WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error)
+	HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+	HttpRequestBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+	ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error)
+	ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error)
+	StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error)
+	TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error)
+	DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error)
 } {
 	return &gRPCBodyServer{
 		bool: grpc.NewServer(
@@ -1047,64 +1326,211 @@ func NewBodyGRPCServer(
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
+		valueRequest: grpc.NewServer(
+			endpointx.Chain(endpoints.ValueRequest(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		listValueRequest: grpc.NewServer(
+			endpointx.Chain(endpoints.ListValueRequest(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		structRequest: grpc.NewServer(
+			endpointx.Chain(endpoints.StructRequest(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		timestampRequest: grpc.NewServer(
+			endpointx.Chain(endpoints.TimestampRequest(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		durationRequest: grpc.NewServer(
+			endpointx.Chain(endpoints.DurationRequest(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapDoubleBody: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapDoubleBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapFloatBody: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapFloatBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapInt64Body: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapInt64Body(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapUint64Body: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapUint64Body(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapInt32Body: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapInt32Body(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapUint32Body: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapUint32Body(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapBoolBody: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapBoolBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapStringBody: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapStringBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		wrapBytesBody: grpc.NewServer(
+			endpointx.Chain(endpoints.WrapBytesBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		httpBodyBody: grpc.NewServer(
+			endpointx.Chain(endpoints.HttpBodyBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		httpRequestBody: grpc.NewServer(
+			endpointx.Chain(endpoints.HttpRequestBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		valueBody: grpc.NewServer(
+			endpointx.Chain(endpoints.ValueBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		listValueBody: grpc.NewServer(
+			endpointx.Chain(endpoints.ListValueBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		structBody: grpc.NewServer(
+			endpointx.Chain(endpoints.StructBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		timestampBody: grpc.NewServer(
+			endpointx.Chain(endpoints.TimestampBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
+		durationBody: grpc.NewServer(
+			endpointx.Chain(endpoints.DurationBody(), mdw...),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			opts...,
+		),
 	}
 }
 
 type gRPCBodyClient struct {
-	bool        endpoint.Endpoint
-	optBool     endpoint.Endpoint
-	repBool     endpoint.Endpoint
-	wrapBool    endpoint.Endpoint
-	int32       endpoint.Endpoint
-	optInt32    endpoint.Endpoint
-	repInt32    endpoint.Endpoint
-	wrapInt32   endpoint.Endpoint
-	uint32      endpoint.Endpoint
-	optUint32   endpoint.Endpoint
-	repUint32   endpoint.Endpoint
-	wrapUint32  endpoint.Endpoint
-	fixed32     endpoint.Endpoint
-	optFixed32  endpoint.Endpoint
-	repFixed32  endpoint.Endpoint
-	int64       endpoint.Endpoint
-	optInt64    endpoint.Endpoint
-	repInt64    endpoint.Endpoint
-	wrapInt64   endpoint.Endpoint
-	sint64      endpoint.Endpoint
-	optSint64   endpoint.Endpoint
-	repSint64   endpoint.Endpoint
-	sfixed64    endpoint.Endpoint
-	optSfixed64 endpoint.Endpoint
-	repSfixed64 endpoint.Endpoint
-	uint64      endpoint.Endpoint
-	optUint64   endpoint.Endpoint
-	repUint64   endpoint.Endpoint
-	wrapUint64  endpoint.Endpoint
-	fixed64     endpoint.Endpoint
-	optFixed64  endpoint.Endpoint
-	repFixed64  endpoint.Endpoint
-	float32     endpoint.Endpoint
-	optFloat32  endpoint.Endpoint
-	repFloat32  endpoint.Endpoint
-	wrapFloat32 endpoint.Endpoint
-	float64     endpoint.Endpoint
-	optFloat64  endpoint.Endpoint
-	repFloat64  endpoint.Endpoint
-	wrapFloat64 endpoint.Endpoint
-	string      endpoint.Endpoint
-	optString   endpoint.Endpoint
-	repString   endpoint.Endpoint
-	wrapString  endpoint.Endpoint
-	bytes       endpoint.Endpoint
-	optBytes    endpoint.Endpoint
-	repBytes    endpoint.Endpoint
-	wrapBytes   endpoint.Endpoint
-	enum        endpoint.Endpoint
-	optEnum     endpoint.Endpoint
-	repEnum     endpoint.Endpoint
-	dictionary  endpoint.Endpoint
-	httpBody    endpoint.Endpoint
-	httpRequest endpoint.Endpoint
+	bool             endpoint.Endpoint
+	optBool          endpoint.Endpoint
+	repBool          endpoint.Endpoint
+	wrapBool         endpoint.Endpoint
+	int32            endpoint.Endpoint
+	optInt32         endpoint.Endpoint
+	repInt32         endpoint.Endpoint
+	wrapInt32        endpoint.Endpoint
+	uint32           endpoint.Endpoint
+	optUint32        endpoint.Endpoint
+	repUint32        endpoint.Endpoint
+	wrapUint32       endpoint.Endpoint
+	fixed32          endpoint.Endpoint
+	optFixed32       endpoint.Endpoint
+	repFixed32       endpoint.Endpoint
+	int64            endpoint.Endpoint
+	optInt64         endpoint.Endpoint
+	repInt64         endpoint.Endpoint
+	wrapInt64        endpoint.Endpoint
+	sint64           endpoint.Endpoint
+	optSint64        endpoint.Endpoint
+	repSint64        endpoint.Endpoint
+	sfixed64         endpoint.Endpoint
+	optSfixed64      endpoint.Endpoint
+	repSfixed64      endpoint.Endpoint
+	uint64           endpoint.Endpoint
+	optUint64        endpoint.Endpoint
+	repUint64        endpoint.Endpoint
+	wrapUint64       endpoint.Endpoint
+	fixed64          endpoint.Endpoint
+	optFixed64       endpoint.Endpoint
+	repFixed64       endpoint.Endpoint
+	float32          endpoint.Endpoint
+	optFloat32       endpoint.Endpoint
+	repFloat32       endpoint.Endpoint
+	wrapFloat32      endpoint.Endpoint
+	float64          endpoint.Endpoint
+	optFloat64       endpoint.Endpoint
+	repFloat64       endpoint.Endpoint
+	wrapFloat64      endpoint.Endpoint
+	string           endpoint.Endpoint
+	optString        endpoint.Endpoint
+	repString        endpoint.Endpoint
+	wrapString       endpoint.Endpoint
+	bytes            endpoint.Endpoint
+	optBytes         endpoint.Endpoint
+	repBytes         endpoint.Endpoint
+	wrapBytes        endpoint.Endpoint
+	enum             endpoint.Endpoint
+	optEnum          endpoint.Endpoint
+	repEnum          endpoint.Endpoint
+	dictionary       endpoint.Endpoint
+	httpBody         endpoint.Endpoint
+	httpRequest      endpoint.Endpoint
+	valueRequest     endpoint.Endpoint
+	listValueRequest endpoint.Endpoint
+	structRequest    endpoint.Endpoint
+	timestampRequest endpoint.Endpoint
+	durationRequest  endpoint.Endpoint
+	wrapDoubleBody   endpoint.Endpoint
+	wrapFloatBody    endpoint.Endpoint
+	wrapInt64Body    endpoint.Endpoint
+	wrapUint64Body   endpoint.Endpoint
+	wrapInt32Body    endpoint.Endpoint
+	wrapUint32Body   endpoint.Endpoint
+	wrapBoolBody     endpoint.Endpoint
+	wrapStringBody   endpoint.Endpoint
+	wrapBytesBody    endpoint.Endpoint
+	httpBodyBody     endpoint.Endpoint
+	httpRequestBody  endpoint.Endpoint
+	valueBody        endpoint.Endpoint
+	listValueBody    endpoint.Endpoint
+	structBody       endpoint.Endpoint
+	timestampBody    endpoint.Endpoint
+	durationBody     endpoint.Endpoint
 }
 
 func (c *gRPCBodyClient) Bool(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
@@ -1539,6 +1965,174 @@ func (c *gRPCBodyClient) HttpRequest(ctx context.Context, request *BodyRequest) 
 	return rep.(*emptypb.Empty), nil
 }
 
+func (c *gRPCBodyClient) ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.valueRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.listValueRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.structRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.timestampRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	rep, err := c.durationRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapDoubleBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapFloatBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapInt64Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapUint64Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapInt32Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error) {
+	rep, err := c.wrapUint32Body(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapBoolBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapStringBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error) {
+	rep, err := c.wrapBytesBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+	rep, err := c.httpBodyBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) HttpRequestBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
+	rep, err := c.httpRequestBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error) {
+	rep, err := c.valueBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error) {
+	rep, err := c.listValueBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error) {
+	rep, err := c.structBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error) {
+	rep, err := c.timestampBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *gRPCBodyClient) DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error) {
+	rep, err := c.durationBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
 func NewBodyGRPCClient(
 	conn *grpc1.ClientConn,
 	mdw []endpoint.Middleware,
@@ -1598,6 +2192,27 @@ func NewBodyGRPCClient(
 	Dictionary(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	HttpBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
 	HttpRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	ValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	ListValueRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	StructRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	TimestampRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	DurationRequest(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
+	WrapDoubleBody(ctx context.Context, request *wrapperspb.DoubleValue) (*emptypb.Empty, error)
+	WrapFloatBody(ctx context.Context, request *wrapperspb.FloatValue) (*emptypb.Empty, error)
+	WrapInt64Body(ctx context.Context, request *wrapperspb.Int64Value) (*emptypb.Empty, error)
+	WrapUint64Body(ctx context.Context, request *wrapperspb.UInt64Value) (*emptypb.Empty, error)
+	WrapInt32Body(ctx context.Context, request *wrapperspb.Int32Value) (*emptypb.Empty, error)
+	WrapUint32Body(ctx context.Context, request *wrapperspb.UInt32Value) (*emptypb.Empty, error)
+	WrapBoolBody(ctx context.Context, request *wrapperspb.BoolValue) (*emptypb.Empty, error)
+	WrapStringBody(ctx context.Context, request *wrapperspb.StringValue) (*emptypb.Empty, error)
+	WrapBytesBody(ctx context.Context, request *wrapperspb.BytesValue) (*emptypb.Empty, error)
+	HttpBodyBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+	HttpRequestBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+	ValueBody(ctx context.Context, request *structpb.Value) (*emptypb.Empty, error)
+	ListValueBody(ctx context.Context, request *structpb.ListValue) (*emptypb.Empty, error)
+	StructBody(ctx context.Context, request *structpb.Struct) (*emptypb.Empty, error)
+	TimestampBody(ctx context.Context, request *timestamppb.Timestamp) (*emptypb.Empty, error)
+	DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error)
 } {
 	return &gRPCBodyClient{
 		bool: endpointx.Chain(
@@ -2188,6 +2803,237 @@ func NewBodyGRPCClient(
 				conn,
 				"leo.example.demo.v1.Body",
 				"HttpRequest",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		valueRequest: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"ValueRequest",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		listValueRequest: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"ListValueRequest",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		structRequest: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"StructRequest",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		timestampRequest: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"TimestampRequest",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		durationRequest: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"DurationRequest",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapDoubleBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapDoubleBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapFloatBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapFloatBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapInt64Body: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapInt64Body",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapUint64Body: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapUint64Body",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapInt32Body: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapInt32Body",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapUint32Body: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapUint32Body",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapBoolBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapBoolBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapStringBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapStringBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		wrapBytesBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"WrapBytesBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		httpBodyBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"HttpBodyBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		httpRequestBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"HttpRequestBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		valueBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"ValueBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		listValueBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"ListValueBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		structBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"StructBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		timestampBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"TimestampBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		durationBody: endpointx.Chain(
+			grpc.NewClient(
+				conn,
+				"leo.example.demo.v1.Body",
+				"DurationBody",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},

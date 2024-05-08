@@ -17,6 +17,7 @@ var (
 	MuxPackage           = protogen.GoImportPath("github.com/gorilla/mux")
 	HttpPackage          = protogen.GoImportPath("net/http")
 	FmtPackage           = protogen.GoImportPath("fmt")
+	ErrorsPackage        = protogen.GoImportPath("errors")
 	StrconvPackage       = protogen.GoImportPath("strconv")
 	ConvxPackage         = protogen.GoImportPath("github.com/go-leo/gox/convx")
 	IOPackage            = protogen.GoImportPath("io")

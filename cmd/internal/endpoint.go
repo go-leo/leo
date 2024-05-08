@@ -105,23 +105,21 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 			if field == nil {
 				return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, failed to find named path field %s", e.FullName(), namedPathName, namedPathParameter)
 			}
-			if i == len(namedPathParameters)-1 {
+			if i < len(namedPathParameters)-1 {
+				if field.Desc.Kind() != protoreflect.MessageKind {
+					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s is not message", e.FullName(), field.Desc.Name())
+				}
+			} else {
 				switch field.Desc.Kind() {
 				case protoreflect.StringKind:
-				case protoreflect.BytesKind:
 				case protoreflect.MessageKind:
 					switch field.Message.Desc.FullName() {
 					case "google.protobuf.StringValue":
-					case "google.protobuf.BytesValue":
 					default:
-						return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path field message type %s invalid", e.FullName(), namedPathName, field.Desc.Kind())
+						return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path parameter type is not string or google.protobuf.StringValue", e.FullName(), namedPathName)
 					}
 				default:
-					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path field type %s invalid", e.FullName(), namedPathName, field.Desc.Kind())
-				}
-			} else {
-				if field.Desc.Kind() != protoreflect.MessageKind {
-					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s in %s is not message, %s", e.FullName(), field.Desc.Name(), namedPathName, field.Desc.Kind())
+					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path parameter type not string or google.protobuf.StringValue", e.FullName(), namedPathName)
 				}
 			}
 			namedPathFields = append(namedPathFields, field)

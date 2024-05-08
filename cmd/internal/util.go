@@ -32,6 +32,9 @@ func singular(plural string) string {
 	if strings.HasSuffix(plural, "ies") {
 		return strings.TrimSuffix(plural, "ies") + "y"
 	}
+	if strings.HasSuffix(plural, "es") {
+		return strings.TrimSuffix(plural, "es")
+	}
 	if strings.HasSuffix(plural, "s") {
 		return strings.TrimSuffix(plural, "s")
 	}

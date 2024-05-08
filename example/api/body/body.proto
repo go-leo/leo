@@ -7,6 +7,9 @@ import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
 import "google/rpc/http.proto";
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 
 service Body {
   rpc Bool (BodyRequest) returns (google.protobuf.Empty) {
@@ -389,6 +392,153 @@ service Body {
       body : "http_request"
     };
   }
+
+  rpc ValueRequest (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/value"
+      body : "value"
+    };
+  }
+
+  rpc ListValueRequest (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/list_value"
+      body : "list_value"
+    };
+  }
+
+  rpc StructRequest (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/struct"
+      body : "struct"
+    };
+  }
+
+  rpc TimestampRequest (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/timestamp"
+      body : "timestamp"
+    };
+  }
+
+  rpc DurationRequest (BodyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/duration"
+      body : "duration"
+    };
+  }
+
+  rpc WrapDoubleBody (google.protobuf.DoubleValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_double_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapFloatBody (google.protobuf.FloatValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_float_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapInt64Body (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_int64_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapUint64Body (google.protobuf.UInt64Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_uint64_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapInt32Body (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_int32_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapUint32Body (google.protobuf.UInt32Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_uint32_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapBoolBody (google.protobuf.BoolValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_bool_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapStringBody (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_string_body"
+      body : "*"
+    };
+  }
+
+  rpc WrapBytesBody (google.protobuf.BytesValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/wrap_bytes_body"
+      body : "*"
+    };
+  }
+
+  rpc HttpBodyBody (google.api.HttpBody) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/http_body_body"
+      body : "*"
+    };
+  }
+
+  rpc HttpRequestBody (google.rpc.HttpRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/http_request_body"
+      body : "*"
+    };
+  }
+
+  rpc ValueBody (google.protobuf.Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/value_body"
+      body : "*"
+    };
+  }
+
+  rpc ListValueBody (google.protobuf.ListValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/list_value_body"
+      body : "*"
+    };
+  }
+
+  rpc StructBody (google.protobuf.Struct) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/struct_body"
+      body : "*"
+    };
+  }
+
+  rpc TimestampBody (google.protobuf.Timestamp) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/timestamp_body"
+      body : "*"
+    };
+  }
+
+  rpc DurationBody (google.protobuf.Duration) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/v1/duration_body"
+      body : "*"
+    };
+  }
 }
 
 message BodyRequest {
@@ -465,4 +615,11 @@ message BodyRequest {
   google.api.HttpBody http_body = 72;
 
   google.rpc.HttpRequest http_request = 73;
+
+  google.protobuf.Value value = 74;
+  google.protobuf.ListValue list_value = 75;
+  google.protobuf.Struct struct = 76;
+
+  google.protobuf.Timestamp timestamp = 77;
+  google.protobuf.Duration duration = 78;
 }
