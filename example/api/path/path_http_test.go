@@ -1,9 +1,14 @@
 package path
 
 import (
+	"encoding/json"
 	"github.com/gorilla/mux"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	http1 "net/http"
 	"testing"
+	"time"
 )
 
 func TestRouterURL(t *testing.T) {
@@ -26,4 +31,29 @@ func TestRouterURL(t *testing.T) {
 	}
 	t.Log(path)
 
+}
+
+func TestTimestamp(t *testing.T) {
+	timestamp := timestamppb.New(time.Now())
+	data, _ := protojson.Marshal(timestamp)
+	t.Log(string(data))
+
+	var newTimestamp timestamppb.Timestamp
+	_ = protojson.Unmarshal(data, &newTimestamp)
+	t.Log(newTimestamp.AsTime())
+}
+
+func TestDuration(t *testing.T) {
+	duration := durationpb.New(time.Hour)
+	data, _ := protojson.Marshal(duration)
+	t.Log(string(data))
+
+	var newDuration durationpb.Duration
+	_ = protojson.Unmarshal(data, &newDuration)
+	t.Log(newDuration.AsDuration())
+}
+
+func TestNil(t *testing.T) {
+	data, _ := json.Marshal(nil)
+	t.Log(string(data))
 }

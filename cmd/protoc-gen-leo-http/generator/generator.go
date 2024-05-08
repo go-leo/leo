@@ -606,7 +606,7 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid request object type, %T"), ", obj)")
 	generatedFile.P("}")
 	generatedFile.P("if req == nil {")
-	generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("request object is nil"), ")")
+	generatedFile.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request object is nil"), ")")
 	generatedFile.P("}")
 	generatedFile.P("var method = ", strconv.Quote(httpRule.Method()))
 	//path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
@@ -923,11 +923,14 @@ func (f *Generator) PrintWrapFieldBody(generatedFile *protogen.GeneratedFile, re
 }
 
 func (f *Generator) PrintMessageFieldBody(generatedFile *protogen.GeneratedFile, marshalPkg protogen.GoImportPath, srcValue []any) {
+	generatedFile.P(append(append([]any{"if "}, srcValue...), " != nil {")...)
 	generatedFile.P(append(append([]any{"data, err := ", marshalPkg.Ident("Marshal"), "("}, srcValue...), []any{")"}...)...)
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
 	generatedFile.P("body = ", internal.BytesPackage.Ident("NewBuffer"), "(data)")
+	generatedFile.P("}")
+
 }
 
 func (f *Generator) PrintListFieldBody(generatedFile *protogen.GeneratedFile, srcValue []any) {

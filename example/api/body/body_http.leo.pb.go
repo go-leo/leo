@@ -6,6 +6,7 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
+	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
@@ -109,7 +110,8 @@ func NewBodyHTTPServer(
 	opts ...http.ServerOption,
 ) http1.Handler {
 	router := mux.NewRouter()
-	router.Name("/leo.example.demo.v1.Body/Bool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Bool").
 		Methods("PUT").
 		Path("/v1/bool").
 		Handler(http.NewServer(
@@ -403,7 +405,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptBool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptBool").
 		Methods("PUT").
 		Path("/v1/opt_bool").
 		Handler(http.NewServer(
@@ -697,7 +700,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepBool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepBool").
 		Methods("PUT").
 		Path("/v1/rep_bool").
 		Handler(http.NewServer(
@@ -991,7 +995,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapBool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBool").
 		Methods("PUT").
 		Path("/v1/wrap_bool").
 		Handler(http.NewServer(
@@ -1285,7 +1290,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Int32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Int32").
 		Methods("PUT").
 		Path("/v1/int32").
 		Handler(http.NewServer(
@@ -1579,7 +1585,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptInt32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptInt32").
 		Methods("PUT").
 		Path("/v1/opt_int32").
 		Handler(http.NewServer(
@@ -1873,7 +1880,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepInt32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepInt32").
 		Methods("PUT").
 		Path("/v1/rep_int32").
 		Handler(http.NewServer(
@@ -2167,7 +2175,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapInt32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt32").
 		Methods("PUT").
 		Path("/v1/wrap_int32").
 		Handler(http.NewServer(
@@ -2461,7 +2470,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Uint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Uint32").
 		Methods("PUT").
 		Path("/v1/uint32").
 		Handler(http.NewServer(
@@ -2755,7 +2765,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptUint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptUint32").
 		Methods("PUT").
 		Path("/v1/opt_uint32").
 		Handler(http.NewServer(
@@ -3049,7 +3060,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepUint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepUint32").
 		Methods("PUT").
 		Path("/v1/rep_uint32").
 		Handler(http.NewServer(
@@ -3343,7 +3355,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapUint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint32").
 		Methods("PUT").
 		Path("/v1/wrap_uint32").
 		Handler(http.NewServer(
@@ -3637,7 +3650,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Fixed32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Fixed32").
 		Methods("PUT").
 		Path("/v1/fixed32").
 		Handler(http.NewServer(
@@ -3931,7 +3945,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptFixed32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFixed32").
 		Methods("PUT").
 		Path("/v1/opt_fixed32").
 		Handler(http.NewServer(
@@ -4225,7 +4240,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepFixed32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFixed32").
 		Methods("PUT").
 		Path("/v1/rep_fixed32").
 		Handler(http.NewServer(
@@ -4519,7 +4535,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Int64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Int64").
 		Methods("PUT").
 		Path("/v1/int64").
 		Handler(http.NewServer(
@@ -4813,7 +4830,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptInt64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptInt64").
 		Methods("PUT").
 		Path("/v1/opt_int64").
 		Handler(http.NewServer(
@@ -5107,7 +5125,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepInt64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepInt64").
 		Methods("PUT").
 		Path("/v1/rep_int64").
 		Handler(http.NewServer(
@@ -5401,7 +5420,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapInt64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt64").
 		Methods("PUT").
 		Path("/v1/wrap_int64").
 		Handler(http.NewServer(
@@ -5695,7 +5715,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Sint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Sint64").
 		Methods("PUT").
 		Path("/v1/sint64").
 		Handler(http.NewServer(
@@ -5989,7 +6010,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptSint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptSint64").
 		Methods("PUT").
 		Path("/v1/opt_sint64").
 		Handler(http.NewServer(
@@ -6283,7 +6305,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepSint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepSint64").
 		Methods("PUT").
 		Path("/v1/rep_sint64").
 		Handler(http.NewServer(
@@ -6577,7 +6600,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Sfixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Sfixed64").
 		Methods("PUT").
 		Path("/v1/sfixed64").
 		Handler(http.NewServer(
@@ -6871,7 +6895,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptSfixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptSfixed64").
 		Methods("PUT").
 		Path("/v1/opt_sfixed64").
 		Handler(http.NewServer(
@@ -7165,7 +7190,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepSfixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepSfixed64").
 		Methods("PUT").
 		Path("/v1/rep_sfixed64").
 		Handler(http.NewServer(
@@ -7459,7 +7485,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Uint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Uint64").
 		Methods("PUT").
 		Path("/v1/uint64").
 		Handler(http.NewServer(
@@ -7753,7 +7780,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptUint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptUint64").
 		Methods("PUT").
 		Path("/v1/opt_uint64").
 		Handler(http.NewServer(
@@ -8047,7 +8075,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepUint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepUint64").
 		Methods("PUT").
 		Path("/v1/rep_uint64").
 		Handler(http.NewServer(
@@ -8341,7 +8370,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapUint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint64").
 		Methods("PUT").
 		Path("/v1/wrap_uint64").
 		Handler(http.NewServer(
@@ -8635,7 +8665,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Fixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Fixed64").
 		Methods("PUT").
 		Path("/v1/fixed64").
 		Handler(http.NewServer(
@@ -8929,7 +8960,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptFixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFixed64").
 		Methods("PUT").
 		Path("/v1/opt_fixed64").
 		Handler(http.NewServer(
@@ -9223,7 +9255,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepFixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFixed64").
 		Methods("PUT").
 		Path("/v1/rep_fixed64").
 		Handler(http.NewServer(
@@ -9517,7 +9550,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Float32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Float32").
 		Methods("PUT").
 		Path("/v1/float").
 		Handler(http.NewServer(
@@ -9811,7 +9845,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptFloat32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFloat32").
 		Methods("PUT").
 		Path("/v1/opt_float").
 		Handler(http.NewServer(
@@ -10105,7 +10140,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepFloat32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFloat32").
 		Methods("PUT").
 		Path("/v1/rep_float").
 		Handler(http.NewServer(
@@ -10399,7 +10435,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapFloat32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapFloat32").
 		Methods("PUT").
 		Path("/v1/wrap_float").
 		Handler(http.NewServer(
@@ -10693,7 +10730,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Float64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Float64").
 		Methods("PUT").
 		Path("/v1/double").
 		Handler(http.NewServer(
@@ -10987,7 +11025,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptFloat64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFloat64").
 		Methods("PUT").
 		Path("/v1/opt_double").
 		Handler(http.NewServer(
@@ -11281,7 +11320,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepFloat64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFloat64").
 		Methods("PUT").
 		Path("/v1/rep_double").
 		Handler(http.NewServer(
@@ -11575,7 +11615,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapFloat64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapFloat64").
 		Methods("PUT").
 		Path("/v1/wrap_double").
 		Handler(http.NewServer(
@@ -11869,7 +11910,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/String").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/String").
 		Methods("PUT").
 		Path("/v1/string").
 		Handler(http.NewServer(
@@ -12163,7 +12205,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptString").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptString").
 		Methods("PUT").
 		Path("/v1/opt_string").
 		Handler(http.NewServer(
@@ -12457,7 +12500,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepString").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepString").
 		Methods("PUT").
 		Path("/v1/rep_string").
 		Handler(http.NewServer(
@@ -12751,7 +12795,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapString").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapString").
 		Methods("PUT").
 		Path("/v1/wrap_string").
 		Handler(http.NewServer(
@@ -13045,7 +13090,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Bytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Bytes").
 		Methods("PUT").
 		Path("/v1/bytes").
 		Handler(http.NewServer(
@@ -13339,7 +13385,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptBytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptBytes").
 		Methods("PUT").
 		Path("/v1/opt_bytes").
 		Handler(http.NewServer(
@@ -13633,7 +13680,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepBytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepBytes").
 		Methods("PUT").
 		Path("/v1/rep_bytes").
 		Handler(http.NewServer(
@@ -13927,7 +13975,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapBytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBytes").
 		Methods("PUT").
 		Path("/v1/wrap_bytes").
 		Handler(http.NewServer(
@@ -14221,7 +14270,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Enum").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Enum").
 		Methods("PUT").
 		Path("/v1/status").
 		Handler(http.NewServer(
@@ -14515,7 +14565,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/OptEnum").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptEnum").
 		Methods("PUT").
 		Path("/v1/opt_status").
 		Handler(http.NewServer(
@@ -14809,7 +14860,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/RepEnum").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepEnum").
 		Methods("PUT").
 		Path("/v1/rep_status").
 		Handler(http.NewServer(
@@ -15103,7 +15155,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/Dictionary").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Dictionary").
 		Methods("PUT").
 		Path("/v1/dictionary").
 		Handler(http.NewServer(
@@ -15397,7 +15450,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/HttpBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpBody").
 		Methods("PUT").
 		Path("/v1/http_body").
 		Handler(http.NewServer(
@@ -15690,7 +15744,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/HttpRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpRequest").
 		Methods("PUT").
 		Path("/v1/http_request").
 		Handler(http.NewServer(
@@ -15990,7 +16045,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/ValueRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ValueRequest").
 		Methods("PUT").
 		Path("/v1/value").
 		Handler(http.NewServer(
@@ -16284,7 +16340,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/ListValueRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ListValueRequest").
 		Methods("PUT").
 		Path("/v1/list_value").
 		Handler(http.NewServer(
@@ -16578,7 +16635,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/StructRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/StructRequest").
 		Methods("PUT").
 		Path("/v1/struct").
 		Handler(http.NewServer(
@@ -16872,7 +16930,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/TimestampRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/TimestampRequest").
 		Methods("PUT").
 		Path("/v1/timestamp").
 		Handler(http.NewServer(
@@ -17166,7 +17225,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/DurationRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/DurationRequest").
 		Methods("PUT").
 		Path("/v1/duration").
 		Handler(http.NewServer(
@@ -17460,7 +17520,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapDoubleBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapDoubleBody").
 		Methods("PUT").
 		Path("/v1/wrap_double_body").
 		Handler(http.NewServer(
@@ -17491,7 +17552,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapFloatBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapFloatBody").
 		Methods("PUT").
 		Path("/v1/wrap_float_body").
 		Handler(http.NewServer(
@@ -17522,7 +17584,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapInt64Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt64Body").
 		Methods("PUT").
 		Path("/v1/wrap_int64_body").
 		Handler(http.NewServer(
@@ -17553,7 +17616,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapUint64Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint64Body").
 		Methods("PUT").
 		Path("/v1/wrap_uint64_body").
 		Handler(http.NewServer(
@@ -17584,7 +17648,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapInt32Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt32Body").
 		Methods("PUT").
 		Path("/v1/wrap_int32_body").
 		Handler(http.NewServer(
@@ -17615,7 +17680,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapUint32Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint32Body").
 		Methods("PUT").
 		Path("/v1/wrap_uint32_body").
 		Handler(http.NewServer(
@@ -17646,7 +17712,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapBoolBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBoolBody").
 		Methods("PUT").
 		Path("/v1/wrap_bool_body").
 		Handler(http.NewServer(
@@ -17677,7 +17744,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapStringBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapStringBody").
 		Methods("PUT").
 		Path("/v1/wrap_string_body").
 		Handler(http.NewServer(
@@ -17708,7 +17776,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/WrapBytesBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBytesBody").
 		Methods("PUT").
 		Path("/v1/wrap_bytes_body").
 		Handler(http.NewServer(
@@ -17739,7 +17808,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/HttpBodyBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpBodyBody").
 		Methods("PUT").
 		Path("/v1/http_body_body").
 		Handler(http.NewServer(
@@ -17769,7 +17839,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/HttpRequestBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpRequestBody").
 		Methods("PUT").
 		Path("/v1/http_request_body").
 		Handler(http.NewServer(
@@ -17806,7 +17877,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/ValueBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ValueBody").
 		Methods("PUT").
 		Path("/v1/value_body").
 		Handler(http.NewServer(
@@ -17837,7 +17909,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/ListValueBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ListValueBody").
 		Methods("PUT").
 		Path("/v1/list_value_body").
 		Handler(http.NewServer(
@@ -17868,7 +17941,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/StructBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/StructBody").
 		Methods("PUT").
 		Path("/v1/struct_body").
 		Handler(http.NewServer(
@@ -17899,7 +17973,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/TimestampBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/TimestampBody").
 		Methods("PUT").
 		Path("/v1/timestamp_body").
 		Handler(http.NewServer(
@@ -17930,7 +18005,8 @@ func NewBodyHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.Body/DurationBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/DurationBody").
 		Methods("PUT").
 		Path("/v1/duration_body").
 		Handler(http.NewServer(
@@ -18724,155 +18800,305 @@ func NewBodyHTTPClient(
 	DurationBody(ctx context.Context, request *durationpb.Duration) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
-	router.Name("/leo.example.demo.v1.Body/Bool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Bool").
+		Methods("PUT").
 		Path("/v1/bool")
-	router.Name("/leo.example.demo.v1.Body/OptBool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptBool").
+		Methods("PUT").
 		Path("/v1/opt_bool")
-	router.Name("/leo.example.demo.v1.Body/RepBool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepBool").
+		Methods("PUT").
 		Path("/v1/rep_bool")
-	router.Name("/leo.example.demo.v1.Body/WrapBool").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBool").
+		Methods("PUT").
 		Path("/v1/wrap_bool")
-	router.Name("/leo.example.demo.v1.Body/Int32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Int32").
+		Methods("PUT").
 		Path("/v1/int32")
-	router.Name("/leo.example.demo.v1.Body/OptInt32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptInt32").
+		Methods("PUT").
 		Path("/v1/opt_int32")
-	router.Name("/leo.example.demo.v1.Body/RepInt32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepInt32").
+		Methods("PUT").
 		Path("/v1/rep_int32")
-	router.Name("/leo.example.demo.v1.Body/WrapInt32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt32").
+		Methods("PUT").
 		Path("/v1/wrap_int32")
-	router.Name("/leo.example.demo.v1.Body/Uint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Uint32").
+		Methods("PUT").
 		Path("/v1/uint32")
-	router.Name("/leo.example.demo.v1.Body/OptUint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptUint32").
+		Methods("PUT").
 		Path("/v1/opt_uint32")
-	router.Name("/leo.example.demo.v1.Body/RepUint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepUint32").
+		Methods("PUT").
 		Path("/v1/rep_uint32")
-	router.Name("/leo.example.demo.v1.Body/WrapUint32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint32").
+		Methods("PUT").
 		Path("/v1/wrap_uint32")
-	router.Name("/leo.example.demo.v1.Body/Fixed32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Fixed32").
+		Methods("PUT").
 		Path("/v1/fixed32")
-	router.Name("/leo.example.demo.v1.Body/OptFixed32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFixed32").
+		Methods("PUT").
 		Path("/v1/opt_fixed32")
-	router.Name("/leo.example.demo.v1.Body/RepFixed32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFixed32").
+		Methods("PUT").
 		Path("/v1/rep_fixed32")
-	router.Name("/leo.example.demo.v1.Body/Int64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Int64").
+		Methods("PUT").
 		Path("/v1/int64")
-	router.Name("/leo.example.demo.v1.Body/OptInt64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptInt64").
+		Methods("PUT").
 		Path("/v1/opt_int64")
-	router.Name("/leo.example.demo.v1.Body/RepInt64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepInt64").
+		Methods("PUT").
 		Path("/v1/rep_int64")
-	router.Name("/leo.example.demo.v1.Body/WrapInt64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt64").
+		Methods("PUT").
 		Path("/v1/wrap_int64")
-	router.Name("/leo.example.demo.v1.Body/Sint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Sint64").
+		Methods("PUT").
 		Path("/v1/sint64")
-	router.Name("/leo.example.demo.v1.Body/OptSint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptSint64").
+		Methods("PUT").
 		Path("/v1/opt_sint64")
-	router.Name("/leo.example.demo.v1.Body/RepSint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepSint64").
+		Methods("PUT").
 		Path("/v1/rep_sint64")
-	router.Name("/leo.example.demo.v1.Body/Sfixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Sfixed64").
+		Methods("PUT").
 		Path("/v1/sfixed64")
-	router.Name("/leo.example.demo.v1.Body/OptSfixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptSfixed64").
+		Methods("PUT").
 		Path("/v1/opt_sfixed64")
-	router.Name("/leo.example.demo.v1.Body/RepSfixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepSfixed64").
+		Methods("PUT").
 		Path("/v1/rep_sfixed64")
-	router.Name("/leo.example.demo.v1.Body/Uint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Uint64").
+		Methods("PUT").
 		Path("/v1/uint64")
-	router.Name("/leo.example.demo.v1.Body/OptUint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptUint64").
+		Methods("PUT").
 		Path("/v1/opt_uint64")
-	router.Name("/leo.example.demo.v1.Body/RepUint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepUint64").
+		Methods("PUT").
 		Path("/v1/rep_uint64")
-	router.Name("/leo.example.demo.v1.Body/WrapUint64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint64").
+		Methods("PUT").
 		Path("/v1/wrap_uint64")
-	router.Name("/leo.example.demo.v1.Body/Fixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Fixed64").
+		Methods("PUT").
 		Path("/v1/fixed64")
-	router.Name("/leo.example.demo.v1.Body/OptFixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFixed64").
+		Methods("PUT").
 		Path("/v1/opt_fixed64")
-	router.Name("/leo.example.demo.v1.Body/RepFixed64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFixed64").
+		Methods("PUT").
 		Path("/v1/rep_fixed64")
-	router.Name("/leo.example.demo.v1.Body/Float32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Float32").
+		Methods("PUT").
 		Path("/v1/float")
-	router.Name("/leo.example.demo.v1.Body/OptFloat32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFloat32").
+		Methods("PUT").
 		Path("/v1/opt_float")
-	router.Name("/leo.example.demo.v1.Body/RepFloat32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFloat32").
+		Methods("PUT").
 		Path("/v1/rep_float")
-	router.Name("/leo.example.demo.v1.Body/WrapFloat32").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapFloat32").
+		Methods("PUT").
 		Path("/v1/wrap_float")
-	router.Name("/leo.example.demo.v1.Body/Float64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Float64").
+		Methods("PUT").
 		Path("/v1/double")
-	router.Name("/leo.example.demo.v1.Body/OptFloat64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptFloat64").
+		Methods("PUT").
 		Path("/v1/opt_double")
-	router.Name("/leo.example.demo.v1.Body/RepFloat64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepFloat64").
+		Methods("PUT").
 		Path("/v1/rep_double")
-	router.Name("/leo.example.demo.v1.Body/WrapFloat64").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapFloat64").
+		Methods("PUT").
 		Path("/v1/wrap_double")
-	router.Name("/leo.example.demo.v1.Body/String").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/String").
+		Methods("PUT").
 		Path("/v1/string")
-	router.Name("/leo.example.demo.v1.Body/OptString").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptString").
+		Methods("PUT").
 		Path("/v1/opt_string")
-	router.Name("/leo.example.demo.v1.Body/RepString").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepString").
+		Methods("PUT").
 		Path("/v1/rep_string")
-	router.Name("/leo.example.demo.v1.Body/WrapString").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapString").
+		Methods("PUT").
 		Path("/v1/wrap_string")
-	router.Name("/leo.example.demo.v1.Body/Bytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Bytes").
+		Methods("PUT").
 		Path("/v1/bytes")
-	router.Name("/leo.example.demo.v1.Body/OptBytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptBytes").
+		Methods("PUT").
 		Path("/v1/opt_bytes")
-	router.Name("/leo.example.demo.v1.Body/RepBytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepBytes").
+		Methods("PUT").
 		Path("/v1/rep_bytes")
-	router.Name("/leo.example.demo.v1.Body/WrapBytes").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBytes").
+		Methods("PUT").
 		Path("/v1/wrap_bytes")
-	router.Name("/leo.example.demo.v1.Body/Enum").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Enum").
+		Methods("PUT").
 		Path("/v1/status")
-	router.Name("/leo.example.demo.v1.Body/OptEnum").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/OptEnum").
+		Methods("PUT").
 		Path("/v1/opt_status")
-	router.Name("/leo.example.demo.v1.Body/RepEnum").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/RepEnum").
+		Methods("PUT").
 		Path("/v1/rep_status")
-	router.Name("/leo.example.demo.v1.Body/Dictionary").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/Dictionary").
+		Methods("PUT").
 		Path("/v1/dictionary")
-	router.Name("/leo.example.demo.v1.Body/HttpBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpBody").
+		Methods("PUT").
 		Path("/v1/http_body")
-	router.Name("/leo.example.demo.v1.Body/HttpRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpRequest").
+		Methods("PUT").
 		Path("/v1/http_request")
-	router.Name("/leo.example.demo.v1.Body/ValueRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ValueRequest").
+		Methods("PUT").
 		Path("/v1/value")
-	router.Name("/leo.example.demo.v1.Body/ListValueRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ListValueRequest").
+		Methods("PUT").
 		Path("/v1/list_value")
-	router.Name("/leo.example.demo.v1.Body/StructRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/StructRequest").
+		Methods("PUT").
 		Path("/v1/struct")
-	router.Name("/leo.example.demo.v1.Body/TimestampRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/TimestampRequest").
+		Methods("PUT").
 		Path("/v1/timestamp")
-	router.Name("/leo.example.demo.v1.Body/DurationRequest").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/DurationRequest").
+		Methods("PUT").
 		Path("/v1/duration")
-	router.Name("/leo.example.demo.v1.Body/WrapDoubleBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapDoubleBody").
+		Methods("PUT").
 		Path("/v1/wrap_double_body")
-	router.Name("/leo.example.demo.v1.Body/WrapFloatBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapFloatBody").
+		Methods("PUT").
 		Path("/v1/wrap_float_body")
-	router.Name("/leo.example.demo.v1.Body/WrapInt64Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt64Body").
+		Methods("PUT").
 		Path("/v1/wrap_int64_body")
-	router.Name("/leo.example.demo.v1.Body/WrapUint64Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint64Body").
+		Methods("PUT").
 		Path("/v1/wrap_uint64_body")
-	router.Name("/leo.example.demo.v1.Body/WrapInt32Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapInt32Body").
+		Methods("PUT").
 		Path("/v1/wrap_int32_body")
-	router.Name("/leo.example.demo.v1.Body/WrapUint32Body").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapUint32Body").
+		Methods("PUT").
 		Path("/v1/wrap_uint32_body")
-	router.Name("/leo.example.demo.v1.Body/WrapBoolBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBoolBody").
+		Methods("PUT").
 		Path("/v1/wrap_bool_body")
-	router.Name("/leo.example.demo.v1.Body/WrapStringBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapStringBody").
+		Methods("PUT").
 		Path("/v1/wrap_string_body")
-	router.Name("/leo.example.demo.v1.Body/WrapBytesBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/WrapBytesBody").
+		Methods("PUT").
 		Path("/v1/wrap_bytes_body")
-	router.Name("/leo.example.demo.v1.Body/HttpBodyBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpBodyBody").
+		Methods("PUT").
 		Path("/v1/http_body_body")
-	router.Name("/leo.example.demo.v1.Body/HttpRequestBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/HttpRequestBody").
+		Methods("PUT").
 		Path("/v1/http_request_body")
-	router.Name("/leo.example.demo.v1.Body/ValueBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ValueBody").
+		Methods("PUT").
 		Path("/v1/value_body")
-	router.Name("/leo.example.demo.v1.Body/ListValueBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/ListValueBody").
+		Methods("PUT").
 		Path("/v1/list_value_body")
-	router.Name("/leo.example.demo.v1.Body/StructBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/StructBody").
+		Methods("PUT").
 		Path("/v1/struct_body")
-	router.Name("/leo.example.demo.v1.Body/TimestampBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/TimestampBody").
+		Methods("PUT").
 		Path("/v1/timestamp_body")
-	router.Name("/leo.example.demo.v1.Body/DurationBody").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Body/DurationBody").
+		Methods("PUT").
 		Path("/v1/duration_body")
 	return &httpBodyClient{
 		bool: endpointx.Chain(
@@ -18883,14 +19109,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatBool(req.Bool))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Bool").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Bool").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -18915,7 +19141,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -18924,7 +19150,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatBool(*req.OptBool))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptBool").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptBool").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -18949,7 +19175,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -18960,7 +19186,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepBool").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepBool").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -18985,7 +19211,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -18994,7 +19220,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatBool(req.WrapBool.Value))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapBool").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapBool").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19019,14 +19245,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(int64(req.Int32), 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Int32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Int32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19051,7 +19277,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19060,7 +19286,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptInt32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptInt32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19085,7 +19311,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19096,7 +19322,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepInt32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepInt32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19121,7 +19347,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19130,7 +19356,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(int64(req.WrapInt32.Value), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapInt32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19155,14 +19381,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(uint64(req.Uint32), 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Uint32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Uint32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19187,7 +19413,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19196,7 +19422,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(uint64(*req.OptUint32), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptUint32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptUint32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19221,7 +19447,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19232,7 +19458,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepUint32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepUint32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19257,7 +19483,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19266,7 +19492,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapUint32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19291,14 +19517,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(uint64(req.Fixed32), 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Fixed32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Fixed32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19323,7 +19549,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19332,7 +19558,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(uint64(*req.OptFixed32), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptFixed32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptFixed32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19357,7 +19583,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19368,7 +19594,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepFixed32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepFixed32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19393,14 +19619,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(req.Int64, 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Int64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Int64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19425,7 +19651,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19434,7 +19660,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(*req.OptInt64, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptInt64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptInt64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19459,7 +19685,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19470,7 +19696,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepInt64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepInt64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19495,7 +19721,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19504,7 +19730,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(req.WrapInt64.Value, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapInt64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19529,14 +19755,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(req.Sint64, 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Sint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Sint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19561,7 +19787,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19570,7 +19796,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(*req.OptSint64, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptSint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptSint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19595,7 +19821,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19606,7 +19832,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepSint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepSint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19631,14 +19857,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(req.Sfixed64, 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Sfixed64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Sfixed64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19663,7 +19889,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19672,7 +19898,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(*req.OptSfixed64, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptSfixed64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptSfixed64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19697,7 +19923,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19708,7 +19934,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepSfixed64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepSfixed64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19733,14 +19959,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(req.Uint64, 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Uint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Uint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19765,7 +19991,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19774,7 +20000,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(*req.OptUint64, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptUint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptUint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19799,7 +20025,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19810,7 +20036,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepUint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepUint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19835,7 +20061,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19844,7 +20070,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(req.WrapUint64.Value, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapUint64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19869,14 +20095,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatUint(req.Fixed64, 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Fixed64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Fixed64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19901,7 +20127,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19910,7 +20136,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(*req.OptFixed64, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptFixed64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptFixed64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19935,7 +20161,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -19946,7 +20172,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepFixed64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepFixed64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -19971,14 +20197,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Float32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Float32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20003,7 +20229,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20012,7 +20238,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptFloat32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptFloat32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20037,7 +20263,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20048,7 +20274,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepFloat32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepFloat32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20073,7 +20299,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20082,7 +20308,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapFloat32").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapFloat32").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20107,14 +20333,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatFloat(req.Double, 'f', -1, 64))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Float64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Float64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20139,7 +20365,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20148,7 +20374,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptFloat64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptFloat64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20173,7 +20399,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20184,7 +20410,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepFloat64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepFloat64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20209,7 +20435,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20218,7 +20444,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapFloat64").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapFloat64").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20243,14 +20469,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(req.String_)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/String").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/String").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20275,7 +20501,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20284,7 +20510,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(*req.OptString)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20309,7 +20535,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20320,7 +20546,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20345,7 +20571,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20354,7 +20580,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(req.WrapString.Value)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20379,14 +20605,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = bytes.NewReader(req.Bytes)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Bytes").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Bytes").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20411,14 +20637,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = bytes.NewReader(req.OptBytes)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptBytes").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptBytes").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20443,7 +20669,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20454,7 +20680,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepBytes").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepBytes").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20479,7 +20705,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20488,7 +20714,7 @@ func NewBodyHTTPClient(
 						body = bytes.NewReader(req.WrapBytes.Value)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapBytes").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapBytes").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20513,14 +20739,14 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(strconv.FormatInt(int64(req.Status), 10))
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Enum").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Enum").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20545,7 +20771,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20554,7 +20780,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptStatus), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/OptEnum").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/OptEnum").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20579,7 +20805,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20590,7 +20816,7 @@ func NewBodyHTTPClient(
 						}
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/RepEnum").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/RepEnum").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20615,18 +20841,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := json.Marshal(req.Dictionary)
-					if err != nil {
-						return nil, err
+					if req.Dictionary != nil {
+						data, err := json.Marshal(req.Dictionary)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/Dictionary").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/Dictionary").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20651,7 +20879,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20660,7 +20888,7 @@ func NewBodyHTTPClient(
 						body = bytes.NewReader(req.HttpBody.Data)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/HttpBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/HttpBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20685,7 +20913,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20694,7 +20922,7 @@ func NewBodyHTTPClient(
 						body = bytes.NewReader(req.HttpRequest.Body)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/HttpRequest").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/HttpRequest").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20719,18 +20947,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Value)
-					if err != nil {
-						return nil, err
+					if req.Value != nil {
+						data, err := protojson.Marshal(req.Value)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/ValueRequest").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/ValueRequest").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20755,18 +20985,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.ListValue)
-					if err != nil {
-						return nil, err
+					if req.ListValue != nil {
+						data, err := protojson.Marshal(req.ListValue)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/ListValueRequest").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/ListValueRequest").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20791,18 +21023,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Struct)
-					if err != nil {
-						return nil, err
+					if req.Struct != nil {
+						data, err := protojson.Marshal(req.Struct)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/StructRequest").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/StructRequest").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20827,18 +21061,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Timestamp)
-					if err != nil {
-						return nil, err
+					if req.Timestamp != nil {
+						data, err := protojson.Marshal(req.Timestamp)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/TimestampRequest").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/TimestampRequest").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20863,18 +21099,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Duration)
-					if err != nil {
-						return nil, err
+					if req.Duration != nil {
+						data, err := protojson.Marshal(req.Duration)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/DurationRequest").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/DurationRequest").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20899,7 +21137,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20908,7 +21146,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatFloat(req.Value, 'f', -1, 64))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapDoubleBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapDoubleBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20933,7 +21171,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20942,7 +21180,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatFloat(float64(req.Value), 'f', -1, 32))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapFloatBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapFloatBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -20967,7 +21205,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -20976,7 +21214,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(req.Value, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt64Body").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapInt64Body").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21001,7 +21239,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21010,7 +21248,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(req.Value, 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint64Body").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapUint64Body").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21035,7 +21273,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21044,7 +21282,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(int64(req.Value), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapInt32Body").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapInt32Body").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21069,7 +21307,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21078,7 +21316,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatUint(uint64(req.Value), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapUint32Body").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapUint32Body").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21103,7 +21341,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21112,7 +21350,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(strconv.FormatBool(req.Value))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapBoolBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapBoolBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21137,7 +21375,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21146,7 +21384,7 @@ func NewBodyHTTPClient(
 						body = strings.NewReader(req.Value)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapStringBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapStringBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21171,7 +21409,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21180,7 +21418,7 @@ func NewBodyHTTPClient(
 						body = bytes.NewReader(req.Value)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/WrapBytesBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/WrapBytesBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21205,7 +21443,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21214,7 +21452,7 @@ func NewBodyHTTPClient(
 						body = bytes.NewReader(req.Data)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/HttpBodyBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/HttpBodyBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21239,7 +21477,7 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -21248,7 +21486,7 @@ func NewBodyHTTPClient(
 						body = bytes.NewReader(req.Body)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/HttpRequestBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/HttpRequestBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21273,18 +21511,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/ValueBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/ValueBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21309,18 +21549,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/ListValueBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/ListValueBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21345,18 +21587,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/StructBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/StructBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21381,18 +21625,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/TimestampBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/TimestampBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -21417,18 +21663,20 @@ func NewBodyHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.Body/DurationBody").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Body/DurationBody").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}

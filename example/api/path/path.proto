@@ -12,42 +12,47 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
 service Path {
-  rpc String (NamedPathRequest) returns (google.protobuf.Empty) {
+  rpc NamedPathString (NamedPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get : "/v1/string/{string=classes/%s/shelves/*/books/*/families/*}"
+      get : "/v1/string/{string=classes/*/shelves/*/books/*/families/*}"
     };
   }
 
-  rpc OptString (NamedPathRequest) returns (google.protobuf.Empty) {
+  rpc NamedPathOptString (NamedPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get : "/v1/opt_string/{opt_string=classes/%s/shelves/*/books/*/families/*}"
+      get : "/v1/opt_string/{opt_string=classes/*/shelves/*/books/*/families/*}"
     };
   }
 
-  rpc WrapString (NamedPathRequest) returns (google.protobuf.Empty) {
+  rpc NamedPathWrapString (NamedPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get : "/v1/wrap_string/{wrap_string=classes/%s/shelves/*/books/*/families/*}"
+      get : "/v1/wrap_string/{wrap_string=classes/*/shelves/*/books/*/families/*}"
     };
   }
 
-  rpc EmbedString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
+  rpc EmbedNamedPathString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get : "/v1/embed/string/{embed.string=classes/%s/shelves/*/books/*/families/*}"
+      get : "/v1/embed/string/{embed.string=classes/*/shelves/*/books/*/families/*}"
     };
   }
 
-  rpc EmbedOptString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
+  rpc EmbedNamedPathOptString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get : "/v1/embed/opt_string/{embed.opt_string=classes/%s/shelves/*/books/*/families/*}"
+      get : "/v1/embed/opt_string/{embed.opt_string=classes/*/shelves/*/books/*/families/*}"
     };
   }
 
-  rpc EmbedWrapString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
+  rpc EmbedNamedPathWrapString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get : "/v1/embed/wrap_string/{embed.wrap_string=classes/%s/shelves/*/books/*/families/*}"
+      get : "/v1/embed/wrap_string/{embed.wrap_string=classes/*/shelves/*/books/*/families/*}"
     };
   }
 
+  rpc Path (PathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/classes/{class_id}/shelves/{shelf_id}/books/{book_id}/families/{family_id}"
+    };
+  }
 }
 
 message NamedPathRequest {
@@ -58,4 +63,56 @@ message NamedPathRequest {
 
 message EmbedNamedPathRequest {
   NamedPathRequest embed = 1;
+}
+
+message PathRequest {
+  bool bool = 2;
+  int32 int32 = 3;
+  sint32 sint32 = 4;
+  uint32 uint32 = 6;
+  int64 int64 = 7;
+  sint64 sint64 = 8;
+  uint64 uint64 = 9;
+  sfixed32 sfixed32 = 10;
+  fixed32 fixed32 = 11;
+  float float = 12;
+  sfixed64 sfixed64 = 13;
+  fixed64 fixed64 = 14;
+  double  double = 15;
+  string string = 16;
+
+  optional bool opt_bool = 22;
+  optional int32 opt_int32 = 23;
+  optional sint32 opt_sint32 = 24;
+  optional uint32 opt_uint32 = 26;
+  optional int64 opt_int64 = 27;
+  optional sint64 opt_sint64 = 28;
+  optional uint64 opt_uint64 = 29;
+  optional sfixed32 opt_sfixed32 = 30;
+  optional fixed32 opt_fixed32 = 31;
+  optional float opt_float = 32;
+  optional sfixed64 opt_sfixed64 = 33;
+  optional fixed64 opt_fixed64 = 34;
+  optional double  opt_double = 35;
+  optional string opt_string = 36;
+
+  google.protobuf.DoubleValue wrap_double = 42;
+  google.protobuf.FloatValue wrap_float = 43;
+  google.protobuf.Int64Value wrap_int64 = 44;
+  google.protobuf.UInt64Value wrap_uint64 = 45;
+  google.protobuf.Int32Value wrap_int32 = 46;
+  google.protobuf.UInt32Value wrap_uint32 = 47;
+  google.protobuf.BoolValue wrap_bool = 48;
+  google.protobuf.StringValue wrap_string = 49;
+
+  enum Status {
+    UNKNOWN = 0;
+    OK = 1;
+    CANCELLED = 2;
+    UNKNOWN_ERROR = 3;
+  }
+  Status status = 68;
+  optional Status opt_status = 69;
+
+  google.protobuf.Value value = 74;
 }
