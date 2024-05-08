@@ -14,4 +14,4 @@ protoc \
 --leo-http_out=. \
 --leo-http_opt=paths=source_relative \
 --leo-http_opt=require_unimplemented_servers=false \
-api/body/*.proto
+api/path/*.proto

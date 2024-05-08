@@ -10,67 +10,166 @@ import (
 
 type pathEndpoints struct {
 	svc interface {
-		String(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		OptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		WrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		EmbedString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+		NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+		NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+		EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 	}
 }
 
-func (e *pathEndpoints) String() endpoint.Endpoint {
+func (e *pathEndpoints) NamedPathString() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.String(ctx, request.(*NamedPathRequest))
+		return e.svc.NamedPathString(ctx, request.(*NamedPathRequest))
 	}
 }
 
-func (e *pathEndpoints) OptString() endpoint.Endpoint {
+func (e *pathEndpoints) NamedPathOptString() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.OptString(ctx, request.(*NamedPathRequest))
+		return e.svc.NamedPathOptString(ctx, request.(*NamedPathRequest))
 	}
 }
 
-func (e *pathEndpoints) WrapString() endpoint.Endpoint {
+func (e *pathEndpoints) NamedPathWrapString() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.WrapString(ctx, request.(*NamedPathRequest))
+		return e.svc.NamedPathWrapString(ctx, request.(*NamedPathRequest))
 	}
 }
 
-func (e *pathEndpoints) EmbedString() endpoint.Endpoint {
+func (e *pathEndpoints) EmbedNamedPathString() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EmbedString(ctx, request.(*EmbedNamedPathRequest))
+		return e.svc.EmbedNamedPathString(ctx, request.(*EmbedNamedPathRequest))
 	}
 }
 
-func (e *pathEndpoints) EmbedOptString() endpoint.Endpoint {
+func (e *pathEndpoints) EmbedNamedPathOptString() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EmbedOptString(ctx, request.(*EmbedNamedPathRequest))
+		return e.svc.EmbedNamedPathOptString(ctx, request.(*EmbedNamedPathRequest))
 	}
 }
 
-func (e *pathEndpoints) EmbedWrapString() endpoint.Endpoint {
+func (e *pathEndpoints) EmbedNamedPathWrapString() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EmbedWrapString(ctx, request.(*EmbedNamedPathRequest))
+		return e.svc.EmbedNamedPathWrapString(ctx, request.(*EmbedNamedPathRequest))
+	}
+}
+
+func (e *pathEndpoints) BoolPath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.BoolPath(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) Int32Path() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.Int32Path(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) Int64Path() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.Int64Path(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) Uint32Path() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.Uint32Path(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) Uint64Path() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.Uint64Path(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) FloatPath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.FloatPath(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) DoublePath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.DoublePath(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) StringPath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.StringPath(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) EnumPath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.EnumPath(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) TimePath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.TimePath(ctx, request.(*PathRequest))
+	}
+}
+
+func (e *pathEndpoints) MixPath() endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		return e.svc.MixPath(ctx, request.(*MixPathRequest))
 	}
 }
 
 func NewpathEndpoints(
 	svc interface {
-		String(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		OptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		WrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		EmbedString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+		NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+		NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+		EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 	},
 ) interface {
-	String() endpoint.Endpoint
-	OptString() endpoint.Endpoint
-	WrapString() endpoint.Endpoint
-	EmbedString() endpoint.Endpoint
-	EmbedOptString() endpoint.Endpoint
-	EmbedWrapString() endpoint.Endpoint
+	NamedPathString() endpoint.Endpoint
+	NamedPathOptString() endpoint.Endpoint
+	NamedPathWrapString() endpoint.Endpoint
+	EmbedNamedPathString() endpoint.Endpoint
+	EmbedNamedPathOptString() endpoint.Endpoint
+	EmbedNamedPathWrapString() endpoint.Endpoint
+	BoolPath() endpoint.Endpoint
+	Int32Path() endpoint.Endpoint
+	Int64Path() endpoint.Endpoint
+	Uint32Path() endpoint.Endpoint
+	Uint64Path() endpoint.Endpoint
+	FloatPath() endpoint.Endpoint
+	DoublePath() endpoint.Endpoint
+	StringPath() endpoint.Endpoint
+	EnumPath() endpoint.Endpoint
+	TimePath() endpoint.Endpoint
+	MixPath() endpoint.Endpoint
 } {
 	return &pathEndpoints{svc: svc}
 }

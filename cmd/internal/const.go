@@ -18,6 +18,7 @@ var (
 	HttpPackage          = protogen.GoImportPath("net/http")
 	FmtPackage           = protogen.GoImportPath("fmt")
 	ErrorsPackage        = protogen.GoImportPath("errors")
+	TimePackage          = protogen.GoImportPath("time")
 	StrconvPackage       = protogen.GoImportPath("strconv")
 	ConvxPackage         = protogen.GoImportPath("github.com/go-leo/gox/convx")
 	IOPackage            = protogen.GoImportPath("io")
@@ -32,6 +33,6 @@ var (
 )
 
 var (
-	namedPathPattern = regexp.MustCompile("{(.+)=(.+)}")
+	namedPathPattern = regexp.MustCompile("{([^{}]+)=([^{}]+)}")
 	pathPattern      = regexp.MustCompile("{([^=}]+)}")
 )

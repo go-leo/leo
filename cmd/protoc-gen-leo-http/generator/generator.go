@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"github.com/go-leo/gox/convx"
 	"github.com/go-leo/leo/v3/cmd/internal"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -623,8 +624,7 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 		srcValue := []any{"req"}
 		f.PrintMessageBody(generatedFile, message, srcValue, false)
 	} else if bodyField != nil {
-		field := bodyField
-		if err := f.PrintFieldBody(generatedFile, field); err != nil {
+		if err := f.PrintFieldBody(generatedFile, bodyField); err != nil {
 			return err
 		}
 	}
@@ -639,10 +639,7 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 			generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("%s is nil"), ", ", strconv.Quote("req."+fullFieldName), ")")
 			generatedFile.P("}")
 		} else {
-			_, names, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
-			generatedFile.P("// ", names)
-			generatedFile.P("// ", namedPathTemplate)
-			generatedFile.P("// ", strings.Join(namedPathParameters, "."))
+			_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
 			switch namedPathField.Desc.Kind() {
 			case protoreflect.StringKind:
 				if namedPathField.Desc.HasOptionalKeyword() {
@@ -668,6 +665,136 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 		}
 	}
 
+	if len(pathFields) > 0 {
+		pairs := []any{"pairs = append(pairs"}
+		for _, pathField := range pathFields {
+			field := pathField
+			srcValue := []any{"req.", field.GoName}
+			isOptional := field.Desc.HasOptionalKeyword()
+			if isOptional || pathField.Desc.Kind() == protoreflect.MessageKind {
+				generatedFile.P(append(append([]any{"if "}, srcValue...), " == nil {")...)
+				generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("%s is nil"), ", ", strconv.Quote(strings.Join(convx.ToStringSlice(srcValue), "")), ")")
+				generatedFile.P("}")
+			}
+		}
+		for _, pathField := range pathFields {
+			field := pathField
+			srcValue := []any{"req.", field.GoName}
+			_ = srcValue
+			isOptional := field.Desc.HasOptionalKeyword()
+			var format []any
+
+			switch pathField.Desc.Kind() {
+			case protoreflect.BoolKind:
+				// bool
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatBool"), "(", "*"}, srcValue...), []any{")"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatBool"), "("}, srcValue...), []any{")"}...)
+				}
+
+			case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
+				// int32
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64(", "*"}, srcValue...), []any{"), 10)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{"), 10)"}...)
+				}
+				pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+
+			case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
+				// uint32
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(uint64(", "*"}, srcValue...), []any{"), 10)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(uint64("}, srcValue...), []any{"), 10)"}...)
+				}
+				pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+
+			case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
+				// int64
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(", "*"}, srcValue...), []any{", 10)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "("}, srcValue...), []any{", 10)"}...)
+				}
+				pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+
+			case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
+				// uint64
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(", "*"}, srcValue...), []any{", 10)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "("}, srcValue...), []any{", 10)"}...)
+				}
+				pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+
+			case protoreflect.FloatKind:
+				// float32
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(float64(", "*"}, srcValue...), []any{"), 'f', -1, 32)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(float64("}, srcValue...), []any{"), 'f', -1, 32)"}...)
+				}
+				pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+
+			case protoreflect.DoubleKind:
+				// float64
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(", "*"}, srcValue...), []any{", 'f', -1, 64)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "("}, srcValue...), []any{", 'f', -1, 64)"}...)
+				}
+				pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+
+			case protoreflect.StringKind:
+				// string
+				if isOptional {
+					format = append(append([]any{"*"}, srcValue...), []any{}...)
+				} else {
+					format = append(append([]any{}, srcValue...), []any{}...)
+				}
+
+			case protoreflect.EnumKind:
+				// enum
+				if isOptional {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64(", "*"}, srcValue...), []any{"), 10)"}...)
+				} else {
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{"), 10)"}...)
+				}
+
+			case protoreflect.MessageKind:
+				message := field.Message
+				switch message.Desc.FullName() {
+				case "google.protobuf.DoubleValue":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "("}, srcValue...), []any{".Value", ", 'f', -1, 64)"}...)
+				case "google.protobuf.FloatValue":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(float64("}, srcValue...), []any{".Value", "), 'f', -1, 32)"}...)
+				case "google.protobuf.Int64Value":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "("}, srcValue...), []any{".Value", ", 10)"}...)
+				case "google.protobuf.UInt64Value":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "("}, srcValue...), []any{".Value", ", 10)"}...)
+				case "google.protobuf.Int32Value":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{".Value", "), 10)"}...)
+				case "google.protobuf.UInt32Value":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(uint64("}, srcValue...), []any{".Value", "), 10)"}...)
+				case "google.protobuf.BoolValue":
+					format = append(append([]any{internal.StrconvPackage.Ident("FormatBool"), "("}, srcValue...), []any{".Value", ")"}...)
+				case "google.protobuf.StringValue":
+					format = append(append([]any{}, srcValue...), []any{".Value"}...)
+				case "google.protobuf.Timestamp":
+					format = append(append([]any{}, srcValue...), []any{".AsTime().Format(", internal.TimePackage.Ident("RFC3339"), ")"}...)
+				case "google.protobuf.Duration":
+					format = append(append([]any{}, srcValue...), []any{".AsDuration().String()"}...)
+				}
+			}
+			pairs = append(append(pairs, ",", strconv.Quote(string(pathField.Desc.Name())), ","), format...)
+		}
+
+		pairs = append(pairs, ")")
+		generatedFile.P(pairs...)
+	}
+
 	generatedFile.P("path, err := router.Get(", strconv.Quote(endpoint.FullName()), ").URLPath(pairs...)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
@@ -675,17 +802,6 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 
 	generatedFile.P("url = ", internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote("%s://%s%s"), ", ", strconv.Quote("http"), ", instance, path)")
 
-	//
-	//for _, pathField := range pathFields {
-	//	pathOnce.Do(func() {
-	//		generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
-	//	})
-	//	left := []any{"req.", pathField.GoName, " = "}
-	//	right := []any{"vars[", strconv.Quote(string(pathField.Desc.Name())), "]"}
-	//	if err := f.printAssign(generatedFile, pathField, left, right, false); err != nil {
-	//		return err
-	//	}
-	//}
 	//
 	//var queryOnce sync.Once
 	//for _, field := range queryFields {

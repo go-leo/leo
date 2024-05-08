@@ -133,6 +133,49 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		if field == nil {
 			return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find path field %s", e.FullName(), bodyParameter)
 		}
+		if field.Desc.IsList() || field.Desc.IsMap() {
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, the list or map type unsupported", e.FullName(), pathParameter)
+		}
+
+		switch field.Desc.Kind() {
+		case protoreflect.BoolKind:
+			// bool
+		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
+			// int32
+		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
+			// uint32
+		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
+			// int64
+		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
+			// uint64
+		case protoreflect.FloatKind:
+			// float32
+		case protoreflect.DoubleKind:
+			// float64
+		case protoreflect.StringKind:
+			// string
+		case protoreflect.EnumKind:
+			// enum
+		case protoreflect.MessageKind:
+			message := field.Message
+			switch message.Desc.FullName() {
+			case "google.protobuf.DoubleValue":
+			case "google.protobuf.FloatValue":
+			case "google.protobuf.Int64Value":
+			case "google.protobuf.UInt64Value":
+			case "google.protobuf.Int32Value":
+			case "google.protobuf.UInt32Value":
+			case "google.protobuf.BoolValue":
+			case "google.protobuf.StringValue":
+			case "google.protobuf.Timestamp":
+			case "google.protobuf.Duration":
+			default:
+				return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, the type of path parameter %s unsupported", e.FullName(), pathParameter, message.Desc.FullName())
+			}
+		default:
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, the kind of path parameter %s unsupported", e.FullName(), pathParameter, field.Desc.Kind())
+		}
+
 		pathFields = append(pathFields, field)
 	}
 

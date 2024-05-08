@@ -4,6 +4,7 @@ package path
 
 import (
 	context "context"
+	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
@@ -15,28 +16,41 @@ import (
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	http1 "net/http"
+	strconv "strconv"
 	strings "strings"
+	time "time"
 )
 
 func NewPathHTTPServer(
 	endpoints interface {
-		String() endpoint.Endpoint
-		OptString() endpoint.Endpoint
-		WrapString() endpoint.Endpoint
-		EmbedString() endpoint.Endpoint
-		EmbedOptString() endpoint.Endpoint
-		EmbedWrapString() endpoint.Endpoint
+		NamedPathString() endpoint.Endpoint
+		NamedPathOptString() endpoint.Endpoint
+		NamedPathWrapString() endpoint.Endpoint
+		EmbedNamedPathString() endpoint.Endpoint
+		EmbedNamedPathOptString() endpoint.Endpoint
+		EmbedNamedPathWrapString() endpoint.Endpoint
+		BoolPath() endpoint.Endpoint
+		Int32Path() endpoint.Endpoint
+		Int64Path() endpoint.Endpoint
+		Uint32Path() endpoint.Endpoint
+		Uint64Path() endpoint.Endpoint
+		FloatPath() endpoint.Endpoint
+		DoublePath() endpoint.Endpoint
+		StringPath() endpoint.Endpoint
+		EnumPath() endpoint.Endpoint
+		TimePath() endpoint.Endpoint
+		MixPath() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...http.ServerOption,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/String").
+		Name("/leo.example.demo.v1.Path/NamedPathString").
 		Methods("GET").
 		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.String(), mdw...),
+			endpointx.Chain(endpoints.NamedPathString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
@@ -62,11 +76,11 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/OptString").
+		Name("/leo.example.demo.v1.Path/NamedPathOptString").
 		Methods("GET").
 		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.OptString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathOptString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
@@ -92,11 +106,11 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/WrapString").
+		Name("/leo.example.demo.v1.Path/NamedPathWrapString").
 		Methods("GET").
 		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.WrapString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathWrapString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
@@ -122,11 +136,11 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedString").
+		Name("/leo.example.demo.v1.Path/EmbedNamedPathString").
 		Methods("GET").
 		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := mux.Vars(r)
@@ -152,11 +166,11 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedOptString").
+		Name("/leo.example.demo.v1.Path/EmbedNamedPathOptString").
 		Methods("GET").
 		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedOptString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathOptString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := mux.Vars(r)
@@ -182,11 +196,11 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedWrapString").
+		Name("/leo.example.demo.v1.Path/EmbedNamedPathWrapString").
 		Methods("GET").
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedWrapString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := mux.Vars(r)
@@ -211,60 +225,2222 @@ func NewPathHTTPServer(
 			},
 			opts...,
 		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/BoolPath").
+		Methods("GET").
+		Path("/v1/{bool}/{opt_bool}/{wrap_bool}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.BoolPath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseBool(vars["bool"]); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(vars["opt_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(vars["wrap_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Int32Path").
+		Methods("GET").
+		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.Int32Path(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseInt(vars["int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(vars["sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(vars["sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(vars["opt_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(vars["opt_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(vars["opt_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(vars["wrap_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Int64Path").
+		Methods("GET").
+		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.Int64Path(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseInt(vars["int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(vars["sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(vars["sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(vars["opt_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(vars["opt_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(vars["opt_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(vars["wrap_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Uint32Path").
+		Methods("GET").
+		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.Uint32Path(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseUint(vars["uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(vars["fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(vars["opt_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(vars["opt_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(vars["wrap_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Uint64Path").
+		Methods("GET").
+		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.Uint64Path(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseUint(vars["uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(vars["fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(vars["opt_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(vars["opt_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(vars["wrap_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/FloatPath").
+		Methods("GET").
+		Path("/v1/{float}/{opt_float}/{wrap_float}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.FloatPath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseFloat(vars["float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(vars["opt_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(vars["wrap_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/DoublePath").
+		Methods("GET").
+		Path("/v1/{double}/{opt_double}/{wrap_double}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.DoublePath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if v, err := strconv.ParseFloat(vars["double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(vars["opt_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(vars["wrap_double"], 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/StringPath").
+		Methods("GET").
+		Path("/v1/{string}/{opt_string}/{wrap_string}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.StringPath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				req.String_ = vars["string"]
+				req.OptString = proto.String(vars["opt_string"])
+				req.WrapString = wrapperspb.String(vars["wrap_string"])
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				// enum
+				// enum
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/EnumPath").
+		Methods("GET").
+		Path("/v1/{status}/{opt_status}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.EnumPath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				// enum
+				// enum
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/TimePath").
+		Methods("GET").
+		Path("/v1/{timestamp}/{duration}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.TimePath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &PathRequest{}
+				vars := mux.Vars(r)
+				if err := protojson.Unmarshal(body, req.Timestamp); err != nil {
+					return nil, err
+				}
+				if err := protojson.Unmarshal(body, req.Duration); err != nil {
+					return nil, err
+				}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				req.String_ = queries.Get("string")
+				req.OptString = proto.String(queries.Get("opt_string"))
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				// enum
+				// enum
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/MixPath").
+		Methods("GET").
+		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.MixPath(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &MixPathRequest{}
+				vars := mux.Vars(r)
+				if req.Embed == nil {
+					req.Embed = &NamedPathRequest{}
+				}
+				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				req.String_ = vars["string"]
+				req.OptString = proto.String(vars["opt_string"])
+				req.WrapString = wrapperspb.String(vars["wrap_string"])
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
 	return router
 }
 
 type httpPathClient struct {
-	string          endpoint.Endpoint
-	optString       endpoint.Endpoint
-	wrapString      endpoint.Endpoint
-	embedString     endpoint.Endpoint
-	embedOptString  endpoint.Endpoint
-	embedWrapString endpoint.Endpoint
+	namedPathString          endpoint.Endpoint
+	namedPathOptString       endpoint.Endpoint
+	namedPathWrapString      endpoint.Endpoint
+	embedNamedPathString     endpoint.Endpoint
+	embedNamedPathOptString  endpoint.Endpoint
+	embedNamedPathWrapString endpoint.Endpoint
+	boolPath                 endpoint.Endpoint
+	int32Path                endpoint.Endpoint
+	int64Path                endpoint.Endpoint
+	uint32Path               endpoint.Endpoint
+	uint64Path               endpoint.Endpoint
+	floatPath                endpoint.Endpoint
+	doublePath               endpoint.Endpoint
+	stringPath               endpoint.Endpoint
+	enumPath                 endpoint.Endpoint
+	timePath                 endpoint.Endpoint
+	mixPath                  endpoint.Endpoint
 }
 
-func (c *httpPathClient) String(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.string(ctx, request)
+func (c *httpPathClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.namedPathString(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) OptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.optString(ctx, request)
+func (c *httpPathClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.namedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) WrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.wrapString(ctx, request)
+func (c *httpPathClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.namedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EmbedString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.embedString(ctx, request)
+func (c *httpPathClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.embedNamedPathString(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EmbedOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.embedOptString(ctx, request)
+func (c *httpPathClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.embedNamedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EmbedWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.embedWrapString(ctx, request)
+func (c *httpPathClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.embedNamedPathWrapString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.boolPath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.int32Path(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.int64Path(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.uint32Path(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.uint64Path(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.floatPath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.doublePath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.stringPath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.enumPath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	rep, err := c.timePath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *httpPathClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.mixPath(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -276,40 +2452,95 @@ func NewPathHTTPClient(
 	mdw []endpoint.Middleware,
 	opts ...http.ClientOption,
 ) interface {
-	String(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	OptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	WrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	EmbedString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	EmbedOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	EmbedWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+	NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+	EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+	EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+	EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/String").
+		Name("/leo.example.demo.v1.Path/NamedPathString").
 		Methods("GET").
 		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/OptString").
+		Name("/leo.example.demo.v1.Path/NamedPathOptString").
 		Methods("GET").
 		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/WrapString").
+		Name("/leo.example.demo.v1.Path/NamedPathWrapString").
 		Methods("GET").
 		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedString").
+		Name("/leo.example.demo.v1.Path/EmbedNamedPathString").
 		Methods("GET").
 		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedOptString").
+		Name("/leo.example.demo.v1.Path/EmbedNamedPathOptString").
 		Methods("GET").
 		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedWrapString").
+		Name("/leo.example.demo.v1.Path/EmbedNamedPathWrapString").
 		Methods("GET").
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/BoolPath").
+		Methods("GET").
+		Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Int32Path").
+		Methods("GET").
+		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Int64Path").
+		Methods("GET").
+		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Uint32Path").
+		Methods("GET").
+		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/Uint64Path").
+		Methods("GET").
+		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/FloatPath").
+		Methods("GET").
+		Path("/v1/{float}/{opt_float}/{wrap_float}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/DoublePath").
+		Methods("GET").
+		Path("/v1/{double}/{opt_double}/{wrap_double}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/StringPath").
+		Methods("GET").
+		Path("/v1/{string}/{opt_string}/{wrap_string}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/EnumPath").
+		Methods("GET").
+		Path("/v1/{status}/{opt_status}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/TimePath").
+		Methods("GET").
+		Path("/v1/{timestamp}/{duration}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Path/MixPath").
+		Methods("GET").
+		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &httpPathClient{
-		string: endpointx.Chain(
+		namedPathString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req, ok := obj.(*NamedPathRequest)
@@ -317,22 +2548,19 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// string
-					// classes/%s/shelves/%s/books/%s/families/%s
-					// class.shelf.book.family
 					namedPathParameter := req.String_
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 8 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/String").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Path/NamedPathString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -349,7 +2577,7 @@ func NewPathHTTPClient(
 				opts...,
 			).Endpoint(),
 			mdw...),
-		optString: endpointx.Chain(
+		namedPathOptString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req, ok := obj.(*NamedPathRequest)
@@ -357,22 +2585,19 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// opt_string
-					// classes/%s/shelves/%s/books/%s/families/%s
-					// class.shelf.book.family
 					namedPathParameter := *req.OptString
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 8 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/OptString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Path/NamedPathOptString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -389,7 +2614,7 @@ func NewPathHTTPClient(
 				opts...,
 			).Endpoint(),
 			mdw...),
-		wrapString: endpointx.Chain(
+		namedPathWrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req, ok := obj.(*NamedPathRequest)
@@ -397,22 +2622,19 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// wrap_string
-					// classes/%s/shelves/%s/books/%s/families/%s
-					// class.shelf.book.family
 					namedPathParameter := req.WrapString.Value
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 8 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/WrapString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Path/NamedPathWrapString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -429,7 +2651,7 @@ func NewPathHTTPClient(
 				opts...,
 			).Endpoint(),
 			mdw...),
-		embedString: endpointx.Chain(
+		embedNamedPathString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req, ok := obj.(*EmbedNamedPathRequest)
@@ -437,7 +2659,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
@@ -446,16 +2668,13 @@ func NewPathHTTPClient(
 					if req.Embed == nil {
 						return nil, fmt.Errorf("%s is nil", "req.Embed")
 					}
-					// embed.string
-					// classes/%s/shelves/%s/books/%s/families/%s
-					// class.shelf.book.family
 					namedPathParameter := req.Embed.String_
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 8 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/EmbedString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Path/EmbedNamedPathString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -472,7 +2691,7 @@ func NewPathHTTPClient(
 				opts...,
 			).Endpoint(),
 			mdw...),
-		embedOptString: endpointx.Chain(
+		embedNamedPathOptString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req, ok := obj.(*EmbedNamedPathRequest)
@@ -480,7 +2699,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
@@ -489,16 +2708,13 @@ func NewPathHTTPClient(
 					if req.Embed == nil {
 						return nil, fmt.Errorf("%s is nil", "req.Embed")
 					}
-					// embed.opt_string
-					// classes/%s/shelves/%s/books/%s/families/%s
-					// class.shelf.book.family
 					namedPathParameter := *req.Embed.OptString
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 8 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/EmbedOptString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Path/EmbedNamedPathOptString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -515,7 +2731,7 @@ func NewPathHTTPClient(
 				opts...,
 			).Endpoint(),
 			mdw...),
-		embedWrapString: endpointx.Chain(
+		embedNamedPathWrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					req, ok := obj.(*EmbedNamedPathRequest)
@@ -523,7 +2739,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
@@ -532,16 +2748,455 @@ func NewPathHTTPClient(
 					if req.Embed == nil {
 						return nil, fmt.Errorf("%s is nil", "req.Embed")
 					}
-					// embed.wrap_string
-					// classes/%s/shelves/%s/books/%s/families/%s
-					// class.shelf.book.family
 					namedPathParameter := req.Embed.WrapString.Value
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 8 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/EmbedWrapString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Path/EmbedNamedPathWrapString").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		boolPath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptBool == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptBool")
+					}
+					if req.WrapBool == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapBool")
+					}
+					pairs = append(pairs, "bool", strconv.FormatBool(req.Bool), "opt_bool", strconv.FormatBool(*req.OptBool), "wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					path, err := router.Get("/leo.example.demo.v1.Path/BoolPath").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		int32Path: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptInt32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptInt32")
+					}
+					if req.OptSint32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptSint32")
+					}
+					if req.OptSfixed32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptSfixed32")
+					}
+					if req.WrapInt32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapInt32")
+					}
+					pairs = append(pairs, "int32", strconv.FormatInt(int64(req.Int32), 10), "int32", strconv.FormatInt(int64(req.Int32), 10), "sint32", strconv.FormatInt(int64(req.Sint32), 10), "sint32", strconv.FormatInt(int64(req.Sint32), 10), "sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10), "sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10), "opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10), "opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10), "opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10), "opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10), "opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10), "opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10), "wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					path, err := router.Get("/leo.example.demo.v1.Path/Int32Path").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		int64Path: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptInt64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptInt64")
+					}
+					if req.OptSint64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptSint64")
+					}
+					if req.OptSfixed64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptSfixed64")
+					}
+					if req.WrapInt64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapInt64")
+					}
+					pairs = append(pairs, "int64", strconv.FormatInt(req.Int64, 10), "int64", strconv.FormatInt(req.Int64, 10), "sint64", strconv.FormatInt(req.Sint64, 10), "sint64", strconv.FormatInt(req.Sint64, 10), "sfixed64", strconv.FormatInt(req.Sfixed64, 10), "sfixed64", strconv.FormatInt(req.Sfixed64, 10), "opt_int64", strconv.FormatInt(*req.OptInt64, 10), "opt_int64", strconv.FormatInt(*req.OptInt64, 10), "opt_sint64", strconv.FormatInt(*req.OptSint64, 10), "opt_sint64", strconv.FormatInt(*req.OptSint64, 10), "opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10), "opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10), "wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					path, err := router.Get("/leo.example.demo.v1.Path/Int64Path").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		uint32Path: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptUint32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptUint32")
+					}
+					if req.OptFixed32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptFixed32")
+					}
+					if req.WrapUint32 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapUint32")
+					}
+					pairs = append(pairs, "uint32", strconv.FormatUint(uint64(req.Uint32), 10), "uint32", strconv.FormatUint(uint64(req.Uint32), 10), "fixed32", strconv.FormatUint(uint64(req.Fixed32), 10), "fixed32", strconv.FormatUint(uint64(req.Fixed32), 10), "opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10), "opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10), "opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10), "opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10), "wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					path, err := router.Get("/leo.example.demo.v1.Path/Uint32Path").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		uint64Path: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptUint64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptUint64")
+					}
+					if req.OptFixed64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptFixed64")
+					}
+					if req.WrapUint64 == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapUint64")
+					}
+					pairs = append(pairs, "uint64", strconv.FormatUint(req.Uint64, 10), "uint64", strconv.FormatUint(req.Uint64, 10), "fixed64", strconv.FormatUint(req.Fixed64, 10), "fixed64", strconv.FormatUint(req.Fixed64, 10), "opt_uint64", strconv.FormatUint(*req.OptUint64, 10), "opt_uint64", strconv.FormatUint(*req.OptUint64, 10), "opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10), "opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10), "wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					path, err := router.Get("/leo.example.demo.v1.Path/Uint64Path").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		floatPath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptFloat == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptFloat")
+					}
+					if req.WrapFloat == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapFloat")
+					}
+					pairs = append(pairs, "float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32), "float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32), "opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32), "opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32), "wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					path, err := router.Get("/leo.example.demo.v1.Path/FloatPath").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		doublePath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptDouble == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptDouble")
+					}
+					if req.WrapDouble == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapDouble")
+					}
+					pairs = append(pairs, "double", strconv.FormatFloat(req.Double, 'f', -1, 64), "double", strconv.FormatFloat(req.Double, 'f', -1, 64), "opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64), "opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64), "wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					path, err := router.Get("/leo.example.demo.v1.Path/DoublePath").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		stringPath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptString == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptString")
+					}
+					if req.WrapString == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapString")
+					}
+					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
+					path, err := router.Get("/leo.example.demo.v1.Path/StringPath").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		enumPath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.OptStatus == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptStatus")
+					}
+					pairs = append(pairs, "status", strconv.FormatInt(int64(req.Status), 10), "opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					path, err := router.Get("/leo.example.demo.v1.Path/EnumPath").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		timePath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*PathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.Timestamp == nil {
+						return nil, fmt.Errorf("%s is nil", "req.Timestamp")
+					}
+					if req.Duration == nil {
+						return nil, fmt.Errorf("%s is nil", "req.Duration")
+					}
+					pairs = append(pairs, "timestamp", req.Timestamp.AsTime().Format(time.RFC3339), "duration", req.Duration.AsDuration().String())
+					path, err := router.Get("/leo.example.demo.v1.Path/TimePath").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
+					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					return nil, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		mixPath: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					req, ok := obj.(*MixPathRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					if req == nil {
+						return nil, errors.New("request object is nil")
+					}
+					var method = "GET"
+					var url string
+					var body io.Reader
+					var pairs []string
+					if req.Embed == nil {
+						return nil, fmt.Errorf("%s is nil", "req.Embed")
+					}
+					namedPathParameter := req.Embed.WrapString.Value
+					namedPathValues := strings.Split(namedPathParameter, "/")
+					if len(namedPathValues) != 8 {
+						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
+					}
+					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+					if req.OptString == nil {
+						return nil, fmt.Errorf("%s is nil", "req.OptString")
+					}
+					if req.WrapString == nil {
+						return nil, fmt.Errorf("%s is nil", "req.WrapString")
+					}
+					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
+					path, err := router.Get("/leo.example.demo.v1.Path/MixPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
