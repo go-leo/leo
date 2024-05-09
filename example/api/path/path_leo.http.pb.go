@@ -292,6 +292,9 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// opt_stringOptString string
+					// wrap_stringWrapString message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -329,6 +332,9 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// stringString_ string
+					// wrap_stringWrapString message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -366,6 +372,9 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// stringString_ string
+					// opt_stringOptString string
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -524,6 +533,44 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -568,6 +615,40 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -612,6 +693,40 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -653,6 +768,42 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -694,6 +845,42 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -732,6 +919,44 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -770,6 +995,44 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -808,6 +1071,44 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// statusStatus enum
+					// opt_statusOptStatus enum
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -843,6 +1144,45 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// timestampTimestamp message
+					// durationDuration message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -881,6 +1221,45 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// opt_boolOptBool bool
+					// wrap_boolWrapBool message
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// sfixed32Sfixed32 sfixed32
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_sfixed32OptSfixed32 sfixed32
+					// wrap_int32WrapInt32 message
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// sfixed64Sfixed64 sfixed64
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_sfixed64OptSfixed64 sfixed64
+					// wrap_int64WrapInt64 message
+					// uint32Uint32 uint32
+					// fixed32Fixed32 fixed32
+					// opt_uint32OptUint32 uint32
+					// opt_fixed32OptFixed32 fixed32
+					// wrap_uint32WrapUint32 message
+					// uint64Uint64 uint64
+					// fixed64Fixed64 fixed64
+					// opt_uint64OptUint64 uint64
+					// opt_fixed64OptFixed64 fixed64
+					// wrap_uint64WrapUint64 message
+					// floatFloat float
+					// opt_floatOptFloat float
+					// wrap_floatWrapFloat message
+					// doubleDouble double
+					// opt_doubleOptDouble double
+					// wrap_doubleWrapDouble message
+					// stringString_ string
+					// opt_stringOptString string
+					// wrap_stringWrapString message
+					// statusStatus enum
+					// opt_statusOptStatus enum
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {

@@ -34,7 +34,6 @@ message QueryRequest {
   fixed64 fixed64 = 14;
   double  double = 15;
   string string = 16;
-  bytes bytes = 17;
 
   optional bool opt_bool = 22;
   optional int32 opt_int32 = 23;
@@ -50,7 +49,6 @@ message QueryRequest {
   optional fixed64 opt_fixed64 = 34;
   optional double  opt_double = 35;
   optional string opt_string = 36;
-  optional bytes opt_bytes = 37;
 
   repeated bool rep_bool = 52;
   repeated int32 rep_int32 = 53;
@@ -66,7 +64,6 @@ message QueryRequest {
   repeated fixed64 rep_fixed64 = 64;
   repeated double  rep_double = 65;
   repeated  string rep_string = 66;
-  repeated bytes rep_bytes = 67;
 
   google.protobuf.DoubleValue wrap_double = 42;
   google.protobuf.FloatValue wrap_float = 43;
@@ -76,7 +73,6 @@ message QueryRequest {
   google.protobuf.UInt32Value wrap_uint32 = 47;
   google.protobuf.BoolValue wrap_bool = 48;
   google.protobuf.StringValue wrap_string = 49;
-  google.protobuf.BytesValue wrap_bytes = 50;
 
 
   optional google.protobuf.DoubleValue opt_wrap_double = 79;
@@ -87,7 +83,6 @@ message QueryRequest {
   optional google.protobuf.UInt32Value opt_wrap_uint32 = 84;
   optional google.protobuf.BoolValue opt_wrap_bool = 85;
   optional google.protobuf.StringValue opt_wrap_string = 86;
-  optional google.protobuf.BytesValue opt_wrap_bytes = 87;
 
   repeated google.protobuf.DoubleValue rep_wrap_double = 88;
   repeated google.protobuf.FloatValue rep_wrap_float = 89;
@@ -97,7 +92,6 @@ message QueryRequest {
   repeated google.protobuf.UInt32Value rep_wrap_uint32 = 93;
   repeated google.protobuf.BoolValue rep_wrap_bool = 94;
   repeated google.protobuf.StringValue rep_wrap_string = 95;
-  repeated google.protobuf.BytesValue rep_wrap_bytes = 96;
 
   enum Status {
     UNKNOWN = 0;

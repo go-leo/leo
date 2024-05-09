@@ -282,6 +282,61 @@ func NewDemoServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// uint32Uint32 uint32
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// uint64Uint64 uint64
+					// sfixed32Sfixed32 sfixed32
+					// fixed32Fixed32 fixed32
+					// floatFloat float
+					// sfixed64Sfixed64 sfixed64
+					// fixed64Fixed64 fixed64
+					// doubleDouble double
+					// stringString_ string
+					// bytesBytes bytes
+					// opt_boolOptBool bool
+					// opt_int32OptInt32 int32
+					// opt_sint32OptSint32 sint32
+					// opt_uint32OptUint32 uint32
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_uint64OptUint64 uint64
+					// opt_sfixed32OptSfixed32 sfixed32
+					// opt_fixed32OptFixed32 fixed32
+					// opt_floatOptFloat float
+					// opt_sfixed64OptSfixed64 sfixed64
+					// opt_fixed64OptFixed64 fixed64
+					// opt_doubleOptDouble double
+					// opt_stringOptString string
+					// opt_bytesOptBytes bytes
+					// wrap_doubleWrapDouble message
+					// wrap_floatWrapFloat message
+					// wrap_int64WrapInt64 message
+					// wrap_uint64WrapUint64 message
+					// wrap_int32WrapInt32 message
+					// wrap_uint32WrapUint32 message
+					// wrap_boolWrapBool message
+					// wrap_stringWrapString message
+					// wrap_bytesWrapBytes message
+					// repeated_boolRepeatedBool bool
+					// repeated_int32RepeatedInt32 int32
+					// repeated_sint32RepeatedSint32 sint32
+					// repeated_uint32RepeatedUint32 uint32
+					// repeated_int64RepeatedInt64 int64
+					// repeated_sint64RepeatedSint64 sint64
+					// repeated_uint64RepeatedUint64 uint64
+					// repeated_sfixed32RepeatedSfixed32 sfixed32
+					// repeated_fixed32RepeatedFixed32 fixed32
+					// repeated_floatRepeatedFloat float
+					// repeated_sfixed64RepeatedSfixed64 sfixed64
+					// repeated_fixed64RepeatedFixed64 fixed64
+					// repeated_doubleRepeatedDouble double
+					// repeated_stringRepeatedString string
+					// repeated_bytesRepeatedBytes bytes
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http2.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -313,6 +368,9 @@ func NewDemoServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// page_noPageNo int32
+					// page_sizePageSize int32
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http2.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -551,6 +609,60 @@ func NewDemoServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// boolBool bool
+					// int32Int32 int32
+					// sint32Sint32 sint32
+					// uint32Uint32 uint32
+					// int64Int64 int64
+					// sint64Sint64 sint64
+					// uint64Uint64 uint64
+					// sfixed32Sfixed32 sfixed32
+					// fixed32Fixed32 fixed32
+					// floatFloat float
+					// sfixed64Sfixed64 sfixed64
+					// fixed64Fixed64 fixed64
+					// doubleDouble double
+					// stringString_ string
+					// bytesBytes bytes
+					// opt_boolOptBool bool
+					// opt_sint32OptSint32 sint32
+					// opt_uint32OptUint32 uint32
+					// opt_int64OptInt64 int64
+					// opt_sint64OptSint64 sint64
+					// opt_uint64OptUint64 uint64
+					// opt_sfixed32OptSfixed32 sfixed32
+					// opt_fixed32OptFixed32 fixed32
+					// opt_floatOptFloat float
+					// opt_sfixed64OptSfixed64 sfixed64
+					// opt_fixed64OptFixed64 fixed64
+					// opt_doubleOptDouble double
+					// opt_stringOptString string
+					// opt_bytesOptBytes bytes
+					// wrap_doubleWrapDouble message
+					// wrap_floatWrapFloat message
+					// wrap_int64WrapInt64 message
+					// wrap_uint64WrapUint64 message
+					// wrap_int32WrapInt32 message
+					// wrap_uint32WrapUint32 message
+					// wrap_boolWrapBool message
+					// wrap_stringWrapString message
+					// wrap_bytesWrapBytes message
+					// rep_boolRepBool bool
+					// rep_int32RepInt32 int32
+					// rep_sint32RepSint32 sint32
+					// rep_uint32RepUint32 uint32
+					// rep_int64RepInt64 int64
+					// rep_sint64RepSint64 sint64
+					// rep_uint64RepUint64 uint64
+					// rep_sfixed32RepSfixed32 sfixed32
+					// rep_fixed32RepFixed32 fixed32
+					// rep_floatRepFloat float
+					// rep_sfixed64RepSfixed64 sfixed64
+					// rep_fixed64RepFixed64 fixed64
+					// rep_doubleRepDouble double
+					// rep_stringRepString string
+					// rep_bytesRepBytes bytes
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http2.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {

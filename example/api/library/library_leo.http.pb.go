@@ -276,6 +276,9 @@ func NewLibraryServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// page_sizePageSize int32
+					// page_tokenPageToken string
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -475,6 +478,9 @@ func NewLibraryServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// page_sizePageSize int32
+					// page_tokenPageToken string
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {
@@ -559,6 +565,8 @@ func NewLibraryServiceHTTPClient(
 					if err != nil {
 						return nil, err
 					}
+					queries := r.URL.Query()
+					// update_maskUpdateMask message
 					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
 					r, err := http1.NewRequestWithContext(ctx, method, url, body)
 					if err != nil {

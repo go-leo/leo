@@ -97,13 +97,13 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 
 	// namedPathParameters
 	var namedPathFields []*protogen.Field
-	message := e.Input()
+	input := e.Input()
 	if len(namedPathName) > 0 {
 		namedPathParameters := strings.Split(namedPathName, ".")
 		for i, namedPathParameter := range namedPathParameters {
-			field := FindField(namedPathParameter, message)
+			field := FindField(namedPathParameter, input)
 			if field == nil {
-				return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, failed to find named path field %s", e.FullName(), namedPathName, namedPathParameter)
+				return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find named path field %s", e.FullName(), namedPathName)
 			}
 			if i < len(namedPathParameters)-1 {
 				if field.Desc.Kind() != protoreflect.MessageKind {
@@ -116,14 +116,14 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 					switch field.Message.Desc.FullName() {
 					case "google.protobuf.StringValue":
 					default:
-						return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path parameter type is not string or google.protobuf.StringValue", e.FullName(), namedPathName)
+						return nil, nil, nil, nil, nil, fmt.Errorf("%s, named path parameters do not support %s", field.Message.Desc.FullName())
 					}
 				default:
-					return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, named path parameter type not string or google.protobuf.StringValue", e.FullName(), namedPathName)
+					return nil, nil, nil, nil, nil, fmt.Errorf("%s, named path parameters do not support %s", field.Desc.Kind())
 				}
 			}
 			namedPathFields = append(namedPathFields, field)
-			message = field.Message
+			input = field.Message
 		}
 	}
 
@@ -134,7 +134,7 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 			return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find path field %s", e.FullName(), bodyParameter)
 		}
 		if field.Desc.IsList() || field.Desc.IsMap() {
-			return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, the list or map type unsupported", e.FullName(), pathParameter)
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, path parameters do not support list or map", e.FullName())
 		}
 
 		switch field.Desc.Kind() {
@@ -161,10 +161,10 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 			case "google.protobuf.Timestamp":
 			case "google.protobuf.Duration":
 			default:
-				return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, the type of path parameter %s unsupported", e.FullName(), pathParameter, message.Desc.FullName())
+				return nil, nil, nil, nil, nil, fmt.Errorf("%s, path parameters do not support %s", e.FullName(), message.Desc.FullName())
 			}
 		default:
-			return nil, nil, nil, nil, nil, fmt.Errorf("%s, %s, the kind of path parameter %s unsupported", e.FullName(), pathParameter, field.Desc.Kind())
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, path parameters do not support %s", e.FullName(), field.Desc.Kind())
 		}
 
 		pathFields = append(pathFields, field)
@@ -186,6 +186,38 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		}
 		if slices.Contains(pathFields, field) {
 			continue
+		}
+		if field.Desc.IsMap() {
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, query parameters do not support map", e.FullName())
+		}
+		switch field.Desc.Kind() {
+		case protoreflect.BoolKind: // bool
+		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
+		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
+		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
+		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
+		case protoreflect.FloatKind: // float32
+		case protoreflect.DoubleKind: // float64
+		case protoreflect.StringKind: // string
+		case protoreflect.EnumKind: // enum
+		case protoreflect.MessageKind:
+			message := field.Message
+			switch message.Desc.FullName() {
+			case "google.protobuf.DoubleValue":
+			case "google.protobuf.FloatValue":
+			case "google.protobuf.Int64Value":
+			case "google.protobuf.UInt64Value":
+			case "google.protobuf.Int32Value":
+			case "google.protobuf.UInt32Value":
+			case "google.protobuf.BoolValue":
+			case "google.protobuf.StringValue":
+			case "google.protobuf.Timestamp":
+			case "google.protobuf.Duration":
+			default:
+				return nil, nil, nil, nil, nil, fmt.Errorf("%s, query parameters do not support %s", e.FullName(), message.Desc.FullName())
+			}
+		default:
+			return nil, nil, nil, nil, nil, fmt.Errorf("%s, query parameters do not support %s", e.FullName(), field.Desc.Kind())
 		}
 		queryFields = append(queryFields, field)
 	}
