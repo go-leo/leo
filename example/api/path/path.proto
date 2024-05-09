@@ -1,5 +1,5 @@
 syntax = "proto3";
-package leo.example.demo.v1;
+package leo.example.path.v1;
 option go_package = "github.com/go-leo/leo/example/api/path/v1;path";
 
 import "google/protobuf/empty.proto";

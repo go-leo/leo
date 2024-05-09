@@ -5,6 +5,7 @@ package library
 import (
 	bytes "bytes"
 	context "context"
+	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
@@ -37,7 +38,8 @@ func NewLibraryServiceHTTPServer(
 	opts ...http.ServerOption,
 ) http1.Handler {
 	router := mux.NewRouter()
-	router.Name("/google.example.library.v1.LibraryService/CreateShelf").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/CreateShelf").
 		Methods("POST").
 		Path("/v1/shelves").
 		Handler(http.NewServer(
@@ -68,7 +70,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/GetShelf").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/GetShelf").
 		Methods("GET").
 		Path("/v1/shelves/{shelf}").
 		Handler(http.NewServer(
@@ -94,7 +97,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/ListShelves").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/ListShelves").
 		Methods("GET").
 		Path("/v1/shelves").
 		Handler(http.NewServer(
@@ -125,7 +129,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/DeleteShelf").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/DeleteShelf").
 		Methods("DELETE").
 		Path("/v1/shelves/{shelf}").
 		Handler(http.NewServer(
@@ -151,7 +156,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/MergeShelves").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/MergeShelves").
 		Methods("POST").
 		Path("/v1/shelves/{shelf}:merge").
 		Handler(http.NewServer(
@@ -184,7 +190,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/CreateBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/CreateBook").
 		Methods("POST").
 		Path("/v1/shelves/{shelf}/books").
 		Handler(http.NewServer(
@@ -217,7 +224,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/GetBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/GetBook").
 		Methods("GET").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
@@ -243,7 +251,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/ListBooks").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/ListBooks").
 		Methods("GET").
 		Path("/v1/shelves/{shelf}/books").
 		Handler(http.NewServer(
@@ -276,7 +285,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/DeleteBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/DeleteBook").
 		Methods("DELETE").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
@@ -302,7 +312,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/UpdateBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/UpdateBook").
 		Methods("PATCH").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
@@ -344,7 +355,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.library.v1.LibraryService/MoveBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/MoveBook").
 		Methods("POST").
 		Path("/v1/shelves/{shelf}/books/{book}:move").
 		Handler(http.NewServer(
@@ -500,27 +512,49 @@ func NewLibraryServiceHTTPClient(
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 } {
 	router := mux.NewRouter()
-	router.Name("/google.example.library.v1.LibraryService/CreateShelf").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/CreateShelf").
+		Methods("POST").
 		Path("/v1/shelves")
-	router.Name("/google.example.library.v1.LibraryService/GetShelf").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/GetShelf").
+		Methods("GET").
 		Path("/v1/shelves/{shelf}")
-	router.Name("/google.example.library.v1.LibraryService/ListShelves").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/ListShelves").
+		Methods("GET").
 		Path("/v1/shelves")
-	router.Name("/google.example.library.v1.LibraryService/DeleteShelf").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/DeleteShelf").
+		Methods("DELETE").
 		Path("/v1/shelves/{shelf}")
-	router.Name("/google.example.library.v1.LibraryService/MergeShelves").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/MergeShelves").
+		Methods("POST").
 		Path("/v1/shelves/{shelf}:merge")
-	router.Name("/google.example.library.v1.LibraryService/CreateBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/CreateBook").
+		Methods("POST").
 		Path("/v1/shelves/{shelf}/books")
-	router.Name("/google.example.library.v1.LibraryService/GetBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/GetBook").
+		Methods("GET").
 		Path("/v1/shelves/{shelf}/books/{book}")
-	router.Name("/google.example.library.v1.LibraryService/ListBooks").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/ListBooks").
+		Methods("GET").
 		Path("/v1/shelves/{shelf}/books")
-	router.Name("/google.example.library.v1.LibraryService/DeleteBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/DeleteBook").
+		Methods("DELETE").
 		Path("/v1/shelves/{shelf}/books/{book}")
-	router.Name("/google.example.library.v1.LibraryService/UpdateBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/UpdateBook").
+		Methods("PATCH").
 		Path("/v1/shelves/{shelf}/books/{book}")
-	router.Name("/google.example.library.v1.LibraryService/MoveBook").
+	router.NewRoute().
+		Name("/google.example.library.v1.LibraryService/MoveBook").
+		Methods("POST").
 		Path("/v1/shelves/{shelf}/books/{book}:move")
 	return &httpLibraryServiceClient{
 		createShelf: endpointx.Chain(
@@ -531,18 +565,20 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Shelf)
-					if err != nil {
-						return nil, err
+					if req.Shelf != nil {
+						data, err := protojson.Marshal(req.Shelf)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/google.example.library.v1.LibraryService/CreateShelf").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/CreateShelf").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -567,22 +603,19 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// name
-					// shelves/%s
-					// shelf
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 2 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1])
-					path, err := router.Name("/google.example.library.v1.LibraryService/GetShelf").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/GetShelf").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -607,13 +640,13 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					path, err := router.Name("/google.example.library.v1.LibraryService/ListShelves").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/ListShelves").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -638,22 +671,19 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "DELETE"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// name
-					// shelves/%s
-					// shelf
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 2 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1])
-					path, err := router.Name("/google.example.library.v1.LibraryService/DeleteShelf").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/DeleteShelf").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -678,27 +708,26 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					// name
-					// shelves/%s
-					// shelf
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 2 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1])
-					path, err := router.Name("/google.example.library.v1.LibraryService/MergeShelves").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/MergeShelves").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -723,27 +752,26 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Book)
-					if err != nil {
-						return nil, err
+					if req.Book != nil {
+						data, err := protojson.Marshal(req.Book)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					// parent
-					// shelves/%s
-					// shelf
 					namedPathParameter := req.Parent
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 2 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1])
-					path, err := router.Name("/google.example.library.v1.LibraryService/CreateBook").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/CreateBook").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -768,22 +796,19 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// name
-					// shelves/%s/books/%s
-					// shelf.book
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-					path, err := router.Name("/google.example.library.v1.LibraryService/GetBook").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/GetBook").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -808,22 +833,19 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// parent
-					// shelves/%s
-					// shelf
 					namedPathParameter := req.Parent
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 2 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1])
-					path, err := router.Name("/google.example.library.v1.LibraryService/ListBooks").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/ListBooks").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -848,22 +870,19 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "DELETE"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// name
-					// shelves/%s/books/%s
-					// shelf.book
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-					path, err := router.Name("/google.example.library.v1.LibraryService/DeleteBook").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/DeleteBook").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -888,30 +907,29 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PATCH"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Book)
-					if err != nil {
-						return nil, err
+					if req.Book != nil {
+						data, err := protojson.Marshal(req.Book)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
 					if req.Book == nil {
 						return nil, fmt.Errorf("%s is nil", "req.Book")
 					}
-					// book.name
-					// shelves/%s/books/%s
-					// shelf.book
 					namedPathParameter := req.Book.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-					path, err := router.Name("/google.example.library.v1.LibraryService/UpdateBook").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/UpdateBook").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -936,27 +954,26 @@ func NewLibraryServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					// name
-					// shelves/%s/books/%s
-					// shelf.book
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-					path, err := router.Name("/google.example.library.v1.LibraryService/MoveBook").URLPath(pairs...)
+					path, err := router.Get("/google.example.library.v1.LibraryService/MoveBook").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}

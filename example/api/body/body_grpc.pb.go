@@ -26,81 +26,101 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Body_Bool_FullMethodName             = "/leo.example.demo.v1.Body/Bool"
-	Body_OptBool_FullMethodName          = "/leo.example.demo.v1.Body/OptBool"
-	Body_RepBool_FullMethodName          = "/leo.example.demo.v1.Body/RepBool"
-	Body_WrapBool_FullMethodName         = "/leo.example.demo.v1.Body/WrapBool"
-	Body_Int32_FullMethodName            = "/leo.example.demo.v1.Body/Int32"
-	Body_OptInt32_FullMethodName         = "/leo.example.demo.v1.Body/OptInt32"
-	Body_RepInt32_FullMethodName         = "/leo.example.demo.v1.Body/RepInt32"
-	Body_WrapInt32_FullMethodName        = "/leo.example.demo.v1.Body/WrapInt32"
-	Body_Uint32_FullMethodName           = "/leo.example.demo.v1.Body/Uint32"
-	Body_OptUint32_FullMethodName        = "/leo.example.demo.v1.Body/OptUint32"
-	Body_RepUint32_FullMethodName        = "/leo.example.demo.v1.Body/RepUint32"
-	Body_WrapUint32_FullMethodName       = "/leo.example.demo.v1.Body/WrapUint32"
-	Body_Fixed32_FullMethodName          = "/leo.example.demo.v1.Body/Fixed32"
-	Body_OptFixed32_FullMethodName       = "/leo.example.demo.v1.Body/OptFixed32"
-	Body_RepFixed32_FullMethodName       = "/leo.example.demo.v1.Body/RepFixed32"
-	Body_Int64_FullMethodName            = "/leo.example.demo.v1.Body/Int64"
-	Body_OptInt64_FullMethodName         = "/leo.example.demo.v1.Body/OptInt64"
-	Body_RepInt64_FullMethodName         = "/leo.example.demo.v1.Body/RepInt64"
-	Body_WrapInt64_FullMethodName        = "/leo.example.demo.v1.Body/WrapInt64"
-	Body_Sint64_FullMethodName           = "/leo.example.demo.v1.Body/Sint64"
-	Body_OptSint64_FullMethodName        = "/leo.example.demo.v1.Body/OptSint64"
-	Body_RepSint64_FullMethodName        = "/leo.example.demo.v1.Body/RepSint64"
-	Body_Sfixed64_FullMethodName         = "/leo.example.demo.v1.Body/Sfixed64"
-	Body_OptSfixed64_FullMethodName      = "/leo.example.demo.v1.Body/OptSfixed64"
-	Body_RepSfixed64_FullMethodName      = "/leo.example.demo.v1.Body/RepSfixed64"
-	Body_Uint64_FullMethodName           = "/leo.example.demo.v1.Body/Uint64"
-	Body_OptUint64_FullMethodName        = "/leo.example.demo.v1.Body/OptUint64"
-	Body_RepUint64_FullMethodName        = "/leo.example.demo.v1.Body/RepUint64"
-	Body_WrapUint64_FullMethodName       = "/leo.example.demo.v1.Body/WrapUint64"
-	Body_Fixed64_FullMethodName          = "/leo.example.demo.v1.Body/Fixed64"
-	Body_OptFixed64_FullMethodName       = "/leo.example.demo.v1.Body/OptFixed64"
-	Body_RepFixed64_FullMethodName       = "/leo.example.demo.v1.Body/RepFixed64"
-	Body_Float32_FullMethodName          = "/leo.example.demo.v1.Body/Float32"
-	Body_OptFloat32_FullMethodName       = "/leo.example.demo.v1.Body/OptFloat32"
-	Body_RepFloat32_FullMethodName       = "/leo.example.demo.v1.Body/RepFloat32"
-	Body_WrapFloat32_FullMethodName      = "/leo.example.demo.v1.Body/WrapFloat32"
-	Body_Float64_FullMethodName          = "/leo.example.demo.v1.Body/Float64"
-	Body_OptFloat64_FullMethodName       = "/leo.example.demo.v1.Body/OptFloat64"
-	Body_RepFloat64_FullMethodName       = "/leo.example.demo.v1.Body/RepFloat64"
-	Body_WrapFloat64_FullMethodName      = "/leo.example.demo.v1.Body/WrapFloat64"
-	Body_String_FullMethodName           = "/leo.example.demo.v1.Body/String"
-	Body_OptString_FullMethodName        = "/leo.example.demo.v1.Body/OptString"
-	Body_RepString_FullMethodName        = "/leo.example.demo.v1.Body/RepString"
-	Body_WrapString_FullMethodName       = "/leo.example.demo.v1.Body/WrapString"
-	Body_Bytes_FullMethodName            = "/leo.example.demo.v1.Body/Bytes"
-	Body_OptBytes_FullMethodName         = "/leo.example.demo.v1.Body/OptBytes"
-	Body_RepBytes_FullMethodName         = "/leo.example.demo.v1.Body/RepBytes"
-	Body_WrapBytes_FullMethodName        = "/leo.example.demo.v1.Body/WrapBytes"
-	Body_Enum_FullMethodName             = "/leo.example.demo.v1.Body/Enum"
-	Body_OptEnum_FullMethodName          = "/leo.example.demo.v1.Body/OptEnum"
-	Body_RepEnum_FullMethodName          = "/leo.example.demo.v1.Body/RepEnum"
-	Body_Dictionary_FullMethodName       = "/leo.example.demo.v1.Body/Dictionary"
-	Body_HttpBody_FullMethodName         = "/leo.example.demo.v1.Body/HttpBody"
-	Body_HttpRequest_FullMethodName      = "/leo.example.demo.v1.Body/HttpRequest"
-	Body_ValueRequest_FullMethodName     = "/leo.example.demo.v1.Body/ValueRequest"
-	Body_ListValueRequest_FullMethodName = "/leo.example.demo.v1.Body/ListValueRequest"
-	Body_StructRequest_FullMethodName    = "/leo.example.demo.v1.Body/StructRequest"
-	Body_TimestampRequest_FullMethodName = "/leo.example.demo.v1.Body/TimestampRequest"
-	Body_DurationRequest_FullMethodName  = "/leo.example.demo.v1.Body/DurationRequest"
-	Body_WrapDoubleBody_FullMethodName   = "/leo.example.demo.v1.Body/WrapDoubleBody"
-	Body_WrapFloatBody_FullMethodName    = "/leo.example.demo.v1.Body/WrapFloatBody"
-	Body_WrapInt64Body_FullMethodName    = "/leo.example.demo.v1.Body/WrapInt64Body"
-	Body_WrapUint64Body_FullMethodName   = "/leo.example.demo.v1.Body/WrapUint64Body"
-	Body_WrapInt32Body_FullMethodName    = "/leo.example.demo.v1.Body/WrapInt32Body"
-	Body_WrapUint32Body_FullMethodName   = "/leo.example.demo.v1.Body/WrapUint32Body"
-	Body_WrapBoolBody_FullMethodName     = "/leo.example.demo.v1.Body/WrapBoolBody"
-	Body_WrapStringBody_FullMethodName   = "/leo.example.demo.v1.Body/WrapStringBody"
-	Body_WrapBytesBody_FullMethodName    = "/leo.example.demo.v1.Body/WrapBytesBody"
-	Body_HttpBodyBody_FullMethodName     = "/leo.example.demo.v1.Body/HttpBodyBody"
-	Body_HttpRequestBody_FullMethodName  = "/leo.example.demo.v1.Body/HttpRequestBody"
-	Body_ValueBody_FullMethodName        = "/leo.example.demo.v1.Body/ValueBody"
-	Body_ListValueBody_FullMethodName    = "/leo.example.demo.v1.Body/ListValueBody"
-	Body_StructBody_FullMethodName       = "/leo.example.demo.v1.Body/StructBody"
-	Body_TimestampBody_FullMethodName    = "/leo.example.demo.v1.Body/TimestampBody"
-	Body_DurationBody_FullMethodName     = "/leo.example.demo.v1.Body/DurationBody"
+	Body_Bool_FullMethodName                 = "/leo.example.body.v1.Body/Bool"
+	Body_OptBool_FullMethodName              = "/leo.example.body.v1.Body/OptBool"
+	Body_RepBool_FullMethodName              = "/leo.example.body.v1.Body/RepBool"
+	Body_WrapBool_FullMethodName             = "/leo.example.body.v1.Body/WrapBool"
+	Body_Int32_FullMethodName                = "/leo.example.body.v1.Body/Int32"
+	Body_OptInt32_FullMethodName             = "/leo.example.body.v1.Body/OptInt32"
+	Body_RepInt32_FullMethodName             = "/leo.example.body.v1.Body/RepInt32"
+	Body_WrapInt32_FullMethodName            = "/leo.example.body.v1.Body/WrapInt32"
+	Body_Uint32_FullMethodName               = "/leo.example.body.v1.Body/Uint32"
+	Body_OptUint32_FullMethodName            = "/leo.example.body.v1.Body/OptUint32"
+	Body_RepUint32_FullMethodName            = "/leo.example.body.v1.Body/RepUint32"
+	Body_WrapUint32_FullMethodName           = "/leo.example.body.v1.Body/WrapUint32"
+	Body_Fixed32_FullMethodName              = "/leo.example.body.v1.Body/Fixed32"
+	Body_OptFixed32_FullMethodName           = "/leo.example.body.v1.Body/OptFixed32"
+	Body_RepFixed32_FullMethodName           = "/leo.example.body.v1.Body/RepFixed32"
+	Body_Int64_FullMethodName                = "/leo.example.body.v1.Body/Int64"
+	Body_OptInt64_FullMethodName             = "/leo.example.body.v1.Body/OptInt64"
+	Body_RepInt64_FullMethodName             = "/leo.example.body.v1.Body/RepInt64"
+	Body_WrapInt64_FullMethodName            = "/leo.example.body.v1.Body/WrapInt64"
+	Body_Sint64_FullMethodName               = "/leo.example.body.v1.Body/Sint64"
+	Body_OptSint64_FullMethodName            = "/leo.example.body.v1.Body/OptSint64"
+	Body_RepSint64_FullMethodName            = "/leo.example.body.v1.Body/RepSint64"
+	Body_Sfixed64_FullMethodName             = "/leo.example.body.v1.Body/Sfixed64"
+	Body_OptSfixed64_FullMethodName          = "/leo.example.body.v1.Body/OptSfixed64"
+	Body_RepSfixed64_FullMethodName          = "/leo.example.body.v1.Body/RepSfixed64"
+	Body_Uint64_FullMethodName               = "/leo.example.body.v1.Body/Uint64"
+	Body_OptUint64_FullMethodName            = "/leo.example.body.v1.Body/OptUint64"
+	Body_RepUint64_FullMethodName            = "/leo.example.body.v1.Body/RepUint64"
+	Body_WrapUint64_FullMethodName           = "/leo.example.body.v1.Body/WrapUint64"
+	Body_Fixed64_FullMethodName              = "/leo.example.body.v1.Body/Fixed64"
+	Body_OptFixed64_FullMethodName           = "/leo.example.body.v1.Body/OptFixed64"
+	Body_RepFixed64_FullMethodName           = "/leo.example.body.v1.Body/RepFixed64"
+	Body_Float_FullMethodName                = "/leo.example.body.v1.Body/Float"
+	Body_OptFloat_FullMethodName             = "/leo.example.body.v1.Body/OptFloat"
+	Body_RepFloat_FullMethodName             = "/leo.example.body.v1.Body/RepFloat"
+	Body_WrapFloat_FullMethodName            = "/leo.example.body.v1.Body/WrapFloat"
+	Body_Double_FullMethodName               = "/leo.example.body.v1.Body/Double"
+	Body_OptDouble_FullMethodName            = "/leo.example.body.v1.Body/OptDouble"
+	Body_RepDouble_FullMethodName            = "/leo.example.body.v1.Body/RepDouble"
+	Body_WrapDouble_FullMethodName           = "/leo.example.body.v1.Body/WrapDouble"
+	Body_String_FullMethodName               = "/leo.example.body.v1.Body/String"
+	Body_OptString_FullMethodName            = "/leo.example.body.v1.Body/OptString"
+	Body_RepString_FullMethodName            = "/leo.example.body.v1.Body/RepString"
+	Body_WrapString_FullMethodName           = "/leo.example.body.v1.Body/WrapString"
+	Body_Bytes_FullMethodName                = "/leo.example.body.v1.Body/Bytes"
+	Body_OptBytes_FullMethodName             = "/leo.example.body.v1.Body/OptBytes"
+	Body_RepBytes_FullMethodName             = "/leo.example.body.v1.Body/RepBytes"
+	Body_WrapBytes_FullMethodName            = "/leo.example.body.v1.Body/WrapBytes"
+	Body_Enum_FullMethodName                 = "/leo.example.body.v1.Body/Enum"
+	Body_OptEnum_FullMethodName              = "/leo.example.body.v1.Body/OptEnum"
+	Body_RepEnum_FullMethodName              = "/leo.example.body.v1.Body/RepEnum"
+	Body_Dictionary_FullMethodName           = "/leo.example.body.v1.Body/Dictionary"
+	Body_HttpBody_FullMethodName             = "/leo.example.body.v1.Body/HttpBody"
+	Body_HttpRequest_FullMethodName          = "/leo.example.body.v1.Body/HttpRequest"
+	Body_ValueRequest_FullMethodName         = "/leo.example.body.v1.Body/ValueRequest"
+	Body_ListValueRequest_FullMethodName     = "/leo.example.body.v1.Body/ListValueRequest"
+	Body_StructRequest_FullMethodName        = "/leo.example.body.v1.Body/StructRequest"
+	Body_TimestampRequest_FullMethodName     = "/leo.example.body.v1.Body/TimestampRequest"
+	Body_DurationRequest_FullMethodName      = "/leo.example.body.v1.Body/DurationRequest"
+	Body_OptWrapDoubleRequest_FullMethodName = "/leo.example.body.v1.Body/OptWrapDoubleRequest"
+	Body_OptWrapFloatRequest_FullMethodName  = "/leo.example.body.v1.Body/OptWrapFloatRequest"
+	Body_OptWrapInt64Request_FullMethodName  = "/leo.example.body.v1.Body/OptWrapInt64Request"
+	Body_OptWrapUint64Request_FullMethodName = "/leo.example.body.v1.Body/OptWrapUint64Request"
+	Body_OptWrapInt32Request_FullMethodName  = "/leo.example.body.v1.Body/OptWrapInt32Request"
+	Body_OptWrapUint32Request_FullMethodName = "/leo.example.body.v1.Body/OptWrapUint32Request"
+	Body_OptWrapBoolRequest_FullMethodName   = "/leo.example.body.v1.Body/OptWrapBoolRequest"
+	Body_OptWrapStringRequest_FullMethodName = "/leo.example.body.v1.Body/OptWrapStringRequest"
+	Body_OptWrapBytesRequest_FullMethodName  = "/leo.example.body.v1.Body/OptWrapBytesRequest"
+	Body_RepWrapDoubleRequest_FullMethodName = "/leo.example.body.v1.Body/RepWrapDoubleRequest"
+	Body_RepWrapFloatRequest_FullMethodName  = "/leo.example.body.v1.Body/RepWrapFloatRequest"
+	Body_RepWrapInt64Request_FullMethodName  = "/leo.example.body.v1.Body/RepWrapInt64Request"
+	Body_RepWrapUint64Request_FullMethodName = "/leo.example.body.v1.Body/RepWrapUint64Request"
+	Body_RepWrapInt32Request_FullMethodName  = "/leo.example.body.v1.Body/RepWrapInt32Request"
+	Body_RepWrapUint32Request_FullMethodName = "/leo.example.body.v1.Body/RepWrapUint32Request"
+	Body_RepWrapBoolRequest_FullMethodName   = "/leo.example.body.v1.Body/RepWrapBoolRequest"
+	Body_RepWrapStringRequest_FullMethodName = "/leo.example.body.v1.Body/RepWrapStringRequest"
+	Body_RepWrapBytesRequest_FullMethodName  = "/leo.example.body.v1.Body/RepWrapBytesRequest"
+	Body_UserRequest_FullMethodName          = "/leo.example.body.v1.Body/UserRequest"
+	Body_WrapDoubleBody_FullMethodName       = "/leo.example.body.v1.Body/WrapDoubleBody"
+	Body_WrapFloatBody_FullMethodName        = "/leo.example.body.v1.Body/WrapFloatBody"
+	Body_WrapInt64Body_FullMethodName        = "/leo.example.body.v1.Body/WrapInt64Body"
+	Body_WrapUint64Body_FullMethodName       = "/leo.example.body.v1.Body/WrapUint64Body"
+	Body_WrapInt32Body_FullMethodName        = "/leo.example.body.v1.Body/WrapInt32Body"
+	Body_WrapUint32Body_FullMethodName       = "/leo.example.body.v1.Body/WrapUint32Body"
+	Body_WrapBoolBody_FullMethodName         = "/leo.example.body.v1.Body/WrapBoolBody"
+	Body_WrapStringBody_FullMethodName       = "/leo.example.body.v1.Body/WrapStringBody"
+	Body_WrapBytesBody_FullMethodName        = "/leo.example.body.v1.Body/WrapBytesBody"
+	Body_HttpBodyBody_FullMethodName         = "/leo.example.body.v1.Body/HttpBodyBody"
+	Body_HttpRequestBody_FullMethodName      = "/leo.example.body.v1.Body/HttpRequestBody"
+	Body_ValueBody_FullMethodName            = "/leo.example.body.v1.Body/ValueBody"
+	Body_ListValueBody_FullMethodName        = "/leo.example.body.v1.Body/ListValueBody"
+	Body_StructBody_FullMethodName           = "/leo.example.body.v1.Body/StructBody"
+	Body_TimestampBody_FullMethodName        = "/leo.example.body.v1.Body/TimestampBody"
+	Body_DurationBody_FullMethodName         = "/leo.example.body.v1.Body/DurationBody"
+	Body_UserBody_FullMethodName             = "/leo.example.body.v1.Body/UserBody"
 )
 
 // BodyClient is the client API for Body service.
@@ -139,14 +159,14 @@ type BodyClient interface {
 	Fixed64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	OptFixed64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RepFixed64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Float32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	OptFloat32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	RepFloat32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	WrapFloat32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Float64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	OptFloat64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	RepFloat64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	WrapFloat64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Float(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptFloat(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepFloat(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	WrapFloat(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Double(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptDouble(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepDouble(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	WrapDouble(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	String(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	OptString(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RepString(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -166,6 +186,25 @@ type BodyClient interface {
 	StructRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TimestampRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DurationRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapDoubleRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapFloatRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapInt64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapUint64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapInt32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapUint32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapBoolRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapStringRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OptWrapBytesRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapDoubleRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapFloatRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapInt64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapUint64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapInt32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapUint32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapBoolRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapStringRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RepWrapBytesRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UserRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	WrapDoubleBody(ctx context.Context, in *wrapperspb.DoubleValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	WrapFloatBody(ctx context.Context, in *wrapperspb.FloatValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	WrapInt64Body(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -182,6 +221,7 @@ type BodyClient interface {
 	StructBody(ctx context.Context, in *structpb.Struct, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TimestampBody(ctx context.Context, in *timestamppb.Timestamp, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DurationBody(ctx context.Context, in *durationpb.Duration, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UserBody(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bodyClient struct {
@@ -480,72 +520,72 @@ func (c *bodyClient) RepFixed64(ctx context.Context, in *BodyRequest, opts ...gr
 	return out, nil
 }
 
-func (c *bodyClient) Float32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) Float(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_Float32_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_Float_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) OptFloat32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) OptFloat(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_OptFloat32_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_OptFloat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) RepFloat32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) RepFloat(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_RepFloat32_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_RepFloat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) WrapFloat32(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) WrapFloat(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_WrapFloat32_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_WrapFloat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) Float64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) Double(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_Float64_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_Double_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) OptFloat64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) OptDouble(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_OptFloat64_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_OptDouble_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) RepFloat64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) RepDouble(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_RepFloat64_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_RepDouble_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bodyClient) WrapFloat64(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bodyClient) WrapDouble(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_WrapFloat64_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Body_WrapDouble_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -723,6 +763,177 @@ func (c *bodyClient) DurationRequest(ctx context.Context, in *BodyRequest, opts 
 	return out, nil
 }
 
+func (c *bodyClient) OptWrapDoubleRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapDoubleRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapFloatRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapFloatRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapInt64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapInt64Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapUint64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapUint64Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapInt32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapInt32Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapUint32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapUint32Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapBoolRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapBoolRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapStringRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapStringRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) OptWrapBytesRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_OptWrapBytesRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapDoubleRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapDoubleRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapFloatRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapFloatRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapInt64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapInt64Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapUint64Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapUint64Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapInt32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapInt32Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapUint32Request(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapUint32Request_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapBoolRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapBoolRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapStringRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapStringRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) RepWrapBytesRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_RepWrapBytesRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bodyClient) UserRequest(ctx context.Context, in *BodyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_UserRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bodyClient) WrapDoubleBody(ctx context.Context, in *wrapperspb.DoubleValue, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Body_WrapDoubleBody_FullMethodName, in, out, opts...)
@@ -867,6 +1078,15 @@ func (c *bodyClient) DurationBody(ctx context.Context, in *durationpb.Duration, 
 	return out, nil
 }
 
+func (c *bodyClient) UserBody(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Body_UserBody_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BodyServer is the server API for Body service.
 // All implementations should embed UnimplementedBodyServer
 // for forward compatibility
@@ -903,14 +1123,14 @@ type BodyServer interface {
 	Fixed64(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	OptFixed64(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	RepFixed64(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	Float32(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	OptFloat32(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	RepFloat32(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	WrapFloat32(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	Float64(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	OptFloat64(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	RepFloat64(context.Context, *BodyRequest) (*emptypb.Empty, error)
-	WrapFloat64(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	Float(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptFloat(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepFloat(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	WrapFloat(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	Double(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptDouble(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepDouble(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	WrapDouble(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	String(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	OptString(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	RepString(context.Context, *BodyRequest) (*emptypb.Empty, error)
@@ -930,6 +1150,25 @@ type BodyServer interface {
 	StructRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	TimestampRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	DurationRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapDoubleRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapFloatRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapInt64Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapUint64Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapInt32Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapUint32Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapBoolRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapStringRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	OptWrapBytesRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapDoubleRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapFloatRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapInt64Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapUint64Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapInt32Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapUint32Request(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapBoolRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapStringRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	RepWrapBytesRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
+	UserRequest(context.Context, *BodyRequest) (*emptypb.Empty, error)
 	WrapDoubleBody(context.Context, *wrapperspb.DoubleValue) (*emptypb.Empty, error)
 	WrapFloatBody(context.Context, *wrapperspb.FloatValue) (*emptypb.Empty, error)
 	WrapInt64Body(context.Context, *wrapperspb.Int64Value) (*emptypb.Empty, error)
@@ -946,6 +1185,7 @@ type BodyServer interface {
 	StructBody(context.Context, *structpb.Struct) (*emptypb.Empty, error)
 	TimestampBody(context.Context, *timestamppb.Timestamp) (*emptypb.Empty, error)
 	DurationBody(context.Context, *durationpb.Duration) (*emptypb.Empty, error)
+	UserBody(context.Context, *User) (*emptypb.Empty, error)
 }
 
 // UnimplementedBodyServer should be embedded to have forward compatible implementations.
@@ -1048,29 +1288,29 @@ func (UnimplementedBodyServer) OptFixed64(context.Context, *BodyRequest) (*empty
 func (UnimplementedBodyServer) RepFixed64(context.Context, *BodyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepFixed64 not implemented")
 }
-func (UnimplementedBodyServer) Float32(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Float32 not implemented")
+func (UnimplementedBodyServer) Float(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Float not implemented")
 }
-func (UnimplementedBodyServer) OptFloat32(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OptFloat32 not implemented")
+func (UnimplementedBodyServer) OptFloat(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptFloat not implemented")
 }
-func (UnimplementedBodyServer) RepFloat32(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RepFloat32 not implemented")
+func (UnimplementedBodyServer) RepFloat(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepFloat not implemented")
 }
-func (UnimplementedBodyServer) WrapFloat32(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WrapFloat32 not implemented")
+func (UnimplementedBodyServer) WrapFloat(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WrapFloat not implemented")
 }
-func (UnimplementedBodyServer) Float64(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Float64 not implemented")
+func (UnimplementedBodyServer) Double(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Double not implemented")
 }
-func (UnimplementedBodyServer) OptFloat64(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OptFloat64 not implemented")
+func (UnimplementedBodyServer) OptDouble(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptDouble not implemented")
 }
-func (UnimplementedBodyServer) RepFloat64(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RepFloat64 not implemented")
+func (UnimplementedBodyServer) RepDouble(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepDouble not implemented")
 }
-func (UnimplementedBodyServer) WrapFloat64(context.Context, *BodyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WrapFloat64 not implemented")
+func (UnimplementedBodyServer) WrapDouble(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WrapDouble not implemented")
 }
 func (UnimplementedBodyServer) String(context.Context, *BodyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method String not implemented")
@@ -1129,6 +1369,63 @@ func (UnimplementedBodyServer) TimestampRequest(context.Context, *BodyRequest) (
 func (UnimplementedBodyServer) DurationRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DurationRequest not implemented")
 }
+func (UnimplementedBodyServer) OptWrapDoubleRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapDoubleRequest not implemented")
+}
+func (UnimplementedBodyServer) OptWrapFloatRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapFloatRequest not implemented")
+}
+func (UnimplementedBodyServer) OptWrapInt64Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapInt64Request not implemented")
+}
+func (UnimplementedBodyServer) OptWrapUint64Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapUint64Request not implemented")
+}
+func (UnimplementedBodyServer) OptWrapInt32Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapInt32Request not implemented")
+}
+func (UnimplementedBodyServer) OptWrapUint32Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapUint32Request not implemented")
+}
+func (UnimplementedBodyServer) OptWrapBoolRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapBoolRequest not implemented")
+}
+func (UnimplementedBodyServer) OptWrapStringRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapStringRequest not implemented")
+}
+func (UnimplementedBodyServer) OptWrapBytesRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OptWrapBytesRequest not implemented")
+}
+func (UnimplementedBodyServer) RepWrapDoubleRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapDoubleRequest not implemented")
+}
+func (UnimplementedBodyServer) RepWrapFloatRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapFloatRequest not implemented")
+}
+func (UnimplementedBodyServer) RepWrapInt64Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapInt64Request not implemented")
+}
+func (UnimplementedBodyServer) RepWrapUint64Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapUint64Request not implemented")
+}
+func (UnimplementedBodyServer) RepWrapInt32Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapInt32Request not implemented")
+}
+func (UnimplementedBodyServer) RepWrapUint32Request(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapUint32Request not implemented")
+}
+func (UnimplementedBodyServer) RepWrapBoolRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapBoolRequest not implemented")
+}
+func (UnimplementedBodyServer) RepWrapStringRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapStringRequest not implemented")
+}
+func (UnimplementedBodyServer) RepWrapBytesRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepWrapBytesRequest not implemented")
+}
+func (UnimplementedBodyServer) UserRequest(context.Context, *BodyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserRequest not implemented")
+}
 func (UnimplementedBodyServer) WrapDoubleBody(context.Context, *wrapperspb.DoubleValue) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WrapDoubleBody not implemented")
 }
@@ -1176,6 +1473,9 @@ func (UnimplementedBodyServer) TimestampBody(context.Context, *timestamppb.Times
 }
 func (UnimplementedBodyServer) DurationBody(context.Context, *durationpb.Duration) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DurationBody not implemented")
+}
+func (UnimplementedBodyServer) UserBody(context.Context, *User) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserBody not implemented")
 }
 
 // UnsafeBodyServer may be embedded to opt out of forward compatibility for this service.
@@ -1765,146 +2065,146 @@ func _Body_RepFixed64_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_Float32_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_Float_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).Float32(ctx, in)
+		return srv.(BodyServer).Float(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_Float32_FullMethodName,
+		FullMethod: Body_Float_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).Float32(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).Float(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_OptFloat32_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_OptFloat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).OptFloat32(ctx, in)
+		return srv.(BodyServer).OptFloat(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_OptFloat32_FullMethodName,
+		FullMethod: Body_OptFloat_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).OptFloat32(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).OptFloat(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_RepFloat32_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_RepFloat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).RepFloat32(ctx, in)
+		return srv.(BodyServer).RepFloat(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_RepFloat32_FullMethodName,
+		FullMethod: Body_RepFloat_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).RepFloat32(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).RepFloat(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_WrapFloat32_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_WrapFloat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).WrapFloat32(ctx, in)
+		return srv.(BodyServer).WrapFloat(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_WrapFloat32_FullMethodName,
+		FullMethod: Body_WrapFloat_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).WrapFloat32(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).WrapFloat(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_Float64_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_Double_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).Float64(ctx, in)
+		return srv.(BodyServer).Double(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_Float64_FullMethodName,
+		FullMethod: Body_Double_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).Float64(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).Double(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_OptFloat64_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_OptDouble_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).OptFloat64(ctx, in)
+		return srv.(BodyServer).OptDouble(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_OptFloat64_FullMethodName,
+		FullMethod: Body_OptDouble_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).OptFloat64(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).OptDouble(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_RepFloat64_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_RepDouble_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).RepFloat64(ctx, in)
+		return srv.(BodyServer).RepDouble(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_RepFloat64_FullMethodName,
+		FullMethod: Body_RepDouble_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).RepFloat64(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).RepDouble(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_WrapFloat64_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Body_WrapDouble_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BodyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BodyServer).WrapFloat64(ctx, in)
+		return srv.(BodyServer).WrapDouble(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Body_WrapFloat64_FullMethodName,
+		FullMethod: Body_WrapDouble_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).WrapFloat64(ctx, req.(*BodyRequest))
+		return srv.(BodyServer).WrapDouble(ctx, req.(*BodyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2251,6 +2551,348 @@ func _Body_DurationRequest_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Body_OptWrapDoubleRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapDoubleRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapDoubleRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapDoubleRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapFloatRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapFloatRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapFloatRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapFloatRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapInt64Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapInt64Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapInt64Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapInt64Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapUint64Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapUint64Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapUint64Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapUint64Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapInt32Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapInt32Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapInt32Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapInt32Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapUint32Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapUint32Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapUint32Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapUint32Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapBoolRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapBoolRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapBoolRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapBoolRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapStringRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapStringRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapStringRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapStringRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_OptWrapBytesRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).OptWrapBytesRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_OptWrapBytesRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).OptWrapBytesRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapDoubleRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapDoubleRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapDoubleRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapDoubleRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapFloatRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapFloatRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapFloatRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapFloatRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapInt64Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapInt64Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapInt64Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapInt64Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapUint64Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapUint64Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapUint64Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapUint64Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapInt32Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapInt32Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapInt32Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapInt32Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapUint32Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapUint32Request(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapUint32Request_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapUint32Request(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapBoolRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapBoolRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapBoolRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapBoolRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapStringRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapStringRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapStringRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapStringRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_RepWrapBytesRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).RepWrapBytesRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_RepWrapBytesRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).RepWrapBytesRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Body_UserRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BodyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).UserRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_UserRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).UserRequest(ctx, req.(*BodyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Body_WrapDoubleBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.DoubleValue)
 	if err := dec(in); err != nil {
@@ -2539,11 +3181,29 @@ func _Body_DurationBody_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Body_UserBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BodyServer).UserBody(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Body_UserBody_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BodyServer).UserBody(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Body_ServiceDesc is the grpc.ServiceDesc for Body service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Body_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "leo.example.demo.v1.Body",
+	ServiceName: "leo.example.body.v1.Body",
 	HandlerType: (*BodyServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -2675,36 +3335,36 @@ var Body_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Body_RepFixed64_Handler,
 		},
 		{
-			MethodName: "Float32",
-			Handler:    _Body_Float32_Handler,
+			MethodName: "Float",
+			Handler:    _Body_Float_Handler,
 		},
 		{
-			MethodName: "OptFloat32",
-			Handler:    _Body_OptFloat32_Handler,
+			MethodName: "OptFloat",
+			Handler:    _Body_OptFloat_Handler,
 		},
 		{
-			MethodName: "RepFloat32",
-			Handler:    _Body_RepFloat32_Handler,
+			MethodName: "RepFloat",
+			Handler:    _Body_RepFloat_Handler,
 		},
 		{
-			MethodName: "WrapFloat32",
-			Handler:    _Body_WrapFloat32_Handler,
+			MethodName: "WrapFloat",
+			Handler:    _Body_WrapFloat_Handler,
 		},
 		{
-			MethodName: "Float64",
-			Handler:    _Body_Float64_Handler,
+			MethodName: "Double",
+			Handler:    _Body_Double_Handler,
 		},
 		{
-			MethodName: "OptFloat64",
-			Handler:    _Body_OptFloat64_Handler,
+			MethodName: "OptDouble",
+			Handler:    _Body_OptDouble_Handler,
 		},
 		{
-			MethodName: "RepFloat64",
-			Handler:    _Body_RepFloat64_Handler,
+			MethodName: "RepDouble",
+			Handler:    _Body_RepDouble_Handler,
 		},
 		{
-			MethodName: "WrapFloat64",
-			Handler:    _Body_WrapFloat64_Handler,
+			MethodName: "WrapDouble",
+			Handler:    _Body_WrapDouble_Handler,
 		},
 		{
 			MethodName: "String",
@@ -2783,6 +3443,82 @@ var Body_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Body_DurationRequest_Handler,
 		},
 		{
+			MethodName: "OptWrapDoubleRequest",
+			Handler:    _Body_OptWrapDoubleRequest_Handler,
+		},
+		{
+			MethodName: "OptWrapFloatRequest",
+			Handler:    _Body_OptWrapFloatRequest_Handler,
+		},
+		{
+			MethodName: "OptWrapInt64Request",
+			Handler:    _Body_OptWrapInt64Request_Handler,
+		},
+		{
+			MethodName: "OptWrapUint64Request",
+			Handler:    _Body_OptWrapUint64Request_Handler,
+		},
+		{
+			MethodName: "OptWrapInt32Request",
+			Handler:    _Body_OptWrapInt32Request_Handler,
+		},
+		{
+			MethodName: "OptWrapUint32Request",
+			Handler:    _Body_OptWrapUint32Request_Handler,
+		},
+		{
+			MethodName: "OptWrapBoolRequest",
+			Handler:    _Body_OptWrapBoolRequest_Handler,
+		},
+		{
+			MethodName: "OptWrapStringRequest",
+			Handler:    _Body_OptWrapStringRequest_Handler,
+		},
+		{
+			MethodName: "OptWrapBytesRequest",
+			Handler:    _Body_OptWrapBytesRequest_Handler,
+		},
+		{
+			MethodName: "RepWrapDoubleRequest",
+			Handler:    _Body_RepWrapDoubleRequest_Handler,
+		},
+		{
+			MethodName: "RepWrapFloatRequest",
+			Handler:    _Body_RepWrapFloatRequest_Handler,
+		},
+		{
+			MethodName: "RepWrapInt64Request",
+			Handler:    _Body_RepWrapInt64Request_Handler,
+		},
+		{
+			MethodName: "RepWrapUint64Request",
+			Handler:    _Body_RepWrapUint64Request_Handler,
+		},
+		{
+			MethodName: "RepWrapInt32Request",
+			Handler:    _Body_RepWrapInt32Request_Handler,
+		},
+		{
+			MethodName: "RepWrapUint32Request",
+			Handler:    _Body_RepWrapUint32Request_Handler,
+		},
+		{
+			MethodName: "RepWrapBoolRequest",
+			Handler:    _Body_RepWrapBoolRequest_Handler,
+		},
+		{
+			MethodName: "RepWrapStringRequest",
+			Handler:    _Body_RepWrapStringRequest_Handler,
+		},
+		{
+			MethodName: "RepWrapBytesRequest",
+			Handler:    _Body_RepWrapBytesRequest_Handler,
+		},
+		{
+			MethodName: "UserRequest",
+			Handler:    _Body_UserRequest_Handler,
+		},
+		{
 			MethodName: "WrapDoubleBody",
 			Handler:    _Body_WrapDoubleBody_Handler,
 		},
@@ -2845,6 +3581,10 @@ var Body_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DurationBody",
 			Handler:    _Body_DurationBody_Handler,
+		},
+		{
+			MethodName: "UserBody",
+			Handler:    _Body_UserBody_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

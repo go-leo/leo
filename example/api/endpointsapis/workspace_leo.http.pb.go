@@ -5,6 +5,7 @@ package endpointsapis
 import (
 	bytes "bytes"
 	context "context"
+	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
@@ -31,7 +32,8 @@ func NewWorkspacesHTTPServer(
 	opts ...http.ServerOption,
 ) http1.Handler {
 	router := mux.NewRouter()
-	router.Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").
 		Methods("GET").
 		Path("/v1/projects/{project}/locations/{location}/workspaces").
 		Handler(http.NewServer(
@@ -64,7 +66,8 @@ func NewWorkspacesHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").
 		Methods("GET").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").
 		Handler(http.NewServer(
@@ -90,7 +93,8 @@ func NewWorkspacesHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").
 		Methods("POST").
 		Path("/v1/projects/{project}/locations/{location}/workspaces").
 		Handler(http.NewServer(
@@ -123,7 +127,8 @@ func NewWorkspacesHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").
 		Methods("PATCH").
 		Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").
 		Handler(http.NewServer(
@@ -162,7 +167,8 @@ func NewWorkspacesHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").
 		Methods("DELETE").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").
 		Handler(http.NewServer(
@@ -251,15 +257,25 @@ func NewWorkspacesHTTPClient(
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
-	router.Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").
+		Methods("GET").
 		Path("/v1/projects/{project}/locations/{location}/workspaces")
-	router.Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").
+		Methods("GET").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
-	router.Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").
+		Methods("POST").
 		Path("/v1/projects/{project}/locations/{location}/workspaces")
-	router.Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").
+		Methods("PATCH").
 		Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}")
-	router.Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").
+		Methods("DELETE").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
 	return &httpWorkspacesClient{
 		listWorkspaces: endpointx.Chain(
@@ -270,22 +286,19 @@ func NewWorkspacesHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// parent
-					// projects/%s/locations/%s
-					// project.location
 					namedPathParameter := req.Parent
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3])
-					path, err := router.Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").URLPath(pairs...)
+					path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -310,22 +323,19 @@ func NewWorkspacesHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// name
-					// projects/%s/locations/%s/workspaces/%s
-					// project.location.workspac
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 6 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "workspac", namedPathValues[5])
-					path, err := router.Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").URLPath(pairs...)
+					path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -350,27 +360,26 @@ func NewWorkspacesHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Workspace)
-					if err != nil {
-						return nil, err
+					if req.Workspace != nil {
+						data, err := protojson.Marshal(req.Workspace)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					// parent
-					// projects/%s/locations/%s
-					// project.location
 					namedPathParameter := req.Parent
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3])
-					path, err := router.Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").URLPath(pairs...)
+					path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -395,27 +404,26 @@ func NewWorkspacesHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PATCH"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req.Workspace)
-					if err != nil {
-						return nil, err
+					if req.Workspace != nil {
+						data, err := protojson.Marshal(req.Workspace)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					// name
-					// projects/%s/locations/%s/Workspaces/%s
-					// project.location.Workspac
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 6 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "Workspac", namedPathValues[5])
-					path, err := router.Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").URLPath(pairs...)
+					path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -440,22 +448,19 @@ func NewWorkspacesHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "DELETE"
 					var url string
 					var body io.Reader
 					var pairs []string
-					// name
-					// projects/%s/locations/%s/workspaces/%s
-					// project.location.workspac
 					namedPathParameter := req.Name
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 6 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "workspac", namedPathValues[5])
-					path, err := router.Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").URLPath(pairs...)
+					path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}

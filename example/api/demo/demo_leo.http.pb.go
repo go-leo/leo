@@ -5,6 +5,7 @@ package demo
 import (
 	bytes "bytes"
 	context "context"
+	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
@@ -41,7 +42,8 @@ func NewDemoServiceHTTPServer(
 	opts ...http.ServerOption,
 ) http1.Handler {
 	router := mux.NewRouter()
-	router.Name("/leo.example.demo.v1.DemoService/CreateUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/CreateUser").
 		Methods("POST").
 		Path("/v1/user").
 		Handler(http.NewServer(
@@ -72,7 +74,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/UpdateUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UpdateUser").
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -109,7 +112,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/GetUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/GetUser").
 		Methods("GET").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -378,7 +382,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/GetUsers").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/GetUsers").
 		Methods("GET").
 		Path("/v1/users").
 		Handler(http.NewServer(
@@ -413,7 +418,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/DeleteUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/DeleteUser").
 		Methods("DELETE").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -443,7 +449,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UpdateUserName").
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -478,7 +485,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/UploadUsers").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UploadUsers").
 		Methods("POST").
 		Path("/v1/users").
 		Handler(http.NewServer(
@@ -506,7 +514,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -540,7 +549,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/PushUsers").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/PushUsers").
 		Methods("POST").
 		Path("/v1/users/push").
 		Handler(http.NewServer(
@@ -576,7 +586,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
 		Methods("POST").
 		Path("/v1/user{user_id}/push").
 		Handler(http.NewServer(
@@ -618,7 +629,8 @@ func NewDemoServiceHTTPServer(
 			},
 			opts...,
 		))
-	router.Name("/leo.example.demo.v1.DemoService/ModifyUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/ModifyUser").
 		Methods("PUT").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
@@ -1014,27 +1026,49 @@ func NewDemoServiceHTTPClient(
 	ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
-	router.Name("/leo.example.demo.v1.DemoService/CreateUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/CreateUser").
+		Methods("POST").
 		Path("/v1/user")
-	router.Name("/leo.example.demo.v1.DemoService/UpdateUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UpdateUser").
+		Methods("POST").
 		Path("/v1/user/{user_id}")
-	router.Name("/leo.example.demo.v1.DemoService/GetUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/GetUser").
+		Methods("GET").
 		Path("/v1/user/{user_id}")
-	router.Name("/leo.example.demo.v1.DemoService/GetUsers").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/GetUsers").
+		Methods("GET").
 		Path("/v1/users")
-	router.Name("/leo.example.demo.v1.DemoService/DeleteUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/DeleteUser").
+		Methods("DELETE").
 		Path("/v1/user/{user_id}")
-	router.Name("/leo.example.demo.v1.DemoService/UpdateUserName").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UpdateUserName").
+		Methods("POST").
 		Path("/v1/user/{user_id}")
-	router.Name("/leo.example.demo.v1.DemoService/UploadUsers").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UploadUsers").
+		Methods("POST").
 		Path("/v1/users")
-	router.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
+		Methods("POST").
 		Path("/v1/user/{user_id}")
-	router.Name("/leo.example.demo.v1.DemoService/PushUsers").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/PushUsers").
+		Methods("POST").
 		Path("/v1/users/push")
-	router.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
+		Methods("POST").
 		Path("/v1/user{user_id}/push")
-	router.Name("/leo.example.demo.v1.DemoService/ModifyUser").
+	router.NewRoute().
+		Name("/leo.example.demo.v1.DemoService/ModifyUser").
+		Methods("PUT").
 		Path("/v1/user/{user_id}")
 	return &httpDemoServiceClient{
 		createUser: endpointx.Chain(
@@ -1045,18 +1079,20 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/CreateUser").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.DemoService/CreateUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1081,18 +1117,21 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
-					data, err := protojson.Marshal(req)
-					if err != nil {
-						return nil, err
+					if req != nil {
+						data, err := protojson.Marshal(req)
+						if err != nil {
+							return nil, err
+						}
+						body = bytes.NewBuffer(data)
 					}
-					body = bytes.NewBuffer(data)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/UpdateUser").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/UpdateUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1117,13 +1156,14 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/GetUser").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/GetUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1148,13 +1188,13 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "GET"
 					var url string
 					var body io.Reader
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/GetUsers").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.DemoService/GetUsers").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1179,13 +1219,14 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "DELETE"
 					var url string
 					var body io.Reader
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/DeleteUser").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/DeleteUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1210,14 +1251,15 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
 					var body io.Reader
 					body = strings.NewReader(req.Name)
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/UpdateUserName").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/UpdateUserName").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1242,7 +1284,7 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
@@ -1251,7 +1293,7 @@ func NewDemoServiceHTTPClient(
 						body = bytes.NewReader(req.Data)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/UploadUsers").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.DemoService/UploadUsers").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1276,7 +1318,7 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
@@ -1285,7 +1327,8 @@ func NewDemoServiceHTTPClient(
 						body = bytes.NewReader(req.Avatar.Data)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/UploadUserAvatar").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1310,7 +1353,7 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
@@ -1319,7 +1362,7 @@ func NewDemoServiceHTTPClient(
 						body = bytes.NewReader(req.Body)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/PushUsers").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.DemoService/PushUsers").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1344,7 +1387,7 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "POST"
 					var url string
@@ -1353,7 +1396,8 @@ func NewDemoServiceHTTPClient(
 						body = bytes.NewReader(req.Avatar.Body)
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/PushUserAvatar").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/PushUserAvatar").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -1378,7 +1422,7 @@ func NewDemoServiceHTTPClient(
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					if req == nil {
-						return nil, fmt.Errorf("request object is nil")
+						return nil, errors.New("request object is nil")
 					}
 					var method = "PUT"
 					var url string
@@ -1387,7 +1431,8 @@ func NewDemoServiceHTTPClient(
 						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
 					}
 					var pairs []string
-					path, err := router.Name("/leo.example.demo.v1.DemoService/ModifyUser").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10), "user_id", strconv.FormatUint(req.UserId, 10))
+					path, err := router.Get("/leo.example.demo.v1.DemoService/ModifyUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}

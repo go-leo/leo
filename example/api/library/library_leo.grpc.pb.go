@@ -6,7 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	endpointx "github.com/go-leo/kitx/endpointx"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )

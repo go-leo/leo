@@ -6,7 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	endpointx "github.com/go-leo/kitx/endpointx"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -530,7 +530,7 @@ func NewPathGRPCClient(
 		namedPathString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"NamedPathString",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -541,7 +541,7 @@ func NewPathGRPCClient(
 		namedPathOptString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"NamedPathOptString",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -552,7 +552,7 @@ func NewPathGRPCClient(
 		namedPathWrapString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"NamedPathWrapString",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -563,7 +563,7 @@ func NewPathGRPCClient(
 		embedNamedPathString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"EmbedNamedPathString",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -574,7 +574,7 @@ func NewPathGRPCClient(
 		embedNamedPathOptString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"EmbedNamedPathOptString",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -585,7 +585,7 @@ func NewPathGRPCClient(
 		embedNamedPathWrapString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"EmbedNamedPathWrapString",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -596,7 +596,7 @@ func NewPathGRPCClient(
 		boolPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"BoolPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -607,7 +607,7 @@ func NewPathGRPCClient(
 		int32Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"Int32Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -618,7 +618,7 @@ func NewPathGRPCClient(
 		int64Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"Int64Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -629,7 +629,7 @@ func NewPathGRPCClient(
 		uint32Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"Uint32Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -640,7 +640,7 @@ func NewPathGRPCClient(
 		uint64Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"Uint64Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -651,7 +651,7 @@ func NewPathGRPCClient(
 		floatPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"FloatPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -662,7 +662,7 @@ func NewPathGRPCClient(
 		doublePath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"DoublePath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -673,7 +673,7 @@ func NewPathGRPCClient(
 		stringPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"StringPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -684,7 +684,7 @@ func NewPathGRPCClient(
 		enumPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"EnumPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -695,7 +695,7 @@ func NewPathGRPCClient(
 		timePath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"TimePath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -706,7 +706,7 @@ func NewPathGRPCClient(
 		mixPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
-				"leo.example.demo.v1.Path",
+				"leo.example.path.v1.Path",
 				"MixPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },

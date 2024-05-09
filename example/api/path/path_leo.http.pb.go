@@ -46,7 +46,7 @@ func NewPathHTTPServer(
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/NamedPathString").
+		Name("/leo.example.path.v1.Path/NamedPathString").
 		Methods("GET").
 		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -76,7 +76,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/NamedPathOptString").
+		Name("/leo.example.path.v1.Path/NamedPathOptString").
 		Methods("GET").
 		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -106,7 +106,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/NamedPathWrapString").
+		Name("/leo.example.path.v1.Path/NamedPathWrapString").
 		Methods("GET").
 		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -136,7 +136,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedNamedPathString").
+		Name("/leo.example.path.v1.Path/EmbedNamedPathString").
 		Methods("GET").
 		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -166,7 +166,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedNamedPathOptString").
+		Name("/leo.example.path.v1.Path/EmbedNamedPathOptString").
 		Methods("GET").
 		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -196,7 +196,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedNamedPathWrapString").
+		Name("/leo.example.path.v1.Path/EmbedNamedPathWrapString").
 		Methods("GET").
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -226,7 +226,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/BoolPath").
+		Name("/leo.example.path.v1.Path/BoolPath").
 		Methods("GET").
 		Path("/v1/{bool}/{opt_bool}/{wrap_bool}").
 		Handler(http.NewServer(
@@ -429,7 +429,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Int32Path").
+		Name("/leo.example.path.v1.Path/Int32Path").
 		Methods("GET").
 		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").
 		Handler(http.NewServer(
@@ -632,7 +632,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Int64Path").
+		Name("/leo.example.path.v1.Path/Int64Path").
 		Methods("GET").
 		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").
 		Handler(http.NewServer(
@@ -835,7 +835,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Uint32Path").
+		Name("/leo.example.path.v1.Path/Uint32Path").
 		Methods("GET").
 		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}").
 		Handler(http.NewServer(
@@ -1038,7 +1038,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Uint64Path").
+		Name("/leo.example.path.v1.Path/Uint64Path").
 		Methods("GET").
 		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}").
 		Handler(http.NewServer(
@@ -1241,7 +1241,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/FloatPath").
+		Name("/leo.example.path.v1.Path/FloatPath").
 		Methods("GET").
 		Path("/v1/{float}/{opt_float}/{wrap_float}").
 		Handler(http.NewServer(
@@ -1444,7 +1444,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/DoublePath").
+		Name("/leo.example.path.v1.Path/DoublePath").
 		Methods("GET").
 		Path("/v1/{double}/{opt_double}/{wrap_double}").
 		Handler(http.NewServer(
@@ -1647,7 +1647,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/StringPath").
+		Name("/leo.example.path.v1.Path/StringPath").
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}").
 		Handler(http.NewServer(
@@ -1850,7 +1850,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EnumPath").
+		Name("/leo.example.path.v1.Path/EnumPath").
 		Methods("GET").
 		Path("/v1/{status}/{opt_status}").
 		Handler(http.NewServer(
@@ -2053,7 +2053,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/TimePath").
+		Name("/leo.example.path.v1.Path/TimePath").
 		Methods("GET").
 		Path("/v1/{timestamp}/{duration}").
 		Handler(http.NewServer(
@@ -2256,7 +2256,7 @@ func NewPathHTTPServer(
 			opts...,
 		))
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/MixPath").
+		Name("/leo.example.path.v1.Path/MixPath").
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
@@ -2472,71 +2472,71 @@ func NewPathHTTPClient(
 } {
 	router := mux.NewRouter()
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/NamedPathString").
+		Name("/leo.example.path.v1.Path/NamedPathString").
 		Methods("GET").
 		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/NamedPathOptString").
+		Name("/leo.example.path.v1.Path/NamedPathOptString").
 		Methods("GET").
 		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/NamedPathWrapString").
+		Name("/leo.example.path.v1.Path/NamedPathWrapString").
 		Methods("GET").
 		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedNamedPathString").
+		Name("/leo.example.path.v1.Path/EmbedNamedPathString").
 		Methods("GET").
 		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedNamedPathOptString").
+		Name("/leo.example.path.v1.Path/EmbedNamedPathOptString").
 		Methods("GET").
 		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EmbedNamedPathWrapString").
+		Name("/leo.example.path.v1.Path/EmbedNamedPathWrapString").
 		Methods("GET").
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/BoolPath").
+		Name("/leo.example.path.v1.Path/BoolPath").
 		Methods("GET").
 		Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Int32Path").
+		Name("/leo.example.path.v1.Path/Int32Path").
 		Methods("GET").
 		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Int64Path").
+		Name("/leo.example.path.v1.Path/Int64Path").
 		Methods("GET").
 		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Uint32Path").
+		Name("/leo.example.path.v1.Path/Uint32Path").
 		Methods("GET").
 		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/Uint64Path").
+		Name("/leo.example.path.v1.Path/Uint64Path").
 		Methods("GET").
 		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/FloatPath").
+		Name("/leo.example.path.v1.Path/FloatPath").
 		Methods("GET").
 		Path("/v1/{float}/{opt_float}/{wrap_float}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/DoublePath").
+		Name("/leo.example.path.v1.Path/DoublePath").
 		Methods("GET").
 		Path("/v1/{double}/{opt_double}/{wrap_double}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/StringPath").
+		Name("/leo.example.path.v1.Path/StringPath").
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/EnumPath").
+		Name("/leo.example.path.v1.Path/EnumPath").
 		Methods("GET").
 		Path("/v1/{status}/{opt_status}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/TimePath").
+		Name("/leo.example.path.v1.Path/TimePath").
 		Methods("GET").
 		Path("/v1/{timestamp}/{duration}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.Path/MixPath").
+		Name("/leo.example.path.v1.Path/MixPath").
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &httpPathClient{
@@ -2560,7 +2560,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/NamedPathString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/NamedPathString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2597,7 +2597,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/NamedPathOptString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/NamedPathOptString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2634,7 +2634,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/NamedPathWrapString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/NamedPathWrapString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2674,7 +2674,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/EmbedNamedPathString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/EmbedNamedPathString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2714,7 +2714,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/EmbedNamedPathOptString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/EmbedNamedPathOptString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2754,7 +2754,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.demo.v1.Path/EmbedNamedPathWrapString").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/EmbedNamedPathWrapString").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2792,7 +2792,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapBool")
 					}
 					pairs = append(pairs, "bool", strconv.FormatBool(req.Bool), "opt_bool", strconv.FormatBool(*req.OptBool), "wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					path, err := router.Get("/leo.example.demo.v1.Path/BoolPath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/BoolPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2836,7 +2836,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapInt32")
 					}
 					pairs = append(pairs, "int32", strconv.FormatInt(int64(req.Int32), 10), "int32", strconv.FormatInt(int64(req.Int32), 10), "sint32", strconv.FormatInt(int64(req.Sint32), 10), "sint32", strconv.FormatInt(int64(req.Sint32), 10), "sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10), "sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10), "opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10), "opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10), "opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10), "opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10), "opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10), "opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10), "wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					path, err := router.Get("/leo.example.demo.v1.Path/Int32Path").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/Int32Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2880,7 +2880,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapInt64")
 					}
 					pairs = append(pairs, "int64", strconv.FormatInt(req.Int64, 10), "int64", strconv.FormatInt(req.Int64, 10), "sint64", strconv.FormatInt(req.Sint64, 10), "sint64", strconv.FormatInt(req.Sint64, 10), "sfixed64", strconv.FormatInt(req.Sfixed64, 10), "sfixed64", strconv.FormatInt(req.Sfixed64, 10), "opt_int64", strconv.FormatInt(*req.OptInt64, 10), "opt_int64", strconv.FormatInt(*req.OptInt64, 10), "opt_sint64", strconv.FormatInt(*req.OptSint64, 10), "opt_sint64", strconv.FormatInt(*req.OptSint64, 10), "opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10), "opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10), "wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					path, err := router.Get("/leo.example.demo.v1.Path/Int64Path").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/Int64Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2921,7 +2921,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapUint32")
 					}
 					pairs = append(pairs, "uint32", strconv.FormatUint(uint64(req.Uint32), 10), "uint32", strconv.FormatUint(uint64(req.Uint32), 10), "fixed32", strconv.FormatUint(uint64(req.Fixed32), 10), "fixed32", strconv.FormatUint(uint64(req.Fixed32), 10), "opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10), "opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10), "opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10), "opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10), "wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					path, err := router.Get("/leo.example.demo.v1.Path/Uint32Path").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/Uint32Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -2962,7 +2962,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapUint64")
 					}
 					pairs = append(pairs, "uint64", strconv.FormatUint(req.Uint64, 10), "uint64", strconv.FormatUint(req.Uint64, 10), "fixed64", strconv.FormatUint(req.Fixed64, 10), "fixed64", strconv.FormatUint(req.Fixed64, 10), "opt_uint64", strconv.FormatUint(*req.OptUint64, 10), "opt_uint64", strconv.FormatUint(*req.OptUint64, 10), "opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10), "opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10), "wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					path, err := router.Get("/leo.example.demo.v1.Path/Uint64Path").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/Uint64Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -3000,7 +3000,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapFloat")
 					}
 					pairs = append(pairs, "float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32), "float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32), "opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32), "opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32), "wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					path, err := router.Get("/leo.example.demo.v1.Path/FloatPath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/FloatPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -3038,7 +3038,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapDouble")
 					}
 					pairs = append(pairs, "double", strconv.FormatFloat(req.Double, 'f', -1, 64), "double", strconv.FormatFloat(req.Double, 'f', -1, 64), "opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64), "opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64), "wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					path, err := router.Get("/leo.example.demo.v1.Path/DoublePath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/DoublePath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -3076,7 +3076,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapString")
 					}
 					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
-					path, err := router.Get("/leo.example.demo.v1.Path/StringPath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/StringPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -3111,7 +3111,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.OptStatus")
 					}
 					pairs = append(pairs, "status", strconv.FormatInt(int64(req.Status), 10), "opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					path, err := router.Get("/leo.example.demo.v1.Path/EnumPath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/EnumPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -3149,7 +3149,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.Duration")
 					}
 					pairs = append(pairs, "timestamp", req.Timestamp.AsTime().Format(time.RFC3339), "duration", req.Duration.AsDuration().String())
-					path, err := router.Get("/leo.example.demo.v1.Path/TimePath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/TimePath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
@@ -3196,7 +3196,7 @@ func NewPathHTTPClient(
 						return nil, fmt.Errorf("%s is nil", "req.WrapString")
 					}
 					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
-					path, err := router.Get("/leo.example.demo.v1.Path/MixPath").URLPath(pairs...)
+					path, err := router.Get("/leo.example.path.v1.Path/MixPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}

@@ -1,6 +1,6 @@
 syntax = "proto3";
-package leo.example.body.v1;
-option go_package = "github.com/go-leo/leo/example/api/body/v1;body";
+package leo.example.query.v1;
+option go_package = "github.com/go-leo/leo/example/api/query/v1;query";
 
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
@@ -11,7 +11,7 @@ import "google/protobuf/struct.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-service Body {
+service Query {
   rpc Bool (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/bool"
@@ -238,28 +238,28 @@ service Body {
   }
 
 
-  rpc Float (BodyRequest) returns (google.protobuf.Empty) {
+  rpc Float32 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/float"
       body : "float"
     };
   }
 
-  rpc OptFloat (BodyRequest) returns (google.protobuf.Empty) {
+  rpc OptFloat32 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/opt_float"
       body : "opt_float"
     };
   }
 
-  rpc RepFloat (BodyRequest) returns (google.protobuf.Empty) {
+  rpc RepFloat32 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/rep_float"
       body : "rep_float"
     };
   }
 
-  rpc WrapFloat (BodyRequest) returns (google.protobuf.Empty) {
+  rpc WrapFloat32 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/wrap_float"
       body : "wrap_float"
@@ -267,28 +267,28 @@ service Body {
   }
 
 
-  rpc Double (BodyRequest) returns (google.protobuf.Empty) {
+  rpc Float64 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/double"
       body : "double"
     };
   }
 
-  rpc OptDouble (BodyRequest) returns (google.protobuf.Empty) {
+  rpc OptFloat64 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/opt_double"
       body : "opt_double"
     };
   }
 
-  rpc RepDouble (BodyRequest) returns (google.protobuf.Empty) {
+  rpc RepFloat64 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/rep_double"
       body : "rep_double"
     };
   }
 
-  rpc WrapDouble (BodyRequest) returns (google.protobuf.Empty) {
+  rpc WrapFloat64 (BodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/wrap_double"
       body : "wrap_double"
@@ -428,139 +428,6 @@ service Body {
     };
   }
 
-  rpc OptWrapDoubleRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_double"
-      body : "opt_wrap_double"
-    };
-  }
-
-  rpc OptWrapFloatRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_float"
-      body : "opt_wrap_float"
-    };
-  }
-
-  rpc OptWrapInt64Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_int64"
-      body : "opt_wrap_int64"
-    };
-  }
-
-  rpc OptWrapUint64Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_uint64"
-      body : "opt_wrap_uint64"
-    };
-  }
-
-  rpc OptWrapInt32Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_int32"
-      body : "opt_wrap_int32"
-    };
-  }
-
-  rpc OptWrapUint32Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_uint32"
-      body : "opt_wrap_uint32"
-    };
-  }
-
-  rpc OptWrapBoolRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_bool"
-      body : "opt_wrap_bool"
-    };
-  }
-
-  rpc OptWrapStringRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_string"
-      body : "opt_wrap_string"
-    };
-  }
-
-  rpc OptWrapBytesRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/opt_wrap_bytes"
-      body : "opt_wrap_bytes"
-    };
-  }
-
-  rpc RepWrapDoubleRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_double"
-      body : "rep_wrap_double"
-    };
-  }
-
-  rpc RepWrapFloatRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_float"
-      body : "rep_wrap_float"
-    };
-  }
-
-  rpc RepWrapInt64Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_int64"
-      body : "rep_wrap_int64"
-    };
-  }
-
-  rpc RepWrapUint64Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_uint64"
-      body : "rep_wrap_uint64"
-    };
-  }
-
-  rpc RepWrapInt32Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_int32"
-      body : "rep_wrap_int32"
-    };
-  }
-
-  rpc RepWrapUint32Request (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_uint32"
-      body : "rep_wrap_uint32"
-    };
-  }
-
-  rpc RepWrapBoolRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_bool"
-      body : "rep_wrap_bool"
-    };
-  }
-
-  rpc RepWrapStringRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_string"
-      body : "rep_wrap_string"
-    };
-  }
-
-  rpc RepWrapBytesRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/rep_wrap_bytes"
-      body : "rep_wrap_bytes"
-    };
-  }
-
-  rpc UserRequest (BodyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/user"
-      body : "user"
-    };
-  }
-
   rpc WrapDoubleBody (google.protobuf.DoubleValue) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/v1/wrap_double_body"
@@ -672,13 +539,6 @@ service Body {
       body : "*"
     };
   }
-
-  rpc UserBody (User) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/user_body"
-      body : "*"
-    };
-  }
 }
 
 message BodyRequest {
@@ -762,35 +622,4 @@ message BodyRequest {
 
   google.protobuf.Timestamp timestamp = 77;
   google.protobuf.Duration duration = 78;
-
-
-
-  optional google.protobuf.DoubleValue opt_wrap_double = 79;
-  optional google.protobuf.FloatValue opt_wrap_float = 80;
-  optional google.protobuf.Int64Value opt_wrap_int64 = 81;
-  optional google.protobuf.UInt64Value opt_wrap_uint64 = 82;
-  optional google.protobuf.Int32Value opt_wrap_int32 = 83;
-  optional google.protobuf.UInt32Value opt_wrap_uint32 = 84;
-  optional google.protobuf.BoolValue opt_wrap_bool = 85;
-  optional google.protobuf.StringValue opt_wrap_string = 86;
-  optional google.protobuf.BytesValue opt_wrap_bytes = 87;
-
-  repeated google.protobuf.DoubleValue rep_wrap_double = 88;
-  repeated google.protobuf.FloatValue rep_wrap_float = 89;
-  repeated google.protobuf.Int64Value rep_wrap_int64 = 90;
-  repeated google.protobuf.UInt64Value rep_wrap_uint64 = 91;
-  repeated google.protobuf.Int32Value rep_wrap_int32 = 92;
-  repeated google.protobuf.UInt32Value rep_wrap_uint32 = 93;
-  repeated google.protobuf.BoolValue rep_wrap_bool = 94;
-  repeated google.protobuf.StringValue rep_wrap_string = 95;
-  repeated google.protobuf.BytesValue rep_wrap_bytes = 96;
-
-  User user = 97;
-}
-
-message User {
-  string name = 1;
-  string email = 2;
-  string phone = 3;
-  string address = 4;
 }

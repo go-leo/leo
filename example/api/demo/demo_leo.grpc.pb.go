@@ -6,7 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	endpointx "github.com/go-leo/kitx/endpointx"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"

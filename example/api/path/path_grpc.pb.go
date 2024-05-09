@@ -20,23 +20,23 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Path_NamedPathString_FullMethodName          = "/leo.example.demo.v1.Path/NamedPathString"
-	Path_NamedPathOptString_FullMethodName       = "/leo.example.demo.v1.Path/NamedPathOptString"
-	Path_NamedPathWrapString_FullMethodName      = "/leo.example.demo.v1.Path/NamedPathWrapString"
-	Path_EmbedNamedPathString_FullMethodName     = "/leo.example.demo.v1.Path/EmbedNamedPathString"
-	Path_EmbedNamedPathOptString_FullMethodName  = "/leo.example.demo.v1.Path/EmbedNamedPathOptString"
-	Path_EmbedNamedPathWrapString_FullMethodName = "/leo.example.demo.v1.Path/EmbedNamedPathWrapString"
-	Path_BoolPath_FullMethodName                 = "/leo.example.demo.v1.Path/BoolPath"
-	Path_Int32Path_FullMethodName                = "/leo.example.demo.v1.Path/Int32Path"
-	Path_Int64Path_FullMethodName                = "/leo.example.demo.v1.Path/Int64Path"
-	Path_Uint32Path_FullMethodName               = "/leo.example.demo.v1.Path/Uint32Path"
-	Path_Uint64Path_FullMethodName               = "/leo.example.demo.v1.Path/Uint64Path"
-	Path_FloatPath_FullMethodName                = "/leo.example.demo.v1.Path/FloatPath"
-	Path_DoublePath_FullMethodName               = "/leo.example.demo.v1.Path/DoublePath"
-	Path_StringPath_FullMethodName               = "/leo.example.demo.v1.Path/StringPath"
-	Path_EnumPath_FullMethodName                 = "/leo.example.demo.v1.Path/EnumPath"
-	Path_TimePath_FullMethodName                 = "/leo.example.demo.v1.Path/TimePath"
-	Path_MixPath_FullMethodName                  = "/leo.example.demo.v1.Path/MixPath"
+	Path_NamedPathString_FullMethodName          = "/leo.example.path.v1.Path/NamedPathString"
+	Path_NamedPathOptString_FullMethodName       = "/leo.example.path.v1.Path/NamedPathOptString"
+	Path_NamedPathWrapString_FullMethodName      = "/leo.example.path.v1.Path/NamedPathWrapString"
+	Path_EmbedNamedPathString_FullMethodName     = "/leo.example.path.v1.Path/EmbedNamedPathString"
+	Path_EmbedNamedPathOptString_FullMethodName  = "/leo.example.path.v1.Path/EmbedNamedPathOptString"
+	Path_EmbedNamedPathWrapString_FullMethodName = "/leo.example.path.v1.Path/EmbedNamedPathWrapString"
+	Path_BoolPath_FullMethodName                 = "/leo.example.path.v1.Path/BoolPath"
+	Path_Int32Path_FullMethodName                = "/leo.example.path.v1.Path/Int32Path"
+	Path_Int64Path_FullMethodName                = "/leo.example.path.v1.Path/Int64Path"
+	Path_Uint32Path_FullMethodName               = "/leo.example.path.v1.Path/Uint32Path"
+	Path_Uint64Path_FullMethodName               = "/leo.example.path.v1.Path/Uint64Path"
+	Path_FloatPath_FullMethodName                = "/leo.example.path.v1.Path/FloatPath"
+	Path_DoublePath_FullMethodName               = "/leo.example.path.v1.Path/DoublePath"
+	Path_StringPath_FullMethodName               = "/leo.example.path.v1.Path/StringPath"
+	Path_EnumPath_FullMethodName                 = "/leo.example.path.v1.Path/EnumPath"
+	Path_TimePath_FullMethodName                 = "/leo.example.path.v1.Path/TimePath"
+	Path_MixPath_FullMethodName                  = "/leo.example.path.v1.Path/MixPath"
 )
 
 // PathClient is the client API for Path service.
@@ -623,7 +623,7 @@ func _Path_MixPath_Handler(srv interface{}, ctx context.Context, dec func(interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Path_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "leo.example.demo.v1.Path",
+	ServiceName: "leo.example.path.v1.Path",
 	HandlerType: (*PathServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
