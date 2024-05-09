@@ -24,6 +24,7 @@ import (
 	http2 "net/http"
 	strconv "strconv"
 	strings "strings"
+	time "time"
 )
 
 type httpBodyClient struct {
@@ -3333,11 +3334,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req.Timestamp != nil {
-						data, err := protojson.Marshal(req.Timestamp)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+						body = strings.NewReader(req.Timestamp.AsTime().Format(time.RFC3339))
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/TimestampRequest").URLPath(pairs...)
@@ -3371,11 +3368,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req.Duration != nil {
-						data, err := protojson.Marshal(req.Duration)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+						body = strings.NewReader(req.Duration.AsDuration().String())
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/DurationRequest").URLPath(pairs...)
@@ -4565,11 +4558,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req != nil {
-						data, err := protojson.Marshal(req)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+						body = strings.NewReader(req.AsTime().Format(time.RFC3339))
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/TimestampBody").URLPath(pairs...)
@@ -4603,11 +4592,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req != nil {
-						data, err := protojson.Marshal(req)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+						body = strings.NewReader(req.AsDuration().String())
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/DurationBody").URLPath(pairs...)

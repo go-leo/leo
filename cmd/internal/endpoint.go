@@ -138,24 +138,15 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		}
 
 		switch field.Desc.Kind() {
-		case protoreflect.BoolKind:
-			// bool
-		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
-			// int32
-		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
-			// uint32
-		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
-			// int64
-		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
-			// uint64
-		case protoreflect.FloatKind:
-			// float32
-		case protoreflect.DoubleKind:
-			// float64
-		case protoreflect.StringKind:
-			// string
-		case protoreflect.EnumKind:
-			// enum
+		case protoreflect.BoolKind: // bool
+		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
+		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
+		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
+		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
+		case protoreflect.FloatKind: // float32
+		case protoreflect.DoubleKind: // float64
+		case protoreflect.StringKind: // string
+		case protoreflect.EnumKind: // enum
 		case protoreflect.MessageKind:
 			message := field.Message
 			switch message.Desc.FullName() {
