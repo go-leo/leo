@@ -18,6 +18,7 @@ var (
 	HttpPackage          = protogen.GoImportPath("net/http")
 	FmtPackage           = protogen.GoImportPath("fmt")
 	ErrorsPackage        = protogen.GoImportPath("errors")
+	ErrorxPackage        = protogen.GoImportPath("github.com/go-leo/gox/errorx")
 	TimePackage          = protogen.GoImportPath("time")
 	StrconvPackage       = protogen.GoImportPath("strconv")
 	ConvxPackage         = protogen.GoImportPath("github.com/go-leo/gox/convx")

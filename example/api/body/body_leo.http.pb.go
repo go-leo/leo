@@ -10,6 +10,7 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
+	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
@@ -24,7 +25,6 @@ import (
 	http2 "net/http"
 	strconv "strconv"
 	strings "strings"
-	time "time"
 )
 
 type httpBodyClient struct {
@@ -3334,7 +3334,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req.Timestamp != nil {
-						body = strings.NewReader(req.Timestamp.AsTime().Format(time.RFC3339))
+						body = strings.NewReader(string(errorx.Ignore(protojson.Marshal(req.Timestamp))))
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/TimestampRequest").URLPath(pairs...)
@@ -3368,7 +3368,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req.Duration != nil {
-						body = strings.NewReader(req.Duration.AsDuration().String())
+						body = strings.NewReader(string(errorx.Ignore(protojson.Marshal(req.Duration))))
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/DurationRequest").URLPath(pairs...)
@@ -4558,7 +4558,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req != nil {
-						body = strings.NewReader(req.AsTime().Format(time.RFC3339))
+						body = strings.NewReader(string(errorx.Ignore(protojson.Marshal(req))))
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/TimestampBody").URLPath(pairs...)
@@ -4592,7 +4592,7 @@ func NewBodyHTTPClient(
 					var url string
 					var body io.Reader
 					if req != nil {
-						body = strings.NewReader(req.AsDuration().String())
+						body = strings.NewReader(string(errorx.Ignore(protojson.Marshal(req))))
 					}
 					var pairs []string
 					path, err := router.Get("/leo.example.body.v1.Body/DurationBody").URLPath(pairs...)

@@ -8,14 +8,15 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
 	strconv "strconv"
 	strings "strings"
-	time "time"
 )
 
 type httpPathClient struct {
@@ -875,7 +876,7 @@ func NewPathHTTPClient(
 					if req.Duration == nil {
 						return nil, fmt.Errorf("%s is nil", "req.Duration")
 					}
-					pairs = append(pairs, "timestamp", req.Timestamp.AsTime().Format(time.RFC3339), "duration", req.Duration.AsDuration().String())
+					pairs = append(pairs, "timestamp", string(errorx.Ignore(protojson.Marshal(req.Timestamp))), "duration", string(errorx.Ignore(protojson.Marshal(req.Duration))))
 					path, err := router.Get("/leo.example.path.v1.Path/TimePath").URLPath(pairs...)
 					if err != nil {
 						return nil, err

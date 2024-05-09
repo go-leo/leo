@@ -1088,11 +1088,11 @@ func (f *Generator) WrapDoubleFormat(srcValue []any) []any {
 }
 
 func (f *Generator) TimestampFormat(srcValue []any) []any {
-	return append(append([]any{}, srcValue...), []any{".AsTime().Format(", internal.TimePackage.Ident("RFC3339"), ")"}...)
+	return append(append([]any{"string(", internal.ErrorxPackage.Ident("Ignore"), "(", internal.ProtoJsonPackage.Ident("Marshal"), "("}, srcValue...), []any{")))"}...)
 }
 
 func (f *Generator) DurationFormat(srcValue []any) []any {
-	return append(append([]any{}, srcValue...), []any{".AsDuration().String()"}...)
+	return append(append([]any{"string(", internal.ErrorxPackage.Ident("Ignore"), "(", internal.ProtoJsonPackage.Ident("Marshal"), "("}, srcValue...), []any{")))"}...)
 }
 
 func (f *Generator) PrintDecodeResponseFunc(generatedFile *protogen.GeneratedFile) error {
