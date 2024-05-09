@@ -8,8 +8,10 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -30,6 +32,7 @@ func (c *httpQueryClient) Query(ctx context.Context, request *QueryRequest) (*em
 }
 
 func NewQueryHTTPClient(
+	scheme string,
 	instance string,
 	mdw []endpoint.Middleware,
 	opts ...http.ClientOption,
@@ -161,11 +164,74 @@ func NewQueryHTTPClient(
 					if req.WrapDouble == nil {
 						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
 					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
 					if req.OptWrapDouble == nil {
 						queries.Add("opt_wrap_double", strconv.FormatFloat(req.OptWrapDouble.Value, 'f', -1, 64))
 					}
+					if req.OptWrapFloat == nil {
+						queries.Add("opt_wrap_float", strconv.FormatFloat(float64(req.OptWrapFloat.Value), 'f', -1, 32))
+					}
+					if req.OptWrapInt64 == nil {
+						queries.Add("opt_wrap_int64", strconv.FormatInt(req.OptWrapInt64.Value, 10))
+					}
+					if req.OptWrapUint64 == nil {
+						queries.Add("opt_wrap_uint64", strconv.FormatUint(req.OptWrapUint64.Value, 10))
+					}
+					if req.OptWrapInt32 == nil {
+						queries.Add("opt_wrap_int32", strconv.FormatInt(int64(req.OptWrapInt32.Value), 10))
+					}
+					if req.OptWrapUint32 == nil {
+						queries.Add("opt_wrap_uint32", strconv.FormatUint(uint64(req.OptWrapUint32.Value), 10))
+					}
+					if req.OptWrapBool == nil {
+						queries.Add("opt_wrap_bool", strconv.FormatBool(req.OptWrapBool.Value))
+					}
+					if req.OptWrapString == nil {
+						queries.Add("opt_wrap_string", req.OptWrapString.Value)
+					}
 					for _, item := range req.RepWrapDouble {
 						queries.Add("rep_wrap_double", strconv.FormatFloat(item.Value, 'f', -1, 64))
+					}
+					for _, item := range req.RepWrapFloat {
+						queries.Add("rep_wrap_float", strconv.FormatFloat(float64(item.Value), 'f', -1, 32))
+					}
+					for _, item := range req.RepWrapInt64 {
+						queries.Add("rep_wrap_int64", strconv.FormatInt(item.Value, 10))
+					}
+					for _, item := range req.RepWrapUint64 {
+						queries.Add("rep_wrap_uint64", strconv.FormatUint(item.Value, 10))
+					}
+					for _, item := range req.RepWrapInt32 {
+						queries.Add("rep_wrap_int32", strconv.FormatInt(int64(item.Value), 10))
+					}
+					for _, item := range req.RepWrapUint32 {
+						queries.Add("rep_wrap_uint32", strconv.FormatUint(uint64(item.Value), 10))
+					}
+					for _, item := range req.RepWrapBool {
+						queries.Add("rep_wrap_bool", strconv.FormatBool(item.Value))
+					}
+					for _, item := range req.RepWrapString {
+						queries.Add("rep_wrap_string", item.Value)
 					}
 					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
 					if req.OptStatus == nil {
@@ -174,8 +240,19 @@ func NewQueryHTTPClient(
 					for _, item := range req.RepStatus {
 						queries.Add("rep_status", strconv.FormatInt(int64(item), 10))
 					}
-					url := fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					if req.Timestamp == nil {
+						queries.Add("timestamp", string(errorx.Ignore(protojson.Marshal(req.Timestamp))))
+					}
+					if req.Duration == nil {
+						queries.Add("duration", string(errorx.Ignore(protojson.Marshal(req.Duration))))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, method, target.String(), body)
 					if err != nil {
 						return nil, err
 					}

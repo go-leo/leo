@@ -561,6 +561,7 @@ func (f *Generator) GenerateClient(service *internal.Service, generatedFile *pro
 
 func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
 	generatedFile.P("func New", service.HTTPClientName(), "(")
+	generatedFile.P("scheme   string,")
 	generatedFile.P("instance string,")
 	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P("opts ...", internal.HttpTransportPackage.Ident("ClientOption"), ",")
@@ -610,58 +611,25 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	generatedFile.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request object is nil"), ")")
 	generatedFile.P("}")
 	generatedFile.P("var method = ", strconv.Quote(httpRule.Method()))
-	//path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-	generatedFile.P("var body ", internal.IOPackage.Ident("Reader"))
-	_ = httpRule
 	bodyMessage, bodyField, namedPathFields, pathFields, queryFields, err := endpoint.ParseParameters()
 	if err != nil {
 		return err
 	}
 
+	generatedFile.P("var body ", internal.IOPackage.Ident("Reader"))
 	if bodyMessage != nil {
 		message := bodyMessage
 		srcValue := []any{"req"}
 		f.PrintMessageBody(generatedFile, message, srcValue, false, false, false)
 	} else if bodyField != nil {
-		if err := f.PrintFieldBody(generatedFile, bodyField); err != nil {
+		if err := f.PrintBodyField(generatedFile, bodyField); err != nil {
 			return err
 		}
 	}
-	_ = pathFields
-	_ = queryFields
 
 	generatedFile.P("var pairs []string")
-	for i, namedPathField := range namedPathFields {
-		fullFieldName := internal.FullFieldName(namedPathFields[:i+1])
-		if i < len(namedPathFields)-1 {
-			generatedFile.P("if req.", fullFieldName, " == nil {")
-			generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("%s is nil"), ", ", strconv.Quote("req."+fullFieldName), ")")
-			generatedFile.P("}")
-		} else {
-			_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
-			switch namedPathField.Desc.Kind() {
-			case protoreflect.StringKind:
-				if namedPathField.Desc.HasOptionalKeyword() {
-					generatedFile.P("namedPathParameter := *req.", fullFieldName)
-				} else {
-					generatedFile.P("namedPathParameter := req.", fullFieldName)
-				}
-			case protoreflect.MessageKind:
-				generatedFile.P("namedPathParameter := req.", fullFieldName, ".Value")
-			}
-
-			generatedFile.P("namedPathValues := ", internal.StringsPackage.Ident("Split"), "(namedPathParameter, ", strconv.Quote("/"), ")")
-			generatedFile.P("if len(namedPathValues) != ", strconv.Itoa(len(namedPathParameters)*2), " {")
-			generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
-			generatedFile.P("}")
-
-			pairs := []any{"pairs = append(pairs"}
-			for i, parameter := range namedPathParameters {
-				pairs = append(pairs, ",", strconv.Quote(parameter), ",", fmt.Sprintf("namedPathValues[%d]", i*2+1))
-			}
-			pairs = append(pairs, ")")
-			generatedFile.P(pairs...)
-		}
+	for i := range namedPathFields {
+		f.PrintNamedPathField(generatedFile, namedPathFields, i, httpRule)
 	}
 
 	if len(pathFields) > 0 {
@@ -689,94 +657,21 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
 
-	var queryOnce sync.Once
-	for _, field := range queryFields {
-		queryOnce.Do(func() {
-			generatedFile.P("queries := ", internal.UrlPackage.Ident("Values"), "{}")
-		})
-		srcValue := []any{"req.", field.GoName}
-		isOptional := field.Desc.HasOptionalKeyword()
-		fieldName := string(field.Desc.Name())
-		switch field.Desc.Kind() {
-		case protoreflect.BoolKind: // bool
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.BoolKindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.BoolKindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.Int32KindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Int32KindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.Uint32KindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Uint32KindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.Int64KindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Int64KindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.Uint64KindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Uint64KindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.FloatKind: // float32
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.FloatKindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.FloatKindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.DoubleKind: // float64
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.DoubleKindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.DoubleKindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.StringKind: // string
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.StringKindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.StringKindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.EnumKind: // enum
-			if field.Desc.IsList() {
-				f.PrintQueryList(generatedFile, field, srcValue, f.Int32KindFormat([]any{"item"}, false))
-			} else {
-				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Int32KindFormat(srcValue, isOptional), isOptional)
-			}
-		case protoreflect.MessageKind:
-			message := field.Message
-			switch message.Desc.FullName() {
-			case "google.protobuf.DoubleValue":
-				if field.Desc.IsList() {
-					f.PrintQueryList(generatedFile, field, srcValue, f.WrapDoubleFormat([]any{"item"}))
-				} else {
-					f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapDoubleFormat(srcValue), true)
-				}
-			case "google.protobuf.FloatValue":
-			case "google.protobuf.Int64Value":
-			case "google.protobuf.UInt64Value":
-			case "google.protobuf.Int32Value":
-			case "google.protobuf.UInt32Value":
-			case "google.protobuf.BoolValue":
-			case "google.protobuf.StringValue":
-			case "google.protobuf.Timestamp":
-			case "google.protobuf.Duration":
-			}
+	generatedFile.P("queries := ", internal.UrlPackage.Ident("Values"), "{}")
+	if len(queryFields) > 0 {
+		for _, field := range queryFields {
+			f.PrintQueryField(generatedFile, field)
 		}
 	}
 
-	generatedFile.P("url := ", internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote("%s://%s%s"), ", ", strconv.Quote("http"), ", instance, path)")
+	generatedFile.P("target := &", internal.UrlPackage.Ident("URL"), "{")
+	generatedFile.P("Scheme:   scheme,")
+	generatedFile.P("Host:     instance,")
+	generatedFile.P("Path:     path.Path,")
+	generatedFile.P("RawQuery: queries.Encode(),")
+	generatedFile.P("}")
 
-	generatedFile.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, method, url, body)")
+	generatedFile.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, method, target.String(), body)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
@@ -784,6 +679,166 @@ func (f *Generator) PrintEncodeRequestFunc(generatedFile *protogen.GeneratedFile
 	generatedFile.P("return r, nil")
 	generatedFile.P("},")
 	return nil
+}
+
+func (f *Generator) PrintNamedPathField(generatedFile *protogen.GeneratedFile, namedPathFields []*protogen.Field, fieldIndex int, httpRule *internal.HttpRule) {
+	namedPathField := namedPathFields[fieldIndex]
+	fullFieldName := internal.FullFieldName(namedPathFields[:fieldIndex+1])
+	if fieldIndex < len(namedPathFields)-1 {
+		generatedFile.P("if req.", fullFieldName, " == nil {")
+		generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("%s is nil"), ", ", strconv.Quote("req."+fullFieldName), ")")
+		generatedFile.P("}")
+	} else {
+		_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
+		switch namedPathField.Desc.Kind() {
+		case protoreflect.StringKind:
+			if namedPathField.Desc.HasOptionalKeyword() {
+				generatedFile.P("namedPathParameter := *req.", fullFieldName)
+			} else {
+				generatedFile.P("namedPathParameter := req.", fullFieldName)
+			}
+		case protoreflect.MessageKind:
+			generatedFile.P("namedPathParameter := req.", fullFieldName, ".Value")
+		}
+
+		generatedFile.P("namedPathValues := ", internal.StringsPackage.Ident("Split"), "(namedPathParameter, ", strconv.Quote("/"), ")")
+		generatedFile.P("if len(namedPathValues) != ", strconv.Itoa(len(namedPathParameters)*2), " {")
+		generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
+		generatedFile.P("}")
+
+		pairs := []any{"pairs = append(pairs"}
+		for i, parameter := range namedPathParameters {
+			pairs = append(pairs, ",", strconv.Quote(parameter), ",", fmt.Sprintf("namedPathValues[%d]", i*2+1))
+		}
+		pairs = append(pairs, ")")
+		generatedFile.P(pairs...)
+	}
+}
+
+func (f *Generator) PrintQueryField(generatedFile *protogen.GeneratedFile, field *protogen.Field) {
+	srcValue := []any{"req.", field.GoName}
+	isOptional := field.Desc.HasOptionalKeyword()
+	fieldName := string(field.Desc.Name())
+	switch field.Desc.Kind() {
+	case protoreflect.BoolKind: // bool
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.BoolKindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.BoolKindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.Int32KindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Int32KindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.Uint32KindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Uint32KindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.Int64KindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Int64KindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.Uint64KindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Uint64KindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.FloatKind: // float32
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.FloatKindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.FloatKindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.DoubleKind: // float64
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.DoubleKindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.DoubleKindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.StringKind: // string
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.StringKindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.StringKindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.EnumKind: // enum
+		if field.Desc.IsList() {
+			f.PrintQueryList(generatedFile, fieldName, srcValue, f.Int32KindFormat([]any{"item"}, false))
+		} else {
+			f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.Int32KindFormat(srcValue, isOptional), isOptional)
+		}
+	case protoreflect.MessageKind:
+		message := field.Message
+		switch message.Desc.FullName() {
+		case "google.protobuf.DoubleValue":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapDoubleFormat([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapDoubleFormat(srcValue), true)
+			}
+		case "google.protobuf.FloatValue":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapFloatFormat([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapFloatFormat(srcValue), true)
+			}
+		case "google.protobuf.Int64Value":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapInt64Format([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapInt64Format(srcValue), true)
+			}
+		case "google.protobuf.UInt64Value":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapUint64Format([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapUint64Format(srcValue), true)
+			}
+		case "google.protobuf.Int32Value":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapInt32Format([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapInt32Format(srcValue), true)
+			}
+		case "google.protobuf.UInt32Value":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapUint32Format([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapUint32Format(srcValue), true)
+			}
+		case "google.protobuf.BoolValue":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapBoolFormat([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapBoolFormat(srcValue), true)
+			}
+		case "google.protobuf.StringValue":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.WrapStringFormat([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.WrapStringFormat(srcValue), true)
+			}
+		case "google.protobuf.Timestamp":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.TimestampFormat([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.TimestampFormat(srcValue), true)
+			}
+		case "google.protobuf.Duration":
+			if field.Desc.IsList() {
+				f.PrintQueryList(generatedFile, fieldName, srcValue, f.DurationFormat([]any{"item"}))
+			} else {
+				f.PrintQueryOptional(generatedFile, fieldName, srcValue, f.DurationFormat(srcValue), true)
+			}
+		}
+	}
 }
 
 func (f *Generator) PrintQueryOptional(generatedFile *protogen.GeneratedFile, fieldName string, srcValue []any, format []any, isOptional bool) {
@@ -796,9 +851,9 @@ func (f *Generator) PrintQueryOptional(generatedFile *protogen.GeneratedFile, fi
 	}
 }
 
-func (f *Generator) PrintQueryList(generatedFile *protogen.GeneratedFile, field *protogen.Field, srcValue []any, format []any) {
+func (f *Generator) PrintQueryList(generatedFile *protogen.GeneratedFile, fieldName string, srcValue []any, format []any) {
 	generatedFile.P(append(append([]any{"for _, item := range "}, srcValue...), "{")...)
-	generatedFile.P(append(append([]any{"queries.Add(", strconv.Quote(string(field.Desc.Name())), ", "}, format...), []any{")"}...)...)
+	generatedFile.P(append(append([]any{"queries.Add(", strconv.Quote(fieldName), ", "}, format...), []any{")"}...)...)
 	generatedFile.P("}")
 }
 
@@ -854,7 +909,7 @@ func (f *Generator) PathFieldFormat(field *protogen.Field) []any {
 	return nil
 }
 
-func (f *Generator) PrintFieldBody(generatedFile *protogen.GeneratedFile, field *protogen.Field) error {
+func (f *Generator) PrintBodyField(generatedFile *protogen.GeneratedFile, field *protogen.Field) error {
 	srcValue := []any{"req.", field.GoName}
 	isList := field.Desc.IsList()
 	isMap := field.Desc.IsMap()
