@@ -4,12 +4,7 @@ option go_package = "github.com/go-leo/leo/example/api/path/v1;path";
 
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
-import "google/api/httpbody.proto";
-import "google/rpc/http.proto";
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/struct.proto";
-import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
 
 service Path {
   rpc NamedPathString (NamedPathRequest) returns (google.protobuf.Empty) {
@@ -102,12 +97,6 @@ service Path {
     };
   }
 
-  rpc TimePath (PathRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      get : "/v1/{timestamp}/{duration}"
-    };
-  }
-
   rpc MixPath (MixPathRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       get : "/v1/{string}/{opt_string}/{wrap_string}/{embed.wrap_string=classes/*/shelves/*/books/*/families/*}"
@@ -178,9 +167,6 @@ message PathRequest {
   }
   Status status = 68;
   optional Status opt_status = 69;
-
-  google.protobuf.Timestamp timestamp = 77;
-  google.protobuf.Duration duration = 78;
 
 }
 

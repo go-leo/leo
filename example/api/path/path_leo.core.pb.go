@@ -25,7 +25,6 @@ type pathEndpoints struct {
 		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 	}
 }
@@ -120,12 +119,6 @@ func (e *pathEndpoints) EnumPath() endpoint.Endpoint {
 	}
 }
 
-func (e *pathEndpoints) TimePath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.TimePath(ctx, request.(*PathRequest))
-	}
-}
-
 func (e *pathEndpoints) MixPath() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
 		return e.svc.MixPath(ctx, request.(*MixPathRequest))
@@ -149,7 +142,6 @@ func NewpathEndpoints(
 		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 	},
 ) interface {
@@ -168,7 +160,6 @@ func NewpathEndpoints(
 	DoublePath() endpoint.Endpoint
 	StringPath() endpoint.Endpoint
 	EnumPath() endpoint.Endpoint
-	TimePath() endpoint.Endpoint
 	MixPath() endpoint.Endpoint
 } {
 	return &pathEndpoints{svc: svc}

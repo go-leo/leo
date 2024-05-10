@@ -35,7 +35,6 @@ const (
 	Path_DoublePath_FullMethodName               = "/leo.example.path.v1.Path/DoublePath"
 	Path_StringPath_FullMethodName               = "/leo.example.path.v1.Path/StringPath"
 	Path_EnumPath_FullMethodName                 = "/leo.example.path.v1.Path/EnumPath"
-	Path_TimePath_FullMethodName                 = "/leo.example.path.v1.Path/TimePath"
 	Path_MixPath_FullMethodName                  = "/leo.example.path.v1.Path/MixPath"
 )
 
@@ -58,7 +57,6 @@ type PathClient interface {
 	DoublePath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StringPath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EnumPath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	TimePath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MixPath(ctx context.Context, in *MixPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -205,15 +203,6 @@ func (c *pathClient) EnumPath(ctx context.Context, in *PathRequest, opts ...grpc
 	return out, nil
 }
 
-func (c *pathClient) TimePath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_TimePath_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *pathClient) MixPath(ctx context.Context, in *MixPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Path_MixPath_FullMethodName, in, out, opts...)
@@ -242,7 +231,6 @@ type PathServer interface {
 	DoublePath(context.Context, *PathRequest) (*emptypb.Empty, error)
 	StringPath(context.Context, *PathRequest) (*emptypb.Empty, error)
 	EnumPath(context.Context, *PathRequest) (*emptypb.Empty, error)
-	TimePath(context.Context, *PathRequest) (*emptypb.Empty, error)
 	MixPath(context.Context, *MixPathRequest) (*emptypb.Empty, error)
 }
 
@@ -294,9 +282,6 @@ func (UnimplementedPathServer) StringPath(context.Context, *PathRequest) (*empty
 }
 func (UnimplementedPathServer) EnumPath(context.Context, *PathRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EnumPath not implemented")
-}
-func (UnimplementedPathServer) TimePath(context.Context, *PathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TimePath not implemented")
 }
 func (UnimplementedPathServer) MixPath(context.Context, *MixPathRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MixPath not implemented")
@@ -583,24 +568,6 @@ func _Path_EnumPath_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Path_TimePath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).TimePath(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_TimePath_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).TimePath(ctx, req.(*PathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Path_MixPath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MixPathRequest)
 	if err := dec(in); err != nil {
@@ -685,10 +652,6 @@ var Path_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EnumPath",
 			Handler:    _Path_EnumPath_Handler,
-		},
-		{
-			MethodName: "TimePath",
-			Handler:    _Path_TimePath_Handler,
 		},
 		{
 			MethodName: "MixPath",

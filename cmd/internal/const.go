@@ -37,3 +37,8 @@ var (
 	namedPathPattern = regexp.MustCompile("{([^{}]+)=([^{}]+)}")
 	pathPattern      = regexp.MustCompile("{([^=}]+)}")
 )
+
+var (
+	ContentTypeKey  = "Content-Type"
+	JsonContentType = "application/json; charset=utf-8"
+)

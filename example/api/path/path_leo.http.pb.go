@@ -8,18 +8,17 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
-	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
-	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
+	url "net/url"
 	strconv "strconv"
 	strings "strings"
 )
 
-type httpPathClient struct {
+type pathHTTPClient struct {
 	namedPathString          endpoint.Endpoint
 	namedPathOptString       endpoint.Endpoint
 	namedPathWrapString      endpoint.Endpoint
@@ -35,11 +34,10 @@ type httpPathClient struct {
 	doublePath               endpoint.Endpoint
 	stringPath               endpoint.Endpoint
 	enumPath                 endpoint.Endpoint
-	timePath                 endpoint.Endpoint
 	mixPath                  endpoint.Endpoint
 }
 
-func (c *httpPathClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.namedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -47,7 +45,7 @@ func (c *httpPathClient) NamedPathString(ctx context.Context, request *NamedPath
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.namedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -55,7 +53,7 @@ func (c *httpPathClient) NamedPathOptString(ctx context.Context, request *NamedP
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.namedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -63,7 +61,7 @@ func (c *httpPathClient) NamedPathWrapString(ctx context.Context, request *Named
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.embedNamedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -71,7 +69,7 @@ func (c *httpPathClient) EmbedNamedPathString(ctx context.Context, request *Embe
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.embedNamedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -79,7 +77,7 @@ func (c *httpPathClient) EmbedNamedPathOptString(ctx context.Context, request *E
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.embedNamedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -87,7 +85,7 @@ func (c *httpPathClient) EmbedNamedPathWrapString(ctx context.Context, request *
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.boolPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -95,7 +93,7 @@ func (c *httpPathClient) BoolPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.int32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -103,7 +101,7 @@ func (c *httpPathClient) Int32Path(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.int64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -111,7 +109,7 @@ func (c *httpPathClient) Int64Path(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.uint32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -119,7 +117,7 @@ func (c *httpPathClient) Uint32Path(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.uint64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -127,7 +125,7 @@ func (c *httpPathClient) Uint64Path(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.floatPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -135,7 +133,7 @@ func (c *httpPathClient) FloatPath(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.doublePath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -143,7 +141,7 @@ func (c *httpPathClient) DoublePath(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.stringPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -151,7 +149,7 @@ func (c *httpPathClient) StringPath(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.enumPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -159,15 +157,7 @@ func (c *httpPathClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpPathClient) TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	rep, err := c.timePath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *httpPathClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+func (c *pathHTTPClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.mixPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -176,6 +166,7 @@ func (c *httpPathClient) MixPath(ctx context.Context, request *MixPathRequest) (
 }
 
 func NewPathHTTPClient(
+	scheme string,
 	instance string,
 	mdw []endpoint.Middleware,
 	opts ...http.ClientOption,
@@ -195,7 +186,6 @@ func NewPathHTTPClient(
 	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
@@ -260,26 +250,21 @@ func NewPathHTTPClient(
 		Methods("GET").
 		Path("/v1/{status}/{opt_status}")
 	router.NewRoute().
-		Name("/leo.example.path.v1.Path/TimePath").
-		Methods("GET").
-		Path("/v1/{timestamp}/{duration}")
-	router.NewRoute().
 		Name("/leo.example.path.v1.Path/MixPath").
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	return &httpPathClient{
+	return &pathHTTPClient{
 		namedPathString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*NamedPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					namedPathParameter := req.String_
@@ -292,11 +277,20 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -311,15 +305,14 @@ func NewPathHTTPClient(
 		namedPathOptString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*NamedPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					namedPathParameter := *req.OptString
@@ -332,11 +325,18 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// stringString_ string
-					// wrap_stringWrapString message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("string", req.String_)
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -351,15 +351,14 @@ func NewPathHTTPClient(
 		namedPathWrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*NamedPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					namedPathParameter := req.WrapString.Value
@@ -372,11 +371,18 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// stringString_ string
-					// opt_stringOptString string
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -391,15 +397,14 @@ func NewPathHTTPClient(
 		embedNamedPathString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*EmbedNamedPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.Embed == nil {
@@ -415,8 +420,14 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -431,15 +442,14 @@ func NewPathHTTPClient(
 		embedNamedPathOptString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*EmbedNamedPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.Embed == nil {
@@ -455,8 +465,14 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -471,15 +487,14 @@ func NewPathHTTPClient(
 		embedNamedPathWrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*EmbedNamedPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.Embed == nil {
@@ -495,8 +510,14 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -511,15 +532,14 @@ func NewPathHTTPClient(
 		boolPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptBool == nil {
@@ -533,46 +553,91 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -587,15 +652,14 @@ func NewPathHTTPClient(
 		int32Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptInt32 == nil {
@@ -615,42 +679,83 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -665,15 +770,14 @@ func NewPathHTTPClient(
 		int64Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptInt64 == nil {
@@ -693,42 +797,83 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -743,15 +888,14 @@ func NewPathHTTPClient(
 		uint32Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptUint32 == nil {
@@ -768,44 +912,87 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -820,15 +1007,14 @@ func NewPathHTTPClient(
 		uint64Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptUint64 == nil {
@@ -845,44 +1031,87 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -897,15 +1126,14 @@ func NewPathHTTPClient(
 		floatPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptFloat == nil {
@@ -919,46 +1147,91 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -973,15 +1246,14 @@ func NewPathHTTPClient(
 		doublePath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptDouble == nil {
@@ -995,46 +1267,91 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -1049,15 +1366,14 @@ func NewPathHTTPClient(
 		stringPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptString == nil {
@@ -1071,46 +1387,91 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
+					}
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					}
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
+					}
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
+					}
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
+					}
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					}
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
+					if req.OptStatus == nil {
+						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -1125,15 +1486,14 @@ func NewPathHTTPClient(
 		enumPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*PathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.OptStatus == nil {
@@ -1144,124 +1504,94 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// timestampTimestamp message
-					// durationDuration message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
+					queries := url.Values{}
+					queries.Add("bool", strconv.FormatBool(req.Bool))
+					if req.OptBool == nil {
+						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
 					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		timePath: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					req, ok := obj.(*PathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					if req.WrapBool == nil {
+						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
+					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
+					if req.OptInt32 == nil {
+						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
 					}
-					var method = "GET"
-					var url string
-					var body io.Reader
-					var pairs []string
-					if req.Timestamp == nil {
-						return nil, fmt.Errorf("%s is nil", "req.Timestamp")
+					if req.OptSint32 == nil {
+						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
 					}
-					if req.Duration == nil {
-						return nil, fmt.Errorf("%s is nil", "req.Duration")
+					if req.OptSfixed32 == nil {
+						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
 					}
-					pairs = append(pairs, "timestamp", string(errorx.Ignore(protojson.Marshal(req.Timestamp))), "duration", string(errorx.Ignore(protojson.Marshal(req.Duration))))
-					path, err := router.Get("/leo.example.path.v1.Path/TimePath").URLPath(pairs...)
-					if err != nil {
-						return nil, err
+					if req.WrapInt32 == nil {
+						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
 					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// opt_boolOptBool bool
-					// wrap_boolWrapBool message
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// sfixed32Sfixed32 sfixed32
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_sfixed32OptSfixed32 sfixed32
-					// wrap_int32WrapInt32 message
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// sfixed64Sfixed64 sfixed64
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_sfixed64OptSfixed64 sfixed64
-					// wrap_int64WrapInt64 message
-					// uint32Uint32 uint32
-					// fixed32Fixed32 fixed32
-					// opt_uint32OptUint32 uint32
-					// opt_fixed32OptFixed32 fixed32
-					// wrap_uint32WrapUint32 message
-					// uint64Uint64 uint64
-					// fixed64Fixed64 fixed64
-					// opt_uint64OptUint64 uint64
-					// opt_fixed64OptFixed64 fixed64
-					// wrap_uint64WrapUint64 message
-					// floatFloat float
-					// opt_floatOptFloat float
-					// wrap_floatWrapFloat message
-					// doubleDouble double
-					// opt_doubleOptDouble double
-					// wrap_doubleWrapDouble message
-					// stringString_ string
-					// opt_stringOptString string
-					// wrap_stringWrapString message
-					// statusStatus enum
-					// opt_statusOptStatus enum
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
+					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
+					if req.OptInt64 == nil {
+						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
+					}
+					if req.OptSint64 == nil {
+						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
+					}
+					if req.OptSfixed64 == nil {
+						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
+					}
+					if req.WrapInt64 == nil {
+						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					}
+					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
+					if req.OptUint32 == nil {
+						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
+					}
+					if req.OptFixed32 == nil {
+						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
+					}
+					if req.WrapUint32 == nil {
+						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					}
+					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
+					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
+					if req.OptUint64 == nil {
+						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
+					}
+					if req.OptFixed64 == nil {
+						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
+					}
+					if req.WrapUint64 == nil {
+						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					}
+					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
+					if req.OptFloat == nil {
+						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
+					}
+					if req.WrapFloat == nil {
+						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					}
+					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
+					if req.OptDouble == nil {
+						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
+					}
+					if req.WrapDouble == nil {
+						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					}
+					queries.Add("string", req.String_)
+					if req.OptString == nil {
+						queries.Add("opt_string", *req.OptString)
+					}
+					if req.WrapString == nil {
+						queries.Add("wrap_string", req.WrapString.Value)
+					}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -1276,15 +1606,14 @@ func NewPathHTTPClient(
 		mixPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*MixPathRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
 					if req.Embed == nil {
@@ -1307,8 +1636,14 @@ func NewPathHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}

@@ -8,10 +8,8 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
-	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
-	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -19,11 +17,11 @@ import (
 	strconv "strconv"
 )
 
-type httpQueryClient struct {
+type queryHTTPClient struct {
 	query endpoint.Endpoint
 }
 
-func (c *httpQueryClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+func (c *queryHTTPClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
 	rep, err := c.query(ctx, request)
 	if err != nil {
 		return nil, err
@@ -44,18 +42,18 @@ func NewQueryHTTPClient(
 		Name("/leo.example.query.v1.Query/Query").
 		Methods("GET").
 		Path("/v1/query")
-	return &httpQueryClient{
+	return &queryHTTPClient{
 		query: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*QueryRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
+					_ = req
 					var body io.Reader
 					var pairs []string
 					path, err := router.Get("/leo.example.query.v1.Query/Query").URLPath(pairs...)
@@ -240,19 +238,13 @@ func NewQueryHTTPClient(
 					for _, item := range req.RepStatus {
 						queries.Add("rep_status", strconv.FormatInt(int64(item), 10))
 					}
-					if req.Timestamp == nil {
-						queries.Add("timestamp", string(errorx.Ignore(protojson.Marshal(req.Timestamp))))
-					}
-					if req.Duration == nil {
-						queries.Add("duration", string(errorx.Ignore(protojson.Marshal(req.Duration))))
-					}
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
 						Path:     path.Path,
 						RawQuery: queries.Encode(),
 					}
-					r, err := http1.NewRequestWithContext(ctx, method, target.String(), body)
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}

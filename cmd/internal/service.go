@@ -18,48 +18,62 @@ func (s Service) Name() string {
 }
 
 func (s Service) UnexportedName() string {
-	name := s.Service.GoName
+	name := s.Name()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) ServerName() interface{} {
+func (s Service) ServerName() string {
 	return s.Name() + "Server"
 }
 
-func (s Service) GRPCServerName() interface{} {
+func (s Service) UnexportedServerName() string {
+	name := s.ServerName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) ClientName() string {
+	return s.Name() + "Client"
+}
+
+func (s Service) UnexportedClientName() string {
+	name := s.ClientName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) GRPCServerName() string {
 	return s.Name() + "GRPCServer"
 }
 
-func (s Service) GRPCClientName() interface{} {
+func (s Service) UnexportedGRPCServerName() string {
+	name := s.GRPCServerName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) GRPCClientName() string {
 	return s.Name() + "GRPCClient"
 }
 
-func (s Service) HTTPServerName() interface{} {
+func (s Service) UnexportedGRPCClientName() string {
+	name := s.GRPCClientName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) HTTPServerName() string {
 	return s.Name() + "HTTPServer"
 }
 
-func (s Service) HTTPClientName() interface{} {
+func (s Service) UnexportedHTTPServerName() string {
+	name := s.HTTPServerName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) HTTPClientName() string {
 	return s.Name() + "HTTPClient"
 }
 
-func (s Service) UnexportedGRPCServerName() interface{} {
-	return "gRPC" + s.Name() + "Server"
-}
-
-func (s Service) UnexportedGRPCClientName() interface{} {
-	return "gRPC" + s.Name() + "Client"
-}
-
-func (s Service) UnexportedHTTPServerName() interface{} {
-	return "http" + s.Name() + "Server"
-}
-
-func (s Service) UnexportedHTTPClientName() interface{} {
-	return "http" + s.Name() + "Client"
-}
-
-func (s Service) UnexportedGRPCEndpointsName() interface{} {
-	return "gRPC" + s.Name() + "Endpoints"
+func (s Service) UnexportedHTTPClientName() string {
+	name := s.HTTPClientName()
+	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) UnimplementedServerName() string {
@@ -70,12 +84,13 @@ func (s Service) FullName() string {
 	return string(s.Service.Desc.FullName())
 }
 
-func (s Service) EndpointsName() interface{} {
+func (s Service) EndpointsName() string {
 	return s.UnexportedName() + "Endpoints"
 }
 
-func (s Service) UnexportedEndpointsName() interface{} {
-	return s.UnexportedName() + "Endpoints"
+func (s Service) UnexportedEndpointsName() string {
+	name := s.EndpointsName()
+	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {

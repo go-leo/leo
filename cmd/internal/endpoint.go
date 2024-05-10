@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-leo/gox/slicex"
 	"golang.org/x/exp/slices"
@@ -20,13 +21,13 @@ func (e Endpoint) Name() string {
 	return e.method.GoName
 }
 
-func (e Endpoint) FullName() string {
-	return fmt.Sprintf("/%s/%s", e.method.Parent.Desc.FullName(), e.method.Desc.Name())
+func (e Endpoint) UnexportedName() string {
+	s := e.Name()
+	return strings.ToLower(s[:1]) + s[1:]
 }
 
-func (e Endpoint) UnexportedName() string {
-	s := e.method.GoName
-	return strings.ToLower(s[:1]) + s[1:]
+func (e Endpoint) FullName() string {
+	return fmt.Sprintf("/%s/%s", e.method.Parent.Desc.FullName(), e.method.Desc.Name())
 }
 
 func (e Endpoint) ArgsName() string {
@@ -93,6 +94,9 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		if bodyField == nil {
 			return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find body field %s", e.FullName(), bodyParameter)
 		}
+		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.rpc.HttpRequest" {
+			return nil, nil, nil, nil, nil, errors.New("google.rpc.HttpRequest can only be used as input to a method")
+		}
 	}
 
 	// namedPathParameters
@@ -158,8 +162,6 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 			case "google.protobuf.UInt32Value":
 			case "google.protobuf.BoolValue":
 			case "google.protobuf.StringValue":
-			case "google.protobuf.Timestamp":
-			case "google.protobuf.Duration":
 			default:
 				return nil, nil, nil, nil, nil, fmt.Errorf("%s, path parameters do not support %s", e.FullName(), message.Desc.FullName())
 			}
@@ -188,7 +190,7 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 			continue
 		}
 		if field.Desc.IsMap() {
-			return nil, nil, nil, nil, nil, fmt.Errorf("%s, query parameters do not support map", e.FullName())
+			continue
 		}
 		switch field.Desc.Kind() {
 		case protoreflect.BoolKind: // bool
@@ -211,13 +213,11 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 			case "google.protobuf.UInt32Value":
 			case "google.protobuf.BoolValue":
 			case "google.protobuf.StringValue":
-			case "google.protobuf.Timestamp":
-			case "google.protobuf.Duration":
 			default:
-				return nil, nil, nil, nil, nil, fmt.Errorf("%s, query parameters do not support %s", e.FullName(), message.Desc.FullName())
+				continue
 			}
 		default:
-			return nil, nil, nil, nil, nil, fmt.Errorf("%s, query parameters do not support %s", e.FullName(), field.Desc.Kind())
+			continue
 		}
 		queryFields = append(queryFields, field)
 	}

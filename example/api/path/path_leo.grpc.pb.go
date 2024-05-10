@@ -11,7 +11,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type gRPCPathServer struct {
+type pathGRPCServer struct {
 	namedPathString grpc.Handler
 
 	namedPathOptString grpc.Handler
@@ -42,12 +42,10 @@ type gRPCPathServer struct {
 
 	enumPath grpc.Handler
 
-	timePath grpc.Handler
-
 	mixPath grpc.Handler
 }
 
-func (s *gRPCPathServer) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.namedPathString.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -56,7 +54,7 @@ func (s *gRPCPathServer) NamedPathString(ctx context.Context, request *NamedPath
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.namedPathOptString.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -65,7 +63,7 @@ func (s *gRPCPathServer) NamedPathOptString(ctx context.Context, request *NamedP
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.namedPathWrapString.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -74,7 +72,7 @@ func (s *gRPCPathServer) NamedPathWrapString(ctx context.Context, request *Named
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.embedNamedPathString.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -83,7 +81,7 @@ func (s *gRPCPathServer) EmbedNamedPathString(ctx context.Context, request *Embe
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.embedNamedPathOptString.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -92,7 +90,7 @@ func (s *gRPCPathServer) EmbedNamedPathOptString(ctx context.Context, request *E
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.embedNamedPathWrapString.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -101,7 +99,7 @@ func (s *gRPCPathServer) EmbedNamedPathWrapString(ctx context.Context, request *
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.boolPath.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -110,7 +108,7 @@ func (s *gRPCPathServer) BoolPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.int32Path.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -119,7 +117,7 @@ func (s *gRPCPathServer) Int32Path(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.int64Path.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -128,7 +126,7 @@ func (s *gRPCPathServer) Int64Path(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.uint32Path.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -137,7 +135,7 @@ func (s *gRPCPathServer) Uint32Path(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.uint64Path.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -146,7 +144,7 @@ func (s *gRPCPathServer) Uint64Path(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.floatPath.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -155,7 +153,7 @@ func (s *gRPCPathServer) FloatPath(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.doublePath.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -164,7 +162,7 @@ func (s *gRPCPathServer) DoublePath(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.stringPath.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -173,7 +171,7 @@ func (s *gRPCPathServer) StringPath(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.enumPath.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -182,16 +180,7 @@ func (s *gRPCPathServer) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCPathServer) TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx, rep, err := s.timePath.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
-}
-
-func (s *gRPCPathServer) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+func (s *pathGRPCServer) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.mixPath.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -217,7 +206,6 @@ func NewPathGRPCServer(
 		DoublePath() endpoint.Endpoint
 		StringPath() endpoint.Endpoint
 		EnumPath() endpoint.Endpoint
-		TimePath() endpoint.Endpoint
 		MixPath() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
@@ -238,10 +226,9 @@ func NewPathGRPCServer(
 	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
-	return &gRPCPathServer{
+	return &pathGRPCServer{
 		namedPathString: grpc.NewServer(
 			endpointx.Chain(endpoints.NamedPathString(), mdw...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
@@ -332,12 +319,6 @@ func NewPathGRPCServer(
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
-		timePath: grpc.NewServer(
-			endpointx.Chain(endpoints.TimePath(), mdw...),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			opts...,
-		),
 		mixPath: grpc.NewServer(
 			endpointx.Chain(endpoints.MixPath(), mdw...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
@@ -347,7 +328,7 @@ func NewPathGRPCServer(
 	}
 }
 
-type gRPCPathClient struct {
+type pathGRPCClient struct {
 	namedPathString          endpoint.Endpoint
 	namedPathOptString       endpoint.Endpoint
 	namedPathWrapString      endpoint.Endpoint
@@ -363,11 +344,10 @@ type gRPCPathClient struct {
 	doublePath               endpoint.Endpoint
 	stringPath               endpoint.Endpoint
 	enumPath                 endpoint.Endpoint
-	timePath                 endpoint.Endpoint
 	mixPath                  endpoint.Endpoint
 }
 
-func (c *gRPCPathClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.namedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -375,7 +355,7 @@ func (c *gRPCPathClient) NamedPathString(ctx context.Context, request *NamedPath
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.namedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -383,7 +363,7 @@ func (c *gRPCPathClient) NamedPathOptString(ctx context.Context, request *NamedP
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.namedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -391,7 +371,7 @@ func (c *gRPCPathClient) NamedPathWrapString(ctx context.Context, request *Named
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.embedNamedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -399,7 +379,7 @@ func (c *gRPCPathClient) EmbedNamedPathString(ctx context.Context, request *Embe
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.embedNamedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -407,7 +387,7 @@ func (c *gRPCPathClient) EmbedNamedPathOptString(ctx context.Context, request *E
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.embedNamedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -415,7 +395,7 @@ func (c *gRPCPathClient) EmbedNamedPathWrapString(ctx context.Context, request *
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.boolPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -423,7 +403,7 @@ func (c *gRPCPathClient) BoolPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.int32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -431,7 +411,7 @@ func (c *gRPCPathClient) Int32Path(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.int64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -439,7 +419,7 @@ func (c *gRPCPathClient) Int64Path(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.uint32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -447,7 +427,7 @@ func (c *gRPCPathClient) Uint32Path(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.uint64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -455,7 +435,7 @@ func (c *gRPCPathClient) Uint64Path(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.floatPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -463,7 +443,7 @@ func (c *gRPCPathClient) FloatPath(ctx context.Context, request *PathRequest) (*
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.doublePath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -471,7 +451,7 @@ func (c *gRPCPathClient) DoublePath(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.stringPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -479,7 +459,7 @@ func (c *gRPCPathClient) StringPath(ctx context.Context, request *PathRequest) (
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
 	rep, err := c.enumPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -487,15 +467,7 @@ func (c *gRPCPathClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCPathClient) TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	rep, err := c.timePath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *gRPCPathClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+func (c *pathGRPCClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
 	rep, err := c.mixPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -523,10 +495,9 @@ func NewPathGRPCClient(
 	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	TimePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
-	return &gRPCPathClient{
+	return &pathGRPCClient{
 		namedPathString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -686,17 +657,6 @@ func NewPathGRPCClient(
 				conn,
 				"leo.example.path.v1.Path",
 				"EnumPath",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		timePath: endpointx.Chain(
-			grpc.NewClient(
-				conn,
-				"leo.example.path.v1.Path",
-				"TimePath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},

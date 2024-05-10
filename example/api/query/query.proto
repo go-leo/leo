@@ -4,12 +4,7 @@ option go_package = "github.com/go-leo/leo/example/api/query/v1;query";
 
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
-import "google/api/httpbody.proto";
-import "google/rpc/http.proto";
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/struct.proto";
-import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
 
 service Query {
   rpc Query (QueryRequest) returns (google.protobuf.Empty) {
@@ -103,8 +98,5 @@ message QueryRequest {
   Status status = 68;
   optional Status opt_status = 69;
   repeated Status rep_status = 70;
-
-  google.protobuf.Timestamp timestamp = 77;
-  google.protobuf.Duration duration = 78;
 
 }

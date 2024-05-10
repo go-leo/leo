@@ -11,11 +11,11 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type gRPCQueryServer struct {
+type queryGRPCServer struct {
 	query grpc.Handler
 }
 
-func (s *gRPCQueryServer) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+func (s *queryGRPCServer) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.query.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func NewQueryGRPCServer(
 ) interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 } {
-	return &gRPCQueryServer{
+	return &queryGRPCServer{
 		query: grpc.NewServer(
 			endpointx.Chain(endpoints.Query(), mdw...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
@@ -43,11 +43,11 @@ func NewQueryGRPCServer(
 	}
 }
 
-type gRPCQueryClient struct {
+type queryGRPCClient struct {
 	query endpoint.Endpoint
 }
 
-func (c *gRPCQueryClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+func (c *queryGRPCClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
 	rep, err := c.query(ctx, request)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func NewQueryGRPCClient(
 ) interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 } {
-	return &gRPCQueryClient{
+	return &queryGRPCClient{
 		query: endpointx.Chain(
 			grpc.NewClient(
 				conn,
