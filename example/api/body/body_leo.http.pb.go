@@ -9,16 +9,215 @@ import (
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
+	http2 "google.golang.org/genproto/googleapis/rpc/http"
+	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
-	http2 "net/http"
+	http1 "net/http"
 	url "net/url"
 )
+
+func NewBodyHTTPServer(
+	endpoints interface {
+		StarBody() endpoint.Endpoint
+		NamedBody() endpoint.Endpoint
+		NonBody() endpoint.Endpoint
+		HttpBodyStarBody() endpoint.Endpoint
+		HttpBodyNamedBody() endpoint.Endpoint
+		HttpRequestStarBody() endpoint.Endpoint
+	},
+	mdw []endpoint.Middleware,
+	opts ...http.ServerOption,
+) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().
+		Name("/leo.example.body.v1.Body/StarBody").
+		Methods("POST").
+		Path("/v1/star/body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.StarBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &User{}
+				if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.body.v1.Body/NamedBody").
+		Methods("POST").
+		Path("/v1/named/body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.NamedBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &UserRequest{}
+				if err := json.NewDecoder(r.Body).Decode(req.User); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.body.v1.Body/NonBody").
+		Methods("GET").
+		Path("/v1/user_body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.NonBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &emptypb.Empty{}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.body.v1.Body/HttpBodyStarBody").
+		Methods("PUT").
+		Path("/v1/http/body/star/body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.HttpBodyStarBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &httpbody.HttpBody{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Data = body
+				req.ContentType = r.Header.Get("Content-Type")
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.body.v1.Body/HttpBodyNamedBody").
+		Methods("PUT").
+		Path("/v1/http/body/named/body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.HttpBodyNamedBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &HttpBody{}
+				req.Body = &httpbody.HttpBody{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Body.Data = body
+				req.Body.ContentType = r.Header.Get("Content-Type")
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.body.v1.Body/HttpRequestStarBody").
+		Methods("PUT").
+		Path("/v1/http/request/star/body").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.HttpRequestStarBody(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &http2.HttpRequest{}
+				req.Method = r.Method
+				req.Uri = r.RequestURI
+				req.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
+				for key, values := range r.Header {
+					for _, value := range values {
+						req.Headers = append(req.Headers, &http2.HttpHeader{Key: key, Value: value})
+					}
+				}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Body = body
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	return router
+}
 
 type bodyHTTPClient struct {
 	starBody            endpoint.Endpoint
@@ -69,7 +268,7 @@ func (c *bodyHTTPClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *bodyHTTPClient) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
+func (c *bodyHTTPClient) HttpRequestStarBody(ctx context.Context, request *http2.HttpRequest) (*emptypb.Empty, error) {
 	rep, err := c.httpRequestStarBody(ctx, request)
 	if err != nil {
 		return nil, err
@@ -81,14 +280,14 @@ func NewBodyHTTPClient(
 	scheme string,
 	instance string,
 	mdw []endpoint.Middleware,
-	opts ...http1.ClientOption,
+	opts ...http.ClientOption,
 ) interface {
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
 	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
 	NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
 	HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
 	HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
-	HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
+	HttpRequestStarBody(ctx context.Context, request *http2.HttpRequest) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -117,8 +316,8 @@ func NewBodyHTTPClient(
 		Path("/v1/http/request/star/body")
 	return &bodyHTTPClient{
 		starBody: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					if obj == nil {
 						return nil, errors.New("request object is nil")
 					}
@@ -146,22 +345,22 @@ func NewBodyHTTPClient(
 						Path:     path.Path,
 						RawQuery: queries.Encode(),
 					}
-					r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+					r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		namedBody: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					if obj == nil {
 						return nil, errors.New("request object is nil")
 					}
@@ -189,22 +388,22 @@ func NewBodyHTTPClient(
 						Path:     path.Path,
 						RawQuery: queries.Encode(),
 					}
-					r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+					r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		nonBody: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					if obj == nil {
 						return nil, errors.New("request object is nil")
 					}
@@ -226,21 +425,21 @@ func NewBodyHTTPClient(
 						Path:     path.Path,
 						RawQuery: queries.Encode(),
 					}
-					r, err := http2.NewRequestWithContext(ctx, "GET", target.String(), body)
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		httpBodyStarBody: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					if obj == nil {
 						return nil, errors.New("request object is nil")
 					}
@@ -264,22 +463,22 @@ func NewBodyHTTPClient(
 						Path:     path.Path,
 						RawQuery: queries.Encode(),
 					}
-					r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
+					r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		httpBodyNamedBody: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					if obj == nil {
 						return nil, errors.New("request object is nil")
 					}
@@ -303,33 +502,33 @@ func NewBodyHTTPClient(
 						Path:     path.Path,
 						RawQuery: queries.Encode(),
 					}
-					r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
+					r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		httpRequestStarBody: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 					if obj == nil {
 						return nil, errors.New("request object is nil")
 					}
-					req, ok := obj.(*http.HttpRequest)
+					req, ok := obj.(*http2.HttpRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
 					_ = req
 					var body io.Reader
 					body = bytes.NewReader(req.GetBody())
-					r, err := http2.NewRequest(req.GetMethod(), req.GetUri(), body)
+					r, err := http1.NewRequestWithContext(ctx, req.GetMethod(), req.GetUri(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -338,7 +537,7 @@ func NewBodyHTTPClient(
 					}
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					return nil, nil
 				},
 				opts...,

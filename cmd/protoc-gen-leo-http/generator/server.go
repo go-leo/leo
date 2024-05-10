@@ -68,15 +68,21 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 	if bodyMessage != nil {
 		switch bodyMessage.Desc.FullName() {
 		case "google.api.HttpBody":
-			f.PrintApiFromBody(generatedFile, nil)
+			f.PrintGoogleApiHttpBodyBlock(generatedFile, []any{"req"}, []any{"r.Body"})
 		case "google.rpc.HttpRequest":
-			f.PrintRpcBody(generatedFile, nil)
+			f.PrintGoogleRpcHttpRequest(generatedFile)
+			generatedFile.P("return req, nil")
+			generatedFile.P("},")
+			return nil
 		default:
-			f.printStarBody(generatedFile)
+			f.PrintDecodeBlock(generatedFile, internal.JsonPackage.Ident("NewDecoder"), []any{"req"}, []any{"r.Body"})
 		}
 	} else if bodyField != nil {
-		if err := f.printFieldBody(generatedFile, bodyField); err != nil {
-			return err
+		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
+			generatedFile.P("req.", bodyField.GoName, " = &", bodyField.Message.GoIdent, "{}")
+			f.PrintGoogleApiHttpBodyBlock(generatedFile, []any{"req.", bodyField.GoName}, []any{"r.Body"})
+		} else {
+			f.PrintDecodeBlock(generatedFile, internal.JsonPackage.Ident("NewDecoder"), []any{"req.", bodyField.GoName}, []any{"r.Body"})
 		}
 	}
 
@@ -149,68 +155,35 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 	return nil
 }
 
-func (f *ServerGenerator) PrintApiFromBody(generatedFile *protogen.GeneratedFile, field *protogen.Field) {
-	prefix := "req."
-	if field != nil {
-		prefix = prefix + field.GoName + "."
-	}
-	generatedFile.P(prefix, "ContentType = r.Header.Get(", strconv.Quote("Content-Type"), ")")
-	generatedFile.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
+func (f *ServerGenerator) PrintDecodeBlock(generatedFile *protogen.GeneratedFile, decoder protogen.GoIdent, tgtValue []any, srcValue []any) {
+	generatedFile.P(append(append(append(append([]any{"if err := ", decoder, "("}, srcValue...), []any{").Decode("}...), tgtValue...), []any{"); err != nil {"}...)...)
+	generatedFile.P("return nil, err")
+	generatedFile.P("}")
+}
+
+func (f *ServerGenerator) PrintGoogleApiHttpBodyBlock(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
+	generatedFile.P(append(append([]any{"body, err := ", internal.IOPackage.Ident("ReadAll"), "("}, srcValue...), []any{")"}...)...)
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
-	generatedFile.P(prefix, "Data = body")
+	generatedFile.P(append(append([]any{}, tgtValue...), []any{".Data = body"}...)...)
+	generatedFile.P(append(append([]any{}, tgtValue...), []any{".ContentType = r.Header.Get(", strconv.Quote(internal.ContentTypeKey), ")"}...)...)
 }
 
-func (f *ServerGenerator) PrintRpcBody(generatedFile *protogen.GeneratedFile, field *protogen.Field) {
-	prefix := "req."
-	if field != nil {
-		prefix = prefix + field.GoName + "."
-	}
-	generatedFile.P(prefix, "Method = r.Method")
-	generatedFile.P(prefix, "Uri = r.RequestURI")
-	generatedFile.P(prefix, "Headers = make([]*", internal.RpcHttpPackage.Ident("HttpHeader"), ", 0, len(r.Header))")
+func (f *ServerGenerator) PrintGoogleRpcHttpRequest(generatedFile *protogen.GeneratedFile) {
+	generatedFile.P("req.Method = r.Method")
+	generatedFile.P("req.Uri = r.RequestURI")
+	generatedFile.P("req.Headers = make([]*", internal.RpcHttpPackage.Ident("HttpHeader"), ", 0, len(r.Header))")
 	generatedFile.P("for key, values := range r.Header {")
 	generatedFile.P("for _, value := range values {")
-	generatedFile.P(prefix, "Headers = append(", prefix, "Headers, &", internal.RpcHttpPackage.Ident("HttpHeader"), "{Key: key, Value: value})")
+	generatedFile.P("req.Headers = append(", "req.Headers, &", internal.RpcHttpPackage.Ident("HttpHeader"), "{Key: key, Value: value})")
 	generatedFile.P("}")
 	generatedFile.P("}")
 	generatedFile.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
-	generatedFile.P(prefix, "Body = body")
-}
-
-func (f *ServerGenerator) printFieldBody(generatedFile *protogen.GeneratedFile, field *protogen.Field) error {
-	message := field.Message
-	switch {
-	case message != nil && message.Desc.FullName() == "google.api.HttpBody":
-		f.PrintApiFromBody(generatedFile, field)
-	case message != nil && message.Desc.FullName() == "google.rpc.HttpRequest":
-		f.PrintRpcBody(generatedFile, field)
-	default:
-		generatedFile.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
-		generatedFile.P("if err != nil {")
-		generatedFile.P("return nil, err")
-		generatedFile.P("}")
-		left := []any{"req.", field.GoName, " = "}
-		right := []any{"string(body)"}
-		if err := f.printAssign(generatedFile, field, left, right, false); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (f *ServerGenerator) printStarBody(generatedFile *protogen.GeneratedFile) {
-	generatedFile.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return nil, err")
-	generatedFile.P("}")
-	generatedFile.P("if err := ", internal.ProtoJsonPackage.Ident("Unmarshal"), "(body, req); err != nil {")
-	generatedFile.P("return nil, err")
-	generatedFile.P("}")
+	generatedFile.P("req.Body = body")
 }
 
 func (f *ServerGenerator) printAssign(generatedFile *protogen.GeneratedFile, field *protogen.Field, left []any, right []any, isList bool) error {

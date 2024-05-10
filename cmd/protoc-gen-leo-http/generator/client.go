@@ -98,6 +98,8 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 			generatedFile.P("contentType := req.GetContentType()")
 		case "google.rpc.HttpRequest":
 			f.PrintGoogleRpcHttpRequest(generatedFile)
+			generatedFile.P("return r, nil")
+			generatedFile.P("},")
 			return nil
 		default:
 			generatedFile.P("var bodyBuf bytes.Buffer")
@@ -179,15 +181,14 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 
 func (f *ClientGenerator) PrintGoogleRpcHttpRequest(generatedFile *protogen.GeneratedFile) {
 	f.PrintReaderBlock(generatedFile, internal.BytesPackage, []any{"body"}, []any{"req.GetBody()"})
-	generatedFile.P("r, err := ", "http2.NewRequest", "(req.GetMethod(), req.GetUri(), body)")
+	generatedFile.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, req.GetMethod(), req.GetUri(), body)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
 	generatedFile.P("for _, header := range req.GetHeaders() {")
 	generatedFile.P("r.Header.Add(header.GetKey(), header.GetValue())")
 	generatedFile.P("}")
-	generatedFile.P("return r, nil")
-	generatedFile.P("},")
+
 }
 
 func (f *ClientGenerator) PrintReaderBlock(generatedFile *protogen.GeneratedFile, readerPkg protogen.GoImportPath, tgtValue []any, srcValue []any) {

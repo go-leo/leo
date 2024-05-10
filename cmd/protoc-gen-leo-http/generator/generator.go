@@ -31,11 +31,13 @@ func (f *Generator) GenerateFile() error {
 	g.P()
 	g.P("package ", file.GoPackageName)
 	g.P()
-	//for _, service := range f.Services {
-	//	if err := f.GenerateNewServer(service, g); err != nil {
-	//		return err
-	//	}
-	//}
+
+	server := ServerGenerator{}
+	for _, service := range f.Services {
+		if err := server.GenerateNewServer(service, g); err != nil {
+			return err
+		}
+	}
 
 	client := ClientGenerator{}
 	for _, service := range f.Services {
@@ -43,7 +45,6 @@ func (f *Generator) GenerateFile() error {
 			return err
 		}
 	}
-
 	for _, service := range f.Services {
 		if err := client.GenerateNewClient(service, g); err != nil {
 			return err

@@ -27,8 +27,12 @@ github.com/go-leo/cqrs v0.0.0-20240428095148-1a717d7a24c8 h1:rjaAJrcdMDNBKV9GyBS
 github.com/go-leo/cqrs v0.0.0-20240428095148-1a717d7a24c8/go.mod h1:cJ98a/Hrc88lQtA5ciolG95tcy2l5nkouTDxM4hWVuU=
 github.com/go-leo/gors v1.5.0 h1:zXllIds1Frqc6+Z3Yyw/HKseIM8XxMdb/OEnRaTQ9no=
 github.com/go-leo/gors v1.5.0/go.mod h1:xu1m2a8cIVWmDeoYgrEhkVAqgP6VSJzGttAh+HZTivc=
+github.com/go-leo/gors v1.5.2 h1:W6Y1HYk36+Xwd0izsE8x4v5QTPajvbRy95QWRQTvW7A=
+github.com/go-leo/gors v1.5.2/go.mod h1:JHR5ng77U4wupo4NQEmV9uLAW5h+sO2q9dkR2b3v2qQ=
 github.com/go-leo/gox v0.0.0-20240430082855-e7df7230ee69 h1:55CM4nwdNbGkjIOR3/r2uD8YaLmN2X/b8vdVtKe+njQ=
 github.com/go-leo/gox v0.0.0-20240430082855-e7df7230ee69/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240506071354-2e5bba83b22f h1:J52GqIVkekTHP/ugo3VsTHnvXqf4TdGOdRZK3YpHXVY=
+github.com/go-leo/gox v0.0.0-20240506071354-2e5bba83b22f/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390 h1:C36V5ogQAEExR0RQ4Z4zRrKeiu0DduyAjgKsJoCmnqM=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390/go.mod h1:8REKWY9fcExjGpS5CLc/rpBBzcxXAKzebT8gtMrfRTA=
 github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=

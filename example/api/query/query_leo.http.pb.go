@@ -8,14 +8,364 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	convx "github.com/go-leo/gox/convx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
+	protojson "google.golang.org/protobuf/encoding/protojson"
+	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	http1 "net/http"
 	url "net/url"
 	strconv "strconv"
 )
+
+func NewQueryHTTPServer(
+	endpoints interface {
+		Query() endpoint.Endpoint
+	},
+	mdw []endpoint.Middleware,
+	opts ...http.ServerOption,
+) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().
+		Name("/leo.example.query.v1.Query/Query").
+		Methods("GET").
+		Path("/v1/query").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.Query(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &QueryRequest{}
+				queries := r.URL.Query()
+				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
+					return nil, err
+				} else {
+					req.Bool = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Int32 = int32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sint32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Uint32 = uint32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Int64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sint64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Uint64 = v
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed32 = int32(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.Fixed32 = uint32(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Float = float32(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Sfixed64 = v
+				}
+				if v, err := strconv.ParseUint(queries.Get("fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.Fixed64 = v
+				}
+				if v, err := strconv.ParseFloat(queries.Get("double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.Double = v
+				}
+				req.String_ = queries.Get("string")
+				if v, err := strconv.ParseBool(queries.Get("opt_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptBool = proto.Bool(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptInt32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSint32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptUint32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptInt64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSint64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptUint64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed32 = proto.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed32 = proto.Uint32(uint32(v))
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptFloat = proto.Float32(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_sfixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptSfixed64 = proto.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_fixed64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptFixed64 = proto.Uint64(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_double"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptDouble = proto.Float64(v)
+				}
+				req.OptString = proto.String(queries.Get("opt_string"))
+				if v, err := convx.ParseBoolSlice(queries["rep_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepBool = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepInt32 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSint32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepUint32 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepInt64 = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSint64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepUint64 = v
+				}
+				if v, err := convx.ParseIntSlice[int32](queries["rep_sfixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed32 = v
+				}
+				if v, err := convx.ParseUintSlice[uint32](queries["rep_fixed32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed32 = v
+				}
+				if v, err := convx.ParseFloatSlice[float32](queries["rep_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepFloat = v
+				}
+				if v, err := convx.ParseIntSlice[int64](queries["rep_sfixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepSfixed64 = v
+				}
+				if v, err := convx.ParseUintSlice[uint64](queries["rep_fixed64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepFixed64 = v
+				}
+				if v, err := convx.ParseFloatSlice[float64](queries["rep_double"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepDouble = v
+				}
+				req.RepString = queries["rep_string"]
+				if v, err := strconv.ParseFloat(queries.Get("wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.WrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.WrapBool = wrapperspb.Bool(v)
+				}
+				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				if v, err := strconv.ParseFloat(queries.Get("opt_wrap_double"), 64); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries.Get("opt_wrap_float"), 32); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_wrap_int64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_wrap_uint64"), 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_wrap_int32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries.Get("opt_wrap_uint32"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries.Get("opt_wrap_bool")); err != nil {
+					return nil, err
+				} else {
+					req.OptWrapBool = wrapperspb.Bool(v)
+				}
+				req.OptWrapString = wrapperspb.String(queries.Get("opt_wrap_string"))
+				if v, err := strconv.ParseFloat(queries["rep_wrap_double"], 64); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapDouble = wrapperspb.Double(v)
+				}
+				if v, err := strconv.ParseFloat(queries["rep_wrap_float"], 32); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapFloat = wrapperspb.Float(float32(v))
+				}
+				if v, err := strconv.ParseInt(queries["rep_wrap_int64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapInt64 = wrapperspb.Int64(v)
+				}
+				if v, err := strconv.ParseUint(queries["rep_wrap_uint64"], 10, 64); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapUint64 = wrapperspb.UInt64(v)
+				}
+				if v, err := strconv.ParseInt(queries["rep_wrap_int32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapInt32 = wrapperspb.Int32(int32(v))
+				}
+				if v, err := strconv.ParseUint(queries["rep_wrap_uint32"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapUint32 = wrapperspb.UInt32(uint32(v))
+				}
+				if v, err := strconv.ParseBool(queries["rep_wrap_bool"]); err != nil {
+					return nil, err
+				} else {
+					req.RepWrapBool = wrapperspb.Bool(v)
+				}
+				req.RepWrapString = wrapperspb.String(queries["rep_wrap_string"])
+				// enum
+				// enum
+				// enum
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				_ = resp
+				w.WriteHeader(http1.StatusOK)
+				data, err := protojson.Marshal(resp)
+				if err != nil {
+					return err
+				}
+				if _, err := w.Write(data); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	return router
+}
 
 type queryHTTPClient struct {
 	query endpoint.Endpoint
