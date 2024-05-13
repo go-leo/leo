@@ -124,8 +124,8 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 	}
 
 	generatedFile.P("var pairs []string")
-	for i := range namedPathFields {
-		f.PrintNamedPathField(generatedFile, namedPathFields, i, httpRule)
+	if len(namedPathFields) > 0 {
+		f.PrintNamedPathField(generatedFile, namedPathFields, httpRule)
 	}
 
 	if len(pathFields) > 0 {
@@ -201,38 +201,32 @@ func (f *ClientGenerator) PrintEncodeBlock(generatedFile *protogen.GeneratedFile
 	generatedFile.P("}")
 }
 
-func (f *ClientGenerator) PrintNamedPathField(generatedFile *protogen.GeneratedFile, namedPathFields []*protogen.Field, fieldIndex int, httpRule *internal.HttpRule) {
-	namedPathField := namedPathFields[fieldIndex]
-	fullFieldName := internal.FullFieldName(namedPathFields[:fieldIndex+1])
-	if fieldIndex < len(namedPathFields)-1 {
-		generatedFile.P("if req.", fullFieldName, " == nil {")
-		generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("%s is nil"), ", ", strconv.Quote("req."+fullFieldName), ")")
-		generatedFile.P("}")
-	} else {
-		_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
-		switch namedPathField.Desc.Kind() {
-		case protoreflect.StringKind:
-			if namedPathField.Desc.HasOptionalKeyword() {
-				generatedFile.P("namedPathParameter := *req.", fullFieldName)
-			} else {
-				generatedFile.P("namedPathParameter := req.", fullFieldName)
-			}
-		case protoreflect.MessageKind:
-			generatedFile.P("namedPathParameter := req.", fullFieldName, ".Value")
+func (f *ClientGenerator) PrintNamedPathField(generatedFile *protogen.GeneratedFile, namedPathFields []*protogen.Field, httpRule *internal.HttpRule) {
+	fullFieldGetterName := internal.FullFieldGetterName(namedPathFields)
+	_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
+	lastField := namedPathFields[len(namedPathFields)-1]
+	switch lastField.Desc.Kind() {
+	case protoreflect.StringKind:
+		if lastField.Desc.HasOptionalKeyword() {
+			generatedFile.P("namedPathParameter := req.", fullFieldGetterName)
+		} else {
+			generatedFile.P("namedPathParameter := req.", fullFieldGetterName)
 		}
-
-		generatedFile.P("namedPathValues := ", internal.StringsPackage.Ident("Split"), "(namedPathParameter, ", strconv.Quote("/"), ")")
-		generatedFile.P("if len(namedPathValues) != ", strconv.Itoa(len(namedPathParameters)*2), " {")
-		generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
-		generatedFile.P("}")
-
-		pairs := []any{"pairs = append(pairs"}
-		for i, parameter := range namedPathParameters {
-			pairs = append(pairs, ",", strconv.Quote(parameter), ",", fmt.Sprintf("namedPathValues[%d]", i*2+1))
-		}
-		pairs = append(pairs, ")")
-		generatedFile.P(pairs...)
+	case protoreflect.MessageKind:
+		generatedFile.P("namedPathParameter := req.", fullFieldGetterName, ".GetValue()")
 	}
+
+	generatedFile.P("namedPathValues := ", internal.StringsPackage.Ident("Split"), "(namedPathParameter, ", strconv.Quote("/"), ")")
+	generatedFile.P("if len(namedPathValues) != ", strconv.Itoa(len(namedPathParameters)*2), " {")
+	generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
+	generatedFile.P("}")
+
+	pairs := []any{"pairs = append(pairs"}
+	for i, parameter := range namedPathParameters {
+		pairs = append(pairs, ",", strconv.Quote(parameter), ",", fmt.Sprintf("namedPathValues[%d]", i*2+1))
+	}
+	pairs = append(pairs, ")")
+	generatedFile.P(pairs...)
 }
 
 func (f *ClientGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile, field *protogen.Field) {

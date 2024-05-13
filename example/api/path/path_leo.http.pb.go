@@ -18,17 +18,10 @@ import (
 	http1 "net/http"
 	url "net/url"
 	strconv "strconv"
-	strings "strings"
 )
 
 func NewPathHTTPServer(
 	endpoints interface {
-		NamedPathString() endpoint.Endpoint
-		NamedPathOptString() endpoint.Endpoint
-		NamedPathWrapString() endpoint.Endpoint
-		EmbedNamedPathString() endpoint.Endpoint
-		EmbedNamedPathOptString() endpoint.Endpoint
-		EmbedNamedPathWrapString() endpoint.Endpoint
 		BoolPath() endpoint.Endpoint
 		Int32Path() endpoint.Endpoint
 		Int64Path() endpoint.Endpoint
@@ -38,192 +31,11 @@ func NewPathHTTPServer(
 		DoublePath() endpoint.Endpoint
 		StringPath() endpoint.Endpoint
 		EnumPath() endpoint.Endpoint
-		MixPath() endpoint.Endpoint
 	},
 	mdw []endpoint.Middleware,
 	opts ...http.ServerOption,
 ) http1.Handler {
 	router := mux.NewRouter()
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/NamedPathString").
-		Methods("GET").
-		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedPathString(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &NamedPathRequest{}
-				vars := mux.Vars(r)
-				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
-				queries := r.URL.Query()
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/NamedPathOptString").
-		Methods("GET").
-		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedPathOptString(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &NamedPathRequest{}
-				vars := mux.Vars(r)
-				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				queries := r.URL.Query()
-				req.String_ = queries.Get("string")
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/NamedPathWrapString").
-		Methods("GET").
-		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedPathWrapString(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &NamedPathRequest{}
-				vars := mux.Vars(r)
-				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				queries := r.URL.Query()
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/EmbedNamedPathString").
-		Methods("GET").
-		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathString(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &EmbedNamedPathRequest{}
-				vars := mux.Vars(r)
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/EmbedNamedPathOptString").
-		Methods("GET").
-		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathOptString(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &EmbedNamedPathRequest{}
-				vars := mux.Vars(r)
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/EmbedNamedPathWrapString").
-		Methods("GET").
-		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &EmbedNamedPathRequest{}
-				vars := mux.Vars(r)
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
 	router.NewRoute().
 		Name("/leo.example.path.v1.Path/BoolPath").
 		Methods("GET").
@@ -1997,107 +1809,19 @@ func NewPathHTTPServer(
 			},
 			opts...,
 		))
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/MixPath").
-		Methods("GET").
-		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
-		Handler(http.NewServer(
-			endpointx.Chain(endpoints.MixPath(), mdw...),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &MixPathRequest{}
-				vars := mux.Vars(r)
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				req.String_ = vars["string"]
-				req.OptString = proto.String(vars["opt_string"])
-				req.WrapString = wrapperspb.String(vars["wrap_string"])
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				_ = resp
-				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
-					return err
-				}
-				return nil
-			},
-			opts...,
-		))
 	return router
 }
 
 type pathHTTPClient struct {
-	namedPathString          endpoint.Endpoint
-	namedPathOptString       endpoint.Endpoint
-	namedPathWrapString      endpoint.Endpoint
-	embedNamedPathString     endpoint.Endpoint
-	embedNamedPathOptString  endpoint.Endpoint
-	embedNamedPathWrapString endpoint.Endpoint
-	boolPath                 endpoint.Endpoint
-	int32Path                endpoint.Endpoint
-	int64Path                endpoint.Endpoint
-	uint32Path               endpoint.Endpoint
-	uint64Path               endpoint.Endpoint
-	floatPath                endpoint.Endpoint
-	doublePath               endpoint.Endpoint
-	stringPath               endpoint.Endpoint
-	enumPath                 endpoint.Endpoint
-	mixPath                  endpoint.Endpoint
-}
-
-func (c *pathHTTPClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.namedPathString(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathHTTPClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.namedPathOptString(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathHTTPClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.namedPathWrapString(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathHTTPClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.embedNamedPathString(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathHTTPClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.embedNamedPathOptString(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathHTTPClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.embedNamedPathWrapString(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
+	boolPath   endpoint.Endpoint
+	int32Path  endpoint.Endpoint
+	int64Path  endpoint.Endpoint
+	uint32Path endpoint.Endpoint
+	uint64Path endpoint.Endpoint
+	floatPath  endpoint.Endpoint
+	doublePath endpoint.Endpoint
+	stringPath endpoint.Endpoint
+	enumPath   endpoint.Endpoint
 }
 
 func (c *pathHTTPClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
@@ -2172,26 +1896,12 @@ func (c *pathHTTPClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *pathHTTPClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
-	rep, err := c.mixPath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewPathHTTPClient(
 	scheme string,
 	instance string,
 	mdw []endpoint.Middleware,
 	opts ...http.ClientOption,
 ) interface {
-	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -2201,33 +1911,8 @@ func NewPathHTTPClient(
 	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
 	router := mux.NewRouter()
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/NamedPathString").
-		Methods("GET").
-		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/NamedPathOptString").
-		Methods("GET").
-		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/NamedPathWrapString").
-		Methods("GET").
-		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/EmbedNamedPathString").
-		Methods("GET").
-		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/EmbedNamedPathOptString").
-		Methods("GET").
-		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/EmbedNamedPathWrapString").
-		Methods("GET").
-		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
 		Name("/leo.example.path.v1.Path/BoolPath").
 		Methods("GET").
@@ -2264,286 +1949,7 @@ func NewPathHTTPClient(
 		Name("/leo.example.path.v1.Path/EnumPath").
 		Methods("GET").
 		Path("/v1/{status}/{opt_status}")
-	router.NewRoute().
-		Name("/leo.example.path.v1.Path/MixPath").
-		Methods("GET").
-		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &pathHTTPClient{
-		namedPathString: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*NamedPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					namedPathParameter := req.String_
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.path.v1.Path/NamedPathString").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		namedPathOptString: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*NamedPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					namedPathParameter := *req.OptString
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.path.v1.Path/NamedPathOptString").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
-					queries.Add("string", req.String_)
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		namedPathWrapString: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*NamedPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					namedPathParameter := req.WrapString.Value
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.path.v1.Path/NamedPathWrapString").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		embedNamedPathString: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*EmbedNamedPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					if req.Embed == nil {
-						return nil, fmt.Errorf("%s is nil", "req.Embed")
-					}
-					namedPathParameter := req.Embed.String_
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.path.v1.Path/EmbedNamedPathString").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		embedNamedPathOptString: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*EmbedNamedPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					if req.Embed == nil {
-						return nil, fmt.Errorf("%s is nil", "req.Embed")
-					}
-					namedPathParameter := *req.Embed.OptString
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.path.v1.Path/EmbedNamedPathOptString").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		embedNamedPathWrapString: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*EmbedNamedPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					if req.Embed == nil {
-						return nil, fmt.Errorf("%s is nil", "req.Embed")
-					}
-					namedPathParameter := req.Embed.WrapString.Value
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					path, err := router.Get("/leo.example.path.v1.Path/EmbedNamedPathWrapString").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
 		boolPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -3600,58 +3006,6 @@ func NewPathHTTPClient(
 					if req.WrapString == nil {
 						queries.Add("wrap_string", req.WrapString.Value)
 					}
-					target := &url.URL{
-						Scheme:   scheme,
-						Host:     instance,
-						Path:     path.Path,
-						RawQuery: queries.Encode(),
-					}
-					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		mixPath: endpointx.Chain(
-			http.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
-					if obj == nil {
-						return nil, errors.New("request object is nil")
-					}
-					req, ok := obj.(*MixPathRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					_ = req
-					var body io.Reader
-					var pairs []string
-					if req.Embed == nil {
-						return nil, fmt.Errorf("%s is nil", "req.Embed")
-					}
-					namedPathParameter := req.Embed.WrapString.Value
-					namedPathValues := strings.Split(namedPathParameter, "/")
-					if len(namedPathValues) != 8 {
-						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
-					}
-					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					if req.OptString == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptString")
-					}
-					if req.WrapString == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapString")
-					}
-					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
-					path, err := router.Get("/leo.example.path.v1.Path/MixPath").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := url.Values{}
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,

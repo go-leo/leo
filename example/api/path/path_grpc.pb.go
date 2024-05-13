@@ -20,34 +20,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Path_NamedPathString_FullMethodName          = "/leo.example.path.v1.Path/NamedPathString"
-	Path_NamedPathOptString_FullMethodName       = "/leo.example.path.v1.Path/NamedPathOptString"
-	Path_NamedPathWrapString_FullMethodName      = "/leo.example.path.v1.Path/NamedPathWrapString"
-	Path_EmbedNamedPathString_FullMethodName     = "/leo.example.path.v1.Path/EmbedNamedPathString"
-	Path_EmbedNamedPathOptString_FullMethodName  = "/leo.example.path.v1.Path/EmbedNamedPathOptString"
-	Path_EmbedNamedPathWrapString_FullMethodName = "/leo.example.path.v1.Path/EmbedNamedPathWrapString"
-	Path_BoolPath_FullMethodName                 = "/leo.example.path.v1.Path/BoolPath"
-	Path_Int32Path_FullMethodName                = "/leo.example.path.v1.Path/Int32Path"
-	Path_Int64Path_FullMethodName                = "/leo.example.path.v1.Path/Int64Path"
-	Path_Uint32Path_FullMethodName               = "/leo.example.path.v1.Path/Uint32Path"
-	Path_Uint64Path_FullMethodName               = "/leo.example.path.v1.Path/Uint64Path"
-	Path_FloatPath_FullMethodName                = "/leo.example.path.v1.Path/FloatPath"
-	Path_DoublePath_FullMethodName               = "/leo.example.path.v1.Path/DoublePath"
-	Path_StringPath_FullMethodName               = "/leo.example.path.v1.Path/StringPath"
-	Path_EnumPath_FullMethodName                 = "/leo.example.path.v1.Path/EnumPath"
-	Path_MixPath_FullMethodName                  = "/leo.example.path.v1.Path/MixPath"
+	Path_BoolPath_FullMethodName   = "/leo.example.path.v1.Path/BoolPath"
+	Path_Int32Path_FullMethodName  = "/leo.example.path.v1.Path/Int32Path"
+	Path_Int64Path_FullMethodName  = "/leo.example.path.v1.Path/Int64Path"
+	Path_Uint32Path_FullMethodName = "/leo.example.path.v1.Path/Uint32Path"
+	Path_Uint64Path_FullMethodName = "/leo.example.path.v1.Path/Uint64Path"
+	Path_FloatPath_FullMethodName  = "/leo.example.path.v1.Path/FloatPath"
+	Path_DoublePath_FullMethodName = "/leo.example.path.v1.Path/DoublePath"
+	Path_StringPath_FullMethodName = "/leo.example.path.v1.Path/StringPath"
+	Path_EnumPath_FullMethodName   = "/leo.example.path.v1.Path/EnumPath"
 )
 
 // PathClient is the client API for Path service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PathClient interface {
-	NamedPathString(ctx context.Context, in *NamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	NamedPathOptString(ctx context.Context, in *NamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	NamedPathWrapString(ctx context.Context, in *NamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	EmbedNamedPathString(ctx context.Context, in *EmbedNamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	EmbedNamedPathOptString(ctx context.Context, in *EmbedNamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	EmbedNamedPathWrapString(ctx context.Context, in *EmbedNamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	BoolPath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Int64Path(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -57,7 +44,6 @@ type PathClient interface {
 	DoublePath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StringPath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EnumPath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	MixPath(ctx context.Context, in *MixPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type pathClient struct {
@@ -66,60 +52,6 @@ type pathClient struct {
 
 func NewPathClient(cc grpc.ClientConnInterface) PathClient {
 	return &pathClient{cc}
-}
-
-func (c *pathClient) NamedPathString(ctx context.Context, in *NamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_NamedPathString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *pathClient) NamedPathOptString(ctx context.Context, in *NamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_NamedPathOptString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *pathClient) NamedPathWrapString(ctx context.Context, in *NamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_NamedPathWrapString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *pathClient) EmbedNamedPathString(ctx context.Context, in *EmbedNamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_EmbedNamedPathString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *pathClient) EmbedNamedPathOptString(ctx context.Context, in *EmbedNamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_EmbedNamedPathOptString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *pathClient) EmbedNamedPathWrapString(ctx context.Context, in *EmbedNamedPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_EmbedNamedPathWrapString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *pathClient) BoolPath(ctx context.Context, in *PathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -203,25 +135,10 @@ func (c *pathClient) EnumPath(ctx context.Context, in *PathRequest, opts ...grpc
 	return out, nil
 }
 
-func (c *pathClient) MixPath(ctx context.Context, in *MixPathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Path_MixPath_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // PathServer is the server API for Path service.
 // All implementations should embed UnimplementedPathServer
 // for forward compatibility
 type PathServer interface {
-	NamedPathString(context.Context, *NamedPathRequest) (*emptypb.Empty, error)
-	NamedPathOptString(context.Context, *NamedPathRequest) (*emptypb.Empty, error)
-	NamedPathWrapString(context.Context, *NamedPathRequest) (*emptypb.Empty, error)
-	EmbedNamedPathString(context.Context, *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	EmbedNamedPathOptString(context.Context, *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	EmbedNamedPathWrapString(context.Context, *EmbedNamedPathRequest) (*emptypb.Empty, error)
 	BoolPath(context.Context, *PathRequest) (*emptypb.Empty, error)
 	Int32Path(context.Context, *PathRequest) (*emptypb.Empty, error)
 	Int64Path(context.Context, *PathRequest) (*emptypb.Empty, error)
@@ -231,31 +148,12 @@ type PathServer interface {
 	DoublePath(context.Context, *PathRequest) (*emptypb.Empty, error)
 	StringPath(context.Context, *PathRequest) (*emptypb.Empty, error)
 	EnumPath(context.Context, *PathRequest) (*emptypb.Empty, error)
-	MixPath(context.Context, *MixPathRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedPathServer should be embedded to have forward compatible implementations.
 type UnimplementedPathServer struct {
 }
 
-func (UnimplementedPathServer) NamedPathString(context.Context, *NamedPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method NamedPathString not implemented")
-}
-func (UnimplementedPathServer) NamedPathOptString(context.Context, *NamedPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method NamedPathOptString not implemented")
-}
-func (UnimplementedPathServer) NamedPathWrapString(context.Context, *NamedPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method NamedPathWrapString not implemented")
-}
-func (UnimplementedPathServer) EmbedNamedPathString(context.Context, *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EmbedNamedPathString not implemented")
-}
-func (UnimplementedPathServer) EmbedNamedPathOptString(context.Context, *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EmbedNamedPathOptString not implemented")
-}
-func (UnimplementedPathServer) EmbedNamedPathWrapString(context.Context, *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EmbedNamedPathWrapString not implemented")
-}
 func (UnimplementedPathServer) BoolPath(context.Context, *PathRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BoolPath not implemented")
 }
@@ -283,9 +181,6 @@ func (UnimplementedPathServer) StringPath(context.Context, *PathRequest) (*empty
 func (UnimplementedPathServer) EnumPath(context.Context, *PathRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EnumPath not implemented")
 }
-func (UnimplementedPathServer) MixPath(context.Context, *MixPathRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MixPath not implemented")
-}
 
 // UnsafePathServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to PathServer will
@@ -296,114 +191,6 @@ type UnsafePathServer interface {
 
 func RegisterPathServer(s grpc.ServiceRegistrar, srv PathServer) {
 	s.RegisterService(&Path_ServiceDesc, srv)
-}
-
-func _Path_NamedPathString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NamedPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).NamedPathString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_NamedPathString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).NamedPathString(ctx, req.(*NamedPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Path_NamedPathOptString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NamedPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).NamedPathOptString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_NamedPathOptString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).NamedPathOptString(ctx, req.(*NamedPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Path_NamedPathWrapString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NamedPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).NamedPathWrapString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_NamedPathWrapString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).NamedPathWrapString(ctx, req.(*NamedPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Path_EmbedNamedPathString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmbedNamedPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).EmbedNamedPathString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_EmbedNamedPathString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).EmbedNamedPathString(ctx, req.(*EmbedNamedPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Path_EmbedNamedPathOptString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmbedNamedPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).EmbedNamedPathOptString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_EmbedNamedPathOptString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).EmbedNamedPathOptString(ctx, req.(*EmbedNamedPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Path_EmbedNamedPathWrapString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmbedNamedPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).EmbedNamedPathWrapString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_EmbedNamedPathWrapString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).EmbedNamedPathWrapString(ctx, req.(*EmbedNamedPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Path_BoolPath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -568,24 +355,6 @@ func _Path_EnumPath_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Path_MixPath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MixPathRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PathServer).MixPath(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Path_MixPath_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PathServer).MixPath(ctx, req.(*MixPathRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Path_ServiceDesc is the grpc.ServiceDesc for Path service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -593,30 +362,6 @@ var Path_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "leo.example.path.v1.Path",
 	HandlerType: (*PathServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "NamedPathString",
-			Handler:    _Path_NamedPathString_Handler,
-		},
-		{
-			MethodName: "NamedPathOptString",
-			Handler:    _Path_NamedPathOptString_Handler,
-		},
-		{
-			MethodName: "NamedPathWrapString",
-			Handler:    _Path_NamedPathWrapString_Handler,
-		},
-		{
-			MethodName: "EmbedNamedPathString",
-			Handler:    _Path_EmbedNamedPathString_Handler,
-		},
-		{
-			MethodName: "EmbedNamedPathOptString",
-			Handler:    _Path_EmbedNamedPathOptString_Handler,
-		},
-		{
-			MethodName: "EmbedNamedPathWrapString",
-			Handler:    _Path_EmbedNamedPathWrapString_Handler,
-		},
 		{
 			MethodName: "BoolPath",
 			Handler:    _Path_BoolPath_Handler,
@@ -652,10 +397,6 @@ var Path_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EnumPath",
 			Handler:    _Path_EnumPath_Handler,
-		},
-		{
-			MethodName: "MixPath",
-			Handler:    _Path_MixPath_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

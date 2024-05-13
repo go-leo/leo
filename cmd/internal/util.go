@@ -84,3 +84,12 @@ func FullFieldName(fields []*protogen.Field) string {
 	fullFieldName := strings.Join(fieldNames, ".")
 	return fullFieldName
 }
+
+func FullFieldGetterName(fields []*protogen.Field) string {
+	var fieldNames []string
+	for _, p := range fields {
+		fieldNames = append(fieldNames, "Get"+p.GoName+"()")
+	}
+	fullFieldName := strings.Join(fieldNames, ".")
+	return fullFieldName
+}

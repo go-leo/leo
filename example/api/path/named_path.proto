@@ -1,0 +1,55 @@
+syntax = "proto3";
+package leo.example.path.v1;
+option go_package = "github.com/go-leo/leo/example/api/path/v1;path";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+service NamedPath {
+  rpc NamedPathString (NamedPathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/string/{string=classes/*/shelves/*/books/*/families/*}"
+    };
+  }
+
+  rpc NamedPathOptString (NamedPathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/opt_string/{opt_string=classes/*/shelves/*/books/*/families/*}"
+    };
+  }
+
+  rpc NamedPathWrapString (NamedPathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/wrap_string/{wrap_string=classes/*/shelves/*/books/*/families/*}"
+    };
+  }
+
+  rpc EmbedNamedPathString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/embed/string/{embed.string=classes/*/shelves/*/books/*/families/*}"
+    };
+  }
+
+  rpc EmbedNamedPathOptString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/embed/opt_string/{embed.opt_string=classes/*/shelves/*/books/*/families/*}"
+    };
+  }
+
+  rpc EmbedNamedPathWrapString (EmbedNamedPathRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : "/v1/embed/wrap_string/{embed.wrap_string=classes/*/shelves/*/books/*/families/*}"
+    };
+  }
+}
+
+message NamedPathRequest {
+  string string = 1;
+  optional string opt_string = 2;
+  google.protobuf.StringValue wrap_string = 3;
+}
+
+message EmbedNamedPathRequest {
+  NamedPathRequest embed = 1;
+}

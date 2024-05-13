@@ -10,12 +10,6 @@ import (
 
 type pathEndpoints struct {
 	svc interface {
-		NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -25,43 +19,6 @@ type pathEndpoints struct {
 		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
-	}
-}
-
-func (e *pathEndpoints) NamedPathString() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.NamedPathString(ctx, request.(*NamedPathRequest))
-	}
-}
-
-func (e *pathEndpoints) NamedPathOptString() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.NamedPathOptString(ctx, request.(*NamedPathRequest))
-	}
-}
-
-func (e *pathEndpoints) NamedPathWrapString() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.NamedPathWrapString(ctx, request.(*NamedPathRequest))
-	}
-}
-
-func (e *pathEndpoints) EmbedNamedPathString() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EmbedNamedPathString(ctx, request.(*EmbedNamedPathRequest))
-	}
-}
-
-func (e *pathEndpoints) EmbedNamedPathOptString() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EmbedNamedPathOptString(ctx, request.(*EmbedNamedPathRequest))
-	}
-}
-
-func (e *pathEndpoints) EmbedNamedPathWrapString() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EmbedNamedPathWrapString(ctx, request.(*EmbedNamedPathRequest))
 	}
 }
 
@@ -119,20 +76,8 @@ func (e *pathEndpoints) EnumPath() endpoint.Endpoint {
 	}
 }
 
-func (e *pathEndpoints) MixPath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.MixPath(ctx, request.(*MixPathRequest))
-	}
-}
-
 func NewpathEndpoints(
 	svc interface {
-		NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-		EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-		EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -142,15 +87,8 @@ func NewpathEndpoints(
 		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 	},
 ) interface {
-	NamedPathString() endpoint.Endpoint
-	NamedPathOptString() endpoint.Endpoint
-	NamedPathWrapString() endpoint.Endpoint
-	EmbedNamedPathString() endpoint.Endpoint
-	EmbedNamedPathOptString() endpoint.Endpoint
-	EmbedNamedPathWrapString() endpoint.Endpoint
 	BoolPath() endpoint.Endpoint
 	Int32Path() endpoint.Endpoint
 	Int64Path() endpoint.Endpoint
@@ -160,7 +98,6 @@ func NewpathEndpoints(
 	DoublePath() endpoint.Endpoint
 	StringPath() endpoint.Endpoint
 	EnumPath() endpoint.Endpoint
-	MixPath() endpoint.Endpoint
 } {
 	return &pathEndpoints{svc: svc}
 }
