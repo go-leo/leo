@@ -91,11 +91,11 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 	}
 
 	var pathOnce sync.Once
-	for i := range namedPathFields {
+	if len(namedPathFields) > 0 {
 		pathOnce.Do(func() {
 			generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
 		})
-		if err := f.PrintNamedPathField(generatedFile, namedPathFields, i, endpoint.HttpRule()); err != nil {
+		if err := f.PrintNamedPathField(generatedFile, namedPathFields, endpoint.HttpRule()); err != nil {
 			return err
 		}
 	}
@@ -144,25 +144,25 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 	return nil
 }
 
-func (f *ServerGenerator) PrintNamedPathField(generatedFile *protogen.GeneratedFile, namedPathFields []*protogen.Field, i int, httpRule *internal.HttpRule) error {
-	namedPathField := namedPathFields[i]
-	fullFieldName := internal.FullFieldName(namedPathFields[:i+1])
-	if i < len(namedPathFields)-1 {
-		generatedFile.P("if req.", fullFieldName, " == nil {")
-		generatedFile.P("req.", fullFieldName, " = &", namedPathField.Message.GoIdent, "{}")
-		generatedFile.P("}")
-	} else {
-		_, _, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
-		tgtValue := []any{"req.", fullFieldName, " = "}
-		srcValue := []any{internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote(namedPathTemplate)}
-		for _, namedPathParameter := range namedPathParameters {
-			srcValue = append(srcValue, ", vars[", strconv.Quote(namedPathParameter), "]")
+func (f *ServerGenerator) PrintNamedPathField(generatedFile *protogen.GeneratedFile, namedPathFields []*protogen.Field, httpRule *internal.HttpRule) error {
+	for i, namedPathField := range namedPathFields {
+		fullFieldName := internal.FullFieldName(namedPathFields[:i+1])
+		if i < len(namedPathFields)-1 {
+			generatedFile.P("if req.", fullFieldName, " == nil {")
+			generatedFile.P("req.", fullFieldName, " = &", namedPathField.Message.GoIdent, "{}")
+			generatedFile.P("}")
+		} else {
+			_, _, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
+			tgtValue := []any{"req.", fullFieldName, " = "}
+			srcValue := []any{internal.FmtPackage.Ident("Sprintf"), "(", strconv.Quote(namedPathTemplate)}
+			for _, namedPathParameter := range namedPathParameters {
+				srcValue = append(srcValue, ", vars[", strconv.Quote(namedPathParameter), "]")
+			}
+			srcValue = append(srcValue, ")")
+			if err := f.printAssign(generatedFile, namedPathField, tgtValue, srcValue, false); err != nil {
+				return err
+			}
 		}
-		srcValue = append(srcValue, ")")
-		if err := f.printAssign(generatedFile, namedPathField, tgtValue, srcValue, false); err != nil {
-			return err
-		}
-
 	}
 	return nil
 }
