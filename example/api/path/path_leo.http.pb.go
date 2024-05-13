@@ -214,8 +214,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -411,8 +421,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -439,6 +459,8 @@ func NewPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := mux.Vars(r)
+				var errs []error
+				req.Int64 = strconv.ParseInt(vars["int64"], 10, 64)
 				if v, err := strconv.ParseInt(vars["int64"], 10, 64); err != nil {
 					return nil, err
 				} else {
@@ -608,8 +630,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -805,8 +837,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1002,8 +1044,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1199,8 +1251,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1396,8 +1458,18 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1593,8 +1665,18 @@ func NewPathHTTPServer(
 				} else {
 					req.WrapDouble = wrapperspb.Double(v)
 				}
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(queries.Get("status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(queries.Get("opt_status"), 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1621,8 +1703,18 @@ func NewPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := mux.Vars(r)
-				// enum
-				// enum
+				if v, err := strconv.ParseInt(vars["status"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.Status = ev
+				}
+				if v, err := strconv.ParseInt(vars["opt_status"], 10, 32); err != nil {
+					return nil, err
+				} else {
+					ev := PathRequest_Status(v)
+					req.OptStatus = &ev
+				}
 				queries := r.URL.Query()
 				if v, err := strconv.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
@@ -1963,95 +2055,47 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptBool == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptBool")
-					}
-					if req.WrapBool == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapBool")
-					}
-					pairs = append(pairs, "bool", strconv.FormatBool(req.Bool), "opt_bool", strconv.FormatBool(*req.OptBool), "wrap_bool", strconv.FormatBool(req.WrapBool.Value))
+					pairs = append(pairs, "bool", strconv.FormatBool(req.GetBool()), "opt_bool", strconv.FormatBool(req.GetOptBool()), "wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
 					path, err := router.Get("/leo.example.path.v1.Path/BoolPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2083,93 +2127,43 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptInt32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptInt32")
-					}
-					if req.OptSint32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptSint32")
-					}
-					if req.OptSfixed32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptSfixed32")
-					}
-					if req.WrapInt32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapInt32")
-					}
-					pairs = append(pairs, "int32", strconv.FormatInt(int64(req.Int32), 10), "sint32", strconv.FormatInt(int64(req.Sint32), 10), "sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10), "opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10), "opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10), "opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10), "wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
+					pairs = append(pairs, "int32", strconv.FormatInt(int64(req.GetInt32()), 10), "sint32", strconv.FormatInt(int64(req.GetSint32()), 10), "sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10), "opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10), "opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10), "opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10), "wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
 					path, err := router.Get("/leo.example.path.v1.Path/Int32Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2201,93 +2195,43 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptInt64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptInt64")
-					}
-					if req.OptSint64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptSint64")
-					}
-					if req.OptSfixed64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptSfixed64")
-					}
-					if req.WrapInt64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapInt64")
-					}
-					pairs = append(pairs, "int64", strconv.FormatInt(req.Int64, 10), "sint64", strconv.FormatInt(req.Sint64, 10), "sfixed64", strconv.FormatInt(req.Sfixed64, 10), "opt_int64", strconv.FormatInt(*req.OptInt64, 10), "opt_sint64", strconv.FormatInt(*req.OptSint64, 10), "opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10), "wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
+					pairs = append(pairs, "int64", strconv.FormatInt(req.GetInt64(), 10), "sint64", strconv.FormatInt(req.GetSint64(), 10), "sfixed64", strconv.FormatInt(req.GetSfixed64(), 10), "opt_int64", strconv.FormatInt(req.GetOptInt64(), 10), "opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10), "opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10), "wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
 					path, err := router.Get("/leo.example.path.v1.Path/Int64Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2319,94 +2263,45 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptUint32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptUint32")
-					}
-					if req.OptFixed32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptFixed32")
-					}
-					if req.WrapUint32 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapUint32")
-					}
-					pairs = append(pairs, "uint32", strconv.FormatUint(uint64(req.Uint32), 10), "fixed32", strconv.FormatUint(uint64(req.Fixed32), 10), "opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10), "opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10), "wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
+					pairs = append(pairs, "uint32", strconv.FormatUint(uint64(req.GetUint32()), 10), "fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10), "opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10), "opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10), "wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
 					path, err := router.Get("/leo.example.path.v1.Path/Uint32Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2438,94 +2333,45 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptUint64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptUint64")
-					}
-					if req.OptFixed64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptFixed64")
-					}
-					if req.WrapUint64 == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapUint64")
-					}
-					pairs = append(pairs, "uint64", strconv.FormatUint(req.Uint64, 10), "fixed64", strconv.FormatUint(req.Fixed64, 10), "opt_uint64", strconv.FormatUint(*req.OptUint64, 10), "opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10), "wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
+					pairs = append(pairs, "uint64", strconv.FormatUint(req.GetUint64(), 10), "fixed64", strconv.FormatUint(req.GetFixed64(), 10), "opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10), "opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10), "wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
 					path, err := router.Get("/leo.example.path.v1.Path/Uint64Path").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2557,95 +2403,47 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptFloat == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptFloat")
-					}
-					if req.WrapFloat == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapFloat")
-					}
-					pairs = append(pairs, "float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32), "opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32), "wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
+					pairs = append(pairs, "float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32), "opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32), "wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
 					path, err := router.Get("/leo.example.path.v1.Path/FloatPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2677,95 +2475,47 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptDouble == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptDouble")
-					}
-					if req.WrapDouble == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapDouble")
-					}
-					pairs = append(pairs, "double", strconv.FormatFloat(req.Double, 'f', -1, 64), "opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64), "wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
+					pairs = append(pairs, "double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64), "opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64), "wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
 					path, err := router.Get("/leo.example.path.v1.Path/DoublePath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2797,95 +2547,47 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptString == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptString")
-					}
-					if req.WrapString == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapString")
-					}
-					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
+					pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
 					path, err := router.Get("/leo.example.path.v1.Path/StringPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.Status), 10))
-					if req.OptStatus == nil {
-						queries.Add("opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
+					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -2917,95 +2619,48 @@ func NewPathHTTPClient(
 					_ = req
 					var body io.Reader
 					var pairs []string
-					if req.OptStatus == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptStatus")
-					}
-					pairs = append(pairs, "status", strconv.FormatInt(int64(req.Status), 10), "opt_status", strconv.FormatInt(int64(*req.OptStatus), 10))
+					pairs = append(pairs, "status", strconv.FormatInt(int64(req.GetStatus()), 10), "opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
 					path, err := router.Get("/leo.example.path.v1.Path/EnumPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.Bool))
-					if req.OptBool == nil {
-						queries.Add("opt_bool", strconv.FormatBool(*req.OptBool))
-					}
-					if req.WrapBool == nil {
-						queries.Add("wrap_bool", strconv.FormatBool(req.WrapBool.Value))
-					}
-					queries.Add("int32", strconv.FormatInt(int64(req.Int32), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.Sint32), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.Sfixed32), 10))
-					if req.OptInt32 == nil {
-						queries.Add("opt_int32", strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					if req.OptSint32 == nil {
-						queries.Add("opt_sint32", strconv.FormatInt(int64(*req.OptSint32), 10))
-					}
-					if req.OptSfixed32 == nil {
-						queries.Add("opt_sfixed32", strconv.FormatInt(int64(*req.OptSfixed32), 10))
-					}
-					if req.WrapInt32 == nil {
-						queries.Add("wrap_int32", strconv.FormatInt(int64(req.WrapInt32.Value), 10))
-					}
-					queries.Add("int64", strconv.FormatInt(req.Int64, 10))
-					queries.Add("sint64", strconv.FormatInt(req.Sint64, 10))
-					queries.Add("sfixed64", strconv.FormatInt(req.Sfixed64, 10))
-					if req.OptInt64 == nil {
-						queries.Add("opt_int64", strconv.FormatInt(*req.OptInt64, 10))
-					}
-					if req.OptSint64 == nil {
-						queries.Add("opt_sint64", strconv.FormatInt(*req.OptSint64, 10))
-					}
-					if req.OptSfixed64 == nil {
-						queries.Add("opt_sfixed64", strconv.FormatInt(*req.OptSfixed64, 10))
-					}
-					if req.WrapInt64 == nil {
-						queries.Add("wrap_int64", strconv.FormatInt(req.WrapInt64.Value, 10))
-					}
-					queries.Add("uint32", strconv.FormatUint(uint64(req.Uint32), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.Fixed32), 10))
-					if req.OptUint32 == nil {
-						queries.Add("opt_uint32", strconv.FormatUint(uint64(*req.OptUint32), 10))
-					}
-					if req.OptFixed32 == nil {
-						queries.Add("opt_fixed32", strconv.FormatUint(uint64(*req.OptFixed32), 10))
-					}
-					if req.WrapUint32 == nil {
-						queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.WrapUint32.Value), 10))
-					}
-					queries.Add("uint64", strconv.FormatUint(req.Uint64, 10))
-					queries.Add("fixed64", strconv.FormatUint(req.Fixed64, 10))
-					if req.OptUint64 == nil {
-						queries.Add("opt_uint64", strconv.FormatUint(*req.OptUint64, 10))
-					}
-					if req.OptFixed64 == nil {
-						queries.Add("opt_fixed64", strconv.FormatUint(*req.OptFixed64, 10))
-					}
-					if req.WrapUint64 == nil {
-						queries.Add("wrap_uint64", strconv.FormatUint(req.WrapUint64.Value, 10))
-					}
-					queries.Add("float", strconv.FormatFloat(float64(req.Float), 'f', -1, 32))
-					if req.OptFloat == nil {
-						queries.Add("opt_float", strconv.FormatFloat(float64(*req.OptFloat), 'f', -1, 32))
-					}
-					if req.WrapFloat == nil {
-						queries.Add("wrap_float", strconv.FormatFloat(float64(req.WrapFloat.Value), 'f', -1, 32))
-					}
-					queries.Add("double", strconv.FormatFloat(req.Double, 'f', -1, 64))
-					if req.OptDouble == nil {
-						queries.Add("opt_double", strconv.FormatFloat(*req.OptDouble, 'f', -1, 64))
-					}
-					if req.WrapDouble == nil {
-						queries.Add("wrap_double", strconv.FormatFloat(req.WrapDouble.Value, 'f', -1, 64))
-					}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
+					queries.Add("bool", strconv.FormatBool(req.GetBool()))
+					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
+					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
+					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
+					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
+					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
+					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
+					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
+					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
+					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
+					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
+					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
+					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
+					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
+					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
+					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
+					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
+					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
+					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
+					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
+					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
+					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
+					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
+					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
+					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
+					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
+					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
+					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
+					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,

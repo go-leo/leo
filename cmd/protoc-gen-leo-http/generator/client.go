@@ -2,12 +2,10 @@ package generator
 
 import (
 	"fmt"
-	"github.com/go-leo/gox/convx"
 	"github.com/go-leo/leo/v3/cmd/internal"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"strconv"
-	"strings"
 )
 
 type ClientGenerator struct{}
@@ -129,23 +127,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 	}
 
 	if len(pathFields) > 0 {
-		for _, pathField := range pathFields {
-			field := pathField
-			srcValue := []any{"req.", field.GoName}
-			isOptional := field.Desc.HasOptionalKeyword()
-			if isOptional || pathField.Desc.Kind() == protoreflect.MessageKind {
-				generatedFile.P(append(append([]any{"if "}, srcValue...), " == nil {")...)
-				generatedFile.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("%s is nil"), ", ", strconv.Quote(strings.Join(convx.ToStringSlice(srcValue), "")), ")")
-				generatedFile.P("}")
-			}
-		}
-
-		pairs := []any{"pairs = append(pairs"}
-		for _, field := range pathFields {
-			pairs = append(append(pairs, ",", strconv.Quote(string(field.Desc.Name())), ","), f.PathFieldFormat(field)...)
-		}
-		pairs = append(pairs, ")")
-		generatedFile.P(pairs...)
+		f.PrintPathField(generatedFile, pathFields)
 	}
 
 	generatedFile.P("path, err := router.Get(", strconv.Quote(endpoint.FullName()), ").URLPath(pairs...)")
@@ -229,8 +211,17 @@ func (f *ClientGenerator) PrintNamedPathField(generatedFile *protogen.GeneratedF
 	generatedFile.P(pairs...)
 }
 
+func (f *ClientGenerator) PrintPathField(generatedFile *protogen.GeneratedFile, pathFields []*protogen.Field) {
+	pairs := []any{"pairs = append(pairs"}
+	for _, field := range pathFields {
+		pairs = append(append(pairs, ",", strconv.Quote(string(field.Desc.Name())), ","), f.PathFieldFormat(field)...)
+	}
+	pairs = append(pairs, ")")
+	generatedFile.P(pairs...)
+}
+
 func (f *ClientGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile, field *protogen.Field) {
-	srcValue := []any{"req.", field.GoName}
+	srcValue := []any{"req.Get", field.GoName, "()"}
 	isOptional := field.Desc.HasOptionalKeyword()
 	fieldName := string(field.Desc.Name())
 	switch field.Desc.Kind() {
@@ -344,13 +335,7 @@ func (f *ClientGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile,
 }
 
 func (f *ClientGenerator) PrintQueryOptional(generatedFile *protogen.GeneratedFile, fieldName string, srcValue []any, format []any, isOptional bool) {
-	if isOptional {
-		generatedFile.P(append(append([]any{"if "}, srcValue...), " == nil {")...)
-	}
 	generatedFile.P(append(append([]any{"queries.Add(", strconv.Quote(fieldName), ","}, format...), []any{")"}...)...)
-	if isOptional {
-		generatedFile.P("}")
-	}
 }
 
 func (f *ClientGenerator) PrintQueryList(generatedFile *protogen.GeneratedFile, fieldName string, srcValue []any, format []any) {
@@ -360,7 +345,7 @@ func (f *ClientGenerator) PrintQueryList(generatedFile *protogen.GeneratedFile, 
 }
 
 func (f *ClientGenerator) PathFieldFormat(field *protogen.Field) []any {
-	srcValue := []any{"req.", field.GoName}
+	srcValue := []any{"req.Get", field.GoName, "()"}
 	switch field.Desc.Kind() {
 	case protoreflect.BoolKind: // bool
 		return f.BoolKindFormat(srcValue, field.Desc.HasOptionalKeyword())
@@ -409,74 +394,50 @@ func (f *ClientGenerator) BytesKindFormat(srcValue []any, isOptional bool) []any
 
 func (f *ClientGenerator) StringKindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{}...)
 }
 
 func (f *ClientGenerator) DoubleKindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatFloat"), "("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{", 'f', -1, 64)"}...)
 }
 
 func (f *ClientGenerator) FloatKindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatFloat"), "(float64("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{"), 'f', -1, 32)"}...)
 }
 
 func (f *ClientGenerator) Uint64KindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatUint"), "("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{", 10)"}...)
 }
 
 func (f *ClientGenerator) Int64KindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatInt"), "("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{", 10)"}...)
 }
 
 func (f *ClientGenerator) Uint32KindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatUint"), "(uint64("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{"), 10)"}...)
 }
 
 func (f *ClientGenerator) Int32KindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{"), 10)"}...)
 }
 
 func (f *ClientGenerator) BoolKindFormat(srcValue []any, isOptional bool) []any {
 	format := []any{internal.StrconvPackage.Ident("FormatBool"), "("}
-	if isOptional {
-		format = append(format, "*")
-	}
 	return append(append(format, srcValue...), []any{")"}...)
 }
 
 func (f *ClientGenerator) HttpRequestFormat(srcValue []any) []any {
-	return append(append([]any{}, srcValue...), []any{".Body"}...)
+	return append(append([]any{}, srcValue...), []any{".GetBody()"}...)
 }
 
 func (f *ClientGenerator) HttpBodyFormat(srcValue []any) []any {
-	return append(append([]any{}, srcValue...), []any{".Data"}...)
+	return append(append([]any{}, srcValue...), []any{".GetData()"}...)
 }
 
 func (f *ClientGenerator) WrapBytesFormat(srcValue []any) []any {
@@ -484,44 +445,35 @@ func (f *ClientGenerator) WrapBytesFormat(srcValue []any) []any {
 }
 
 func (f *ClientGenerator) WrapStringFormat(srcValue []any) []any {
-	return append(append([]any{}, srcValue...), []any{".Value"}...)
+	return append(append([]any{}, srcValue...), []any{".GetValue()"}...)
 }
 
 func (f *ClientGenerator) WrapBoolFormat(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatBool"), "("}, srcValue...), []any{".Value", ")"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatBool"), "("}, srcValue...), []any{".GetValue()", ")"}...)
 }
 
 func (f *ClientGenerator) WrapUint32Format(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(uint64("}, srcValue...), []any{".Value", "), 10)"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "(uint64("}, srcValue...), []any{".GetValue()", "), 10)"}...)
 }
 
 func (f *ClientGenerator) WrapInt32Format(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{".Value", "), 10)"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "(int64("}, srcValue...), []any{".GetValue()", "), 10)"}...)
 }
 
 func (f *ClientGenerator) WrapUint64Format(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "("}, srcValue...), []any{".Value", ", 10)"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatUint"), "("}, srcValue...), []any{".GetValue()", ", 10)"}...)
 }
 
 func (f *ClientGenerator) WrapInt64Format(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "("}, srcValue...), []any{".Value", ", 10)"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatInt"), "("}, srcValue...), []any{".GetValue()", ", 10)"}...)
 }
 
 func (f *ClientGenerator) WrapFloatFormat(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(float64("}, srcValue...), []any{".Value", "), 'f', -1, 32)"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "(float64("}, srcValue...), []any{".GetValue()", "), 'f', -1, 32)"}...)
 }
 
 func (f *ClientGenerator) WrapDoubleFormat(srcValue []any) []any {
-	return append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "("}, srcValue...), []any{".Value", ", 'f', -1, 64)"}...)
-}
-
-func (f *ClientGenerator) TimestampFormat(srcValue []any) []any {
-	//srcValue = append([]any{},srcValue...)
-	return append(append([]any{"string(", internal.ErrorxPackage.Ident("Ignore"), "(", internal.JsonPackage.Ident("Marshal"), "("}, srcValue...), []any{")))"}...)
-}
-
-func (f *ClientGenerator) DurationFormat(srcValue []any) []any {
-	return append(append([]any{"string(", internal.ErrorxPackage.Ident("Ignore"), "(", internal.JsonPackage.Ident("Marshal"), "("}, srcValue...), []any{")))"}...)
+	return append(append([]any{internal.StrconvPackage.Ident("FormatFloat"), "("}, srcValue...), []any{".GetValue()", ", 'f', -1, 64)"}...)
 }
 
 func (f *ClientGenerator) PrintDecodeResponseFunc(generatedFile *protogen.GeneratedFile) error {

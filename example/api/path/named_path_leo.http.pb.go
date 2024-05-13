@@ -43,6 +43,7 @@ func NewNamedPathHTTPServer(
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
 				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
+				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
 				queries := r.URL.Query()
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
@@ -73,6 +74,7 @@ func NewNamedPathHTTPServer(
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
 				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
 				req.String_ = queries.Get("string")
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
@@ -102,6 +104,7 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
+				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
 				req.String_ = queries.Get("string")
@@ -136,6 +139,7 @@ func NewNamedPathHTTPServer(
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
+				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -166,6 +170,7 @@ func NewNamedPathHTTPServer(
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -195,6 +200,7 @@ func NewNamedPathHTTPServer(
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
+				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				return req, nil
 			},
@@ -336,12 +342,8 @@ func NewNamedPathHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
+					queries.Add("opt_string", req.GetOptString())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -384,10 +386,8 @@ func NewNamedPathHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("string", req.String_)
-					if req.WrapString == nil {
-						queries.Add("wrap_string", req.WrapString.Value)
-					}
+					queries.Add("string", req.GetString_())
+					queries.Add("wrap_string", req.GetWrapString().GetValue())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -430,10 +430,8 @@ func NewNamedPathHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("string", req.String_)
-					if req.OptString == nil {
-						queries.Add("opt_string", *req.OptString)
-					}
+					queries.Add("string", req.GetString_())
+					queries.Add("opt_string", req.GetOptString())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,

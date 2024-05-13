@@ -41,6 +41,7 @@ func NewMixPathHTTPServer(
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				req.String_ = vars["string"]
 				req.OptString = proto.String(vars["opt_string"])
 				req.WrapString = wrapperspb.String(vars["wrap_string"])
@@ -109,13 +110,7 @@ func NewMixPathHTTPClient(
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 					}
 					pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-					if req.OptString == nil {
-						return nil, fmt.Errorf("%s is nil", "req.OptString")
-					}
-					if req.WrapString == nil {
-						return nil, fmt.Errorf("%s is nil", "req.WrapString")
-					}
-					pairs = append(pairs, "string", req.String_, "opt_string", *req.OptString, "wrap_string", req.WrapString.Value)
+					pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
 					path, err := router.Get("/leo.example.path.v1.MixPath/MixPath").URLPath(pairs...)
 					if err != nil {
 						return nil, err
