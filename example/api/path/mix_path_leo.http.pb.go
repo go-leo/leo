@@ -41,7 +41,6 @@ func NewMixPathHTTPServer(
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				req.String_ = vars["string"]
 				req.OptString = proto.String(vars["opt_string"])
 				req.WrapString = wrapperspb.String(vars["wrap_string"])

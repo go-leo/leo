@@ -104,9 +104,7 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 		pathOnce.Do(func() {
 			generatedFile.P("vars := ", internal.MuxPackage.Ident("Vars"), "(r)")
 		})
-		tgtValue := []any{"req.", pathField.GoName, " = "}
-		srvValue := []any{"vars[", strconv.Quote(string(pathField.Desc.Name())), "]"}
-		if err := f.printPathAssign(generatedFile, pathField, tgtValue, srvValue, false); err != nil {
+		if err := f.PrintPathAssign(generatedFile, pathField); err != nil {
 			return err
 		}
 	}
@@ -206,68 +204,43 @@ func (f *ServerGenerator) PrintNamedPathField(generatedFile *protogen.GeneratedF
 	return nil
 }
 
-func (f *ServerGenerator) printPathAssign(generatedFile *protogen.GeneratedFile, field *protogen.Field, tgtValue []any, srcValue []any, isList bool) error {
+func (f *ServerGenerator) PrintPathAssign(generatedFile *protogen.GeneratedFile, field *protogen.Field) error {
+	tgtValue := []any{"req.", field.GoName, " = "}
+	srcValue := []any{"vars[", strconv.Quote(string(field.Desc.Name())), "]"}
 	isOptional := field.Desc.HasOptionalKeyword()
 	switch field.Desc.Kind() {
 	case protoreflect.BoolKind:
 		// bool
-		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseBool"), "("}, srcValue...)
-		srcValue = append(srcValue, "); err != nil {")
-		generatedFile.P(srcValue...)
-		generatedFile.P("return nil, err")
-		generatedFile.P("} else {")
-		if isOptional {
-			generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Bool"), "(v)")...)
-		} else {
-			generatedFile.P(append(tgtValue, "v")...)
-		}
-		generatedFile.P("}")
-
+		f.PrintBool(generatedFile, tgtValue, srcValue, isOptional)
 	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
 		// int32
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseIntSlice[int32]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseInt"), "("}, srcValue...)
-		}
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseInt"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 10, 32); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
 		generatedFile.P("} else {")
 		if isOptional {
 			generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Int32"), "(int32(v))")...)
-		} else if isList {
-			generatedFile.P(append(tgtValue, "v")...)
 		} else {
 			generatedFile.P(append(tgtValue, "int32(v)")...)
 		}
 		generatedFile.P("}")
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
 		// uint32
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseUintSlice[uint32]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseUint"), "("}, srcValue...)
-		}
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseUint"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 10, 32); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
 		generatedFile.P("} else {")
 		if isOptional {
 			generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Uint32"), "(uint32(v))")...)
-		} else if isList {
-			generatedFile.P(append(tgtValue, "v")...)
 		} else {
 			generatedFile.P(append(tgtValue, "uint32(v)")...)
 		}
 		generatedFile.P("}")
 	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
 		// int64
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseIntSlice[int64]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseInt"), "("}, srcValue...)
-		}
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseInt"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 10, 64); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
@@ -280,11 +253,7 @@ func (f *ServerGenerator) printPathAssign(generatedFile *protogen.GeneratedFile,
 		generatedFile.P("}")
 	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
 		// uint64
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseUintSlice[uint64]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseUint"), "("}, srcValue...)
-		}
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseUint"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 10, 64); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
@@ -297,30 +266,21 @@ func (f *ServerGenerator) printPathAssign(generatedFile *protogen.GeneratedFile,
 		generatedFile.P("}")
 	case protoreflect.FloatKind:
 		// float32
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseFloatSlice[float32]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseFloat"), "("}, srcValue...)
-		}
+
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseFloat"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 32); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
 		generatedFile.P("} else {")
 		if isOptional {
 			generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Float32"), "(float32(v))")...)
-		} else if isList {
-			generatedFile.P(append(tgtValue, "v")...)
 		} else {
 			generatedFile.P(append(tgtValue, "float32(v)")...)
 		}
 		generatedFile.P("}")
 	case protoreflect.DoubleKind:
 		// float64
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseFloatSlice[float64]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseFloat"), "("}, srcValue...)
-		}
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseFloat"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 32); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
@@ -343,22 +303,12 @@ func (f *ServerGenerator) printPathAssign(generatedFile *protogen.GeneratedFile,
 		}
 	case protoreflect.BytesKind:
 		// []byte
-		if isList {
-			srcValue = append([]any{internal.ConvxPackage.Ident("ParseBytesSlice"), "("}, srcValue...)
-			srcValue = append(srcValue, ")")
-			generatedFile.P(append(tgtValue, srcValue...)...)
-		} else {
-			srcValue = append([]any{"[]byte("}, srcValue...)
-			srcValue = append(srcValue, ")")
-			generatedFile.P(append(tgtValue, srcValue...)...)
-		}
+		srcValue = append([]any{"[]byte("}, srcValue...)
+		srcValue = append(srcValue, ")")
+		generatedFile.P(append(tgtValue, srcValue...)...)
 	case protoreflect.EnumKind:
 		// int32
-		if isList {
-			srcValue = append([]any{"if v, err := ", internal.ConvxPackage.Ident("ParseIntSlice[int32]"), "("}, srcValue...)
-		} else {
-			srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseInt"), "("}, srcValue...)
-		}
+		srcValue = append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseInt"), "("}, srcValue...)
 		srcValue = append(srcValue, ", 10, 32); err != nil {")
 		generatedFile.P(srcValue...)
 		generatedFile.P("return nil, err")
@@ -366,8 +316,6 @@ func (f *ServerGenerator) printPathAssign(generatedFile *protogen.GeneratedFile,
 		if isOptional {
 			generatedFile.P("ev := ", generatedFile.QualifiedGoIdent(field.Enum.GoIdent), "(v)")
 			generatedFile.P(append(tgtValue, "&ev")...)
-		} else if isList {
-			generatedFile.P(append(tgtValue, "v")...)
 		} else {
 			generatedFile.P("ev := ", generatedFile.QualifiedGoIdent(field.Enum.GoIdent), "(v)")
 			generatedFile.P(append(tgtValue, "ev")...)
@@ -746,6 +694,18 @@ func (f *ServerGenerator) PrintResponse(generatedFile *protogen.GeneratedFile, m
 		generatedFile.P("}")
 	}
 	return nil
+}
+
+func (f *ServerGenerator) PrintBool(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, isOptional bool) {
+	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvPackage.Ident("ParseBool"), "("}, srcValue...), "); err != nil {")...)
+	generatedFile.P("return nil, err")
+	generatedFile.P("} else {")
+	if isOptional {
+		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Bool"), "(v)")...)
+	} else {
+		generatedFile.P(append(tgtValue, "v")...)
+	}
+	generatedFile.P("}")
 }
 
 func (f *ServerGenerator) OptionalStringConverter(srcValue []any) []any {

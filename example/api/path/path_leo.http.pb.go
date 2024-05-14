@@ -459,8 +459,6 @@ func NewPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := mux.Vars(r)
-				var errs []error
-				req.Int64 = strconv.ParseInt(vars["int64"], 10, 64)
 				if v, err := strconv.ParseInt(vars["int64"], 10, 64); err != nil {
 					return nil, err
 				} else {
