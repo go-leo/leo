@@ -351,8 +351,8 @@ func NewNamedPathHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("opt_string", req.GetOptString())
-					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+					queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -395,8 +395,8 @@ func NewNamedPathHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("string", req.GetString_())
-					queries.Add("wrap_string", req.GetWrapString().GetValue())
+					queries["string"] = append(queries["string"], req.GetString_())
+					queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,
@@ -439,8 +439,8 @@ func NewNamedPathHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("string", req.GetString_())
-					queries.Add("opt_string", req.GetOptString())
+					queries["string"] = append(queries["string"], req.GetString_())
+					queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,

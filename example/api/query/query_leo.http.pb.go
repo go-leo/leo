@@ -19,7 +19,6 @@ import (
 	io "io"
 	http1 "net/http"
 	url "net/url"
-	strconv "strconv"
 )
 
 func NewQueryHTTPServer(
@@ -315,39 +314,39 @@ func NewQueryHTTPServer(
 				if v, err := strconvx.ParseFloatSlice[float64](queries["rep_wrap_double"], 64); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapDouble = protox.Float64Slice(v)
+					req.RepWrapDouble = protox.WrapFloat64Slice(v)
 				}
 				if v, err := strconvx.ParseFloatSlice[float32](queries["rep_wrap_float"], 32); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapFloat = protox.Float32Slice(v)
+					req.RepWrapFloat = protox.WrapFloat32Slice(v)
 				}
 				if v, err := strconvx.ParseIntSlice[int64](queries["rep_wrap_int64"], 10, 64); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapInt64 = protox.Int64Slice(v)
+					req.RepWrapInt64 = protox.WrapInt64Slice(v)
 				}
 				if v, err := strconvx.ParseUintSlice[uint64](queries["rep_wrap_uint64"], 10, 64); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapUint64 = protox.Uint64Slice(v)
+					req.RepWrapUint64 = protox.WrapUint64Slice(v)
 				}
 				if v, err := strconvx.ParseIntSlice[int32](queries["rep_wrap_int32"], 10, 32); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapInt32 = protox.Int32Slice(v)
+					req.RepWrapInt32 = protox.WrapInt32Slice(v)
 				}
 				if v, err := strconvx.ParseUintSlice[uint32](queries["rep_wrap_uint32"], 10, 32); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapUint32 = protox.Uint32Slice(v)
+					req.RepWrapUint32 = protox.WrapUint32Slice(v)
 				}
 				if v, err := strconvx.ParseBoolSlice(queries["rep_wrap_bool"]); err != nil {
 					return nil, err
 				} else {
-					req.RepWrapBool = protox.BoolSlice(v)
+					req.RepWrapBool = protox.WrapBoolSlice(v)
 				}
-				req.RepWrapString = protox.StringSlice(queries["rep_wrap_string"])
+				req.RepWrapString = protox.WrapStringSlice(queries["rep_wrap_string"])
 				if v, err := strconvx.ParseInt[QueryRequest_Status](queries.Get("status"), 10, 32); err != nil {
 					return nil, err
 				} else {
@@ -427,121 +426,75 @@ func NewQueryHTTPClient(
 						return nil, err
 					}
 					queries := url.Values{}
-					queries.Add("bool", strconv.FormatBool(req.GetBool()))
-					queries.Add("int32", strconv.FormatInt(int64(req.GetInt32()), 10))
-					queries.Add("sint32", strconv.FormatInt(int64(req.GetSint32()), 10))
-					queries.Add("uint32", strconv.FormatUint(uint64(req.GetUint32()), 10))
-					queries.Add("int64", strconv.FormatInt(req.GetInt64(), 10))
-					queries.Add("sint64", strconv.FormatInt(req.GetSint64(), 10))
-					queries.Add("uint64", strconv.FormatUint(req.GetUint64(), 10))
-					queries.Add("sfixed32", strconv.FormatInt(int64(req.GetSfixed32()), 10))
-					queries.Add("fixed32", strconv.FormatUint(uint64(req.GetFixed32()), 10))
-					queries.Add("float", strconv.FormatFloat(float64(req.GetFloat()), 'f', -1, 32))
-					queries.Add("sfixed64", strconv.FormatInt(req.GetSfixed64(), 10))
-					queries.Add("fixed64", strconv.FormatUint(req.GetFixed64(), 10))
-					queries.Add("double", strconv.FormatFloat(req.GetDouble(), 'f', -1, 64))
-					queries.Add("string", req.GetString_())
-					queries.Add("opt_bool", strconv.FormatBool(req.GetOptBool()))
-					queries.Add("opt_int32", strconv.FormatInt(int64(req.GetOptInt32()), 10))
-					queries.Add("opt_sint32", strconv.FormatInt(int64(req.GetOptSint32()), 10))
-					queries.Add("opt_uint32", strconv.FormatUint(uint64(req.GetOptUint32()), 10))
-					queries.Add("opt_int64", strconv.FormatInt(req.GetOptInt64(), 10))
-					queries.Add("opt_sint64", strconv.FormatInt(req.GetOptSint64(), 10))
-					queries.Add("opt_uint64", strconv.FormatUint(req.GetOptUint64(), 10))
-					queries.Add("opt_sfixed32", strconv.FormatInt(int64(req.GetOptSfixed32()), 10))
-					queries.Add("opt_fixed32", strconv.FormatUint(uint64(req.GetOptFixed32()), 10))
-					queries.Add("opt_float", strconv.FormatFloat(float64(req.GetOptFloat()), 'f', -1, 32))
-					queries.Add("opt_sfixed64", strconv.FormatInt(req.GetOptSfixed64(), 10))
-					queries.Add("opt_fixed64", strconv.FormatUint(req.GetOptFixed64(), 10))
-					queries.Add("opt_double", strconv.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-					queries.Add("opt_string", req.GetOptString())
-					for _, item := range req.GetRepBool() {
-						queries.Add("rep_bool", strconv.FormatBool(item))
-					}
-					for _, item := range req.GetRepInt32() {
-						queries.Add("rep_int32", strconv.FormatInt(int64(item), 10))
-					}
-					for _, item := range req.GetRepSint32() {
-						queries.Add("rep_sint32", strconv.FormatInt(int64(item), 10))
-					}
-					for _, item := range req.GetRepUint32() {
-						queries.Add("rep_uint32", strconv.FormatUint(uint64(item), 10))
-					}
-					for _, item := range req.GetRepInt64() {
-						queries.Add("rep_int64", strconv.FormatInt(item, 10))
-					}
-					for _, item := range req.GetRepSint64() {
-						queries.Add("rep_sint64", strconv.FormatInt(item, 10))
-					}
-					for _, item := range req.GetRepUint64() {
-						queries.Add("rep_uint64", strconv.FormatUint(item, 10))
-					}
-					for _, item := range req.GetRepSfixed32() {
-						queries.Add("rep_sfixed32", strconv.FormatInt(int64(item), 10))
-					}
-					for _, item := range req.GetRepFixed32() {
-						queries.Add("rep_fixed32", strconv.FormatUint(uint64(item), 10))
-					}
-					for _, item := range req.GetRepFloat() {
-						queries.Add("rep_float", strconv.FormatFloat(float64(item), 'f', -1, 32))
-					}
-					for _, item := range req.GetRepSfixed64() {
-						queries.Add("rep_sfixed64", strconv.FormatInt(item, 10))
-					}
-					for _, item := range req.GetRepFixed64() {
-						queries.Add("rep_fixed64", strconv.FormatUint(item, 10))
-					}
-					for _, item := range req.GetRepDouble() {
-						queries.Add("rep_double", strconv.FormatFloat(item, 'f', -1, 64))
-					}
-					for _, item := range req.GetRepString() {
-						queries.Add("rep_string", item)
-					}
-					queries.Add("wrap_double", strconv.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-					queries.Add("wrap_float", strconv.FormatFloat(float64(req.GetWrapFloat().GetValue()), 'f', -1, 32))
-					queries.Add("wrap_int64", strconv.FormatInt(req.GetWrapInt64().GetValue(), 10))
-					queries.Add("wrap_uint64", strconv.FormatUint(req.GetWrapUint64().GetValue(), 10))
-					queries.Add("wrap_int32", strconv.FormatInt(int64(req.GetWrapInt32().GetValue()), 10))
-					queries.Add("wrap_uint32", strconv.FormatUint(uint64(req.GetWrapUint32().GetValue()), 10))
-					queries.Add("wrap_bool", strconv.FormatBool(req.GetWrapBool().GetValue()))
-					queries.Add("wrap_string", req.GetWrapString().GetValue())
-					queries.Add("opt_wrap_double", strconv.FormatFloat(req.GetOptWrapDouble().GetValue(), 'f', -1, 64))
-					queries.Add("opt_wrap_float", strconv.FormatFloat(float64(req.GetOptWrapFloat().GetValue()), 'f', -1, 32))
-					queries.Add("opt_wrap_int64", strconv.FormatInt(req.GetOptWrapInt64().GetValue(), 10))
-					queries.Add("opt_wrap_uint64", strconv.FormatUint(req.GetOptWrapUint64().GetValue(), 10))
-					queries.Add("opt_wrap_int32", strconv.FormatInt(int64(req.GetOptWrapInt32().GetValue()), 10))
-					queries.Add("opt_wrap_uint32", strconv.FormatUint(uint64(req.GetOptWrapUint32().GetValue()), 10))
-					queries.Add("opt_wrap_bool", strconv.FormatBool(req.GetOptWrapBool().GetValue()))
-					queries.Add("opt_wrap_string", req.GetOptWrapString().GetValue())
-					for _, item := range req.GetRepWrapDouble() {
-						queries.Add("rep_wrap_double", strconv.FormatFloat(item.GetValue(), 'f', -1, 64))
-					}
-					for _, item := range req.GetRepWrapFloat() {
-						queries.Add("rep_wrap_float", strconv.FormatFloat(float64(item.GetValue()), 'f', -1, 32))
-					}
-					for _, item := range req.GetRepWrapInt64() {
-						queries.Add("rep_wrap_int64", strconv.FormatInt(item.GetValue(), 10))
-					}
-					for _, item := range req.GetRepWrapUint64() {
-						queries.Add("rep_wrap_uint64", strconv.FormatUint(item.GetValue(), 10))
-					}
-					for _, item := range req.GetRepWrapInt32() {
-						queries.Add("rep_wrap_int32", strconv.FormatInt(int64(item.GetValue()), 10))
-					}
-					for _, item := range req.GetRepWrapUint32() {
-						queries.Add("rep_wrap_uint32", strconv.FormatUint(uint64(item.GetValue()), 10))
-					}
-					for _, item := range req.GetRepWrapBool() {
-						queries.Add("rep_wrap_bool", strconv.FormatBool(item.GetValue()))
-					}
-					for _, item := range req.GetRepWrapString() {
-						queries.Add("rep_wrap_string", item.GetValue())
-					}
-					queries.Add("status", strconv.FormatInt(int64(req.GetStatus()), 10))
-					queries.Add("opt_status", strconv.FormatInt(int64(req.GetOptStatus()), 10))
-					for _, item := range req.GetRepStatus() {
-						queries.Add("rep_status", strconv.FormatInt(int64(item), 10))
-					}
+					queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+					queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+					queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+					queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+					queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+					queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+					queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+					queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+					queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+					queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+					queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+					queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+					queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+					queries["string"] = append(queries["string"], req.GetString_())
+					queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+					queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+					queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+					queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+					queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+					queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+					queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+					queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+					queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+					queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+					queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+					queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+					queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+					queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+					queries["rep_bool"] = append(queries["rep_bool"], strconvx.FormatBoolSlice(req.GetRepBool())...)
+					queries["rep_int32"] = append(queries["rep_int32"], strconvx.FormatIntSlice(req.GetRepInt32(), 10)...)
+					queries["rep_sint32"] = append(queries["rep_sint32"], strconvx.FormatIntSlice(req.GetRepSint32(), 10)...)
+					queries["rep_uint32"] = append(queries["rep_uint32"], strconvx.FormatUintSlice(req.GetRepUint32(), 10)...)
+					queries["rep_int64"] = append(queries["rep_int64"], strconvx.FormatIntSlice(req.GetRepInt64(), 10)...)
+					queries["rep_sint64"] = append(queries["rep_sint64"], strconvx.FormatIntSlice(req.GetRepSint64(), 10)...)
+					queries["rep_uint64"] = append(queries["rep_uint64"], strconvx.FormatUintSlice(req.GetRepUint64(), 10)...)
+					queries["rep_sfixed32"] = append(queries["rep_sfixed32"], strconvx.FormatIntSlice(req.GetRepSfixed32(), 10)...)
+					queries["rep_fixed32"] = append(queries["rep_fixed32"], strconvx.FormatUintSlice(req.GetRepFixed32(), 10)...)
+					queries["rep_float"] = append(queries["rep_float"], strconvx.FormatFloatSlice(req.GetRepFloat(), 'f', -1, 32)...)
+					queries["rep_sfixed64"] = append(queries["rep_sfixed64"], strconvx.FormatIntSlice(req.GetRepSfixed64(), 10)...)
+					queries["rep_fixed64"] = append(queries["rep_fixed64"], strconvx.FormatUintSlice(req.GetRepFixed64(), 10)...)
+					queries["rep_double"] = append(queries["rep_double"], strconvx.FormatFloatSlice(req.GetRepDouble(), 'f', -1, 64)...)
+					queries["rep_string"] = append(queries["rep_string"], req.GetRepString()...)
+					queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+					queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+					queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+					queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+					queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+					queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+					queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+					queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+					queries["opt_wrap_double"] = append(queries["opt_wrap_double"], strconvx.FormatFloat(req.GetOptWrapDouble().GetValue(), 'f', -1, 64))
+					queries["opt_wrap_float"] = append(queries["opt_wrap_float"], strconvx.FormatFloat(req.GetOptWrapFloat().GetValue(), 'f', -1, 32))
+					queries["opt_wrap_int64"] = append(queries["opt_wrap_int64"], strconvx.FormatInt(req.GetOptWrapInt64().GetValue(), 10))
+					queries["opt_wrap_uint64"] = append(queries["opt_wrap_uint64"], strconvx.FormatUint(req.GetOptWrapUint64().GetValue(), 10))
+					queries["opt_wrap_int32"] = append(queries["opt_wrap_int32"], strconvx.FormatInt(req.GetOptWrapInt32().GetValue(), 10))
+					queries["opt_wrap_uint32"] = append(queries["opt_wrap_uint32"], strconvx.FormatUint(req.GetOptWrapUint32().GetValue(), 10))
+					queries["opt_wrap_bool"] = append(queries["opt_wrap_bool"], strconvx.FormatBool(req.GetOptWrapBool().GetValue()))
+					queries["opt_wrap_string"] = append(queries["opt_wrap_string"], req.GetOptWrapString().GetValue())
+					queries["rep_wrap_double"] = append(queries["rep_wrap_double"], strconvx.FormatFloatSlice(protox.UnwrapFloat64Slice(req.GetRepWrapDouble()), 'f', -1, 64)...)
+					queries["rep_wrap_float"] = append(queries["rep_wrap_float"], strconvx.FormatFloatSlice(protox.UnwrapFloat32Slice(req.GetRepWrapFloat()), 'f', -1, 32)...)
+					queries["rep_wrap_int64"] = append(queries["rep_wrap_int64"], strconvx.FormatIntSlice(protox.UnwrapInt64Slice(req.GetRepWrapInt64()), 10)...)
+					queries["rep_wrap_uint64"] = append(queries["rep_wrap_uint64"], strconvx.FormatUintSlice(protox.UnwrapUint64Slice(req.GetRepWrapUint64()), 10)...)
+					queries["rep_wrap_int32"] = append(queries["rep_wrap_int32"], strconvx.FormatIntSlice(protox.UnwrapInt32Slice(req.GetRepWrapInt32()), 10)...)
+					queries["rep_wrap_uint32"] = append(queries["rep_wrap_uint32"], strconvx.FormatUintSlice(protox.UnwrapUint32Slice(req.GetRepWrapUint32()), 10)...)
+					queries["rep_wrap_bool"] = append(queries["rep_wrap_bool"], strconvx.FormatBoolSlice(protox.UnwrapBoolSlice(req.GetRepWrapBool()))...)
+					queries["rep_wrap_string"] = append(queries["rep_wrap_string"], protox.UnwrapStringSlice(req.GetRepWrapString())...)
+					queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+					queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+					queries["rep_status"] = append(queries["rep_status"], strconvx.FormatIntSlice(req.GetRepStatus(), 10)...)
 					target := &url.URL{
 						Scheme:   scheme,
 						Host:     instance,

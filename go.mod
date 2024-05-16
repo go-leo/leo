@@ -7,7 +7,7 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/go-leo/cqrs v0.0.0-20240428095148-1a717d7a24c8
 	github.com/go-leo/gors v1.5.2
-	github.com/go-leo/gox v0.0.0-20240516020655-d35e419df9c4
+	github.com/go-leo/gox v0.0.0-20240516092515-81bbacb3e92d
 	github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390
 	github.com/gorilla/mux v1.8.1
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225

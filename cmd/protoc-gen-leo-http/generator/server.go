@@ -379,7 +379,7 @@ func (f *ServerGenerator) PrintWrapBoolListAssign(generatedFile *protogen.Genera
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseBoolSlice"), "("}, srcValue...), "); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("BoolSlice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapBoolSlice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -415,7 +415,7 @@ func (f *ServerGenerator) PrintWrapInt32ListAssign(generatedFile *protogen.Gener
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice[int32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("Int32Slice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapInt32Slice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -451,7 +451,7 @@ func (f *ServerGenerator) PrintWrapUint32ListAssign(generatedFile *protogen.Gene
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUintSlice[uint32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("Uint32Slice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapUint32Slice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -487,7 +487,7 @@ func (f *ServerGenerator) PrintWrapInt64ListAssign(generatedFile *protogen.Gener
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice[int64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("Int64Slice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapInt64Slice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -523,7 +523,7 @@ func (f *ServerGenerator) PrintWrapUint64ListAssign(generatedFile *protogen.Gene
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUintSlice[uint64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("Uint64Slice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapUint64Slice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -559,7 +559,7 @@ func (f *ServerGenerator) PrintWrapFloatListAssign(generatedFile *protogen.Gener
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloatSlice[float32]"), "("}, srcValue...), ", 32); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("Float32Slice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapFloat32Slice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -595,7 +595,7 @@ func (f *ServerGenerator) PrintWrapDoubleListAssign(generatedFile *protogen.Gene
 	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloatSlice[float64]"), "("}, srcValue...), ", 64); err != nil {")...)
 	generatedFile.P("return nil, err")
 	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("Float64Slice"), "(v)")...)
+	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapFloat64Slice"), "(v)")...)
 	generatedFile.P("}")
 }
 
@@ -616,7 +616,7 @@ func (f *ServerGenerator) PrintStringListAssign(generatedFile *protogen.Generate
 }
 
 func (f *ServerGenerator) PrintWrapStringListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(tgtValue, append(append([]any{internal.ProtoxPackage.Ident("StringSlice"), "("}, srcValue...), ")")...)...)
+	generatedFile.P(append(tgtValue, append(append([]any{internal.ProtoxPackage.Ident("WrapStringSlice"), "("}, srcValue...), ")")...)...)
 }
 
 func (f *ServerGenerator) PrintEnumValueAssign(generatedFile *protogen.GeneratedFile, ident protogen.GoIdent, tgtValue []any, srcValue []any, hasPresence bool) {

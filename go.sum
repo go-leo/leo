@@ -39,6 +39,12 @@ github.com/go-leo/gox v0.0.0-20240514122824-95098495e04f h1:v6zRSA1EjDWPaTZ8x7/A
 github.com/go-leo/gox v0.0.0-20240514122824-95098495e04f/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/gox v0.0.0-20240516020655-d35e419df9c4 h1:fVJB0SP2STf0lklNMYPb3uBr+O6pFfCr8xMujkb07Cc=
 github.com/go-leo/gox v0.0.0-20240516020655-d35e419df9c4/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240516063927-671d3c0f3ff1 h1:gU7ZpR9irY3U7yBTBnaDF3WBokZB3wDMwHdsbM32oLs=
+github.com/go-leo/gox v0.0.0-20240516063927-671d3c0f3ff1/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240516092156-38b49743a458 h1:FTT5hjAmltciZ7TqdhsPWKQe3BThGX234uzMVYr2n/s=
+github.com/go-leo/gox v0.0.0-20240516092156-38b49743a458/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240516092515-81bbacb3e92d h1:pEMIJIZS9L9pFxOonnoqMachKI7OEQO65+OygzUlSCo=
+github.com/go-leo/gox v0.0.0-20240516092515-81bbacb3e92d/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390 h1:C36V5ogQAEExR0RQ4Z4zRrKeiu0DduyAjgKsJoCmnqM=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390/go.mod h1:8REKWY9fcExjGpS5CLc/rpBBzcxXAKzebT8gtMrfRTA=
 github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=
