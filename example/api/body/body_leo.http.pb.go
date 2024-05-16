@@ -14,7 +14,6 @@ import (
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http2 "google.golang.org/genproto/googleapis/rpc/http"
-	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -45,13 +44,17 @@ func NewBodyHTTPServer(
 				if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 					return nil, err
 				}
+				vars := mux.Vars(r)
+				_ = vars
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -73,13 +76,17 @@ func NewBodyHTTPServer(
 				if err := json.NewDecoder(r.Body).Decode(req.User); err != nil {
 					return nil, err
 				}
+				vars := mux.Vars(r)
+				_ = vars
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -98,13 +105,17 @@ func NewBodyHTTPServer(
 			endpointx.Chain(endpoints.NonBody(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
+				vars := mux.Vars(r)
+				_ = vars
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -129,13 +140,17 @@ func NewBodyHTTPServer(
 				}
 				req.Data = body
 				req.ContentType = r.Header.Get("Content-Type")
+				vars := mux.Vars(r)
+				_ = vars
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -161,13 +176,17 @@ func NewBodyHTTPServer(
 				}
 				req.Body.Data = body
 				req.Body.ContentType = r.Header.Get("Content-Type")
+				vars := mux.Vars(r)
+				_ = vars
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -205,7 +224,7 @@ func NewBodyHTTPServer(
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}

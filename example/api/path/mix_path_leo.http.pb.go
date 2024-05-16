@@ -4,13 +4,13 @@ package path
 
 import (
 	context "context"
+	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
-	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -37,6 +37,7 @@ func NewMixPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MixPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
@@ -44,13 +45,15 @@ func NewMixPathHTTPServer(
 				req.String_ = vars["string"]
 				req.OptString = proto.String(vars["opt_string"])
 				req.WrapString = wrapperspb.String(vars["wrap_string"])
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}

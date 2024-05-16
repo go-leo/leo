@@ -4,13 +4,13 @@ package path
 
 import (
 	context "context"
+	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
-	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -42,8 +42,10 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
 				queries := r.URL.Query()
+				_ = queries
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
 				return req, nil
@@ -52,7 +54,7 @@ func NewNamedPathHTTPServer(
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -72,8 +74,10 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
+				_ = queries
 				req.String_ = queries.Get("string")
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
 				return req, nil
@@ -82,7 +86,7 @@ func NewNamedPathHTTPServer(
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -102,8 +106,10 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
+				_ = queries
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				return req, nil
@@ -112,7 +118,7 @@ func NewNamedPathHTTPServer(
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -132,17 +138,20 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -162,17 +171,20 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
@@ -192,17 +204,20 @@ func NewNamedPathHTTPServer(
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := mux.Vars(r)
+				_ = vars
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				queries := r.URL.Query()
+				_ = queries
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := protojson.Marshal(resp)
+				data, err := json.Marshal(resp)
 				if err != nil {
 					return err
 				}
