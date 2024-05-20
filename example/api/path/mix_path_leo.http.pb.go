@@ -47,6 +47,10 @@ func NewMixPathHTTPServer(
 				req.WrapString = wrapperspb.String(vars["wrap_string"])
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {

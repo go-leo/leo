@@ -46,8 +46,12 @@ func NewNamedPathHTTPServer(
 				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -78,8 +82,12 @@ func NewNamedPathHTTPServer(
 				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				req.String_ = queries.Get("string")
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -110,8 +118,12 @@ func NewNamedPathHTTPServer(
 				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -145,6 +157,10 @@ func NewNamedPathHTTPServer(
 				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -178,6 +194,10 @@ func NewNamedPathHTTPServer(
 				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -211,6 +231,10 @@ func NewNamedPathHTTPServer(
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {

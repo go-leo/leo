@@ -45,6 +45,10 @@ github.com/go-leo/gox v0.0.0-20240516092156-38b49743a458 h1:FTT5hjAmltciZ7TqdhsP
 github.com/go-leo/gox v0.0.0-20240516092156-38b49743a458/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/gox v0.0.0-20240516092515-81bbacb3e92d h1:pEMIJIZS9L9pFxOonnoqMachKI7OEQO65+OygzUlSCo=
 github.com/go-leo/gox v0.0.0-20240516092515-81bbacb3e92d/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240517065443-0dda1db06cc6 h1:geZI9C+Zll6jSrvU+ndu+nmd87UhAk6gc47hX1v0kYY=
+github.com/go-leo/gox v0.0.0-20240517065443-0dda1db06cc6/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240520075056-d82404f624ea h1:jVgzJTfEnEuVbTRQVt/H07Y7wM0PjhMoG2k/6CnjJik=
+github.com/go-leo/gox v0.0.0-20240520075056-d82404f624ea/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390 h1:C36V5ogQAEExR0RQ4Z4zRrKeiu0DduyAjgKsJoCmnqM=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390/go.mod h1:8REKWY9fcExjGpS5CLc/rpBBzcxXAKzebT8gtMrfRTA=
 github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=

@@ -63,6 +63,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseInt[int32](queries.Get("int32"), 10, 32); err != nil {
 					return nil, err
 				} else {
@@ -225,6 +226,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -290,6 +294,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -432,6 +437,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -497,6 +505,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -639,6 +648,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -694,6 +706,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -846,6 +859,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -901,6 +917,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -1053,6 +1070,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -1098,6 +1118,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -1260,6 +1281,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -1305,6 +1329,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -1468,6 +1493,9 @@ func NewPathHTTPServer(
 				} else {
 					req.OptStatus = &v
 				}
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -1500,6 +1528,7 @@ func NewPathHTTPServer(
 				req.WrapString = wrapperspb.String(vars["wrap_string"])
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -1674,6 +1703,9 @@ func NewPathHTTPServer(
 					return nil, err
 				} else {
 					req.OptStatus = &v
+				}
+				if queryErr != nil {
+					return nil, queryErr
 				}
 				return req, nil
 			},
@@ -1714,6 +1746,7 @@ func NewPathHTTPServer(
 				}
 				queries := r.URL.Query()
 				_ = queries
+				var queryErr error
 				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
 					return nil, err
 				} else {
@@ -1882,6 +1915,9 @@ func NewPathHTTPServer(
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+				if queryErr != nil {
+					return nil, queryErr
+				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {

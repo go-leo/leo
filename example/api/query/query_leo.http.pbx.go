@@ -9,6 +9,8 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	"github.com/go-leo/gox/errorx"
+	"github.com/go-leo/gox/netx/urlx"
 	protox "github.com/go-leo/gox/protox"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -40,12 +42,47 @@ func NewQueryHTTPServer(
 				vars := mux.Vars(r)
 				_ = vars
 				queries := r.URL.Query()
+
+				var err error
 				_ = queries
-				if v, err := strconvx.ParseBool(queries.Get("bool")); err != nil {
-					return nil, err
-				} else {
-					req.Bool = v
+				f5 := func(queries url.Values, key string) func() (bool, error) {
+					return func() (bool, error) {
+						return strconvx.ParseBool(queries.Get(key))
+					}
 				}
+				req.Bool, err = errorx.Break[bool](err)(f5(queries, "bool"))
+
+				f3 := func(queries url.Values, key string) func() (*bool, error) {
+					return func() (*bool, error) {
+						v, err := strconvx.ParseBool(queries.Get(key))
+						return proto.Bool(v), err
+					}
+				}
+				req.OptBool, err = errorx.Break[*bool](err)(f3(queries, "opt_bool"))
+
+				f4 := func(queries url.Values, key string) func() ([]bool, error) {
+					return func() ([]bool, error) {
+						return strconvx.ParseBoolSlice(queries[key])
+					}
+				}
+				req.RepBool, err = errorx.Break[[]bool](err)(urlx.GetBoolSlice(queries, "rep_bool"))
+
+				f2 := func(queries url.Values, key string) func() (*wrapperspb.BoolValue, error) {
+					return func() (*wrapperspb.BoolValue, error) {
+						v, err := strconvx.ParseBool(queries.Get(key))
+						return wrapperspb.Bool(v), err
+					}
+				}
+				req.WrapBool, err = errorx.Break[*wrapperspb.BoolValue](err)(f2(queries, "wrap_bool"))
+
+				f := func(queries url.Values, key string) func() ([]*wrapperspb.BoolValue, error) {
+					return func() ([]*wrapperspb.BoolValue, error) {
+						v, err := strconvx.ParseBoolSlice(queries[key])
+						return protox.WrapBoolSlice(v), err
+					}
+				}
+				req.RepWrapBool, err = errorx.Break[[]*wrapperspb.BoolValue](err)(urlx.GetBoolValueSlice(queries, "rep_wrap_bool"))
+
 				if v, err := strconvx.ParseInt[int32](queries.Get("int32"), 10, 32); err != nil {
 					return nil, err
 				} else {
@@ -269,11 +306,6 @@ func NewQueryHTTPServer(
 				} else {
 					req.WrapUint32 = wrapperspb.UInt32(v)
 				}
-				if v, err := strconvx.ParseBool(queries.Get("wrap_bool")); err != nil {
-					return nil, err
-				} else {
-					req.WrapBool = wrapperspb.Bool(v)
-				}
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
 				if v, err := strconvx.ParseFloat[float64](queries.Get("opt_wrap_double"), 64); err != nil {
 					return nil, err
@@ -305,11 +337,7 @@ func NewQueryHTTPServer(
 				} else {
 					req.OptWrapUint32 = wrapperspb.UInt32(v)
 				}
-				if v, err := strconvx.ParseBool(queries.Get("opt_wrap_bool")); err != nil {
-					return nil, err
-				} else {
-					req.OptWrapBool = wrapperspb.Bool(v)
-				}
+
 				req.OptWrapString = wrapperspb.String(queries.Get("opt_wrap_string"))
 				if v, err := strconvx.ParseFloatSlice[float64](queries["rep_wrap_double"], 64); err != nil {
 					return nil, err
@@ -341,11 +369,7 @@ func NewQueryHTTPServer(
 				} else {
 					req.RepWrapUint32 = protox.WrapUint32Slice(v)
 				}
-				if v, err := strconvx.ParseBoolSlice(queries["rep_wrap_bool"]); err != nil {
-					return nil, err
-				} else {
-					req.RepWrapBool = protox.WrapBoolSlice(v)
-				}
+
 				req.RepWrapString = protox.WrapStringSlice(queries["rep_wrap_string"])
 				if v, err := strconvx.ParseInt[QueryRequest_Status](queries.Get("status"), 10, 32); err != nil {
 					return nil, err

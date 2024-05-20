@@ -103,9 +103,13 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 
 	generatedFile.P("queries := r.URL.Query()")
 	generatedFile.P("_ = queries")
+	generatedFile.P("var queryErr error")
 	if len(queryFields) > 0 {
 		f.PrintQueryField(generatedFile, queryFields)
 	}
+	generatedFile.P("if queryErr != nil {")
+	generatedFile.P("return nil, queryErr")
+	generatedFile.P("}")
 
 	generatedFile.P("return req, nil")
 	generatedFile.P("},")
@@ -232,14 +236,21 @@ func (f *ServerGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile,
 		//	continue
 		//}
 		tgtValue := []any{"req.", field.GoName, " = "}
+		tgtValue2 := []any{"req.", field.GoName, ", queryErr = "}
 		srcValue := []any{"queries.Get(", strconv.Quote(fieldName), ")"}
+
+		goType, pointer := internal.FieldGoType(generatedFile, field)
+		if pointer {
+			goType = append([]any{"*"}, goType...)
+		}
+
 		if field.Desc.IsList() {
 			srcValue = []any{"queries[", strconv.Quote(fieldName), "]"}
 		}
 		switch field.Desc.Kind() {
 		case protoreflect.BoolKind: // bool
 			if field.Desc.IsList() {
-				f.PrintBoolListAssign(generatedFile, tgtValue, srcValue)
+				f.PrintBoolListAssign(generatedFile, tgtValue2, goType, fieldName)
 			} else {
 				f.PrintBoolValueAssign(generatedFile, tgtValue, srcValue, field.Desc.HasPresence())
 			}
@@ -331,7 +342,8 @@ func (f *ServerGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile,
 				}
 			case "google.protobuf.BoolValue":
 				if field.Desc.IsList() {
-					f.PrintWrapBoolListAssign(generatedFile, tgtValue, srcValue)
+
+					f.PrintWrapBoolListAssign(generatedFile, tgtValue2, goType, fieldName)
 				} else {
 					f.PrintWrapBoolValueAssign(generatedFile, tgtValue, srcValue)
 				}
@@ -367,20 +379,13 @@ func (f *ServerGenerator) PrintWrapBoolValueAssign(generatedFile *protogen.Gener
 	generatedFile.P("}")
 }
 
-func (f *ServerGenerator) PrintBoolListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseBoolSlice"), "("}, srcValue...), "); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
+func (f *ServerGenerator) PrintBoolListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, goType []any, key string) {
+	generatedFile.P(append(append([]any{}, tgtValue...), append(append([]any{internal.ErrorxPackage.Ident("Break"), "["}, goType...), []any{"](queryErr)(", internal.UrlxPackage.Ident("GetBoolSlice"), "(queries, ", strconv.Quote(key), "))"}...)...)...)
+
 }
 
-func (f *ServerGenerator) PrintWrapBoolListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseBoolSlice"), "("}, srcValue...), "); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapBoolSlice"), "(v)")...)
-	generatedFile.P("}")
+func (f *ServerGenerator) PrintWrapBoolListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, goType []any, key string) {
+	generatedFile.P(append(append([]any{}, tgtValue...), append(append([]any{internal.ErrorxPackage.Ident("Break"), "["}, goType...), []any{"](queryErr)(", internal.UrlxPackage.Ident("GetBoolValueSlice"), "(queries, ", strconv.Quote(key), "))"}...)...)...)
 }
 
 func (f *ServerGenerator) PrintInt32ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, isOptional bool) {

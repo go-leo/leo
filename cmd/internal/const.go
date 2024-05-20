@@ -28,6 +28,7 @@ var (
 	ConvxPackage         = protogen.GoImportPath("github.com/go-leo/gox/convx")
 	StrconvxPackage      = protogen.GoImportPath("github.com/go-leo/gox/strconvx")
 	ProtoxPackage        = protogen.GoImportPath("github.com/go-leo/gox/protox")
+	UrlxPackage          = protogen.GoImportPath("github.com/go-leo/gox/netx/urlx")
 	RpcHttpPackage       = protogen.GoImportPath("google.golang.org/genproto/googleapis/rpc/http")
 	ProtoJsonPackage     = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	ProtoPackage         = protogen.GoImportPath("google.golang.org/protobuf/proto")
