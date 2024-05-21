@@ -46,25 +46,15 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.BoolPath(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseBool(vars["bool"]); err != nil {
-					return nil, err
-				} else {
-					req.Bool = v
-				}
-				if v, err := strconvx.ParseBool(vars["opt_bool"]); err != nil {
-					return nil, err
-				} else {
-					req.OptBool = proto.Bool(v)
-				}
-				if v, err := strconvx.ParseBool(vars["wrap_bool"]); err != nil {
-					return nil, err
-				} else {
-					req.WrapBool = wrapperspb.Bool(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Bool, varErr = errorx.Break[bool](varErr)(urlx.GetBool(vars, "bool"))
+				req.OptBool, varErr = errorx.Break[*bool](varErr)(urlx.GetBoolPtr(vars, "opt_bool"))
+				req.WrapBool, varErr = errorx.Break[*wrapperspb.BoolValue](varErr)(urlx.GetBoolValue(vars, "wrap_bool"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
 				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
@@ -129,45 +119,19 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.Int32Path(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseInt[int32](vars["int32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.Int32 = v
-				}
-				if v, err := strconvx.ParseInt[int32](vars["sint32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.Sint32 = v
-				}
-				if v, err := strconvx.ParseInt[int32](vars["sfixed32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.Sfixed32 = v
-				}
-				if v, err := strconvx.ParseInt[int32](vars["opt_int32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.OptInt32 = proto.Int32(v)
-				}
-				if v, err := strconvx.ParseInt[int32](vars["opt_sint32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.OptSint32 = proto.Int32(v)
-				}
-				if v, err := strconvx.ParseInt[int32](vars["opt_sfixed32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.OptSfixed32 = proto.Int32(v)
-				}
-				if v, err := strconvx.ParseInt[int32](vars["wrap_int32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.WrapInt32 = wrapperspb.Int32(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Int32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "int32"))
+				req.Sint32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "sint32"))
+				req.Sfixed32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "sfixed32"))
+				req.OptInt32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_int32"))
+				req.OptSint32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sint32"))
+				req.OptSfixed32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sfixed32"))
+				req.WrapInt32, varErr = errorx.Break[*wrapperspb.Int32Value](varErr)(urlx.GetInt32Value(vars, "wrap_int32"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -228,45 +192,19 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.Int64Path(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseInt[int64](vars["int64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.Int64 = v
-				}
-				if v, err := strconvx.ParseInt[int64](vars["sint64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.Sint64 = v
-				}
-				if v, err := strconvx.ParseInt[int64](vars["sfixed64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.Sfixed64 = v
-				}
-				if v, err := strconvx.ParseInt[int64](vars["opt_int64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.OptInt64 = proto.Int64(v)
-				}
-				if v, err := strconvx.ParseInt[int64](vars["opt_sint64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.OptSint64 = proto.Int64(v)
-				}
-				if v, err := strconvx.ParseInt[int64](vars["opt_sfixed64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.OptSfixed64 = proto.Int64(v)
-				}
-				if v, err := strconvx.ParseInt[int64](vars["wrap_int64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.WrapInt64 = wrapperspb.Int64(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Int64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "int64"))
+				req.Sint64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "sint64"))
+				req.Sfixed64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "sfixed64"))
+				req.OptInt64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_int64"))
+				req.OptSint64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sint64"))
+				req.OptSfixed64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sfixed64"))
+				req.WrapInt64, varErr = errorx.Break[*wrapperspb.Int64Value](varErr)(urlx.GetInt64Value(vars, "wrap_int64"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -327,35 +265,17 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.Uint32Path(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseUint[uint32](vars["uint32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.Uint32 = v
-				}
-				if v, err := strconvx.ParseUint[uint32](vars["fixed32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.Fixed32 = v
-				}
-				if v, err := strconvx.ParseUint[uint32](vars["opt_uint32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.OptUint32 = proto.Uint32(v)
-				}
-				if v, err := strconvx.ParseUint[uint32](vars["opt_fixed32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.OptFixed32 = proto.Uint32(v)
-				}
-				if v, err := strconvx.ParseUint[uint32](vars["wrap_uint32"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.WrapUint32 = wrapperspb.UInt32(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Uint32, varErr = errorx.Break[uint32](varErr)(urlx.GetUint[uint32](vars, "uint32"))
+				req.Fixed32, varErr = errorx.Break[uint32](varErr)(urlx.GetUint[uint32](vars, "fixed32"))
+				req.OptUint32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_uint32"))
+				req.OptFixed32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_fixed32"))
+				req.WrapUint32, varErr = errorx.Break[*wrapperspb.UInt32Value](varErr)(urlx.GetUint32Value(vars, "wrap_uint32"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -418,35 +338,17 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.Uint64Path(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseUint[uint64](vars["uint64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.Uint64 = v
-				}
-				if v, err := strconvx.ParseUint[uint64](vars["fixed64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.Fixed64 = v
-				}
-				if v, err := strconvx.ParseUint[uint64](vars["opt_uint64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.OptUint64 = proto.Uint64(v)
-				}
-				if v, err := strconvx.ParseUint[uint64](vars["opt_fixed64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.OptFixed64 = proto.Uint64(v)
-				}
-				if v, err := strconvx.ParseUint[uint64](vars["wrap_uint64"], 10, 64); err != nil {
-					return nil, err
-				} else {
-					req.WrapUint64 = wrapperspb.UInt64(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Uint64, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "uint64"))
+				req.Fixed64, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "fixed64"))
+				req.OptUint64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_uint64"))
+				req.OptFixed64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_fixed64"))
+				req.WrapUint64, varErr = errorx.Break[*wrapperspb.UInt64Value](varErr)(urlx.GetUint64Value(vars, "wrap_uint64"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -509,25 +411,15 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.FloatPath(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseFloat[float32](vars["float"], 32); err != nil {
-					return nil, err
-				} else {
-					req.Float = v
-				}
-				if v, err := strconvx.ParseFloat[float32](vars["opt_float"], 32); err != nil {
-					return nil, err
-				} else {
-					req.OptFloat = proto.Float32(v)
-				}
-				if v, err := strconvx.ParseFloat[float32](vars["wrap_float"], 32); err != nil {
-					return nil, err
-				} else {
-					req.WrapFloat = wrapperspb.Float(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Float, varErr = errorx.Break[float32](varErr)(urlx.GetFloat[float32](vars, "float"))
+				req.OptFloat, varErr = errorx.Break[*float32](varErr)(urlx.GetFloatPtr[float32](vars, "opt_float"))
+				req.WrapFloat, varErr = errorx.Break[*wrapperspb.FloatValue](varErr)(urlx.GetFloat32Value(vars, "wrap_float"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -592,25 +484,15 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.DoublePath(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseFloat[float64](vars["double"], 64); err != nil {
-					return nil, err
-				} else {
-					req.Double = v
-				}
-				if v, err := strconvx.ParseFloat[float64](vars["opt_double"], 64); err != nil {
-					return nil, err
-				} else {
-					req.OptDouble = proto.Float64(v)
-				}
-				if v, err := strconvx.ParseFloat[float64](vars["wrap_double"], 64); err != nil {
-					return nil, err
-				} else {
-					req.WrapDouble = wrapperspb.Double(v)
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Double, varErr = errorx.Break[float64](varErr)(urlx.GetFloat[float64](vars, "double"))
+				req.OptDouble, varErr = errorx.Break[*float64](varErr)(urlx.GetFloatPtr[float64](vars, "opt_double"))
+				req.WrapDouble, varErr = errorx.Break[*wrapperspb.DoubleValue](varErr)(urlx.GetFloat64Value(vars, "wrap_double"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -675,13 +557,15 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.StringPath(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				req.String_ = vars["string"]
-				req.OptString = proto.String(vars["opt_string"])
-				req.WrapString = wrapperspb.String(vars["wrap_string"])
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.String_ = vars.Get("string")
+				req.OptString = proto.String(vars.Get("opt_string"))
+				req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
+				if varErr != nil {
+					return nil, varErr
+				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
@@ -746,20 +630,14 @@ func NewPathHTTPServer(
 			endpointx.Chain(endpoints.EnumPath(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				if v, err := strconvx.ParseInt[PathRequest_Status](vars["status"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.Status = v
-				}
-				if v, err := strconvx.ParseInt[PathRequest_Status](vars["opt_status"], 10, 32); err != nil {
-					return nil, err
-				} else {
-					req.OptStatus = &v
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Status, varErr = errorx.Break[PathRequest_Status](varErr)(urlx.GetInt[PathRequest_Status](vars, "status"))
+				req.OptStatus, varErr = errorx.Break[*PathRequest_Status](varErr)(urlx.GetIntPtr[PathRequest_Status](vars, "opt_status"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))

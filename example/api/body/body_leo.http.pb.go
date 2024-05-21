@@ -44,14 +44,6 @@ func NewBodyHTTPServer(
 				if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 					return nil, err
 				}
-				vars := mux.Vars(r)
-				_ = vars
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
-				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -80,14 +72,6 @@ func NewBodyHTTPServer(
 				if err := json.NewDecoder(r.Body).Decode(req.User); err != nil {
 					return nil, err
 				}
-				vars := mux.Vars(r)
-				_ = vars
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
-				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -113,14 +97,6 @@ func NewBodyHTTPServer(
 			endpointx.Chain(endpoints.NonBody(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
-				vars := mux.Vars(r)
-				_ = vars
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
-				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -152,14 +128,6 @@ func NewBodyHTTPServer(
 				}
 				req.Data = body
 				req.ContentType = r.Header.Get("Content-Type")
-				vars := mux.Vars(r)
-				_ = vars
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
-				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
@@ -192,14 +160,6 @@ func NewBodyHTTPServer(
 				}
 				req.Body.Data = body
 				req.Body.ContentType = r.Header.Get("Content-Type")
-				vars := mux.Vars(r)
-				_ = vars
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
-				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {

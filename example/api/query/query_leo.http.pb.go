@@ -39,10 +39,7 @@ func NewQueryHTTPServer(
 			endpointx.Chain(endpoints.Query(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &QueryRequest{}
-				vars := mux.Vars(r)
-				_ = vars
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
 				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))

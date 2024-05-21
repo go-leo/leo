@@ -9,6 +9,7 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	proto "google.golang.org/protobuf/proto"
@@ -41,11 +42,13 @@ func NewNamedPathHTTPServer(
 			endpointx.Chain(endpoints.NamedPathString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
+				if varErr != nil {
+					return nil, varErr
+				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
@@ -77,11 +80,13 @@ func NewNamedPathHTTPServer(
 			endpointx.Chain(endpoints.NamedPathOptString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+				if varErr != nil {
+					return nil, varErr
+				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.String_ = queries.Get("string")
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
@@ -113,11 +118,13 @@ func NewNamedPathHTTPServer(
 			endpointx.Chain(endpoints.NamedPathWrapString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
-				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+				if varErr != nil {
+					return nil, varErr
+				}
 				queries := r.URL.Query()
-				_ = queries
 				var queryErr error
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
@@ -149,17 +156,14 @@ func NewNamedPathHTTPServer(
 			endpointx.Chain(endpoints.EmbedNamedPathString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
-				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"])
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
+				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				return req, nil
 			},
@@ -186,17 +190,14 @@ func NewNamedPathHTTPServer(
 			endpointx.Chain(endpoints.EmbedNamedPathOptString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
-				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
+				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+				if varErr != nil {
+					return nil, varErr
 				}
 				return req, nil
 			},
@@ -223,17 +224,14 @@ func NewNamedPathHTTPServer(
 			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
+				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+				if varErr != nil {
+					return nil, varErr
 				}
 				return req, nil
 			},

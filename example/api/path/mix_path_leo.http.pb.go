@@ -9,6 +9,7 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	proto "google.golang.org/protobuf/proto"
@@ -36,20 +37,17 @@ func NewMixPathHTTPServer(
 			endpointx.Chain(endpoints.MixPath(), mdw...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MixPathRequest{}
-				vars := mux.Vars(r)
-				_ = vars
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
 				if req.Embed == nil {
 					req.Embed = &NamedPathRequest{}
 				}
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars["class"], vars["shelf"], vars["book"], vars["family"]))
-				req.String_ = vars["string"]
-				req.OptString = proto.String(vars["opt_string"])
-				req.WrapString = wrapperspb.String(vars["wrap_string"])
-				queries := r.URL.Query()
-				_ = queries
-				var queryErr error
-				if queryErr != nil {
-					return nil, queryErr
+				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+				req.String_ = vars.Get("string")
+				req.OptString = proto.String(vars.Get("opt_string"))
+				req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
+				if varErr != nil {
+					return nil, varErr
 				}
 				return req, nil
 			},
