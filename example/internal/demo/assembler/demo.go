@@ -126,6 +126,6 @@ func (d DemoServiceAssembler) ToGetUserResponse(ctx context.Context, request *de
 	}, nil
 }
 
-func NewDemoServiceAssembler() demo.DemoServiceAssembler {
+func NewDemoServiceAssembler() cq.DemoServiceAssembler {
 	return &DemoServiceAssembler{}
 }

@@ -7,7 +7,6 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -165,11 +164,11 @@ func NewCQRSServices(file *protogen.File) ([]*Service, error) {
 
 		commandPkg := proto.GetExtension(service.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
 		if commandPkg == nil {
-			return nil, fmt.Errorf("cqrs: %s, command package not defined", serviceFullName)
+			continue
 		}
 		queryPkg := proto.GetExtension(service.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
 		if queryPkg == nil {
-			return nil, fmt.Errorf("cqrs: %s, query package not defined", serviceFullName)
+			continue
 		}
 
 		commandPkgAbs, commandPkgRel, err := resolvePkgPath(file, commandPkg.Relative)
@@ -204,8 +203,8 @@ func NewCQRSServices(file *protogen.File) ([]*Service, error) {
 		}
 		services = append(services, &Service{
 			Service:   service,
-			Command:   NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package, path.Base(commandPkg.Package)),
-			Query:     NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package, path.Base(queryPkg.Package)),
+			Command:   NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package),
+			Query:     NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package),
 			Endpoints: endpoints,
 		})
 	}
@@ -213,27 +212,46 @@ func NewCQRSServices(file *protogen.File) ([]*Service, error) {
 }
 
 func resolvePkgPath(file *protogen.File, rel string) (string, string, error) {
+	// 获取命令工作目录
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", "", err
 	}
-	fileAbs := filepath.Join(wd, file.Desc.Path())
-	fileAbs, err = filepath.Abs(fileAbs)
+
+	fmt.Printf("【wd: %s】", wd)
+
+	// 获取.proto文件路径
+	filePath := filepath.Join(wd, file.Desc.Path())
+	fmt.Printf("【filePath: %s】", filePath)
+
+	// 获取.proto文件绝对路径
+	fileAbs, err := filepath.Abs(filePath)
 	if err != nil {
 		return "", "", err
 	}
-	pkgAbs := filepath.Join(fileAbs, rel)
-	pkgAbs, err = filepath.Abs(pkgAbs)
+	fmt.Printf("【fileAbs: %s】", filePath)
+	fmt.Printf("【rel: %s】", rel)
+
+	// 算出query或者command包的绝对路径
+	pkgPath := filepath.Join(fileAbs, rel)
+	fmt.Printf("【pkgPath: %s】", pkgPath)
+	pkgAbs, err := filepath.Abs(pkgPath)
 	if err != nil {
 		return "", "", err
 	}
-	pkgRel, err := filepath.Rel(wd, pkgAbs)
-	if err != nil {
-		return "", "", err
-	}
+	fmt.Printf("【pkgAbs: %s】", pkgAbs)
+
 	_, err = os.Stat(pkgAbs)
 	if err != nil {
 		return "", "", err
 	}
+
+	// 算出query或者command包的相对路径
+	pkgRel, err := filepath.Rel(wd, pkgAbs)
+	if err != nil {
+		return "", "", err
+	}
+	fmt.Printf("【pkgRel: %s】", pkgRel)
+
 	return pkgAbs, pkgRel, nil
 }

@@ -11,7 +11,7 @@ service CQRS {
     // package: the full package name of the command.
     package: "github.com/go-leo/leo/v3/example/internal/cqrs/command"
     // relative: the package path of the command, relative to the current proto file.
-    relative: "../../internal/cqrs/command"
+    relative: "../../../internal/cqrs/command"
   };
 
   // Define command package information
@@ -19,7 +19,7 @@ service CQRS {
     // package: the full package name of the query.
     package: "github.com/go-leo/leo/v3/example/internal/cqrs/query"
     // relative: the package path of the command, relative to the current proto file.
-    relative:  "../../internal/cqrs/query"
+    relative:  "../../../internal/cqrs/query"
   };
 
   // CreateUser sync create user
