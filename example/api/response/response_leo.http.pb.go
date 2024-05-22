@@ -327,7 +327,11 @@ func NewResponseHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &UserResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -363,7 +367,11 @@ func NewResponseHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &UserResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -399,7 +407,11 @@ func NewResponseHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &UserResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(&resp.User); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -435,7 +447,14 @@ func NewResponseHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &httpbody.HttpBody{}
+					resp.ContentType = "application/json; charset=utf-8"
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					resp.Data = body
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -471,7 +490,15 @@ func NewResponseHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &HttpBody{}
+					resp.Body = &httpbody.HttpBody{}
+					resp.Body.ContentType = "application/json; charset=utf-8"
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					resp.Body.Data = body
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -509,7 +536,20 @@ func NewResponseHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &http2.HttpResponse{}
+					resp.Status = int32(r.StatusCode)
+					resp.Reason = r.Status
+					for key, values := range r.Header {
+						for _, value := range values {
+							resp.Headers = append(resp.Headers, &http2.HttpHeader{Key: key, Value: value})
+						}
+					}
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					resp.Body = body
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),

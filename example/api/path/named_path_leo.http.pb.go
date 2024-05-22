@@ -364,7 +364,11 @@ func NewNamedPathHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -408,7 +412,11 @@ func NewNamedPathHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -452,7 +460,11 @@ func NewNamedPathHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -494,7 +506,11 @@ func NewNamedPathHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -536,7 +552,11 @@ func NewNamedPathHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -578,7 +598,11 @@ func NewNamedPathHTTPClient(
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),

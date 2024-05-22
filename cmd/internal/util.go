@@ -135,7 +135,6 @@ func FieldGoType(g *protogen.GeneratedFile, field *protogen.Field) (goType []any
 	case field.Desc.IsMap():
 		keyType, _ := FieldGoType(g, field.Message.Fields[0])
 		valType, _ := FieldGoType(g, field.Message.Fields[1])
-		// fmt.Sprintf("map[%v]%v", keyType, valType),
 		return []any{"map[", keyType, "]", valType}, false
 	}
 	return goType, pointer
