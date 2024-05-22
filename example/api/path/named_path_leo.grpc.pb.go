@@ -88,8 +88,8 @@ func NewNamedPathGRPCServer(
 		EmbedNamedPathOptString() endpoint.Endpoint
 		EmbedNamedPathWrapString() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
@@ -197,8 +197,8 @@ func (c *namedPathGRPCClient) EmbedNamedPathWrapString(ctx context.Context, requ
 
 func NewNamedPathGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)

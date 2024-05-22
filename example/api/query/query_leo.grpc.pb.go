@@ -28,8 +28,8 @@ func NewQueryGRPCServer(
 	endpoints interface {
 		Query() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 } {
@@ -57,8 +57,8 @@ func (c *queryGRPCClient) Query(ctx context.Context, request *QueryRequest) (*em
 
 func NewQueryGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 } {

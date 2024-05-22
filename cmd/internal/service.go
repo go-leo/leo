@@ -11,6 +11,9 @@ import (
 type Service struct {
 	Service   *protogen.Service
 	Endpoints []*Endpoint
+
+	Command *Package
+	Query   *Package
 }
 
 func (s Service) Name() string {
@@ -93,6 +96,18 @@ func (s Service) UnexportedEndpointsName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) CQRSName() string {
+	return s.Service.GoName + "CQRSService"
+}
+
+func (s Service) AssemblerName() string {
+	return s.Service.GoName + "Assembler"
+}
+
+func (s Service) BusName() string {
+	return s.Service.GoName + "Bus"
+}
+
 func NewServices(file *protogen.File) ([]*Service, error) {
 	var services []*Service
 	for _, service := range file.Services {
@@ -102,18 +117,37 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
 				return nil, fmt.Errorf("unsupport stream method: %s", fmName)
 			}
+			endpoints = append(endpoints, &Endpoint{method: method})
+		}
+		services = append(services, &Service{Service: service, Endpoints: endpoints})
+	}
+	return services, nil
+}
+
+func NewHttpServices(file *protogen.File) ([]*Service, error) {
+	var services []*Service
+	for _, service := range file.Services {
+		var endpoints []*Endpoint
+		for _, method := range service.Methods {
+			fmName := fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
+			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
+				continue
+				//return nil, fmt.Errorf("unsupport stream method: %s", fmName)
+			}
 			extHTTP := proto.GetExtension(method.Desc.Options(), annotations.E_Http)
 			if extHTTP == nil {
-				return nil, fmt.Errorf("missing http rule: %s", fmName)
+				continue
+				//return nil, fmt.Errorf("missing http rule: %s", fmName)
 			}
 			if extHTTP == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
-				return nil, fmt.Errorf("missing http rule: %s", fmName)
+				continue
+				//return nil, fmt.Errorf("missing http rule: %s", fmName)
 			}
 			rule := extHTTP.(*annotations.HttpRule)
 			if len(rule.AdditionalBindings) > 0 {
 				return nil, fmt.Errorf("unsupport additional bindings: %s", fmName)
 			}
-			endpoints = append(endpoints, NewEndpoint(method, rule))
+			endpoints = append(endpoints, &Endpoint{method: method, httpRule: &HttpRule{rule: rule}})
 		}
 		services = append(services, &Service{Service: service, Endpoints: endpoints})
 	}

@@ -11,7 +11,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type gRPCWorkspacesServer struct {
+type workspacesGRPCServer struct {
 	listWorkspaces grpc.Handler
 
 	getWorkspace grpc.Handler
@@ -23,7 +23,7 @@ type gRPCWorkspacesServer struct {
 	deleteWorkspace grpc.Handler
 }
 
-func (s *gRPCWorkspacesServer) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+func (s *workspacesGRPCServer) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
 	ctx, rep, err := s.listWorkspaces.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (s *gRPCWorkspacesServer) ListWorkspaces(ctx context.Context, request *List
 	return rep.(*ListWorkspacesResponse), nil
 }
 
-func (s *gRPCWorkspacesServer) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+func (s *workspacesGRPCServer) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
 	ctx, rep, err := s.getWorkspace.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (s *gRPCWorkspacesServer) GetWorkspace(ctx context.Context, request *GetWor
 	return rep.(*Workspace), nil
 }
 
-func (s *gRPCWorkspacesServer) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+func (s *workspacesGRPCServer) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
 	ctx, rep, err := s.createWorkspace.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (s *gRPCWorkspacesServer) CreateWorkspace(ctx context.Context, request *Cre
 	return rep.(*Workspace), nil
 }
 
-func (s *gRPCWorkspacesServer) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+func (s *workspacesGRPCServer) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
 	ctx, rep, err := s.updateWorkspace.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (s *gRPCWorkspacesServer) UpdateWorkspace(ctx context.Context, request *Upd
 	return rep.(*Workspace), nil
 }
 
-func (s *gRPCWorkspacesServer) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+func (s *workspacesGRPCServer) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.deleteWorkspace.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -76,8 +76,8 @@ func NewWorkspacesGRPCServer(
 		UpdateWorkspace() endpoint.Endpoint
 		DeleteWorkspace() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
@@ -85,7 +85,7 @@ func NewWorkspacesGRPCServer(
 	UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 } {
-	return &gRPCWorkspacesServer{
+	return &workspacesGRPCServer{
 		listWorkspaces: grpc.NewServer(
 			endpointx.Chain(endpoints.ListWorkspaces(), mdw...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
@@ -119,7 +119,7 @@ func NewWorkspacesGRPCServer(
 	}
 }
 
-type gRPCWorkspacesClient struct {
+type workspacesGRPCClient struct {
 	listWorkspaces  endpoint.Endpoint
 	getWorkspace    endpoint.Endpoint
 	createWorkspace endpoint.Endpoint
@@ -127,7 +127,7 @@ type gRPCWorkspacesClient struct {
 	deleteWorkspace endpoint.Endpoint
 }
 
-func (c *gRPCWorkspacesClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+func (c *workspacesGRPCClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
 	rep, err := c.listWorkspaces(ctx, request)
 	if err != nil {
 		return nil, err
@@ -135,7 +135,7 @@ func (c *gRPCWorkspacesClient) ListWorkspaces(ctx context.Context, request *List
 	return rep.(*ListWorkspacesResponse), nil
 }
 
-func (c *gRPCWorkspacesClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+func (c *workspacesGRPCClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
 	rep, err := c.getWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func (c *gRPCWorkspacesClient) GetWorkspace(ctx context.Context, request *GetWor
 	return rep.(*Workspace), nil
 }
 
-func (c *gRPCWorkspacesClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+func (c *workspacesGRPCClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
 	rep, err := c.createWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -151,7 +151,7 @@ func (c *gRPCWorkspacesClient) CreateWorkspace(ctx context.Context, request *Cre
 	return rep.(*Workspace), nil
 }
 
-func (c *gRPCWorkspacesClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+func (c *workspacesGRPCClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
 	rep, err := c.updateWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -159,7 +159,7 @@ func (c *gRPCWorkspacesClient) UpdateWorkspace(ctx context.Context, request *Upd
 	return rep.(*Workspace), nil
 }
 
-func (c *gRPCWorkspacesClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+func (c *workspacesGRPCClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
 	rep, err := c.deleteWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -169,8 +169,8 @@ func (c *gRPCWorkspacesClient) DeleteWorkspace(ctx context.Context, request *Del
 
 func NewWorkspacesGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
@@ -178,7 +178,7 @@ func NewWorkspacesGRPCClient(
 	UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 } {
-	return &gRPCWorkspacesClient{
+	return &workspacesGRPCClient{
 		listWorkspaces: endpointx.Chain(
 			grpc.NewClient(
 				conn,

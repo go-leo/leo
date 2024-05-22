@@ -9,16 +9,183 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	jsonx "github.com/go-leo/gox/encodingx/jsonx"
+	errorx "github.com/go-leo/gox/errorx"
+	urlx "github.com/go-leo/gox/netx/urlx"
+	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
-	protojson "google.golang.org/protobuf/encoding/protojson"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
+	url "net/url"
 	strings "strings"
 )
 
-type httpWorkspacesClient struct {
+func NewWorkspacesHTTPServer(
+	endpoints interface {
+		ListWorkspaces() endpoint.Endpoint
+		GetWorkspace() endpoint.Endpoint
+		CreateWorkspace() endpoint.Endpoint
+		UpdateWorkspace() endpoint.Endpoint
+		DeleteWorkspace() endpoint.Endpoint
+	},
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
+) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").
+		Methods("GET").
+		Path("/v1/projects/{project}/locations/{location}/workspaces").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.ListWorkspaces(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &ListWorkspacesRequest{}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars.Get("project"), vars.Get("location"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				queries := r.URL.Query()
+				var queryErr error
+				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
+				req.PageToken = queries.Get("page_token")
+				if queryErr != nil {
+					return nil, queryErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*ListWorkspacesResponse)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").
+		Methods("GET").
+		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.GetWorkspace(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &GetWorkspaceRequest{}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars.Get("project"), vars.Get("location"), vars.Get("workspac"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*Workspace)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").
+		Methods("POST").
+		Path("/v1/projects/{project}/locations/{location}/workspaces").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.CreateWorkspace(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &CreateWorkspaceRequest{}
+				if err := jsonx.NewDecoder(r.Body).Decode(req.Workspace); err != nil {
+					return nil, err
+				}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars.Get("project"), vars.Get("location"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*Workspace)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").
+		Methods("PATCH").
+		Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.UpdateWorkspace(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &UpdateWorkspaceRequest{}
+				if err := jsonx.NewDecoder(r.Body).Decode(req.Workspace); err != nil {
+					return nil, err
+				}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Name = fmt.Sprintf("projects/%s/locations/%s/Workspaces/%s", vars.Get("project"), vars.Get("location"), vars.Get("Workspac"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*Workspace)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").
+		Methods("DELETE").
+		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.DeleteWorkspace(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &DeleteWorkspaceRequest{}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars.Get("project"), vars.Get("location"), vars.Get("workspac"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	return router
+}
+
+type workspacesHTTPClient struct {
 	listWorkspaces  endpoint.Endpoint
 	getWorkspace    endpoint.Endpoint
 	createWorkspace endpoint.Endpoint
@@ -26,7 +193,7 @@ type httpWorkspacesClient struct {
 	deleteWorkspace endpoint.Endpoint
 }
 
-func (c *httpWorkspacesClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+func (c *workspacesHTTPClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
 	rep, err := c.listWorkspaces(ctx, request)
 	if err != nil {
 		return nil, err
@@ -34,7 +201,7 @@ func (c *httpWorkspacesClient) ListWorkspaces(ctx context.Context, request *List
 	return rep.(*ListWorkspacesResponse), nil
 }
 
-func (c *httpWorkspacesClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+func (c *workspacesHTTPClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
 	rep, err := c.getWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -42,7 +209,7 @@ func (c *httpWorkspacesClient) GetWorkspace(ctx context.Context, request *GetWor
 	return rep.(*Workspace), nil
 }
 
-func (c *httpWorkspacesClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+func (c *workspacesHTTPClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
 	rep, err := c.createWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -50,7 +217,7 @@ func (c *httpWorkspacesClient) CreateWorkspace(ctx context.Context, request *Cre
 	return rep.(*Workspace), nil
 }
 
-func (c *httpWorkspacesClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+func (c *workspacesHTTPClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
 	rep, err := c.updateWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -58,7 +225,7 @@ func (c *httpWorkspacesClient) UpdateWorkspace(ctx context.Context, request *Upd
 	return rep.(*Workspace), nil
 }
 
-func (c *httpWorkspacesClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+func (c *workspacesHTTPClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
 	rep, err := c.deleteWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -67,9 +234,10 @@ func (c *httpWorkspacesClient) DeleteWorkspace(ctx context.Context, request *Del
 }
 
 func NewWorkspacesHTTPClient(
+	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
@@ -98,22 +266,21 @@ func NewWorkspacesHTTPClient(
 		Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").
 		Methods("DELETE").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
-	return &httpWorkspacesClient{
+	return &workspacesHTTPClient{
 		listWorkspaces: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*ListWorkspacesRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
-					namedPathParameter := req.Parent
+					namedPathParameter := req.GetParent()
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
@@ -123,18 +290,27 @@ func NewWorkspacesHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// page_sizePageSize int32
-					// page_tokenPageToken string
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
+					queries["page_token"] = append(queries["page_token"], req.GetPageToken())
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &ListWorkspacesResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -142,18 +318,17 @@ func NewWorkspacesHTTPClient(
 		getWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*GetWorkspaceRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
-					namedPathParameter := req.Name
+					namedPathParameter := req.GetName()
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 6 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
@@ -163,15 +338,25 @@ func NewWorkspacesHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &Workspace{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -179,25 +364,23 @@ func NewWorkspacesHTTPClient(
 		createWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*CreateWorkspaceRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
+					_ = req
 					var body io.Reader
-					if req.Workspace != nil {
-						data, err := protojson.Marshal(req.Workspace)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+					var bodyBuf bytes.Buffer
+					if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetWorkspace()); err != nil {
+						return nil, err
 					}
+					body = &bodyBuf
+					contentType := "application/json; charset=utf-8"
 					var pairs []string
-					namedPathParameter := req.Parent
+					namedPathParameter := req.GetParent()
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 4 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
@@ -207,15 +390,26 @@ func NewWorkspacesHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
+					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &Workspace{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -223,25 +417,23 @@ func NewWorkspacesHTTPClient(
 		updateWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*UpdateWorkspaceRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "PATCH"
-					var url string
+					_ = req
 					var body io.Reader
-					if req.Workspace != nil {
-						data, err := protojson.Marshal(req.Workspace)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+					var bodyBuf bytes.Buffer
+					if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetWorkspace()); err != nil {
+						return nil, err
 					}
+					body = &bodyBuf
+					contentType := "application/json; charset=utf-8"
 					var pairs []string
-					namedPathParameter := req.Name
+					namedPathParameter := req.GetName()
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 6 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
@@ -251,17 +443,26 @@ func NewWorkspacesHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					queries := r.URL.Query()
-					// update_maskUpdateMask message
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "PATCH", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
+					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &Workspace{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
@@ -269,18 +470,17 @@ func NewWorkspacesHTTPClient(
 		deleteWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*DeleteWorkspaceRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "DELETE"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
-					namedPathParameter := req.Name
+					namedPathParameter := req.GetName()
 					namedPathValues := strings.Split(namedPathParameter, "/")
 					if len(namedPathValues) != 6 {
 						return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
@@ -290,15 +490,25 @@ func NewWorkspacesHTTPClient(
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http1.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "DELETE", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
-					return nil, nil
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),

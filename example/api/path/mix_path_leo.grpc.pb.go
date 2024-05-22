@@ -28,8 +28,8 @@ func NewMixPathGRPCServer(
 	endpoints interface {
 		MixPath() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
@@ -57,8 +57,8 @@ func (c *mixPathGRPCClient) MixPath(ctx context.Context, request *MixPathRequest
 
 func NewMixPathGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {

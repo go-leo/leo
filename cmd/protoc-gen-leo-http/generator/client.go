@@ -42,7 +42,9 @@ func (f *ClientGenerator) GenerateNewClient(service *internal.Service, generated
 		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	generatedFile.P("} {")
-	generatedFile.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
+	if len(service.Endpoints) > 0 {
+		generatedFile.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
+	}
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则
@@ -102,7 +104,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 			generatedFile.P("},")
 			return nil
 		default:
-			generatedFile.P("var bodyBuf bytes.Buffer")
+			generatedFile.P("var bodyBuf ", internal.BytesPackage.Ident("Buffer"))
 			encoder := internal.JsonxPackage.Ident("NewEncoder")
 			f.PrintEncodeBlock(generatedFile, encoder, []any{"&bodyBuf"}, []any{"req"})
 			generatedFile.P("body = &bodyBuf")
@@ -113,7 +115,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 			f.PrintReaderBlock(generatedFile, internal.BytesPackage, []any{"body"}, []any{"req.Get", bodyField.GoName, "()", ".GetData()"})
 			generatedFile.P("contentType := req.Get", bodyField.GoName, "()", ".GetContentType()")
 		} else {
-			generatedFile.P("var bodyBuf bytes.Buffer")
+			generatedFile.P("var bodyBuf ", internal.BytesPackage.Ident("Buffer"))
 			encoder := internal.JsonxPackage.Ident("NewEncoder")
 			tgtValue := []any{"&bodyBuf"}
 			srcValue := []any{"req.Get", bodyField.GoName, "()"}

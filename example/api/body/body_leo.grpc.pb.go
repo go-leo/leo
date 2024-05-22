@@ -90,8 +90,8 @@ func NewBodyGRPCServer(
 		HttpBodyNamedBody() endpoint.Endpoint
 		HttpRequestStarBody() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
 	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
@@ -199,8 +199,8 @@ func (c *bodyGRPCClient) HttpRequestStarBody(ctx context.Context, request *http.
 
 func NewBodyGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
 	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)

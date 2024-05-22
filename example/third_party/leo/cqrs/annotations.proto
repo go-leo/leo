@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package leo.cqrs;
+
+import "google/protobuf/descriptor.proto";
+
+option java_multiple_files = true;
+
+option java_outer_classname = "CQRSProto";
+
+option java_package = "dev.leo.cqrs";
+
+option objc_class_prefix = "CQRS";
+
+option go_package = "github.com/go-leo/leo/v3/cqrs;cqrs";
+
+extend google.protobuf.ServiceOptions {
+  // Define command package information
+  Package command = 31718192;
+  // Define query package information
+  Package query = 31718193;
+}
+
+message Package {
+  // package the full package name of the command or query.
+  string package = 1;
+  // relative the package path of the the command or query, relative to the current proto file.
+  string relative = 2;
+}
+
+extend google.protobuf.MethodOptions {
+  // responsibility define command or query api
+  Responsibility responsibility = 3171819;
+}
+
+enum Responsibility  {
+  Unknown = 0;
+  Command = 1;
+  Query = 2;
+}

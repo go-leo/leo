@@ -124,8 +124,8 @@ func NewPathGRPCServer(
 		StringPath() endpoint.Endpoint
 		EnumPath() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -281,8 +281,8 @@ func (c *pathGRPCClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 
 func NewPathGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)

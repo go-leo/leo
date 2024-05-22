@@ -12,7 +12,7 @@ type Generator struct {
 }
 
 func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, error) {
-	services, err := internal.NewServices(file)
+	services, err := internal.NewHttpServices(file)
 	if err != nil {
 		return nil, err
 	}

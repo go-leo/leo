@@ -11,7 +11,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type gRPCLibraryServiceServer struct {
+type libraryServiceGRPCServer struct {
 	createShelf grpc.Handler
 
 	getShelf grpc.Handler
@@ -35,7 +35,7 @@ type gRPCLibraryServiceServer struct {
 	moveBook grpc.Handler
 }
 
-func (s *gRPCLibraryServiceServer) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+func (s *libraryServiceGRPCServer) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
 	ctx, rep, err := s.createShelf.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (s *gRPCLibraryServiceServer) CreateShelf(ctx context.Context, request *Cre
 	return rep.(*Shelf), nil
 }
 
-func (s *gRPCLibraryServiceServer) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+func (s *libraryServiceGRPCServer) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
 	ctx, rep, err := s.getShelf.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (s *gRPCLibraryServiceServer) GetShelf(ctx context.Context, request *GetShe
 	return rep.(*Shelf), nil
 }
 
-func (s *gRPCLibraryServiceServer) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+func (s *libraryServiceGRPCServer) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
 	ctx, rep, err := s.listShelves.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (s *gRPCLibraryServiceServer) ListShelves(ctx context.Context, request *Lis
 	return rep.(*ListShelvesResponse), nil
 }
 
-func (s *gRPCLibraryServiceServer) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+func (s *libraryServiceGRPCServer) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.deleteShelf.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (s *gRPCLibraryServiceServer) DeleteShelf(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCLibraryServiceServer) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+func (s *libraryServiceGRPCServer) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
 	ctx, rep, err := s.mergeShelves.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (s *gRPCLibraryServiceServer) MergeShelves(ctx context.Context, request *Me
 	return rep.(*Shelf), nil
 }
 
-func (s *gRPCLibraryServiceServer) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+func (s *libraryServiceGRPCServer) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
 	ctx, rep, err := s.createBook.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func (s *gRPCLibraryServiceServer) CreateBook(ctx context.Context, request *Crea
 	return rep.(*Book), nil
 }
 
-func (s *gRPCLibraryServiceServer) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+func (s *libraryServiceGRPCServer) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
 	ctx, rep, err := s.getBook.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (s *gRPCLibraryServiceServer) GetBook(ctx context.Context, request *GetBook
 	return rep.(*Book), nil
 }
 
-func (s *gRPCLibraryServiceServer) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+func (s *libraryServiceGRPCServer) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
 	ctx, rep, err := s.listBooks.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (s *gRPCLibraryServiceServer) ListBooks(ctx context.Context, request *ListB
 	return rep.(*ListBooksResponse), nil
 }
 
-func (s *gRPCLibraryServiceServer) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+func (s *libraryServiceGRPCServer) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.deleteBook.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (s *gRPCLibraryServiceServer) DeleteBook(ctx context.Context, request *Dele
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *gRPCLibraryServiceServer) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+func (s *libraryServiceGRPCServer) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
 	ctx, rep, err := s.updateBook.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func (s *gRPCLibraryServiceServer) UpdateBook(ctx context.Context, request *Upda
 	return rep.(*Book), nil
 }
 
-func (s *gRPCLibraryServiceServer) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+func (s *libraryServiceGRPCServer) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
 	ctx, rep, err := s.moveBook.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
@@ -148,8 +148,8 @@ func NewLibraryServiceGRPCServer(
 		UpdateBook() endpoint.Endpoint
 		MoveBook() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...grpc.ServerOption,
+	opts []grpc.ServerOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
@@ -163,7 +163,7 @@ func NewLibraryServiceGRPCServer(
 	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 } {
-	return &gRPCLibraryServiceServer{
+	return &libraryServiceGRPCServer{
 		createShelf: grpc.NewServer(
 			endpointx.Chain(endpoints.CreateShelf(), mdw...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
@@ -233,7 +233,7 @@ func NewLibraryServiceGRPCServer(
 	}
 }
 
-type gRPCLibraryServiceClient struct {
+type libraryServiceGRPCClient struct {
 	createShelf  endpoint.Endpoint
 	getShelf     endpoint.Endpoint
 	listShelves  endpoint.Endpoint
@@ -247,7 +247,7 @@ type gRPCLibraryServiceClient struct {
 	moveBook     endpoint.Endpoint
 }
 
-func (c *gRPCLibraryServiceClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+func (c *libraryServiceGRPCClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
 	rep, err := c.createShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -255,7 +255,7 @@ func (c *gRPCLibraryServiceClient) CreateShelf(ctx context.Context, request *Cre
 	return rep.(*Shelf), nil
 }
 
-func (c *gRPCLibraryServiceClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+func (c *libraryServiceGRPCClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
 	rep, err := c.getShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -263,7 +263,7 @@ func (c *gRPCLibraryServiceClient) GetShelf(ctx context.Context, request *GetShe
 	return rep.(*Shelf), nil
 }
 
-func (c *gRPCLibraryServiceClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+func (c *libraryServiceGRPCClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
 	rep, err := c.listShelves(ctx, request)
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func (c *gRPCLibraryServiceClient) ListShelves(ctx context.Context, request *Lis
 	return rep.(*ListShelvesResponse), nil
 }
 
-func (c *gRPCLibraryServiceClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+func (c *libraryServiceGRPCClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
 	rep, err := c.deleteShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -279,7 +279,7 @@ func (c *gRPCLibraryServiceClient) DeleteShelf(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCLibraryServiceClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+func (c *libraryServiceGRPCClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
 	rep, err := c.mergeShelves(ctx, request)
 	if err != nil {
 		return nil, err
@@ -287,7 +287,7 @@ func (c *gRPCLibraryServiceClient) MergeShelves(ctx context.Context, request *Me
 	return rep.(*Shelf), nil
 }
 
-func (c *gRPCLibraryServiceClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+func (c *libraryServiceGRPCClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
 	rep, err := c.createBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -295,7 +295,7 @@ func (c *gRPCLibraryServiceClient) CreateBook(ctx context.Context, request *Crea
 	return rep.(*Book), nil
 }
 
-func (c *gRPCLibraryServiceClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+func (c *libraryServiceGRPCClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
 	rep, err := c.getBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -303,7 +303,7 @@ func (c *gRPCLibraryServiceClient) GetBook(ctx context.Context, request *GetBook
 	return rep.(*Book), nil
 }
 
-func (c *gRPCLibraryServiceClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+func (c *libraryServiceGRPCClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
 	rep, err := c.listBooks(ctx, request)
 	if err != nil {
 		return nil, err
@@ -311,7 +311,7 @@ func (c *gRPCLibraryServiceClient) ListBooks(ctx context.Context, request *ListB
 	return rep.(*ListBooksResponse), nil
 }
 
-func (c *gRPCLibraryServiceClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+func (c *libraryServiceGRPCClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
 	rep, err := c.deleteBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -319,7 +319,7 @@ func (c *gRPCLibraryServiceClient) DeleteBook(ctx context.Context, request *Dele
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *gRPCLibraryServiceClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+func (c *libraryServiceGRPCClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
 	rep, err := c.updateBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -327,7 +327,7 @@ func (c *gRPCLibraryServiceClient) UpdateBook(ctx context.Context, request *Upda
 	return rep.(*Book), nil
 }
 
-func (c *gRPCLibraryServiceClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+func (c *libraryServiceGRPCClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
 	rep, err := c.moveBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -337,8 +337,8 @@ func (c *gRPCLibraryServiceClient) MoveBook(ctx context.Context, request *MoveBo
 
 func NewLibraryServiceGRPCClient(
 	conn *grpc1.ClientConn,
-	mdw []endpoint.Middleware,
-	opts ...grpc.ClientOption,
+	opts []grpc.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
@@ -352,7 +352,7 @@ func NewLibraryServiceGRPCClient(
 	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 } {
-	return &gRPCLibraryServiceClient{
+	return &libraryServiceGRPCClient{
 		createShelf: endpointx.Chain(
 			grpc.NewClient(
 				conn,

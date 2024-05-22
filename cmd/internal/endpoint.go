@@ -3,6 +3,7 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"github.com/go-leo/cqrs/leo/cqrs"
 	"github.com/go-leo/gox/slicex"
 	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/api/annotations"
@@ -13,8 +14,9 @@ import (
 )
 
 type Endpoint struct {
-	method   *protogen.Method
-	httpRule *HttpRule
+	method         *protogen.Method
+	httpRule       *HttpRule
+	responsibility cqrs.Responsibility
 }
 
 func (e Endpoint) Name() string {
@@ -69,6 +71,18 @@ func (e Endpoint) OutputGoIdent() protogen.GoIdent {
 func (e Endpoint) ServerStreamName() string {
 	method := e.method
 	return method.Parent.GoName + "_" + method.GoName + "Server"
+}
+
+func (e Endpoint) Responsibility() cqrs.Responsibility {
+	return e.responsibility
+}
+
+func (e Endpoint) IsCommand() bool {
+	return e.responsibility == cqrs.Responsibility_Command
+}
+
+func (e Endpoint) IsQuery() bool {
+	return e.responsibility == cqrs.Responsibility_Query
 }
 
 func (e Endpoint) HttpRule() *HttpRule {
