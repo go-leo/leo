@@ -94,8 +94,8 @@ func (f *Generator) GenerateNewServer(service *internal.Service, generatedFile *
 		generatedFile.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	generatedFile.P("},")
-	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
-	generatedFile.P("opts ...", internal.GrpcTransportPackage.Ident("ServerOption"), ",")
+	generatedFile.P("opts []", internal.GrpcTransportPackage.Ident("ServerOption"), ",")
+	generatedFile.P("mdw ...", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
@@ -139,8 +139,8 @@ func (f *Generator) GenerateClient(service *internal.Service, generatedFile *pro
 func (f *Generator) GenerateNewClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
 	generatedFile.P("func New", service.GRPCClientName(), "(")
 	generatedFile.P("conn *", internal.GrpcPackage.Ident("ClientConn"), ",")
-	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
-	generatedFile.P("opts ...", internal.GrpcTransportPackage.Ident("ClientOption"), ",")
+	generatedFile.P("opts []", internal.GrpcTransportPackage.Ident("ClientOption"), ",")
+	generatedFile.P("mdw ...", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")

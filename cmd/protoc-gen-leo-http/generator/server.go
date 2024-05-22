@@ -22,8 +22,8 @@ func (f *ServerGenerator) GenerateNewServer(service *internal.Service, generated
 		generatedFile.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	generatedFile.P("},")
-	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
-	generatedFile.P("opts ...", internal.HttpTransportPackage.Ident("ServerOption"), ",")
+	generatedFile.P("opts []", internal.HttpTransportPackage.Ident("ServerOption"), ",")
+	generatedFile.P("mdw ...", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P(") ", internal.HttpPackage.Ident("Handler"), " {")
 	generatedFile.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
@@ -192,70 +192,70 @@ func (f *ServerGenerator) PrintPathField(generatedFile *protogen.GeneratedFile, 
 		switch field.Desc.Kind() {
 		case protoreflect.BoolKind: // bool
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolPtr"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolPtr"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBool"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBool"), fieldName, form, errName)
 			}
 		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int32]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int32]"), fieldName, form, errName)
 			}
 		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint32]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint32]"), fieldName, form, errName)
 			}
 		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int64]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int64]"), fieldName, form, errName)
 			}
 		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint64]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint64]"), fieldName, form, errName)
 			}
 		case protoreflect.FloatKind: // float32
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float32]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float32]"), fieldName, form, errName)
 			}
 		case protoreflect.DoubleKind: // float64
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float64]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float64]"), fieldName, form, errName)
 			}
 		case protoreflect.StringKind: // string
 			f.PrintStringValueAssign(generatedFile, tgtValue, srcValue, pointer)
 		case protoreflect.EnumKind: // enum int32
 			if pointer {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr["+generatedFile.QualifiedGoIdent(goType[1].(protogen.GoIdent))+"]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr["+generatedFile.QualifiedGoIdent(goType[1].(protogen.GoIdent))+"]"), fieldName, form, errName)
 			} else {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt["+generatedFile.QualifiedGoIdent(goType[0].(protogen.GoIdent))+"]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt["+generatedFile.QualifiedGoIdent(goType[0].(protogen.GoIdent))+"]"), fieldName, form, errName)
 			}
 		case protoreflect.MessageKind:
 			switch field.Message.Desc.FullName() {
 			case "google.protobuf.DoubleValue":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat64Value"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat64Value"), fieldName, form, errName)
 			case "google.protobuf.FloatValue":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat32Value"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat32Value"), fieldName, form, errName)
 			case "google.protobuf.Int64Value":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt64Value"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt64Value"), fieldName, form, errName)
 			case "google.protobuf.UInt64Value":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint64Value"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint64Value"), fieldName, form, errName)
 			case "google.protobuf.Int32Value":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt32Value"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt32Value"), fieldName, form, errName)
 			case "google.protobuf.UInt32Value":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint32Value"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint32Value"), fieldName, form, errName)
 			case "google.protobuf.BoolValue":
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolValue"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolValue"), fieldName, form, errName)
 			case "google.protobuf.StringValue":
 				f.PrintWrapStringValueAssign(generatedFile, tgtValue, srcValue)
 			}
@@ -285,72 +285,72 @@ func (f *ServerGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile,
 		switch field.Desc.Kind() {
 		case protoreflect.BoolKind: // bool
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolSlice"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolSlice"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolPtr"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolPtr"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBool"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBool"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntSlice[int32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntSlice[int32]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int32]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int32]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int32]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int32]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintSlice[uint32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintSlice[uint32]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint32]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint32]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint32]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint32]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntSlice[int64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntSlice[int64]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int64]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int64]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int64]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int64]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintSlice[uint64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintSlice[uint64]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint64]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint64]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint64]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint64]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.FloatKind: // float32
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatSlice[float32]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatSlice[float32]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float32]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float32]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float32]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float32]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.DoubleKind: // float64
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatSlice[float64]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatSlice[float64]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float64]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float64]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float64]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float64]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.StringKind: // string
@@ -361,57 +361,57 @@ func (f *ServerGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile,
 			}
 		case protoreflect.EnumKind: // enum int32
 			if field.Desc.IsList() {
-				f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntSlice["+generatedFile.QualifiedGoIdent(goType[1].(protogen.GoIdent))+"]"), fieldName, form, errName)
+				f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntSlice["+generatedFile.QualifiedGoIdent(goType[1].(protogen.GoIdent))+"]"), fieldName, form, errName)
 			} else {
 				if pointer {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr["+generatedFile.QualifiedGoIdent(goType[1].(protogen.GoIdent))+"]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr["+generatedFile.QualifiedGoIdent(goType[1].(protogen.GoIdent))+"]"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt["+generatedFile.QualifiedGoIdent(goType[0].(protogen.GoIdent))+"]"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt["+generatedFile.QualifiedGoIdent(goType[0].(protogen.GoIdent))+"]"), fieldName, form, errName)
 				}
 			}
 		case protoreflect.MessageKind:
 			switch field.Message.Desc.FullName() {
 			case "google.protobuf.DoubleValue":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat64ValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat64ValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat64Value"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat64Value"), fieldName, form, errName)
 				}
 			case "google.protobuf.FloatValue":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat32ValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat32ValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat32Value"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat32Value"), fieldName, form, errName)
 				}
 			case "google.protobuf.Int64Value":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt64ValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt64ValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt64Value"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt64Value"), fieldName, form, errName)
 				}
 			case "google.protobuf.UInt64Value":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint64ValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint64ValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint64Value"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint64Value"), fieldName, form, errName)
 				}
 			case "google.protobuf.Int32Value":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt32ValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt32ValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt32Value"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt32Value"), fieldName, form, errName)
 				}
 			case "google.protobuf.UInt32Value":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint32ValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint32ValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint32Value"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint32Value"), fieldName, form, errName)
 				}
 			case "google.protobuf.BoolValue":
 				if field.Desc.IsList() {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolValueSlice"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolValueSlice"), fieldName, form, errName)
 				} else {
-					f.PrintQueryAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolValue"), fieldName, form, errName)
+					f.PrintFieldAssign(generatedFile, tgtErrValue, goType, internal.UrlxPackage.Ident("GetBoolValue"), fieldName, form, errName)
 				}
 			case "google.protobuf.StringValue":
 				if field.Desc.IsList() {
@@ -425,252 +425,8 @@ func (f *ServerGenerator) PrintQueryField(generatedFile *protogen.GeneratedFile,
 
 }
 
-func (f *ServerGenerator) PrintBoolValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseBool"), "("}, srcValue...), "); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Bool"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapBoolValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseBool"), "("}, srcValue...), "); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("Bool"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintBoolListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, goType []any, key string) {
-	generatedFile.P(append(append([]any{}, tgtValue...), append(append([]any{internal.ErrorxPackage.Ident("Break"), "["}, goType...), []any{"](queryErr)(", internal.UrlxPackage.Ident("GetBoolSlice"), "(queries, ", strconv.Quote(key), "))"}...)...)...)
-}
-
-func (f *ServerGenerator) PrintWrapBoolListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, goType []any, key string) {
-	generatedFile.P(append(append([]any{}, tgtValue...), append(append([]any{internal.ErrorxPackage.Ident("Break"), "["}, goType...), []any{"](queryErr)(", internal.UrlxPackage.Ident("GetBoolValueSlice"), "(queries, ", strconv.Quote(key), "))"}...)...)...)
-}
-
-func (f *ServerGenerator) PrintQueryAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, goType []any, getter protogen.GoIdent, key string, form string, errName string) {
+func (f *ServerGenerator) PrintFieldAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, goType []any, getter protogen.GoIdent, key string, form string, errName string) {
 	generatedFile.P(append(append([]any{}, tgtValue...), append(append([]any{internal.ErrorxPackage.Ident("Break"), "["}, goType...), append(append([]any{"](", errName, ")("}, getter), "(", form, ", ", strconv.Quote(key), "))")...)...)...)
-}
-
-func (f *ServerGenerator) PrintInt32ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, isOptional bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseInt[int32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if isOptional {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Int32"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapInt32ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseInt[int32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("Int32"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintInt32ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice[int32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapInt32ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice[int32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapInt32Slice"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintUint32ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUint[uint32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Uint32"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapUint32ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUint[uint32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("UInt32"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintUint32ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUintSlice[uint32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapUint32ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUintSlice[uint32]"), "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapUint32Slice"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintInt64ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseInt[int64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Int64"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapInt64ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseInt[int64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("Int64"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintInt64ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice[int64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapInt64ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice[int64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapInt64Slice"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintUint64ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUint[uint64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Uint64"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapUint64ValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUint[uint64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("UInt64"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintUint64ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUintSlice[uint64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapUint64ListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseUintSlice[uint64]"), "("}, srcValue...), ", 10, 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapUint64Slice"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintFloatValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloat[float32]"), "("}, srcValue...), ", 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Float32"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapFloatValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloat[float32]"), "("}, srcValue...), ", 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("Float"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintFloatListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloatSlice[float32]"), "("}, srcValue...), ", 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapFloatListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloatSlice[float32]"), "("}, srcValue...), ", 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapFloat32Slice"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintDoubleValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloat[float64]"), "("}, srcValue...), ", 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, internal.ProtoPackage.Ident("Float64"), "(v)")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapDoubleValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloat[float64]"), "("}, srcValue...), ", 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.WrapperspbPackage.Ident("Double"), "(v)")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintDoubleListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloatSlice[float64]"), "("}, srcValue...), ", 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintWrapDoubleListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseFloatSlice[float64]"), "("}, srcValue...), ", 64); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, internal.ProtoxPackage.Ident("WrapFloat64Slice"), "(v)")...)
-	generatedFile.P("}")
 }
 
 func (f *ServerGenerator) PrintStringValueAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
@@ -691,26 +447,6 @@ func (f *ServerGenerator) PrintStringListAssign(generatedFile *protogen.Generate
 
 func (f *ServerGenerator) PrintWrapStringListAssign(generatedFile *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
 	generatedFile.P(append(tgtValue, append(append([]any{internal.ProtoxPackage.Ident("WrapStringSlice"), "("}, srcValue...), ")")...)...)
-}
-
-func (f *ServerGenerator) PrintEnumValueAssign(generatedFile *protogen.GeneratedFile, ident protogen.GoIdent, tgtValue []any, srcValue []any, hasPresence bool) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseInt"), "[", generatedFile.QualifiedGoIdent(ident), "]", "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	if hasPresence {
-		generatedFile.P(append(tgtValue, "&v")...)
-	} else {
-		generatedFile.P(append(tgtValue, "v")...)
-	}
-	generatedFile.P("}")
-}
-
-func (f *ServerGenerator) PrintEnumListAssign(generatedFile *protogen.GeneratedFile, ident protogen.GoIdent, tgtValue []any, srcValue []any) {
-	generatedFile.P(append(append([]any{"if v, err := ", internal.StrconvxPackage.Ident("ParseIntSlice"), "[", generatedFile.QualifiedGoIdent(ident), "]", "("}, srcValue...), ", 10, 32); err != nil {")...)
-	generatedFile.P("return nil, err")
-	generatedFile.P("} else {")
-	generatedFile.P(append(tgtValue, "v")...)
-	generatedFile.P("}")
 }
 
 func (f *ServerGenerator) PrintResponse(generatedFile *protogen.GeneratedFile, message *protogen.Message, prefix string) error {

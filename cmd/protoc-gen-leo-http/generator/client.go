@@ -34,8 +34,8 @@ func (f *ClientGenerator) GenerateNewClient(service *internal.Service, generated
 	generatedFile.P("func New", service.HTTPClientName(), "(")
 	generatedFile.P("scheme   string,")
 	generatedFile.P("instance string,")
-	generatedFile.P("mdw []", internal.EndpointPackage.Ident("Middleware"), ",")
-	generatedFile.P("opts ...", internal.HttpTransportPackage.Ident("ClientOption"), ",")
+	generatedFile.P("opts []", internal.HttpTransportPackage.Ident("ClientOption"), ",")
+	generatedFile.P("mdw ...", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")

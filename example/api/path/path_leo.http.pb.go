@@ -34,8 +34,8 @@ func NewPathHTTPServer(
 		StringPath() endpoint.Endpoint
 		EnumPath() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...http.ServerOption,
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -785,8 +785,8 @@ func (c *pathHTTPClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 func NewPathHTTPClient(
 	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)

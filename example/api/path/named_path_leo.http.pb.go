@@ -30,8 +30,8 @@ func NewNamedPathHTTPServer(
 		EmbedNamedPathOptString() endpoint.Endpoint
 		EmbedNamedPathWrapString() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...http.ServerOption,
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -313,8 +313,8 @@ func (c *namedPathHTTPClient) EmbedNamedPathWrapString(ctx context.Context, requ
 func NewNamedPathHTTPClient(
 	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)

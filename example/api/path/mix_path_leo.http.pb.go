@@ -25,8 +25,8 @@ func NewMixPathHTTPServer(
 	endpoints interface {
 		MixPath() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...http.ServerOption,
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -84,8 +84,8 @@ func (c *mixPathHTTPClient) MixPath(ctx context.Context, request *MixPathRequest
 func NewMixPathHTTPClient(
 	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {

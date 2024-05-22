@@ -29,8 +29,8 @@ func NewBodyHTTPServer(
 		HttpBodyNamedBody() endpoint.Endpoint
 		HttpRequestStarBody() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...http.ServerOption,
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -278,8 +278,8 @@ func (c *bodyHTTPClient) HttpRequestStarBody(ctx context.Context, request *http2
 func NewBodyHTTPClient(
 	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
 	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)

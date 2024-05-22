@@ -27,8 +27,8 @@ func NewQueryHTTPServer(
 	endpoints interface {
 		Query() endpoint.Endpoint
 	},
-	mdw []endpoint.Middleware,
-	opts ...http.ServerOption,
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -148,8 +148,8 @@ func (c *queryHTTPClient) Query(ctx context.Context, request *QueryRequest) (*em
 func NewQueryHTTPClient(
 	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 } {
