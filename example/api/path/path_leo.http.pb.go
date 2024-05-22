@@ -4,11 +4,11 @@ package path
 
 import (
 	context "context"
-	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
+	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
@@ -98,13 +98,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -171,13 +167,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -244,13 +236,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -317,13 +305,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -390,13 +374,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -463,13 +443,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -536,13 +512,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -609,13 +581,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
@@ -682,13 +650,9 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				_ = resp
 				w.WriteHeader(http1.StatusOK)
-				data, err := json.Marshal(resp)
-				if err != nil {
-					return err
-				}
-				if _, err := w.Write(data); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil

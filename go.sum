@@ -57,6 +57,8 @@ github.com/go-leo/gox v0.0.0-20240521022016-f5ad4f568793 h1:7rzb6frtagNdxh9Jlxf1
 github.com/go-leo/gox v0.0.0-20240521022016-f5ad4f568793/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/gox v0.0.0-20240521112825-fb8175fa146c h1:s35r1dos4d1CKicm7X3ag+Tzp1T6sirYn6FFqgcFRew=
 github.com/go-leo/gox v0.0.0-20240521112825-fb8175fa146c/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
+github.com/go-leo/gox v0.0.0-20240522020136-e44bdb95af57 h1:BmhjenXk4pU91nozotTQFntinzu9Cxc5QGBmE+kE+tY=
+github.com/go-leo/gox v0.0.0-20240522020136-e44bdb95af57/go.mod h1:BNpq/UYhlTTilt6rBVUVjsdF7IO0jttSMmkfYuZlf5Q=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390 h1:C36V5ogQAEExR0RQ4Z4zRrKeiu0DduyAjgKsJoCmnqM=
 github.com/go-leo/kitx v0.0.0-20240419031652-4b2481f41390/go.mod h1:8REKWY9fcExjGpS5CLc/rpBBzcxXAKzebT8gtMrfRTA=
 github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=

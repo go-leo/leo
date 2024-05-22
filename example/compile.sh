@@ -16,4 +16,5 @@ protoc \
 --leo-http_opt=require_unimplemented_servers=false \
 api/body/*.proto \
 api/path/*.proto \
-api/query/*.proto
+api/query/*.proto \
+api/response/*.proto

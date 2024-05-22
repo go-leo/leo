@@ -29,11 +29,14 @@ var (
 	StrconvxPackage      = protogen.GoImportPath("github.com/go-leo/gox/strconvx")
 	ProtoxPackage        = protogen.GoImportPath("github.com/go-leo/gox/protox")
 	UrlxPackage          = protogen.GoImportPath("github.com/go-leo/gox/netx/urlx")
+	JsonxPackage         = protogen.GoImportPath("github.com/go-leo/gox/encodingx/jsonx")
 	RpcHttpPackage       = protogen.GoImportPath("google.golang.org/genproto/googleapis/rpc/http")
 	ProtoJsonPackage     = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	ProtoPackage         = protogen.GoImportPath("google.golang.org/protobuf/proto")
 	WrapperspbPackage    = protogen.GoImportPath("google.golang.org/protobuf/types/known/wrapperspb")
 	FieldmaskpbPackage   = protogen.GoImportPath("google.golang.org/protobuf/types/known/fieldmaskpb")
+	StructpbPackage      = protogen.GoImportPath("google.golang.org/protobuf/types/known/structpb")
+	AnypbPackage         = protogen.GoImportPath("google.golang.org/protobuf/types/known/anypb")
 )
 
 var (

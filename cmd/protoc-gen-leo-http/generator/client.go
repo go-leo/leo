@@ -101,7 +101,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 			return nil
 		default:
 			generatedFile.P("var bodyBuf bytes.Buffer")
-			encoder := internal.JsonPackage.Ident("NewEncoder")
+			encoder := internal.JsonxPackage.Ident("NewEncoder")
 			f.PrintEncodeBlock(generatedFile, encoder, []any{"&bodyBuf"}, []any{"req"})
 			generatedFile.P("body = &bodyBuf")
 			generatedFile.P("contentType := ", strconv.Quote(internal.JsonContentType))
@@ -112,7 +112,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 			generatedFile.P("contentType := req.Get", bodyField.GoName, "()", ".GetContentType()")
 		} else {
 			generatedFile.P("var bodyBuf bytes.Buffer")
-			encoder := internal.JsonPackage.Ident("NewEncoder")
+			encoder := internal.JsonxPackage.Ident("NewEncoder")
 			tgtValue := []any{"&bodyBuf"}
 			srcValue := []any{"req.Get", bodyField.GoName, "()"}
 			f.PrintEncodeBlock(generatedFile, encoder, tgtValue, srcValue)
