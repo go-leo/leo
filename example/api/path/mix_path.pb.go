@@ -7,7 +7,6 @@
 package path
 
 import (
-	v1 "github.com/go-leo/leo/example/api/path/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -32,7 +31,7 @@ type MixPathRequest struct {
 	String_    string                  `protobuf:"bytes,16,opt,name=string,proto3" json:"string,omitempty"`
 	OptString  *string                 `protobuf:"bytes,36,opt,name=opt_string,json=optString,proto3,oneof" json:"opt_string,omitempty"`
 	WrapString *wrapperspb.StringValue `protobuf:"bytes,49,opt,name=wrap_string,json=wrapString,proto3" json:"wrap_string,omitempty"`
-	Embed      *v1.NamedPathRequest    `protobuf:"bytes,1,opt,name=embed,proto3" json:"embed,omitempty"`
+	Embed      *NamedPathRequest       `protobuf:"bytes,1,opt,name=embed,proto3" json:"embed,omitempty"`
 }
 
 func (x *MixPathRequest) Reset() {
@@ -88,7 +87,7 @@ func (x *MixPathRequest) GetWrapString() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *MixPathRequest) GetEmbed() *v1.NamedPathRequest {
+func (x *MixPathRequest) GetEmbed() *NamedPathRequest {
 	if x != nil {
 		return x.Embed
 	}
@@ -156,7 +155,7 @@ var file_api_path_mix_path_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_api_path_mix_path_proto_goTypes = []interface{}{
 	(*MixPathRequest)(nil),         // 0: leo.example.path.v1.MixPathRequest
 	(*wrapperspb.StringValue)(nil), // 1: google.protobuf.StringValue
-	(*v1.NamedPathRequest)(nil),    // 2: leo.example.path.v1.NamedPathRequest
+	(*NamedPathRequest)(nil),       // 2: leo.example.path.v1.NamedPathRequest
 	(*emptypb.Empty)(nil),          // 3: google.protobuf.Empty
 }
 var file_api_path_mix_path_proto_depIdxs = []int32{
@@ -176,6 +175,7 @@ func file_api_path_mix_path_proto_init() {
 	if File_api_path_mix_path_proto != nil {
 		return
 	}
+	file_api_path_named_path_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_api_path_mix_path_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MixPathRequest); i {

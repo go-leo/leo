@@ -3,9 +3,7 @@
 package path
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // MixPathAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -22,16 +20,7 @@ func NewMixPathCQRSService(bus cqrs.Bus, assembler MixPathAssembler) *MixPathCQR
 	return &MixPathCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *MixPathCQRSService) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromMixPathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewMixPathBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewMixPathBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

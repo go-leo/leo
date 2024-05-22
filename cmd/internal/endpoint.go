@@ -3,8 +3,8 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"github.com/go-leo/cqrs/leo/cqrs"
 	"github.com/go-leo/gox/slicex"
+	"github.com/go-leo/leo/v3/cqrs"
 	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -236,10 +236,6 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		queryFields = append(queryFields, field)
 	}
 	return bodyMessage, bodyField, namedPathFields, pathFields, queryFields, nil
-}
-
-func NewEndpoint(method *protogen.Method, rule *annotations.HttpRule) *Endpoint {
-	return &Endpoint{method: method, httpRule: &HttpRule{rule: rule}}
 }
 
 type HttpRule struct {

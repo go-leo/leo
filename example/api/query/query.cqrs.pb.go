@@ -3,9 +3,7 @@
 package query
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // QueryAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -22,16 +20,7 @@ func NewQueryCQRSService(bus cqrs.Bus, assembler QueryAssembler) *QueryCQRSServi
 	return &QueryCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *QueryCQRSService) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromQueryRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewQueryBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewQueryBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

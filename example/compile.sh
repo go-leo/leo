@@ -25,3 +25,4 @@ api/response/*.proto \
 api/response/*.proto \
 api/library/*.proto \
 api/endpointsapis/*.proto \
+api/cqrs/*.proto

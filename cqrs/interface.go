@@ -48,12 +48,6 @@ func (NoopQuery[Args, Result]) Handle(context.Context, Args) (Result, error) {
 
 // ========================== Bus ==========================
 
-// Future represents the result of an asynchronous computation.
-type Future interface {
-	// Get wait for computation completion, and to retrieve the result of the computation.
-	Get(ctx context.Context) (any, error)
-}
-
 // Bus is a bus, register CommandHandler and QueryHandler, execute Command and query Query
 type Bus interface {
 
@@ -68,12 +62,6 @@ type Bus interface {
 
 	// Query synchronously executes a query
 	Query(ctx context.Context, args any) (any, error)
-
-	// AsyncExec asynchronously executes a command, result in Future
-	AsyncExec(ctx context.Context, args any) (Future, error)
-
-	// AsyncQuery asynchronously executes a query, result in Future
-	AsyncQuery(ctx context.Context, args any) (Future, error)
 
 	// Close bus gracefully
 	Close(ctx context.Context) error

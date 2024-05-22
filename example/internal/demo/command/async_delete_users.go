@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 	"fmt"
-	"github.com/go-leo/cqrs"
+	"github.com/go-leo/leo/v3/cqrs"
 	"time"
 )
 

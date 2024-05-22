@@ -3,11 +3,7 @@
 package response
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // ResponseAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -24,51 +20,7 @@ func NewResponseCQRSService(bus cqrs.Bus, assembler ResponseAssembler) *Response
 	return &ResponseCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *ResponseCQRSService) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	args, ctx, err := svc.assembler.FromOmittedResponseRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *ResponseCQRSService) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	args, ctx, err := svc.assembler.FromStarResponseRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *ResponseCQRSService) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	args, ctx, err := svc.assembler.FromNamedResponseRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *ResponseCQRSService) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
-	args, ctx, err := svc.assembler.FromHttpBodyResponseRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *ResponseCQRSService) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
-	args, ctx, err := svc.assembler.FromHttpBodyNamedResponseRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *ResponseCQRSService) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
-	args, ctx, err := svc.assembler.FromHttpRequestStarBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewResponseBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewResponseBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

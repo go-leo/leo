@@ -10,7 +10,6 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
-	v1 "github.com/go-leo/leo/example/api/path/v1"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	proto "google.golang.org/protobuf/proto"
@@ -41,7 +40,7 @@ func NewMixPathHTTPServer(
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				if req.Embed == nil {
-					req.Embed = &v1.NamedPathRequest{}
+					req.Embed = &NamedPathRequest{}
 				}
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
 				req.String_ = vars.Get("string")

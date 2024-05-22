@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/errorx"
-	"github.com/go-leo/gox/syncx/gopher"
-	"github.com/go-leo/gox/syncx/gopher/sample"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -41,7 +39,6 @@ type defaultBus struct {
 	handlers   *sync.Map
 	wg         *sync.WaitGroup
 	inShutdown *atomic.Bool // true when bus is in shutdown
-	options    *option
 }
 
 func (b *defaultBus) RegisterCommand(handler any) error {
@@ -94,44 +91,6 @@ func (b *defaultBus) Query(ctx context.Context, args any) (any, error) {
 	return info.Query(ctx, args)
 }
 
-func (b *defaultBus) AsyncExec(ctx context.Context, args any) (Future, error) {
-	if err := b.checkArgs(args); err != nil {
-		return nil, err
-	}
-	info, err := b.loadHandler(args)
-	if err != nil {
-		return nil, err
-	}
-	f := newDefaultFuture()
-	b.wg.Add(1)
-	if err := b.options.Pool.Go(func() {
-		defer b.wg.Done()
-		f.OnExec(info.Exec(ctx, args))
-	}); err != nil {
-		return nil, err
-	}
-	return f, nil
-}
-
-func (b *defaultBus) AsyncQuery(ctx context.Context, args any) (Future, error) {
-	if err := b.checkArgs(args); err != nil {
-		return nil, err
-	}
-	info, err := b.loadHandler(args)
-	if err != nil {
-		return nil, err
-	}
-	f := newDefaultFuture()
-	b.wg.Add(1)
-	if err := b.options.Pool.Go(func() {
-		defer b.wg.Done()
-		f.OnQuery(info.Query(ctx, args))
-	}); err != nil {
-		return nil, err
-	}
-	return f, nil
-}
-
 func (b *defaultBus) Close(ctx context.Context) error {
 	if b.inShutdown.CompareAndSwap(false, true) {
 		select {
@@ -177,35 +136,11 @@ func (b *defaultBus) loadHandler(args any) (*reflectedHandler, error) {
 	return info, nil
 }
 
-type option struct {
-	Pool gopher.Gopher
-}
-
-func newOption(opts ...Option) *option {
-	o := &option{}
-	for _, opt := range opts {
-		opt(o)
-	}
-	if o.Pool == nil {
-		o.Pool = sample.Gopher{}
-	}
-	return o
-}
-
-type Option func(*option)
-
-func Pool(pool gopher.Gopher) Option {
-	return func(o *option) {
-		o.Pool = pool
-	}
-}
-
-func NewBus(opts ...Option) Bus {
+func NewBus() Bus {
 	return &defaultBus{
 		handlers:   &sync.Map{},
 		wg:         &sync.WaitGroup{},
 		inShutdown: &atomic.Bool{},
-		options:    newOption(opts...),
 	}
 }
 
@@ -289,39 +224,4 @@ func newReflectedHandler(handler any, kind string) (*reflectedHandler, error) {
 		method: method,
 		inType: inType,
 	}, nil
-}
-
-type defaultFuture struct {
-	resC chan any
-	errC chan error
-}
-
-func (f *defaultFuture) Get(ctx context.Context) (any, error) {
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	case res := <-f.resC:
-		return res, nil
-	case err := <-f.errC:
-		return nil, err
-	}
-}
-
-func (f *defaultFuture) OnExec(err error) {
-	f.errC <- err
-}
-
-func (f *defaultFuture) OnQuery(res any, err error) {
-	if err != nil {
-		f.errC <- err
-		return
-	}
-	f.resC <- res
-}
-
-func newDefaultFuture() *defaultFuture {
-	return &defaultFuture{
-		resC: make(chan any, 1),
-		errC: make(chan error, 1),
-	}
 }

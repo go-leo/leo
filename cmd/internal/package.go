@@ -24,3 +24,7 @@ func (p *Package) RelPath() string {
 func (p *Package) GoImportPath() protogen.GoImportPath {
 	return protogen.GoImportPath(p.FullName())
 }
+
+func NewPackage(absPath string, relPath string, fullName string, name string) *Package {
+	return &Package{absPath: absPath, relPath: relPath, fullName: fullName, name: name}
+}

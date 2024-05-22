@@ -9,17 +9,17 @@ service CQRS {
   // Define command package information
   option(leo.cqrs.command) = {
     // package: the full package name of the command.
-    package: "github.com/go-leo/leo/v3/example/internal/demo/command"
+    package: "github.com/go-leo/leo/v3/example/internal/cqrs/command"
     // relative: the package path of the command, relative to the current proto file.
-    relative: "../../../internal/demo/command"
+    relative: "../../internal/cqrs/command"
   };
 
   // Define command package information
   option(leo.cqrs.query) = {
     // package: the full package name of the query.
-    package: "github.com/go-leo/leo/v3/example/internal/demo/query"
+    package: "github.com/go-leo/leo/v3/example/internal/cqrs/query"
     // relative: the package path of the command, relative to the current proto file.
-    relative:  "../../../internal/demo/query"
+    relative:  "../../internal/cqrs/query"
   };
 
   // CreateUser sync create user
@@ -44,16 +44,6 @@ service CQRS {
 
   // DeleteUser sync delete user
   rpc DeleteUser (DeleteUsersRequest) returns (google.protobuf.Empty) {
-    option(leo.cqrs.responsibility) = Command;
-  }
-
-  // DeleteUser async get users
-  rpc AsyncGetUsers (AsyncGetUsersRequest) returns (stream AsyncGetUsersResponse) {
-    option(leo.cqrs.responsibility) = Query;
-  }
-
-  // AsyncDeleteUsers async delete users
-  rpc AsyncDeleteUsers(AsyncDeleteUsersRequest) returns (stream google.protobuf.Empty) {
     option(leo.cqrs.responsibility) = Command;
   }
 }

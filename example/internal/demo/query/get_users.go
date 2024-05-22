@@ -2,9 +2,9 @@ package query
 
 import (
 	"context"
-	"github.com/go-leo/cqrs"
-	"github.com/go-leo/cqrs/example/internal/demo/model"
 	"github.com/go-leo/gox/mathx/randx"
+	"github.com/go-leo/leo/v3/cqrs"
+	"github.com/go-leo/leo/v3/example/internal/demo/model"
 )
 
 type GetUsersArgs struct {

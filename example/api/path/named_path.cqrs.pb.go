@@ -3,9 +3,7 @@
 package path
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NamedPathAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -22,51 +20,7 @@ func NewNamedPathCQRSService(bus cqrs.Bus, assembler NamedPathAssembler) *NamedP
 	return &NamedPathCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *NamedPathCQRSService) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromNamedPathStringRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *NamedPathCQRSService) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromNamedPathOptStringRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *NamedPathCQRSService) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromNamedPathWrapStringRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *NamedPathCQRSService) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromEmbedNamedPathStringRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *NamedPathCQRSService) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromEmbedNamedPathOptStringRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *NamedPathCQRSService) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromEmbedNamedPathWrapStringRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewNamedPathBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewNamedPathBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

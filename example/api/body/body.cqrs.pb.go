@@ -3,11 +3,7 @@
 package body
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // BodyAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -24,51 +20,7 @@ func NewBodyCQRSService(bus cqrs.Bus, assembler BodyAssembler) *BodyCQRSService 
 	return &BodyCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *BodyCQRSService) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromStarBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *BodyCQRSService) NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromNamedBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *BodyCQRSService) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromNonBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *BodyCQRSService) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromHttpBodyStarBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *BodyCQRSService) HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromHttpBodyNamedBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *BodyCQRSService) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromHttpRequestStarBodyRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewBodyBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewBodyBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

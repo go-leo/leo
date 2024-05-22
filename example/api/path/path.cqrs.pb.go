@@ -3,9 +3,7 @@
 package path
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // PathAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -22,72 +20,7 @@ func NewPathCQRSService(bus cqrs.Bus, assembler PathAssembler) *PathCQRSService 
 	return &PathCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *PathCQRSService) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromBoolPathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromInt32PathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromInt64PathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromUint32PathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromUint64PathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromFloatPathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromDoublePathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromStringPathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *PathCQRSService) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromEnumPathRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewPathBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewPathBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

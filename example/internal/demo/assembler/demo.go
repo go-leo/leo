@@ -2,10 +2,10 @@ package assembler
 
 import (
 	"context"
-	"github.com/go-leo/cqrs/example/api/demo"
-	"github.com/go-leo/cqrs/example/internal/demo/command"
-	"github.com/go-leo/cqrs/example/internal/demo/model"
-	"github.com/go-leo/cqrs/example/internal/demo/query"
+	demo "github.com/go-leo/leo/v3/example/api/cqrs"
+	"github.com/go-leo/leo/v3/example/internal/demo/command"
+	"github.com/go-leo/leo/v3/example/internal/demo/model"
+	"github.com/go-leo/leo/v3/example/internal/demo/query"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

@@ -51,7 +51,7 @@ service DemoService {
   // Define command package information
   option(leo.cqrs.command) = {
     // package: the full package name of the command.
-    package: "github.com/go-leo/cqrs/example/internal/demo/command"
+    package: "github.com/go-leo/leo/v3/cqrs/example/internal/demo/command"
     // relative: the package path of the command, relative to the current proto file.
     relative: "../../../internal/demo/command"
   };
@@ -59,7 +59,7 @@ service DemoService {
   // Define command package information
   option(leo.cqrs.query) = {
     // package: the full package name of the query.
-    package: "github.com/go-leo/cqrs/example/internal/demo/query"
+    package: "github.com/go-leo/leo/v3/cqrs/example/internal/demo/query"
     // relative: the package path of the command, relative to the current proto file.
     relative:  "../../../internal/demo/query"
   };
@@ -160,10 +160,10 @@ will generate new files:
 package main
 
 import (
-	"github.com/go-leo/cqrs/example/api/demo"
-	"github.com/go-leo/cqrs/example/internal/demo/assembler"
-	"github.com/go-leo/cqrs/example/internal/demo/command"
-	"github.com/go-leo/cqrs/example/internal/demo/query"
+	"github.com/go-leo/leo/v3/cqrs/example/api/demo"
+	"github.com/go-leo/leo/v3/cqrs/example/internal/demo/assembler"
+	"github.com/go-leo/leo/v3/cqrs/example/internal/demo/command"
+	"github.com/go-leo/leo/v3/cqrs/example/internal/demo/query"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -204,7 +204,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/go-leo/cqrs/example/api/demo"
+	"github.com/go-leo/leo/v3/cqrs/example/api/demo"
 	"github.com/go-leo/gox/mathx/randx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

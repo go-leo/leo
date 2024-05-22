@@ -3,7 +3,6 @@
 package helloworld
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 )
 
@@ -21,16 +20,7 @@ func NewGreeterCQRSService(bus cqrs.Bus, assembler GreeterAssembler) *GreeterCQR
 	return &GreeterCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *GreeterCQRSService) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	args, ctx, err := svc.assembler.FromSayHelloRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewGreeterBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewGreeterBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }

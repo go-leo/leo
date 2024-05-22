@@ -3,9 +3,7 @@
 package endpointsapis
 
 import (
-	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // WorkspacesAssembler responsible for completing the transformation between domain model objects and DTOs
@@ -22,44 +20,7 @@ func NewWorkspacesCQRSService(bus cqrs.Bus, assembler WorkspacesAssembler) *Work
 	return &WorkspacesCQRSService{bus: bus, assembler: assembler}
 }
 
-func (svc *WorkspacesCQRSService) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
-	args, ctx, err := svc.assembler.FromListWorkspacesRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *WorkspacesCQRSService) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
-	args, ctx, err := svc.assembler.FromGetWorkspaceRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *WorkspacesCQRSService) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
-	args, ctx, err := svc.assembler.FromCreateWorkspaceRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *WorkspacesCQRSService) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
-	args, ctx, err := svc.assembler.FromUpdateWorkspaceRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func (svc *WorkspacesCQRSService) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromDeleteWorkspaceRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-}
-
-func NewWorkspacesBus(
-	opts ...cqrs.Option,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus(opts...)
+func NewWorkspacesBus() (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
 	return bus, nil
 }
