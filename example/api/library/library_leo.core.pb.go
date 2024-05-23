@@ -90,7 +90,7 @@ func (e *libraryServiceEndpoints) MoveBook() endpoint.Endpoint {
 	}
 }
 
-func NewlibraryServiceEndpoints(
+func NewLibraryServiceEndpoints(
 	svc interface {
 		CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
 		GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)

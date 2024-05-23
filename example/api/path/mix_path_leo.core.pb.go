@@ -20,7 +20,7 @@ func (e *mixPathEndpoints) MixPath() endpoint.Endpoint {
 	}
 }
 
-func NewmixPathEndpoints(
+func NewMixPathEndpoints(
 	svc interface {
 		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 	},

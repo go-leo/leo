@@ -55,7 +55,7 @@ func (e *namedPathEndpoints) EmbedNamedPathWrapString() endpoint.Endpoint {
 	}
 }
 
-func NewnamedPathEndpoints(
+func NewNamedPathEndpoints(
 	svc interface {
 		NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 		NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)

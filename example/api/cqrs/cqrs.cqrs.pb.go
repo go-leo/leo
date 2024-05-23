@@ -3,11 +3,45 @@
 package cqrs
 
 import (
+	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
+	command "github.com/go-leo/leo/v3/example/internal/cqrs/command"
+	query "github.com/go-leo/leo/v3/example/internal/cqrs/query"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // CQRSAssembler responsible for completing the transformation between domain model objects and DTOs
 type CQRSAssembler interface {
+
+	// FromCreateUserRequest convert request to command arguments
+	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*command.CreateUserArgs, context.Context, error)
+
+	// ToCreateUserResponse convert query result to response
+	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
+
+	// FromUpdateUserRequest convert request to command arguments
+	FromUpdateUserRequest(ctx context.Context, request *UpdateUserRequest) (*command.UpdateUserArgs, context.Context, error)
+
+	// ToUpdateUserResponse convert query result to response
+	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
+
+	// FromGetUserRequest convert request to query arguments
+	FromGetUserRequest(ctx context.Context, request *GetUserRequest) (*query.GetUserArgs, context.Context, error)
+
+	// ToGetUserResponse convert query result to response
+	ToGetUserResponse(ctx context.Context, request *GetUserRequest, res *query.GetUserRes) (*GetUserResponse, error)
+
+	// FromGetUsersRequest convert request to query arguments
+	FromGetUsersRequest(ctx context.Context, request *GetUsersRequest) (*query.GetUsersArgs, context.Context, error)
+
+	// ToGetUsersResponse convert query result to response
+	ToGetUsersResponse(ctx context.Context, request *GetUsersRequest, res *query.GetUsersRes) (*GetUsersResponse, error)
+
+	// FromDeleteUserRequest convert request to command arguments
+	FromDeleteUserRequest(ctx context.Context, request *DeleteUsersRequest) (*command.DeleteUserArgs, context.Context, error)
+
+	// ToDeleteUserResponse convert query result to response
+	ToDeleteUserResponse(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 }
 
 // CQRSCQRSService implement the CQRS service with CQRS pattern
@@ -20,7 +54,85 @@ func NewCQRSCQRSService(bus cqrs.Bus, assembler CQRSAssembler) *CQRSCQRSService 
 	return &CQRSCQRSService{bus: bus, assembler: assembler}
 }
 
-func NewCQRSBus() (cqrs.Bus, error) {
+func (svc *CQRSCQRSService) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+	args, ctx, err := svc.assembler.FromCreateUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	if err := svc.bus.Exec(ctx, args); err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToCreateUserResponse(ctx, request)
+}
+
+func (svc *CQRSCQRSService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	args, ctx, err := svc.assembler.FromUpdateUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	if err := svc.bus.Exec(ctx, args); err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToUpdateUserResponse(ctx, request)
+}
+
+func (svc *CQRSCQRSService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	args, ctx, err := svc.assembler.FromGetUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToGetUserResponse(ctx, request, res.(*query.GetUserRes))
+}
+
+func (svc *CQRSCQRSService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	args, ctx, err := svc.assembler.FromGetUsersRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToGetUsersResponse(ctx, request, res.(*query.GetUsersRes))
+}
+
+func (svc *CQRSCQRSService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	args, ctx, err := svc.assembler.FromDeleteUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	if err := svc.bus.Exec(ctx, args); err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToDeleteUserResponse(ctx, request)
+}
+
+func NewCQRSBus(
+	createUser command.CreateUser,
+	updateUser command.UpdateUser,
+	getUser query.GetUser,
+	getUsers query.GetUsers,
+	deleteUser command.DeleteUser,
+) (cqrs.Bus, error) {
 	bus := cqrs.NewBus()
+	if err := bus.RegisterCommand(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(updateUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUsers); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(deleteUser); err != nil {
+		return nil, err
+	}
 	return bus, nil
 }

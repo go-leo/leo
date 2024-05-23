@@ -76,7 +76,7 @@ func (e *pathEndpoints) EnumPath() endpoint.Endpoint {
 	}
 }
 
-func NewpathEndpoints(
+func NewPathEndpoints(
 	svc interface {
 		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)

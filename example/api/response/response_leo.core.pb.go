@@ -57,7 +57,7 @@ func (e *responseEndpoints) HttpRequestStarBody() endpoint.Endpoint {
 	}
 }
 
-func NewresponseEndpoints(
+func NewResponseEndpoints(
 	svc interface {
 		OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
 		StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)

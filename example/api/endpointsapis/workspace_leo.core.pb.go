@@ -48,7 +48,7 @@ func (e *workspacesEndpoints) DeleteWorkspace() endpoint.Endpoint {
 	}
 }
 
-func NewworkspacesEndpoints(
+func NewWorkspacesEndpoints(
 	svc interface {
 		ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 		GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)

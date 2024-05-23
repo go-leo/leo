@@ -19,7 +19,7 @@ func (e *greeterEndpoints) SayHello() endpoint.Endpoint {
 	}
 }
 
-func NewgreeterEndpoints(
+func NewGreeterEndpoints(
 	svc interface {
 		SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 	},

@@ -48,7 +48,7 @@ func (e *cQRSEndpoints) DeleteUser() endpoint.Endpoint {
 	}
 }
 
-func NewcQRSEndpoints(
+func NewCQRSEndpoints(
 	svc interface {
 		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
 		UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)

@@ -91,7 +91,7 @@ func (s Service) FullName() string {
 }
 
 func (s Service) EndpointsName() string {
-	return s.UnexportedName() + "Endpoints"
+	return s.Name() + "Endpoints"
 }
 
 func (s Service) UnexportedEndpointsName() string {
@@ -218,28 +218,28 @@ func resolvePkgPath(file *protogen.File, rel string) (string, string, error) {
 		return "", "", err
 	}
 
-	fmt.Printf("【wd: %s】", wd)
+	//fmt.Printf("【wd: %s】", wd)
 
 	// 获取.proto文件路径
 	filePath := filepath.Join(wd, file.Desc.Path())
-	fmt.Printf("【filePath: %s】", filePath)
+	//fmt.Printf("【filePath: %s】", filePath)
 
 	// 获取.proto文件绝对路径
 	fileAbs, err := filepath.Abs(filePath)
 	if err != nil {
 		return "", "", err
 	}
-	fmt.Printf("【fileAbs: %s】", filePath)
-	fmt.Printf("【rel: %s】", rel)
+	//fmt.Printf("【fileAbs: %s】", filePath)
+	//fmt.Printf("【rel: %s】", rel)
 
 	// 算出query或者command包的绝对路径
 	pkgPath := filepath.Join(fileAbs, rel)
-	fmt.Printf("【pkgPath: %s】", pkgPath)
+	//fmt.Printf("【pkgPath: %s】", pkgPath)
 	pkgAbs, err := filepath.Abs(pkgPath)
 	if err != nil {
 		return "", "", err
 	}
-	fmt.Printf("【pkgAbs: %s】", pkgAbs)
+	//fmt.Printf("【pkgAbs: %s】", pkgAbs)
 
 	_, err = os.Stat(pkgAbs)
 	if err != nil {
@@ -251,7 +251,7 @@ func resolvePkgPath(file *protogen.File, rel string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	fmt.Printf("【pkgRel: %s】", pkgRel)
+	//fmt.Printf("【pkgRel: %s】", pkgRel)
 
 	return pkgAbs, pkgRel, nil
 }

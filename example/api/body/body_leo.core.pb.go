@@ -57,7 +57,7 @@ func (e *bodyEndpoints) HttpRequestStarBody() endpoint.Endpoint {
 	}
 }
 
-func NewbodyEndpoints(
+func NewBodyEndpoints(
 	svc interface {
 		StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
 		NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)

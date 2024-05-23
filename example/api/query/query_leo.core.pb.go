@@ -20,7 +20,7 @@ func (e *queryEndpoints) Query() endpoint.Endpoint {
 	}
 }
 
-func NewqueryEndpoints(
+func NewQueryEndpoints(
 	svc interface {
 		Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 	},
