@@ -17,7 +17,7 @@ func NewCreateUser() CreateUser {
 type createUser struct {
 }
 
-func (h *createUser) Handle(ctx context.Context, args *CreateUserArgs) error {
+func (h *createUser) Handle(ctx context.Context, args *CreateUserArgs) (cqrs.Metadata, error) {
 	// TODO implement me
 	panic("implement me")
 }

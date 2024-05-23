@@ -69,13 +69,13 @@ func (b *defaultBus) RegisterQuery(handler any) error {
 	return nil
 }
 
-func (b *defaultBus) Exec(ctx context.Context, args any) error {
+func (b *defaultBus) Exec(ctx context.Context, args any) (Metadata, error) {
 	if err := b.checkArgs(args); err != nil {
-		return err
+		return nil, err
 	}
 	info, err := b.loadHandler(args)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	return info.Exec(ctx, args)
 }
@@ -150,18 +150,22 @@ type reflectedHandler struct {
 	inType reflect.Type
 }
 
-func (handler *reflectedHandler) Exec(ctx context.Context, args any) error {
+func (handler *reflectedHandler) Exec(ctx context.Context, args any) (Metadata, error) {
 	resultValues := handler.method.Func.Call(
 		[]reflect.Value{
 			handler.value,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(args),
 		})
-	err := resultValues[0].Interface()
+	err := resultValues[1].Interface()
 	if err != nil {
-		return err.(error)
+		return nil, err.(error)
 	}
-	return nil
+	md := resultValues[0].Interface()
+	if md == nil {
+		return nil, nil
+	}
+	return md.(Metadata), nil
 }
 
 func (handler *reflectedHandler) Query(ctx context.Context, args any) (any, error) {
@@ -196,10 +200,13 @@ func newReflectedHandler(handler any, kind string) (*reflectedHandler, error) {
 		if !method.Type.In(1).Implements(contextx.ContextType) {
 			return nil, ErrUnimplemented
 		}
-		if method.Type.NumOut() != 1 {
+		if method.Type.NumOut() != 2 {
 			return nil, ErrUnimplemented
 		}
-		if !method.Type.Out(0).Implements(errorx.ErrorType) {
+		if !method.Type.Out(0).Implements(metadataType) {
+			return nil, ErrUnimplemented
+		}
+		if !method.Type.Out(1).Implements(errorx.ErrorType) {
 			return nil, ErrUnimplemented
 		}
 	case "query":

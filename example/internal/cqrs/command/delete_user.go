@@ -17,7 +17,7 @@ func NewDeleteUser() DeleteUser {
 type deleteUser struct {
 }
 
-func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) error {
+func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) (cqrs.Metadata, error) {
 	// TODO implement me
 	panic("implement me")
 }

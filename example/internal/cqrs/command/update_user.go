@@ -17,7 +17,7 @@ func NewUpdateUser() UpdateUser {
 type updateUser struct {
 }
 
-func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) error {
+func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) (cqrs.Metadata, error) {
 	// TODO implement me
 	panic("implement me")
 }

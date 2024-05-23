@@ -42,14 +42,16 @@ func (f *Generator) GenerateEndpoints(service *internal.Service) error {
 }
 
 func (f *Generator) GenerateEndpoint(service *internal.Service, endpoint *internal.Endpoint) error {
+	if endpoint.IsStreaming() {
+		return nil
+	}
 	switch {
 	case endpoint.IsCommand():
 		return f.GenerateCommand(service, endpoint)
 	case endpoint.IsQuery():
 		return f.GenerateQuery(service, endpoint)
-	default:
-		return nil
 	}
+	return nil
 }
 
 func (f *Generator) GenerateCommand(service *internal.Service, endpoint *internal.Endpoint) error {
@@ -75,7 +77,7 @@ func (f *Generator) GenerateCommand(service *internal.Service, endpoint *interna
 	generatedFile.P("type ", endpoint.UnexportedName(), " struct {")
 	generatedFile.P("}")
 	generatedFile.P()
-	generatedFile.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") error {")
+	generatedFile.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.CqrsPackage.Ident("Metadata"), ", error) {")
 	generatedFile.P(internal.Comments("TODO implement me"))
 	generatedFile.P("panic(", strconv.Quote("implement me"), ")")
 	generatedFile.P("}")
@@ -146,6 +148,9 @@ func (f *Generator) GenerateAssembler(service *internal.Service, generatedFile *
 	generatedFile.P(internal.Comments(service.AssemblerName() + " responsible for completing the transformation between domain model objects and DTOs"))
 	generatedFile.P("type ", service.AssemblerName(), " interface {")
 	for _, endpoint := range service.Endpoints {
+		if endpoint.IsStreaming() {
+			continue
+		}
 		switch {
 		case endpoint.IsCommand():
 			generatedFile.P()
@@ -153,7 +158,7 @@ func (f *Generator) GenerateAssembler(service *internal.Service, generatedFile *
 			generatedFile.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Command.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
 			generatedFile.P()
 			generatedFile.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
-			generatedFile.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+			generatedFile.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", metadata ", internal.CqrsPackage.Ident("Metadata"), ") (*", endpoint.OutputGoIdent(), ", error)")
 		case endpoint.IsQuery():
 			generatedFile.P()
 			generatedFile.P(internal.Comments("From" + endpoint.RequestName() + " convert request to query arguments"))
@@ -182,18 +187,13 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, generatedFile
 	generatedFile.P("}")
 	generatedFile.P()
 	for _, endpoint := range service.Endpoints {
+		if endpoint.IsStreaming() {
+			continue
+		}
 		switch {
 		case endpoint.IsCommand():
-			if endpoint.IsStreamingServer() {
-				f.GenerateAsyncCommandEndpoint(service, generatedFile, endpoint)
-				continue
-			}
 			f.GenerateSyncCommandEndpoint(service, generatedFile, endpoint)
 		case endpoint.IsQuery():
-			if endpoint.IsStreamingServer() {
-				f.GenerateAsyncQueryEndpoint(service, generatedFile, endpoint)
-				continue
-			}
 			f.GenerateSyncQueryEndpoint(service, generatedFile, endpoint)
 		}
 	}
@@ -206,10 +206,11 @@ func (f *Generator) GenerateSyncCommandEndpoint(service *internal.Service, gener
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
-	generatedFile.P("if err := svc.bus.Exec(ctx, args); err != nil {")
+	generatedFile.P("metadata, err := svc.bus.Exec(ctx, args)")
+	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
-	generatedFile.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request)")
+	generatedFile.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request, metadata)")
 	generatedFile.P("}")
 	generatedFile.P()
 }
@@ -229,57 +230,12 @@ func (f *Generator) GenerateSyncQueryEndpoint(service *internal.Service, generat
 	generatedFile.P()
 }
 
-func (f *Generator) GenerateAsyncCommandEndpoint(service *internal.Service, generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint) {
-	generatedFile.P("func (svc *", service.CQRSName(), ") ", endpoint.Name(), "(request *", endpoint.InputGoIdent(), ", srvStream ", endpoint.ServerStreamName(), ") error {")
-	generatedFile.P("ctx := srvStream.Context()")
-	generatedFile.P("args, ctx, err := svc.assembler.From", endpoint.RequestName(), "(ctx, request)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("future, err := svc.bus.AsyncExec(ctx, args)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("_, err = future.Get(ctx)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("response, err := svc.assembler.To", endpoint.ResponseName(), "(ctx, request)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("return srvStream.Send(response)")
-	generatedFile.P("}")
-	generatedFile.P()
-}
-
-func (f *Generator) GenerateAsyncQueryEndpoint(service *internal.Service, generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint) {
-	generatedFile.P("func (svc *", service.CQRSName(), ") ", endpoint.Name(), "(request *", endpoint.InputGoIdent(), ", srvStream ", endpoint.ServerStreamName(), ") error {")
-	generatedFile.P("ctx := srvStream.Context()")
-	generatedFile.P("args, ctx, err := svc.assembler.From", endpoint.RequestName(), "(ctx, request)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("future, err := svc.bus.AsyncQuery(ctx, args)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("res, err := future.Get(ctx)")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("response, err := svc.assembler.To", endpoint.ResponseName(), "(ctx, request, res.(*", service.Query.GoImportPath().Ident(endpoint.ResName()), "))")
-	generatedFile.P("if err != nil {")
-	generatedFile.P("return err")
-	generatedFile.P("}")
-	generatedFile.P("return srvStream.Send(response)")
-	generatedFile.P("}")
-	generatedFile.P()
-}
-
 func (f *Generator) GenerateBus(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
 	generatedFile.P("func New", service.BusName(), "(")
 	for _, endpoint := range service.Endpoints {
+		if endpoint.IsStreaming() {
+			continue
+		}
 		switch {
 		case endpoint.IsCommand():
 			importPath := protogen.GoImportPath(service.Command.FullName())
@@ -292,6 +248,9 @@ func (f *Generator) GenerateBus(service *internal.Service, generatedFile *protog
 	generatedFile.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
 	generatedFile.P("bus := ", internal.CqrsPackage.Ident("NewBus"), "()")
 	for _, endpoint := range service.Endpoints {
+		if endpoint.IsStreaming() {
+			continue
+		}
 		switch {
 		case endpoint.IsCommand():
 			generatedFile.P("if err := bus.RegisterCommand(", endpoint.UnexportedName(), "); err != nil {")

@@ -48,8 +48,8 @@ func (e Endpoint) ResponseName() string {
 	return e.method.GoName + "Response"
 }
 
-func (e Endpoint) IsStreamingServer() bool {
-	return e.method.Desc.IsStreamingServer()
+func (e Endpoint) IsStreaming() bool {
+	return e.method.Desc.IsStreamingServer() || e.method.Desc.IsStreamingClient()
 }
 
 func (e Endpoint) Input() *protogen.Message {
