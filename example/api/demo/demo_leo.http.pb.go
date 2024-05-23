@@ -8,66 +8,308 @@ import (
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
+	jsonx "github.com/go-leo/gox/encodingx/jsonx"
+	errorx "github.com/go-leo/gox/errorx"
+	urlx "github.com/go-leo/gox/netx/urlx"
+	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
-	protojson "google.golang.org/protobuf/encoding/protojson"
+	http2 "google.golang.org/genproto/googleapis/rpc/http"
+	proto "google.golang.org/protobuf/proto"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	io "io"
-	http2 "net/http"
-	strconv "strconv"
-	strings "strings"
+	http1 "net/http"
+	url "net/url"
 )
 
-type httpDemoServiceClient struct {
+func NewDemoHTTPServer(
+	endpoints interface {
+		CreateUser() endpoint.Endpoint
+		DeleteUser() endpoint.Endpoint
+		UpdateUser() endpoint.Endpoint
+		GetUser() endpoint.Endpoint
+		GetUsers() endpoint.Endpoint
+		UploadUserAvatar() endpoint.Endpoint
+		GetUserAvatar() endpoint.Endpoint
+		PushUsers() endpoint.Endpoint
+	},
+	opts []http.ServerOption,
+	mdw ...endpoint.Middleware,
+) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/CreateUser").
+		Methods("POST").
+		Path("/v1/user").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.CreateUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &CreateUserRequest{}
+				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+					return nil, err
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*CreateUserResponse)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/DeleteUser").
+		Methods("DELETE").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.DeleteUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &DeleteUsersRequest{}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/UpdateUser").
+		Methods("PUT").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.UpdateUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &UpdateUserRequest{}
+				if err := jsonx.NewDecoder(r.Body).Decode(req.User); err != nil {
+					return nil, err
+				}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/GetUser").
+		Methods("GET").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.GetUser(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &GetUserRequest{}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*GetUserResponse)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/GetUsers").
+		Methods("GET").
+		Path("/v1/users").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.GetUsers(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &GetUsersRequest{}
+				queries := r.URL.Query()
+				var queryErr error
+				req.PageNo, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_no"))
+				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
+				if queryErr != nil {
+					return nil, queryErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*GetUsersResponse)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/UploadUserAvatar").
+		Methods("POST").
+		Path("/v1/user/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.UploadUserAvatar(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &UploadUserAvatarRequest{}
+				req.Avatar = &httpbody.HttpBody{}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Avatar.Data = body
+				req.Avatar.ContentType = r.Header.Get("Content-Type")
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*emptypb.Empty)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/GetUserAvatar").
+		Methods("GET").
+		Path("/v1/users/{user_id}").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.GetUserAvatar(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &GetUserAvatarRequest{}
+				vars := urlx.FormFromMap(mux.Vars(r))
+				var varErr error
+				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+				if varErr != nil {
+					return nil, varErr
+				}
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*httpbody.HttpBody)
+				w.WriteHeader(http1.StatusOK)
+				w.Header().Set("Content-Type", resp.GetContentType())
+				for _, src := range resp.GetExtensions() {
+					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
+					if err != nil {
+						return err
+					}
+					metadata, ok := dst.(*structpb.Struct)
+					if !ok {
+						continue
+					}
+					for key, value := range metadata.GetFields() {
+						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
+					}
+				}
+				if _, err := w.Write(resp.GetData()); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/PushUsers").
+		Methods("POST").
+		Path("/v1/user/push").
+		Handler(http.NewServer(
+			endpointx.Chain(endpoints.PushUsers(), mdw...),
+			func(ctx context.Context, r *http1.Request) (any, error) {
+				req := &http2.HttpRequest{}
+				req.Method = r.Method
+				req.Uri = r.RequestURI
+				req.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
+				for key, values := range r.Header {
+					for _, value := range values {
+						req.Headers = append(req.Headers, &http2.HttpHeader{Key: key, Value: value})
+					}
+				}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					return nil, err
+				}
+				req.Body = body
+				return req, nil
+			},
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+				resp := obj.(*http2.HttpResponse)
+				w.WriteHeader(int(resp.GetStatus()))
+				for _, header := range resp.GetHeaders() {
+					w.Header().Add(header.Key, header.Value)
+				}
+				if _, err := w.Write(resp.GetBody()); err != nil {
+					return err
+				}
+				return nil
+			},
+			opts...,
+		))
+	return router
+}
+
+type demoHTTPClient struct {
 	createUser       endpoint.Endpoint
+	deleteUser       endpoint.Endpoint
 	updateUser       endpoint.Endpoint
 	getUser          endpoint.Endpoint
 	getUsers         endpoint.Endpoint
-	deleteUser       endpoint.Endpoint
-	updateUserName   endpoint.Endpoint
-	uploadUsers      endpoint.Endpoint
 	uploadUserAvatar endpoint.Endpoint
+	getUserAvatar    endpoint.Endpoint
 	pushUsers        endpoint.Endpoint
-	pushUserAvatar   endpoint.Endpoint
-	modifyUser       endpoint.Endpoint
 }
 
-func (c *httpDemoServiceClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+func (c *demoHTTPClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
 	rep, err := c.createUser(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*emptypb.Empty), nil
+	return rep.(*CreateUserResponse), nil
 }
 
-func (c *httpDemoServiceClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	rep, err := c.updateUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *httpDemoServiceClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	rep, err := c.getUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*GetUserResponse), nil
-}
-
-func (c *httpDemoServiceClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	rep, err := c.getUsers(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*GetUsersResponse), nil
-}
-
-func (c *httpDemoServiceClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+func (c *demoHTTPClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
 	rep, err := c.deleteUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -75,603 +317,447 @@ func (c *httpDemoServiceClient) DeleteUser(ctx context.Context, request *DeleteU
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpDemoServiceClient) UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error) {
-	rep, err := c.updateUserName(ctx, request)
+func (c *demoHTTPClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	rep, err := c.updateUser(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *httpDemoServiceClient) UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error) {
-	rep, err := c.uploadUsers(ctx, request)
+func (c *demoHTTPClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	rep, err := c.getUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*GetUserResponse), nil
+}
+
+func (c *demoHTTPClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	rep, err := c.getUsers(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*GetUsersResponse), nil
+}
+
+func (c *demoHTTPClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	rep, err := c.uploadUserAvatar(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoHTTPClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	rep, err := c.getUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func (c *httpDemoServiceClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error) {
-	rep, err := c.uploadUserAvatar(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*UploadUserAvatarResponse), nil
-}
-
-func (c *httpDemoServiceClient) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+func (c *demoHTTPClient) PushUsers(ctx context.Context, request *http2.HttpRequest) (*http2.HttpResponse, error) {
 	rep, err := c.pushUsers(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*http.HttpResponse), nil
+	return rep.(*http2.HttpResponse), nil
 }
 
-func (c *httpDemoServiceClient) PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error) {
-	rep, err := c.pushUserAvatar(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*PushUserAvatarResponse), nil
-}
-
-func (c *httpDemoServiceClient) ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error) {
-	rep, err := c.modifyUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func NewDemoServiceHTTPClient(
+func NewDemoHTTPClient(
+	scheme string,
 	instance string,
-	mdw []endpoint.Middleware,
-	opts ...http1.ClientOption,
+	opts []http.ClientOption,
+	mdw ...endpoint.Middleware,
 ) interface {
-	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
+	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
+	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
 	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
 	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
 	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-	UpdateUserName(ctx context.Context, request *UpdateUserNameRequest) (*emptypb.Empty, error)
-	UploadUsers(ctx context.Context, request *httpbody.HttpBody) (*httpbody.HttpBody, error)
-	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*UploadUserAvatarResponse, error)
-	PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
-	PushUserAvatar(ctx context.Context, request *PushUserAvatarRequest) (*PushUserAvatarResponse, error)
-	ModifyUser(ctx context.Context, request *ModifyUserRequest) (*emptypb.Empty, error)
+	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
+	GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
+	PushUsers(ctx context.Context, request *http2.HttpRequest) (*http2.HttpResponse, error)
 } {
 	router := mux.NewRouter()
 	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/CreateUser").
+		Name("/leo.example.demo.v1.Demo/CreateUser").
 		Methods("POST").
 		Path("/v1/user")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/UpdateUser").
-		Methods("POST").
-		Path("/v1/user/{user_id}")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/GetUser").
-		Methods("GET").
-		Path("/v1/user/{user_id}")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/GetUsers").
-		Methods("GET").
-		Path("/v1/users")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/DeleteUser").
+		Name("/leo.example.demo.v1.Demo/DeleteUser").
 		Methods("DELETE").
 		Path("/v1/user/{user_id}")
 	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/UpdateUserName").
-		Methods("POST").
-		Path("/v1/user/{user_id}")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/UploadUsers").
-		Methods("POST").
-		Path("/v1/users")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/UploadUserAvatar").
-		Methods("POST").
-		Path("/v1/user/{user_id}")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/PushUsers").
-		Methods("POST").
-		Path("/v1/users/push")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/PushUserAvatar").
-		Methods("POST").
-		Path("/v1/user{user_id}/push")
-	router.NewRoute().
-		Name("/leo.example.demo.v1.DemoService/ModifyUser").
+		Name("/leo.example.demo.v1.Demo/UpdateUser").
 		Methods("PUT").
 		Path("/v1/user/{user_id}")
-	return &httpDemoServiceClient{
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/GetUser").
+		Methods("GET").
+		Path("/v1/user/{user_id}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/GetUsers").
+		Methods("GET").
+		Path("/v1/users")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/UploadUserAvatar").
+		Methods("POST").
+		Path("/v1/user/{user_id}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/GetUserAvatar").
+		Methods("GET").
+		Path("/v1/users/{user_id}")
+	router.NewRoute().
+		Name("/leo.example.demo.v1.Demo/PushUsers").
+		Methods("POST").
+		Path("/v1/user/push")
+	return &demoHTTPClient{
 		createUser: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*CreateUserRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
+					_ = req
 					var body io.Reader
-					if req != nil {
-						data, err := protojson.Marshal(req)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
+					var bodyBuf bytes.Buffer
+					if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+						return nil, err
 					}
+					body = &bodyBuf
+					contentType := "application/json; charset=utf-8"
 					var pairs []string
-					path, err := router.Get("/leo.example.demo.v1.DemoService/CreateUser").URLPath(pairs...)
+					path, err := router.Get("/leo.example.demo.v1.Demo/CreateUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
+					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		updateUser: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*UpdateUserRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
-					var body io.Reader
-					if req != nil {
-						data, err := protojson.Marshal(req)
-						if err != nil {
-							return nil, err
-						}
-						body = bytes.NewBuffer(data)
-					}
-					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/UpdateUser").URLPath(pairs...)
-					if err != nil {
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &CreateUserResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		getUser: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*GetUserRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
-					var body io.Reader
-					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/GetUser").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// uint32Uint32 uint32
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// uint64Uint64 uint64
-					// sfixed32Sfixed32 sfixed32
-					// fixed32Fixed32 fixed32
-					// floatFloat float
-					// sfixed64Sfixed64 sfixed64
-					// fixed64Fixed64 fixed64
-					// doubleDouble double
-					// stringString_ string
-					// bytesBytes bytes
-					// opt_boolOptBool bool
-					// opt_int32OptInt32 int32
-					// opt_sint32OptSint32 sint32
-					// opt_uint32OptUint32 uint32
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_uint64OptUint64 uint64
-					// opt_sfixed32OptSfixed32 sfixed32
-					// opt_fixed32OptFixed32 fixed32
-					// opt_floatOptFloat float
-					// opt_sfixed64OptSfixed64 sfixed64
-					// opt_fixed64OptFixed64 fixed64
-					// opt_doubleOptDouble double
-					// opt_stringOptString string
-					// opt_bytesOptBytes bytes
-					// wrap_doubleWrapDouble message
-					// wrap_floatWrapFloat message
-					// wrap_int64WrapInt64 message
-					// wrap_uint64WrapUint64 message
-					// wrap_int32WrapInt32 message
-					// wrap_uint32WrapUint32 message
-					// wrap_boolWrapBool message
-					// wrap_stringWrapString message
-					// wrap_bytesWrapBytes message
-					// repeated_boolRepeatedBool bool
-					// repeated_int32RepeatedInt32 int32
-					// repeated_sint32RepeatedSint32 sint32
-					// repeated_uint32RepeatedUint32 uint32
-					// repeated_int64RepeatedInt64 int64
-					// repeated_sint64RepeatedSint64 sint64
-					// repeated_uint64RepeatedUint64 uint64
-					// repeated_sfixed32RepeatedSfixed32 sfixed32
-					// repeated_fixed32RepeatedFixed32 fixed32
-					// repeated_floatRepeatedFloat float
-					// repeated_sfixed64RepeatedSfixed64 sfixed64
-					// repeated_fixed64RepeatedFixed64 fixed64
-					// repeated_doubleRepeatedDouble double
-					// repeated_stringRepeatedString string
-					// repeated_bytesRepeatedBytes bytes
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		getUsers: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*GetUsersRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "GET"
-					var url string
-					var body io.Reader
-					var pairs []string
-					path, err := router.Get("/leo.example.demo.v1.DemoService/GetUsers").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := r.URL.Query()
-					// page_noPageNo int32
-					// page_sizePageSize int32
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		deleteUser: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*DeleteUsersRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "DELETE"
-					var url string
+					_ = req
 					var body io.Reader
 					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/DeleteUser").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconvx.FormatUint(req.GetUserId(), 10))
+					path, err := router.Get("/leo.example.demo.v1.Demo/DeleteUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "DELETE", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
-		updateUserName: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*UpdateUserNameRequest)
+		updateUser: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
+					req, ok := obj.(*UpdateUserRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
+					_ = req
 					var body io.Reader
-					body = strings.NewReader(req.Name)
+					var bodyBuf bytes.Buffer
+					if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetUser()); err != nil {
+						return nil, err
+					}
+					body = &bodyBuf
+					contentType := "application/json; charset=utf-8"
 					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/UpdateUserName").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconvx.FormatUint(req.GetUserId(), 10))
+					path, err := router.Get("/leo.example.demo.v1.Demo/UpdateUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
+					r.Header.Set("Content-Type", contentType)
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
-		uploadUsers: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*httpbody.HttpBody)
+		getUser: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
+					req, ok := obj.(*GetUserRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
+					_ = req
 					var body io.Reader
-					if req != nil {
-						body = bytes.NewReader(req.Data)
-					}
 					var pairs []string
-					path, err := router.Get("/leo.example.demo.v1.DemoService/UploadUsers").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconvx.FormatUint(req.GetUserId(), 10))
+					path, err := router.Get("/leo.example.demo.v1.Demo/GetUser").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &GetUserResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getUsers: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
+					req, ok := obj.(*GetUsersRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					_ = req
+					var body io.Reader
+					var pairs []string
+					path, err := router.Get("/leo.example.demo.v1.Demo/GetUsers").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					queries := url.Values{}
+					queries["page_no"] = append(queries["page_no"], strconvx.FormatInt(req.GetPageNo(), 10))
+					queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+					if err != nil {
+						return nil, err
+					}
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &GetUsersResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		uploadUserAvatar: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
 					req, ok := obj.(*UploadUserAvatarRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
+					_ = req
 					var body io.Reader
-					if req.Avatar != nil {
-						body = bytes.NewReader(req.Avatar.Data)
-					}
+					body = bytes.NewReader(req.GetAvatar().GetData())
+					contentType := req.GetAvatar().GetContentType()
 					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/UploadUserAvatar").URLPath(pairs...)
+					pairs = append(pairs, "user_id", strconvx.FormatUint(req.GetUserId(), 10))
+					path, err := router.Get("/leo.example.demo.v1.Demo/UploadUserAvatar").URLPath(pairs...)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+					if err != nil {
+						return nil, err
+					}
+					r.Header.Set("Content-Type", contentType)
+					return r, nil
+				},
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				opts...,
+			).Endpoint(),
+			mdw...),
+		getUserAvatar: endpointx.Chain(
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
+					req, ok := obj.(*GetUserAvatarRequest)
+					if !ok {
+						return nil, fmt.Errorf("invalid request object type, %T", obj)
+					}
+					_ = req
+					var body io.Reader
+					var pairs []string
+					pairs = append(pairs, "user_id", strconvx.FormatUint(req.GetUserId(), 10))
+					path, err := router.Get("/leo.example.demo.v1.Demo/GetUserAvatar").URLPath(pairs...)
+					if err != nil {
+						return nil, err
+					}
+					queries := url.Values{}
+					target := &url.URL{
+						Scheme:   scheme,
+						Host:     instance,
+						Path:     path.Path,
+						RawQuery: queries.Encode(),
+					}
+					r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 					if err != nil {
 						return nil, err
 					}
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &httpbody.HttpBody{}
+					resp.ContentType = "application/json; charset=utf-8"
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					resp.Data = body
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),
 			mdw...),
 		pushUsers: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*http.HttpRequest)
+			http.NewExplicitClient(
+				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+					if obj == nil {
+						return nil, errors.New("request object is nil")
+					}
+					req, ok := obj.(*http2.HttpRequest)
 					if !ok {
 						return nil, fmt.Errorf("invalid request object type, %T", obj)
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
+					_ = req
 					var body io.Reader
-					if req != nil {
-						body = bytes.NewReader(req.Body)
-					}
-					var pairs []string
-					path, err := router.Get("/leo.example.demo.v1.DemoService/PushUsers").URLPath(pairs...)
+					body = bytes.NewReader(req.GetBody())
+					r, err := http1.NewRequestWithContext(ctx, req.GetMethod(), req.GetUri(), body)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
+					for _, header := range req.GetHeaders() {
+						r.Header.Add(header.GetKey(), header.GetValue())
 					}
 					return r, nil
 				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		pushUserAvatar: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*PushUserAvatarRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
+				func(ctx context.Context, r *http1.Response) (interface{}, error) {
+					resp := &http2.HttpResponse{}
+					resp.Status = int32(r.StatusCode)
+					resp.Reason = r.Status
+					for key, values := range r.Header {
+						for _, value := range values {
+							resp.Headers = append(resp.Headers, &http2.HttpHeader{Key: key, Value: value})
+						}
 					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "POST"
-					var url string
-					var body io.Reader
-					if req.Avatar != nil {
-						body = bytes.NewReader(req.Avatar.Body)
-					}
-					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/PushUserAvatar").URLPath(pairs...)
+					body, err := io.ReadAll(r.Body)
 					if err != nil {
 						return nil, err
 					}
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
-				},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		modifyUser: endpointx.Chain(
-			http1.NewExplicitClient(
-				func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-					req, ok := obj.(*ModifyUserRequest)
-					if !ok {
-						return nil, fmt.Errorf("invalid request object type, %T", obj)
-					}
-					if req == nil {
-						return nil, errors.New("request object is nil")
-					}
-					var method = "PUT"
-					var url string
-					var body io.Reader
-					if req.OptInt32 != nil {
-						body = strings.NewReader(strconv.FormatInt(int64(*req.OptInt32), 10))
-					}
-					var pairs []string
-					pairs = append(pairs, "user_id", strconv.FormatUint(req.UserId, 10))
-					path, err := router.Get("/leo.example.demo.v1.DemoService/ModifyUser").URLPath(pairs...)
-					if err != nil {
-						return nil, err
-					}
-					queries := r.URL.Query()
-					// boolBool bool
-					// int32Int32 int32
-					// sint32Sint32 sint32
-					// uint32Uint32 uint32
-					// int64Int64 int64
-					// sint64Sint64 sint64
-					// uint64Uint64 uint64
-					// sfixed32Sfixed32 sfixed32
-					// fixed32Fixed32 fixed32
-					// floatFloat float
-					// sfixed64Sfixed64 sfixed64
-					// fixed64Fixed64 fixed64
-					// doubleDouble double
-					// stringString_ string
-					// bytesBytes bytes
-					// opt_boolOptBool bool
-					// opt_sint32OptSint32 sint32
-					// opt_uint32OptUint32 uint32
-					// opt_int64OptInt64 int64
-					// opt_sint64OptSint64 sint64
-					// opt_uint64OptUint64 uint64
-					// opt_sfixed32OptSfixed32 sfixed32
-					// opt_fixed32OptFixed32 fixed32
-					// opt_floatOptFloat float
-					// opt_sfixed64OptSfixed64 sfixed64
-					// opt_fixed64OptFixed64 fixed64
-					// opt_doubleOptDouble double
-					// opt_stringOptString string
-					// opt_bytesOptBytes bytes
-					// wrap_doubleWrapDouble message
-					// wrap_floatWrapFloat message
-					// wrap_int64WrapInt64 message
-					// wrap_uint64WrapUint64 message
-					// wrap_int32WrapInt32 message
-					// wrap_uint32WrapUint32 message
-					// wrap_boolWrapBool message
-					// wrap_stringWrapString message
-					// wrap_bytesWrapBytes message
-					// rep_boolRepBool bool
-					// rep_int32RepInt32 int32
-					// rep_sint32RepSint32 sint32
-					// rep_uint32RepUint32 uint32
-					// rep_int64RepInt64 int64
-					// rep_sint64RepSint64 sint64
-					// rep_uint64RepUint64 uint64
-					// rep_sfixed32RepSfixed32 sfixed32
-					// rep_fixed32RepFixed32 fixed32
-					// rep_floatRepFloat float
-					// rep_sfixed64RepSfixed64 sfixed64
-					// rep_fixed64RepFixed64 fixed64
-					// rep_doubleRepDouble double
-					// rep_stringRepString string
-					// rep_bytesRepBytes bytes
-					url = fmt.Sprintf("%s://%s%s", "http", instance, path)
-					r, err := http2.NewRequestWithContext(ctx, method, url, body)
-					if err != nil {
-						return nil, err
-					}
-					return r, nil
-				},
-				func(ctx context.Context, r *http2.Response) (interface{}, error) {
-					return nil, nil
+					resp.Body = body
+					return resp, nil
 				},
 				opts...,
 			).Endpoint(),

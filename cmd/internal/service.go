@@ -171,11 +171,11 @@ func NewCQRSServices(file *protogen.File) ([]*Service, error) {
 			continue
 		}
 
-		commandPkgAbs, commandPkgRel, err := resolvePkgPath(file, commandPkg.Relative)
+		commandPkgAbs, commandPkgRel, err := resolvePkgPath(file.Desc.Path(), commandPkg.Relative)
 		if err != nil {
 			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", serviceFullName, "command", err)
 		}
-		queryPkgAbs, queryPkgRel, err := resolvePkgPath(file, queryPkg.Relative)
+		queryPkgAbs, queryPkgRel, err := resolvePkgPath(file.Desc.Path(), queryPkg.Relative)
 		if err != nil {
 			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", serviceFullName, "query", err)
 		}
@@ -211,39 +211,27 @@ func NewCQRSServices(file *protogen.File) ([]*Service, error) {
 	return services, nil
 }
 
-func resolvePkgPath(file *protogen.File, rel string) (string, string, error) {
-	// 获取命令工作目录
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", "", err
-	}
-
-	// 获取.proto文件路径
-	filePath := filepath.Join(wd, file.Desc.Path())
-
-	// 获取.proto文件绝对路径
-	fileAbs, err := filepath.Abs(filePath)
-	if err != nil {
-		return "", "", err
-	}
-
+func resolvePkgPath(filePath string, rel string) (string, string, error) {
 	// 算出query或者command包的绝对路径
-	pkgPath := filepath.Join(fileAbs, rel)
-	pkgAbs, err := filepath.Abs(pkgPath)
+	pkgAbs, err := filepath.Abs(filepath.Join(filePath, rel))
 	if err != nil {
 		return "", "", err
 	}
-
+	//
 	_, err = os.Stat(pkgAbs)
 	if err != nil {
 		return "", "", err
 	}
 
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", "", err
+	}
 	// 算出query或者command包的相对路径
 	pkgRel, err := filepath.Rel(wd, pkgAbs)
 	if err != nil {
 		return "", "", err
 	}
-
+	pkgRel = filepath.Clean(pkgRel)
 	return pkgAbs, pkgRel, nil
 }

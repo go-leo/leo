@@ -7,37 +7,28 @@ import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
 import "google/rpc/http.proto";
 import "google/protobuf/wrappers.proto";
+import "leo/cqrs/annotations.proto";
 
-service DemoService {
+
+service Demo {
+
+  option(leo.cqrs.command) = {
+    package: "github.com/go-leo/leo/v3/example/internal/demo/command"
+    relative: "../../../internal/demo/command"
+  };
+
+  option(leo.cqrs.query) = {
+    package: "github.com/go-leo/leo/v3/example/internal/demo/query"
+    relative:  "../../../internal/demo/query"
+  };
 
   // CreateUser create user
-  rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
     option (google.api.http) = {
       post : "/v1/user"
       body : "*"
     };
-  }
-
-  // UpdateUser update user
-  rpc UpdateUser (UpdateUserRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post : "/v1/user/{user_id}"
-      body : "*"
-    };
-  }
-
-  // GetUser get user
-  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
-    option (google.api.http) = {
-      get : "/v1/user/{user_id}"
-    };
-  }
-
-  // GetUsers get users
-  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse) {
-    option (google.api.http) = {
-      get : "/v1/users"
-    };
+    option(leo.cqrs.responsibility) = Command;
   }
 
   // DeleteUser delete user
@@ -45,143 +36,89 @@ service DemoService {
     option (google.api.http) = {
       delete : "/v1/user/{user_id}"
     };
+    option(leo.cqrs.responsibility) = Command;
   }
 
-  // UpdateUserName update user name
-  rpc UpdateUserName (UpdateUserNameRequest) returns (google.protobuf.Empty) {
+  // UpdateUser update user
+  rpc UpdateUser (UpdateUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post : "/v1/user/{user_id}"
-      body : "name"
+      put : "/v1/user/{user_id}"
+      body : "user"
     };
-  }
-
-  // UploadUsers upload user by csv
-  rpc UploadUsers (google.api.HttpBody) returns (google.api.HttpBody) {
-    option (google.api.http) = {
-      post : "/v1/users"
-      body : "*"
-    };
-  }
-
-  // UploadUserAvatar upload user avatar
-  rpc UploadUserAvatar (UploadUserAvatarRequest) returns (UploadUserAvatarResponse) {
-    option (google.api.http) = {
-      post : "/v1/user/{user_id}"
-      body : "avatar"
-      response_body : "body"
-    };
-  }
-
-  // PushUsers push users by csv
-  rpc PushUsers (google.rpc.HttpRequest) returns (google.rpc.HttpResponse) {
-    option (google.api.http) = {
-      post : "/v1/users/push"
-      body : "*"
-    };
-  }
-
-  // PushUserAvatar push user avatar
-  rpc PushUserAvatar (PushUserAvatarRequest) returns (PushUserAvatarResponse) {
-    option (google.api.http) = {
-      post : "/v1/user{user_id}/push"
-      body : "avatar"
-      response_body : "body"
-    };
+    option(leo.cqrs.responsibility) = Command;
   }
 
   // GetUser get user
-  rpc ModifyUser (ModifyUserRequest) returns (google.protobuf.Empty) {
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {
-      put : "/v1/user/{user_id}"
-      body : "opt_int32"
+      get : "/v1/user/{user_id}"
     };
+    option(leo.cqrs.responsibility) = Query;
   }
 
+  // GetUsers get users
+  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse) {
+    option (google.api.http) = {
+      get : "/v1/users"
+    };
+    option(leo.cqrs.responsibility) = Query;
+  }
+
+  // UploadUserAvatar upload user avatar
+  rpc UploadUserAvatar (UploadUserAvatarRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : "/v1/user/{user_id}"
+      body : "avatar"
+    };
+    option(leo.cqrs.responsibility) = Command;
+  }
+
+  // GetUserAvatar get user avatar
+  rpc GetUserAvatar (GetUserAvatarRequest) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/v1/users/{user_id}"
+    };
+    option(leo.cqrs.responsibility) = Query;
+  }
+
+  // PushUsers push users by csv and
+  rpc PushUsers (google.rpc.HttpRequest) returns (google.rpc.HttpResponse) {
+    option (google.api.http) = {
+      post : "/v1/user/push"
+      body : "*"
+    };
+    option(leo.cqrs.responsibility) = Query;
+  }
+}
+
+message User {
+  uint64 user_id = 1;
+  string name = 2;
+  int32 age = 3;
+  double salary = 4;
+  string Token = 5;
+  string avatar = 6;
 }
 
 message CreateUserRequest {
-  string name = 1;
-  int32 age = 2;
-  double salary = 3;
-  string Token = 4;
+  User user = 1;
+}
+
+message CreateUserResponse {
+  uint64 user_id = 1;
 }
 
 message UpdateUserRequest {
   uint64 user_id = 1;
-  string name = 2;
-  int32 age = 3;
-  double salary = 4;
-  string Token = 5;
+  User user = 2;
 }
 
 message GetUserRequest {
   uint64 user_id = 1;
-  bool bool = 2;
-  int32 int32 = 3;
-  sint32 sint32 = 4;
-  uint32 uint32 = 6;
-  int64 int64 = 7;
-  sint64 sint64 = 8;
-  uint64 uint64 = 9;
-  sfixed32 sfixed32 = 10;
-  fixed32 fixed32 = 11;
-  float float = 12;
-  sfixed64 sfixed64 = 13;
-  fixed64 fixed64 = 14;
-  double  double = 15;
-  string string = 16;
-  bytes bytes = 17;
-
-  optional bool opt_bool = 22;
-  optional int32 opt_int32 = 23;
-  optional sint32 opt_sint32 = 24;
-  optional uint32 opt_uint32 = 26;
-  optional int64 opt_int64 = 27;
-  optional sint64 opt_sint64 = 28;
-  optional uint64 opt_uint64 = 29;
-  optional sfixed32 opt_sfixed32 = 30;
-  optional fixed32 opt_fixed32 = 31;
-  optional float opt_float = 32;
-  optional sfixed64 opt_sfixed64 = 33;
-  optional fixed64 opt_fixed64 = 34;
-  optional double  opt_double = 35;
-  optional string opt_string = 36;
-  optional bytes opt_bytes = 37;
-
-  google.protobuf.DoubleValue wrap_double = 42;
-  google.protobuf.FloatValue wrap_float = 43;
-  google.protobuf.Int64Value wrap_int64 = 44;
-  google.protobuf.UInt64Value wrap_uint64 = 45;
-  google.protobuf.Int32Value wrap_int32 = 46;
-  google.protobuf.UInt32Value wrap_uint32 = 47;
-  google.protobuf.BoolValue wrap_bool = 48;
-  google.protobuf.StringValue wrap_string = 49;
-  google.protobuf.BytesValue wrap_bytes = 50;
-
-  repeated bool repeated_bool = 52;
-  repeated int32 repeated_int32 = 53;
-  repeated sint32 repeated_sint32 =54;
-  repeated uint32 repeated_uint32 = 56;
-  repeated int64 repeated_int64 = 57;
-  repeated sint64 repeated_sint64 = 58;
-  repeated uint64 repeated_uint64 = 59;
-  repeated sfixed32 repeated_sfixed32 = 60;
-  repeated fixed32 repeated_fixed32 = 61;
-  repeated float repeated_float = 62;
-  repeated sfixed64 repeated_sfixed64 = 63;
-  repeated fixed64 repeated_fixed64 = 64;
-  repeated double  repeated_double = 65;
-  repeated  string repeated_string = 66;
-  repeated bytes repeated_bytes = 67;
-
 }
 
 message GetUserResponse {
-  uint64 user_id = 1;
-  string name = 2;
-  int32 age = 3;
-  double salary = 4;
-  string Token = 5;
+  User user = 1;
 }
 
 message GetUsersRequest {
@@ -190,13 +127,6 @@ message GetUsersRequest {
 }
 
 message GetUsersResponse {
-  message User {
-    uint64 user_id = 1;
-    string name = 2;
-    int32 age = 3;
-    double salary = 4;
-    string Token = 5;
-  }
   repeated User users = 1;
 }
 
@@ -204,9 +134,8 @@ message DeleteUsersRequest {
   uint64 user_id = 1;
 }
 
-message UpdateUserNameRequest {
+message GetUserAvatarRequest {
   uint64 user_id = 1;
-  string name = 2;
 }
 
 message UploadUserAvatarRequest {
@@ -214,77 +143,3 @@ message UploadUserAvatarRequest {
   google.api.HttpBody avatar = 2;
 }
 
-message UploadUserAvatarResponse {
-  google.api.HttpBody body = 2;
-}
-
-message PushUserAvatarRequest{
-  uint64 user_id = 1;
-  google.rpc.HttpRequest avatar = 2;
-}
-
-message PushUserAvatarResponse {
-  google.rpc.HttpResponse body = 2;
-}
-
-message ModifyUserRequest {
-  uint64 user_id = 1;
-  bool bool = 2;
-  int32 int32 = 3;
-  sint32 sint32 = 4;
-  uint32 uint32 = 6;
-  int64 int64 = 7;
-  sint64 sint64 = 8;
-  uint64 uint64 = 9;
-  sfixed32 sfixed32 = 10;
-  fixed32 fixed32 = 11;
-  float float = 12;
-  sfixed64 sfixed64 = 13;
-  fixed64 fixed64 = 14;
-  double  double = 15;
-  string string = 16;
-  bytes bytes = 17;
-
-  optional bool opt_bool = 22;
-  optional int32 opt_int32 = 23;
-  optional sint32 opt_sint32 = 24;
-  optional uint32 opt_uint32 = 26;
-  optional int64 opt_int64 = 27;
-  optional sint64 opt_sint64 = 28;
-  optional uint64 opt_uint64 = 29;
-  optional sfixed32 opt_sfixed32 = 30;
-  optional fixed32 opt_fixed32 = 31;
-  optional float opt_float = 32;
-  optional sfixed64 opt_sfixed64 = 33;
-  optional fixed64 opt_fixed64 = 34;
-  optional double  opt_double = 35;
-  optional string opt_string = 36;
-  optional bytes opt_bytes = 37;
-
-  google.protobuf.DoubleValue wrap_double = 42;
-  google.protobuf.FloatValue wrap_float = 43;
-  google.protobuf.Int64Value wrap_int64 = 44;
-  google.protobuf.UInt64Value wrap_uint64 = 45;
-  google.protobuf.Int32Value wrap_int32 = 46;
-  google.protobuf.UInt32Value wrap_uint32 = 47;
-  google.protobuf.BoolValue wrap_bool = 48;
-  google.protobuf.StringValue wrap_string = 49;
-  google.protobuf.BytesValue wrap_bytes = 50;
-
-  repeated bool rep_bool = 52;
-  repeated int32 rep_int32 = 53;
-  repeated sint32 rep_sint32 =54;
-  repeated uint32 rep_uint32 = 56;
-  repeated int64 rep_int64 = 57;
-  repeated sint64 rep_sint64 = 58;
-  repeated uint64 rep_uint64 = 59;
-  repeated sfixed32 rep_sfixed32 = 60;
-  repeated fixed32 rep_fixed32 = 61;
-  repeated float rep_float = 62;
-  repeated sfixed64 rep_sfixed64 = 63;
-  repeated fixed64 rep_fixed64 = 64;
-  repeated double  rep_double = 65;
-  repeated string rep_string = 66;
-  repeated bytes rep_bytes = 67;
-
-}

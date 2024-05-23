@@ -6,45 +6,22 @@ import "leo/cqrs/annotations.proto";
 import "google/protobuf/empty.proto";
 
 service CQRS {
-  // Define command package information
   option(leo.cqrs.command) = {
-    // package: the full package name of the command.
     package: "github.com/go-leo/leo/v3/example/internal/cqrs/command"
-    // relative: the package path of the command, relative to the current proto file.
     relative: "../../../internal/cqrs/command"
   };
 
-  // Define command package information
   option(leo.cqrs.query) = {
-    // package: the full package name of the query.
     package: "github.com/go-leo/leo/v3/example/internal/cqrs/query"
-    // relative: the package path of the command, relative to the current proto file.
     relative:  "../../../internal/cqrs/query"
   };
 
-  // CreateUser sync create user
   rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {
     option(leo.cqrs.responsibility) = Command;
   }
 
-  // UpdateUser sync update user
-  rpc UpdateUser (UpdateUserRequest) returns (google.protobuf.Empty) {
-    option(leo.cqrs.responsibility) = Command;
-  }
-
-  // GetUser sync get user
-  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+  rpc FindUser (FindUserRequest) returns (GetUserResponse) {
     option(leo.cqrs.responsibility) = Query;
-  }
-
-  // GetUsers sync get users
-  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse) {
-    option(leo.cqrs.responsibility) = Query;
-  }
-
-  // DeleteUser sync delete user
-  rpc DeleteUser (DeleteUsersRequest) returns (google.protobuf.Empty) {
-    option(leo.cqrs.responsibility) = Command;
   }
 }
 
@@ -55,18 +32,8 @@ message CreateUserRequest {
   string Token = 4;
 }
 
-message UpdateUserRequest {
+message FindUserRequest {
   string name = 1;
-  int32 age = 2;
-  double salary = 3;
-  string Token = 4;
-}
-
-message GetUserRequest {
-  string name = 1;
-  int32 age = 2;
-  double salary = 3;
-  string Token = 4;
 }
 
 message GetUserResponse {
@@ -74,42 +41,4 @@ message GetUserResponse {
   int32 age = 2;
   double salary = 3;
   string Token = 4;
-}
-
-message GetUsersRequest {
-  int32 page_no = 1;
-  int32 page_size = 2;
-}
-
-message GetUsersResponse {
-  message User {
-    string name = 1;
-    int32 age = 2;
-    double salary = 3;
-    string Token = 4;
-  }
-  repeated User users = 1;
-}
-
-message DeleteUsersRequest {
-  string name = 1;
-}
-
-message AsyncGetUsersRequest {
-  int32 page_no = 1;
-  int32 page_size = 2;
-}
-
-message AsyncGetUsersResponse {
-  message User {
-    string name = 1;
-    int32 age = 2;
-    double salary = 3;
-    string Token = 4;
-  }
-  repeated User users = 1;
-}
-
-message AsyncDeleteUsersRequest {
-  repeated string names = 1;
 }

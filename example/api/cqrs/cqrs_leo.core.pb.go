@@ -11,10 +11,7 @@ import (
 type cQRSEndpoints struct {
 	svc interface {
 		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-		UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-		GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+		FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 	}
 }
 
@@ -24,44 +21,20 @@ func (e *cQRSEndpoints) CreateUser() endpoint.Endpoint {
 	}
 }
 
-func (e *cQRSEndpoints) UpdateUser() endpoint.Endpoint {
+func (e *cQRSEndpoints) FindUser() endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.UpdateUser(ctx, request.(*UpdateUserRequest))
-	}
-}
-
-func (e *cQRSEndpoints) GetUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetUser(ctx, request.(*GetUserRequest))
-	}
-}
-
-func (e *cQRSEndpoints) GetUsers() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetUsers(ctx, request.(*GetUsersRequest))
-	}
-}
-
-func (e *cQRSEndpoints) DeleteUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.DeleteUser(ctx, request.(*DeleteUsersRequest))
+		return e.svc.FindUser(ctx, request.(*FindUserRequest))
 	}
 }
 
 func NewCQRSEndpoints(
 	svc interface {
 		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-		UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-		GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+		FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 	},
 ) interface {
 	CreateUser() endpoint.Endpoint
-	UpdateUser() endpoint.Endpoint
-	GetUser() endpoint.Endpoint
-	GetUsers() endpoint.Endpoint
-	DeleteUser() endpoint.Endpoint
+	FindUser() endpoint.Endpoint
 } {
 	return &cQRSEndpoints{svc: svc}
 }

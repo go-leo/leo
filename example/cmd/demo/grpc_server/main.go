@@ -1,17 +1,12 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"github.com/go-kit/kit/endpoint"
-	"github.com/go-leo/gox/errorx"
-	"github.com/go-leo/gox/mathx/randx"
+	grpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-leo/leo/v3/example/api/demo"
-	"google.golang.org/genproto/googleapis/api/httpbody"
-	"google.golang.org/genproto/googleapis/rpc/http"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"github.com/go-leo/leo/v3/example/internal/demo/assembler"
+	"github.com/go-leo/leo/v3/example/internal/demo/command"
+	"github.com/go-leo/leo/v3/example/internal/demo/query"
+	grpc1 "google.golang.org/grpc"
 	"log"
 	"net"
 )
@@ -21,87 +16,27 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
-	endpoints := demo.NewdemoServiceEndpoints(newDemoService())
-	service := demo.NewDemoServiceGRPCServer(endpoints, []endpoint.Middleware{})
-	demo.RegisterDemoServiceServer(s, service)
+	s := grpc1.NewServer()
+	bus, err := demo.NewDemoBus(
+		command.NewCreateUser(),
+		command.NewDeleteUser(),
+		command.NewUpdateUser(),
+		query.NewGetUser(),
+		query.NewGetUsers(),
+		command.NewUploadUserAvatar(),
+		query.NewGetUserAvatar(),
+		query.NewPushUsers(),
+	)
+	if err != nil {
+		log.Fatalf("failed to new bus: %v", err)
+	}
+	demoAssembler := assembler.NewDemoAssembler()
+	cqrsService := demo.NewDemoCQRSService(bus, demoAssembler)
+	endpoints := demo.NewDemoEndpoints(cqrsService)
+	service := demo.NewDemoGRPCServer(endpoints, []grpc.ServerOption{})
+	demo.RegisterDemoServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-}
-
-type demoService struct {
-}
-
-func (d demoService) CreateUser(ctx context.Context, request *demo.CreateUserRequest) (*emptypb.Empty, error) {
-	fmt.Println("create user:", string(errorx.Ignore(protojson.Marshal(request))))
-	return new(emptypb.Empty), nil
-}
-
-func (d demoService) UpdateUser(ctx context.Context, request *demo.UpdateUserRequest) (*emptypb.Empty, error) {
-	fmt.Println("update user:", string(errorx.Ignore(protojson.Marshal(request))))
-	return new(emptypb.Empty), nil
-}
-
-func (d demoService) GetUser(ctx context.Context, request *demo.GetUserRequest) (*demo.GetUserResponse, error) {
-	fmt.Println("get user:", string(errorx.Ignore(protojson.Marshal(request))))
-	return &demo.GetUserResponse{
-		UserId: request.GetUserId(),
-		Name:   randx.HexString(10),
-		Age:    randx.Int31n(100),
-		Salary: randx.Float64(),
-		Token:  randx.NumericString(10),
-	}, nil
-}
-
-func (d demoService) GetUsers(ctx context.Context, request *demo.GetUsersRequest) (*demo.GetUsersResponse, error) {
-	fmt.Println("get users:", string(errorx.Ignore(protojson.Marshal(request))))
-	var users []*demo.GetUsersResponse_User
-	for i := 0; i < int(request.PageSize); i++ {
-		users = append(users, &demo.GetUsersResponse_User{
-			UserId: randx.Uint64(),
-			Name:   randx.HexString(10),
-			Age:    randx.Int31n(100),
-			Salary: randx.Float64(),
-			Token:  randx.NumericString(10),
-		})
-	}
-	return &demo.GetUsersResponse{
-		Users: users,
-	}, nil
-}
-
-func (d demoService) DeleteUser(ctx context.Context, request *demo.DeleteUsersRequest) (*emptypb.Empty, error) {
-	fmt.Println("delete users:", string(errorx.Ignore(protojson.Marshal(request))))
-	return new(emptypb.Empty), nil
-}
-
-func (d demoService) UpdateUserName(ctx context.Context, request *demo.UpdateUserNameRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d demoService) UploadUsers(ctx context.Context, body *httpbody.HttpBody) (*httpbody.HttpBody, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d demoService) UploadUserAvatar(ctx context.Context, request *demo.UploadUserAvatarRequest) (*demo.UploadUserAvatarResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d demoService) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d demoService) PushUserAvatar(ctx context.Context, request *demo.PushUserAvatarRequest) (*demo.PushUserAvatarResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func newDemoService() demo.DemoServiceServer {
-	return &demoService{}
 }

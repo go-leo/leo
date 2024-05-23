@@ -14,13 +14,7 @@ import (
 type cQRSGRPCServer struct {
 	createUser grpc.Handler
 
-	updateUser grpc.Handler
-
-	getUser grpc.Handler
-
-	getUsers grpc.Handler
-
-	deleteUser grpc.Handler
+	findUser grpc.Handler
 }
 
 func (s *cQRSGRPCServer) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
@@ -32,17 +26,8 @@ func (s *cQRSGRPCServer) CreateUser(ctx context.Context, request *CreateUserRequ
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *cQRSGRPCServer) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	ctx, rep, err := s.updateUser.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
-}
-
-func (s *cQRSGRPCServer) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	ctx, rep, err := s.getUser.ServeGRPC(ctx, request)
+func (s *cQRSGRPCServer) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	ctx, rep, err := s.findUser.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -50,40 +35,16 @@ func (s *cQRSGRPCServer) GetUser(ctx context.Context, request *GetUserRequest) (
 	return rep.(*GetUserResponse), nil
 }
 
-func (s *cQRSGRPCServer) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	ctx, rep, err := s.getUsers.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*GetUsersResponse), nil
-}
-
-func (s *cQRSGRPCServer) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	ctx, rep, err := s.deleteUser.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewCQRSGRPCServer(
 	endpoints interface {
 		CreateUser() endpoint.Endpoint
-		UpdateUser() endpoint.Endpoint
-		GetUser() endpoint.Endpoint
-		GetUsers() endpoint.Endpoint
-		DeleteUser() endpoint.Endpoint
+		FindUser() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
 	mdw ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 } {
 	return &cQRSGRPCServer{
 		createUser: grpc.NewServer(
@@ -92,26 +53,8 @@ func NewCQRSGRPCServer(
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
-		updateUser: grpc.NewServer(
-			endpointx.Chain(endpoints.UpdateUser(), mdw...),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			opts...,
-		),
-		getUser: grpc.NewServer(
-			endpointx.Chain(endpoints.GetUser(), mdw...),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			opts...,
-		),
-		getUsers: grpc.NewServer(
-			endpointx.Chain(endpoints.GetUsers(), mdw...),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			opts...,
-		),
-		deleteUser: grpc.NewServer(
-			endpointx.Chain(endpoints.DeleteUser(), mdw...),
+		findUser: grpc.NewServer(
+			endpointx.Chain(endpoints.FindUser(), mdw...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -121,10 +64,7 @@ func NewCQRSGRPCServer(
 
 type cQRSGRPCClient struct {
 	createUser endpoint.Endpoint
-	updateUser endpoint.Endpoint
-	getUser    endpoint.Endpoint
-	getUsers   endpoint.Endpoint
-	deleteUser endpoint.Endpoint
+	findUser   endpoint.Endpoint
 }
 
 func (c *cQRSGRPCClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
@@ -135,36 +75,12 @@ func (c *cQRSGRPCClient) CreateUser(ctx context.Context, request *CreateUserRequ
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *cQRSGRPCClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	rep, err := c.updateUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *cQRSGRPCClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	rep, err := c.getUser(ctx, request)
+func (c *cQRSGRPCClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	rep, err := c.findUser(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*GetUserResponse), nil
-}
-
-func (c *cQRSGRPCClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	rep, err := c.getUsers(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*GetUsersResponse), nil
-}
-
-func (c *cQRSGRPCClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	rep, err := c.deleteUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
 }
 
 func NewCQRSGRPCClient(
@@ -173,10 +89,7 @@ func NewCQRSGRPCClient(
 	mdw ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 } {
 	return &cQRSGRPCClient{
 		createUser: endpointx.Chain(
@@ -190,47 +103,14 @@ func NewCQRSGRPCClient(
 				opts...,
 			).Endpoint(),
 			mdw...),
-		updateUser: endpointx.Chain(
+		findUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
 				"pb.CQRS",
-				"UpdateUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		getUser: endpointx.Chain(
-			grpc.NewClient(
-				conn,
-				"pb.CQRS",
-				"GetUser",
+				"FindUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUserResponse{},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		getUsers: endpointx.Chain(
-			grpc.NewClient(
-				conn,
-				"pb.CQRS",
-				"GetUsers",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				GetUsersResponse{},
-				opts...,
-			).Endpoint(),
-			mdw...),
-		deleteUser: endpointx.Chain(
-			grpc.NewClient(
-				conn,
-				"pb.CQRS",
-				"DeleteUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
 			mdw...),

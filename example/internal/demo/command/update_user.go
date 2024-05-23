@@ -20,7 +20,7 @@ func NewUpdateUser() UpdateUser {
 type updateUser struct {
 }
 
-func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) error {
-	fmt.Println(args.User)
-	return nil
+func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) (cqrs.Metadata, error) {
+	fmt.Println("update user", args)
+	return cqrs.NewMetadata(), nil
 }

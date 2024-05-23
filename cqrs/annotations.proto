@@ -25,7 +25,6 @@ message Package {
   // package the full package name of the command or query.
   string package = 1;
   // relative the package path of the the command or query, relative to the current proto file.
-  // the package path will call filepath.Join()
   string relative = 2;
 }
 

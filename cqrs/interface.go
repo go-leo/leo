@@ -6,9 +6,6 @@ import (
 
 // Metadata is a mapping from metadata keys to values.
 type Metadata interface {
-	// Add adds the key, value pair.
-	Add(key, value string)
-
 	// Set sets the value of a given key with a slice of values.
 	Set(key string, value ...string)
 

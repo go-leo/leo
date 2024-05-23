@@ -7,7 +7,7 @@ import (
 )
 
 type DeleteUserArgs struct {
-	Name string
+	UserId uint64
 }
 
 type DeleteUser cqrs.CommandHandler[*DeleteUserArgs]
@@ -19,7 +19,7 @@ func NewDeleteUser() DeleteUser {
 type deleteUser struct {
 }
 
-func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) error {
+func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) (cqrs.Metadata, error) {
 	fmt.Println("delete user", args)
-	return nil
+	return cqrs.NewMetadata(), nil
 }

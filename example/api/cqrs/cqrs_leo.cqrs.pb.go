@@ -19,29 +19,11 @@ type CQRSAssembler interface {
 	// ToCreateUserResponse convert query result to response
 	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
 
-	// FromUpdateUserRequest convert request to command arguments
-	FromUpdateUserRequest(ctx context.Context, request *UpdateUserRequest) (*command.UpdateUserArgs, context.Context, error)
+	// FromFindUserRequest convert request to query arguments
+	FromFindUserRequest(ctx context.Context, request *FindUserRequest) (*query.FindUserArgs, context.Context, error)
 
-	// ToUpdateUserResponse convert query result to response
-	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
-
-	// FromGetUserRequest convert request to query arguments
-	FromGetUserRequest(ctx context.Context, request *GetUserRequest) (*query.GetUserArgs, context.Context, error)
-
-	// ToGetUserResponse convert query result to response
-	ToGetUserResponse(ctx context.Context, request *GetUserRequest, res *query.GetUserRes) (*GetUserResponse, error)
-
-	// FromGetUsersRequest convert request to query arguments
-	FromGetUsersRequest(ctx context.Context, request *GetUsersRequest) (*query.GetUsersArgs, context.Context, error)
-
-	// ToGetUsersResponse convert query result to response
-	ToGetUsersResponse(ctx context.Context, request *GetUsersRequest, res *query.GetUsersRes) (*GetUsersResponse, error)
-
-	// FromDeleteUserRequest convert request to command arguments
-	FromDeleteUserRequest(ctx context.Context, request *DeleteUsersRequest) (*command.DeleteUserArgs, context.Context, error)
-
-	// ToDeleteUserResponse convert query result to response
-	ToDeleteUserResponse(ctx context.Context, request *DeleteUsersRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
+	// ToFindUserResponse convert query result to response
+	ToFindUserResponse(ctx context.Context, request *FindUserRequest, res *query.FindUserRes) (*GetUserResponse, error)
 }
 
 // CQRSCQRSService implement the CQRS service with CQRS pattern
@@ -66,20 +48,8 @@ func (svc *CQRSCQRSService) CreateUser(ctx context.Context, request *CreateUserR
 	return svc.assembler.ToCreateUserResponse(ctx, request, metadata)
 }
 
-func (svc *CQRSCQRSService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromUpdateUserRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	metadata, err := svc.bus.Exec(ctx, args)
-	if err != nil {
-		return nil, err
-	}
-	return svc.assembler.ToUpdateUserResponse(ctx, request, metadata)
-}
-
-func (svc *CQRSCQRSService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	args, ctx, err := svc.assembler.FromGetUserRequest(ctx, request)
+func (svc *CQRSCQRSService) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	args, ctx, err := svc.assembler.FromFindUserRequest(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -87,54 +57,18 @@ func (svc *CQRSCQRSService) GetUser(ctx context.Context, request *GetUserRequest
 	if err != nil {
 		return nil, err
 	}
-	return svc.assembler.ToGetUserResponse(ctx, request, res.(*query.GetUserRes))
-}
-
-func (svc *CQRSCQRSService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	args, ctx, err := svc.assembler.FromGetUsersRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	res, err := svc.bus.Query(ctx, args)
-	if err != nil {
-		return nil, err
-	}
-	return svc.assembler.ToGetUsersResponse(ctx, request, res.(*query.GetUsersRes))
-}
-
-func (svc *CQRSCQRSService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromDeleteUserRequest(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	metadata, err := svc.bus.Exec(ctx, args)
-	if err != nil {
-		return nil, err
-	}
-	return svc.assembler.ToDeleteUserResponse(ctx, request, metadata)
+	return svc.assembler.ToFindUserResponse(ctx, request, res.(*query.FindUserRes))
 }
 
 func NewCQRSBus(
 	createUser command.CreateUser,
-	updateUser command.UpdateUser,
-	getUser query.GetUser,
-	getUsers query.GetUsers,
-	deleteUser command.DeleteUser,
+	findUser query.FindUser,
 ) (cqrs.Bus, error) {
 	bus := cqrs.NewBus()
 	if err := bus.RegisterCommand(createUser); err != nil {
 		return nil, err
 	}
-	if err := bus.RegisterCommand(updateUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUsers); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(deleteUser); err != nil {
+	if err := bus.RegisterQuery(findUser); err != nil {
 		return nil, err
 	}
 	return bus, nil

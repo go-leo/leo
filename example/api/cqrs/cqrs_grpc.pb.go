@@ -21,26 +21,15 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	CQRS_CreateUser_FullMethodName = "/pb.CQRS/CreateUser"
-	CQRS_UpdateUser_FullMethodName = "/pb.CQRS/UpdateUser"
-	CQRS_GetUser_FullMethodName    = "/pb.CQRS/GetUser"
-	CQRS_GetUsers_FullMethodName   = "/pb.CQRS/GetUsers"
-	CQRS_DeleteUser_FullMethodName = "/pb.CQRS/DeleteUser"
+	CQRS_FindUser_FullMethodName   = "/pb.CQRS/FindUser"
 )
 
 // CQRSClient is the client API for CQRS service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CQRSClient interface {
-	// CreateUser sync create user
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// UpdateUser sync update user
-	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// GetUser sync get user
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-	// GetUsers sync get users
-	GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error)
-	// DeleteUser sync delete user
-	DeleteUser(ctx context.Context, in *DeleteUsersRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	FindUser(ctx context.Context, in *FindUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 }
 
 type cQRSClient struct {
@@ -60,36 +49,9 @@ func (c *cQRSClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts
 	return out, nil
 }
 
-func (c *cQRSClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CQRS_UpdateUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cQRSClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+func (c *cQRSClient) FindUser(ctx context.Context, in *FindUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
 	out := new(GetUserResponse)
-	err := c.cc.Invoke(ctx, CQRS_GetUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cQRSClient) GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error) {
-	out := new(GetUsersResponse)
-	err := c.cc.Invoke(ctx, CQRS_GetUsers_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cQRSClient) DeleteUser(ctx context.Context, in *DeleteUsersRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CQRS_DeleteUser_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, CQRS_FindUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,16 +62,8 @@ func (c *cQRSClient) DeleteUser(ctx context.Context, in *DeleteUsersRequest, opt
 // All implementations should embed UnimplementedCQRSServer
 // for forward compatibility
 type CQRSServer interface {
-	// CreateUser sync create user
 	CreateUser(context.Context, *CreateUserRequest) (*emptypb.Empty, error)
-	// UpdateUser sync update user
-	UpdateUser(context.Context, *UpdateUserRequest) (*emptypb.Empty, error)
-	// GetUser sync get user
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	// GetUsers sync get users
-	GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error)
-	// DeleteUser sync delete user
-	DeleteUser(context.Context, *DeleteUsersRequest) (*emptypb.Empty, error)
+	FindUser(context.Context, *FindUserRequest) (*GetUserResponse, error)
 }
 
 // UnimplementedCQRSServer should be embedded to have forward compatible implementations.
@@ -119,17 +73,8 @@ type UnimplementedCQRSServer struct {
 func (UnimplementedCQRSServer) CreateUser(context.Context, *CreateUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedCQRSServer) UpdateUser(context.Context, *UpdateUserRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
-}
-func (UnimplementedCQRSServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
-}
-func (UnimplementedCQRSServer) GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
-}
-func (UnimplementedCQRSServer) DeleteUser(context.Context, *DeleteUsersRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+func (UnimplementedCQRSServer) FindUser(context.Context, *FindUserRequest) (*GetUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindUser not implemented")
 }
 
 // UnsafeCQRSServer may be embedded to opt out of forward compatibility for this service.
@@ -161,74 +106,20 @@ func _CQRS_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CQRS_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserRequest)
+func _CQRS_FindUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CQRSServer).UpdateUser(ctx, in)
+		return srv.(CQRSServer).FindUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CQRS_UpdateUser_FullMethodName,
+		FullMethod: CQRS_FindUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CQRSServer).UpdateUser(ctx, req.(*UpdateUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CQRS_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CQRSServer).GetUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CQRS_GetUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CQRSServer).GetUser(ctx, req.(*GetUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CQRS_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUsersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CQRSServer).GetUsers(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CQRS_GetUsers_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CQRSServer).GetUsers(ctx, req.(*GetUsersRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CQRS_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUsersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CQRSServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CQRS_DeleteUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CQRSServer).DeleteUser(ctx, req.(*DeleteUsersRequest))
+		return srv.(CQRSServer).FindUser(ctx, req.(*FindUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -245,20 +136,8 @@ var CQRS_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CQRS_CreateUser_Handler,
 		},
 		{
-			MethodName: "UpdateUser",
-			Handler:    _CQRS_UpdateUser_Handler,
-		},
-		{
-			MethodName: "GetUser",
-			Handler:    _CQRS_GetUser_Handler,
-		},
-		{
-			MethodName: "GetUsers",
-			Handler:    _CQRS_GetUsers_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _CQRS_DeleteUser_Handler,
+			MethodName: "FindUser",
+			Handler:    _CQRS_FindUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
