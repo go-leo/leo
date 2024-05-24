@@ -3,11 +3,11 @@ package assembler
 import (
 	"context"
 	"github.com/go-leo/gox/convx"
-	"github.com/go-leo/leo/v3/cqrs"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"github.com/go-leo/leo/v3/example/internal/demo/command"
 	"github.com/go-leo/leo/v3/example/internal/demo/model"
 	"github.com/go-leo/leo/v3/example/internal/demo/query"
+	"github.com/go-leo/leo/v3/metadatax"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -29,7 +29,7 @@ func (assembler *DemoAssembler) FromCreateUserRequest(ctx context.Context, reque
 	}, ctx, nil
 }
 
-func (assembler *DemoAssembler) ToCreateUserResponse(ctx context.Context, request *demo.CreateUserRequest, metadata cqrs.Metadata) (*demo.CreateUserResponse, error) {
+func (assembler *DemoAssembler) ToCreateUserResponse(ctx context.Context, request *demo.CreateUserRequest, metadata metadatax.Metadata) (*demo.CreateUserResponse, error) {
 	return &demo.CreateUserResponse{UserId: convx.ToUint64(metadata.Get("id"))}, nil
 }
 
@@ -37,7 +37,7 @@ func (assembler *DemoAssembler) FromDeleteUserRequest(ctx context.Context, reque
 	return &command.DeleteUserArgs{UserId: request.GetUserId()}, ctx, nil
 }
 
-func (assembler *DemoAssembler) ToDeleteUserResponse(ctx context.Context, request *demo.DeleteUsersRequest, metadata cqrs.Metadata) (*emptypb.Empty, error) {
+func (assembler *DemoAssembler) ToDeleteUserResponse(ctx context.Context, request *demo.DeleteUsersRequest, metadata metadatax.Metadata) (*emptypb.Empty, error) {
 	return new(emptypb.Empty), nil
 }
 
@@ -54,7 +54,7 @@ func (assembler *DemoAssembler) FromUpdateUserRequest(ctx context.Context, reque
 	}, ctx, nil
 }
 
-func (assembler *DemoAssembler) ToUpdateUserResponse(ctx context.Context, request *demo.UpdateUserRequest, metadata cqrs.Metadata) (*emptypb.Empty, error) {
+func (assembler *DemoAssembler) ToUpdateUserResponse(ctx context.Context, request *demo.UpdateUserRequest, metadata metadatax.Metadata) (*emptypb.Empty, error) {
 	return new(emptypb.Empty), nil
 }
 
@@ -108,7 +108,7 @@ func (assembler *DemoAssembler) FromUploadUserAvatarRequest(ctx context.Context,
 	}, ctx, nil
 }
 
-func (assembler *DemoAssembler) ToUploadUserAvatarResponse(ctx context.Context, request *demo.UploadUserAvatarRequest, metadata cqrs.Metadata) (*emptypb.Empty, error) {
+func (assembler *DemoAssembler) ToUploadUserAvatarResponse(ctx context.Context, request *demo.UploadUserAvatarRequest, metadata metadatax.Metadata) (*emptypb.Empty, error) {
 	return new(emptypb.Empty), nil
 }
 

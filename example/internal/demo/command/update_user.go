@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-leo/leo/v3/cqrs"
 	"github.com/go-leo/leo/v3/example/internal/demo/model"
+	"github.com/go-leo/leo/v3/metadatax"
 )
 
 type UpdateUserArgs struct {
@@ -20,7 +21,7 @@ func NewUpdateUser() UpdateUser {
 type updateUser struct {
 }
 
-func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) (cqrs.Metadata, error) {
+func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) (metadatax.Metadata, error) {
 	fmt.Println("update user", args)
-	return cqrs.NewMetadata(), nil
+	return metadatax.New(), nil
 }

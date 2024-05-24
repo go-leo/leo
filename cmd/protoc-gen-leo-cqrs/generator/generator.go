@@ -77,7 +77,7 @@ func (f *Generator) GenerateCommand(service *internal.Service, endpoint *interna
 	generatedFile.P("type ", endpoint.UnexportedName(), " struct {")
 	generatedFile.P("}")
 	generatedFile.P()
-	generatedFile.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.CqrsPackage.Ident("Metadata"), ", error) {")
+	generatedFile.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxPackage.Ident("Metadata"), ", error) {")
 	generatedFile.P(internal.Comments("TODO implement me"))
 	generatedFile.P("panic(", strconv.Quote("implement me"), ")")
 	generatedFile.P("}")
@@ -158,7 +158,7 @@ func (f *Generator) GenerateAssembler(service *internal.Service, generatedFile *
 			generatedFile.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Command.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
 			generatedFile.P()
 			generatedFile.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
-			generatedFile.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", metadata ", internal.CqrsPackage.Ident("Metadata"), ") (*", endpoint.OutputGoIdent(), ", error)")
+			generatedFile.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", metadata ", internal.MetadataxPackage.Ident("Metadata"), ") (*", endpoint.OutputGoIdent(), ", error)")
 		case endpoint.IsQuery():
 			generatedFile.P()
 			generatedFile.P(internal.Comments("From" + endpoint.RequestName() + " convert request to query arguments"))

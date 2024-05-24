@@ -26,6 +26,7 @@ var (
 
 	EndpointxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
 	CqrsPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
+	MetadataxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
 
 	ErrorxPackage   = protogen.GoImportPath("github.com/go-leo/gox/errorx")
 	ConvxPackage    = protogen.GoImportPath("github.com/go-leo/gox/convx")

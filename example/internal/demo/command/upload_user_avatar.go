@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-leo/leo/v3/cqrs"
+	"github.com/go-leo/leo/v3/metadatax"
 )
 
 type UploadUserAvatarArgs struct {
@@ -20,7 +21,7 @@ func NewUploadUserAvatar() UploadUserAvatar {
 type uploadUserAvatar struct {
 }
 
-func (h *uploadUserAvatar) Handle(ctx context.Context, args *UploadUserAvatarArgs) (cqrs.Metadata, error) {
+func (h *uploadUserAvatar) Handle(ctx context.Context, args *UploadUserAvatarArgs) (metadatax.Metadata, error) {
 	fmt.Println("upload user avatar", args)
-	return cqrs.NewMetadata(), nil
+	return metadatax.New(), nil
 }

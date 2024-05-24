@@ -2,54 +2,28 @@ package cqrs
 
 import (
 	"context"
+	"github.com/go-leo/leo/v3/metadatax"
 )
-
-// Metadata is a mapping from metadata keys to values.
-type Metadata interface {
-	// Set sets the value of a given key with a slice of values.
-	Set(key string, value ...string)
-
-	// Append adds the values to key, not overwriting what was already stored at that key.
-	Append(key string, value ...string)
-
-	// Get gets the first value associated with the given key.
-	Get(key string) string
-
-	// Values returns all values associated with the given key.
-	Values(key string) []string
-
-	// Keys returns the keys of the Metadata.
-	Keys() []string
-
-	// Delete removes the values for a given key.
-	Delete(key string)
-
-	// Len returns the number of items in Metadata.
-	Len() int
-
-	// Clone returns a copy of Metadata or nil if Metadata is nil.
-	Clone() Metadata
-}
 
 // ========================== Command ==========================
 
 // CommandHandler is a command handler that to update data.
 type CommandHandler[Args any] interface {
-	Handle(ctx context.Context, args Args) (Metadata, error)
+	Handle(ctx context.Context, args Args) (metadatax.Metadata, error)
 }
 
 // The CommandHandlerFunc type is an adapter to allow the use of ordinary functions as CommandHandler.
-type CommandHandlerFunc[Args any] func(ctx context.Context, args Args) (Metadata, error)
+type CommandHandlerFunc[Args any] func(ctx context.Context, args Args) (metadatax.Metadata, error)
 
 // Handle calls f(ctx).
-func (f CommandHandlerFunc[Args]) Handle(ctx context.Context, args Args) (Metadata, error) {
+func (f CommandHandlerFunc[Args]) Handle(ctx context.Context, args Args) (metadatax.Metadata, error) {
 	return f(ctx, args)
 }
 
 // NoopCommand is an CommandHandler that does nothing and returns a nil error.
 type NoopCommand[Args any] struct{}
 
-func (NoopCommand[Args]) Handle(context.Context, Args) (Metadata, error) { return nil, nil }
+func (NoopCommand[Args]) Handle(context.Context, Args) (metadatax.Metadata, error) { return nil, nil }
 
 // ========================== Query ==========================
 
@@ -85,7 +59,7 @@ type Bus interface {
 	RegisterQuery(handler any) error
 
 	// Exec executes a command.
-	Exec(ctx context.Context, args any) (Metadata, error)
+	Exec(ctx context.Context, args any) (metadatax.Metadata, error)
 
 	// Query executes a query.
 	Query(ctx context.Context, args any) (any, error)

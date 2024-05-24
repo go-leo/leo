@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-leo/leo/v3/cqrs"
+	"github.com/go-leo/leo/v3/metadatax"
 )
 
 type DeleteUserArgs struct {
@@ -19,7 +20,7 @@ func NewDeleteUser() DeleteUser {
 type deleteUser struct {
 }
 
-func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) (cqrs.Metadata, error) {
+func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) (metadatax.Metadata, error) {
 	fmt.Println("delete user", args)
-	return cqrs.NewMetadata(), nil
+	return metadatax.New(), nil
 }

@@ -7,6 +7,7 @@ import (
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	command "github.com/go-leo/leo/v3/example/internal/cqrs/command"
 	query "github.com/go-leo/leo/v3/example/internal/cqrs/query"
+	metadatax "github.com/go-leo/leo/v3/metadatax"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -17,7 +18,7 @@ type CQRSAssembler interface {
 	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*command.CreateUserArgs, context.Context, error)
 
 	// ToCreateUserResponse convert query result to response
-	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
+	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
 
 	// FromFindUserRequest convert request to query arguments
 	FromFindUserRequest(ctx context.Context, request *FindUserRequest) (*query.FindUserArgs, context.Context, error)

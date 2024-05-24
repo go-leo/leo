@@ -1,17 +1,25 @@
-package cqrs
+package metadatax
 
 import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
+	grpcmetadata "google.golang.org/grpc/metadata"
+	"net/http"
 )
 
 type metadata map[string][]string
 
 func (m metadata) Set(key string, value ...string) {
+	if m == nil {
+		return
+	}
 	m[key] = value
 }
 
 func (m metadata) Append(key string, value ...string) {
+	if m == nil {
+		return
+	}
 	m[key] = append(m[key], value...)
 }
 
@@ -38,6 +46,9 @@ func (m metadata) Keys() []string {
 }
 
 func (m metadata) Delete(key string) {
+	if m == nil {
+		return
+	}
 	delete(m, key)
 }
 
@@ -46,6 +57,9 @@ func (m metadata) Len() int {
 }
 
 func (m metadata) Clone() Metadata {
+	if m == nil {
+		return nil
+	}
 	clonedMd := metadata{}
 	for _, key := range m.Keys() {
 		clonedMd[key] = slices.Clone(m[key])
@@ -53,6 +67,25 @@ func (m metadata) Clone() Metadata {
 	return clonedMd
 }
 
-func NewMetadata() Metadata {
+func New() Metadata {
 	return metadata{}
+}
+
+func AsHttpHeader(metadata Metadata) http.Header {
+	header := http.Header{}
+	for _, key := range metadata.Keys() {
+		values := metadata.Values(key)
+		for _, value := range values {
+			header.Add(key, value)
+		}
+	}
+	return header
+}
+
+func AsGrpcMD(metadata Metadata) grpcmetadata.MD {
+	md := grpcmetadata.MD{}
+	for _, key := range metadata.Keys() {
+		md.Set(key, metadata.Values(key)...)
+	}
+	return md
 }

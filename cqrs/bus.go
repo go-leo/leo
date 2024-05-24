@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/errorx"
+	"github.com/go-leo/leo/v3/metadatax"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -69,7 +70,7 @@ func (b *defaultBus) RegisterQuery(handler any) error {
 	return nil
 }
 
-func (b *defaultBus) Exec(ctx context.Context, args any) (Metadata, error) {
+func (b *defaultBus) Exec(ctx context.Context, args any) (metadatax.Metadata, error) {
 	if err := b.checkArgs(args); err != nil {
 		return nil, err
 	}
@@ -150,7 +151,7 @@ type reflectedHandler struct {
 	inType reflect.Type
 }
 
-func (handler *reflectedHandler) Exec(ctx context.Context, args any) (Metadata, error) {
+func (handler *reflectedHandler) Exec(ctx context.Context, args any) (metadatax.Metadata, error) {
 	resultValues := handler.method.Func.Call(
 		[]reflect.Value{
 			handler.value,
@@ -165,7 +166,7 @@ func (handler *reflectedHandler) Exec(ctx context.Context, args any) (Metadata, 
 	if md == nil {
 		return nil, nil
 	}
-	return md.(Metadata), nil
+	return md.(metadatax.Metadata), nil
 }
 
 func (handler *reflectedHandler) Query(ctx context.Context, args any) (any, error) {
@@ -203,7 +204,7 @@ func newReflectedHandler(handler any, kind string) (*reflectedHandler, error) {
 		if method.Type.NumOut() != 2 {
 			return nil, ErrUnimplemented
 		}
-		if !method.Type.Out(0).Implements(metadataType) {
+		if !method.Type.Out(0).Implements(metadatax.Type) {
 			return nil, ErrUnimplemented
 		}
 		if !method.Type.Out(1).Implements(errorx.ErrorType) {

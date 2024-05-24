@@ -7,6 +7,7 @@ import (
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	command "github.com/go-leo/leo/v3/example/internal/demo/command"
 	query "github.com/go-leo/leo/v3/example/internal/demo/query"
+	metadatax "github.com/go-leo/leo/v3/metadatax"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -19,19 +20,19 @@ type DemoAssembler interface {
 	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*command.CreateUserArgs, context.Context, error)
 
 	// ToCreateUserResponse convert query result to response
-	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata cqrs.Metadata) (*CreateUserResponse, error)
+	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata metadatax.Metadata) (*CreateUserResponse, error)
 
 	// FromDeleteUserRequest convert request to command arguments
 	FromDeleteUserRequest(ctx context.Context, request *DeleteUsersRequest) (*command.DeleteUserArgs, context.Context, error)
 
 	// ToDeleteUserResponse convert query result to response
-	ToDeleteUserResponse(ctx context.Context, request *DeleteUsersRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
+	ToDeleteUserResponse(ctx context.Context, request *DeleteUsersRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
 
 	// FromUpdateUserRequest convert request to command arguments
 	FromUpdateUserRequest(ctx context.Context, request *UpdateUserRequest) (*command.UpdateUserArgs, context.Context, error)
 
 	// ToUpdateUserResponse convert query result to response
-	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
+	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
 
 	// FromGetUserRequest convert request to query arguments
 	FromGetUserRequest(ctx context.Context, request *GetUserRequest) (*query.GetUserArgs, context.Context, error)
@@ -49,7 +50,7 @@ type DemoAssembler interface {
 	FromUploadUserAvatarRequest(ctx context.Context, request *UploadUserAvatarRequest) (*command.UploadUserAvatarArgs, context.Context, error)
 
 	// ToUploadUserAvatarResponse convert query result to response
-	ToUploadUserAvatarResponse(ctx context.Context, request *UploadUserAvatarRequest, metadata cqrs.Metadata) (*emptypb.Empty, error)
+	ToUploadUserAvatarResponse(ctx context.Context, request *UploadUserAvatarRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
 
 	// FromGetUserAvatarRequest convert request to query arguments
 	FromGetUserAvatarRequest(ctx context.Context, request *GetUserAvatarRequest) (*query.GetUserAvatarArgs, context.Context, error)
