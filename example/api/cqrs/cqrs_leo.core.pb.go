@@ -5,36 +5,39 @@ package cqrs
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
+type CQRSService interface {
+	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
+	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
+}
+
+type CQRSEndpoints interface {
+	CreateUser() endpoint.Endpoint
+	FindUser() endpoint.Endpoint
+}
+
 type cQRSEndpoints struct {
-	svc interface {
-		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-		FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
-	}
+	svc         CQRSService
+	middlewares []endpoint.Middleware
 }
 
 func (e *cQRSEndpoints) CreateUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
+	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.CreateUser(ctx, request.(*CreateUserRequest))
 	}
+	return endpointx.Chain(component, e.middlewares...)
 }
 
 func (e *cQRSEndpoints) FindUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
+	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.FindUser(ctx, request.(*FindUserRequest))
 	}
+	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewCQRSEndpoints(
-	svc interface {
-		CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-		FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
-	},
-) interface {
-	CreateUser() endpoint.Endpoint
-	FindUser() endpoint.Endpoint
-} {
-	return &cQRSEndpoints{svc: svc}
+func NewCQRSEndpoints(svc CQRSService, middlewares ...endpoint.Middleware) CQRSEndpoints {
+	return &cQRSEndpoints{svc: svc, middlewares: middlewares}
 }

@@ -28,6 +28,10 @@ func (s Service) UnexportedName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) ServiceName() string {
+	return s.Name() + "Service"
+}
+
 func (s Service) ServerName() string {
 	return s.Name() + "Server"
 }

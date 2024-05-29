@@ -5,63 +5,66 @@ package endpointsapis
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type workspacesEndpoints struct {
-	svc interface {
-		ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
-		GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
-		CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
-		UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
-		DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
-	}
+type WorkspacesService interface {
+	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
+	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
+	CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
+	UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
+	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 }
 
-func (e *workspacesEndpoints) ListWorkspaces() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.ListWorkspaces(ctx, request.(*ListWorkspacesRequest))
-	}
-}
-
-func (e *workspacesEndpoints) GetWorkspace() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetWorkspace(ctx, request.(*GetWorkspaceRequest))
-	}
-}
-
-func (e *workspacesEndpoints) CreateWorkspace() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.CreateWorkspace(ctx, request.(*CreateWorkspaceRequest))
-	}
-}
-
-func (e *workspacesEndpoints) UpdateWorkspace() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.UpdateWorkspace(ctx, request.(*UpdateWorkspaceRequest))
-	}
-}
-
-func (e *workspacesEndpoints) DeleteWorkspace() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.DeleteWorkspace(ctx, request.(*DeleteWorkspaceRequest))
-	}
-}
-
-func NewWorkspacesEndpoints(
-	svc interface {
-		ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
-		GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
-		CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
-		UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
-		DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
-	},
-) interface {
+type WorkspacesEndpoints interface {
 	ListWorkspaces() endpoint.Endpoint
 	GetWorkspace() endpoint.Endpoint
 	CreateWorkspace() endpoint.Endpoint
 	UpdateWorkspace() endpoint.Endpoint
 	DeleteWorkspace() endpoint.Endpoint
-} {
-	return &workspacesEndpoints{svc: svc}
+}
+
+type workspacesEndpoints struct {
+	svc         WorkspacesService
+	middlewares []endpoint.Middleware
+}
+
+func (e *workspacesEndpoints) ListWorkspaces() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.ListWorkspaces(ctx, request.(*ListWorkspacesRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *workspacesEndpoints) GetWorkspace() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.GetWorkspace(ctx, request.(*GetWorkspaceRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *workspacesEndpoints) CreateWorkspace() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.CreateWorkspace(ctx, request.(*CreateWorkspaceRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *workspacesEndpoints) UpdateWorkspace() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.UpdateWorkspace(ctx, request.(*UpdateWorkspaceRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *workspacesEndpoints) DeleteWorkspace() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.DeleteWorkspace(ctx, request.(*DeleteWorkspaceRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func NewWorkspacesEndpoints(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesEndpoints {
+	return &workspacesEndpoints{svc: svc, middlewares: middlewares}
 }

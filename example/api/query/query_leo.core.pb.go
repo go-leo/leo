@@ -5,27 +5,30 @@ package query
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
+type QueryService interface {
+	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
+}
+
+type QueryEndpoints interface {
+	Query() endpoint.Endpoint
+}
+
 type queryEndpoints struct {
-	svc interface {
-		Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
-	}
+	svc         QueryService
+	middlewares []endpoint.Middleware
 }
 
 func (e *queryEndpoints) Query() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
+	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.Query(ctx, request.(*QueryRequest))
 	}
+	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewQueryEndpoints(
-	svc interface {
-		Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
-	},
-) interface {
-	Query() endpoint.Endpoint
-} {
-	return &queryEndpoints{svc: svc}
+func NewQueryEndpoints(svc QueryService, middlewares ...endpoint.Middleware) QueryEndpoints {
+	return &queryEndpoints{svc: svc, middlewares: middlewares}
 }

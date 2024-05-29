@@ -5,27 +5,30 @@ package path
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
+type MixPathService interface {
+	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
+}
+
+type MixPathEndpoints interface {
+	MixPath() endpoint.Endpoint
+}
+
 type mixPathEndpoints struct {
-	svc interface {
-		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
-	}
+	svc         MixPathService
+	middlewares []endpoint.Middleware
 }
 
 func (e *mixPathEndpoints) MixPath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
+	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.MixPath(ctx, request.(*MixPathRequest))
 	}
+	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewMixPathEndpoints(
-	svc interface {
-		MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
-	},
-) interface {
-	MixPath() endpoint.Endpoint
-} {
-	return &mixPathEndpoints{svc: svc}
+func NewMixPathEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathEndpoints {
+	return &mixPathEndpoints{svc: svc, middlewares: middlewares}
 }

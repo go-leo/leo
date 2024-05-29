@@ -5,74 +5,77 @@ package body
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type bodyEndpoints struct {
-	svc interface {
-		StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
-		NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
-		NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
-		HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-		HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
-		HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-	}
+type BodyService interface {
+	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
+	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
+	NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
+	HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+	HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
+	HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
 }
 
-func (e *bodyEndpoints) StarBody() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.StarBody(ctx, request.(*User))
-	}
-}
-
-func (e *bodyEndpoints) NamedBody() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.NamedBody(ctx, request.(*UserRequest))
-	}
-}
-
-func (e *bodyEndpoints) NonBody() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.NonBody(ctx, request.(*emptypb.Empty))
-	}
-}
-
-func (e *bodyEndpoints) HttpBodyStarBody() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.HttpBodyStarBody(ctx, request.(*httpbody.HttpBody))
-	}
-}
-
-func (e *bodyEndpoints) HttpBodyNamedBody() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.HttpBodyNamedBody(ctx, request.(*HttpBody))
-	}
-}
-
-func (e *bodyEndpoints) HttpRequestStarBody() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.HttpRequestStarBody(ctx, request.(*http.HttpRequest))
-	}
-}
-
-func NewBodyEndpoints(
-	svc interface {
-		StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
-		NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
-		NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
-		HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-		HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
-		HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-	},
-) interface {
+type BodyEndpoints interface {
 	StarBody() endpoint.Endpoint
 	NamedBody() endpoint.Endpoint
 	NonBody() endpoint.Endpoint
 	HttpBodyStarBody() endpoint.Endpoint
 	HttpBodyNamedBody() endpoint.Endpoint
 	HttpRequestStarBody() endpoint.Endpoint
-} {
-	return &bodyEndpoints{svc: svc}
+}
+
+type bodyEndpoints struct {
+	svc         BodyService
+	middlewares []endpoint.Middleware
+}
+
+func (e *bodyEndpoints) StarBody() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.StarBody(ctx, request.(*User))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *bodyEndpoints) NamedBody() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.NamedBody(ctx, request.(*UserRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *bodyEndpoints) NonBody() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.NonBody(ctx, request.(*emptypb.Empty))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *bodyEndpoints) HttpBodyStarBody() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpBodyStarBody(ctx, request.(*httpbody.HttpBody))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *bodyEndpoints) HttpBodyNamedBody() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpBodyNamedBody(ctx, request.(*HttpBody))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *bodyEndpoints) HttpRequestStarBody() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.HttpRequestStarBody(ctx, request.(*http.HttpRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func NewBodyEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyEndpoints {
+	return &bodyEndpoints{svc: svc, middlewares: middlewares}
 }

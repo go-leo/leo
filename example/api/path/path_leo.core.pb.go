@@ -5,90 +5,23 @@ package path
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type pathEndpoints struct {
-	svc interface {
-		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	}
+type PathService interface {
+	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 }
 
-func (e *pathEndpoints) BoolPath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.BoolPath(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) Int32Path() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.Int32Path(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) Int64Path() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.Int64Path(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) Uint32Path() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.Uint32Path(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) Uint64Path() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.Uint64Path(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) FloatPath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.FloatPath(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) DoublePath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.DoublePath(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) StringPath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.StringPath(ctx, request.(*PathRequest))
-	}
-}
-
-func (e *pathEndpoints) EnumPath() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.EnumPath(ctx, request.(*PathRequest))
-	}
-}
-
-func NewPathEndpoints(
-	svc interface {
-		BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-		EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	},
-) interface {
+type PathEndpoints interface {
 	BoolPath() endpoint.Endpoint
 	Int32Path() endpoint.Endpoint
 	Int64Path() endpoint.Endpoint
@@ -98,6 +31,76 @@ func NewPathEndpoints(
 	DoublePath() endpoint.Endpoint
 	StringPath() endpoint.Endpoint
 	EnumPath() endpoint.Endpoint
-} {
-	return &pathEndpoints{svc: svc}
+}
+
+type pathEndpoints struct {
+	svc         PathService
+	middlewares []endpoint.Middleware
+}
+
+func (e *pathEndpoints) BoolPath() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.BoolPath(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) Int32Path() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.Int32Path(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) Int64Path() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.Int64Path(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) Uint32Path() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.Uint32Path(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) Uint64Path() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.Uint64Path(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) FloatPath() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.FloatPath(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) DoublePath() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.DoublePath(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) StringPath() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.StringPath(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *pathEndpoints) EnumPath() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.EnumPath(ctx, request.(*PathRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func NewPathEndpoints(svc PathService, middlewares ...endpoint.Middleware) PathEndpoints {
+	return &pathEndpoints{svc: svc, middlewares: middlewares}
 }

@@ -5,106 +5,25 @@ package library
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type libraryServiceEndpoints struct {
-	svc interface {
-		CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
-		GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
-		ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
-		DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
-		MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
-		CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error)
-		GetBook(ctx context.Context, request *GetBookRequest) (*Book, error)
-		ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
-		DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
-		UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
-		MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
-	}
+type LibraryServiceService interface {
+	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
+	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
+	ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
+	DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
+	MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
+	CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error)
+	GetBook(ctx context.Context, request *GetBookRequest) (*Book, error)
+	ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
+	DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
+	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
+	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 }
 
-func (e *libraryServiceEndpoints) CreateShelf() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.CreateShelf(ctx, request.(*CreateShelfRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) GetShelf() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetShelf(ctx, request.(*GetShelfRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) ListShelves() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.ListShelves(ctx, request.(*ListShelvesRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) DeleteShelf() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.DeleteShelf(ctx, request.(*DeleteShelfRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) MergeShelves() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.MergeShelves(ctx, request.(*MergeShelvesRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) CreateBook() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.CreateBook(ctx, request.(*CreateBookRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) GetBook() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetBook(ctx, request.(*GetBookRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) ListBooks() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.ListBooks(ctx, request.(*ListBooksRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) DeleteBook() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.DeleteBook(ctx, request.(*DeleteBookRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) UpdateBook() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.UpdateBook(ctx, request.(*UpdateBookRequest))
-	}
-}
-
-func (e *libraryServiceEndpoints) MoveBook() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.MoveBook(ctx, request.(*MoveBookRequest))
-	}
-}
-
-func NewLibraryServiceEndpoints(
-	svc interface {
-		CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
-		GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
-		ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
-		DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
-		MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
-		CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error)
-		GetBook(ctx context.Context, request *GetBookRequest) (*Book, error)
-		ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
-		DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
-		UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
-		MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
-	},
-) interface {
+type LibraryServiceEndpoints interface {
 	CreateShelf() endpoint.Endpoint
 	GetShelf() endpoint.Endpoint
 	ListShelves() endpoint.Endpoint
@@ -116,6 +35,90 @@ func NewLibraryServiceEndpoints(
 	DeleteBook() endpoint.Endpoint
 	UpdateBook() endpoint.Endpoint
 	MoveBook() endpoint.Endpoint
-} {
-	return &libraryServiceEndpoints{svc: svc}
+}
+
+type libraryServiceEndpoints struct {
+	svc         LibraryServiceService
+	middlewares []endpoint.Middleware
+}
+
+func (e *libraryServiceEndpoints) CreateShelf() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.CreateShelf(ctx, request.(*CreateShelfRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) GetShelf() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.GetShelf(ctx, request.(*GetShelfRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) ListShelves() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.ListShelves(ctx, request.(*ListShelvesRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) DeleteShelf() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.DeleteShelf(ctx, request.(*DeleteShelfRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) MergeShelves() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.MergeShelves(ctx, request.(*MergeShelvesRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) CreateBook() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.CreateBook(ctx, request.(*CreateBookRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) GetBook() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.GetBook(ctx, request.(*GetBookRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) ListBooks() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.ListBooks(ctx, request.(*ListBooksRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) DeleteBook() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.DeleteBook(ctx, request.(*DeleteBookRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) UpdateBook() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.UpdateBook(ctx, request.(*UpdateBookRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *libraryServiceEndpoints) MoveBook() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.MoveBook(ctx, request.(*MoveBookRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func NewLibraryServiceEndpoints(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
+	return &libraryServiceEndpoints{svc: svc, middlewares: middlewares}
 }

@@ -5,84 +5,24 @@ package demo
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-type demoEndpoints struct {
-	svc interface {
-		CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
-		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-		UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-		GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-		GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
-		PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
-	}
+type DemoService interface {
+	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
+	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
+	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
+	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
+	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
+	GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
+	PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
 }
 
-func (e *demoEndpoints) CreateUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.CreateUser(ctx, request.(*CreateUserRequest))
-	}
-}
-
-func (e *demoEndpoints) DeleteUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.DeleteUser(ctx, request.(*DeleteUsersRequest))
-	}
-}
-
-func (e *demoEndpoints) UpdateUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.UpdateUser(ctx, request.(*UpdateUserRequest))
-	}
-}
-
-func (e *demoEndpoints) GetUser() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetUser(ctx, request.(*GetUserRequest))
-	}
-}
-
-func (e *demoEndpoints) GetUsers() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetUsers(ctx, request.(*GetUsersRequest))
-	}
-}
-
-func (e *demoEndpoints) UploadUserAvatar() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.UploadUserAvatar(ctx, request.(*UploadUserAvatarRequest))
-	}
-}
-
-func (e *demoEndpoints) GetUserAvatar() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.GetUserAvatar(ctx, request.(*GetUserAvatarRequest))
-	}
-}
-
-func (e *demoEndpoints) PushUsers() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		return e.svc.PushUsers(ctx, request.(*http.HttpRequest))
-	}
-}
-
-func NewDemoEndpoints(
-	svc interface {
-		CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
-		DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-		UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-		GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-		GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-		UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-		GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
-		PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
-	},
-) interface {
+type DemoEndpoints interface {
 	CreateUser() endpoint.Endpoint
 	DeleteUser() endpoint.Endpoint
 	UpdateUser() endpoint.Endpoint
@@ -91,6 +31,69 @@ func NewDemoEndpoints(
 	UploadUserAvatar() endpoint.Endpoint
 	GetUserAvatar() endpoint.Endpoint
 	PushUsers() endpoint.Endpoint
-} {
-	return &demoEndpoints{svc: svc}
+}
+
+type demoEndpoints struct {
+	svc         DemoService
+	middlewares []endpoint.Middleware
+}
+
+func (e *demoEndpoints) CreateUser() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.CreateUser(ctx, request.(*CreateUserRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) DeleteUser() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.DeleteUser(ctx, request.(*DeleteUsersRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) UpdateUser() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.UpdateUser(ctx, request.(*UpdateUserRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) GetUser() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.GetUser(ctx, request.(*GetUserRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) GetUsers() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.GetUsers(ctx, request.(*GetUsersRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) UploadUserAvatar() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.UploadUserAvatar(ctx, request.(*UploadUserAvatarRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) GetUserAvatar() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.GetUserAvatar(ctx, request.(*GetUserAvatarRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *demoEndpoints) PushUsers() endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.PushUsers(ctx, request.(*http.HttpRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func NewDemoEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoEndpoints {
+	return &demoEndpoints{svc: svc, middlewares: middlewares}
 }

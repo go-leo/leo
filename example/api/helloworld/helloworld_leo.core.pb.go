@@ -5,26 +5,29 @@ package helloworld
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	endpointx "github.com/go-leo/leo/v3/endpointx"
 )
 
+type GreeterService interface {
+	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
+}
+
+type GreeterEndpoints interface {
+	SayHello() endpoint.Endpoint
+}
+
 type greeterEndpoints struct {
-	svc interface {
-		SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
-	}
+	svc         GreeterService
+	middlewares []endpoint.Middleware
 }
 
 func (e *greeterEndpoints) SayHello() endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
+	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.SayHello(ctx, request.(*HelloRequest))
 	}
+	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewGreeterEndpoints(
-	svc interface {
-		SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
-	},
-) interface {
-	SayHello() endpoint.Endpoint
-} {
-	return &greeterEndpoints{svc: svc}
+func NewGreeterEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
+	return &greeterEndpoints{svc: svc, middlewares: middlewares}
 }
