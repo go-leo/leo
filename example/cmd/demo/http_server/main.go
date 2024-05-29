@@ -1,7 +1,6 @@
 package main
 
 import (
-	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"github.com/go-leo/leo/v3/example/internal/demo/assembler"
 	"github.com/go-leo/leo/v3/example/internal/demo/command"
@@ -30,10 +29,11 @@ func main() {
 		log.Fatalf("failed to new bus: %v", err)
 	}
 	demoAssembler := assembler.NewDemoAssembler()
-	cqrsService := demo.NewDemoCQRSService(bus, demoAssembler)
+	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
 	endpoints := demo.NewDemoEndpoints(cqrsService)
-	service := demo.NewDemoHTTPServer(endpoints, []httptransport.ServerOption{})
-	server := http.Server{Handler: service}
+	transports := demo.NewDemoHttpServerTransports(endpoints)
+	handler := demo.NewDemoHttpServerHandler(transports)
+	server := http.Server{Handler: handler}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

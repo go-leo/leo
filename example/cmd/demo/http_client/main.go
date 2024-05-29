@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"flag"
 	"fmt"
-	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"google.golang.org/genproto/googleapis/api/httpbody"
@@ -14,7 +13,7 @@ import (
 
 func main() {
 	flag.Parse()
-	client := demo.NewDemoHTTPClient("http", "127.0.0.1:8080", []httptransport.ClientOption{})
+	client := demo.NewDemoHttpClient(demo.NewDemoHttpClientTransports("http", "127.0.0.1:8080"))
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		User: &demo.User{
 			Name:   randx.HexString(12),
@@ -94,7 +93,7 @@ func main() {
 	pushUsersBody := make([]byte, 1024)
 	_, _ = rand.Read(pushUsersBody)
 	pushUsersResp, err := client.PushUsers(context.Background(), &http.HttpRequest{
-		Headers: []*http.HttpHeader{&http.HttpHeader{
+		Headers: []*http.HttpHeader{{
 			Key:   randx.WordString(10),
 			Value: randx.NumericString(10),
 		}},

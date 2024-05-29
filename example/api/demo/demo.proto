@@ -6,7 +6,6 @@ import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
 import "google/rpc/http.proto";
-import "google/protobuf/wrappers.proto";
 import "leo/cqrs/annotations.proto";
 
 
