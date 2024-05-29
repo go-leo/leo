@@ -17,6 +17,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -77,7 +78,11 @@ func NewQueryGrpcServerTransports(endpoints QueryEndpoints, serverOptions ...grp
 			endpoints.Query(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -99,7 +104,11 @@ func NewQueryGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

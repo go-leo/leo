@@ -14,6 +14,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -75,7 +76,11 @@ func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints, serverOptions ..
 			endpoints.MixPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -97,7 +102,11 @@ func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

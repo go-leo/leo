@@ -14,6 +14,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -155,37 +156,61 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints, serverOption
 			endpoints.NamedPathString(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+				}),
+			}, serverOptions...)...,
 		),
 		namedPathOptString: grpc.NewServer(
 			endpoints.NamedPathOptString(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+				}),
+			}, serverOptions...)...,
 		),
 		namedPathWrapString: grpc.NewServer(
 			endpoints.NamedPathWrapString(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+				}),
+			}, serverOptions...)...,
 		),
 		embedNamedPathString: grpc.NewServer(
 			endpoints.EmbedNamedPathString(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+				}),
+			}, serverOptions...)...,
 		),
 		embedNamedPathOptString: grpc.NewServer(
 			endpoints.EmbedNamedPathOptString(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+				}),
+			}, serverOptions...)...,
 		),
 		embedNamedPathWrapString: grpc.NewServer(
 			endpoints.EmbedNamedPathWrapString(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -232,7 +257,11 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...g
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+				}),
+			}, clientOptions...)...,
 		),
 		namedPathOptString: grpc.NewClient(
 			conn,
@@ -241,7 +270,11 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...g
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+				}),
+			}, clientOptions...)...,
 		),
 		namedPathWrapString: grpc.NewClient(
 			conn,
@@ -250,7 +283,11 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...g
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+				}),
+			}, clientOptions...)...,
 		),
 		embedNamedPathString: grpc.NewClient(
 			conn,
@@ -259,7 +296,11 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...g
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+				}),
+			}, clientOptions...)...,
 		),
 		embedNamedPathOptString: grpc.NewClient(
 			conn,
@@ -268,7 +309,11 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...g
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+				}),
+			}, clientOptions...)...,
 		),
 		embedNamedPathWrapString: grpc.NewClient(
 			conn,
@@ -277,7 +322,11 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...g
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

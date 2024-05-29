@@ -16,6 +16,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -204,55 +205,91 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 			endpoints.BoolPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+				}),
+			}, serverOptions...)...,
 		),
 		int32Path: grpc.NewServer(
 			endpoints.Int32Path(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+			}, serverOptions...)...,
 		),
 		int64Path: grpc.NewServer(
 			endpoints.Int64Path(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+				}),
+			}, serverOptions...)...,
 		),
 		uint32Path: grpc.NewServer(
 			endpoints.Uint32Path(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+			}, serverOptions...)...,
 		),
 		uint64Path: grpc.NewServer(
 			endpoints.Uint64Path(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+				}),
+			}, serverOptions...)...,
 		),
 		floatPath: grpc.NewServer(
 			endpoints.FloatPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+			}, serverOptions...)...,
 		),
 		doublePath: grpc.NewServer(
 			endpoints.DoublePath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+				}),
+			}, serverOptions...)...,
 		),
 		stringPath: grpc.NewServer(
 			endpoints.StringPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+				}),
+			}, serverOptions...)...,
 		),
 		enumPath: grpc.NewServer(
 			endpoints.EnumPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -314,7 +351,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+				}),
+			}, clientOptions...)...,
 		),
 		int32Path: grpc.NewClient(
 			conn,
@@ -323,7 +364,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+			}, clientOptions...)...,
 		),
 		int64Path: grpc.NewClient(
 			conn,
@@ -332,7 +377,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+				}),
+			}, clientOptions...)...,
 		),
 		uint32Path: grpc.NewClient(
 			conn,
@@ -341,7 +390,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+			}, clientOptions...)...,
 		),
 		uint64Path: grpc.NewClient(
 			conn,
@@ -350,7 +403,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+				}),
+			}, clientOptions...)...,
 		),
 		floatPath: grpc.NewClient(
 			conn,
@@ -359,7 +416,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+			}, clientOptions...)...,
 		),
 		doublePath: grpc.NewClient(
 			conn,
@@ -368,7 +429,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+				}),
+			}, clientOptions...)...,
 		),
 		stringPath: grpc.NewClient(
 			conn,
@@ -377,7 +442,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+				}),
+			}, clientOptions...)...,
 		),
 		enumPath: grpc.NewClient(
 			conn,
@@ -386,7 +455,11 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

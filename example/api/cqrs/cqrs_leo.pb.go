@@ -18,6 +18,7 @@ import (
 	metadatax "github.com/go-leo/leo/v3/metadatax"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -156,13 +157,21 @@ func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints, serverOptions ...grpc.
 			endpoints.CreateUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+				}),
+			}, serverOptions...)...,
 		),
 		findUser: grpc.NewServer(
 			endpoints.FindUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -189,7 +198,11 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+				}),
+			}, clientOptions...)...,
 		),
 		findUser: grpc.NewClient(
 			conn,
@@ -198,7 +211,11 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUserResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

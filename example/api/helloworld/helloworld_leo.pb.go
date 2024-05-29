@@ -14,6 +14,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	io "io"
 	http1 "net/http"
 	url "net/url"
@@ -71,7 +72,11 @@ func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints, serverOptions ..
 			endpoints.SayHello(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -93,7 +98,11 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HelloReply{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

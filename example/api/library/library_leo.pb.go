@@ -17,6 +17,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -236,67 +237,111 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints, se
 			endpoints.CreateShelf(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+				}),
+			}, serverOptions...)...,
 		),
 		getShelf: grpc.NewServer(
 			endpoints.GetShelf(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+				}),
+			}, serverOptions...)...,
 		),
 		listShelves: grpc.NewServer(
 			endpoints.ListShelves(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteShelf: grpc.NewServer(
 			endpoints.DeleteShelf(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+				}),
+			}, serverOptions...)...,
 		),
 		mergeShelves: grpc.NewServer(
 			endpoints.MergeShelves(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+				}),
+			}, serverOptions...)...,
 		),
 		createBook: grpc.NewServer(
 			endpoints.CreateBook(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+				}),
+			}, serverOptions...)...,
 		),
 		getBook: grpc.NewServer(
 			endpoints.GetBook(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+				}),
+			}, serverOptions...)...,
 		),
 		listBooks: grpc.NewServer(
 			endpoints.ListBooks(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteBook: grpc.NewServer(
 			endpoints.DeleteBook(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+				}),
+			}, serverOptions...)...,
 		),
 		updateBook: grpc.NewServer(
 			endpoints.UpdateBook(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+				}),
+			}, serverOptions...)...,
 		),
 		moveBook: grpc.NewServer(
 			endpoints.MoveBook(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -368,7 +413,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Shelf{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+				}),
+			}, clientOptions...)...,
 		),
 		getShelf: grpc.NewClient(
 			conn,
@@ -377,7 +426,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Shelf{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+				}),
+			}, clientOptions...)...,
 		),
 		listShelves: grpc.NewClient(
 			conn,
@@ -386,7 +439,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			ListShelvesResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteShelf: grpc.NewClient(
 			conn,
@@ -395,7 +452,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+				}),
+			}, clientOptions...)...,
 		),
 		mergeShelves: grpc.NewClient(
 			conn,
@@ -404,7 +465,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Shelf{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+				}),
+			}, clientOptions...)...,
 		),
 		createBook: grpc.NewClient(
 			conn,
@@ -413,7 +478,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+				}),
+			}, clientOptions...)...,
 		),
 		getBook: grpc.NewClient(
 			conn,
@@ -422,7 +491,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+				}),
+			}, clientOptions...)...,
 		),
 		listBooks: grpc.NewClient(
 			conn,
@@ -431,7 +504,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			ListBooksResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteBook: grpc.NewClient(
 			conn,
@@ -440,7 +517,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+				}),
+			}, clientOptions...)...,
 		),
 		updateBook: grpc.NewClient(
 			conn,
@@ -449,7 +530,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+				}),
+			}, clientOptions...)...,
 		),
 		moveBook: grpc.NewClient(
 			conn,
@@ -458,7 +543,11 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

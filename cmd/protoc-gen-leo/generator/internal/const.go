@@ -35,8 +35,9 @@ var (
 	UrlxPackage     = protogen.GoImportPath("github.com/go-leo/gox/netx/urlx")
 	JsonxPackage    = protogen.GoImportPath("github.com/go-leo/gox/encodingx/jsonx")
 
-	GrpcPackage   = protogen.GoImportPath("google.golang.org/grpc")
-	StatusPackage = protogen.GoImportPath("google.golang.org/grpc/status")
+	GrpcPackage         = protogen.GoImportPath("google.golang.org/grpc")
+	GrpcStatusPackage   = protogen.GoImportPath("google.golang.org/grpc/status")
+	GrpcMetadataPackage = protogen.GoImportPath("google.golang.org/grpc/metadata")
 
 	RpcHttpPackage = protogen.GoImportPath("google.golang.org/genproto/googleapis/rpc/http")
 

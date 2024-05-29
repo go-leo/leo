@@ -23,6 +23,7 @@ import (
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -392,49 +393,81 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 			endpoints.CreateUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteUser: grpc.NewServer(
 			endpoints.DeleteUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+			}, serverOptions...)...,
 		),
 		updateUser: grpc.NewServer(
 			endpoints.UpdateUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+				}),
+			}, serverOptions...)...,
 		),
 		getUser: grpc.NewServer(
 			endpoints.GetUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+			}, serverOptions...)...,
 		),
 		getUsers: grpc.NewServer(
 			endpoints.GetUsers(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+				}),
+			}, serverOptions...)...,
 		),
 		uploadUserAvatar: grpc.NewServer(
 			endpoints.UploadUserAvatar(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+			}, serverOptions...)...,
 		),
 		getUserAvatar: grpc.NewServer(
 			endpoints.GetUserAvatar(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+				}),
+			}, serverOptions...)...,
 		),
 		pushUsers: grpc.NewServer(
 			endpoints.PushUsers(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -491,7 +524,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			CreateUserResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteUser: grpc.NewClient(
 			conn,
@@ -500,7 +537,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+			}, clientOptions...)...,
 		),
 		updateUser: grpc.NewClient(
 			conn,
@@ -509,7 +550,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+				}),
+			}, clientOptions...)...,
 		),
 		getUser: grpc.NewClient(
 			conn,
@@ -518,7 +563,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUserResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+			}, clientOptions...)...,
 		),
 		getUsers: grpc.NewClient(
 			conn,
@@ -527,7 +576,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUsersResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+				}),
+			}, clientOptions...)...,
 		),
 		uploadUserAvatar: grpc.NewClient(
 			conn,
@@ -536,7 +589,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+			}, clientOptions...)...,
 		),
 		getUserAvatar: grpc.NewClient(
 			conn,
@@ -545,7 +602,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			httpbody.HttpBody{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+				}),
+			}, clientOptions...)...,
 		),
 		pushUsers: grpc.NewClient(
 			conn,
@@ -554,7 +615,11 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			http.HttpResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

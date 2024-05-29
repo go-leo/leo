@@ -16,6 +16,7 @@ import (
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -157,37 +158,61 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints, serverOptions 
 			endpoints.OmittedResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		starResponse: grpc.NewServer(
 			endpoints.StarResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		namedResponse: grpc.NewServer(
 			endpoints.NamedResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		httpBodyResponse: grpc.NewServer(
 			endpoints.HttpBodyResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		httpBodyNamedResponse: grpc.NewServer(
 			endpoints.HttpBodyNamedResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		httpRequestStarBody: grpc.NewServer(
 			endpoints.HttpRequestStarBody(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			serverOptions...,
+			append([]grpc.ServerOption{
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -234,7 +259,11 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		starResponse: grpc.NewClient(
 			conn,
@@ -243,7 +272,11 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		namedResponse: grpc.NewClient(
 			conn,
@@ -252,7 +285,11 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		httpBodyResponse: grpc.NewClient(
 			conn,
@@ -261,7 +298,11 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			httpbody.HttpBody{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		httpBodyNamedResponse: grpc.NewClient(
 			conn,
@@ -270,7 +311,11 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HttpBody{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		httpRequestStarBody: grpc.NewClient(
 			conn,
@@ -279,7 +324,11 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			http.HttpResponse{},
-			clientOptions...,
+			append([]grpc.ClientOption{
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }
