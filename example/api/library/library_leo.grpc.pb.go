@@ -149,7 +149,7 @@ func NewLibraryServiceGRPCServer(
 		MoveBook() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
@@ -165,67 +165,67 @@ func NewLibraryServiceGRPCServer(
 } {
 	return &libraryServiceGRPCServer{
 		createShelf: grpc.NewServer(
-			endpointx.Chain(endpoints.CreateShelf(), mdw...),
+			endpointx.Chain(endpoints.CreateShelf(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		getShelf: grpc.NewServer(
-			endpointx.Chain(endpoints.GetShelf(), mdw...),
+			endpointx.Chain(endpoints.GetShelf(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		listShelves: grpc.NewServer(
-			endpointx.Chain(endpoints.ListShelves(), mdw...),
+			endpointx.Chain(endpoints.ListShelves(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		deleteShelf: grpc.NewServer(
-			endpointx.Chain(endpoints.DeleteShelf(), mdw...),
+			endpointx.Chain(endpoints.DeleteShelf(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		mergeShelves: grpc.NewServer(
-			endpointx.Chain(endpoints.MergeShelves(), mdw...),
+			endpointx.Chain(endpoints.MergeShelves(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		createBook: grpc.NewServer(
-			endpointx.Chain(endpoints.CreateBook(), mdw...),
+			endpointx.Chain(endpoints.CreateBook(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		getBook: grpc.NewServer(
-			endpointx.Chain(endpoints.GetBook(), mdw...),
+			endpointx.Chain(endpoints.GetBook(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		listBooks: grpc.NewServer(
-			endpointx.Chain(endpoints.ListBooks(), mdw...),
+			endpointx.Chain(endpoints.ListBooks(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		deleteBook: grpc.NewServer(
-			endpointx.Chain(endpoints.DeleteBook(), mdw...),
+			endpointx.Chain(endpoints.DeleteBook(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		updateBook: grpc.NewServer(
-			endpointx.Chain(endpoints.UpdateBook(), mdw...),
+			endpointx.Chain(endpoints.UpdateBook(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		moveBook: grpc.NewServer(
-			endpointx.Chain(endpoints.MoveBook(), mdw...),
+			endpointx.Chain(endpoints.MoveBook(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -338,7 +338,7 @@ func (c *libraryServiceGRPCClient) MoveBook(ctx context.Context, request *MoveBo
 func NewLibraryServiceGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
@@ -363,7 +363,7 @@ func NewLibraryServiceGRPCClient(
 				Shelf{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getShelf: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -374,7 +374,7 @@ func NewLibraryServiceGRPCClient(
 				Shelf{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		listShelves: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -385,7 +385,7 @@ func NewLibraryServiceGRPCClient(
 				ListShelvesResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteShelf: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -396,7 +396,7 @@ func NewLibraryServiceGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		mergeShelves: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -407,7 +407,7 @@ func NewLibraryServiceGRPCClient(
 				Shelf{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		createBook: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -418,7 +418,7 @@ func NewLibraryServiceGRPCClient(
 				Book{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getBook: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -429,7 +429,7 @@ func NewLibraryServiceGRPCClient(
 				Book{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		listBooks: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -440,7 +440,7 @@ func NewLibraryServiceGRPCClient(
 				ListBooksResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteBook: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -451,7 +451,7 @@ func NewLibraryServiceGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		updateBook: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -462,7 +462,7 @@ func NewLibraryServiceGRPCClient(
 				Book{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		moveBook: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -473,6 +473,6 @@ func NewLibraryServiceGRPCClient(
 				Book{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

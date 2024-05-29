@@ -13,7 +13,7 @@ func NewCQRSHTTPServer(
 	endpoints interface {
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	return router
@@ -26,7 +26,7 @@ func NewCQRSHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 } {
 	return &cQRSHTTPClient{}

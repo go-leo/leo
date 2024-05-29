@@ -77,7 +77,7 @@ func NewWorkspacesGRPCServer(
 		DeleteWorkspace() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
@@ -87,31 +87,31 @@ func NewWorkspacesGRPCServer(
 } {
 	return &workspacesGRPCServer{
 		listWorkspaces: grpc.NewServer(
-			endpointx.Chain(endpoints.ListWorkspaces(), mdw...),
+			endpointx.Chain(endpoints.ListWorkspaces(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		getWorkspace: grpc.NewServer(
-			endpointx.Chain(endpoints.GetWorkspace(), mdw...),
+			endpointx.Chain(endpoints.GetWorkspace(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		createWorkspace: grpc.NewServer(
-			endpointx.Chain(endpoints.CreateWorkspace(), mdw...),
+			endpointx.Chain(endpoints.CreateWorkspace(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		updateWorkspace: grpc.NewServer(
-			endpointx.Chain(endpoints.UpdateWorkspace(), mdw...),
+			endpointx.Chain(endpoints.UpdateWorkspace(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		deleteWorkspace: grpc.NewServer(
-			endpointx.Chain(endpoints.DeleteWorkspace(), mdw...),
+			endpointx.Chain(endpoints.DeleteWorkspace(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -170,7 +170,7 @@ func (c *workspacesGRPCClient) DeleteWorkspace(ctx context.Context, request *Del
 func NewWorkspacesGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
@@ -189,7 +189,7 @@ func NewWorkspacesGRPCClient(
 				ListWorkspacesResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getWorkspace: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -200,7 +200,7 @@ func NewWorkspacesGRPCClient(
 				Workspace{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		createWorkspace: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -211,7 +211,7 @@ func NewWorkspacesGRPCClient(
 				Workspace{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		updateWorkspace: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -222,7 +222,7 @@ func NewWorkspacesGRPCClient(
 				Workspace{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteWorkspace: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -233,6 +233,6 @@ func NewWorkspacesGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

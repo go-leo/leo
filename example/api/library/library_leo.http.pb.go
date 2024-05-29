@@ -37,7 +37,7 @@ func NewLibraryServiceHTTPServer(
 		MoveBook() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -45,18 +45,18 @@ func NewLibraryServiceHTTPServer(
 		Methods("POST").
 		Path("/v1/shelves").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.CreateShelf(), mdw...),
+			endpointx.Chain(endpoints.CreateShelf(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateShelfRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req.Shelf); err != nil {
+				if err := jsonx.NewDecoder(r.Body).Decode(&req.Shelf); err != nil {
 					return nil, err
 				}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Shelf)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -69,7 +69,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("GET").
 		Path("/v1/shelves/{shelf}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.GetShelf(), mdw...),
+			endpointx.Chain(endpoints.GetShelf(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetShelfRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -82,8 +82,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Shelf)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -96,7 +96,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("GET").
 		Path("/v1/shelves").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.ListShelves(), mdw...),
+			endpointx.Chain(endpoints.ListShelves(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &ListShelvesRequest{}
 				queries := r.URL.Query()
@@ -110,8 +110,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*ListShelvesResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -124,7 +124,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("DELETE").
 		Path("/v1/shelves/{shelf}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.DeleteShelf(), mdw...),
+			endpointx.Chain(endpoints.DeleteShelf(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteShelfRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -137,8 +137,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -151,7 +151,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("POST").
 		Path("/v1/shelves/{shelf}:merge").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.MergeShelves(), mdw...),
+			endpointx.Chain(endpoints.MergeShelves(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MergeShelvesRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
@@ -167,8 +167,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Shelf)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -181,10 +181,10 @@ func NewLibraryServiceHTTPServer(
 		Methods("POST").
 		Path("/v1/shelves/{shelf}/books").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.CreateBook(), mdw...),
+			endpointx.Chain(endpoints.CreateBook(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateBookRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req.Book); err != nil {
+				if err := jsonx.NewDecoder(r.Body).Decode(&req.Book); err != nil {
 					return nil, err
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -197,8 +197,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Book)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -211,7 +211,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("GET").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.GetBook(), mdw...),
+			endpointx.Chain(endpoints.GetBook(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetBookRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -224,8 +224,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Book)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -238,7 +238,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("GET").
 		Path("/v1/shelves/{shelf}/books").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.ListBooks(), mdw...),
+			endpointx.Chain(endpoints.ListBooks(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &ListBooksRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -258,8 +258,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*ListBooksResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -272,7 +272,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("DELETE").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.DeleteBook(), mdw...),
+			endpointx.Chain(endpoints.DeleteBook(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteBookRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -285,8 +285,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -299,10 +299,10 @@ func NewLibraryServiceHTTPServer(
 		Methods("PATCH").
 		Path("/v1/shelves/{shelf}/books/{book}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.UpdateBook(), mdw...),
+			endpointx.Chain(endpoints.UpdateBook(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateBookRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req.Book); err != nil {
+				if err := jsonx.NewDecoder(r.Body).Decode(&req.Book); err != nil {
 					return nil, err
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -318,8 +318,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Book)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -332,7 +332,7 @@ func NewLibraryServiceHTTPServer(
 		Methods("POST").
 		Path("/v1/shelves/{shelf}/books/{book}:move").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.MoveBook(), mdw...),
+			endpointx.Chain(endpoints.MoveBook(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MoveBookRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
@@ -348,8 +348,8 @@ func NewLibraryServiceHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Book)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -466,7 +466,7 @@ func NewLibraryServiceHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
@@ -572,7 +572,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getShelf: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -618,7 +618,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		listShelves: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -660,7 +660,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteShelf: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -706,7 +706,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		mergeShelves: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -759,7 +759,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		createBook: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -812,7 +812,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getBook: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -858,7 +858,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		listBooks: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -906,7 +906,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteBook: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -952,7 +952,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		updateBook: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1005,7 +1005,7 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		moveBook: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1058,6 +1058,6 @@ func NewLibraryServiceHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

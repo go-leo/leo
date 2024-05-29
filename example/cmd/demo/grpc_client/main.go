@@ -17,7 +17,7 @@ import (
 
 func main() {
 	flag.Parse()
-	conn, err := grpc1.Dial(":8080", grpc1.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc1.Dial(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

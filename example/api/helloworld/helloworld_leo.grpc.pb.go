@@ -28,13 +28,13 @@ func NewGreeterGRPCServer(
 		SayHello() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 } {
 	return &greeterGRPCServer{
 		sayHello: grpc.NewServer(
-			endpointx.Chain(endpoints.SayHello(), mdw...),
+			endpointx.Chain(endpoints.SayHello(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -57,7 +57,7 @@ func (c *greeterGRPCClient) SayHello(ctx context.Context, request *HelloRequest)
 func NewGreeterGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 } {
@@ -72,6 +72,6 @@ func NewGreeterGRPCClient(
 				HelloReply{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

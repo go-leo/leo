@@ -50,7 +50,7 @@ type DemoClient interface {
 	UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// GetUserAvatar get user avatar
 	GetUserAvatar(ctx context.Context, in *GetUserAvatarRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
-	// PushUsers push users by csv and
+	// PushUsers push users by csv
 	PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error)
 }
 
@@ -152,7 +152,7 @@ type DemoServer interface {
 	UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*emptypb.Empty, error)
 	// GetUserAvatar get user avatar
 	GetUserAvatar(context.Context, *GetUserAvatarRequest) (*httpbody.HttpBody, error)
-	// PushUsers push users by csv and
+	// PushUsers push users by csv
 	PushUsers(context.Context, *http.HttpRequest) (*http.HttpResponse, error)
 }
 

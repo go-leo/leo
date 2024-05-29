@@ -31,7 +31,7 @@ func NewNamedPathHTTPServer(
 		EmbedNamedPathWrapString() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -39,7 +39,7 @@ func NewNamedPathHTTPServer(
 		Methods("GET").
 		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedPathString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathString(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -59,8 +59,8 @@ func NewNamedPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -73,7 +73,7 @@ func NewNamedPathHTTPServer(
 		Methods("GET").
 		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedPathOptString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathOptString(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -93,8 +93,8 @@ func NewNamedPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -107,7 +107,7 @@ func NewNamedPathHTTPServer(
 		Methods("GET").
 		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedPathWrapString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathWrapString(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &NamedPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -127,8 +127,8 @@ func NewNamedPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -141,7 +141,7 @@ func NewNamedPathHTTPServer(
 		Methods("GET").
 		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathString(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -157,8 +157,8 @@ func NewNamedPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -171,7 +171,7 @@ func NewNamedPathHTTPServer(
 		Methods("GET").
 		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathOptString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathOptString(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -187,8 +187,8 @@ func NewNamedPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -201,7 +201,7 @@ func NewNamedPathHTTPServer(
 		Methods("GET").
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &EmbedNamedPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -217,8 +217,8 @@ func NewNamedPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -290,7 +290,7 @@ func NewNamedPathHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
@@ -372,7 +372,7 @@ func NewNamedPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		namedPathOptString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -420,7 +420,7 @@ func NewNamedPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		namedPathWrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -468,7 +468,7 @@ func NewNamedPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		embedNamedPathString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -514,7 +514,7 @@ func NewNamedPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		embedNamedPathOptString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -560,7 +560,7 @@ func NewNamedPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		embedNamedPathWrapString: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -606,6 +606,6 @@ func NewNamedPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

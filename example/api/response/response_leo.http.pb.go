@@ -33,7 +33,7 @@ func NewResponseHTTPServer(
 		HttpRequestStarBody() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -41,15 +41,15 @@ func NewResponseHTTPServer(
 		Methods("POST").
 		Path("/v1/omitted/response").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.OmittedResponse(), mdw...),
+			endpointx.Chain(endpoints.OmittedResponse(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*UserResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -62,15 +62,15 @@ func NewResponseHTTPServer(
 		Methods("POST").
 		Path("/v1/star/response").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.StarResponse(), mdw...),
+			endpointx.Chain(endpoints.StarResponse(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*UserResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -83,15 +83,15 @@ func NewResponseHTTPServer(
 		Methods("POST").
 		Path("/v1/named/response").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.NamedResponse(), mdw...),
+			endpointx.Chain(endpoints.NamedResponse(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*UserResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
 					return err
 				}
@@ -104,14 +104,13 @@ func NewResponseHTTPServer(
 		Methods("PUT").
 		Path("/v1/http/body/omitted/response").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.HttpBodyResponse(), mdw...),
+			endpointx.Chain(endpoints.HttpBodyResponse(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*httpbody.HttpBody)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", resp.GetContentType())
 				for _, src := range resp.GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
@@ -126,6 +125,7 @@ func NewResponseHTTPServer(
 						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 					}
 				}
+				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetData()); err != nil {
 					return err
 				}
@@ -138,14 +138,13 @@ func NewResponseHTTPServer(
 		Methods("PUT").
 		Path("/v1/http/body/named/response").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.HttpBodyNamedResponse(), mdw...),
+			endpointx.Chain(endpoints.HttpBodyNamedResponse(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*HttpBody)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", resp.GetBody().GetContentType())
 				for _, src := range resp.GetBody().GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
@@ -160,6 +159,7 @@ func NewResponseHTTPServer(
 						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 					}
 				}
+				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetBody().GetData()); err != nil {
 					return err
 				}
@@ -172,7 +172,7 @@ func NewResponseHTTPServer(
 		Methods("PUT").
 		Path("/v1/http/request/response").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.HttpRequestStarBody(), mdw...),
+			endpointx.Chain(endpoints.HttpRequestStarBody(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &http2.HttpRequest{}
 				queries := r.URL.Query()
@@ -186,10 +186,10 @@ func NewResponseHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*http2.HttpResponse)
-				w.WriteHeader(int(resp.GetStatus()))
 				for _, header := range resp.GetHeaders() {
 					w.Header().Add(header.Key, header.Value)
 				}
+				w.WriteHeader(int(resp.GetStatus()))
 				if _, err := w.Write(resp.GetBody()); err != nil {
 					return err
 				}
@@ -261,7 +261,7 @@ func NewResponseHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
 	StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
@@ -335,7 +335,7 @@ func NewResponseHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		starResponse: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -375,7 +375,7 @@ func NewResponseHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		namedResponse: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -415,7 +415,7 @@ func NewResponseHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		httpBodyResponse: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -448,7 +448,7 @@ func NewResponseHTTPClient(
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					resp := &httpbody.HttpBody{}
-					resp.ContentType = "application/json; charset=utf-8"
+					resp.ContentType = r.Header.Get("Content-Type")
 					body, err := io.ReadAll(r.Body)
 					if err != nil {
 						return nil, err
@@ -458,7 +458,7 @@ func NewResponseHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		httpBodyNamedResponse: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -492,7 +492,7 @@ func NewResponseHTTPClient(
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					resp := &HttpBody{}
 					resp.Body = &httpbody.HttpBody{}
-					resp.Body.ContentType = "application/json; charset=utf-8"
+					resp.Body.ContentType = r.Header.Get("Content-Type")
 					body, err := io.ReadAll(r.Body)
 					if err != nil {
 						return nil, err
@@ -502,7 +502,7 @@ func NewResponseHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		httpRequestStarBody: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -553,6 +553,6 @@ func NewResponseHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

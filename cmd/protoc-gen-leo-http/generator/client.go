@@ -36,7 +36,7 @@ func (f *ClientGenerator) GenerateNewClient(service *internal.Service, generated
 	generatedFile.P("scheme   string,")
 	generatedFile.P("instance string,")
 	generatedFile.P("opts []", internal.HttpTransportPackage.Ident("ClientOption"), ",")
-	generatedFile.P("mdw ...", internal.EndpointPackage.Ident("Middleware"), ",")
+	generatedFile.P("middlewares ...", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P(") interface {")
 	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
@@ -67,7 +67,7 @@ func (f *ClientGenerator) GenerateNewClient(service *internal.Service, generated
 		}
 		generatedFile.P("opts...,")
 		generatedFile.P(").Endpoint(),")
-		generatedFile.P("mdw...),")
+		generatedFile.P("middlewares...),")
 	}
 	generatedFile.P("}")
 	generatedFile.P("}")
@@ -99,7 +99,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 			f.PrintReaderBlock(generatedFile, internal.BytesPackage, []any{"body"}, []any{"req.GetData()"})
 			generatedFile.P("contentType := req.GetContentType()")
 		case "google.rpc.HttpRequest":
-			f.PrintGoogleRpcHttpRequest(generatedFile)
+			f.PrintGoogleRpcHttpRequest(generatedFile, endpoint)
 			generatedFile.P("return r, nil")
 			generatedFile.P("},")
 			return nil
@@ -163,9 +163,32 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(generatedFile *protogen.Generat
 	return nil
 }
 
-func (f *ClientGenerator) PrintGoogleRpcHttpRequest(generatedFile *protogen.GeneratedFile) {
+func (f *ClientGenerator) PrintGoogleRpcHttpRequest(generatedFile *protogen.GeneratedFile, endpoint *internal.Endpoint) {
 	f.PrintReaderBlock(generatedFile, internal.BytesPackage, []any{"body"}, []any{"req.GetBody()"})
-	generatedFile.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, req.GetMethod(), req.GetUri(), body)")
+	generatedFile.P("var target *", internal.UrlPackage.Ident("URL"))
+	generatedFile.P("if req.GetUri() != ", strconv.Quote(""), " {")
+	generatedFile.P("uri, err := ", internal.UrlPackage.Ident("Parse"), "(req.GetUri())")
+	generatedFile.P("if err != nil {")
+	generatedFile.P("return nil, err")
+	generatedFile.P("}")
+	generatedFile.P("target = uri")
+	generatedFile.P("} else {")
+	generatedFile.P("path, err := router.Get(", strconv.Quote(endpoint.FullName()), ").URLPath()")
+	generatedFile.P("if err != nil {")
+	generatedFile.P("return nil, err")
+	generatedFile.P("}")
+	generatedFile.P("target = &", internal.UrlPackage.Ident("URL"), "{")
+	generatedFile.P("Scheme: scheme,")
+	generatedFile.P("Host:   instance,")
+	generatedFile.P("Path:   path.Path,")
+	generatedFile.P("}")
+	generatedFile.P("}")
+	httpRule := endpoint.HttpRule()
+	generatedFile.P("method := ", strconv.Quote(httpRule.Method()))
+	generatedFile.P("if req.GetMethod() != ", strconv.Quote(""), " {")
+	generatedFile.P("method = req.GetMethod()")
+	generatedFile.P("}")
+	generatedFile.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, method, target.String(), body)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")
 	generatedFile.P("}")
@@ -519,7 +542,7 @@ func (f *ClientGenerator) PrintGoogleRpcHttpResponseDecodeBlock(generatedFile *p
 }
 
 func (f *ClientGenerator) PrintGoogleApiHttpBodyDecodeBlock(generatedFile *protogen.GeneratedFile, srcValue []any) {
-	generatedFile.P(append(append([]any{}, srcValue...), ".ContentType = ", strconv.Quote(internal.JsonContentType))...)
+	generatedFile.P(append(append([]any{}, srcValue...), ".ContentType = r.Header.Get(", strconv.Quote(internal.ContentTypeKey), ")")...)
 	generatedFile.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
 	generatedFile.P("if err != nil {")
 	generatedFile.P("return nil, err")

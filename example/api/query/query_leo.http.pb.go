@@ -28,7 +28,7 @@ func NewQueryHTTPServer(
 		Query() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -36,7 +36,7 @@ func NewQueryHTTPServer(
 		Methods("GET").
 		Path("/v1/query").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.Query(), mdw...),
+			endpointx.Chain(endpoints.Query(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &QueryRequest{}
 				queries := r.URL.Query()
@@ -117,8 +117,8 @@ func NewQueryHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -145,7 +145,7 @@ func NewQueryHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 } {
@@ -263,6 +263,6 @@ func NewQueryHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

@@ -125,7 +125,7 @@ func NewPathGRPCServer(
 		EnumPath() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -139,55 +139,55 @@ func NewPathGRPCServer(
 } {
 	return &pathGRPCServer{
 		boolPath: grpc.NewServer(
-			endpointx.Chain(endpoints.BoolPath(), mdw...),
+			endpointx.Chain(endpoints.BoolPath(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		int32Path: grpc.NewServer(
-			endpointx.Chain(endpoints.Int32Path(), mdw...),
+			endpointx.Chain(endpoints.Int32Path(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		int64Path: grpc.NewServer(
-			endpointx.Chain(endpoints.Int64Path(), mdw...),
+			endpointx.Chain(endpoints.Int64Path(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		uint32Path: grpc.NewServer(
-			endpointx.Chain(endpoints.Uint32Path(), mdw...),
+			endpointx.Chain(endpoints.Uint32Path(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		uint64Path: grpc.NewServer(
-			endpointx.Chain(endpoints.Uint64Path(), mdw...),
+			endpointx.Chain(endpoints.Uint64Path(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		floatPath: grpc.NewServer(
-			endpointx.Chain(endpoints.FloatPath(), mdw...),
+			endpointx.Chain(endpoints.FloatPath(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		doublePath: grpc.NewServer(
-			endpointx.Chain(endpoints.DoublePath(), mdw...),
+			endpointx.Chain(endpoints.DoublePath(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		stringPath: grpc.NewServer(
-			endpointx.Chain(endpoints.StringPath(), mdw...),
+			endpointx.Chain(endpoints.StringPath(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		enumPath: grpc.NewServer(
-			endpointx.Chain(endpoints.EnumPath(), mdw...),
+			endpointx.Chain(endpoints.EnumPath(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -282,7 +282,7 @@ func (c *pathGRPCClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 func NewPathGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -305,7 +305,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		int32Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -316,7 +316,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		int64Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -327,7 +327,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		uint32Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -338,7 +338,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		uint64Path: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -349,7 +349,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		floatPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -360,7 +360,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		doublePath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -371,7 +371,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		stringPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -382,7 +382,7 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		enumPath: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -393,6 +393,6 @@ func NewPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

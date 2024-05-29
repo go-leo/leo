@@ -81,10 +81,10 @@ service Demo {
     option(leo.cqrs.responsibility) = Query;
   }
 
-  // PushUsers push users by csv and
+  // PushUsers push users by csv
   rpc PushUsers (google.rpc.HttpRequest) returns (google.rpc.HttpResponse) {
     option (google.api.http) = {
-      post : "/v1/user/push"
+      post : "/v1/users/csv/push"
       body : "*"
     };
     option(leo.cqrs.responsibility) = Query;

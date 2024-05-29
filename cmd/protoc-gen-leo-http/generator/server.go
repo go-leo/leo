@@ -7,12 +7,7 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"strconv"
-	"strings"
 )
-
-func errNotFoundField(endpoint *internal.Endpoint, names []string) error {
-	return fmt.Errorf("%s, failed to find field %s", endpoint.FullName(), strings.Join(names, "."))
-}
 
 type ServerGenerator struct{}
 
@@ -24,7 +19,7 @@ func (f *ServerGenerator) GenerateNewServer(service *internal.Service, generated
 	}
 	generatedFile.P("},")
 	generatedFile.P("opts []", internal.HttpTransportPackage.Ident("ServerOption"), ",")
-	generatedFile.P("mdw ...", internal.EndpointPackage.Ident("Middleware"), ",")
+	generatedFile.P("middlewares ...", internal.EndpointPackage.Ident("Middleware"), ",")
 	generatedFile.P(") ", internal.HttpPackage.Ident("Handler"), " {")
 	generatedFile.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
@@ -36,7 +31,7 @@ func (f *ServerGenerator) GenerateNewServer(service *internal.Service, generated
 		generatedFile.P("Methods(", strconv.Quote(httpRule.Method()), ").")
 		generatedFile.P("Path(", strconv.Quote(path), ").")
 		generatedFile.P("Handler(", internal.HttpTransportPackage.Ident("NewServer"), "(")
-		generatedFile.P(internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), mdw...), ")
+		generatedFile.P(internal.EndpointxPackage.Ident("Chain"), "(endpoints.", endpoint.Name(), "(), middlewares...), ")
 		if err := f.PrintDecodeRequestFunc(generatedFile, endpoint); err != nil {
 			return err
 		}
@@ -84,7 +79,7 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 			srcValue := []any{"r.Body"}
 			f.PrintGoogleApiHttpBodyDecodeBlock(generatedFile, tgtValue, srcValue)
 		} else {
-			tgtValue := []any{"req.", bodyField.GoName}
+			tgtValue := []any{"&req.", bodyField.GoName}
 			srcValue := []any{"r.Body"}
 			f.PrintDecodeBlock(generatedFile, internal.JsonxPackage.Ident("NewDecoder"), tgtValue, srcValue)
 		}
@@ -127,7 +122,7 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyDecodeBlock(generatedFile *proto
 
 func (f *ServerGenerator) PrintGoogleRpcHttpRequestDecodeBlock(generatedFile *protogen.GeneratedFile) {
 	generatedFile.P("req.Method = r.Method")
-	generatedFile.P("req.Uri = r.RequestURI")
+	generatedFile.P("req.Uri = r.URL.String()")
 	generatedFile.P("req.Headers = make([]*", internal.RpcHttpPackage.Ident("HttpHeader"), ", 0, len(r.Header))")
 	generatedFile.P("for key, values := range r.Header {")
 	generatedFile.P("for _, value := range values {")
@@ -486,7 +481,6 @@ func (f *ServerGenerator) PrintEncodeResponseFunc(generatedFile *protogen.Genera
 }
 
 func (f *ServerGenerator) PrintGoogleApiHttpBodyEncodeBlock(generatedFile *protogen.GeneratedFile, srcValue []any) {
-	generatedFile.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	generatedFile.P(append(append([]any{"w.Header().Set(", strconv.Quote("Content-Type"), ", "}, srcValue...), ".GetContentType())")...)
 	generatedFile.P(append(append([]any{"for _, src := range "}, srcValue...), ".GetExtensions() {")...)
 	generatedFile.P("dst, err := ", internal.AnypbPackage.Ident("UnmarshalNew"), "(src, ", internal.ProtoPackage.Ident("UnmarshalOptions"), "{})")
@@ -501,24 +495,25 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyEncodeBlock(generatedFile *proto
 	generatedFile.P("w.Header().Add(key, string(", internal.ErrorxPackage.Ident("Ignore"), "(", internal.JsonxPackage.Ident("Marshal"), "(value))))")
 	generatedFile.P("}")
 	generatedFile.P("}")
+	generatedFile.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	generatedFile.P(append(append([]any{"if ", "_, err := w.Write("}, srcValue...), ".GetData())", "; err != nil {")...)
 	generatedFile.P("return err")
 	generatedFile.P("}")
 }
 
 func (f *ServerGenerator) PrintGoogleRpcHttpResponseEncodeBlock(generatedFile *protogen.GeneratedFile, srcValue []any) {
-	generatedFile.P(append(append([]any{"w.WriteHeader(int("}, srcValue...), ".GetStatus()))")...)
 	generatedFile.P(append(append([]any{"for _, header := range "}, srcValue...), ".GetHeaders() {")...)
 	generatedFile.P("w.Header().Add(header.Key, header.Value)")
 	generatedFile.P("}")
+	generatedFile.P(append(append([]any{"w.WriteHeader(int("}, srcValue...), ".GetStatus()))")...)
 	generatedFile.P(append(append([]any{"if ", "_, err := w.Write("}, srcValue...), ".GetBody())", "; err != nil {")...)
 	generatedFile.P("return err")
 	generatedFile.P("}")
 }
 
 func (f *ServerGenerator) PrintJsonEncodeBlock(generatedFile *protogen.GeneratedFile, srcValue []any) {
-	generatedFile.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	generatedFile.P("w.Header().Set(", strconv.Quote("Content-Type"), ", ", strconv.Quote(internal.JsonContentType), ")")
+	generatedFile.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	generatedFile.P(append(append([]any{"if err := ", internal.JsonxPackage.Ident("NewEncoder"), "(w).Encode("}, srcValue...), "); err != nil {")...)
 	generatedFile.P("return err")
 	generatedFile.P("}")

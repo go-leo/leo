@@ -31,7 +31,7 @@ func NewWorkspacesHTTPServer(
 		DeleteWorkspace() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -39,7 +39,7 @@ func NewWorkspacesHTTPServer(
 		Methods("GET").
 		Path("/v1/projects/{project}/locations/{location}/workspaces").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.ListWorkspaces(), mdw...),
+			endpointx.Chain(endpoints.ListWorkspaces(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &ListWorkspacesRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -59,8 +59,8 @@ func NewWorkspacesHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*ListWorkspacesResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -73,7 +73,7 @@ func NewWorkspacesHTTPServer(
 		Methods("GET").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.GetWorkspace(), mdw...),
+			endpointx.Chain(endpoints.GetWorkspace(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetWorkspaceRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -86,8 +86,8 @@ func NewWorkspacesHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Workspace)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -100,10 +100,10 @@ func NewWorkspacesHTTPServer(
 		Methods("POST").
 		Path("/v1/projects/{project}/locations/{location}/workspaces").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.CreateWorkspace(), mdw...),
+			endpointx.Chain(endpoints.CreateWorkspace(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateWorkspaceRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req.Workspace); err != nil {
+				if err := jsonx.NewDecoder(r.Body).Decode(&req.Workspace); err != nil {
 					return nil, err
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -116,8 +116,8 @@ func NewWorkspacesHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Workspace)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -130,10 +130,10 @@ func NewWorkspacesHTTPServer(
 		Methods("PATCH").
 		Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.UpdateWorkspace(), mdw...),
+			endpointx.Chain(endpoints.UpdateWorkspace(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateWorkspaceRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req.Workspace); err != nil {
+				if err := jsonx.NewDecoder(r.Body).Decode(&req.Workspace); err != nil {
 					return nil, err
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -146,8 +146,8 @@ func NewWorkspacesHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*Workspace)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -160,7 +160,7 @@ func NewWorkspacesHTTPServer(
 		Methods("DELETE").
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.DeleteWorkspace(), mdw...),
+			endpointx.Chain(endpoints.DeleteWorkspace(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteWorkspaceRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -173,8 +173,8 @@ func NewWorkspacesHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -237,7 +237,7 @@ func NewWorkspacesHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
@@ -314,7 +314,7 @@ func NewWorkspacesHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -360,7 +360,7 @@ func NewWorkspacesHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		createWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -413,7 +413,7 @@ func NewWorkspacesHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		updateWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -466,7 +466,7 @@ func NewWorkspacesHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteWorkspace: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -512,6 +512,6 @@ func NewWorkspacesHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

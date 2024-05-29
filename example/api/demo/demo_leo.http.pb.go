@@ -38,7 +38,7 @@ func NewDemoHTTPServer(
 		PushUsers() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -46,7 +46,7 @@ func NewDemoHTTPServer(
 		Methods("POST").
 		Path("/v1/user").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.CreateUser(), mdw...),
+			endpointx.Chain(endpoints.CreateUser(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
@@ -56,8 +56,8 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*CreateUserResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -70,7 +70,7 @@ func NewDemoHTTPServer(
 		Methods("DELETE").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.DeleteUser(), mdw...),
+			endpointx.Chain(endpoints.DeleteUser(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteUsersRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -83,8 +83,8 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -97,10 +97,10 @@ func NewDemoHTTPServer(
 		Methods("PUT").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.UpdateUser(), mdw...),
+			endpointx.Chain(endpoints.UpdateUser(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateUserRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req.User); err != nil {
+				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
 					return nil, err
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -113,8 +113,8 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -127,7 +127,7 @@ func NewDemoHTTPServer(
 		Methods("GET").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.GetUser(), mdw...),
+			endpointx.Chain(endpoints.GetUser(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetUserRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -140,8 +140,8 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*GetUserResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -154,7 +154,7 @@ func NewDemoHTTPServer(
 		Methods("GET").
 		Path("/v1/users").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.GetUsers(), mdw...),
+			endpointx.Chain(endpoints.GetUsers(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetUsersRequest{}
 				queries := r.URL.Query()
@@ -168,8 +168,8 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*GetUsersResponse)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -182,7 +182,7 @@ func NewDemoHTTPServer(
 		Methods("POST").
 		Path("/v1/user/{user_id}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.UploadUserAvatar(), mdw...),
+			endpointx.Chain(endpoints.UploadUserAvatar(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UploadUserAvatarRequest{}
 				req.Avatar = &httpbody.HttpBody{}
@@ -202,8 +202,8 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -216,7 +216,7 @@ func NewDemoHTTPServer(
 		Methods("GET").
 		Path("/v1/users/{user_id}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.GetUserAvatar(), mdw...),
+			endpointx.Chain(endpoints.GetUserAvatar(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetUserAvatarRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -229,7 +229,6 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*httpbody.HttpBody)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", resp.GetContentType())
 				for _, src := range resp.GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
@@ -244,6 +243,7 @@ func NewDemoHTTPServer(
 						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 					}
 				}
+				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetData()); err != nil {
 					return err
 				}
@@ -254,13 +254,13 @@ func NewDemoHTTPServer(
 	router.NewRoute().
 		Name("/leo.example.demo.v1.Demo/PushUsers").
 		Methods("POST").
-		Path("/v1/user/push").
+		Path("/v1/users/csv/push").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.PushUsers(), mdw...),
+			endpointx.Chain(endpoints.PushUsers(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &http2.HttpRequest{}
 				req.Method = r.Method
-				req.Uri = r.RequestURI
+				req.Uri = r.URL.String()
 				req.Headers = make([]*http2.HttpHeader, 0, len(r.Header))
 				for key, values := range r.Header {
 					for _, value := range values {
@@ -276,10 +276,10 @@ func NewDemoHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*http2.HttpResponse)
-				w.WriteHeader(int(resp.GetStatus()))
 				for _, header := range resp.GetHeaders() {
 					w.Header().Add(header.Key, header.Value)
 				}
+				w.WriteHeader(int(resp.GetStatus()))
 				if _, err := w.Write(resp.GetBody()); err != nil {
 					return err
 				}
@@ -369,7 +369,7 @@ func NewDemoHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
@@ -412,7 +412,7 @@ func NewDemoHTTPClient(
 	router.NewRoute().
 		Name("/leo.example.demo.v1.Demo/PushUsers").
 		Methods("POST").
-		Path("/v1/user/push")
+		Path("/v1/users/csv/push")
 	return &demoHTTPClient{
 		createUser: endpointx.Chain(
 			http.NewExplicitClient(
@@ -460,7 +460,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -501,7 +501,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		updateUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -549,7 +549,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getUser: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -590,7 +590,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getUsers: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -632,7 +632,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		uploadUserAvatar: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -676,7 +676,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getUserAvatar: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -710,7 +710,7 @@ func NewDemoHTTPClient(
 				},
 				func(ctx context.Context, r *http1.Response) (interface{}, error) {
 					resp := &httpbody.HttpBody{}
-					resp.ContentType = "application/json; charset=utf-8"
+					resp.ContentType = r.Header.Get("Content-Type")
 					body, err := io.ReadAll(r.Body)
 					if err != nil {
 						return nil, err
@@ -720,7 +720,7 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		pushUsers: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -734,7 +734,29 @@ func NewDemoHTTPClient(
 					_ = req
 					var body io.Reader
 					body = bytes.NewReader(req.GetBody())
-					r, err := http1.NewRequestWithContext(ctx, req.GetMethod(), req.GetUri(), body)
+					var target *url.URL
+					if req.GetUri() != "" {
+						uri, err := url.Parse(req.GetUri())
+						if err != nil {
+							return nil, err
+						}
+						target = uri
+					} else {
+						path, err := router.Get("/leo.example.demo.v1.Demo/PushUsers").URLPath()
+						if err != nil {
+							return nil, err
+						}
+						target = &url.URL{
+							Scheme: scheme,
+							Host:   instance,
+							Path:   path.Path,
+						}
+					}
+					method := "POST"
+					if req.GetMethod() != "" {
+						method = req.GetMethod()
+					}
+					r, err := http1.NewRequestWithContext(ctx, method, target.String(), body)
 					if err != nil {
 						return nil, err
 					}
@@ -761,6 +783,6 @@ func NewDemoHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

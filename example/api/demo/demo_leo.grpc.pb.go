@@ -115,7 +115,7 @@ func NewDemoGRPCServer(
 		PushUsers() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
@@ -128,49 +128,49 @@ func NewDemoGRPCServer(
 } {
 	return &demoGRPCServer{
 		createUser: grpc.NewServer(
-			endpointx.Chain(endpoints.CreateUser(), mdw...),
+			endpointx.Chain(endpoints.CreateUser(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		deleteUser: grpc.NewServer(
-			endpointx.Chain(endpoints.DeleteUser(), mdw...),
+			endpointx.Chain(endpoints.DeleteUser(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		updateUser: grpc.NewServer(
-			endpointx.Chain(endpoints.UpdateUser(), mdw...),
+			endpointx.Chain(endpoints.UpdateUser(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		getUser: grpc.NewServer(
-			endpointx.Chain(endpoints.GetUser(), mdw...),
+			endpointx.Chain(endpoints.GetUser(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		getUsers: grpc.NewServer(
-			endpointx.Chain(endpoints.GetUsers(), mdw...),
+			endpointx.Chain(endpoints.GetUsers(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		uploadUserAvatar: grpc.NewServer(
-			endpointx.Chain(endpoints.UploadUserAvatar(), mdw...),
+			endpointx.Chain(endpoints.UploadUserAvatar(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		getUserAvatar: grpc.NewServer(
-			endpointx.Chain(endpoints.GetUserAvatar(), mdw...),
+			endpointx.Chain(endpoints.GetUserAvatar(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		pushUsers: grpc.NewServer(
-			endpointx.Chain(endpoints.PushUsers(), mdw...),
+			endpointx.Chain(endpoints.PushUsers(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -256,7 +256,7 @@ func (c *demoGRPCClient) PushUsers(ctx context.Context, request *http.HttpReques
 func NewDemoGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
@@ -278,7 +278,7 @@ func NewDemoGRPCClient(
 				CreateUserResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		deleteUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -289,7 +289,7 @@ func NewDemoGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		updateUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -300,7 +300,7 @@ func NewDemoGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -311,7 +311,7 @@ func NewDemoGRPCClient(
 				GetUserResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getUsers: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -322,7 +322,7 @@ func NewDemoGRPCClient(
 				GetUsersResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		uploadUserAvatar: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -333,7 +333,7 @@ func NewDemoGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		getUserAvatar: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -344,7 +344,7 @@ func NewDemoGRPCClient(
 				httpbody.HttpBody{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		pushUsers: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -355,6 +355,6 @@ func NewDemoGRPCClient(
 				http.HttpResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

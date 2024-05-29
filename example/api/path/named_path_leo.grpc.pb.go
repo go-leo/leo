@@ -89,7 +89,7 @@ func NewNamedPathGRPCServer(
 		EmbedNamedPathWrapString() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
@@ -100,37 +100,37 @@ func NewNamedPathGRPCServer(
 } {
 	return &namedPathGRPCServer{
 		namedPathString: grpc.NewServer(
-			endpointx.Chain(endpoints.NamedPathString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathString(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		namedPathOptString: grpc.NewServer(
-			endpointx.Chain(endpoints.NamedPathOptString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathOptString(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		namedPathWrapString: grpc.NewServer(
-			endpointx.Chain(endpoints.NamedPathWrapString(), mdw...),
+			endpointx.Chain(endpoints.NamedPathWrapString(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		embedNamedPathString: grpc.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathString(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		embedNamedPathOptString: grpc.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathOptString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathOptString(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		embedNamedPathWrapString: grpc.NewServer(
-			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), mdw...),
+			endpointx.Chain(endpoints.EmbedNamedPathWrapString(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -198,7 +198,7 @@ func (c *namedPathGRPCClient) EmbedNamedPathWrapString(ctx context.Context, requ
 func NewNamedPathGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
@@ -218,7 +218,7 @@ func NewNamedPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		namedPathOptString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -229,7 +229,7 @@ func NewNamedPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		namedPathWrapString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -240,7 +240,7 @@ func NewNamedPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		embedNamedPathString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -251,7 +251,7 @@ func NewNamedPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		embedNamedPathOptString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -262,7 +262,7 @@ func NewNamedPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		embedNamedPathWrapString: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -273,6 +273,6 @@ func NewNamedPathGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

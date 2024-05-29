@@ -35,7 +35,7 @@ func NewPathHTTPServer(
 		EnumPath() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -43,7 +43,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{bool}/{opt_bool}/{wrap_bool}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.BoolPath(), mdw...),
+			endpointx.Chain(endpoints.BoolPath(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -98,8 +98,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -112,7 +112,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.Int32Path(), mdw...),
+			endpointx.Chain(endpoints.Int32Path(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -167,8 +167,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -181,7 +181,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.Int64Path(), mdw...),
+			endpointx.Chain(endpoints.Int64Path(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -236,8 +236,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -250,7 +250,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.Uint32Path(), mdw...),
+			endpointx.Chain(endpoints.Uint32Path(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -305,8 +305,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -319,7 +319,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.Uint64Path(), mdw...),
+			endpointx.Chain(endpoints.Uint64Path(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -374,8 +374,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -388,7 +388,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{float}/{opt_float}/{wrap_float}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.FloatPath(), mdw...),
+			endpointx.Chain(endpoints.FloatPath(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -443,8 +443,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -457,7 +457,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{double}/{opt_double}/{wrap_double}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.DoublePath(), mdw...),
+			endpointx.Chain(endpoints.DoublePath(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -512,8 +512,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -526,7 +526,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.StringPath(), mdw...),
+			endpointx.Chain(endpoints.StringPath(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -581,8 +581,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -595,7 +595,7 @@ func NewPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{status}/{opt_status}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.EnumPath(), mdw...),
+			endpointx.Chain(endpoints.EnumPath(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &PathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -650,8 +650,8 @@ func NewPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -750,7 +750,7 @@ func NewPathHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -875,7 +875,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		int32Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -947,7 +947,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		int64Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1019,7 +1019,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		uint32Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1093,7 +1093,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		uint64Path: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1167,7 +1167,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		floatPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1243,7 +1243,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		doublePath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1319,7 +1319,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		stringPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1395,7 +1395,7 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		enumPath: endpointx.Chain(
 			http.NewExplicitClient(
 				func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1472,6 +1472,6 @@ func NewPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

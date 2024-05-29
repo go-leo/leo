@@ -26,7 +26,7 @@ func NewMixPathHTTPServer(
 		MixPath() endpoint.Endpoint
 	},
 	opts []http.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().
@@ -34,7 +34,7 @@ func NewMixPathHTTPServer(
 		Methods("GET").
 		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").
 		Handler(http.NewServer(
-			endpointx.Chain(endpoints.MixPath(), mdw...),
+			endpointx.Chain(endpoints.MixPath(), middlewares...),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MixPathRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -53,8 +53,8 @@ func NewMixPathHTTPServer(
 			},
 			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
-				w.WriteHeader(http1.StatusOK)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
@@ -81,7 +81,7 @@ func NewMixPathHTTPClient(
 	scheme string,
 	instance string,
 	opts []http.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 } {
@@ -137,6 +137,6 @@ func NewMixPathHTTPClient(
 				},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

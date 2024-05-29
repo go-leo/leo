@@ -91,7 +91,7 @@ func NewResponseGRPCServer(
 		HttpRequestStarBody() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
 	StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
@@ -102,37 +102,37 @@ func NewResponseGRPCServer(
 } {
 	return &responseGRPCServer{
 		omittedResponse: grpc.NewServer(
-			endpointx.Chain(endpoints.OmittedResponse(), mdw...),
+			endpointx.Chain(endpoints.OmittedResponse(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		starResponse: grpc.NewServer(
-			endpointx.Chain(endpoints.StarResponse(), mdw...),
+			endpointx.Chain(endpoints.StarResponse(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		namedResponse: grpc.NewServer(
-			endpointx.Chain(endpoints.NamedResponse(), mdw...),
+			endpointx.Chain(endpoints.NamedResponse(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		httpBodyResponse: grpc.NewServer(
-			endpointx.Chain(endpoints.HttpBodyResponse(), mdw...),
+			endpointx.Chain(endpoints.HttpBodyResponse(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		httpBodyNamedResponse: grpc.NewServer(
-			endpointx.Chain(endpoints.HttpBodyNamedResponse(), mdw...),
+			endpointx.Chain(endpoints.HttpBodyNamedResponse(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		httpRequestStarBody: grpc.NewServer(
-			endpointx.Chain(endpoints.HttpRequestStarBody(), mdw...),
+			endpointx.Chain(endpoints.HttpRequestStarBody(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -200,7 +200,7 @@ func (c *responseGRPCClient) HttpRequestStarBody(ctx context.Context, request *h
 func NewResponseGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
 	StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
@@ -220,7 +220,7 @@ func NewResponseGRPCClient(
 				UserResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		starResponse: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -231,7 +231,7 @@ func NewResponseGRPCClient(
 				UserResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		namedResponse: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -242,7 +242,7 @@ func NewResponseGRPCClient(
 				UserResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		httpBodyResponse: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -253,7 +253,7 @@ func NewResponseGRPCClient(
 				httpbody.HttpBody{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		httpBodyNamedResponse: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -264,7 +264,7 @@ func NewResponseGRPCClient(
 				HttpBody{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		httpRequestStarBody: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -275,6 +275,6 @@ func NewResponseGRPCClient(
 				http.HttpResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }

@@ -41,20 +41,20 @@ func NewCQRSGRPCServer(
 		FindUser() endpoint.Endpoint
 	},
 	opts []grpc.ServerOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
 	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 } {
 	return &cQRSGRPCServer{
 		createUser: grpc.NewServer(
-			endpointx.Chain(endpoints.CreateUser(), mdw...),
+			endpointx.Chain(endpoints.CreateUser(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
 		),
 		findUser: grpc.NewServer(
-			endpointx.Chain(endpoints.FindUser(), mdw...),
+			endpointx.Chain(endpoints.FindUser(), middlewares...),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			opts...,
@@ -86,7 +86,7 @@ func (c *cQRSGRPCClient) FindUser(ctx context.Context, request *FindUserRequest)
 func NewCQRSGRPCClient(
 	conn *grpc1.ClientConn,
 	opts []grpc.ClientOption,
-	mdw ...endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
 	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
@@ -102,7 +102,7 @@ func NewCQRSGRPCClient(
 				emptypb.Empty{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 		findUser: endpointx.Chain(
 			grpc.NewClient(
 				conn,
@@ -113,6 +113,6 @@ func NewCQRSGRPCClient(
 				GetUserResponse{},
 				opts...,
 			).Endpoint(),
-			mdw...),
+			middlewares...),
 	}
 }
