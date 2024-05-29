@@ -8,15 +8,6 @@ protoc \
 --go-grpc_opt=require_unimplemented_servers=false \
 --leo-core_out=. \
 --leo-core_opt=paths=source_relative \
---leo-grpc_out=. \
---leo-grpc_opt=paths=source_relative \
---leo-grpc_opt=require_unimplemented_servers=false \
---leo-http_out=. \
---leo-http_opt=paths=source_relative \
---leo-http_opt=require_unimplemented_servers=false \
---leo-cqrs_out=. \
---leo-cqrs_opt=paths=source_relative \
---leo-cqrs_opt=require_unimplemented_servers=false \
 api/helloworld/*.proto \
 api/body/*.proto \
 api/path/*.proto \

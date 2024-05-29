@@ -5,11 +5,15 @@ package response
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
+
+// =========================== endpoints ===========================
 
 type ResponseService interface {
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
@@ -78,4 +82,334 @@ func (e *responseEndpoints) HttpRequestStarBody() endpoint.Endpoint {
 
 func NewResponseEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseEndpoints{svc: svc, middlewares: middlewares}
+}
+
+// =========================== cqrs ===========================
+
+// =========================== grpc transports ===========================
+
+type ResponseGrpcServerTransports interface {
+	OmittedResponse() *grpc.Server
+	StarResponse() *grpc.Server
+	NamedResponse() *grpc.Server
+	HttpBodyResponse() *grpc.Server
+	HttpBodyNamedResponse() *grpc.Server
+	HttpRequestStarBody() *grpc.Server
+}
+
+type ResponseGrpcClientTransports interface {
+	OmittedResponse() *grpc.Client
+	StarResponse() *grpc.Client
+	NamedResponse() *grpc.Client
+	HttpBodyResponse() *grpc.Client
+	HttpBodyNamedResponse() *grpc.Client
+	HttpRequestStarBody() *grpc.Client
+}
+
+type responseGrpcServerTransports struct {
+	omittedResponse       *grpc.Server
+	starResponse          *grpc.Server
+	namedResponse         *grpc.Server
+	httpBodyResponse      *grpc.Server
+	httpBodyNamedResponse *grpc.Server
+	httpRequestStarBody   *grpc.Server
+}
+
+func (t *responseGrpcServerTransports) OmittedResponse() *grpc.Server {
+	return t.omittedResponse
+}
+
+func (t *responseGrpcServerTransports) StarResponse() *grpc.Server {
+	return t.starResponse
+}
+
+func (t *responseGrpcServerTransports) NamedResponse() *grpc.Server {
+	return t.namedResponse
+}
+
+func (t *responseGrpcServerTransports) HttpBodyResponse() *grpc.Server {
+	return t.httpBodyResponse
+}
+
+func (t *responseGrpcServerTransports) HttpBodyNamedResponse() *grpc.Server {
+	return t.httpBodyNamedResponse
+}
+
+func (t *responseGrpcServerTransports) HttpRequestStarBody() *grpc.Server {
+	return t.httpRequestStarBody
+}
+
+func NewResponseGrpcServerTransports(endpoints ResponseEndpoints, serverOptions ...grpc.ServerOption) ResponseGrpcServerTransports {
+	return &responseGrpcServerTransports{
+		omittedResponse: grpc.NewServer(
+			endpoints.OmittedResponse(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		starResponse: grpc.NewServer(
+			endpoints.StarResponse(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		namedResponse: grpc.NewServer(
+			endpoints.NamedResponse(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		httpBodyResponse: grpc.NewServer(
+			endpoints.HttpBodyResponse(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		httpBodyNamedResponse: grpc.NewServer(
+			endpoints.HttpBodyNamedResponse(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		httpRequestStarBody: grpc.NewServer(
+			endpoints.HttpRequestStarBody(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+	}
+}
+
+type responseGrpcClientTransports struct {
+	omittedResponse       *grpc.Client
+	starResponse          *grpc.Client
+	namedResponse         *grpc.Client
+	httpBodyResponse      *grpc.Client
+	httpBodyNamedResponse *grpc.Client
+	httpRequestStarBody   *grpc.Client
+}
+
+func (t *responseGrpcClientTransports) OmittedResponse() *grpc.Client {
+	return t.omittedResponse
+}
+
+func (t *responseGrpcClientTransports) StarResponse() *grpc.Client {
+	return t.starResponse
+}
+
+func (t *responseGrpcClientTransports) NamedResponse() *grpc.Client {
+	return t.namedResponse
+}
+
+func (t *responseGrpcClientTransports) HttpBodyResponse() *grpc.Client {
+	return t.httpBodyResponse
+}
+
+func (t *responseGrpcClientTransports) HttpBodyNamedResponse() *grpc.Client {
+	return t.httpBodyNamedResponse
+}
+
+func (t *responseGrpcClientTransports) HttpRequestStarBody() *grpc.Client {
+	return t.httpRequestStarBody
+}
+
+func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) ResponseGrpcClientTransports {
+	return &responseGrpcClientTransports{
+		omittedResponse: grpc.NewClient(
+			conn,
+			"leo.example.response.v1.Response",
+			"OmittedResponse",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			UserResponse{},
+			clientOptions...,
+		),
+		starResponse: grpc.NewClient(
+			conn,
+			"leo.example.response.v1.Response",
+			"StarResponse",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			UserResponse{},
+			clientOptions...,
+		),
+		namedResponse: grpc.NewClient(
+			conn,
+			"leo.example.response.v1.Response",
+			"NamedResponse",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			UserResponse{},
+			clientOptions...,
+		),
+		httpBodyResponse: grpc.NewClient(
+			conn,
+			"leo.example.response.v1.Response",
+			"HttpBodyResponse",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			httpbody.HttpBody{},
+			clientOptions...,
+		),
+		httpBodyNamedResponse: grpc.NewClient(
+			conn,
+			"leo.example.response.v1.Response",
+			"HttpBodyNamedResponse",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			HttpBody{},
+			clientOptions...,
+		),
+		httpRequestStarBody: grpc.NewClient(
+			conn,
+			"leo.example.response.v1.Response",
+			"HttpRequestStarBody",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			http.HttpResponse{},
+			clientOptions...,
+		),
+	}
+}
+
+type responseGrpcServer struct {
+	omittedResponse       *grpc.Server
+	starResponse          *grpc.Server
+	namedResponse         *grpc.Server
+	httpBodyResponse      *grpc.Server
+	httpBodyNamedResponse *grpc.Server
+	httpRequestStarBody   *grpc.Server
+}
+
+func (s *responseGrpcServer) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx, rep, err := s.omittedResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UserResponse), nil
+}
+
+func (s *responseGrpcServer) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx, rep, err := s.starResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UserResponse), nil
+}
+
+func (s *responseGrpcServer) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx, rep, err := s.namedResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UserResponse), nil
+}
+
+func (s *responseGrpcServer) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	ctx, rep, err := s.httpBodyResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	ctx, rep, err := s.httpBodyNamedResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*HttpBody), nil
+}
+
+func (s *responseGrpcServer) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+	ctx, rep, err := s.httpRequestStarBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*http.HttpResponse), nil
+}
+
+func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseService {
+	return &responseGrpcServer{
+		omittedResponse:       transports.OmittedResponse(),
+		starResponse:          transports.StarResponse(),
+		namedResponse:         transports.NamedResponse(),
+		httpBodyResponse:      transports.HttpBodyResponse(),
+		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
+		httpRequestStarBody:   transports.HttpRequestStarBody(),
+	}
+}
+
+type responseGrpcClient struct {
+	omittedResponse       endpoint.Endpoint
+	starResponse          endpoint.Endpoint
+	namedResponse         endpoint.Endpoint
+	httpBodyResponse      endpoint.Endpoint
+	httpBodyNamedResponse endpoint.Endpoint
+	httpRequestStarBody   endpoint.Endpoint
+}
+
+func (c *responseGrpcClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	rep, err := c.omittedResponse(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*UserResponse), nil
+}
+
+func (c *responseGrpcClient) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	rep, err := c.starResponse(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*UserResponse), nil
+}
+
+func (c *responseGrpcClient) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	rep, err := c.namedResponse(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*UserResponse), nil
+}
+
+func (c *responseGrpcClient) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	rep, err := c.httpBodyResponse(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func (c *responseGrpcClient) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	rep, err := c.httpBodyNamedResponse(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*HttpBody), nil
+}
+
+func (c *responseGrpcClient) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+	rep, err := c.httpRequestStarBody(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*http.HttpResponse), nil
+}
+
+func NewResponseGrpcClient(transports ResponseGrpcClientTransports, middlewares ...endpoint.Middleware) ResponseService {
+	return &responseGrpcClient{
+		omittedResponse:       endpointx.Chain(transports.OmittedResponse().Endpoint(), middlewares...),
+		starResponse:          endpointx.Chain(transports.StarResponse().Endpoint(), middlewares...),
+		namedResponse:         endpointx.Chain(transports.NamedResponse().Endpoint(), middlewares...),
+		httpBodyResponse:      endpointx.Chain(transports.HttpBodyResponse().Endpoint(), middlewares...),
+		httpBodyNamedResponse: endpointx.Chain(transports.HttpBodyNamedResponse().Endpoint(), middlewares...),
+		httpRequestStarBody:   endpointx.Chain(transports.HttpRequestStarBody().Endpoint(), middlewares...),
+	}
 }

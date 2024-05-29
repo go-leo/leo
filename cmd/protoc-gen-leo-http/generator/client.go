@@ -12,14 +12,14 @@ import (
 type ClientGenerator struct{}
 
 func (f *ClientGenerator) GenerateClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("type ", service.UnexportedHTTPClientName(), " struct {")
+	generatedFile.P("type ", service.UnexportedHttpClientName(), " struct {")
 	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.UnexportedName(), " ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	generatedFile.P("}")
 	generatedFile.P()
 	for _, endpoint := range service.Endpoints {
-		generatedFile.P("func (c *", service.UnexportedHTTPClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		generatedFile.P("func (c *", service.UnexportedHttpClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 		generatedFile.P("rep, err := c.", endpoint.UnexportedName(), "(ctx, request)")
 		generatedFile.P("if err != nil {")
 		generatedFile.P("return nil, err")
@@ -32,7 +32,7 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, generatedFil
 }
 
 func (f *ClientGenerator) GenerateNewClient(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("func New", service.HTTPClientName(), "(")
+	generatedFile.P("func New", service.HttpClientName(), "(")
 	generatedFile.P("scheme   string,")
 	generatedFile.P("instance string,")
 	generatedFile.P("opts []", internal.HttpTransportPackage.Ident("ClientOption"), ",")
@@ -54,7 +54,7 @@ func (f *ClientGenerator) GenerateNewClient(service *internal.Service, generated
 		generatedFile.P("Methods(", strconv.Quote(httpRule.Method()), ").")
 		generatedFile.P("Path(", strconv.Quote(path), ")")
 	}
-	generatedFile.P("return &", service.UnexportedHTTPClientName(), "{")
+	generatedFile.P("return &", service.UnexportedHttpClientName(), "{")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
 		generatedFile.P(endpoint.UnexportedName(), ":    ", internal.EndpointxPackage.Ident("Chain"), "(")

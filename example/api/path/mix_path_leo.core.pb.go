@@ -5,9 +5,13 @@ package path
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
+
+// =========================== endpoints ===========================
 
 type MixPathService interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
@@ -31,4 +35,94 @@ func (e *mixPathEndpoints) MixPath() endpoint.Endpoint {
 
 func NewMixPathEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathEndpoints{svc: svc, middlewares: middlewares}
+}
+
+// =========================== cqrs ===========================
+
+// =========================== grpc transports ===========================
+
+type MixPathGrpcServerTransports interface {
+	MixPath() *grpc.Server
+}
+
+type MixPathGrpcClientTransports interface {
+	MixPath() *grpc.Client
+}
+
+type mixPathGrpcServerTransports struct {
+	mixPath *grpc.Server
+}
+
+func (t *mixPathGrpcServerTransports) MixPath() *grpc.Server {
+	return t.mixPath
+}
+
+func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints, serverOptions ...grpc.ServerOption) MixPathGrpcServerTransports {
+	return &mixPathGrpcServerTransports{
+		mixPath: grpc.NewServer(
+			endpoints.MixPath(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+	}
+}
+
+type mixPathGrpcClientTransports struct {
+	mixPath *grpc.Client
+}
+
+func (t *mixPathGrpcClientTransports) MixPath() *grpc.Client {
+	return t.mixPath
+}
+
+func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) MixPathGrpcClientTransports {
+	return &mixPathGrpcClientTransports{
+		mixPath: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.MixPath",
+			"MixPath",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+	}
+}
+
+type mixPathGrpcServer struct {
+	mixPath *grpc.Server
+}
+
+func (s *mixPathGrpcServer) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.mixPath.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewMixPathGrpcServer(transports MixPathGrpcServerTransports) MixPathService {
+	return &mixPathGrpcServer{
+		mixPath: transports.MixPath(),
+	}
+}
+
+type mixPathGrpcClient struct {
+	mixPath endpoint.Endpoint
+}
+
+func (c *mixPathGrpcClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.mixPath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewMixPathGrpcClient(transports MixPathGrpcClientTransports, middlewares ...endpoint.Middleware) MixPathService {
+	return &mixPathGrpcClient{
+		mixPath: endpointx.Chain(transports.MixPath().Endpoint(), middlewares...),
+	}
 }

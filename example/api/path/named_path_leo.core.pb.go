@@ -5,9 +5,13 @@ package path
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
+
+// =========================== endpoints ===========================
 
 type NamedPathService interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
@@ -76,4 +80,334 @@ func (e *namedPathEndpoints) EmbedNamedPathWrapString() endpoint.Endpoint {
 
 func NewNamedPathEndpoints(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathEndpoints {
 	return &namedPathEndpoints{svc: svc, middlewares: middlewares}
+}
+
+// =========================== cqrs ===========================
+
+// =========================== grpc transports ===========================
+
+type NamedPathGrpcServerTransports interface {
+	NamedPathString() *grpc.Server
+	NamedPathOptString() *grpc.Server
+	NamedPathWrapString() *grpc.Server
+	EmbedNamedPathString() *grpc.Server
+	EmbedNamedPathOptString() *grpc.Server
+	EmbedNamedPathWrapString() *grpc.Server
+}
+
+type NamedPathGrpcClientTransports interface {
+	NamedPathString() *grpc.Client
+	NamedPathOptString() *grpc.Client
+	NamedPathWrapString() *grpc.Client
+	EmbedNamedPathString() *grpc.Client
+	EmbedNamedPathOptString() *grpc.Client
+	EmbedNamedPathWrapString() *grpc.Client
+}
+
+type namedPathGrpcServerTransports struct {
+	namedPathString          *grpc.Server
+	namedPathOptString       *grpc.Server
+	namedPathWrapString      *grpc.Server
+	embedNamedPathString     *grpc.Server
+	embedNamedPathOptString  *grpc.Server
+	embedNamedPathWrapString *grpc.Server
+}
+
+func (t *namedPathGrpcServerTransports) NamedPathString() *grpc.Server {
+	return t.namedPathString
+}
+
+func (t *namedPathGrpcServerTransports) NamedPathOptString() *grpc.Server {
+	return t.namedPathOptString
+}
+
+func (t *namedPathGrpcServerTransports) NamedPathWrapString() *grpc.Server {
+	return t.namedPathWrapString
+}
+
+func (t *namedPathGrpcServerTransports) EmbedNamedPathString() *grpc.Server {
+	return t.embedNamedPathString
+}
+
+func (t *namedPathGrpcServerTransports) EmbedNamedPathOptString() *grpc.Server {
+	return t.embedNamedPathOptString
+}
+
+func (t *namedPathGrpcServerTransports) EmbedNamedPathWrapString() *grpc.Server {
+	return t.embedNamedPathWrapString
+}
+
+func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints, serverOptions ...grpc.ServerOption) NamedPathGrpcServerTransports {
+	return &namedPathGrpcServerTransports{
+		namedPathString: grpc.NewServer(
+			endpoints.NamedPathString(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		namedPathOptString: grpc.NewServer(
+			endpoints.NamedPathOptString(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		namedPathWrapString: grpc.NewServer(
+			endpoints.NamedPathWrapString(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		embedNamedPathString: grpc.NewServer(
+			endpoints.EmbedNamedPathString(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		embedNamedPathOptString: grpc.NewServer(
+			endpoints.EmbedNamedPathOptString(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		embedNamedPathWrapString: grpc.NewServer(
+			endpoints.EmbedNamedPathWrapString(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+	}
+}
+
+type namedPathGrpcClientTransports struct {
+	namedPathString          *grpc.Client
+	namedPathOptString       *grpc.Client
+	namedPathWrapString      *grpc.Client
+	embedNamedPathString     *grpc.Client
+	embedNamedPathOptString  *grpc.Client
+	embedNamedPathWrapString *grpc.Client
+}
+
+func (t *namedPathGrpcClientTransports) NamedPathString() *grpc.Client {
+	return t.namedPathString
+}
+
+func (t *namedPathGrpcClientTransports) NamedPathOptString() *grpc.Client {
+	return t.namedPathOptString
+}
+
+func (t *namedPathGrpcClientTransports) NamedPathWrapString() *grpc.Client {
+	return t.namedPathWrapString
+}
+
+func (t *namedPathGrpcClientTransports) EmbedNamedPathString() *grpc.Client {
+	return t.embedNamedPathString
+}
+
+func (t *namedPathGrpcClientTransports) EmbedNamedPathOptString() *grpc.Client {
+	return t.embedNamedPathOptString
+}
+
+func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString() *grpc.Client {
+	return t.embedNamedPathWrapString
+}
+
+func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) NamedPathGrpcClientTransports {
+	return &namedPathGrpcClientTransports{
+		namedPathString: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.NamedPath",
+			"NamedPathString",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		namedPathOptString: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.NamedPath",
+			"NamedPathOptString",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		namedPathWrapString: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.NamedPath",
+			"NamedPathWrapString",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		embedNamedPathString: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.NamedPath",
+			"EmbedNamedPathString",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		embedNamedPathOptString: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.NamedPath",
+			"EmbedNamedPathOptString",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		embedNamedPathWrapString: grpc.NewClient(
+			conn,
+			"leo.example.path.v1.NamedPath",
+			"EmbedNamedPathWrapString",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+	}
+}
+
+type namedPathGrpcServer struct {
+	namedPathString          *grpc.Server
+	namedPathOptString       *grpc.Server
+	namedPathWrapString      *grpc.Server
+	embedNamedPathString     *grpc.Server
+	embedNamedPathOptString  *grpc.Server
+	embedNamedPathWrapString *grpc.Server
+}
+
+func (s *namedPathGrpcServer) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.namedPathString.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *namedPathGrpcServer) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.namedPathOptString.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *namedPathGrpcServer) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.namedPathWrapString.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *namedPathGrpcServer) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.embedNamedPathString.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *namedPathGrpcServer) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.embedNamedPathOptString.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *namedPathGrpcServer) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.embedNamedPathWrapString.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewNamedPathGrpcServer(transports NamedPathGrpcServerTransports) NamedPathService {
+	return &namedPathGrpcServer{
+		namedPathString:          transports.NamedPathString(),
+		namedPathOptString:       transports.NamedPathOptString(),
+		namedPathWrapString:      transports.NamedPathWrapString(),
+		embedNamedPathString:     transports.EmbedNamedPathString(),
+		embedNamedPathOptString:  transports.EmbedNamedPathOptString(),
+		embedNamedPathWrapString: transports.EmbedNamedPathWrapString(),
+	}
+}
+
+type namedPathGrpcClient struct {
+	namedPathString          endpoint.Endpoint
+	namedPathOptString       endpoint.Endpoint
+	namedPathWrapString      endpoint.Endpoint
+	embedNamedPathString     endpoint.Endpoint
+	embedNamedPathOptString  endpoint.Endpoint
+	embedNamedPathWrapString endpoint.Endpoint
+}
+
+func (c *namedPathGrpcClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.namedPathString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *namedPathGrpcClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.namedPathOptString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *namedPathGrpcClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.namedPathWrapString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *namedPathGrpcClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.embedNamedPathString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *namedPathGrpcClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.embedNamedPathOptString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *namedPathGrpcClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	rep, err := c.embedNamedPathWrapString(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewNamedPathGrpcClient(transports NamedPathGrpcClientTransports, middlewares ...endpoint.Middleware) NamedPathService {
+	return &namedPathGrpcClient{
+		namedPathString:          endpointx.Chain(transports.NamedPathString().Endpoint(), middlewares...),
+		namedPathOptString:       endpointx.Chain(transports.NamedPathOptString().Endpoint(), middlewares...),
+		namedPathWrapString:      endpointx.Chain(transports.NamedPathWrapString().Endpoint(), middlewares...),
+		embedNamedPathString:     endpointx.Chain(transports.EmbedNamedPathString().Endpoint(), middlewares...),
+		embedNamedPathOptString:  endpointx.Chain(transports.EmbedNamedPathOptString().Endpoint(), middlewares...),
+		embedNamedPathWrapString: endpointx.Chain(transports.EmbedNamedPathWrapString().Endpoint(), middlewares...),
+	}
 }

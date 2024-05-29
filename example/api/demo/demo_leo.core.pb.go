@@ -5,11 +5,19 @@ package demo
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	grpc "github.com/go-kit/kit/transport/grpc"
+	cqrs "github.com/go-leo/leo/v3/cqrs"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	command "github.com/go-leo/leo/v3/example/internal/demo/command"
+	query "github.com/go-leo/leo/v3/example/internal/demo/query"
+	metadatax "github.com/go-leo/leo/v3/metadatax"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
+
+// =========================== endpoints ===========================
 
 type DemoService interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
@@ -96,4 +104,626 @@ func (e *demoEndpoints) PushUsers() endpoint.Endpoint {
 
 func NewDemoEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoEndpoints {
 	return &demoEndpoints{svc: svc, middlewares: middlewares}
+}
+
+// =========================== cqrs ===========================
+
+// DemoAssembler responsible for completing the transformation between domain model objects and DTOs
+type DemoAssembler interface {
+
+	// FromCreateUserRequest convert request to command arguments
+	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*command.CreateUserArgs, context.Context, error)
+
+	// ToCreateUserResponse convert query result to response
+	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata metadatax.Metadata) (*CreateUserResponse, error)
+
+	// FromDeleteUserRequest convert request to command arguments
+	FromDeleteUserRequest(ctx context.Context, request *DeleteUsersRequest) (*command.DeleteUserArgs, context.Context, error)
+
+	// ToDeleteUserResponse convert query result to response
+	ToDeleteUserResponse(ctx context.Context, request *DeleteUsersRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
+
+	// FromUpdateUserRequest convert request to command arguments
+	FromUpdateUserRequest(ctx context.Context, request *UpdateUserRequest) (*command.UpdateUserArgs, context.Context, error)
+
+	// ToUpdateUserResponse convert query result to response
+	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
+
+	// FromGetUserRequest convert request to query arguments
+	FromGetUserRequest(ctx context.Context, request *GetUserRequest) (*query.GetUserArgs, context.Context, error)
+
+	// ToGetUserResponse convert query result to response
+	ToGetUserResponse(ctx context.Context, request *GetUserRequest, res *query.GetUserRes) (*GetUserResponse, error)
+
+	// FromGetUsersRequest convert request to query arguments
+	FromGetUsersRequest(ctx context.Context, request *GetUsersRequest) (*query.GetUsersArgs, context.Context, error)
+
+	// ToGetUsersResponse convert query result to response
+	ToGetUsersResponse(ctx context.Context, request *GetUsersRequest, res *query.GetUsersRes) (*GetUsersResponse, error)
+
+	// FromUploadUserAvatarRequest convert request to command arguments
+	FromUploadUserAvatarRequest(ctx context.Context, request *UploadUserAvatarRequest) (*command.UploadUserAvatarArgs, context.Context, error)
+
+	// ToUploadUserAvatarResponse convert query result to response
+	ToUploadUserAvatarResponse(ctx context.Context, request *UploadUserAvatarRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
+
+	// FromGetUserAvatarRequest convert request to query arguments
+	FromGetUserAvatarRequest(ctx context.Context, request *GetUserAvatarRequest) (*query.GetUserAvatarArgs, context.Context, error)
+
+	// ToGetUserAvatarResponse convert query result to response
+	ToGetUserAvatarResponse(ctx context.Context, request *GetUserAvatarRequest, res *query.GetUserAvatarRes) (*httpbody.HttpBody, error)
+
+	// FromPushUsersRequest convert request to query arguments
+	FromPushUsersRequest(ctx context.Context, request *http.HttpRequest) (*query.PushUsersArgs, context.Context, error)
+
+	// ToPushUsersResponse convert query result to response
+	ToPushUsersResponse(ctx context.Context, request *http.HttpRequest, res *query.PushUsersRes) (*http.HttpResponse, error)
+}
+
+// demoCqrsService implement the DemoService with CQRS pattern
+type demoCqrsService struct {
+	bus       cqrs.Bus
+	assembler DemoAssembler
+}
+
+func (svc *demoCqrsService) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	args, ctx, err := svc.assembler.FromCreateUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := svc.bus.Exec(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToCreateUserResponse(ctx, request, metadata)
+}
+
+func (svc *demoCqrsService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	args, ctx, err := svc.assembler.FromDeleteUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := svc.bus.Exec(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToDeleteUserResponse(ctx, request, metadata)
+}
+
+func (svc *demoCqrsService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	args, ctx, err := svc.assembler.FromUpdateUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := svc.bus.Exec(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToUpdateUserResponse(ctx, request, metadata)
+}
+
+func (svc *demoCqrsService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	args, ctx, err := svc.assembler.FromGetUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToGetUserResponse(ctx, request, res.(*query.GetUserRes))
+}
+
+func (svc *demoCqrsService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	args, ctx, err := svc.assembler.FromGetUsersRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToGetUsersResponse(ctx, request, res.(*query.GetUsersRes))
+}
+
+func (svc *demoCqrsService) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	args, ctx, err := svc.assembler.FromUploadUserAvatarRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := svc.bus.Exec(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToUploadUserAvatarResponse(ctx, request, metadata)
+}
+
+func (svc *demoCqrsService) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	args, ctx, err := svc.assembler.FromGetUserAvatarRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToGetUserAvatarResponse(ctx, request, res.(*query.GetUserAvatarRes))
+}
+
+func (svc *demoCqrsService) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+	args, ctx, err := svc.assembler.FromPushUsersRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToPushUsersResponse(ctx, request, res.(*query.PushUsersRes))
+}
+
+func NewDemoCqrsService(bus cqrs.Bus, assembler DemoAssembler) DemoService {
+	return &demoCqrsService{bus: bus, assembler: assembler}
+}
+
+func NewDemoBus(
+	createUser command.CreateUser,
+	deleteUser command.DeleteUser,
+	updateUser command.UpdateUser,
+	getUser query.GetUser,
+	getUsers query.GetUsers,
+	uploadUserAvatar command.UploadUserAvatar,
+	getUserAvatar query.GetUserAvatar,
+	pushUsers query.PushUsers,
+) (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
+	if err := bus.RegisterCommand(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(deleteUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(updateUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUsers); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(uploadUserAvatar); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUserAvatar); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(pushUsers); err != nil {
+		return nil, err
+	}
+	return bus, nil
+}
+
+// =========================== grpc transports ===========================
+
+type DemoGrpcServerTransports interface {
+	CreateUser() *grpc.Server
+	DeleteUser() *grpc.Server
+	UpdateUser() *grpc.Server
+	GetUser() *grpc.Server
+	GetUsers() *grpc.Server
+	UploadUserAvatar() *grpc.Server
+	GetUserAvatar() *grpc.Server
+	PushUsers() *grpc.Server
+}
+
+type DemoGrpcClientTransports interface {
+	CreateUser() *grpc.Client
+	DeleteUser() *grpc.Client
+	UpdateUser() *grpc.Client
+	GetUser() *grpc.Client
+	GetUsers() *grpc.Client
+	UploadUserAvatar() *grpc.Client
+	GetUserAvatar() *grpc.Client
+	PushUsers() *grpc.Client
+}
+
+type demoGrpcServerTransports struct {
+	createUser       *grpc.Server
+	deleteUser       *grpc.Server
+	updateUser       *grpc.Server
+	getUser          *grpc.Server
+	getUsers         *grpc.Server
+	uploadUserAvatar *grpc.Server
+	getUserAvatar    *grpc.Server
+	pushUsers        *grpc.Server
+}
+
+func (t *demoGrpcServerTransports) CreateUser() *grpc.Server {
+	return t.createUser
+}
+
+func (t *demoGrpcServerTransports) DeleteUser() *grpc.Server {
+	return t.deleteUser
+}
+
+func (t *demoGrpcServerTransports) UpdateUser() *grpc.Server {
+	return t.updateUser
+}
+
+func (t *demoGrpcServerTransports) GetUser() *grpc.Server {
+	return t.getUser
+}
+
+func (t *demoGrpcServerTransports) GetUsers() *grpc.Server {
+	return t.getUsers
+}
+
+func (t *demoGrpcServerTransports) UploadUserAvatar() *grpc.Server {
+	return t.uploadUserAvatar
+}
+
+func (t *demoGrpcServerTransports) GetUserAvatar() *grpc.Server {
+	return t.getUserAvatar
+}
+
+func (t *demoGrpcServerTransports) PushUsers() *grpc.Server {
+	return t.pushUsers
+}
+
+func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.ServerOption) DemoGrpcServerTransports {
+	return &demoGrpcServerTransports{
+		createUser: grpc.NewServer(
+			endpoints.CreateUser(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		deleteUser: grpc.NewServer(
+			endpoints.DeleteUser(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		updateUser: grpc.NewServer(
+			endpoints.UpdateUser(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		getUser: grpc.NewServer(
+			endpoints.GetUser(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		getUsers: grpc.NewServer(
+			endpoints.GetUsers(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		uploadUserAvatar: grpc.NewServer(
+			endpoints.UploadUserAvatar(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		getUserAvatar: grpc.NewServer(
+			endpoints.GetUserAvatar(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		pushUsers: grpc.NewServer(
+			endpoints.PushUsers(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+	}
+}
+
+type demoGrpcClientTransports struct {
+	createUser       *grpc.Client
+	deleteUser       *grpc.Client
+	updateUser       *grpc.Client
+	getUser          *grpc.Client
+	getUsers         *grpc.Client
+	uploadUserAvatar *grpc.Client
+	getUserAvatar    *grpc.Client
+	pushUsers        *grpc.Client
+}
+
+func (t *demoGrpcClientTransports) CreateUser() *grpc.Client {
+	return t.createUser
+}
+
+func (t *demoGrpcClientTransports) DeleteUser() *grpc.Client {
+	return t.deleteUser
+}
+
+func (t *demoGrpcClientTransports) UpdateUser() *grpc.Client {
+	return t.updateUser
+}
+
+func (t *demoGrpcClientTransports) GetUser() *grpc.Client {
+	return t.getUser
+}
+
+func (t *demoGrpcClientTransports) GetUsers() *grpc.Client {
+	return t.getUsers
+}
+
+func (t *demoGrpcClientTransports) UploadUserAvatar() *grpc.Client {
+	return t.uploadUserAvatar
+}
+
+func (t *demoGrpcClientTransports) GetUserAvatar() *grpc.Client {
+	return t.getUserAvatar
+}
+
+func (t *demoGrpcClientTransports) PushUsers() *grpc.Client {
+	return t.pushUsers
+}
+
+func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) DemoGrpcClientTransports {
+	return &demoGrpcClientTransports{
+		createUser: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"CreateUser",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			CreateUserResponse{},
+			clientOptions...,
+		),
+		deleteUser: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"DeleteUser",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		updateUser: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"UpdateUser",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		getUser: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"GetUser",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			GetUserResponse{},
+			clientOptions...,
+		),
+		getUsers: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"GetUsers",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			GetUsersResponse{},
+			clientOptions...,
+		),
+		uploadUserAvatar: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"UploadUserAvatar",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		getUserAvatar: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"GetUserAvatar",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			httpbody.HttpBody{},
+			clientOptions...,
+		),
+		pushUsers: grpc.NewClient(
+			conn,
+			"leo.example.demo.v1.Demo",
+			"PushUsers",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			http.HttpResponse{},
+			clientOptions...,
+		),
+	}
+}
+
+type demoGrpcServer struct {
+	createUser       *grpc.Server
+	deleteUser       *grpc.Server
+	updateUser       *grpc.Server
+	getUser          *grpc.Server
+	getUsers         *grpc.Server
+	uploadUserAvatar *grpc.Server
+	getUserAvatar    *grpc.Server
+	pushUsers        *grpc.Server
+}
+
+func (s *demoGrpcServer) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	ctx, rep, err := s.createUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*CreateUserResponse), nil
+}
+
+func (s *demoGrpcServer) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.deleteUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *demoGrpcServer) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.updateUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *demoGrpcServer) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	ctx, rep, err := s.getUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*GetUserResponse), nil
+}
+
+func (s *demoGrpcServer) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	ctx, rep, err := s.getUsers.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*GetUsersResponse), nil
+}
+
+func (s *demoGrpcServer) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.uploadUserAvatar.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *demoGrpcServer) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	ctx, rep, err := s.getUserAvatar.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func (s *demoGrpcServer) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+	ctx, rep, err := s.pushUsers.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*http.HttpResponse), nil
+}
+
+func NewDemoGrpcServer(transports DemoGrpcServerTransports) DemoService {
+	return &demoGrpcServer{
+		createUser:       transports.CreateUser(),
+		deleteUser:       transports.DeleteUser(),
+		updateUser:       transports.UpdateUser(),
+		getUser:          transports.GetUser(),
+		getUsers:         transports.GetUsers(),
+		uploadUserAvatar: transports.UploadUserAvatar(),
+		getUserAvatar:    transports.GetUserAvatar(),
+		pushUsers:        transports.PushUsers(),
+	}
+}
+
+type demoGrpcClient struct {
+	createUser       endpoint.Endpoint
+	deleteUser       endpoint.Endpoint
+	updateUser       endpoint.Endpoint
+	getUser          endpoint.Endpoint
+	getUsers         endpoint.Endpoint
+	uploadUserAvatar endpoint.Endpoint
+	getUserAvatar    endpoint.Endpoint
+	pushUsers        endpoint.Endpoint
+}
+
+func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	rep, err := c.createUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*CreateUserResponse), nil
+}
+
+func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	rep, err := c.updateUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	rep, err := c.getUser(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*GetUserResponse), nil
+}
+
+func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	rep, err := c.getUsers(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*GetUsersResponse), nil
+}
+
+func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	rep, err := c.uploadUserAvatar(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	rep, err := c.getUserAvatar(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func (c *demoGrpcClient) PushUsers(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
+	rep, err := c.pushUsers(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*http.HttpResponse), nil
+}
+
+func NewDemoGrpcClient(transports DemoGrpcClientTransports, middlewares ...endpoint.Middleware) DemoService {
+	return &demoGrpcClient{
+		createUser:       endpointx.Chain(transports.CreateUser().Endpoint(), middlewares...),
+		deleteUser:       endpointx.Chain(transports.DeleteUser().Endpoint(), middlewares...),
+		updateUser:       endpointx.Chain(transports.UpdateUser().Endpoint(), middlewares...),
+		getUser:          endpointx.Chain(transports.GetUser().Endpoint(), middlewares...),
+		getUsers:         endpointx.Chain(transports.GetUsers().Endpoint(), middlewares...),
+		uploadUserAvatar: endpointx.Chain(transports.UploadUserAvatar().Endpoint(), middlewares...),
+		getUserAvatar:    endpointx.Chain(transports.GetUserAvatar().Endpoint(), middlewares...),
+		pushUsers:        endpointx.Chain(transports.PushUsers().Endpoint(), middlewares...),
+	}
 }

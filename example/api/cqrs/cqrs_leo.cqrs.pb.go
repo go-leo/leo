@@ -27,17 +27,17 @@ type CQRSAssembler interface {
 	ToFindUserResponse(ctx context.Context, request *FindUserRequest, res *query.FindUserRes) (*GetUserResponse, error)
 }
 
-// CQRSCQRSService implement the CQRS service with CQRS pattern
-type CQRSCQRSService struct {
+// CQRSCqrsService implement the CQRS service with CQRS pattern
+type CQRSCqrsService struct {
 	bus       cqrs.Bus
 	assembler CQRSAssembler
 }
 
-func NewCQRSCQRSService(bus cqrs.Bus, assembler CQRSAssembler) *CQRSCQRSService {
-	return &CQRSCQRSService{bus: bus, assembler: assembler}
+func NewCQRSCqrsService(bus cqrs.Bus, assembler CQRSAssembler) *CQRSCqrsService {
+	return &CQRSCqrsService{bus: bus, assembler: assembler}
 }
 
-func (svc *CQRSCQRSService) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+func (svc *CQRSCqrsService) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
 	args, ctx, err := svc.assembler.FromCreateUserRequest(ctx, request)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (svc *CQRSCQRSService) CreateUser(ctx context.Context, request *CreateUserR
 	return svc.assembler.ToCreateUserResponse(ctx, request, metadata)
 }
 
-func (svc *CQRSCQRSService) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+func (svc *CQRSCqrsService) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
 	args, ctx, err := svc.assembler.FromFindUserRequest(ctx, request)
 	if err != nil {
 		return nil, err

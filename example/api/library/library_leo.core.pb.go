@@ -5,9 +5,13 @@ package library
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
+	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
+
+// =========================== endpoints ===========================
 
 type LibraryServiceService interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
@@ -121,4 +125,574 @@ func (e *libraryServiceEndpoints) MoveBook() endpoint.Endpoint {
 
 func NewLibraryServiceEndpoints(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
 	return &libraryServiceEndpoints{svc: svc, middlewares: middlewares}
+}
+
+// =========================== cqrs ===========================
+
+// =========================== grpc transports ===========================
+
+type LibraryServiceGrpcServerTransports interface {
+	CreateShelf() *grpc.Server
+	GetShelf() *grpc.Server
+	ListShelves() *grpc.Server
+	DeleteShelf() *grpc.Server
+	MergeShelves() *grpc.Server
+	CreateBook() *grpc.Server
+	GetBook() *grpc.Server
+	ListBooks() *grpc.Server
+	DeleteBook() *grpc.Server
+	UpdateBook() *grpc.Server
+	MoveBook() *grpc.Server
+}
+
+type LibraryServiceGrpcClientTransports interface {
+	CreateShelf() *grpc.Client
+	GetShelf() *grpc.Client
+	ListShelves() *grpc.Client
+	DeleteShelf() *grpc.Client
+	MergeShelves() *grpc.Client
+	CreateBook() *grpc.Client
+	GetBook() *grpc.Client
+	ListBooks() *grpc.Client
+	DeleteBook() *grpc.Client
+	UpdateBook() *grpc.Client
+	MoveBook() *grpc.Client
+}
+
+type libraryServiceGrpcServerTransports struct {
+	createShelf  *grpc.Server
+	getShelf     *grpc.Server
+	listShelves  *grpc.Server
+	deleteShelf  *grpc.Server
+	mergeShelves *grpc.Server
+	createBook   *grpc.Server
+	getBook      *grpc.Server
+	listBooks    *grpc.Server
+	deleteBook   *grpc.Server
+	updateBook   *grpc.Server
+	moveBook     *grpc.Server
+}
+
+func (t *libraryServiceGrpcServerTransports) CreateShelf() *grpc.Server {
+	return t.createShelf
+}
+
+func (t *libraryServiceGrpcServerTransports) GetShelf() *grpc.Server {
+	return t.getShelf
+}
+
+func (t *libraryServiceGrpcServerTransports) ListShelves() *grpc.Server {
+	return t.listShelves
+}
+
+func (t *libraryServiceGrpcServerTransports) DeleteShelf() *grpc.Server {
+	return t.deleteShelf
+}
+
+func (t *libraryServiceGrpcServerTransports) MergeShelves() *grpc.Server {
+	return t.mergeShelves
+}
+
+func (t *libraryServiceGrpcServerTransports) CreateBook() *grpc.Server {
+	return t.createBook
+}
+
+func (t *libraryServiceGrpcServerTransports) GetBook() *grpc.Server {
+	return t.getBook
+}
+
+func (t *libraryServiceGrpcServerTransports) ListBooks() *grpc.Server {
+	return t.listBooks
+}
+
+func (t *libraryServiceGrpcServerTransports) DeleteBook() *grpc.Server {
+	return t.deleteBook
+}
+
+func (t *libraryServiceGrpcServerTransports) UpdateBook() *grpc.Server {
+	return t.updateBook
+}
+
+func (t *libraryServiceGrpcServerTransports) MoveBook() *grpc.Server {
+	return t.moveBook
+}
+
+func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints, serverOptions ...grpc.ServerOption) LibraryServiceGrpcServerTransports {
+	return &libraryServiceGrpcServerTransports{
+		createShelf: grpc.NewServer(
+			endpoints.CreateShelf(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		getShelf: grpc.NewServer(
+			endpoints.GetShelf(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		listShelves: grpc.NewServer(
+			endpoints.ListShelves(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		deleteShelf: grpc.NewServer(
+			endpoints.DeleteShelf(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		mergeShelves: grpc.NewServer(
+			endpoints.MergeShelves(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		createBook: grpc.NewServer(
+			endpoints.CreateBook(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		getBook: grpc.NewServer(
+			endpoints.GetBook(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		listBooks: grpc.NewServer(
+			endpoints.ListBooks(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		deleteBook: grpc.NewServer(
+			endpoints.DeleteBook(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		updateBook: grpc.NewServer(
+			endpoints.UpdateBook(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+		moveBook: grpc.NewServer(
+			endpoints.MoveBook(),
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			serverOptions...,
+		),
+	}
+}
+
+type libraryServiceGrpcClientTransports struct {
+	createShelf  *grpc.Client
+	getShelf     *grpc.Client
+	listShelves  *grpc.Client
+	deleteShelf  *grpc.Client
+	mergeShelves *grpc.Client
+	createBook   *grpc.Client
+	getBook      *grpc.Client
+	listBooks    *grpc.Client
+	deleteBook   *grpc.Client
+	updateBook   *grpc.Client
+	moveBook     *grpc.Client
+}
+
+func (t *libraryServiceGrpcClientTransports) CreateShelf() *grpc.Client {
+	return t.createShelf
+}
+
+func (t *libraryServiceGrpcClientTransports) GetShelf() *grpc.Client {
+	return t.getShelf
+}
+
+func (t *libraryServiceGrpcClientTransports) ListShelves() *grpc.Client {
+	return t.listShelves
+}
+
+func (t *libraryServiceGrpcClientTransports) DeleteShelf() *grpc.Client {
+	return t.deleteShelf
+}
+
+func (t *libraryServiceGrpcClientTransports) MergeShelves() *grpc.Client {
+	return t.mergeShelves
+}
+
+func (t *libraryServiceGrpcClientTransports) CreateBook() *grpc.Client {
+	return t.createBook
+}
+
+func (t *libraryServiceGrpcClientTransports) GetBook() *grpc.Client {
+	return t.getBook
+}
+
+func (t *libraryServiceGrpcClientTransports) ListBooks() *grpc.Client {
+	return t.listBooks
+}
+
+func (t *libraryServiceGrpcClientTransports) DeleteBook() *grpc.Client {
+	return t.deleteBook
+}
+
+func (t *libraryServiceGrpcClientTransports) UpdateBook() *grpc.Client {
+	return t.updateBook
+}
+
+func (t *libraryServiceGrpcClientTransports) MoveBook() *grpc.Client {
+	return t.moveBook
+}
+
+func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) LibraryServiceGrpcClientTransports {
+	return &libraryServiceGrpcClientTransports{
+		createShelf: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"CreateShelf",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Shelf{},
+			clientOptions...,
+		),
+		getShelf: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"GetShelf",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Shelf{},
+			clientOptions...,
+		),
+		listShelves: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"ListShelves",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			ListShelvesResponse{},
+			clientOptions...,
+		),
+		deleteShelf: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"DeleteShelf",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		mergeShelves: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"MergeShelves",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Shelf{},
+			clientOptions...,
+		),
+		createBook: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"CreateBook",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Book{},
+			clientOptions...,
+		),
+		getBook: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"GetBook",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Book{},
+			clientOptions...,
+		),
+		listBooks: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"ListBooks",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			ListBooksResponse{},
+			clientOptions...,
+		),
+		deleteBook: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"DeleteBook",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			emptypb.Empty{},
+			clientOptions...,
+		),
+		updateBook: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"UpdateBook",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Book{},
+			clientOptions...,
+		),
+		moveBook: grpc.NewClient(
+			conn,
+			"google.example.library.v1.LibraryService",
+			"MoveBook",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			Book{},
+			clientOptions...,
+		),
+	}
+}
+
+type libraryServiceGrpcServer struct {
+	createShelf  *grpc.Server
+	getShelf     *grpc.Server
+	listShelves  *grpc.Server
+	deleteShelf  *grpc.Server
+	mergeShelves *grpc.Server
+	createBook   *grpc.Server
+	getBook      *grpc.Server
+	listBooks    *grpc.Server
+	deleteBook   *grpc.Server
+	updateBook   *grpc.Server
+	moveBook     *grpc.Server
+}
+
+func (s *libraryServiceGrpcServer) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	ctx, rep, err := s.createShelf.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Shelf), nil
+}
+
+func (s *libraryServiceGrpcServer) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	ctx, rep, err := s.getShelf.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Shelf), nil
+}
+
+func (s *libraryServiceGrpcServer) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	ctx, rep, err := s.listShelves.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*ListShelvesResponse), nil
+}
+
+func (s *libraryServiceGrpcServer) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.deleteShelf.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *libraryServiceGrpcServer) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	ctx, rep, err := s.mergeShelves.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Shelf), nil
+}
+
+func (s *libraryServiceGrpcServer) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	ctx, rep, err := s.createBook.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Book), nil
+}
+
+func (s *libraryServiceGrpcServer) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	ctx, rep, err := s.getBook.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Book), nil
+}
+
+func (s *libraryServiceGrpcServer) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	ctx, rep, err := s.listBooks.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*ListBooksResponse), nil
+}
+
+func (s *libraryServiceGrpcServer) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.deleteBook.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *libraryServiceGrpcServer) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	ctx, rep, err := s.updateBook.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Book), nil
+}
+
+func (s *libraryServiceGrpcServer) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	ctx, rep, err := s.moveBook.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Book), nil
+}
+
+func NewLibraryServiceGrpcServer(transports LibraryServiceGrpcServerTransports) LibraryServiceService {
+	return &libraryServiceGrpcServer{
+		createShelf:  transports.CreateShelf(),
+		getShelf:     transports.GetShelf(),
+		listShelves:  transports.ListShelves(),
+		deleteShelf:  transports.DeleteShelf(),
+		mergeShelves: transports.MergeShelves(),
+		createBook:   transports.CreateBook(),
+		getBook:      transports.GetBook(),
+		listBooks:    transports.ListBooks(),
+		deleteBook:   transports.DeleteBook(),
+		updateBook:   transports.UpdateBook(),
+		moveBook:     transports.MoveBook(),
+	}
+}
+
+type libraryServiceGrpcClient struct {
+	createShelf  endpoint.Endpoint
+	getShelf     endpoint.Endpoint
+	listShelves  endpoint.Endpoint
+	deleteShelf  endpoint.Endpoint
+	mergeShelves endpoint.Endpoint
+	createBook   endpoint.Endpoint
+	getBook      endpoint.Endpoint
+	listBooks    endpoint.Endpoint
+	deleteBook   endpoint.Endpoint
+	updateBook   endpoint.Endpoint
+	moveBook     endpoint.Endpoint
+}
+
+func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	rep, err := c.createShelf(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	rep, err := c.getShelf(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	rep, err := c.listShelves(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*ListShelvesResponse), nil
+}
+
+func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteShelf(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	rep, err := c.mergeShelves(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	rep, err := c.createBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	rep, err := c.getBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	rep, err := c.listBooks(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*ListBooksResponse), nil
+}
+
+func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	rep, err := c.deleteBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	rep, err := c.updateBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func (c *libraryServiceGrpcClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	rep, err := c.moveBook(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*Book), nil
+}
+
+func NewLibraryServiceGrpcClient(transports LibraryServiceGrpcClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
+	return &libraryServiceGrpcClient{
+		createShelf:  endpointx.Chain(transports.CreateShelf().Endpoint(), middlewares...),
+		getShelf:     endpointx.Chain(transports.GetShelf().Endpoint(), middlewares...),
+		listShelves:  endpointx.Chain(transports.ListShelves().Endpoint(), middlewares...),
+		deleteShelf:  endpointx.Chain(transports.DeleteShelf().Endpoint(), middlewares...),
+		mergeShelves: endpointx.Chain(transports.MergeShelves().Endpoint(), middlewares...),
+		createBook:   endpointx.Chain(transports.CreateBook().Endpoint(), middlewares...),
+		getBook:      endpointx.Chain(transports.GetBook().Endpoint(), middlewares...),
+		listBooks:    endpointx.Chain(transports.ListBooks().Endpoint(), middlewares...),
+		deleteBook:   endpointx.Chain(transports.DeleteBook().Endpoint(), middlewares...),
+		updateBook:   endpointx.Chain(transports.UpdateBook().Endpoint(), middlewares...),
+		moveBook:     endpointx.Chain(transports.MoveBook().Endpoint(), middlewares...),
+	}
 }

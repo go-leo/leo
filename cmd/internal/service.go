@@ -50,39 +50,57 @@ func (s Service) UnexportedClientName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) GRPCServerName() string {
-	return s.Name() + "GRPCServer"
+func (s Service) GrpcServerTransportsName() string {
+	return s.Name() + "GrpcServerTransports"
 }
 
-func (s Service) UnexportedGRPCServerName() string {
-	name := s.GRPCServerName()
+func (s Service) UnexportedGRPCServerTransportsName() string {
+	name := s.GrpcServerTransportsName()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) GRPCClientName() string {
-	return s.Name() + "GRPCClient"
+func (s Service) GrpcClientTransportsName() string {
+	return s.Name() + "GrpcClientTransports"
 }
 
-func (s Service) UnexportedGRPCClientName() string {
-	name := s.GRPCClientName()
+func (s Service) UnexportedGrpcClientTransportsName() string {
+	name := s.GrpcClientTransportsName()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) HTTPServerName() string {
-	return s.Name() + "HTTPServer"
+func (s Service) GrpcServerName() string {
+	return s.Name() + "GrpcServer"
 }
 
-func (s Service) UnexportedHTTPServerName() string {
-	name := s.HTTPServerName()
+func (s Service) UnexportedGrpcServerName() string {
+	name := s.GrpcServerName()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) HTTPClientName() string {
-	return s.Name() + "HTTPClient"
+func (s Service) GrpcClientName() string {
+	return s.Name() + "GrpcClient"
 }
 
-func (s Service) UnexportedHTTPClientName() string {
-	name := s.HTTPClientName()
+func (s Service) UnexportedGrpcClientName() string {
+	name := s.GrpcClientName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) HttpServerName() string {
+	return s.Name() + "HttpServer"
+}
+
+func (s Service) UnexportedHttpServerName() string {
+	name := s.HttpServerName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) HttpClientName() string {
+	return s.Name() + "HttpClient"
+}
+
+func (s Service) UnexportedHttpClientName() string {
+	name := s.HttpClientName()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
@@ -104,7 +122,12 @@ func (s Service) UnexportedEndpointsName() string {
 }
 
 func (s Service) CQRSName() string {
-	return s.Service.GoName + "CQRSService"
+	return s.Service.GoName + "CqrsService"
+}
+
+func (s Service) UnexportedCQRSName() string {
+	name := s.CQRSName()
+	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) AssemblerName() string {
@@ -122,7 +145,7 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 		for _, method := range service.Methods {
 			fmName := fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
 			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
-				return nil, fmt.Errorf("unsupport stream method: %s", fmName)
+				return nil, fmt.Errorf("leo: %s, unsupport stream method", fmName)
 			}
 			endpoints = append(endpoints, &Endpoint{method: method})
 		}
@@ -142,15 +165,12 @@ func NewHttpServices(file *protogen.File) ([]*Service, error) {
 		for _, endpoint := range service.Endpoints {
 			method := endpoint.method
 			extHTTP := proto.GetExtension(method.Desc.Options(), annotations.E_Http)
-			if extHTTP == nil {
-				continue
-			}
-			if extHTTP == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
-				continue
+			if extHTTP == nil || extHTTP == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
+				return nil, fmt.Errorf("http: %s, google.api.HttpRule is empty", endpoint.FullName())
 			}
 			rule := extHTTP.(*annotations.HttpRule)
 			if len(rule.AdditionalBindings) > 0 {
-				return nil, fmt.Errorf("unsupport additional bindings: %s", endpoint.FullName())
+				return nil, fmt.Errorf("http: %s, unsupport additional bindings", endpoint.FullName())
 			}
 			endpoint.httpRule = &HttpRule{rule: rule}
 			endpoints = append(endpoints, endpoint)
@@ -161,39 +181,38 @@ func NewHttpServices(file *protogen.File) ([]*Service, error) {
 }
 
 func NewCQRSServices(file *protogen.File) ([]*Service, error) {
-	var services []*Service
-	for _, service := range file.Services {
-		serviceFullName := service.Desc.FullName()
+	services, err := NewServices(file)
+	if err != nil {
+		return nil, err
+	}
 
-		commandPkg := proto.GetExtension(service.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
+	var cqrsServices []*Service
+	for _, service := range services {
+		commandPkg := proto.GetExtension(service.Service.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
 		if commandPkg == nil {
 			continue
 		}
-		queryPkg := proto.GetExtension(service.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
+		queryPkg := proto.GetExtension(service.Service.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
 		if queryPkg == nil {
 			continue
 		}
 
 		commandPkgAbs, commandPkgRel, err := resolvePkgPath(file.Desc.Path(), commandPkg.Relative)
 		if err != nil {
-			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", serviceFullName, "command", err)
+			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", service.FullName(), "command", err)
 		}
 		queryPkgAbs, queryPkgRel, err := resolvePkgPath(file.Desc.Path(), queryPkg.Relative)
 		if err != nil {
-			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", serviceFullName, "query", err)
+			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", service.FullName(), "query", err)
 		}
 
 		var endpoints []*Endpoint
-		for _, method := range service.Methods {
-			if method.Desc.IsStreamingClient() {
-				continue
-			}
-			endpoint := method.GoName
-			methodFullName := fmt.Sprintf("/%s/%s", serviceFullName, endpoint)
+		for _, endpoint := range service.Endpoints {
+			method := endpoint.method
 			responsibility := proto.GetExtension(method.Desc.Options(), cqrs.E_Responsibility).(cqrs.Responsibility)
 			switch responsibility {
 			case cqrs.Responsibility_Unknown:
-				return nil, fmt.Errorf("cqrs: %s, cqrs unknown", methodFullName)
+				return nil, fmt.Errorf("cqrs: %s, cqrs unknown", endpoint.FullName())
 			case cqrs.Responsibility_Command:
 				endpoints = append(endpoints, &Endpoint{method: method, responsibility: responsibility})
 				continue
@@ -201,17 +220,67 @@ func NewCQRSServices(file *protogen.File) ([]*Service, error) {
 				endpoints = append(endpoints, &Endpoint{method: method, responsibility: responsibility})
 				continue
 			default:
-				return nil, fmt.Errorf("cqrs: %s, %s responsibility unsupported", methodFullName, responsibility)
+				return nil, fmt.Errorf("cqrs: %s, %s responsibility unsupported", endpoint.FullName(), responsibility)
 			}
 		}
-		services = append(services, &Service{
-			Service:   service,
+		cqrsServices = append(cqrsServices, &Service{
+			Service:   service.Service,
 			Command:   NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package),
 			Query:     NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package),
 			Endpoints: endpoints,
 		})
 	}
-	return services, nil
+	//
+	//for _, service := range file.Services {
+	//	serviceFullName := service.Desc.FullName()
+	//
+	//	commandPkg := proto.GetExtension(service.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
+	//	if commandPkg == nil {
+	//		continue
+	//	}
+	//	queryPkg := proto.GetExtension(service.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
+	//	if queryPkg == nil {
+	//		continue
+	//	}
+	//
+	//	commandPkgAbs, commandPkgRel, err := resolvePkgPath(file.Desc.Path(), commandPkg.Relative)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", serviceFullName, "command", err)
+	//	}
+	//	queryPkgAbs, queryPkgRel, err := resolvePkgPath(file.Desc.Path(), queryPkg.Relative)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", serviceFullName, "query", err)
+	//	}
+	//
+	//	var endpoints []*Endpoint
+	//	for _, method := range service.Methods {
+	//		if method.Desc.IsStreamingClient() {
+	//			continue
+	//		}
+	//		endpoint := method.GoName
+	//		methodFullName := fmt.Sprintf("/%s/%s", serviceFullName, endpoint)
+	//		responsibility := proto.GetExtension(method.Desc.Options(), cqrs.E_Responsibility).(cqrs.Responsibility)
+	//		switch responsibility {
+	//		case cqrs.Responsibility_Unknown:
+	//			return nil, fmt.Errorf("cqrs: %s, cqrs unknown", methodFullName)
+	//		case cqrs.Responsibility_Command:
+	//			endpoints = append(endpoints, &Endpoint{method: method, responsibility: responsibility})
+	//			continue
+	//		case cqrs.Responsibility_Query:
+	//			endpoints = append(endpoints, &Endpoint{method: method, responsibility: responsibility})
+	//			continue
+	//		default:
+	//			return nil, fmt.Errorf("cqrs: %s, %s responsibility unsupported", methodFullName, responsibility)
+	//		}
+	//	}
+	//	services = append(services, &Service{
+	//		Service:   service,
+	//		Command:   NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package),
+	//		Query:     NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package),
+	//		Endpoints: endpoints,
+	//	})
+	//}
+	return cqrsServices, nil
 }
 
 func resolvePkgPath(filePath string, rel string) (string, string, error) {

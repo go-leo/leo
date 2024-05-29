@@ -12,7 +12,7 @@ import (
 type ServerGenerator struct{}
 
 func (f *ServerGenerator) GenerateNewServer(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("func New", service.HTTPServerName(), "(")
+	generatedFile.P("func New", service.HttpServerName(), "(")
 	generatedFile.P("endpoints interface {")
 	for _, endpoint := range service.Endpoints {
 		generatedFile.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))

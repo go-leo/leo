@@ -3,6 +3,7 @@ package generator
 import (
 	"github.com/go-leo/leo/v3/cmd/internal"
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-core/generator/core"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-core/generator/cqrs"
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-core/generator/grpc"
 	"google.golang.org/protobuf/compiler/protogen"
 )
@@ -34,6 +35,8 @@ func (f *Generator) GenerateFile() error {
 	g.P("package ", file.GoPackageName)
 	g.P()
 
+	g.P("// =========================== endpoints ===========================")
+	g.P()
 	coreGen, err := core.NewGenerator(f.Plugin, file)
 	if err != nil {
 		return err
@@ -42,6 +45,18 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
+	g.P("// =========================== cqrs ===========================")
+	g.P()
+	cqrsGen, err := cqrs.NewGenerator(f.Plugin, file)
+	if err != nil {
+		return err
+	}
+	if err := cqrsGen.Generate(g); err != nil {
+		return err
+	}
+
+	g.P("// =========================== grpc transports ===========================")
+	g.P()
 	grpcGen, err := grpc.NewGenerator(f.Plugin, file)
 	if err != nil {
 		return err
