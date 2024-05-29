@@ -2,6 +2,8 @@ package generator
 
 import (
 	"github.com/go-leo/leo/v3/cmd/internal"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-core/generator/core"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-core/generator/grpc"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
@@ -32,75 +34,20 @@ func (f *Generator) GenerateFile() error {
 	g.P("package ", file.GoPackageName)
 	g.P()
 
-	for _, service := range f.Services {
-		if err := f.GenerateServices(service, g); err != nil {
-			return err
-		}
+	coreGen, err := core.NewGenerator(f.Plugin, file)
+	if err != nil {
+		return err
+	}
+	if err := coreGen.Generate(g); err != nil {
+		return err
 	}
 
-	for _, service := range f.Services {
-		if err := f.GenerateEndpoints(service, g); err != nil {
-			return err
-		}
+	grpcGen, err := grpc.NewGenerator(f.Plugin, file)
+	if err != nil {
+		return err
 	}
-
-	for _, service := range f.Services {
-		if err := f.GenerateImplementedEndpoints(service, g); err != nil {
-			return err
-		}
+	if err := grpcGen.Generate(g); err != nil {
+		return err
 	}
-
-	for _, service := range f.Services {
-		if err := f.GenerateNewEndpoints(service, g); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (f *Generator) GenerateServices(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("type ", service.ServiceName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
-	}
-	generatedFile.P("}")
-	generatedFile.P()
-	return nil
-}
-
-func (f *Generator) GenerateEndpoints(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("type ", service.EndpointsName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		generatedFile.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
-	}
-	generatedFile.P("}")
-	generatedFile.P()
-	return nil
-}
-
-func (f *Generator) GenerateImplementedEndpoints(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("type ", service.UnexportedEndpointsName(), " struct {")
-	generatedFile.P("svc ", service.ServiceName())
-	generatedFile.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
-	generatedFile.P("}")
-	generatedFile.P()
-
-	for _, endpoint := range service.Endpoints {
-		generatedFile.P("func (e *", service.UnexportedEndpointsName(), ") ", endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"), "{")
-		generatedFile.P("component := func(ctx ", internal.ContextPackage.Ident("Context"), ", request any) (any, error) {")
-		generatedFile.P("return e.svc.", endpoint.Name(), "(ctx, request.(*", endpoint.InputGoIdent(), "))")
-		generatedFile.P("}")
-		generatedFile.P("return ", internal.EndpointxPackage.Ident("Chain"), "(component, e.middlewares...)")
-		generatedFile.P("}")
-		generatedFile.P()
-	}
-	return nil
-}
-
-func (f *Generator) GenerateNewEndpoints(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("func New", service.EndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), "{")
-	generatedFile.P("return &", service.UnexportedEndpointsName(), "{svc: svc, middlewares: middlewares}")
-	generatedFile.P("}")
-	generatedFile.P()
 	return nil
 }

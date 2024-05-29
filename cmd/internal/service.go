@@ -132,33 +132,32 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 }
 
 func NewHttpServices(file *protogen.File) ([]*Service, error) {
-	var services []*Service
-	for _, service := range file.Services {
+	services, err := NewServices(file)
+	if err != nil {
+		return nil, err
+	}
+	var httpServices []*Service
+	for _, service := range services {
 		var endpoints []*Endpoint
-		for _, method := range service.Methods {
-			fmName := fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
-			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
-				continue
-				//return nil, fmt.Errorf("unsupport stream method: %s", fmName)
-			}
+		for _, endpoint := range service.Endpoints {
+			method := endpoint.method
 			extHTTP := proto.GetExtension(method.Desc.Options(), annotations.E_Http)
 			if extHTTP == nil {
 				continue
-				//return nil, fmt.Errorf("missing http rule: %s", fmName)
 			}
 			if extHTTP == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
 				continue
-				//return nil, fmt.Errorf("missing http rule: %s", fmName)
 			}
 			rule := extHTTP.(*annotations.HttpRule)
 			if len(rule.AdditionalBindings) > 0 {
-				return nil, fmt.Errorf("unsupport additional bindings: %s", fmName)
+				return nil, fmt.Errorf("unsupport additional bindings: %s", endpoint.FullName())
 			}
-			endpoints = append(endpoints, &Endpoint{method: method, httpRule: &HttpRule{rule: rule}})
+			endpoint.httpRule = &HttpRule{rule: rule}
+			endpoints = append(endpoints, endpoint)
 		}
-		services = append(services, &Service{Service: service, Endpoints: endpoints})
+		httpServices = append(httpServices, &Service{Service: service.Service, Endpoints: endpoints})
 	}
-	return services, nil
+	return httpServices, nil
 }
 
 func NewCQRSServices(file *protogen.File) ([]*Service, error) {
