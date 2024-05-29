@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"flag"
 	"fmt"
-	"github.com/go-kit/kit/transport/grpc"
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"google.golang.org/genproto/googleapis/api/httpbody"
@@ -22,7 +21,8 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	client := demo.NewDemoGRPCClient(conn, []grpc.ClientOption{})
+
+	client := demo.NewDemoGrpcClient(demo.NewDemoGrpcClientTransports(conn))
 
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		User: &demo.User{

@@ -1,7 +1,6 @@
 package main
 
 import (
-	grpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"github.com/go-leo/leo/v3/example/internal/demo/assembler"
 	"github.com/go-leo/leo/v3/example/internal/demo/command"
@@ -31,9 +30,9 @@ func main() {
 		log.Fatalf("failed to new bus: %v", err)
 	}
 	demoAssembler := assembler.NewDemoAssembler()
-	cqrsService := demo.NewDemoCQRSService(bus, demoAssembler)
+	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
 	endpoints := demo.NewDemoEndpoints(cqrsService)
-	service := demo.NewDemoGRPCServer(endpoints, []grpc.ServerOption{})
+	service := demo.NewDemoGrpcServer(demo.NewDemoGrpcServerTransports(endpoints))
 	demo.RegisterDemoServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
