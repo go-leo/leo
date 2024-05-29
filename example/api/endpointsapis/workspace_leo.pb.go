@@ -444,7 +444,11 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints, serverOpti
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
+				}),
+			}, serverOptions...)...,
 		),
 		getWorkspace: http.NewServer(
 			endpoints.GetWorkspace(),
@@ -467,7 +471,11 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints, serverOpti
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
+				}),
+			}, serverOptions...)...,
 		),
 		createWorkspace: http.NewServer(
 			endpoints.CreateWorkspace(),
@@ -493,7 +501,11 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints, serverOpti
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
+				}),
+			}, serverOptions...)...,
 		),
 		updateWorkspace: http.NewServer(
 			endpoints.UpdateWorkspace(),
@@ -519,7 +531,11 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints, serverOpti
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteWorkspace: http.NewServer(
 			endpoints.DeleteWorkspace(),
@@ -542,7 +558,11 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints, serverOpti
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -627,7 +647,11 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string, clientOpt
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
+				}),
+			}, clientOptions...)...,
 		),
 		getWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -671,7 +695,11 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string, clientOpt
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
+				}),
+			}, clientOptions...)...,
 		),
 		createWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -722,7 +750,11 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string, clientOpt
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
+				}),
+			}, clientOptions...)...,
 		),
 		updateWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -773,7 +805,11 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string, clientOpt
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -817,7 +853,11 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string, clientOpt
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

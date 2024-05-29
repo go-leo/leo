@@ -507,7 +507,11 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints, serverOption
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+				}),
+			}, serverOptions...)...,
 		),
 		namedPathOptString: http.NewServer(
 			endpoints.NamedPathOptString(),
@@ -537,7 +541,11 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints, serverOption
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+				}),
+			}, serverOptions...)...,
 		),
 		namedPathWrapString: http.NewServer(
 			endpoints.NamedPathWrapString(),
@@ -567,7 +575,11 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints, serverOption
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+				}),
+			}, serverOptions...)...,
 		),
 		embedNamedPathString: http.NewServer(
 			endpoints.EmbedNamedPathString(),
@@ -593,7 +605,11 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints, serverOption
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+				}),
+			}, serverOptions...)...,
 		),
 		embedNamedPathOptString: http.NewServer(
 			endpoints.EmbedNamedPathOptString(),
@@ -619,7 +635,11 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints, serverOption
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+				}),
+			}, serverOptions...)...,
 		),
 		embedNamedPathWrapString: http.NewServer(
 			endpoints.EmbedNamedPathWrapString(),
@@ -645,7 +665,11 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints, serverOption
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -736,7 +760,11 @@ func NewNamedPathHttpClientTransports(scheme string, instance string, clientOpti
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+				}),
+			}, clientOptions...)...,
 		),
 		namedPathOptString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -782,7 +810,11 @@ func NewNamedPathHttpClientTransports(scheme string, instance string, clientOpti
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+				}),
+			}, clientOptions...)...,
 		),
 		namedPathWrapString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -828,7 +860,11 @@ func NewNamedPathHttpClientTransports(scheme string, instance string, clientOpti
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+				}),
+			}, clientOptions...)...,
 		),
 		embedNamedPathString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -872,7 +908,11 @@ func NewNamedPathHttpClientTransports(scheme string, instance string, clientOpti
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+				}),
+			}, clientOptions...)...,
 		),
 		embedNamedPathOptString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -916,7 +956,11 @@ func NewNamedPathHttpClientTransports(scheme string, instance string, clientOpti
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+				}),
+			}, clientOptions...)...,
 		),
 		embedNamedPathWrapString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -960,7 +1004,11 @@ func NewNamedPathHttpClientTransports(scheme string, instance string, clientOpti
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

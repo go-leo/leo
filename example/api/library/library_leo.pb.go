@@ -818,7 +818,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+				}),
+			}, serverOptions...)...,
 		),
 		getShelf: http.NewServer(
 			endpoints.GetShelf(),
@@ -841,7 +845,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+				}),
+			}, serverOptions...)...,
 		),
 		listShelves: http.NewServer(
 			endpoints.ListShelves(),
@@ -865,7 +873,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteShelf: http.NewServer(
 			endpoints.DeleteShelf(),
@@ -888,7 +900,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+				}),
+			}, serverOptions...)...,
 		),
 		mergeShelves: http.NewServer(
 			endpoints.MergeShelves(),
@@ -914,7 +930,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+				}),
+			}, serverOptions...)...,
 		),
 		createBook: http.NewServer(
 			endpoints.CreateBook(),
@@ -940,7 +960,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+				}),
+			}, serverOptions...)...,
 		),
 		getBook: http.NewServer(
 			endpoints.GetBook(),
@@ -963,7 +987,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+				}),
+			}, serverOptions...)...,
 		),
 		listBooks: http.NewServer(
 			endpoints.ListBooks(),
@@ -993,7 +1021,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteBook: http.NewServer(
 			endpoints.DeleteBook(),
@@ -1016,7 +1048,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+				}),
+			}, serverOptions...)...,
 		),
 		updateBook: http.NewServer(
 			endpoints.UpdateBook(),
@@ -1045,7 +1081,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+				}),
+			}, serverOptions...)...,
 		),
 		moveBook: http.NewServer(
 			endpoints.MoveBook(),
@@ -1071,7 +1111,11 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints, se
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -1191,7 +1235,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+				}),
+			}, clientOptions...)...,
 		),
 		getShelf: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1235,7 +1283,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+				}),
+			}, clientOptions...)...,
 		),
 		listShelves: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1275,7 +1327,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteShelf: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1319,7 +1375,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+				}),
+			}, clientOptions...)...,
 		),
 		mergeShelves: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1370,7 +1430,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+				}),
+			}, clientOptions...)...,
 		),
 		createBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1421,7 +1485,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+				}),
+			}, clientOptions...)...,
 		),
 		getBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1465,7 +1533,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+				}),
+			}, clientOptions...)...,
 		),
 		listBooks: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1511,7 +1583,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1555,7 +1631,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+				}),
+			}, clientOptions...)...,
 		),
 		updateBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1606,7 +1686,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+				}),
+			}, clientOptions...)...,
 		),
 		moveBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1657,7 +1741,11 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string, clien
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

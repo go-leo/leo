@@ -47,7 +47,11 @@ func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Servic
 			return err
 		}
 		g.P("},")
-		g.P("serverOptions...,")
+		g.P("append([]", internal.HttpTransportPackage.Ident("ServerOption"), "{")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
+		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("}),")
+		g.P("}, serverOptions...)...,")
 		g.P("),")
 	}
 	g.P("}")

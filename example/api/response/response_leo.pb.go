@@ -496,7 +496,11 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		starResponse: http1.NewServer(
 			endpoints.StarResponse(),
@@ -513,7 +517,11 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		namedResponse: http1.NewServer(
 			endpoints.NamedResponse(),
@@ -530,7 +538,11 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		httpBodyResponse: http1.NewServer(
 			endpoints.HttpBodyResponse(),
@@ -560,7 +572,11 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		httpBodyNamedResponse: http1.NewServer(
 			endpoints.HttpBodyNamedResponse(),
@@ -590,7 +606,11 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+				}),
+			}, serverOptions...)...,
 		),
 		httpRequestStarBody: http1.NewServer(
 			endpoints.HttpRequestStarBody(),
@@ -616,7 +636,11 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -699,7 +723,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		starResponse: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -737,7 +765,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		namedResponse: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -775,7 +807,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		httpBodyResponse: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -816,7 +852,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Data = body
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		httpBodyNamedResponse: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -858,7 +898,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Body.Data = body
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+				}),
+			}, clientOptions...)...,
 		),
 		httpRequestStarBody: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -907,7 +951,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Body = body
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

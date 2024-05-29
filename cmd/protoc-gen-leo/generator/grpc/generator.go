@@ -102,6 +102,7 @@ func (f *Generator) GenerateImplementedServerTransports(service *internal.Servic
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
 		g.P("serverOptions...,")
+
 		g.P("),")
 	}
 	g.P("}")

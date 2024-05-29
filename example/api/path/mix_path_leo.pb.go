@@ -186,7 +186,11 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints, serverOptions ..
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -246,7 +250,11 @@ func NewMixPathHttpClientTransports(scheme string, instance string, clientOption
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

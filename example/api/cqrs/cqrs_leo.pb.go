@@ -306,7 +306,11 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+				}),
+			}, serverOptions...)...,
 		),
 		findUser: http.NewServer(
 			endpoints.FindUser(),
@@ -326,7 +330,11 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -392,7 +400,11 @@ func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+				}),
+			}, clientOptions...)...,
 		),
 		findUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -437,7 +449,11 @@ func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

@@ -735,7 +735,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+				}),
+			}, serverOptions...)...,
 		),
 		int32Path: http.NewServer(
 			endpoints.Int32Path(),
@@ -800,7 +804,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+			}, serverOptions...)...,
 		),
 		int64Path: http.NewServer(
 			endpoints.Int64Path(),
@@ -865,7 +873,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+				}),
+			}, serverOptions...)...,
 		),
 		uint32Path: http.NewServer(
 			endpoints.Uint32Path(),
@@ -930,7 +942,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+			}, serverOptions...)...,
 		),
 		uint64Path: http.NewServer(
 			endpoints.Uint64Path(),
@@ -995,7 +1011,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+				}),
+			}, serverOptions...)...,
 		),
 		floatPath: http.NewServer(
 			endpoints.FloatPath(),
@@ -1060,7 +1080,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+			}, serverOptions...)...,
 		),
 		doublePath: http.NewServer(
 			endpoints.DoublePath(),
@@ -1125,7 +1149,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+				}),
+			}, serverOptions...)...,
 		),
 		stringPath: http.NewServer(
 			endpoints.StringPath(),
@@ -1190,7 +1218,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+				}),
+			}, serverOptions...)...,
 		),
 		enumPath: http.NewServer(
 			endpoints.EnumPath(),
@@ -1255,7 +1287,11 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -1392,7 +1428,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+				}),
+			}, clientOptions...)...,
 		),
 		int32Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1462,7 +1502,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+			}, clientOptions...)...,
 		),
 		int64Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1532,7 +1576,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+				}),
+			}, clientOptions...)...,
 		),
 		uint32Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1604,7 +1652,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+			}, clientOptions...)...,
 		),
 		uint64Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1676,7 +1728,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+				}),
+			}, clientOptions...)...,
 		),
 		floatPath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1750,7 +1806,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+			}, clientOptions...)...,
 		),
 		doublePath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1824,7 +1884,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+				}),
+			}, clientOptions...)...,
 		),
 		stringPath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1898,7 +1962,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+				}),
+			}, clientOptions...)...,
 		),
 		enumPath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1973,7 +2041,11 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

@@ -55,7 +55,13 @@ func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Servic
 		if err := f.PrintDecodeResponseFunc(g, endpoint, endpoint.HttpRule()); err != nil {
 			return err
 		}
-		g.P("clientOptions...,")
+
+		g.P("append([]", internal.HttpTransportPackage.Ident("ClientOption"), "{")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
+		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("}),")
+		g.P("}, clientOptions...)...,")
+
 		g.P("),")
 	}
 	g.P("}")

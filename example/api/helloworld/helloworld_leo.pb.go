@@ -173,7 +173,11 @@ func NewGreeterHttpServerTransports(endpoints GreeterEndpoints, serverOptions ..
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -233,7 +237,11 @@ func NewGreeterHttpClientTransports(scheme string, instance string, clientOption
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

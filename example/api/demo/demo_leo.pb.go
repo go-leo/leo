@@ -830,7 +830,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+				}),
+			}, serverOptions...)...,
 		),
 		deleteUser: http1.NewServer(
 			endpoints.DeleteUser(),
@@ -853,7 +857,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+			}, serverOptions...)...,
 		),
 		updateUser: http1.NewServer(
 			endpoints.UpdateUser(),
@@ -879,7 +887,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+				}),
+			}, serverOptions...)...,
 		),
 		getUser: http1.NewServer(
 			endpoints.GetUser(),
@@ -902,7 +914,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+			}, serverOptions...)...,
 		),
 		getUsers: http1.NewServer(
 			endpoints.GetUsers(),
@@ -926,7 +942,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+				}),
+			}, serverOptions...)...,
 		),
 		uploadUserAvatar: http1.NewServer(
 			endpoints.UploadUserAvatar(),
@@ -956,7 +976,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+			}, serverOptions...)...,
 		),
 		getUserAvatar: http1.NewServer(
 			endpoints.GetUserAvatar(),
@@ -992,7 +1016,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+				}),
+			}, serverOptions...)...,
 		),
 		pushUsers: http1.NewServer(
 			endpoints.PushUsers(),
@@ -1024,7 +1052,11 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http1.ServerOption{
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -1126,7 +1158,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+				}),
+			}, clientOptions...)...,
 		),
 		deleteUser: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1165,7 +1201,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+			}, clientOptions...)...,
 		),
 		updateUser: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1211,7 +1251,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+				}),
+			}, clientOptions...)...,
 		),
 		getUser: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1250,7 +1294,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+			}, clientOptions...)...,
 		),
 		getUsers: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1290,7 +1338,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+				}),
+			}, clientOptions...)...,
 		),
 		uploadUserAvatar: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1332,7 +1384,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+			}, clientOptions...)...,
 		),
 		getUserAvatar: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1374,7 +1430,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				resp.Data = body
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+				}),
+			}, clientOptions...)...,
 		),
 		pushUsers: http1.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
@@ -1435,7 +1495,11 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				resp.Body = body
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http1.ClientOption{
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }

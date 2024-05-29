@@ -250,7 +250,11 @@ func NewQueryHttpServerTransports(endpoints QueryEndpoints, serverOptions ...htt
 				}
 				return nil
 			},
-			serverOptions...,
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+				}),
+			}, serverOptions...)...,
 		),
 	}
 }
@@ -372,7 +376,11 @@ func NewQueryHttpClientTransports(scheme string, instance string, clientOptions 
 				}
 				return resp, nil
 			},
-			clientOptions...,
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+				}),
+			}, clientOptions...)...,
 		),
 	}
 }
