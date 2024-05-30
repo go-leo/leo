@@ -19,6 +19,7 @@ import (
 	command "github.com/go-leo/leo/v3/example/internal/demo/command"
 	query "github.com/go-leo/leo/v3/example/internal/demo/query"
 	metadatax "github.com/go-leo/leo/v3/metadatax"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
@@ -397,6 +398,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		deleteUser: grpc.NewServer(
@@ -406,6 +410,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -417,6 +424,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		getUser: grpc.NewServer(
@@ -426,6 +436,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -437,6 +450,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		uploadUserAvatar: grpc.NewServer(
@@ -446,6 +462,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -457,6 +476,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		pushUsers: grpc.NewServer(
@@ -466,6 +488,9 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -528,6 +553,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		deleteUser: grpc.NewClient(
@@ -540,6 +568,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -554,6 +585,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		getUser: grpc.NewClient(
@@ -566,6 +600,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -580,6 +617,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		uploadUserAvatar: grpc.NewClient(
@@ -592,6 +632,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -606,6 +649,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		pushUsers: grpc.NewClient(
@@ -618,6 +664,9 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -899,6 +948,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		deleteUser: http1.NewServer(
@@ -925,6 +977,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 			append([]http1.ServerOption{
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -956,6 +1011,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		getUser: http1.NewServer(
@@ -982,6 +1040,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 			append([]http1.ServerOption{
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1010,6 +1071,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 			append([]http1.ServerOption{
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1044,6 +1108,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 			append([]http1.ServerOption{
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1085,6 +1152,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		pushUsers: http1.NewServer(
@@ -1120,6 +1190,9 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http1
 			append([]http1.ServerOption{
 				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1227,6 +1300,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		deleteUser: http1.NewExplicitClient(
@@ -1269,6 +1345,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http1.ClientOption{
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -1320,6 +1399,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		getUser: http1.NewExplicitClient(
@@ -1362,6 +1444,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http1.ClientOption{
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -1406,6 +1491,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http1.ClientOption{
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -1453,6 +1541,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
 				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		getUserAvatar: http1.NewExplicitClient(
@@ -1498,6 +1589,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http1.ClientOption{
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -1563,6 +1657,9 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http1.ClientOption{
 				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/PushUsers")
+				}),
+				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),

@@ -14,6 +14,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
@@ -209,6 +210,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		int32Path: grpc.NewServer(
@@ -218,6 +222,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -229,6 +236,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		uint32Path: grpc.NewServer(
@@ -238,6 +248,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -249,6 +262,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		floatPath: grpc.NewServer(
@@ -258,6 +274,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -269,6 +288,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		stringPath: grpc.NewServer(
@@ -279,6 +301,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		enumPath: grpc.NewServer(
@@ -288,6 +313,9 @@ func NewPathGrpcServerTransports(endpoints PathEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -355,6 +383,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		int32Path: grpc.NewClient(
@@ -367,6 +398,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -381,6 +415,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		uint32Path: grpc.NewClient(
@@ -393,6 +430,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -407,6 +447,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		floatPath: grpc.NewClient(
@@ -419,6 +462,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -433,6 +479,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		stringPath: grpc.NewClient(
@@ -446,6 +495,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		enumPath: grpc.NewClient(
@@ -458,6 +510,9 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -812,6 +867,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		int32Path: http.NewServer(
@@ -880,6 +938,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 			append([]http.ServerOption{
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -950,6 +1011,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		uint32Path: http.NewServer(
@@ -1018,6 +1082,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 			append([]http.ServerOption{
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1088,6 +1155,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		floatPath: http.NewServer(
@@ -1156,6 +1226,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 			append([]http.ServerOption{
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1226,6 +1299,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		stringPath: http.NewServer(
@@ -1295,6 +1371,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		enumPath: http.NewServer(
@@ -1363,6 +1442,9 @@ func NewPathHttpServerTransports(endpoints PathEndpoints, serverOptions ...http.
 			append([]http.ServerOption{
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -1505,6 +1587,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
 				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		int32Path: http.NewExplicitClient(
@@ -1579,6 +1664,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
 				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		int64Path: http.NewExplicitClient(
@@ -1652,6 +1740,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http.ClientOption{
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -1729,6 +1820,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
 				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		uint64Path: http.NewExplicitClient(
@@ -1804,6 +1898,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http.ClientOption{
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -1883,6 +1980,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
 				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		doublePath: http.NewExplicitClient(
@@ -1960,6 +2060,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http.ClientOption{
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -2039,6 +2142,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
 				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		enumPath: http.NewExplicitClient(
@@ -2117,6 +2223,9 @@ func NewPathHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http.ClientOption{
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),

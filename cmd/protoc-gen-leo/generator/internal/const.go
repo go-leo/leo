@@ -24,9 +24,10 @@ var (
 	HttpTransportPackage = protogen.GoImportPath("github.com/go-kit/kit/transport/http")
 	EndpointPackage      = protogen.GoImportPath("github.com/go-kit/kit/endpoint")
 
-	EndpointxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
-	CqrsPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
-	MetadataxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
+	EndpointxPackage  = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
+	TransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
+	CqrsPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
+	MetadataxPackage  = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
 
 	ErrorxPackage   = protogen.GoImportPath("github.com/go-leo/gox/errorx")
 	ConvxPackage    = protogen.GoImportPath("github.com/go-leo/gox/convx")

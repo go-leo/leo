@@ -12,6 +12,7 @@ import (
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
@@ -80,6 +81,9 @@ func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints, serverOptions ..
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 	}
@@ -105,6 +109,9 @@ func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grp
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -199,6 +206,9 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints, serverOptions ..
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 	}
@@ -262,6 +272,9 @@ func NewMixPathHttpClientTransports(scheme string, instance string, clientOption
 			append([]http.ClientOption{
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),

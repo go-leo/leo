@@ -16,6 +16,7 @@ import (
 	command "github.com/go-leo/leo/v3/example/internal/cqrs/command"
 	query "github.com/go-leo/leo/v3/example/internal/cqrs/query"
 	metadatax "github.com/go-leo/leo/v3/metadatax"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
@@ -161,6 +162,9 @@ func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints, serverOptions ...grpc.
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
 				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
+				}),
 			}, serverOptions...)...,
 		),
 		findUser: grpc.NewServer(
@@ -170,6 +174,9 @@ func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints, serverOptions ...grpc.
 			append([]grpc.ServerOption{
 				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -202,6 +209,9 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
 				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
+				}),
 			}, clientOptions...)...,
 		),
 		findUser: grpc.NewClient(
@@ -214,6 +224,9 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			append([]grpc.ClientOption{
 				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+					return transportx.InjectName(ctx, transportx.GrpcClient)
 				}),
 			}, clientOptions...)...,
 		),
@@ -327,6 +340,9 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
 				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
+				}),
 			}, serverOptions...)...,
 		),
 		findUser: http.NewServer(
@@ -350,6 +366,9 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.
 			append([]http.ServerOption{
 				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
@@ -421,6 +440,9 @@ func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions .
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
 				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
+				}),
 			}, clientOptions...)...,
 		),
 		findUser: http.NewExplicitClient(
@@ -469,6 +491,9 @@ func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions .
 			append([]http.ClientOption{
 				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+				}),
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
