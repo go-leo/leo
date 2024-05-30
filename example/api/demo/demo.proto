@@ -5,7 +5,6 @@ option go_package = "github.com/go-leo/leo/v3/example/api/demo/v1;demo";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
-import "google/rpc/http.proto";
 import "leo/cqrs/annotations.proto";
 
 
@@ -76,15 +75,6 @@ service Demo {
   rpc GetUserAvatar (GetUserAvatarRequest) returns (google.api.HttpBody) {
     option (google.api.http) = {
       get : "/v1/users/{user_id}"
-    };
-    option(leo.cqrs.responsibility) = Query;
-  }
-
-  // PushUsers push users by csv
-  rpc PushUsers (google.rpc.HttpRequest) returns (google.rpc.HttpResponse) {
-    option (google.api.http) = {
-      post : "/v1/users/csv/push"
-      body : "*"
     };
     option(leo.cqrs.responsibility) = Query;
   }

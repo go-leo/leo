@@ -9,7 +9,6 @@ package response
 import (
 	context "context"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -27,7 +26,6 @@ const (
 	Response_NamedResponse_FullMethodName         = "/leo.example.response.v1.Response/NamedResponse"
 	Response_HttpBodyResponse_FullMethodName      = "/leo.example.response.v1.Response/HttpBodyResponse"
 	Response_HttpBodyNamedResponse_FullMethodName = "/leo.example.response.v1.Response/HttpBodyNamedResponse"
-	Response_HttpRequestStarBody_FullMethodName   = "/leo.example.response.v1.Response/HttpRequestStarBody"
 )
 
 // ResponseClient is the client API for Response service.
@@ -39,7 +37,6 @@ type ResponseClient interface {
 	NamedResponse(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserResponse, error)
 	HttpBodyResponse(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	HttpBodyNamedResponse(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HttpBody, error)
-	HttpRequestStarBody(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error)
 }
 
 type responseClient struct {
@@ -95,15 +92,6 @@ func (c *responseClient) HttpBodyNamedResponse(ctx context.Context, in *emptypb.
 	return out, nil
 }
 
-func (c *responseClient) HttpRequestStarBody(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error) {
-	out := new(http.HttpResponse)
-	err := c.cc.Invoke(ctx, Response_HttpRequestStarBody_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ResponseServer is the server API for Response service.
 // All implementations should embed UnimplementedResponseServer
 // for forward compatibility
@@ -113,7 +101,6 @@ type ResponseServer interface {
 	NamedResponse(context.Context, *emptypb.Empty) (*UserResponse, error)
 	HttpBodyResponse(context.Context, *emptypb.Empty) (*httpbody.HttpBody, error)
 	HttpBodyNamedResponse(context.Context, *emptypb.Empty) (*HttpBody, error)
-	HttpRequestStarBody(context.Context, *http.HttpRequest) (*http.HttpResponse, error)
 }
 
 // UnimplementedResponseServer should be embedded to have forward compatible implementations.
@@ -134,9 +121,6 @@ func (UnimplementedResponseServer) HttpBodyResponse(context.Context, *emptypb.Em
 }
 func (UnimplementedResponseServer) HttpBodyNamedResponse(context.Context, *emptypb.Empty) (*HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HttpBodyNamedResponse not implemented")
-}
-func (UnimplementedResponseServer) HttpRequestStarBody(context.Context, *http.HttpRequest) (*http.HttpResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HttpRequestStarBody not implemented")
 }
 
 // UnsafeResponseServer may be embedded to opt out of forward compatibility for this service.
@@ -240,24 +224,6 @@ func _Response_HttpBodyNamedResponse_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Response_HttpRequestStarBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(http.HttpRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResponseServer).HttpRequestStarBody(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Response_HttpRequestStarBody_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResponseServer).HttpRequestStarBody(ctx, req.(*http.HttpRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Response_ServiceDesc is the grpc.ServiceDesc for Response service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -284,10 +250,6 @@ var Response_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HttpBodyNamedResponse",
 			Handler:    _Response_HttpBodyNamedResponse_Handler,
-		},
-		{
-			MethodName: "HttpRequestStarBody",
-			Handler:    _Response_HttpRequestStarBody_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

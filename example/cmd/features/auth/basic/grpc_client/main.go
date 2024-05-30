@@ -8,6 +8,7 @@ import (
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"google.golang.org/genproto/googleapis/api/httpbody"
+	"google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -98,5 +99,15 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("GetUserAvatar:", getUsersAvatarResp)
+
+	b = make([]byte, 1024)
+	_, _ = rand.Read(b)
+	pushUsersResp, err := client.PushUsers(context.Background(), &http.HttpRequest{
+		Method:  "GET",
+		Uri:     randx.WordString(24),
+		Headers: nil,
+		Body:    b,
+	})
+	fmt.Println("PushUsers:", pushUsersResp)
 
 }

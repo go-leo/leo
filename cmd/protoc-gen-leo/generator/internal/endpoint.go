@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"fmt"
 	"github.com/go-leo/gox/slicex"
 	"github.com/go-leo/leo/v3/cqrs"
@@ -107,9 +106,6 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		bodyField = FindField(bodyParameter, e.Input())
 		if bodyField == nil {
 			return nil, nil, nil, nil, nil, fmt.Errorf("%s, failed to find body field %s", e.FullName(), bodyParameter)
-		}
-		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.rpc.HttpRequest" {
-			return nil, nil, nil, nil, nil, errors.New("google.rpc.HttpRequest can only be used as input to a method")
 		}
 	}
 

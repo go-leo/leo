@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/go-kit/kit v0.13.0
-	github.com/go-leo/gox v0.0.0-20240522020136-e44bdb95af57
+	github.com/go-leo/gox v0.0.0-20240530054857-b1c8678dc6d9
 	github.com/gorilla/mux v1.8.1
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225

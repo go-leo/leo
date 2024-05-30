@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-leo/gox/convx"
+	"github.com/go-leo/gox/errorx"
 	"github.com/go-leo/leo/v3/transportx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -78,7 +79,7 @@ func TestGrpcWithBasicAuth(t *testing.T) {
 			ctx = metadata.NewIncomingContext(ctx, metadata.Pairs("authorization", convx.ToString(tt.authHeader)))
 
 			result, err := Middleware(requiredUser, requiredPassword, realm)(passedValidation)(ctx, nil)
-			if result != tt.want.result || err.Error() != tt.want.err.Error() {
+			if result != tt.want.result || !errorx.Equals(err, tt.want.err) {
 				t.Errorf("WithBasicAuth() = result: %v, err: %v, want result: %v, want error: %v", result, err, tt.want.result, tt.want.err)
 			}
 		})

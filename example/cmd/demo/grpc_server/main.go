@@ -24,7 +24,6 @@ func main() {
 		query.NewGetUsers(),
 		command.NewUploadUserAvatar(),
 		query.NewGetUserAvatar(),
-		query.NewPushUsers(),
 	)
 	if err != nil {
 		log.Fatalf("failed to new bus: %v", err)

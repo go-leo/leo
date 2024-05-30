@@ -5,7 +5,6 @@ option go_package = "github.com/go-leo/leo/v3/example/api/body/v1;body";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
-import "google/rpc/http.proto";
 
 service Body {
   rpc StarBody (User) returns (google.protobuf.Empty) {
@@ -42,12 +41,6 @@ service Body {
     };
   }
 
-  rpc HttpRequestStarBody (google.rpc.HttpRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put : "/v1/http/request/star/body"
-      body : "*"
-    };
-  }
 }
 
 message User {

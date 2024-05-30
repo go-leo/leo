@@ -9,7 +9,6 @@ package body
 import (
 	context "context"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -22,12 +21,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Body_StarBody_FullMethodName            = "/leo.example.body.v1.Body/StarBody"
-	Body_NamedBody_FullMethodName           = "/leo.example.body.v1.Body/NamedBody"
-	Body_NonBody_FullMethodName             = "/leo.example.body.v1.Body/NonBody"
-	Body_HttpBodyStarBody_FullMethodName    = "/leo.example.body.v1.Body/HttpBodyStarBody"
-	Body_HttpBodyNamedBody_FullMethodName   = "/leo.example.body.v1.Body/HttpBodyNamedBody"
-	Body_HttpRequestStarBody_FullMethodName = "/leo.example.body.v1.Body/HttpRequestStarBody"
+	Body_StarBody_FullMethodName          = "/leo.example.body.v1.Body/StarBody"
+	Body_NamedBody_FullMethodName         = "/leo.example.body.v1.Body/NamedBody"
+	Body_NonBody_FullMethodName           = "/leo.example.body.v1.Body/NonBody"
+	Body_HttpBodyStarBody_FullMethodName  = "/leo.example.body.v1.Body/HttpBodyStarBody"
+	Body_HttpBodyNamedBody_FullMethodName = "/leo.example.body.v1.Body/HttpBodyNamedBody"
 )
 
 // BodyClient is the client API for Body service.
@@ -39,7 +37,6 @@ type BodyClient interface {
 	NonBody(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	HttpBodyStarBody(ctx context.Context, in *httpbody.HttpBody, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	HttpBodyNamedBody(ctx context.Context, in *HttpBody, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	HttpRequestStarBody(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bodyClient struct {
@@ -95,15 +92,6 @@ func (c *bodyClient) HttpBodyNamedBody(ctx context.Context, in *HttpBody, opts .
 	return out, nil
 }
 
-func (c *bodyClient) HttpRequestStarBody(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Body_HttpRequestStarBody_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BodyServer is the server API for Body service.
 // All implementations should embed UnimplementedBodyServer
 // for forward compatibility
@@ -113,7 +101,6 @@ type BodyServer interface {
 	NonBody(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	HttpBodyStarBody(context.Context, *httpbody.HttpBody) (*emptypb.Empty, error)
 	HttpBodyNamedBody(context.Context, *HttpBody) (*emptypb.Empty, error)
-	HttpRequestStarBody(context.Context, *http.HttpRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedBodyServer should be embedded to have forward compatible implementations.
@@ -134,9 +121,6 @@ func (UnimplementedBodyServer) HttpBodyStarBody(context.Context, *httpbody.HttpB
 }
 func (UnimplementedBodyServer) HttpBodyNamedBody(context.Context, *HttpBody) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HttpBodyNamedBody not implemented")
-}
-func (UnimplementedBodyServer) HttpRequestStarBody(context.Context, *http.HttpRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HttpRequestStarBody not implemented")
 }
 
 // UnsafeBodyServer may be embedded to opt out of forward compatibility for this service.
@@ -240,24 +224,6 @@ func _Body_HttpBodyNamedBody_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Body_HttpRequestStarBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(http.HttpRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BodyServer).HttpRequestStarBody(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Body_HttpRequestStarBody_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BodyServer).HttpRequestStarBody(ctx, req.(*http.HttpRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Body_ServiceDesc is the grpc.ServiceDesc for Body service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -284,10 +250,6 @@ var Body_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HttpBodyNamedBody",
 			Handler:    _Body_HttpBodyNamedBody_Handler,
-		},
-		{
-			MethodName: "HttpRequestStarBody",
-			Handler:    _Body_HttpRequestStarBody_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

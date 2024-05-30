@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo/generator/internal"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -93,11 +92,6 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 		switch bodyMessage.Desc.FullName() {
 		case "google.api.HttpBody":
 			f.PrintGoogleApiHttpBodyDecodeBlock(g, []any{"req"}, []any{"r.Body"})
-		case "google.rpc.HttpRequest":
-			f.PrintGoogleRpcHttpRequestDecodeBlock(g)
-			g.P("return req, nil")
-			g.P("},")
-			return nil
 		default:
 			f.PrintDecodeBlock(g, internal.JsonxPackage.Ident("NewDecoder"), []any{"req"}, []any{"r.Body"})
 		}
@@ -147,22 +141,6 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyDecodeBlock(g *protogen.Generate
 	g.P("}")
 	g.P(append(append([]any{}, tgtValue...), []any{".Data = body"}...)...)
 	g.P(append(append([]any{}, tgtValue...), []any{".ContentType = r.Header.Get(", strconv.Quote(internal.ContentTypeKey), ")"}...)...)
-}
-
-func (f *ServerGenerator) PrintGoogleRpcHttpRequestDecodeBlock(g *protogen.GeneratedFile) {
-	g.P("req.Method = r.Method")
-	g.P("req.Uri = r.URL.String()")
-	g.P("req.Headers = make([]*", internal.RpcHttpPackage.Ident("HttpHeader"), ", 0, len(r.Header))")
-	g.P("for key, values := range r.Header {")
-	g.P("for _, value := range values {")
-	g.P("req.Headers = append(", "req.Headers, &", internal.RpcHttpPackage.Ident("HttpHeader"), "{Key: key, Value: value})")
-	g.P("}")
-	g.P("}")
-	g.P("body, err := ", internal.IOPackage.Ident("ReadAll"), "(r.Body)")
-	g.P("if err != nil {")
-	g.P("return nil, err")
-	g.P("}")
-	g.P("req.Body = body")
 }
 
 func (f *ServerGenerator) PrintDecodeBlock(g *protogen.GeneratedFile, decoder protogen.GoIdent, tgtValue []any, srcValue []any) {
@@ -485,8 +463,6 @@ func (f *ServerGenerator) PrintEncodeResponseFunc(g *protogen.GeneratedFile, end
 		switch message.Desc.FullName() {
 		case "google.api.HttpBody":
 			f.PrintGoogleApiHttpBodyEncodeBlock(g, srcValue)
-		case "google.rpc.HttpResponse":
-			f.PrintGoogleRpcHttpResponseEncodeBlock(g, srcValue)
 		default:
 			f.PrintJsonEncodeBlock(g, srcValue)
 		}
@@ -494,9 +470,6 @@ func (f *ServerGenerator) PrintEncodeResponseFunc(g *protogen.GeneratedFile, end
 		bodyField := internal.FindField(bodyParameter, endpoint.Output())
 		if bodyField == nil {
 			return fmt.Errorf("%s, failed to find body response field %s", endpoint.FullName(), bodyParameter)
-		}
-		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.rpc.HttpResponse" {
-			return errors.New("google.rpc.HttpResponse can only be used as output to a method")
 		}
 		srcValue := []any{"resp.Get", bodyField.GoName, "()"}
 		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
@@ -526,16 +499,6 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyEncodeBlock(g *protogen.Generate
 	g.P("}")
 	g.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	g.P(append(append([]any{"if ", "_, err := w.Write("}, srcValue...), ".GetData())", "; err != nil {")...)
-	g.P("return err")
-	g.P("}")
-}
-
-func (f *ServerGenerator) PrintGoogleRpcHttpResponseEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {
-	g.P(append(append([]any{"for _, header := range "}, srcValue...), ".GetHeaders() {")...)
-	g.P("w.Header().Add(header.Key, header.Value)")
-	g.P("}")
-	g.P(append(append([]any{"w.WriteHeader(int("}, srcValue...), ".GetStatus()))")...)
-	g.P(append(append([]any{"if ", "_, err := w.Write("}, srcValue...), ".GetBody())", "; err != nil {")...)
 	g.P("return err")
 	g.P("}")
 }

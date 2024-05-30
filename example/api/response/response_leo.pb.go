@@ -8,14 +8,13 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
@@ -23,7 +22,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	io "io"
-	http2 "net/http"
+	http1 "net/http"
 	url "net/url"
 )
 
@@ -35,7 +34,6 @@ type ResponseService interface {
 	NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
 	HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error)
 	HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error)
-	HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error)
 }
 
 type ResponseEndpoints interface {
@@ -44,7 +42,6 @@ type ResponseEndpoints interface {
 	NamedResponse() endpoint.Endpoint
 	HttpBodyResponse() endpoint.Endpoint
 	HttpBodyNamedResponse() endpoint.Endpoint
-	HttpRequestStarBody() endpoint.Endpoint
 }
 
 type responseEndpoints struct {
@@ -87,13 +84,6 @@ func (e *responseEndpoints) HttpBodyNamedResponse() endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *responseEndpoints) HttpRequestStarBody() endpoint.Endpoint {
-	component := func(ctx context.Context, request any) (any, error) {
-		return e.svc.HttpRequestStarBody(ctx, request.(*http.HttpRequest))
-	}
-	return endpointx.Chain(component, e.middlewares...)
-}
-
 func NewResponseEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -108,7 +98,6 @@ type ResponseGrpcServerTransports interface {
 	NamedResponse() *grpc.Server
 	HttpBodyResponse() *grpc.Server
 	HttpBodyNamedResponse() *grpc.Server
-	HttpRequestStarBody() *grpc.Server
 }
 
 type ResponseGrpcClientTransports interface {
@@ -117,7 +106,6 @@ type ResponseGrpcClientTransports interface {
 	NamedResponse() *grpc.Client
 	HttpBodyResponse() *grpc.Client
 	HttpBodyNamedResponse() *grpc.Client
-	HttpRequestStarBody() *grpc.Client
 }
 
 type responseGrpcServerTransports struct {
@@ -126,7 +114,6 @@ type responseGrpcServerTransports struct {
 	namedResponse         *grpc.Server
 	httpBodyResponse      *grpc.Server
 	httpBodyNamedResponse *grpc.Server
-	httpRequestStarBody   *grpc.Server
 }
 
 func (t *responseGrpcServerTransports) OmittedResponse() *grpc.Server {
@@ -147,10 +134,6 @@ func (t *responseGrpcServerTransports) HttpBodyResponse() *grpc.Server {
 
 func (t *responseGrpcServerTransports) HttpBodyNamedResponse() *grpc.Server {
 	return t.httpBodyNamedResponse
-}
-
-func (t *responseGrpcServerTransports) HttpRequestStarBody() *grpc.Server {
-	return t.httpRequestStarBody
 }
 
 func NewResponseGrpcServerTransports(endpoints ResponseEndpoints, serverOptions ...grpc.ServerOption) ResponseGrpcServerTransports {
@@ -220,19 +203,6 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}),
 			}, serverOptions...)...,
 		),
-		httpRequestStarBody: grpc.NewServer(
-			endpoints.HttpRequestStarBody(),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
-		),
 	}
 }
 
@@ -242,7 +212,6 @@ type responseGrpcClientTransports struct {
 	namedResponse         *grpc.Client
 	httpBodyResponse      *grpc.Client
 	httpBodyNamedResponse *grpc.Client
-	httpRequestStarBody   *grpc.Client
 }
 
 func (t *responseGrpcClientTransports) OmittedResponse() *grpc.Client {
@@ -263,10 +232,6 @@ func (t *responseGrpcClientTransports) HttpBodyResponse() *grpc.Client {
 
 func (t *responseGrpcClientTransports) HttpBodyNamedResponse() *grpc.Client {
 	return t.httpBodyNamedResponse
-}
-
-func (t *responseGrpcClientTransports) HttpRequestStarBody() *grpc.Client {
-	return t.httpRequestStarBody
 }
 
 func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) ResponseGrpcClientTransports {
@@ -351,22 +316,6 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 				}),
 			}, clientOptions...)...,
 		),
-		httpRequestStarBody: grpc.NewClient(
-			conn,
-			"leo.example.response.v1.Response",
-			"HttpRequestStarBody",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			http.HttpResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
-		),
 	}
 }
 
@@ -376,7 +325,6 @@ type responseGrpcServer struct {
 	namedResponse         *grpc.Server
 	httpBodyResponse      *grpc.Server
 	httpBodyNamedResponse *grpc.Server
-	httpRequestStarBody   *grpc.Server
 }
 
 func (s *responseGrpcServer) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
@@ -424,15 +372,6 @@ func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func (s *responseGrpcServer) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
-	ctx, rep, err := s.httpRequestStarBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*http.HttpResponse), nil
-}
-
 func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseService {
 	return &responseGrpcServer{
 		omittedResponse:       transports.OmittedResponse(),
@@ -440,7 +379,6 @@ func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseServ
 		namedResponse:         transports.NamedResponse(),
 		httpBodyResponse:      transports.HttpBodyResponse(),
 		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
-		httpRequestStarBody:   transports.HttpRequestStarBody(),
 	}
 }
 
@@ -450,7 +388,6 @@ type responseGrpcClient struct {
 	namedResponse         endpoint.Endpoint
 	httpBodyResponse      endpoint.Endpoint
 	httpBodyNamedResponse endpoint.Endpoint
-	httpRequestStarBody   endpoint.Endpoint
 }
 
 func (c *responseGrpcClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
@@ -493,14 +430,6 @@ func (c *responseGrpcClient) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func (c *responseGrpcClient) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
-	rep, err := c.httpRequestStarBody(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*http.HttpResponse), nil
-}
-
 func NewResponseGrpcClient(transports ResponseGrpcClientTransports, middlewares ...endpoint.Middleware) ResponseService {
 	return &responseGrpcClient{
 		omittedResponse:       endpointx.Chain(transports.OmittedResponse().Endpoint(), middlewares...),
@@ -508,144 +437,136 @@ func NewResponseGrpcClient(transports ResponseGrpcClientTransports, middlewares 
 		namedResponse:         endpointx.Chain(transports.NamedResponse().Endpoint(), middlewares...),
 		httpBodyResponse:      endpointx.Chain(transports.HttpBodyResponse().Endpoint(), middlewares...),
 		httpBodyNamedResponse: endpointx.Chain(transports.HttpBodyNamedResponse().Endpoint(), middlewares...),
-		httpRequestStarBody:   endpointx.Chain(transports.HttpRequestStarBody().Endpoint(), middlewares...),
 	}
 }
 
 // =========================== http transports ===========================
 
 type ResponseHttpServerTransports interface {
-	OmittedResponse() *http1.Server
-	StarResponse() *http1.Server
-	NamedResponse() *http1.Server
-	HttpBodyResponse() *http1.Server
-	HttpBodyNamedResponse() *http1.Server
-	HttpRequestStarBody() *http1.Server
+	OmittedResponse() *http.Server
+	StarResponse() *http.Server
+	NamedResponse() *http.Server
+	HttpBodyResponse() *http.Server
+	HttpBodyNamedResponse() *http.Server
 }
 
 type ResponseHttpClientTransports interface {
-	OmittedResponse() *http1.Client
-	StarResponse() *http1.Client
-	NamedResponse() *http1.Client
-	HttpBodyResponse() *http1.Client
-	HttpBodyNamedResponse() *http1.Client
-	HttpRequestStarBody() *http1.Client
+	OmittedResponse() *http.Client
+	StarResponse() *http.Client
+	NamedResponse() *http.Client
+	HttpBodyResponse() *http.Client
+	HttpBodyNamedResponse() *http.Client
 }
 
 type responseHttpServerTransports struct {
-	omittedResponse       *http1.Server
-	starResponse          *http1.Server
-	namedResponse         *http1.Server
-	httpBodyResponse      *http1.Server
-	httpBodyNamedResponse *http1.Server
-	httpRequestStarBody   *http1.Server
+	omittedResponse       *http.Server
+	starResponse          *http.Server
+	namedResponse         *http.Server
+	httpBodyResponse      *http.Server
+	httpBodyNamedResponse *http.Server
 }
 
-func (t *responseHttpServerTransports) OmittedResponse() *http1.Server {
+func (t *responseHttpServerTransports) OmittedResponse() *http.Server {
 	return t.omittedResponse
 }
 
-func (t *responseHttpServerTransports) StarResponse() *http1.Server {
+func (t *responseHttpServerTransports) StarResponse() *http.Server {
 	return t.starResponse
 }
 
-func (t *responseHttpServerTransports) NamedResponse() *http1.Server {
+func (t *responseHttpServerTransports) NamedResponse() *http.Server {
 	return t.namedResponse
 }
 
-func (t *responseHttpServerTransports) HttpBodyResponse() *http1.Server {
+func (t *responseHttpServerTransports) HttpBodyResponse() *http.Server {
 	return t.httpBodyResponse
 }
 
-func (t *responseHttpServerTransports) HttpBodyNamedResponse() *http1.Server {
+func (t *responseHttpServerTransports) HttpBodyNamedResponse() *http.Server {
 	return t.httpBodyNamedResponse
 }
 
-func (t *responseHttpServerTransports) HttpRequestStarBody() *http1.Server {
-	return t.httpRequestStarBody
-}
-
-func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions ...http1.ServerOption) ResponseHttpServerTransports {
+func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions ...http.ServerOption) ResponseHttpServerTransports {
 	return &responseHttpServerTransports{
-		omittedResponse: http1.NewServer(
+		omittedResponse: http.NewServer(
 			endpoints.OmittedResponse(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*UserResponse)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		starResponse: http1.NewServer(
+		starResponse: http.NewServer(
 			endpoints.StarResponse(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*UserResponse)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		namedResponse: http1.NewServer(
+		namedResponse: http.NewServer(
 			endpoints.NamedResponse(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*UserResponse)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		httpBodyResponse: http1.NewServer(
+		httpBodyResponse: http.NewServer(
 			endpoints.HttpBodyResponse(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*httpbody.HttpBody)
 				w.Header().Set("Content-Type", resp.GetContentType())
 				for _, src := range resp.GetExtensions() {
@@ -661,28 +582,28 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 					}
 				}
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetData()); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		httpBodyNamedResponse: http1.NewServer(
+		httpBodyNamedResponse: http.NewServer(
 			endpoints.HttpBodyNamedResponse(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*HttpBody)
 				w.Header().Set("Content-Type", resp.GetBody().GetContentType())
 				for _, src := range resp.GetBody().GetExtensions() {
@@ -698,50 +619,17 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 					}
 				}
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetBody().GetData()); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
-		),
-		httpRequestStarBody: http1.NewServer(
-			endpoints.HttpRequestStarBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
-				req := &http.HttpRequest{}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Method = queries.Get("method")
-				req.Uri = queries.Get("uri")
-				if queryErr != nil {
-					return nil, queryErr
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
-				resp := obj.(*http.HttpResponse)
-				for _, header := range resp.GetHeaders() {
-					w.Header().Add(header.Key, header.Value)
-				}
-				w.WriteHeader(int(resp.GetStatus()))
-				if _, err := w.Write(resp.GetBody()); err != nil {
-					return err
-				}
-				return nil
-			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
-				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
@@ -750,49 +638,43 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 }
 
 type responseHttpClientTransports struct {
-	omittedResponse       *http1.Client
-	starResponse          *http1.Client
-	namedResponse         *http1.Client
-	httpBodyResponse      *http1.Client
-	httpBodyNamedResponse *http1.Client
-	httpRequestStarBody   *http1.Client
+	omittedResponse       *http.Client
+	starResponse          *http.Client
+	namedResponse         *http.Client
+	httpBodyResponse      *http.Client
+	httpBodyNamedResponse *http.Client
 }
 
-func (t *responseHttpClientTransports) OmittedResponse() *http1.Client {
+func (t *responseHttpClientTransports) OmittedResponse() *http.Client {
 	return t.omittedResponse
 }
 
-func (t *responseHttpClientTransports) StarResponse() *http1.Client {
+func (t *responseHttpClientTransports) StarResponse() *http.Client {
 	return t.starResponse
 }
 
-func (t *responseHttpClientTransports) NamedResponse() *http1.Client {
+func (t *responseHttpClientTransports) NamedResponse() *http.Client {
 	return t.namedResponse
 }
 
-func (t *responseHttpClientTransports) HttpBodyResponse() *http1.Client {
+func (t *responseHttpClientTransports) HttpBodyResponse() *http.Client {
 	return t.httpBodyResponse
 }
 
-func (t *responseHttpClientTransports) HttpBodyNamedResponse() *http1.Client {
+func (t *responseHttpClientTransports) HttpBodyNamedResponse() *http.Client {
 	return t.httpBodyNamedResponse
 }
 
-func (t *responseHttpClientTransports) HttpRequestStarBody() *http1.Client {
-	return t.httpRequestStarBody
-}
-
-func NewResponseHttpClientTransports(scheme string, instance string, clientOptions ...http1.ClientOption) ResponseHttpClientTransports {
+func NewResponseHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) ResponseHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response")
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpRequestStarBody").Methods("PUT").Path("/v1/http/request/response")
 	return &responseHttpClientTransports{
-		omittedResponse: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		omittedResponse: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -814,30 +696,30 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &UserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		starResponse: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		starResponse: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -859,30 +741,30 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &UserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		namedResponse: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		namedResponse: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -904,30 +786,30 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &UserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&resp.User); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		httpBodyResponse: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		httpBodyResponse: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -949,13 +831,13 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &httpbody.HttpBody{}
 				resp.ContentType = r.Header.Get("Content-Type")
 				body, err := io.ReadAll(r.Body)
@@ -965,17 +847,17 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Data = body
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		httpBodyNamedResponse: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		httpBodyNamedResponse: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -997,13 +879,13 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &HttpBody{}
 				resp.Body = &httpbody.HttpBody{}
 				resp.Body.ContentType = r.Header.Get("Content-Type")
@@ -1014,67 +896,11 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Body.Data = body
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
-		),
-		httpRequestStarBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*http.HttpRequest)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var pairs []string
-				path, err := router.Get("/leo.example.response.v1.Response/HttpRequestStarBody").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				queries["method"] = append(queries["method"], req.GetMethod())
-				queries["uri"] = append(queries["uri"], req.GetUri())
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				return r, nil
-			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
-				resp := &http.HttpResponse{}
-				resp.Status = int32(r.StatusCode)
-				resp.Reason = r.Status
-				for key, values := range r.Header {
-					for _, value := range values {
-						resp.Headers = append(resp.Headers, &http.HttpHeader{Key: key, Value: value})
-					}
-				}
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, err
-				}
-				resp.Body = body
-				return resp, nil
-			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpRequestStarBody")
-				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
@@ -1082,14 +908,13 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 	}
 }
 
-func NewResponseHttpServerHandler(endpoints ResponseHttpServerTransports) http2.Handler {
+func NewResponseHttpServerHandler(endpoints ResponseHttpServerTransports) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(endpoints.OmittedResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(endpoints.StarResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(endpoints.NamedResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response").Handler(endpoints.HttpBodyResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response").Handler(endpoints.HttpBodyNamedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpRequestStarBody").Methods("PUT").Path("/v1/http/request/response").Handler(endpoints.HttpRequestStarBody())
 	return router
 }
 
@@ -1099,7 +924,6 @@ type responseHttpClient struct {
 	namedResponse         endpoint.Endpoint
 	httpBodyResponse      endpoint.Endpoint
 	httpBodyNamedResponse endpoint.Endpoint
-	httpRequestStarBody   endpoint.Endpoint
 }
 
 func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
@@ -1142,14 +966,6 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func (c *responseHttpClient) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*http.HttpResponse, error) {
-	rep, err := c.httpRequestStarBody(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*http.HttpResponse), nil
-}
-
 func NewResponseHttpClient(transports ResponseHttpClientTransports, middlewares ...endpoint.Middleware) ResponseService {
 	return &responseHttpClient{
 		omittedResponse:       endpointx.Chain(transports.OmittedResponse().Endpoint(), middlewares...),
@@ -1157,6 +973,5 @@ func NewResponseHttpClient(transports ResponseHttpClientTransports, middlewares 
 		namedResponse:         endpointx.Chain(transports.NamedResponse().Endpoint(), middlewares...),
 		httpBodyResponse:      endpointx.Chain(transports.HttpBodyResponse().Endpoint(), middlewares...),
 		httpBodyNamedResponse: endpointx.Chain(transports.HttpBodyNamedResponse().Endpoint(), middlewares...),
-		httpRequestStarBody:   endpointx.Chain(transports.HttpRequestStarBody().Endpoint(), middlewares...),
 	}
 }

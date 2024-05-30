@@ -9,7 +9,6 @@ package demo
 import (
 	context "context"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,7 +28,6 @@ const (
 	Demo_GetUsers_FullMethodName         = "/leo.example.demo.v1.Demo/GetUsers"
 	Demo_UploadUserAvatar_FullMethodName = "/leo.example.demo.v1.Demo/UploadUserAvatar"
 	Demo_GetUserAvatar_FullMethodName    = "/leo.example.demo.v1.Demo/GetUserAvatar"
-	Demo_PushUsers_FullMethodName        = "/leo.example.demo.v1.Demo/PushUsers"
 )
 
 // DemoClient is the client API for Demo service.
@@ -50,8 +48,6 @@ type DemoClient interface {
 	UploadUserAvatar(ctx context.Context, in *UploadUserAvatarRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// GetUserAvatar get user avatar
 	GetUserAvatar(ctx context.Context, in *GetUserAvatarRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
-	// PushUsers push users by csv
-	PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error)
 }
 
 type demoClient struct {
@@ -125,15 +121,6 @@ func (c *demoClient) GetUserAvatar(ctx context.Context, in *GetUserAvatarRequest
 	return out, nil
 }
 
-func (c *demoClient) PushUsers(ctx context.Context, in *http.HttpRequest, opts ...grpc.CallOption) (*http.HttpResponse, error) {
-	out := new(http.HttpResponse)
-	err := c.cc.Invoke(ctx, Demo_PushUsers_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // DemoServer is the server API for Demo service.
 // All implementations should embed UnimplementedDemoServer
 // for forward compatibility
@@ -152,8 +139,6 @@ type DemoServer interface {
 	UploadUserAvatar(context.Context, *UploadUserAvatarRequest) (*emptypb.Empty, error)
 	// GetUserAvatar get user avatar
 	GetUserAvatar(context.Context, *GetUserAvatarRequest) (*httpbody.HttpBody, error)
-	// PushUsers push users by csv
-	PushUsers(context.Context, *http.HttpRequest) (*http.HttpResponse, error)
 }
 
 // UnimplementedDemoServer should be embedded to have forward compatible implementations.
@@ -180,9 +165,6 @@ func (UnimplementedDemoServer) UploadUserAvatar(context.Context, *UploadUserAvat
 }
 func (UnimplementedDemoServer) GetUserAvatar(context.Context, *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserAvatar not implemented")
-}
-func (UnimplementedDemoServer) PushUsers(context.Context, *http.HttpRequest) (*http.HttpResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PushUsers not implemented")
 }
 
 // UnsafeDemoServer may be embedded to opt out of forward compatibility for this service.
@@ -322,24 +304,6 @@ func _Demo_GetUserAvatar_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Demo_PushUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(http.HttpRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DemoServer).PushUsers(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Demo_PushUsers_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DemoServer).PushUsers(ctx, req.(*http.HttpRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Demo_ServiceDesc is the grpc.ServiceDesc for Demo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -374,10 +338,6 @@ var Demo_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserAvatar",
 			Handler:    _Demo_GetUserAvatar_Handler,
-		},
-		{
-			MethodName: "PushUsers",
-			Handler:    _Demo_PushUsers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

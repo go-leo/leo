@@ -8,7 +8,6 @@ import (
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"google.golang.org/genproto/googleapis/api/httpbody"
-	"google.golang.org/genproto/googleapis/rpc/http"
 )
 
 func main() {
@@ -89,19 +88,5 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("GetUserAvatar:", getUsersAvatarResp)
-
-	pushUsersBody := make([]byte, 1024)
-	_, _ = rand.Read(pushUsersBody)
-	pushUsersResp, err := client.PushUsers(context.Background(), &http.HttpRequest{
-		Headers: []*http.HttpHeader{{
-			Key:   randx.WordString(10),
-			Value: randx.NumericString(10),
-		}},
-		Body: pushUsersBody,
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("PushUsers:", pushUsersResp)
 
 }

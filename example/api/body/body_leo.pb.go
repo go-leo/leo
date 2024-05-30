@@ -9,18 +9,17 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
-	http2 "net/http"
+	http1 "net/http"
 	url "net/url"
 )
 
@@ -32,7 +31,6 @@ type BodyService interface {
 	NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
 	HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
 	HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
-	HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
 }
 
 type BodyEndpoints interface {
@@ -41,7 +39,6 @@ type BodyEndpoints interface {
 	NonBody() endpoint.Endpoint
 	HttpBodyStarBody() endpoint.Endpoint
 	HttpBodyNamedBody() endpoint.Endpoint
-	HttpRequestStarBody() endpoint.Endpoint
 }
 
 type bodyEndpoints struct {
@@ -84,13 +81,6 @@ func (e *bodyEndpoints) HttpBodyNamedBody() endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *bodyEndpoints) HttpRequestStarBody() endpoint.Endpoint {
-	component := func(ctx context.Context, request any) (any, error) {
-		return e.svc.HttpRequestStarBody(ctx, request.(*http.HttpRequest))
-	}
-	return endpointx.Chain(component, e.middlewares...)
-}
-
 func NewBodyEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyEndpoints {
 	return &bodyEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -105,7 +95,6 @@ type BodyGrpcServerTransports interface {
 	NonBody() *grpc.Server
 	HttpBodyStarBody() *grpc.Server
 	HttpBodyNamedBody() *grpc.Server
-	HttpRequestStarBody() *grpc.Server
 }
 
 type BodyGrpcClientTransports interface {
@@ -114,16 +103,14 @@ type BodyGrpcClientTransports interface {
 	NonBody() *grpc.Client
 	HttpBodyStarBody() *grpc.Client
 	HttpBodyNamedBody() *grpc.Client
-	HttpRequestStarBody() *grpc.Client
 }
 
 type bodyGrpcServerTransports struct {
-	starBody            *grpc.Server
-	namedBody           *grpc.Server
-	nonBody             *grpc.Server
-	httpBodyStarBody    *grpc.Server
-	httpBodyNamedBody   *grpc.Server
-	httpRequestStarBody *grpc.Server
+	starBody          *grpc.Server
+	namedBody         *grpc.Server
+	nonBody           *grpc.Server
+	httpBodyStarBody  *grpc.Server
+	httpBodyNamedBody *grpc.Server
 }
 
 func (t *bodyGrpcServerTransports) StarBody() *grpc.Server {
@@ -144,10 +131,6 @@ func (t *bodyGrpcServerTransports) HttpBodyStarBody() *grpc.Server {
 
 func (t *bodyGrpcServerTransports) HttpBodyNamedBody() *grpc.Server {
 	return t.httpBodyNamedBody
-}
-
-func (t *bodyGrpcServerTransports) HttpRequestStarBody() *grpc.Server {
-	return t.httpRequestStarBody
 }
 
 func NewBodyGrpcServerTransports(endpoints BodyEndpoints, serverOptions ...grpc.ServerOption) BodyGrpcServerTransports {
@@ -217,29 +200,15 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints, serverOptions ...grpc.
 				}),
 			}, serverOptions...)...,
 		),
-		httpRequestStarBody: grpc.NewServer(
-			endpoints.HttpRequestStarBody(),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpRequestStarBody")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
-		),
 	}
 }
 
 type bodyGrpcClientTransports struct {
-	starBody            *grpc.Client
-	namedBody           *grpc.Client
-	nonBody             *grpc.Client
-	httpBodyStarBody    *grpc.Client
-	httpBodyNamedBody   *grpc.Client
-	httpRequestStarBody *grpc.Client
+	starBody          *grpc.Client
+	namedBody         *grpc.Client
+	nonBody           *grpc.Client
+	httpBodyStarBody  *grpc.Client
+	httpBodyNamedBody *grpc.Client
 }
 
 func (t *bodyGrpcClientTransports) StarBody() *grpc.Client {
@@ -260,10 +229,6 @@ func (t *bodyGrpcClientTransports) HttpBodyStarBody() *grpc.Client {
 
 func (t *bodyGrpcClientTransports) HttpBodyNamedBody() *grpc.Client {
 	return t.httpBodyNamedBody
-}
-
-func (t *bodyGrpcClientTransports) HttpRequestStarBody() *grpc.Client {
-	return t.httpRequestStarBody
 }
 
 func NewBodyGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) BodyGrpcClientTransports {
@@ -348,32 +313,15 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 				}),
 			}, clientOptions...)...,
 		),
-		httpRequestStarBody: grpc.NewClient(
-			conn,
-			"leo.example.body.v1.Body",
-			"HttpRequestStarBody",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpRequestStarBody")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
-		),
 	}
 }
 
 type bodyGrpcServer struct {
-	starBody            *grpc.Server
-	namedBody           *grpc.Server
-	nonBody             *grpc.Server
-	httpBodyStarBody    *grpc.Server
-	httpBodyNamedBody   *grpc.Server
-	httpRequestStarBody *grpc.Server
+	starBody          *grpc.Server
+	namedBody         *grpc.Server
+	nonBody           *grpc.Server
+	httpBodyStarBody  *grpc.Server
+	httpBodyNamedBody *grpc.Server
 }
 
 func (s *bodyGrpcServer) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
@@ -421,33 +369,22 @@ func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func (s *bodyGrpcServer) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
-	ctx, rep, err := s.httpRequestStarBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewBodyGrpcServer(transports BodyGrpcServerTransports) BodyService {
 	return &bodyGrpcServer{
-		starBody:            transports.StarBody(),
-		namedBody:           transports.NamedBody(),
-		nonBody:             transports.NonBody(),
-		httpBodyStarBody:    transports.HttpBodyStarBody(),
-		httpBodyNamedBody:   transports.HttpBodyNamedBody(),
-		httpRequestStarBody: transports.HttpRequestStarBody(),
+		starBody:          transports.StarBody(),
+		namedBody:         transports.NamedBody(),
+		nonBody:           transports.NonBody(),
+		httpBodyStarBody:  transports.HttpBodyStarBody(),
+		httpBodyNamedBody: transports.HttpBodyNamedBody(),
 	}
 }
 
 type bodyGrpcClient struct {
-	starBody            endpoint.Endpoint
-	namedBody           endpoint.Endpoint
-	nonBody             endpoint.Endpoint
-	httpBodyStarBody    endpoint.Endpoint
-	httpBodyNamedBody   endpoint.Endpoint
-	httpRequestStarBody endpoint.Endpoint
+	starBody          endpoint.Endpoint
+	namedBody         endpoint.Endpoint
+	nonBody           endpoint.Endpoint
+	httpBodyStarBody  endpoint.Endpoint
+	httpBodyNamedBody endpoint.Endpoint
 }
 
 func (c *bodyGrpcClient) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
@@ -490,161 +427,145 @@ func (c *bodyGrpcClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *bodyGrpcClient) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
-	rep, err := c.httpRequestStarBody(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewBodyGrpcClient(transports BodyGrpcClientTransports, middlewares ...endpoint.Middleware) BodyService {
 	return &bodyGrpcClient{
-		starBody:            endpointx.Chain(transports.StarBody().Endpoint(), middlewares...),
-		namedBody:           endpointx.Chain(transports.NamedBody().Endpoint(), middlewares...),
-		nonBody:             endpointx.Chain(transports.NonBody().Endpoint(), middlewares...),
-		httpBodyStarBody:    endpointx.Chain(transports.HttpBodyStarBody().Endpoint(), middlewares...),
-		httpBodyNamedBody:   endpointx.Chain(transports.HttpBodyNamedBody().Endpoint(), middlewares...),
-		httpRequestStarBody: endpointx.Chain(transports.HttpRequestStarBody().Endpoint(), middlewares...),
+		starBody:          endpointx.Chain(transports.StarBody().Endpoint(), middlewares...),
+		namedBody:         endpointx.Chain(transports.NamedBody().Endpoint(), middlewares...),
+		nonBody:           endpointx.Chain(transports.NonBody().Endpoint(), middlewares...),
+		httpBodyStarBody:  endpointx.Chain(transports.HttpBodyStarBody().Endpoint(), middlewares...),
+		httpBodyNamedBody: endpointx.Chain(transports.HttpBodyNamedBody().Endpoint(), middlewares...),
 	}
 }
 
 // =========================== http transports ===========================
 
 type BodyHttpServerTransports interface {
-	StarBody() *http1.Server
-	NamedBody() *http1.Server
-	NonBody() *http1.Server
-	HttpBodyStarBody() *http1.Server
-	HttpBodyNamedBody() *http1.Server
-	HttpRequestStarBody() *http1.Server
+	StarBody() *http.Server
+	NamedBody() *http.Server
+	NonBody() *http.Server
+	HttpBodyStarBody() *http.Server
+	HttpBodyNamedBody() *http.Server
 }
 
 type BodyHttpClientTransports interface {
-	StarBody() *http1.Client
-	NamedBody() *http1.Client
-	NonBody() *http1.Client
-	HttpBodyStarBody() *http1.Client
-	HttpBodyNamedBody() *http1.Client
-	HttpRequestStarBody() *http1.Client
+	StarBody() *http.Client
+	NamedBody() *http.Client
+	NonBody() *http.Client
+	HttpBodyStarBody() *http.Client
+	HttpBodyNamedBody() *http.Client
 }
 
 type bodyHttpServerTransports struct {
-	starBody            *http1.Server
-	namedBody           *http1.Server
-	nonBody             *http1.Server
-	httpBodyStarBody    *http1.Server
-	httpBodyNamedBody   *http1.Server
-	httpRequestStarBody *http1.Server
+	starBody          *http.Server
+	namedBody         *http.Server
+	nonBody           *http.Server
+	httpBodyStarBody  *http.Server
+	httpBodyNamedBody *http.Server
 }
 
-func (t *bodyHttpServerTransports) StarBody() *http1.Server {
+func (t *bodyHttpServerTransports) StarBody() *http.Server {
 	return t.starBody
 }
 
-func (t *bodyHttpServerTransports) NamedBody() *http1.Server {
+func (t *bodyHttpServerTransports) NamedBody() *http.Server {
 	return t.namedBody
 }
 
-func (t *bodyHttpServerTransports) NonBody() *http1.Server {
+func (t *bodyHttpServerTransports) NonBody() *http.Server {
 	return t.nonBody
 }
 
-func (t *bodyHttpServerTransports) HttpBodyStarBody() *http1.Server {
+func (t *bodyHttpServerTransports) HttpBodyStarBody() *http.Server {
 	return t.httpBodyStarBody
 }
 
-func (t *bodyHttpServerTransports) HttpBodyNamedBody() *http1.Server {
+func (t *bodyHttpServerTransports) HttpBodyNamedBody() *http.Server {
 	return t.httpBodyNamedBody
 }
 
-func (t *bodyHttpServerTransports) HttpRequestStarBody() *http1.Server {
-	return t.httpRequestStarBody
-}
-
-func NewBodyHttpServerTransports(endpoints BodyEndpoints, serverOptions ...http1.ServerOption) BodyHttpServerTransports {
+func NewBodyHttpServerTransports(endpoints BodyEndpoints, serverOptions ...http.ServerOption) BodyHttpServerTransports {
 	return &bodyHttpServerTransports{
-		starBody: http1.NewServer(
+		starBody: http.NewServer(
 			endpoints.StarBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &User{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
 					return nil, err
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		namedBody: http1.NewServer(
+		namedBody: http.NewServer(
 			endpoints.NamedBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
 					return nil, err
 				}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		nonBody: http1.NewServer(
+		nonBody: http.NewServer(
 			endpoints.NonBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &emptypb.Empty{}
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		httpBodyStarBody: http1.NewServer(
+		httpBodyStarBody: http.NewServer(
 			endpoints.HttpBodyStarBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
 				if err != nil {
@@ -654,27 +575,27 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints, serverOptions ...http1
 				req.ContentType = r.Header.Get("Content-Type")
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
 		),
-		httpBodyNamedBody: http1.NewServer(
+		httpBodyNamedBody: http.NewServer(
 			endpoints.HttpBodyNamedBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
+			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &HttpBody{}
 				req.Body = &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
@@ -685,57 +606,20 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints, serverOptions ...http1
 				req.Body.ContentType = r.Header.Get("Content-Type")
 				return req, nil
 			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
+			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
 				resp := obj.(*emptypb.Empty)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
+				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 					return err
 				}
 				return nil
 			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ServerOption{
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
 				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
-		),
-		httpRequestStarBody: http1.NewServer(
-			endpoints.HttpRequestStarBody(),
-			func(ctx context.Context, r *http2.Request) (any, error) {
-				req := &http.HttpRequest{}
-				req.Method = r.Method
-				req.Uri = r.URL.String()
-				req.Headers = make([]*http.HttpHeader, 0, len(r.Header))
-				for key, values := range r.Header {
-					for _, value := range values {
-						req.Headers = append(req.Headers, &http.HttpHeader{Key: key, Value: value})
-					}
-				}
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, err
-				}
-				req.Body = body
-				return req, nil
-			},
-			func(ctx context.Context, w http2.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http2.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
-				}
-				return nil
-			},
-			append([]http1.ServerOption{
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpRequestStarBody")
-				}),
-				http1.ServerBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpServer)
 				}),
 			}, serverOptions...)...,
@@ -744,49 +628,43 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints, serverOptions ...http1
 }
 
 type bodyHttpClientTransports struct {
-	starBody            *http1.Client
-	namedBody           *http1.Client
-	nonBody             *http1.Client
-	httpBodyStarBody    *http1.Client
-	httpBodyNamedBody   *http1.Client
-	httpRequestStarBody *http1.Client
+	starBody          *http.Client
+	namedBody         *http.Client
+	nonBody           *http.Client
+	httpBodyStarBody  *http.Client
+	httpBodyNamedBody *http.Client
 }
 
-func (t *bodyHttpClientTransports) StarBody() *http1.Client {
+func (t *bodyHttpClientTransports) StarBody() *http.Client {
 	return t.starBody
 }
 
-func (t *bodyHttpClientTransports) NamedBody() *http1.Client {
+func (t *bodyHttpClientTransports) NamedBody() *http.Client {
 	return t.namedBody
 }
 
-func (t *bodyHttpClientTransports) NonBody() *http1.Client {
+func (t *bodyHttpClientTransports) NonBody() *http.Client {
 	return t.nonBody
 }
 
-func (t *bodyHttpClientTransports) HttpBodyStarBody() *http1.Client {
+func (t *bodyHttpClientTransports) HttpBodyStarBody() *http.Client {
 	return t.httpBodyStarBody
 }
 
-func (t *bodyHttpClientTransports) HttpBodyNamedBody() *http1.Client {
+func (t *bodyHttpClientTransports) HttpBodyNamedBody() *http.Client {
 	return t.httpBodyNamedBody
 }
 
-func (t *bodyHttpClientTransports) HttpRequestStarBody() *http1.Client {
-	return t.httpRequestStarBody
-}
-
-func NewBodyHttpClientTransports(scheme string, instance string, clientOptions ...http1.ClientOption) BodyHttpClientTransports {
+func NewBodyHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) BodyHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpRequestStarBody").Methods("PUT").Path("/v1/http/request/star/body")
 	return &bodyHttpClientTransports{
-		starBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		starBody: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -814,31 +692,31 @@ func NewBodyHttpClientTransports(scheme string, instance string, clientOptions .
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		namedBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		namedBody: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -866,31 +744,31 @@ func NewBodyHttpClientTransports(scheme string, instance string, clientOptions .
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "POST", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		nonBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		nonBody: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -912,30 +790,30 @@ func NewBodyHttpClientTransports(scheme string, instance string, clientOptions .
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "GET", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		httpBodyStarBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		httpBodyStarBody: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -959,31 +837,31 @@ func NewBodyHttpClientTransports(scheme string, instance string, clientOptions .
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
 		),
-		httpBodyNamedBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
+		httpBodyNamedBody: http.NewExplicitClient(
+			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1007,84 +885,25 @@ func NewBodyHttpClientTransports(scheme string, instance string, clientOptions .
 					Path:     path.Path,
 					RawQuery: queries.Encode(),
 				}
-				r, err := http2.NewRequestWithContext(ctx, "PUT", target.String(), body)
+				r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 				if err != nil {
 					return nil, err
 				}
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (interface{}, error) {
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
 				}
 				return resp, nil
 			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+			append([]http.ClientOption{
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
 				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
-		),
-		httpRequestStarBody: http1.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http2.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*http.HttpRequest)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				body = bytes.NewReader(req.GetBody())
-				var target *url.URL
-				if req.GetUri() != "" {
-					uri, err := url.Parse(req.GetUri())
-					if err != nil {
-						return nil, err
-					}
-					target = uri
-				} else {
-					path, err := router.Get("/leo.example.body.v1.Body/HttpRequestStarBody").URLPath()
-					if err != nil {
-						return nil, err
-					}
-					target = &url.URL{
-						Scheme: scheme,
-						Host:   instance,
-						Path:   path.Path,
-					}
-				}
-				method := "PUT"
-				if req.GetMethod() != "" {
-					method = req.GetMethod()
-				}
-				r, err := http2.NewRequestWithContext(ctx, method, target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				for _, header := range req.GetHeaders() {
-					r.Header.Add(header.GetKey(), header.GetValue())
-				}
-				return r, nil
-			},
-			func(ctx context.Context, r *http2.Response) (interface{}, error) {
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			append([]http1.ClientOption{
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpRequestStarBody")
-				}),
-				http1.ClientBefore(func(ctx context.Context, request *http2.Request) context.Context {
+				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
 					return transportx.InjectName(ctx, transportx.HttpClient)
 				}),
 			}, clientOptions...)...,
@@ -1092,24 +911,22 @@ func NewBodyHttpClientTransports(scheme string, instance string, clientOptions .
 	}
 }
 
-func NewBodyHttpServerHandler(endpoints BodyHttpServerTransports) http2.Handler {
+func NewBodyHttpServerHandler(endpoints BodyHttpServerTransports) http1.Handler {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(endpoints.StarBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(endpoints.NamedBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(endpoints.NonBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body").Handler(endpoints.HttpBodyStarBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body").Handler(endpoints.HttpBodyNamedBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpRequestStarBody").Methods("PUT").Path("/v1/http/request/star/body").Handler(endpoints.HttpRequestStarBody())
 	return router
 }
 
 type bodyHttpClient struct {
-	starBody            endpoint.Endpoint
-	namedBody           endpoint.Endpoint
-	nonBody             endpoint.Endpoint
-	httpBodyStarBody    endpoint.Endpoint
-	httpBodyNamedBody   endpoint.Endpoint
-	httpRequestStarBody endpoint.Endpoint
+	starBody          endpoint.Endpoint
+	namedBody         endpoint.Endpoint
+	nonBody           endpoint.Endpoint
+	httpBodyStarBody  endpoint.Endpoint
+	httpBodyNamedBody endpoint.Endpoint
 }
 
 func (c *bodyHttpClient) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
@@ -1152,21 +969,12 @@ func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func (c *bodyHttpClient) HttpRequestStarBody(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
-	rep, err := c.httpRequestStarBody(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewBodyHttpClient(transports BodyHttpClientTransports, middlewares ...endpoint.Middleware) BodyService {
 	return &bodyHttpClient{
-		starBody:            endpointx.Chain(transports.StarBody().Endpoint(), middlewares...),
-		namedBody:           endpointx.Chain(transports.NamedBody().Endpoint(), middlewares...),
-		nonBody:             endpointx.Chain(transports.NonBody().Endpoint(), middlewares...),
-		httpBodyStarBody:    endpointx.Chain(transports.HttpBodyStarBody().Endpoint(), middlewares...),
-		httpBodyNamedBody:   endpointx.Chain(transports.HttpBodyNamedBody().Endpoint(), middlewares...),
-		httpRequestStarBody: endpointx.Chain(transports.HttpRequestStarBody().Endpoint(), middlewares...),
+		starBody:          endpointx.Chain(transports.StarBody().Endpoint(), middlewares...),
+		namedBody:         endpointx.Chain(transports.NamedBody().Endpoint(), middlewares...),
+		nonBody:           endpointx.Chain(transports.NonBody().Endpoint(), middlewares...),
+		httpBodyStarBody:  endpointx.Chain(transports.HttpBodyStarBody().Endpoint(), middlewares...),
+		httpBodyNamedBody: endpointx.Chain(transports.HttpBodyNamedBody().Endpoint(), middlewares...),
 	}
 }
