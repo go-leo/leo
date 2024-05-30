@@ -1,114 +1,20 @@
 package statusx
 
 import (
-	"github.com/golang/protobuf/proto"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
-type ErrorAPI interface {
-	error
-	Wrap(err error) ErrorAPI
-	Unwrap() error
-	Is(target error) bool
-	WithHttpStatusCode(code int) ErrorAPI
-	HttpStatusCode() int
-	GRPCStatus() *status.Status
-	WithErrorInfo(infos ...*errdetails.ErrorInfo) ErrorAPI
-	WithRetryInfo(infos ...*errdetails.RetryInfo) ErrorAPI
-	WithDebugInfo(infos ...*errdetails.DebugInfo) ErrorAPI
-	WithQuotaFailure(infos ...*errdetails.QuotaFailure) ErrorAPI
-	WithPreconditionFailure(infos ...*errdetails.PreconditionFailure) ErrorAPI
-	WithBadRequest(infos ...*errdetails.BadRequest) ErrorAPI
-	WithRequestInfo(infos ...*errdetails.RequestInfo) ErrorAPI
-	WithResourceInfo(infos ...*errdetails.ResourceInfo) ErrorAPI
-	WithHelp(infos ...*errdetails.Help) ErrorAPI
-	WithLocalizedMessage(infos ...*errdetails.LocalizedMessage) ErrorAPI
-}
-
-type Error struct {
-	s *status.Status
-}
-
-func WithErrorInfo(st *status.Status, infos ...*errdetails.ErrorInfo) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithRetryInfo(st *status.Status, infos ...*errdetails.RetryInfo) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithDebugInfo(st *status.Status, infos ...*errdetails.DebugInfo) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithQuotaFailure(st *status.Status, infos ...*errdetails.QuotaFailure) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithPreconditionFailure(st *status.Status, infos ...*errdetails.PreconditionFailure) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithBadRequest(st *status.Status, infos ...*errdetails.BadRequest) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithRequestInfo(st *status.Status, infos ...*errdetails.RequestInfo) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithResourceInfo(st *status.Status, infos ...*errdetails.ResourceInfo) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithHelp(st *status.Status, infos ...*errdetails.Help) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
-}
-
-func WithLocalizedMessage(st *status.Status, infos ...*errdetails.LocalizedMessage) (*status.Status, error) {
-	details := make([]proto.Message, 0, len(infos))
-	for _, info := range infos {
-		details = append(details, info)
-	}
-	return st.WithDetails(details...)
+type Status interface {
+	String() string
+	Message() string
+	GrpcProto() *spb.Status
+	HttpProto() *HttpStatus
+	Details() []any
+	WithDetails(details ...proto.Message) (Status, error)
+	Err() error
 }
 
 var (
