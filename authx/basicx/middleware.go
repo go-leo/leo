@@ -6,12 +6,12 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
+	"errors"
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 	"strings"
 )
 
@@ -25,17 +25,24 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 				return next(ctx, request)
 			}
 			if name == transportx.HttpServer {
-				return basic.AuthMiddleware(requiredUser, requiredPassword, realm)(next)(ctx, request)
+				response, err = basic.AuthMiddleware(requiredUser, requiredPassword, realm)(next)(ctx, request)
+				if err != nil {
+					var authErr basic.AuthError
+					if errors.As(err, &authErr) {
+						return nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()
+					}
+				}
+				return response, err
 			}
 			if name == transportx.GrpcServer {
 				md, ok := metadata.FromIncomingContext(ctx)
 				if !ok {
-					return nil, status.Errorf(codes.InvalidArgument, "missing metadata")
+					return nil, statusx.InvalidArgument.WithMessage("missing metadata").Err()
 				}
 
 				givenUser, givenPassword, ok := parseBasicAuth(md.Get("authorization"))
 				if !ok {
-					return nil, status.Errorf(codes.Unauthenticated, `invalid token, Basic realm=%q`, realm)
+					return nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()
 				}
 
 				givenUserBytes := toHashSlice(givenUser)
@@ -43,7 +50,7 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 
 				if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 					subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
-					return nil, status.Errorf(codes.Unauthenticated, `invalid token, Basic realm=%q`, realm)
+					return nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()
 				}
 
 				// Continue execution of handler after ensuring a valid token.
