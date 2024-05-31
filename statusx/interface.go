@@ -12,6 +12,12 @@ type Status interface {
 	// Clone clones the status.
 	Clone() Status
 
+	// Is only needs to compare both the grpc status code and the http status code.
+	Is(target Status) bool
+
+	// Equals compares not only the grpc status code and the http status code, but also the details.
+	Equals(target Status) bool
+
 	// String returns the string.
 	String() string
 
@@ -24,12 +30,13 @@ type Status interface {
 	// Message returns the message.
 	Message() string
 
+	// WithMessage sets the message.
 	WithMessage(msg string, args ...any) Status
 
 	// Err returns the error.
 	Err() error
 
-	// WithError sets the error.
+	// WithErr sets the error.
 	WithErr(err error) Status
 
 	// WithDetails sets the details.

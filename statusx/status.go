@@ -21,6 +21,14 @@ func (s *status) Clone() Status {
 	return &status{s: grpcstatus.FromProto(s.s.Proto())}
 }
 
+func (s *status) Is(target Status) bool {
+	return s.GrpcProto().GetCode() == target.GrpcProto().GetCode() && s.HttpProto().GetStatus() == s.HttpProto().GetStatus()
+}
+
+func (s *status) Equals(target Status) bool {
+	return proto.Equal(s.GrpcProto(), target.GrpcProto())
+}
+
 func (s *status) String() string {
 	return s.s.String()
 }
