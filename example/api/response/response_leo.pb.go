@@ -136,72 +136,62 @@ func (t *responseGrpcServerTransports) HttpBodyNamedResponse() *grpc.Server {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseGrpcServerTransports(endpoints ResponseEndpoints, serverOptions ...grpc.ServerOption) ResponseGrpcServerTransports {
+func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcServerTransports {
 	return &responseGrpcServerTransports{
 		omittedResponse: grpc.NewServer(
 			endpoints.OmittedResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		starResponse: grpc.NewServer(
 			endpoints.StarResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		namedResponse: grpc.NewServer(
 			endpoints.NamedResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		httpBodyResponse: grpc.NewServer(
 			endpoints.HttpBodyResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		httpBodyNamedResponse: grpc.NewServer(
 			endpoints.HttpBodyNamedResponse(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 	}
 }
@@ -234,7 +224,7 @@ func (t *responseGrpcClientTransports) HttpBodyNamedResponse() *grpc.Client {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) ResponseGrpcClientTransports {
+func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientTransports {
 	return &responseGrpcClientTransports{
 		omittedResponse: grpc.NewClient(
 			conn,
@@ -243,14 +233,12 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		starResponse: grpc.NewClient(
 			conn,
@@ -259,14 +247,12 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		namedResponse: grpc.NewClient(
 			conn,
@@ -275,14 +261,12 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		httpBodyResponse: grpc.NewClient(
 			conn,
@@ -291,14 +275,12 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			httpbody.HttpBody{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		httpBodyNamedResponse: grpc.NewClient(
 			conn,
@@ -307,14 +289,12 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...gr
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HttpBody{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 	}
 }
@@ -486,7 +466,7 @@ func (t *responseHttpServerTransports) HttpBodyNamedResponse() *http.Server {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions ...http.ServerOption) ResponseHttpServerTransports {
+func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpServerTransports {
 	return &responseHttpServerTransports{
 		omittedResponse: http.NewServer(
 			endpoints.OmittedResponse(),
@@ -503,14 +483,12 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		starResponse: http.NewServer(
 			endpoints.StarResponse(),
@@ -527,14 +505,12 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		namedResponse: http.NewServer(
 			endpoints.NamedResponse(),
@@ -551,14 +527,12 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		httpBodyResponse: http.NewServer(
 			endpoints.HttpBodyResponse(),
@@ -588,14 +562,12 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		httpBodyNamedResponse: http.NewServer(
 			endpoints.HttpBodyNamedResponse(),
@@ -625,14 +597,12 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints, serverOptions 
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 	}
 }
@@ -665,7 +635,7 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse() *http.Client {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) ResponseHttpClientTransports {
+func NewResponseHttpClientTransports(scheme string, instance string) ResponseHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
@@ -709,14 +679,12 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		starResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -754,14 +722,12 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		namedResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -799,14 +765,12 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		httpBodyResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -847,14 +811,12 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Data = body
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		httpBodyNamedResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -896,14 +858,12 @@ func NewResponseHttpClientTransports(scheme string, instance string, clientOptio
 				resp.Body.Data = body
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 	}
 }

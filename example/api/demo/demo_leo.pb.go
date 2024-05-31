@@ -349,98 +349,84 @@ func (t *demoGrpcServerTransports) GetUserAvatar() *grpc.Server {
 	return t.getUserAvatar
 }
 
-func NewDemoGrpcServerTransports(endpoints DemoEndpoints, serverOptions ...grpc.ServerOption) DemoGrpcServerTransports {
+func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTransports {
 	return &demoGrpcServerTransports{
 		createUser: grpc.NewServer(
 			endpoints.CreateUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		deleteUser: grpc.NewServer(
 			endpoints.DeleteUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		updateUser: grpc.NewServer(
 			endpoints.UpdateUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		getUser: grpc.NewServer(
 			endpoints.GetUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		getUsers: grpc.NewServer(
 			endpoints.GetUsers(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		uploadUserAvatar: grpc.NewServer(
 			endpoints.UploadUserAvatar(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		getUserAvatar: grpc.NewServer(
 			endpoints.GetUserAvatar(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 	}
 }
@@ -483,7 +469,7 @@ func (t *demoGrpcClientTransports) GetUserAvatar() *grpc.Client {
 	return t.getUserAvatar
 }
 
-func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) DemoGrpcClientTransports {
+func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransports {
 	return &demoGrpcClientTransports{
 		createUser: grpc.NewClient(
 			conn,
@@ -492,14 +478,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			CreateUserResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		deleteUser: grpc.NewClient(
 			conn,
@@ -508,14 +492,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		updateUser: grpc.NewClient(
 			conn,
@@ -524,14 +506,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		getUser: grpc.NewClient(
 			conn,
@@ -540,14 +520,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUserResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		getUsers: grpc.NewClient(
 			conn,
@@ -556,14 +534,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUsersResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		uploadUserAvatar: grpc.NewClient(
 			conn,
@@ -572,14 +548,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		getUserAvatar: grpc.NewClient(
 			conn,
@@ -588,14 +562,12 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			httpbody.HttpBody{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 	}
 }
@@ -823,7 +795,7 @@ func (t *demoHttpServerTransports) GetUserAvatar() *http.Server {
 	return t.getUserAvatar
 }
 
-func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.ServerOption) DemoHttpServerTransports {
+func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTransports {
 	return &demoHttpServerTransports{
 		createUser: http.NewServer(
 			endpoints.CreateUser(),
@@ -843,14 +815,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		deleteUser: http.NewServer(
 			endpoints.DeleteUser(),
@@ -873,14 +843,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		updateUser: http.NewServer(
 			endpoints.UpdateUser(),
@@ -906,14 +874,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		getUser: http.NewServer(
 			endpoints.GetUser(),
@@ -936,14 +902,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		getUsers: http.NewServer(
 			endpoints.GetUsers(),
@@ -967,14 +931,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		uploadUserAvatar: http.NewServer(
 			endpoints.UploadUserAvatar(),
@@ -1004,14 +966,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		getUserAvatar: http.NewServer(
 			endpoints.GetUserAvatar(),
@@ -1047,14 +1007,12 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 	}
 }
@@ -1097,7 +1055,7 @@ func (t *demoHttpClientTransports) GetUserAvatar() *http.Client {
 	return t.getUserAvatar
 }
 
-func NewDemoHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) DemoHttpClientTransports {
+func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user")
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}")
@@ -1150,14 +1108,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		deleteUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1196,14 +1152,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		updateUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1249,14 +1203,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		getUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1295,14 +1247,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		getUsers: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1342,14 +1292,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		uploadUserAvatar: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1391,14 +1339,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		getUserAvatar: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1440,14 +1386,12 @@ func NewDemoHttpClientTransports(scheme string, instance string, clientOptions .
 				resp.Data = body
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 	}
 }

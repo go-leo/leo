@@ -152,33 +152,29 @@ func (t *cQRSGrpcServerTransports) FindUser() *grpc.Server {
 	return t.findUser
 }
 
-func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints, serverOptions ...grpc.ServerOption) CQRSGrpcServerTransports {
+func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTransports {
 	return &cQRSGrpcServerTransports{
 		createUser: grpc.NewServer(
 			endpoints.CreateUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 		findUser: grpc.NewServer(
 			endpoints.FindUser(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 	}
 }
@@ -196,7 +192,7 @@ func (t *cQRSGrpcClientTransports) FindUser() *grpc.Client {
 	return t.findUser
 }
 
-func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) CQRSGrpcClientTransports {
+func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransports {
 	return &cQRSGrpcClientTransports{
 		createUser: grpc.NewClient(
 			conn,
@@ -205,14 +201,12 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 		findUser: grpc.NewClient(
 			conn,
@@ -221,14 +215,12 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.C
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUserResponse{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 	}
 }
@@ -316,7 +308,7 @@ func (t *cQRSHttpServerTransports) FindUser() *http.Server {
 	return t.findUser
 }
 
-func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.ServerOption) CQRSHttpServerTransports {
+func NewCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTransports {
 	return &cQRSHttpServerTransports{
 		createUser: http.NewServer(
 			endpoints.CreateUser(),
@@ -336,14 +328,12 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 		findUser: http.NewServer(
 			endpoints.FindUser(),
@@ -363,14 +353,12 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints, serverOptions ...http.
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 	}
 }
@@ -388,7 +376,7 @@ func (t *cQRSHttpClientTransports) FindUser() *http.Client {
 	return t.findUser
 }
 
-func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) CQRSHttpClientTransports {
+func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
@@ -436,14 +424,12 @@ func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 		findUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -488,14 +474,12 @@ func NewCQRSHttpClientTransports(scheme string, instance string, clientOptions .
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 	}
 }

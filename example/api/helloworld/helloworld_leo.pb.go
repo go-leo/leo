@@ -67,20 +67,18 @@ func (t *greeterGrpcServerTransports) SayHello() *grpc.Server {
 	return t.sayHello
 }
 
-func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints, serverOptions ...grpc.ServerOption) GreeterGrpcServerTransports {
+func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
 	return &greeterGrpcServerTransports{
 		sayHello: grpc.NewServer(
 			endpoints.SayHello(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 	}
 }
@@ -93,7 +91,7 @@ func (t *greeterGrpcClientTransports) SayHello() *grpc.Client {
 	return t.sayHello
 }
 
-func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) GreeterGrpcClientTransports {
+func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterGrpcClientTransports {
 	return &greeterGrpcClientTransports{
 		sayHello: grpc.NewClient(
 			conn,
@@ -102,14 +100,12 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HelloReply{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 	}
 }
@@ -169,7 +165,7 @@ func (t *greeterHttpServerTransports) SayHello() *http.Server {
 	return t.sayHello
 }
 
-func NewGreeterHttpServerTransports(endpoints GreeterEndpoints, serverOptions ...http.ServerOption) GreeterHttpServerTransports {
+func NewGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServerTransports {
 	return &greeterHttpServerTransports{
 		sayHello: http.NewServer(
 			endpoints.SayHello(),
@@ -189,14 +185,12 @@ func NewGreeterHttpServerTransports(endpoints GreeterEndpoints, serverOptions ..
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 	}
 }
@@ -209,7 +203,7 @@ func (t *greeterHttpClientTransports) SayHello() *http.Client {
 	return t.sayHello
 }
 
-func NewGreeterHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) GreeterHttpClientTransports {
+func NewGreeterHttpClientTransports(scheme string, instance string) GreeterHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
 	return &greeterHttpClientTransports{
@@ -256,14 +250,12 @@ func NewGreeterHttpClientTransports(scheme string, instance string, clientOption
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 	}
 }

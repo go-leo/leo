@@ -33,7 +33,7 @@ func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Servic
 		g.P("}")
 		g.P()
 	}
-	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string, clientOptions ...", internal.HttpTransportPackage.Ident("ClientOption"), ") ", service.HttpClientTransportsName(), " {")
+	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string) ", service.HttpClientTransportsName(), " {")
 
 	if len(service.Endpoints) > 0 {
 		g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
@@ -55,14 +55,13 @@ func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Servic
 			return err
 		}
 
-		g.P("append([]", internal.HttpTransportPackage.Ident("ClientOption"), "{")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
 		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
 		g.P("}),")
+
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
 		g.P("return ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.TransportxPackage.Ident("HttpClient"), ")")
 		g.P("}),")
-		g.P("}, clientOptions...)...,")
 
 		g.P("),")
 	}

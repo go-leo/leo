@@ -71,20 +71,18 @@ func (t *mixPathGrpcServerTransports) MixPath() *grpc.Server {
 	return t.mixPath
 }
 
-func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints, serverOptions ...grpc.ServerOption) MixPathGrpcServerTransports {
+func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints) MixPathGrpcServerTransports {
 	return &mixPathGrpcServerTransports{
 		mixPath: grpc.NewServer(
 			endpoints.MixPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 	}
 }
@@ -97,7 +95,7 @@ func (t *mixPathGrpcClientTransports) MixPath() *grpc.Client {
 	return t.mixPath
 }
 
-func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) MixPathGrpcClientTransports {
+func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathGrpcClientTransports {
 	return &mixPathGrpcClientTransports{
 		mixPath: grpc.NewClient(
 			conn,
@@ -106,14 +104,12 @@ func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 	}
 }
@@ -173,7 +169,7 @@ func (t *mixPathHttpServerTransports) MixPath() *http.Server {
 	return t.mixPath
 }
 
-func NewMixPathHttpServerTransports(endpoints MixPathEndpoints, serverOptions ...http.ServerOption) MixPathHttpServerTransports {
+func NewMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServerTransports {
 	return &mixPathHttpServerTransports{
 		mixPath: http.NewServer(
 			endpoints.MixPath(),
@@ -202,14 +198,12 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints, serverOptions ..
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 	}
 }
@@ -222,7 +216,7 @@ func (t *mixPathHttpClientTransports) MixPath() *http.Client {
 	return t.mixPath
 }
 
-func NewMixPathHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) MixPathHttpClientTransports {
+func NewMixPathHttpClientTransports(scheme string, instance string) MixPathHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &mixPathHttpClientTransports{
@@ -269,14 +263,12 @@ func NewMixPathHttpClientTransports(scheme string, instance string, clientOption
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 	}
 }

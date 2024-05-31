@@ -73,20 +73,18 @@ func (t *queryGrpcServerTransports) Query() *grpc.Server {
 	return t.query
 }
 
-func NewQueryGrpcServerTransports(endpoints QueryEndpoints, serverOptions ...grpc.ServerOption) QueryGrpcServerTransports {
+func NewQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTransports {
 	return &queryGrpcServerTransports{
 		query: grpc.NewServer(
 			endpoints.Query(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			append([]grpc.ServerOption{
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-				}),
-				grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcServer)
-				}),
-			}, serverOptions...)...,
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+			}),
+			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcServer)
+			}),
 		),
 	}
 }
@@ -99,7 +97,7 @@ func (t *queryGrpcClientTransports) Query() *grpc.Client {
 	return t.query
 }
 
-func NewQueryGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.ClientOption) QueryGrpcClientTransports {
+func NewQueryGrpcClientTransports(conn *grpc1.ClientConn) QueryGrpcClientTransports {
 	return &queryGrpcClientTransports{
 		query: grpc.NewClient(
 			conn,
@@ -108,14 +106,12 @@ func NewQueryGrpcClientTransports(conn *grpc1.ClientConn, clientOptions ...grpc.
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			append([]grpc.ClientOption{
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-				}),
-				grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-					return transportx.InjectName(ctx, transportx.GrpcClient)
-				}),
-			}, clientOptions...)...,
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+			}),
+			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
+				return transportx.InjectName(ctx, transportx.GrpcClient)
+			}),
 		),
 	}
 }
@@ -175,7 +171,7 @@ func (t *queryHttpServerTransports) Query() *http.Server {
 	return t.query
 }
 
-func NewQueryHttpServerTransports(endpoints QueryEndpoints, serverOptions ...http.ServerOption) QueryHttpServerTransports {
+func NewQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTransports {
 	return &queryHttpServerTransports{
 		query: http.NewServer(
 			endpoints.Query(),
@@ -266,14 +262,12 @@ func NewQueryHttpServerTransports(endpoints QueryEndpoints, serverOptions ...htt
 				}
 				return nil
 			},
-			append([]http.ServerOption{
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-				}),
-				http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpServer)
-				}),
-			}, serverOptions...)...,
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+			}),
+			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpServer)
+			}),
 		),
 	}
 }
@@ -286,7 +280,7 @@ func (t *queryHttpClientTransports) Query() *http.Client {
 	return t.query
 }
 
-func NewQueryHttpClientTransports(scheme string, instance string, clientOptions ...http.ClientOption) QueryHttpClientTransports {
+func NewQueryHttpClientTransports(scheme string, instance string) QueryHttpClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
 	return &queryHttpClientTransports{
@@ -395,14 +389,12 @@ func NewQueryHttpClientTransports(scheme string, instance string, clientOptions 
 				}
 				return resp, nil
 			},
-			append([]http.ClientOption{
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-				}),
-				http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-					return transportx.InjectName(ctx, transportx.HttpClient)
-				}),
-			}, clientOptions...)...,
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+			}),
+			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
+				return transportx.InjectName(ctx, transportx.HttpClient)
+			}),
 		),
 	}
 }

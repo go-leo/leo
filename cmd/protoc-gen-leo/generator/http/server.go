@@ -34,7 +34,7 @@ func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Servic
 		g.P()
 	}
 
-	g.P("func New", service.HttpServerTransportsName(), "(endpoints ", service.EndpointsName(), ", serverOptions ...", internal.HttpTransportPackage.Ident("ServerOption"), ") ", service.HttpServerTransportsName(), " {")
+	g.P("func New", service.HttpServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.HttpServerTransportsName(), " {")
 	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": ", internal.HttpTransportPackage.Ident("NewServer"), "(")
@@ -46,14 +46,15 @@ func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Servic
 			return err
 		}
 		g.P("},")
-		g.P("append([]", internal.HttpTransportPackage.Ident("ServerOption"), "{")
+
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
 		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
 		g.P("}),")
+
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
 		g.P("return ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.TransportxPackage.Ident("HttpServer"), ")")
 		g.P("}),")
-		g.P("}, serverOptions...)...,")
+
 		g.P("),")
 	}
 	g.P("}")
