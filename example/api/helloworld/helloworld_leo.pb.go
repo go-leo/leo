@@ -12,10 +12,10 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	transportx "github.com/go-leo/leo/v3/transportx"
+	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
-	metadata "google.golang.org/grpc/metadata"
 	io "io"
 	http1 "net/http"
 	url "net/url"
@@ -73,12 +73,8 @@ func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServe
 			endpoints.SayHello(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 	}
 }
@@ -100,12 +96,8 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterGrpcClientTra
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HelloReply{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/helloworld.Greeter/SayHello")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 	}
 }
@@ -185,12 +177,9 @@ func NewGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -250,12 +239,8 @@ func NewGreeterHttpClientTransports(scheme string, instance string) GreeterHttpC
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 	}
 }

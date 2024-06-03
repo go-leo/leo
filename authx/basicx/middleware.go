@@ -7,6 +7,7 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/statusx"
@@ -29,7 +30,7 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 				if err != nil {
 					var authErr basic.AuthError
 					if errors.As(err, &authErr) {
-						return nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()
+						return nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()
 					}
 				}
 				return response, err
@@ -37,12 +38,12 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 			if name == transportx.GrpcServer {
 				md, ok := metadata.FromIncomingContext(ctx)
 				if !ok {
-					return nil, statusx.InvalidArgument.WithMessage("missing metadata").Err()
+					return nil, statusx.InvalidArgument("missing metadata").Err()
 				}
 
 				givenUser, givenPassword, ok := parseBasicAuth(md.Get("authorization"))
 				if !ok {
-					return nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()
+					return nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()
 				}
 
 				givenUserBytes := toHashSlice(givenUser)
@@ -50,7 +51,7 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 
 				if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 					subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
-					return nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()
+					return nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()
 				}
 
 				// Continue execution of handler after ensuring a valid token.

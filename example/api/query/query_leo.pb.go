@@ -15,10 +15,10 @@ import (
 	protox "github.com/go-leo/gox/protox"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	transportx "github.com/go-leo/leo/v3/transportx"
+	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
-	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -79,12 +79,8 @@ func NewQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTrans
 			endpoints.Query(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.query.v1.Query/Query")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 	}
 }
@@ -106,12 +102,8 @@ func NewQueryGrpcClientTransports(conn *grpc1.ClientConn) QueryGrpcClientTranspo
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.query.v1.Query/Query")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 	}
 }
@@ -262,12 +254,9 @@ func NewQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -389,12 +378,8 @@ func NewQueryHttpClientTransports(scheme string, instance string) QueryHttpClien
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 	}
 }

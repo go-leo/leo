@@ -12,11 +12,11 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	transportx "github.com/go-leo/leo/v3/transportx"
+	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	grpc1 "google.golang.org/grpc"
-	metadata "google.golang.org/grpc/metadata"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -139,56 +139,36 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			endpoints.StarBody(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/StarBody")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 		namedBody: grpc.NewServer(
 			endpoints.NamedBody(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 		nonBody: grpc.NewServer(
 			endpoints.NonBody(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NonBody")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 		httpBodyStarBody: grpc.NewServer(
 			endpoints.HttpBodyStarBody(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 		httpBodyNamedBody: grpc.NewServer(
 			endpoints.HttpBodyNamedBody(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 	}
 }
@@ -230,12 +210,8 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/StarBody")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 		namedBody: grpc.NewClient(
 			conn,
@@ -244,12 +220,8 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 		nonBody: grpc.NewClient(
 			conn,
@@ -258,12 +230,8 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/NonBody")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 		httpBodyStarBody: grpc.NewClient(
 			conn,
@@ -272,12 +240,8 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 		httpBodyNamedBody: grpc.NewClient(
 			conn,
@@ -286,12 +250,8 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 	}
 }
@@ -483,12 +443,9 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedBody: http.NewServer(
 			endpoints.NamedBody(),
@@ -508,12 +465,9 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		nonBody: http.NewServer(
 			endpoints.NonBody(),
@@ -530,12 +484,9 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyStarBody: http.NewServer(
 			endpoints.HttpBodyStarBody(),
@@ -558,12 +509,9 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyNamedBody: http.NewServer(
 			endpoints.HttpBodyNamedBody(),
@@ -587,12 +535,9 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -676,12 +621,8 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 		namedBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -726,12 +667,8 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 		nonBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -769,12 +706,8 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 		httpBodyStarBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -815,12 +748,8 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 		httpBodyNamedBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -861,12 +790,8 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 	}
 }

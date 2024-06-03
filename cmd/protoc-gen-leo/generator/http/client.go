@@ -55,13 +55,8 @@ func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Servic
 			return err
 		}
 
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("}),")
-
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.TransportxPackage.Ident("HttpClient"), ")")
-		g.P("}),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpClient"), ")),")
 
 		g.P("),")
 	}

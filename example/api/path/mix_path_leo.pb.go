@@ -12,10 +12,10 @@ import (
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	transportx "github.com/go-leo/leo/v3/transportx"
+	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	grpc1 "google.golang.org/grpc"
-	metadata "google.golang.org/grpc/metadata"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -77,12 +77,8 @@ func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints) MixPathGrpcServe
 			endpoints.MixPath(),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-			}),
-			grpc.ServerBefore(func(ctx context.Context, md metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcServer)
-			}),
+			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+			grpc.ServerBefore(grpcx.ServerTransportInjector),
 		),
 	}
 }
@@ -104,12 +100,8 @@ func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathGrpcClientTra
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-			}),
-			grpc.ClientBefore(func(ctx context.Context, md *metadata.MD) context.Context {
-				return transportx.InjectName(ctx, transportx.GrpcClient)
-			}),
+			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+			grpc.ClientBefore(grpcx.ClientTransportInjector),
 		),
 	}
 }
@@ -198,12 +190,9 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 				}
 				return nil
 			},
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-			}),
-			http.ServerBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpServer)
-			}),
+			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -263,12 +252,8 @@ func NewMixPathHttpClientTransports(scheme string, instance string) MixPathHttpC
 				}
 				return resp, nil
 			},
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-			}),
-			http.ClientBefore(func(ctx context.Context, request *http1.Request) context.Context {
-				return transportx.InjectName(ctx, transportx.HttpClient)
-			}),
+			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 		),
 	}
 }

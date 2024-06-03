@@ -28,11 +28,11 @@ func TestHttpWithBasicAuth(t *testing.T) {
 		authHeader interface{}
 		want       want
 	}{
-		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
+		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
 		{"Is valid for correct creds", makeAuthString(requiredUser, requiredPassword), want{true, nil}},
 	}
 	for _, tt := range tests {
@@ -63,11 +63,11 @@ func TestGrpcWithBasicAuth(t *testing.T) {
 		authHeader interface{}
 		want       want
 	}{
-		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
-		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated.WithMessage(`invalid token, Basic realm=%q`, realm).Err()}},
+		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
 		{"Is valid for correct creds", makeAuthString(requiredUser, requiredPassword), want{true, nil}},
 	}
 	for _, tt := range tests {

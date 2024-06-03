@@ -47,13 +47,9 @@ func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Servic
 		}
 		g.P("},")
 
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("}),")
-
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", request *", internal.HttpPackage.Ident("Request"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.TransportxPackage.Ident("HttpServer"), ")")
-		g.P("}),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpServer"), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxPackage.Ident("ErrorEncoder"), "),")
 
 		g.P("),")
 	}

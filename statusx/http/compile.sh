@@ -3,4 +3,4 @@ protoc \
 		--proto_path=../../third_party \
 		--go_out=. \
 		--go_opt=paths=source_relative \
-		status.proto
+		http.proto

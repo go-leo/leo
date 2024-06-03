@@ -102,13 +102,8 @@ func (f *Generator) GenerateImplementedServerTransports(service *internal.Servic
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
 
-		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", md ", internal.GrpcMetadataPackage.Ident("MD"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("}),")
-
-		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", md ", internal.GrpcMetadataPackage.Ident("MD"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.TransportxPackage.Ident("GrpcServer"), ")")
-		g.P("}),")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxPackage.Ident("ServerEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxPackage.Ident("ServerTransportInjector"), "),")
 
 		g.P("),")
 	}
@@ -143,13 +138,8 @@ func (f *Generator) GenerateImplementedClientTransports(service *internal.Servic
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 		g.P(endpoint.OutputGoIdent(), "{},")
 
-		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", md *", internal.GrpcMetadataPackage.Ident("MD"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("}),")
-
-		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(func(ctx ", internal.ContextPackage.Ident("Context"), ", md *", internal.GrpcMetadataPackage.Ident("MD"), ") ", internal.ContextPackage.Ident("Context"), " {")
-		g.P("return ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.TransportxPackage.Ident("GrpcClient"), ")")
-		g.P("}),")
+		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxPackage.Ident("ClientEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxPackage.Ident("ClientTransportInjector"), "),")
 
 		g.P("),")
 	}
