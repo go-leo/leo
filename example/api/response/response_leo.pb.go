@@ -629,6 +629,7 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		starResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -671,6 +672,7 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -713,6 +715,7 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -758,6 +761,7 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyNamedResponse: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -804,6 +808,7 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

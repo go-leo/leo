@@ -57,6 +57,7 @@ func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Servic
 
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpClient"), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("OutgoingMetadata"), "),")
 
 		g.P("),")
 	}

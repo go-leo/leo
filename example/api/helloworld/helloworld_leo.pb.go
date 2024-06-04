@@ -244,6 +244,7 @@ func NewGreeterHttpClientTransports(scheme string, instance string) GreeterHttpC
 			},
 			http.ClientBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

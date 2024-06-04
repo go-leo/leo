@@ -626,6 +626,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -675,6 +676,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		nonBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -717,6 +719,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyStarBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -762,6 +765,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyNamedBody: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -807,6 +811,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

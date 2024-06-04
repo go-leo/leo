@@ -13,11 +13,31 @@ func OK(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.OK, msg), &httpstatus.Status{Code: int32(httpstatus.Code_OK)})
 }
 
+var okStatus = OK("")
+
+func IsOk(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, okStatus)
+}
+
 // Canceled The operation was cancelled, typically by the caller.
 //
 // HTTP Mapping: 499 Client Closed Request
 func Canceled(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Canceled, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CLIENT_CLOSED_REQUEST)})
+}
+
+var canceledStatus = Canceled("")
+
+func IsCanceled(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, canceledStatus)
 }
 
 // Unknown error.  For example, this error may be returned when
@@ -31,6 +51,16 @@ func Unknown(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Unknown, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
 }
 
+var unknownStatus = Unknown("")
+
+func IsUnknown(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, unknownStatus)
+}
+
 // InvalidArgument The client specified an invalid argument.  Note that this differs
 // from `FAILED_PRECONDITION`.  `INVALID_ARGUMENT` indicates arguments
 // that are problematic regardless of the state of the system
@@ -39,6 +69,16 @@ func Unknown(msg string) *grpcstatus.Status {
 // HTTP Mapping: 400 Bad Request
 func InvalidArgument(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.InvalidArgument, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
+}
+
+var invalidArgumentStatus = InvalidArgument("")
+
+func IsInvalidArgument(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, invalidArgumentStatus)
 }
 
 // DeadlineExceeded The deadline expired before the operation could complete. For operations
@@ -50,6 +90,16 @@ func InvalidArgument(msg string) *grpcstatus.Status {
 // HTTP Mapping: 504 Gateway Timeout
 func DeadlineExceeded(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.DeadlineExceeded, msg), &httpstatus.Status{Code: int32(httpstatus.Code_GATEWAY_TIMEOUT)})
+}
+
+var deadlineExceededStatus = DeadlineExceeded("")
+
+func IsDeadlineExceeded(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, deadlineExceededStatus)
 }
 
 // NotFound Some requested entity (e.g., file or directory) was not found.
@@ -65,12 +115,32 @@ func NotFound(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.NotFound, msg), &httpstatus.Status{Code: int32(httpstatus.Code_NOT_FOUND)})
 }
 
+var notFoundStatus = NotFound("")
+
+func IsNotFound(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, notFoundStatus)
+}
+
 // AlreadyExists The entity that a client attempted to create (e.g., file or directory)
 // already exists.
 //
 // HTTP Mapping: 409 Conflict
 func AlreadyExists(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.AlreadyExists, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CONFLICT)})
+}
+
+var alreadyExistsStatus = AlreadyExists("")
+
+func IsAlreadyExists(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, alreadyExistsStatus)
 }
 
 // PermissionDenied The caller does not have permission to execute the specified
@@ -87,12 +157,32 @@ func PermissionDenied(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.PermissionDenied, msg), &httpstatus.Status{Code: int32(httpstatus.Code_FORBIDDEN)})
 }
 
+var permissionDeniedStatus = PermissionDenied("")
+
+func IsPermissionDenied(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, permissionDeniedStatus)
+}
+
 // ResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
 // perhaps the entire file system is out of space.
 //
 // HTTP Mapping: 429 Too Many Requests
 func ResourceExhausted(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.ResourceExhausted, msg), &httpstatus.Status{Code: int32(httpstatus.Code_TOO_MANY_REQUESTS)})
+}
+
+var resourceExhaustedStatus = ResourceExhausted("")
+
+func IsResourceExhausted(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, resourceExhaustedStatus)
 }
 
 // FailedPrecondition The operation was rejected because the system is not in a state
@@ -118,6 +208,16 @@ func FailedPrecondition(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.FailedPrecondition, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
 }
 
+var failedPreconditionStatus = FailedPrecondition("")
+
+func IsFailedPrecondition(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, failedPreconditionStatus)
+}
+
 // Aborted The operation was aborted, typically due to a concurrency issue such as
 // a sequencer check failure or transaction abort.
 //
@@ -127,6 +227,16 @@ func FailedPrecondition(msg string) *grpcstatus.Status {
 // HTTP Mapping: 409 Conflict
 func Aborted(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Aborted, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CONFLICT)})
+}
+
+var abortedStatus = Aborted("")
+
+func IsAborted(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, abortedStatus)
 }
 
 // OutOfRange The operation was attempted past the valid range.  E.g., seeking or
@@ -150,12 +260,32 @@ func OutOfRange(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.OutOfRange, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
 }
 
+var outOfRangeStatus = OutOfRange("")
+
+func IsOutOfRange(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, outOfRangeStatus)
+}
+
 // Unimplemented The operation is not implemented or is not supported/enabled in this
 // service.
 //
 // HTTP Mapping: 501 Not Implemented
 func Unimplemented(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Unimplemented, msg), &httpstatus.Status{Code: int32(httpstatus.Code_NOT_IMPLEMENTED)})
+}
+
+var unimplementedStatus = Unimplemented("")
+
+func IsUnimplemented(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, unimplementedStatus)
 }
 
 // Internal Internal errors.  This means that some invariants expected by the
@@ -165,6 +295,16 @@ func Unimplemented(msg string) *grpcstatus.Status {
 // HTTP Mapping: 500 Internal Server Error
 func Internal(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Internal, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
+}
+
+var internalStatus = Internal("")
+
+func IsInternal(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, internalStatus)
 }
 
 // Unavailable The service is currently unavailable.  This is most likely a
@@ -181,11 +321,31 @@ func Unavailable(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Unavailable, msg), &httpstatus.Status{Code: int32(httpstatus.Code_SERVICE_UNAVAILABLE)})
 }
 
+var unavailableStatus = Unavailable("")
+
+func IsUnavailable(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, unavailableStatus)
+}
+
 // DataLoss Unrecoverable data loss or corruption.
 //
 // HTTP Mapping: 500 Internal Server Error
 func DataLoss(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.DataLoss, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
+}
+
+var dataLossStatus = DataLoss("")
+
+func IsDataLoss(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, dataLossStatus)
 }
 
 // Unauthenticated The request does not have valid authentication credentials for the
@@ -196,9 +356,32 @@ func Unauthenticated(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Unauthenticated, msg), &httpstatus.Status{Code: int32(httpstatus.Code_UNAUTHORIZED)})
 }
 
+var unauthenticatedStatus = Unauthenticated("")
+
+func IsUnauthenticated(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, unauthenticatedStatus)
+}
+
 // OKButFailed is returned on success, but business logic failed.
+// unlike Unknown error, it just means business logic failed.
+// For example, if client want sign up, but username already exists,
+// it should return OKButFailed("username already exist").
 //
 // HTTP Mapping: 200 OK
 func OKButFailed(msg string) *grpcstatus.Status {
 	return WithHttpStatus(grpcstatus.New(codes.Unknown, msg), &httpstatus.Status{Code: int32(httpstatus.Code_OK)})
+}
+
+var okButFailedStatus = OKButFailed("")
+
+func IsOKButFailed(err error) bool {
+	s, ok := grpcstatus.FromError(err)
+	if !ok {
+		return false
+	}
+	return Is(s, okButFailedStatus)
 }

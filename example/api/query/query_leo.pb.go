@@ -383,6 +383,7 @@ func NewQueryHttpClientTransports(scheme string, instance string) QueryHttpClien
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

@@ -12,6 +12,8 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
+	"github.com/go-leo/leo/v3/transportx/grpcx"
+	"github.com/go-leo/leo/v3/transportx/httpx"
 	"google.golang.org/grpc/metadata"
 	"strings"
 )
@@ -25,7 +27,7 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 			if !ok {
 				return next(ctx, request)
 			}
-			if name == transportx.HttpServer {
+			if name == httpx.HttpServer {
 				response, err = basic.AuthMiddleware(requiredUser, requiredPassword, realm)(next)(ctx, request)
 				if err != nil {
 					var authErr basic.AuthError
@@ -35,7 +37,7 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 				}
 				return response, err
 			}
-			if name == transportx.GrpcServer {
+			if name == grpcx.GrpcServer {
 				md, ok := metadata.FromIncomingContext(ctx)
 				if !ok {
 					return nil, statusx.InvalidArgument("missing metadata").Err()
@@ -62,37 +64,25 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 	}
 }
 
-// valid validates the authorization.
-func valid(authorization []string) bool {
-	if len(authorization) < 1 {
-		return false
-	}
-	token := strings.TrimPrefix(authorization[0], "Bearer ")
-	// Perform the token validation here. For the sake of this example, the code
-	// here forgoes any of the usual OAuth2 token validation and instead checks
-	// for a token matching an arbitrary string.
-	return token == "some-secret-token"
-}
-
 // parseBasicAuth parses an HTTP Basic Authentication string.
 // "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" returns ([]byte("Aladdin"), []byte("open sesame"), true).
-func parseBasicAuth(authorization []string) (username, password []byte, ok bool) {
+func parseBasicAuth(authorization []string) ([]byte, []byte, bool) {
 	if len(authorization) == 0 {
-		return
+		return nil, nil, false
 	}
 	auth := authorization[0]
 	const prefix = "Basic "
 	if !strings.HasPrefix(auth, prefix) {
-		return
+		return nil, nil, false
 	}
 	c, err := base64.StdEncoding.DecodeString(auth[len(prefix):])
 	if err != nil {
-		return
+		return nil, nil, false
 	}
 
 	s := bytes.IndexByte(c, ':')
 	if s < 0 {
-		return
+		return nil, nil, false
 	}
 	return c[:s], c[s+1:], true
 }

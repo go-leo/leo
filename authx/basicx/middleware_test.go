@@ -8,6 +8,8 @@ import (
 	"github.com/go-leo/gox/errorx"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
+	"github.com/go-leo/leo/v3/transportx/grpcx"
+	"github.com/go-leo/leo/v3/transportx/httpx"
 	"google.golang.org/grpc/metadata"
 	"testing"
 
@@ -38,7 +40,7 @@ func TestHttpWithBasicAuth(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			ctx = transportx.InjectName(ctx, transportx.HttpServer)
+			ctx = transportx.InjectName(ctx, httpx.HttpServer)
 			ctx = context.WithValue(ctx, httptransport.ContextKeyRequestAuthorization, tt.authHeader)
 
 			result, err := Middleware(requiredUser, requiredPassword, realm)(passedValidation)(ctx, nil)
@@ -73,7 +75,7 @@ func TestGrpcWithBasicAuth(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			ctx = transportx.InjectName(ctx, transportx.GrpcServer)
+			ctx = transportx.InjectName(ctx, grpcx.GrpcServer)
 			ctx = metadata.NewIncomingContext(ctx, metadata.Pairs("authorization", convx.ToString(tt.authHeader)))
 
 			result, err := Middleware(requiredUser, requiredPassword, realm)(passedValidation)(ctx, nil)

@@ -654,6 +654,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -702,6 +703,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		createWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -757,6 +759,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -812,6 +815,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteWorkspace: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -860,6 +864,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-leo/leo/v3/authx/basicx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	grpc1 "google.golang.org/grpc"
 	"log"
@@ -14,9 +15,9 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterEndpoints(NewGreeterService())
-	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
-	service := helloworld.NewGreeterHttpServerHandler(transports)
+	endpoints := helloworld.NewGreeterEndpoints(NewGreeterService(), basicx.Middleware("soyacen", "123456", "basic example"))
+	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
+	service := helloworld.NewGreeterGrpcServer(transports)
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

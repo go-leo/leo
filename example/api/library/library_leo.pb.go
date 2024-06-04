@@ -1242,6 +1242,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getShelf: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1290,6 +1291,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		listShelves: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1334,6 +1336,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteShelf: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1382,6 +1385,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		mergeShelves: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1437,6 +1441,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		createBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1492,6 +1497,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1540,6 +1546,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		listBooks: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1590,6 +1597,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1638,6 +1646,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1693,6 +1702,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		moveBook: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1748,6 +1758,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			},
 			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

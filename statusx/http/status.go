@@ -5,4 +5,8 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-var AnyProto = errorx.Ignore(anypb.New(&Status{}))
+var AnyProto *anypb.Any
+
+func init() {
+	AnyProto = errorx.Ignore(anypb.New(&Status{}))
+}

@@ -257,6 +257,7 @@ func NewMixPathHttpClientTransports(scheme string, instance string) MixPathHttpC
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

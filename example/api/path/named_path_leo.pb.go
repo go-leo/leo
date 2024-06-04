@@ -767,6 +767,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedPathOptString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -817,6 +818,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedPathWrapString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -867,6 +869,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -915,6 +918,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathOptString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -963,6 +967,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathWrapString: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1011,6 +1016,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

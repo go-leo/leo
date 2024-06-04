@@ -71,6 +71,10 @@ func New() Metadata {
 	return metadata{}
 }
 
+func FromHttpHeader(header http.Header) Metadata {
+	return metadata(header)
+}
+
 func AsHttpHeader(metadata Metadata) http.Header {
 	header := http.Header{}
 	for _, key := range metadata.Keys() {
@@ -82,7 +86,11 @@ func AsHttpHeader(metadata Metadata) http.Header {
 	return header
 }
 
-func AsGrpcMD(metadata Metadata) grpcmetadata.MD {
+func FromGrpcMetadata(md grpcmetadata.MD) Metadata {
+	return metadata(md)
+}
+
+func AsGrpcMetadata(metadata Metadata) grpcmetadata.MD {
 	md := grpcmetadata.MD{}
 	for _, key := range metadata.Keys() {
 		md.Set(key, metadata.Values(key)...)

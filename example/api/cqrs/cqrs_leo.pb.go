@@ -407,6 +407,7 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		findUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -456,6 +457,7 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

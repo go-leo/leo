@@ -1036,6 +1036,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1079,6 +1080,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1129,6 +1131,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUser: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1172,6 +1175,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUsers: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1216,6 +1220,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uploadUserAvatar: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1262,6 +1267,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUserAvatar: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1308,6 +1314,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }

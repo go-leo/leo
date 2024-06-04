@@ -1435,6 +1435,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		int32Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1509,6 +1510,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		int64Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1583,6 +1585,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uint32Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1659,6 +1662,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uint64Path: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1735,6 +1739,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		floatPath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1813,6 +1818,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		doublePath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1891,6 +1897,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		stringPath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -1969,6 +1976,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		enumPath: http.NewExplicitClient(
 			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
@@ -2048,6 +2056,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			},
 			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
+			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
 }
