@@ -192,6 +192,7 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

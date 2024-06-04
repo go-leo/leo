@@ -179,6 +179,7 @@ func NewGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

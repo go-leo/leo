@@ -458,6 +458,7 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getWorkspace: http.NewServer(
@@ -483,6 +484,7 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		createWorkspace: http.NewServer(
@@ -511,6 +513,7 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		updateWorkspace: http.NewServer(
@@ -539,6 +542,7 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteWorkspace: http.NewServer(
@@ -564,6 +568,7 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

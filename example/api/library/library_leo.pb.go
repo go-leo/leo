@@ -844,6 +844,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getShelf: http.NewServer(
@@ -869,6 +870,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		listShelves: http.NewServer(
@@ -895,6 +897,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteShelf: http.NewServer(
@@ -920,6 +923,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		mergeShelves: http.NewServer(
@@ -948,6 +952,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		createBook: http.NewServer(
@@ -976,6 +981,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getBook: http.NewServer(
@@ -1001,6 +1007,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		listBooks: http.NewServer(
@@ -1033,6 +1040,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteBook: http.NewServer(
@@ -1058,6 +1066,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		updateBook: http.NewServer(
@@ -1089,6 +1098,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		moveBook: http.NewServer(
@@ -1117,6 +1127,7 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

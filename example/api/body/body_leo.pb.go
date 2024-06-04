@@ -445,6 +445,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedBody: http.NewServer(
@@ -467,6 +468,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		nonBody: http.NewServer(
@@ -486,6 +488,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyStarBody: http.NewServer(
@@ -511,6 +514,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyNamedBody: http.NewServer(
@@ -537,6 +541,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

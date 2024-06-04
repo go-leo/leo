@@ -314,6 +314,7 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		findUser: http.NewServer(
@@ -336,6 +337,7 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

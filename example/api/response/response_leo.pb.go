@@ -445,6 +445,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		starResponse: http.NewServer(
@@ -464,6 +465,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedResponse: http.NewServer(
@@ -483,6 +485,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyResponse: http.NewServer(
@@ -515,6 +518,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyNamedResponse: http.NewServer(
@@ -547,6 +551,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

@@ -41,3 +41,7 @@ func OutgoingMetadata(ctx context.Context, request *http.Request) context.Contex
 	}
 	return ctx
 }
+
+func IncomingMetadata(ctx context.Context, request *http.Request) context.Context {
+	return metadatax.NewIncomingContext(ctx, metadatax.FromHttpHeader(request.Header))
+}

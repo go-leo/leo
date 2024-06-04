@@ -523,6 +523,7 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedPathOptString: http.NewServer(
@@ -555,6 +556,7 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedPathWrapString: http.NewServer(
@@ -587,6 +589,7 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		embedNamedPathString: http.NewServer(
@@ -615,6 +618,7 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		embedNamedPathOptString: http.NewServer(
@@ -643,6 +647,7 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		embedNamedPathWrapString: http.NewServer(
@@ -671,6 +676,7 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

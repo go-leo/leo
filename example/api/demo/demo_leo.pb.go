@@ -761,6 +761,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteUser: http.NewServer(
@@ -786,6 +787,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		updateUser: http.NewServer(
@@ -814,6 +816,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUser: http.NewServer(
@@ -839,6 +842,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUsers: http.NewServer(
@@ -865,6 +869,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uploadUserAvatar: http.NewServer(
@@ -897,6 +902,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUserAvatar: http.NewServer(
@@ -935,6 +941,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

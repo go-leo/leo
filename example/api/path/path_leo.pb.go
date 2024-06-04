@@ -757,6 +757,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		int32Path: http.NewServer(
@@ -824,6 +825,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		int64Path: http.NewServer(
@@ -891,6 +893,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uint32Path: http.NewServer(
@@ -958,6 +961,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uint64Path: http.NewServer(
@@ -1025,6 +1029,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		floatPath: http.NewServer(
@@ -1092,6 +1097,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		doublePath: http.NewServer(
@@ -1159,6 +1165,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		stringPath: http.NewServer(
@@ -1226,6 +1233,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		enumPath: http.NewServer(
@@ -1293,6 +1301,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}

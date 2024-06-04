@@ -256,6 +256,7 @@ func NewQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+			http.ServerBefore(httpx.IncomingMetadata),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
