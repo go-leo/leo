@@ -7,6 +7,6 @@ func Chain(component endpoint.Endpoint, middlewares ...endpoint.Middleware) endp
 	if len(middlewares) == 0 {
 		return component
 	}
-	middleware := endpoint.Chain(middlewares[0], middlewares[0:]...)
+	middleware := endpoint.Chain(middlewares[0], middlewares[1:]...)
 	return middleware(component)
 }

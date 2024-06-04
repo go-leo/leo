@@ -15,7 +15,10 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterEndpoints(NewGreeterService(), basicx.Middleware("soyacen", "123456", "basic example"))
+	endpoints := helloworld.NewGreeterEndpoints(
+		NewGreeterService(),
+		basicx.Middleware("soyacen", "123456", "basic auth example"),
+	)
 	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
 	service := helloworld.NewGreeterGrpcServer(transports)
 	helloworld.RegisterGreeterServer(s, service)

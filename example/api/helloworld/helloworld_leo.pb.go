@@ -12,6 +12,7 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -97,8 +98,6 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterGrpcClientTra
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HelloReply{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/helloworld.Greeter/SayHello")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -128,6 +127,8 @@ type greeterGrpcClient struct {
 }
 
 func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
+	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.sayHello(ctx, request)
 	if err != nil {
 		return nil, err
@@ -245,8 +246,6 @@ func NewGreeterHttpClientTransports(scheme string, instance string) GreeterHttpC
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -263,6 +262,8 @@ type greeterHttpClient struct {
 }
 
 func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
+	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.sayHello(ctx, request)
 	if err != nil {
 		return nil, err

@@ -19,6 +19,7 @@ import (
 	command "github.com/go-leo/leo/v3/example/internal/demo/command"
 	query "github.com/go-leo/leo/v3/example/internal/demo/query"
 	metadatax "github.com/go-leo/leo/v3/metadatax"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -457,8 +458,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			CreateUserResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteUser: grpc.NewClient(
@@ -468,8 +467,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		updateUser: grpc.NewClient(
@@ -479,8 +476,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getUser: grpc.NewClient(
@@ -490,8 +485,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUserResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getUsers: grpc.NewClient(
@@ -501,8 +494,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUsersResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		uploadUserAvatar: grpc.NewClient(
@@ -512,8 +503,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getUserAvatar: grpc.NewClient(
@@ -523,8 +512,6 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			httpbody.HttpBody{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -626,6 +613,8 @@ type demoGrpcClient struct {
 }
 
 func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.createUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -634,6 +623,8 @@ func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequ
 }
 
 func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.deleteUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -642,6 +633,8 @@ func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersReq
 }
 
 func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.updateUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -650,6 +643,8 @@ func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequ
 }
 
 func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.getUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -658,6 +653,8 @@ func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (
 }
 
 func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.getUsers(ctx, request)
 	if err != nil {
 		return nil, err
@@ -666,6 +663,8 @@ func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest)
 }
 
 func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.uploadUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err
@@ -674,6 +673,8 @@ func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 }
 
 func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.getUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1055,8 +1056,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteUser: http.NewExplicitClient(
@@ -1099,8 +1098,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateUser: http.NewExplicitClient(
@@ -1150,8 +1147,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUser: http.NewExplicitClient(
@@ -1194,8 +1189,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUsers: http.NewExplicitClient(
@@ -1239,8 +1232,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uploadUserAvatar: http.NewExplicitClient(
@@ -1286,8 +1277,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUserAvatar: http.NewExplicitClient(
@@ -1333,8 +1322,6 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				resp.Data = body
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -1363,6 +1350,8 @@ type demoHttpClient struct {
 }
 
 func (c *demoHttpClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.createUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1371,6 +1360,8 @@ func (c *demoHttpClient) CreateUser(ctx context.Context, request *CreateUserRequ
 }
 
 func (c *demoHttpClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.deleteUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1379,6 +1370,8 @@ func (c *demoHttpClient) DeleteUser(ctx context.Context, request *DeleteUsersReq
 }
 
 func (c *demoHttpClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.updateUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1387,6 +1380,8 @@ func (c *demoHttpClient) UpdateUser(ctx context.Context, request *UpdateUserRequ
 }
 
 func (c *demoHttpClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.getUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1395,6 +1390,8 @@ func (c *demoHttpClient) GetUser(ctx context.Context, request *GetUserRequest) (
 }
 
 func (c *demoHttpClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.getUsers(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1403,6 +1400,8 @@ func (c *demoHttpClient) GetUsers(ctx context.Context, request *GetUsersRequest)
 }
 
 func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.uploadUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1411,6 +1410,8 @@ func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 }
 
 func (c *demoHttpClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.getUserAvatar(ctx, request)
 	if err != nil {
 		return nil, err

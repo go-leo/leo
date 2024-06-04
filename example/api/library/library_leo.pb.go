@@ -15,6 +15,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -392,8 +393,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Shelf{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getShelf: grpc.NewClient(
@@ -403,8 +402,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Shelf{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		listShelves: grpc.NewClient(
@@ -414,8 +411,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			ListShelvesResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteShelf: grpc.NewClient(
@@ -425,8 +420,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		mergeShelves: grpc.NewClient(
@@ -436,8 +429,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Shelf{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		createBook: grpc.NewClient(
@@ -447,8 +438,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getBook: grpc.NewClient(
@@ -458,8 +447,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		listBooks: grpc.NewClient(
@@ -469,8 +456,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			ListBooksResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteBook: grpc.NewClient(
@@ -480,8 +465,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		updateBook: grpc.NewClient(
@@ -491,8 +474,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		moveBook: grpc.NewClient(
@@ -502,8 +483,6 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Book{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -653,6 +632,8 @@ type libraryServiceGrpcClient struct {
 }
 
 func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.createShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -661,6 +642,8 @@ func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *Cre
 }
 
 func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.getShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -669,6 +652,8 @@ func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShe
 }
 
 func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.listShelves(ctx, request)
 	if err != nil {
 		return nil, err
@@ -677,6 +662,8 @@ func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *Lis
 }
 
 func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.deleteShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -685,6 +672,8 @@ func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *Del
 }
 
 func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.mergeShelves(ctx, request)
 	if err != nil {
 		return nil, err
@@ -693,6 +682,8 @@ func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *Me
 }
 
 func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.createBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -701,6 +692,8 @@ func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *Crea
 }
 
 func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.getBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -709,6 +702,8 @@ func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBook
 }
 
 func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.listBooks(ctx, request)
 	if err != nil {
 		return nil, err
@@ -717,6 +712,8 @@ func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListB
 }
 
 func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.deleteBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -725,6 +722,8 @@ func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *Dele
 }
 
 func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.updateBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -733,6 +732,8 @@ func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *Upda
 }
 
 func (c *libraryServiceGrpcClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.moveBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1273,8 +1274,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getShelf: http.NewExplicitClient(
@@ -1322,8 +1321,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		listShelves: http.NewExplicitClient(
@@ -1367,8 +1364,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteShelf: http.NewExplicitClient(
@@ -1416,8 +1411,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		mergeShelves: http.NewExplicitClient(
@@ -1472,8 +1465,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		createBook: http.NewExplicitClient(
@@ -1528,8 +1519,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getBook: http.NewExplicitClient(
@@ -1577,8 +1566,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		listBooks: http.NewExplicitClient(
@@ -1628,8 +1615,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteBook: http.NewExplicitClient(
@@ -1677,8 +1662,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateBook: http.NewExplicitClient(
@@ -1733,8 +1716,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		moveBook: http.NewExplicitClient(
@@ -1789,8 +1770,6 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -1827,6 +1806,8 @@ type libraryServiceHttpClient struct {
 }
 
 func (c *libraryServiceHttpClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.createShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1835,6 +1816,8 @@ func (c *libraryServiceHttpClient) CreateShelf(ctx context.Context, request *Cre
 }
 
 func (c *libraryServiceHttpClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.getShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1843,6 +1826,8 @@ func (c *libraryServiceHttpClient) GetShelf(ctx context.Context, request *GetShe
 }
 
 func (c *libraryServiceHttpClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.listShelves(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1851,6 +1836,8 @@ func (c *libraryServiceHttpClient) ListShelves(ctx context.Context, request *Lis
 }
 
 func (c *libraryServiceHttpClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.deleteShelf(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1859,6 +1846,8 @@ func (c *libraryServiceHttpClient) DeleteShelf(ctx context.Context, request *Del
 }
 
 func (c *libraryServiceHttpClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.mergeShelves(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1867,6 +1856,8 @@ func (c *libraryServiceHttpClient) MergeShelves(ctx context.Context, request *Me
 }
 
 func (c *libraryServiceHttpClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.createBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1875,6 +1866,8 @@ func (c *libraryServiceHttpClient) CreateBook(ctx context.Context, request *Crea
 }
 
 func (c *libraryServiceHttpClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.getBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1883,6 +1876,8 @@ func (c *libraryServiceHttpClient) GetBook(ctx context.Context, request *GetBook
 }
 
 func (c *libraryServiceHttpClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.listBooks(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1891,6 +1886,8 @@ func (c *libraryServiceHttpClient) ListBooks(ctx context.Context, request *ListB
 }
 
 func (c *libraryServiceHttpClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.deleteBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1899,6 +1896,8 @@ func (c *libraryServiceHttpClient) DeleteBook(ctx context.Context, request *Dele
 }
 
 func (c *libraryServiceHttpClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.updateBook(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1907,6 +1906,8 @@ func (c *libraryServiceHttpClient) UpdateBook(ctx context.Context, request *Upda
 }
 
 func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.moveBook(ctx, request)
 	if err != nil {
 		return nil, err

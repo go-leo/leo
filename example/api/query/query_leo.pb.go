@@ -15,6 +15,7 @@ import (
 	protox "github.com/go-leo/gox/protox"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -103,8 +104,6 @@ func NewQueryGrpcClientTransports(conn *grpc1.ClientConn) QueryGrpcClientTranspo
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.query.v1.Query/Query")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -134,6 +133,8 @@ type queryGrpcClient struct {
 }
 
 func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.query(ctx, request)
 	if err != nil {
 		return nil, err
@@ -384,8 +385,6 @@ func NewQueryHttpClientTransports(scheme string, instance string) QueryHttpClien
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -402,6 +401,8 @@ type queryHttpClient struct {
 }
 
 func (c *queryHttpClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.query(ctx, request)
 	if err != nil {
 		return nil, err

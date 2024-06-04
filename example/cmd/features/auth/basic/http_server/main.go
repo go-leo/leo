@@ -14,7 +14,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	endpoints := helloworld.NewGreeterEndpoints(NewGreeterService(), basicx.Middleware("soyacen", "123456", "basic example"))
+	endpoints := helloworld.NewGreeterEndpoints(
+		NewGreeterService(),
+		basicx.Middleware("soyacen", "123456", "basic auth example"),
+	)
 	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
 	handler := helloworld.NewGreeterHttpServerHandler(transports)
 	server := http.Server{Handler: handler}

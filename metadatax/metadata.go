@@ -5,6 +5,7 @@ import (
 	"golang.org/x/exp/slices"
 	grpcmetadata "google.golang.org/grpc/metadata"
 	"net/http"
+	"strings"
 )
 
 type metadata map[string][]string
@@ -71,10 +72,18 @@ func New() Metadata {
 	return metadata{}
 }
 
+// FromHttpHeader Convert http.Header to Metadata
+//
+// The keys should be in canonical form, as returned by http.CanonicalHeaderKey.
 func FromHttpHeader(header http.Header) Metadata {
-	return metadata(header)
+	md := New()
+	for key, values := range header {
+		md.Set(http.CanonicalHeaderKey(key), values...)
+	}
+	return md
 }
 
+// AsHttpHeader Convert Metadata to http.Header
 func AsHttpHeader(metadata Metadata) http.Header {
 	header := http.Header{}
 	for _, key := range metadata.Keys() {
@@ -86,10 +95,18 @@ func AsHttpHeader(metadata Metadata) http.Header {
 	return header
 }
 
-func FromGrpcMetadata(md grpcmetadata.MD) Metadata {
-	return metadata(md)
+// FromGrpcMetadata Convert metadata.MD to Metadata
+//
+// the key is converted to lowercase.
+func FromGrpcMetadata(grpcMD grpcmetadata.MD) Metadata {
+	md := New()
+	for key, values := range grpcMD {
+		md.Set(strings.ToLower(key), values...)
+	}
+	return md
 }
 
+// AsGrpcMetadata Convert Metadata to metadata.MD
 func AsGrpcMetadata(metadata Metadata) grpcmetadata.MD {
 	md := grpcmetadata.MD{}
 	for _, key := range metadata.Keys() {

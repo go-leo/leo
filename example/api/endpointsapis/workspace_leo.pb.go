@@ -15,6 +15,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -218,8 +219,6 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			ListWorkspacesResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getWorkspace: grpc.NewClient(
@@ -229,8 +228,6 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Workspace{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		createWorkspace: grpc.NewClient(
@@ -240,8 +237,6 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Workspace{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		updateWorkspace: grpc.NewClient(
@@ -251,8 +246,6 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			Workspace{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteWorkspace: grpc.NewClient(
@@ -262,8 +255,6 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -341,6 +332,8 @@ type workspacesGrpcClient struct {
 }
 
 func (c *workspacesGrpcClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.listWorkspaces(ctx, request)
 	if err != nil {
 		return nil, err
@@ -349,6 +342,8 @@ func (c *workspacesGrpcClient) ListWorkspaces(ctx context.Context, request *List
 }
 
 func (c *workspacesGrpcClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.getWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -357,6 +352,8 @@ func (c *workspacesGrpcClient) GetWorkspace(ctx context.Context, request *GetWor
 }
 
 func (c *workspacesGrpcClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.createWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -365,6 +362,8 @@ func (c *workspacesGrpcClient) CreateWorkspace(ctx context.Context, request *Cre
 }
 
 func (c *workspacesGrpcClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.updateWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -373,6 +372,8 @@ func (c *workspacesGrpcClient) UpdateWorkspace(ctx context.Context, request *Upd
 }
 
 func (c *workspacesGrpcClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.deleteWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -667,8 +668,6 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getWorkspace: http.NewExplicitClient(
@@ -716,8 +715,6 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		createWorkspace: http.NewExplicitClient(
@@ -772,8 +769,6 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateWorkspace: http.NewExplicitClient(
@@ -828,8 +823,6 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteWorkspace: http.NewExplicitClient(
@@ -877,8 +870,6 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -903,6 +894,8 @@ type workspacesHttpClient struct {
 }
 
 func (c *workspacesHttpClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.listWorkspaces(ctx, request)
 	if err != nil {
 		return nil, err
@@ -911,6 +904,8 @@ func (c *workspacesHttpClient) ListWorkspaces(ctx context.Context, request *List
 }
 
 func (c *workspacesHttpClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.getWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -919,6 +914,8 @@ func (c *workspacesHttpClient) GetWorkspace(ctx context.Context, request *GetWor
 }
 
 func (c *workspacesHttpClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.createWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -927,6 +924,8 @@ func (c *workspacesHttpClient) CreateWorkspace(ctx context.Context, request *Cre
 }
 
 func (c *workspacesHttpClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.updateWorkspace(ctx, request)
 	if err != nil {
 		return nil, err
@@ -935,6 +934,8 @@ func (c *workspacesHttpClient) UpdateWorkspace(ctx context.Context, request *Upd
 }
 
 func (c *workspacesHttpClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.deleteWorkspace(ctx, request)
 	if err != nil {
 		return nil, err

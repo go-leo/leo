@@ -12,6 +12,7 @@ import (
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -246,8 +247,6 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedPathOptString: grpc.NewClient(
@@ -257,8 +256,6 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedPathWrapString: grpc.NewClient(
@@ -268,8 +265,6 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		embedNamedPathString: grpc.NewClient(
@@ -279,8 +274,6 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		embedNamedPathOptString: grpc.NewClient(
@@ -290,8 +283,6 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		embedNamedPathWrapString: grpc.NewClient(
@@ -301,8 +292,6 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -392,6 +381,8 @@ type namedPathGrpcClient struct {
 }
 
 func (c *namedPathGrpcClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.namedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -400,6 +391,8 @@ func (c *namedPathGrpcClient) NamedPathString(ctx context.Context, request *Name
 }
 
 func (c *namedPathGrpcClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.namedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -408,6 +401,8 @@ func (c *namedPathGrpcClient) NamedPathOptString(ctx context.Context, request *N
 }
 
 func (c *namedPathGrpcClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.namedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -416,6 +411,8 @@ func (c *namedPathGrpcClient) NamedPathWrapString(ctx context.Context, request *
 }
 
 func (c *namedPathGrpcClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.embedNamedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -424,6 +421,8 @@ func (c *namedPathGrpcClient) EmbedNamedPathString(ctx context.Context, request 
 }
 
 func (c *namedPathGrpcClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.embedNamedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -432,6 +431,8 @@ func (c *namedPathGrpcClient) EmbedNamedPathOptString(ctx context.Context, reque
 }
 
 func (c *namedPathGrpcClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.embedNamedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -783,8 +784,6 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedPathOptString: http.NewExplicitClient(
@@ -834,8 +833,6 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedPathWrapString: http.NewExplicitClient(
@@ -885,8 +882,6 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathString: http.NewExplicitClient(
@@ -934,8 +929,6 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathOptString: http.NewExplicitClient(
@@ -983,8 +976,6 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathWrapString: http.NewExplicitClient(
@@ -1032,8 +1023,6 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -1060,6 +1049,8 @@ type namedPathHttpClient struct {
 }
 
 func (c *namedPathHttpClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.namedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1068,6 +1059,8 @@ func (c *namedPathHttpClient) NamedPathString(ctx context.Context, request *Name
 }
 
 func (c *namedPathHttpClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.namedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1076,6 +1069,8 @@ func (c *namedPathHttpClient) NamedPathOptString(ctx context.Context, request *N
 }
 
 func (c *namedPathHttpClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.namedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1084,6 +1079,8 @@ func (c *namedPathHttpClient) NamedPathWrapString(ctx context.Context, request *
 }
 
 func (c *namedPathHttpClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.embedNamedPathString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1092,6 +1089,8 @@ func (c *namedPathHttpClient) EmbedNamedPathString(ctx context.Context, request 
 }
 
 func (c *namedPathHttpClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.embedNamedPathOptString(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1100,6 +1099,8 @@ func (c *namedPathHttpClient) EmbedNamedPathOptString(ctx context.Context, reque
 }
 
 func (c *namedPathHttpClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.embedNamedPathWrapString(ctx, request)
 	if err != nil {
 		return nil, err

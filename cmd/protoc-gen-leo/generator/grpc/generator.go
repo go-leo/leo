@@ -139,8 +139,6 @@ func (f *Generator) GenerateImplementedClientTransports(service *internal.Servic
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 		g.P(endpoint.OutputGoIdent(), "{},")
 
-		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxPackage.Ident("ClientEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxPackage.Ident("ClientTransportInjector"), "),")
 		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxPackage.Ident("OutgoingMetadata"), "),")
 
 		g.P("),")
@@ -192,6 +190,8 @@ func (f *Generator) GenerateClient(service *internal.Service, g *protogen.Genera
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (c *", service.UnexportedGrpcClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.GrpcxPackage.Ident("GrpcClient"), ")")
 		g.P("rep, err := c.", endpoint.UnexportedName(), "(ctx, request)")
 		g.P("if err != nil {")
 		g.P("return nil, err")

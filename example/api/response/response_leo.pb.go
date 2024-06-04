@@ -12,6 +12,7 @@ import (
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -218,8 +219,6 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		starResponse: grpc.NewClient(
@@ -229,8 +228,6 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/StarResponse")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedResponse: grpc.NewClient(
@@ -240,8 +237,6 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			UserResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		httpBodyResponse: grpc.NewClient(
@@ -251,8 +246,6 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			httpbody.HttpBody{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		httpBodyNamedResponse: grpc.NewClient(
@@ -262,8 +255,6 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			HttpBody{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -341,6 +332,8 @@ type responseGrpcClient struct {
 }
 
 func (c *responseGrpcClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.omittedResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -349,6 +342,8 @@ func (c *responseGrpcClient) OmittedResponse(ctx context.Context, request *empty
 }
 
 func (c *responseGrpcClient) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.starResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -357,6 +352,8 @@ func (c *responseGrpcClient) StarResponse(ctx context.Context, request *emptypb.
 }
 
 func (c *responseGrpcClient) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.namedResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -365,6 +362,8 @@ func (c *responseGrpcClient) NamedResponse(ctx context.Context, request *emptypb
 }
 
 func (c *responseGrpcClient) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.httpBodyResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -373,6 +372,8 @@ func (c *responseGrpcClient) HttpBodyResponse(ctx context.Context, request *empt
 }
 
 func (c *responseGrpcClient) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.httpBodyNamedResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -642,8 +643,6 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		starResponse: http.NewExplicitClient(
@@ -685,8 +684,6 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedResponse: http.NewExplicitClient(
@@ -728,8 +725,6 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyResponse: http.NewExplicitClient(
@@ -774,8 +769,6 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				resp.Data = body
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyNamedResponse: http.NewExplicitClient(
@@ -821,8 +814,6 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				resp.Body.Data = body
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -847,6 +838,8 @@ type responseHttpClient struct {
 }
 
 func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.omittedResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -855,6 +848,8 @@ func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *empty
 }
 
 func (c *responseHttpClient) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.starResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -863,6 +858,8 @@ func (c *responseHttpClient) StarResponse(ctx context.Context, request *emptypb.
 }
 
 func (c *responseHttpClient) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.namedResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -871,6 +868,8 @@ func (c *responseHttpClient) NamedResponse(ctx context.Context, request *emptypb
 }
 
 func (c *responseHttpClient) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.httpBodyResponse(ctx, request)
 	if err != nil {
 		return nil, err
@@ -879,6 +878,8 @@ func (c *responseHttpClient) HttpBodyResponse(ctx context.Context, request *empt
 }
 
 func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.httpBodyNamedResponse(ctx, request)
 	if err != nil {
 		return nil, err

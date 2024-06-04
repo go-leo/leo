@@ -43,7 +43,7 @@ func OutgoingMetadata(ctx context.Context, grpcMD *metadata.MD) context.Context 
 		return ctx
 	}
 	for _, key := range md.Keys() {
-		md.Set(key, md.Values(key)...)
+		grpcMD.Set(key, md.Values(key)...)
 	}
 	return ctx
 }

@@ -55,8 +55,8 @@ func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Servic
 			return err
 		}
 
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpClient"), ")),")
+		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpClient"), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("OutgoingMetadata"), "),")
 
 		g.P("),")
@@ -76,6 +76,8 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (c *", service.UnexportedHttpClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.HttpxPackage.Ident("HttpClient"), ")")
 		g.P("rep, err := c.", endpoint.UnexportedName(), "(ctx, request)")
 		g.P("if err != nil {")
 		g.P("return nil, err")

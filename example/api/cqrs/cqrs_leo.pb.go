@@ -16,6 +16,7 @@ import (
 	command "github.com/go-leo/leo/v3/example/internal/cqrs/command"
 	query "github.com/go-leo/leo/v3/example/internal/cqrs/query"
 	metadatax "github.com/go-leo/leo/v3/metadatax"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -195,8 +196,6 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/pb.CQRS/CreateUser")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		findUser: grpc.NewClient(
@@ -206,8 +205,6 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			GetUserResponse{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/pb.CQRS/FindUser")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -249,6 +246,8 @@ type cQRSGrpcClient struct {
 }
 
 func (c *cQRSGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.createUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -257,6 +256,8 @@ func (c *cQRSGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequ
 }
 
 func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.findUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -411,8 +412,6 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		findUser: http.NewExplicitClient(
@@ -461,8 +460,6 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -481,6 +478,8 @@ type cQRSHttpClient struct {
 }
 
 func (c *cQRSHttpClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.createUser(ctx, request)
 	if err != nil {
 		return nil, err
@@ -489,6 +488,8 @@ func (c *cQRSHttpClient) CreateUser(ctx context.Context, request *CreateUserRequ
 }
 
 func (c *cQRSHttpClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.findUser(ctx, request)
 	if err != nil {
 		return nil, err

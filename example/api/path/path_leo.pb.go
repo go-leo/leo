@@ -14,6 +14,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -334,8 +335,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/BoolPath")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		int32Path: grpc.NewClient(
@@ -345,8 +344,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Int32Path")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		int64Path: grpc.NewClient(
@@ -356,8 +353,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Int64Path")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		uint32Path: grpc.NewClient(
@@ -367,8 +362,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		uint64Path: grpc.NewClient(
@@ -378,8 +371,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		floatPath: grpc.NewClient(
@@ -389,8 +380,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/FloatPath")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		doublePath: grpc.NewClient(
@@ -400,8 +389,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/DoublePath")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		stringPath: grpc.NewClient(
@@ -411,8 +398,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/StringPath")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		enumPath: grpc.NewClient(
@@ -422,8 +407,6 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/EnumPath")),
-			grpc.ClientBefore(grpcx.ClientTransportInjector),
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
@@ -549,6 +532,8 @@ type pathGrpcClient struct {
 }
 
 func (c *pathGrpcClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.boolPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -557,6 +542,8 @@ func (c *pathGrpcClient) BoolPath(ctx context.Context, request *PathRequest) (*e
 }
 
 func (c *pathGrpcClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.int32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -565,6 +552,8 @@ func (c *pathGrpcClient) Int32Path(ctx context.Context, request *PathRequest) (*
 }
 
 func (c *pathGrpcClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.int64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -573,6 +562,8 @@ func (c *pathGrpcClient) Int64Path(ctx context.Context, request *PathRequest) (*
 }
 
 func (c *pathGrpcClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.uint32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -581,6 +572,8 @@ func (c *pathGrpcClient) Uint32Path(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathGrpcClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.uint64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -589,6 +582,8 @@ func (c *pathGrpcClient) Uint64Path(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathGrpcClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.floatPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -597,6 +592,8 @@ func (c *pathGrpcClient) FloatPath(ctx context.Context, request *PathRequest) (*
 }
 
 func (c *pathGrpcClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.doublePath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -605,6 +602,8 @@ func (c *pathGrpcClient) DoublePath(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathGrpcClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.stringPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -613,6 +612,8 @@ func (c *pathGrpcClient) StringPath(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathGrpcClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 	rep, err := c.enumPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -1460,8 +1461,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		int32Path: http.NewExplicitClient(
@@ -1535,8 +1534,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		int64Path: http.NewExplicitClient(
@@ -1610,8 +1607,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uint32Path: http.NewExplicitClient(
@@ -1687,8 +1682,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uint64Path: http.NewExplicitClient(
@@ -1764,8 +1757,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		floatPath: http.NewExplicitClient(
@@ -1843,8 +1834,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		doublePath: http.NewExplicitClient(
@@ -1922,8 +1911,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		stringPath: http.NewExplicitClient(
@@ -2001,8 +1988,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		enumPath: http.NewExplicitClient(
@@ -2081,8 +2066,6 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return resp, nil
 			},
-			http.ClientBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
-			http.ClientBefore(httpx.TransportInjector(httpx.HttpClient)),
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
@@ -2115,6 +2098,8 @@ type pathHttpClient struct {
 }
 
 func (c *pathHttpClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.boolPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2123,6 +2108,8 @@ func (c *pathHttpClient) BoolPath(ctx context.Context, request *PathRequest) (*e
 }
 
 func (c *pathHttpClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.int32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2131,6 +2118,8 @@ func (c *pathHttpClient) Int32Path(ctx context.Context, request *PathRequest) (*
 }
 
 func (c *pathHttpClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.int64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2139,6 +2128,8 @@ func (c *pathHttpClient) Int64Path(ctx context.Context, request *PathRequest) (*
 }
 
 func (c *pathHttpClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.uint32Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2147,6 +2138,8 @@ func (c *pathHttpClient) Uint32Path(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathHttpClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.uint64Path(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2155,6 +2148,8 @@ func (c *pathHttpClient) Uint64Path(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathHttpClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.floatPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2163,6 +2158,8 @@ func (c *pathHttpClient) FloatPath(ctx context.Context, request *PathRequest) (*
 }
 
 func (c *pathHttpClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.doublePath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2171,6 +2168,8 @@ func (c *pathHttpClient) DoublePath(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathHttpClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.stringPath(ctx, request)
 	if err != nil {
 		return nil, err
@@ -2179,6 +2178,8 @@ func (c *pathHttpClient) StringPath(ctx context.Context, request *PathRequest) (
 }
 
 func (c *pathHttpClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.enumPath(ctx, request)
 	if err != nil {
 		return nil, err
