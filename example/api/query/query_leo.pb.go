@@ -81,6 +81,7 @@ func NewQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTrans
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.query.v1.Query/Query")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

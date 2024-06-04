@@ -144,6 +144,7 @@ func NewWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		getWorkspace: grpc.NewServer(
 			endpoints.GetWorkspace(),
@@ -151,6 +152,7 @@ func NewWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		createWorkspace: grpc.NewServer(
 			endpoints.CreateWorkspace(),
@@ -158,6 +160,7 @@ func NewWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		updateWorkspace: grpc.NewServer(
 			endpoints.UpdateWorkspace(),
@@ -165,6 +168,7 @@ func NewWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		deleteWorkspace: grpc.NewServer(
 			endpoints.DeleteWorkspace(),
@@ -172,6 +176,7 @@ func NewWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

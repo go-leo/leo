@@ -75,6 +75,7 @@ func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

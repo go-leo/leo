@@ -144,6 +144,7 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		starResponse: grpc.NewServer(
 			endpoints.StarResponse(),
@@ -151,6 +152,7 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		namedResponse: grpc.NewServer(
 			endpoints.NamedResponse(),
@@ -158,6 +160,7 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		httpBodyResponse: grpc.NewServer(
 			endpoints.HttpBodyResponse(),
@@ -165,6 +168,7 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		httpBodyNamedResponse: grpc.NewServer(
 			endpoints.HttpBodyNamedResponse(),
@@ -172,6 +176,7 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

@@ -141,6 +141,7 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/StarBody")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		namedBody: grpc.NewServer(
 			endpoints.NamedBody(),
@@ -148,6 +149,7 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NamedBody")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		nonBody: grpc.NewServer(
 			endpoints.NonBody(),
@@ -155,6 +157,7 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NonBody")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		httpBodyStarBody: grpc.NewServer(
 			endpoints.HttpBodyStarBody(),
@@ -162,6 +165,7 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		httpBodyNamedBody: grpc.NewServer(
 			endpoints.HttpBodyNamedBody(),
@@ -169,6 +173,7 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

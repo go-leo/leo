@@ -79,6 +79,7 @@ func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints) MixPathGrpcServe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

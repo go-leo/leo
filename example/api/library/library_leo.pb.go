@@ -240,6 +240,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		getShelf: grpc.NewServer(
 			endpoints.GetShelf(),
@@ -247,6 +248,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		listShelves: grpc.NewServer(
 			endpoints.ListShelves(),
@@ -254,6 +256,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		deleteShelf: grpc.NewServer(
 			endpoints.DeleteShelf(),
@@ -261,6 +264,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		mergeShelves: grpc.NewServer(
 			endpoints.MergeShelves(),
@@ -268,6 +272,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		createBook: grpc.NewServer(
 			endpoints.CreateBook(),
@@ -275,6 +280,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		getBook: grpc.NewServer(
 			endpoints.GetBook(),
@@ -282,6 +288,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		listBooks: grpc.NewServer(
 			endpoints.ListBooks(),
@@ -289,6 +296,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		deleteBook: grpc.NewServer(
 			endpoints.DeleteBook(),
@@ -296,6 +304,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		updateBook: grpc.NewServer(
 			endpoints.UpdateBook(),
@@ -303,6 +312,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		moveBook: grpc.NewServer(
 			endpoints.MoveBook(),
@@ -310,6 +320,7 @@ func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

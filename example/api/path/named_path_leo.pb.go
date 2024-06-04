@@ -159,6 +159,7 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		namedPathOptString: grpc.NewServer(
 			endpoints.NamedPathOptString(),
@@ -166,6 +167,7 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		namedPathWrapString: grpc.NewServer(
 			endpoints.NamedPathWrapString(),
@@ -173,6 +175,7 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		embedNamedPathString: grpc.NewServer(
 			endpoints.EmbedNamedPathString(),
@@ -180,6 +183,7 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		embedNamedPathOptString: grpc.NewServer(
 			endpoints.EmbedNamedPathOptString(),
@@ -187,6 +191,7 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		embedNamedPathWrapString: grpc.NewServer(
 			endpoints.EmbedNamedPathWrapString(),
@@ -194,6 +199,7 @@ func NewNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrp
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }

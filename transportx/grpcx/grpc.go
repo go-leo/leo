@@ -47,3 +47,7 @@ func OutgoingMetadata(ctx context.Context, grpcMD *metadata.MD) context.Context 
 	}
 	return ctx
 }
+
+func IncomingMetadata(ctx context.Context, md metadata.MD) context.Context {
+	return metadatax.NewIncomingContext(ctx, metadatax.FromGrpcMetadata(md))
+}

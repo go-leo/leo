@@ -160,6 +160,7 @@ func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		findUser: grpc.NewServer(
 			endpoints.FindUser(),
@@ -167,6 +168,7 @@ func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
+			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
 }
