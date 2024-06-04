@@ -17,6 +17,8 @@ func main() {
 	}
 	defer conn.Close()
 	transports := helloworld.NewGreeterGrpcClientTransports(conn)
+
+	// ok
 	client := helloworld.NewGreeterGrpcClient(
 		transports,
 		basicx.Middleware("soyacen", "123456", "basic auth example"),
@@ -27,6 +29,7 @@ func main() {
 	}
 	fmt.Println(reply)
 
+	// panic
 	client = helloworld.NewGreeterGrpcClient(
 		transports,
 		basicx.Middleware("soyacen", "654321", "basic auth example"),

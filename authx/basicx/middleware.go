@@ -10,53 +10,52 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/statusx"
+	httpstatus "github.com/go-leo/leo/v3/statusx/http"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/go-leo/leo/v3/transportx/grpcx"
 	"github.com/go-leo/leo/v3/transportx/httpx"
 	"strings"
 )
 
-const prefix = "Basic "
+const (
+	prefix  = "Basic "
+	authKey = "authorization"
+)
 
 func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middleware {
 	requiredUserBytes := toHashSlice([]byte(requiredUser))
 	requiredPasswordBytes := toHashSlice([]byte(requiredPassword))
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		return func(ctx context.Context, request interface{}) (interface{}, error) {
 			name, ok := transportx.ExtractName(ctx)
 			if !ok {
 				return next(ctx, request)
 			}
-			if name == grpcx.GrpcServer {
-				key := "authorization"
-				return handleIncoming(ctx, request, next, key, requiredUserBytes, requiredPasswordBytes, realm)
-			}
-			if name == grpcx.GrpcClient {
-				key := "authorization"
-				return handleOutgoing(ctx, request, next, key, requiredUser, requiredPassword)
-			}
-			if name == httpx.HttpServer {
-				key := "Authorization"
-				return handleIncoming(ctx, request, next, key, requiredUserBytes, requiredPasswordBytes, realm)
-			}
-			if name == httpx.HttpClient {
-				key := "Authorization"
-				return handleOutgoing(ctx, request, next, key, requiredUser, requiredPassword)
+			switch name {
+			case grpcx.GrpcServer, httpx.HttpServer:
+				return handleIncoming(ctx, request, next, requiredUserBytes, requiredPasswordBytes, realm)
+			case grpcx.GrpcClient, httpx.HttpClient:
+				return handleOutgoing(ctx, request, next, requiredUser, requiredPassword)
 			}
 			return next(ctx, request)
 		}
 	}
 }
 
-func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endpoint, key string, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (interface{}, error) {
+var (
+	ErrMissMetadata    = statusx.InvalidArgument("missing metadata").Err()
+	StatusInvalidToken = statusx.Unauthenticated("invalid token")
+)
+
+func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (interface{}, error) {
 	md, ok := metadatax.FromIncomingContext(ctx)
 	if !ok {
-		return nil, statusx.InvalidArgument("missing metadata").Err()
+		return nil, ErrMissMetadata
 	}
 
-	givenUser, givenPassword, ok := parseBasicAuth(md.Values(key))
+	givenUser, givenPassword, ok := parseAuthorization(md.Values(authKey))
 	if !ok {
-		return nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()
+		return nil, statusx.WithHttpHeader(StatusInvalidToken, &httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}).Err()
 	}
 
 	givenUserBytes := toHashSlice(givenUser)
@@ -64,15 +63,22 @@ func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endp
 
 	if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 		subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
-		return nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()
+		return nil, statusx.WithHttpHeader(StatusInvalidToken, &httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}).Err()
 	}
 	// Continue execution of handler after ensuring a valid token.
 	return next(ctx, request)
 }
 
-// parseBasicAuth parses an HTTP Basic Authentication string.
+func handleOutgoing(ctx context.Context, request interface{}, next endpoint.Endpoint, requiredUser, requiredPassword string) (interface{}, error) {
+	metadata := metadatax.New()
+	metadata.Set(authKey, fmt.Sprintf("%s%s", prefix, base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", requiredUser, requiredPassword)))))
+	ctx = metadatax.NewOutgoingContext(ctx, metadata)
+	return next(ctx, request)
+}
+
+// parseAuthorization parses an HTTP Basic Authentication string.
 // "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" returns ([]byte("Aladdin"), []byte("open sesame"), true).
-func parseBasicAuth(authorization []string) ([]byte, []byte, bool) {
+func parseAuthorization(authorization []string) ([]byte, []byte, bool) {
 	if len(authorization) == 0 {
 		return nil, nil, false
 	}
@@ -96,11 +102,4 @@ func parseBasicAuth(authorization []string) ([]byte, []byte, bool) {
 func toHashSlice(s []byte) []byte {
 	hash := sha256.Sum256(s)
 	return hash[:]
-}
-
-func handleOutgoing(ctx context.Context, request interface{}, next endpoint.Endpoint, key string, requiredUser, requiredPassword string) (interface{}, error) {
-	metadata := metadatax.New()
-	metadata.Set(key, fmt.Sprintf("%s%s", prefix, base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", requiredUser, requiredPassword)))))
-	ctx = metadatax.NewOutgoingContext(ctx, metadata)
-	return next(ctx, request)
 }

@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/go-kit/kit v0.13.0
 	github.com/go-leo/gox v0.0.0-20240531024056-00782a26017c
+	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/gorilla/mux v1.8.1
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225

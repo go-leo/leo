@@ -17,6 +17,9 @@ type Metadata interface {
 	// Keys returns the keys of the Metadata.
 	Keys() []string
 
+	// Range calls f sequentially for each key and value present in the Metadata.
+	Range(f func(key string, values []string) bool)
+
 	// Delete removes the values for a given key.
 	Delete(key string)
 
