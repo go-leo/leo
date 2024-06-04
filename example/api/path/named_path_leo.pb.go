@@ -756,6 +756,9 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -803,6 +806,9 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -850,6 +856,9 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -895,6 +904,9 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -940,6 +952,9 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -985,6 +1000,9 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err

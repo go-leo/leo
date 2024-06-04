@@ -218,6 +218,64 @@ func (x *Header) GetValue() string {
 	return ""
 }
 
+// Represents an HTTP result.
+type Result struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The result code.
+	Code int32 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	// The result message.
+	Msg string `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
+}
+
+func (x *Result) Reset() {
+	*x = Result{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_http_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Result) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Result) ProtoMessage() {}
+
+func (x *Result) ProtoReflect() protoreflect.Message {
+	mi := &file_http_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Result.ProtoReflect.Descriptor instead.
+func (*Result) Descriptor() ([]byte, []int) {
+	return file_http_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Result) GetCode() int32 {
+	if x != nil {
+		return x.Code
+	}
+	return 0
+}
+
+func (x *Result) GetMsg() string {
+	if x != nil {
+		return x.Msg
+	}
+	return ""
+}
+
 var File_http_proto protoreflect.FileDescriptor
 
 var file_http_proto_rawDesc = []byte{
@@ -227,7 +285,10 @@ var file_http_proto_rawDesc = []byte{
 	0x05, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x22, 0x30, 0x0a, 0x06, 0x48, 0x65, 0x61, 0x64, 0x65,
 	0x72, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
 	0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x2a, 0x80, 0x02, 0x0a, 0x04, 0x43, 0x6f,
+	0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x2e, 0x0a, 0x06, 0x52, 0x65, 0x73,
+	0x75, 0x6c, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6d, 0x73, 0x67, 0x2a, 0x80, 0x02, 0x0a, 0x04, 0x43, 0x6f,
 	0x64, 0x65, 0x12, 0x05, 0x0a, 0x01, 0x5f, 0x10, 0x00, 0x12, 0x07, 0x0a, 0x02, 0x4f, 0x4b, 0x10,
 	0xc8, 0x01, 0x12, 0x10, 0x0a, 0x0b, 0x42, 0x41, 0x44, 0x5f, 0x52, 0x45, 0x51, 0x55, 0x45, 0x53,
 	0x54, 0x10, 0x90, 0x03, 0x12, 0x11, 0x0a, 0x0c, 0x55, 0x4e, 0x41, 0x55, 0x54, 0x48, 0x4f, 0x52,
@@ -263,11 +324,12 @@ func file_http_proto_rawDescGZIP() []byte {
 }
 
 var file_http_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_http_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_http_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_http_proto_goTypes = []interface{}{
 	(Code)(0),      // 0: leo.statusx.Code
 	(*Status)(nil), // 1: leo.statusx.Status
 	(*Header)(nil), // 2: leo.statusx.Header
+	(*Result)(nil), // 3: leo.statusx.Result
 }
 var file_http_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -307,6 +369,18 @@ func file_http_proto_init() {
 				return nil
 			}
 		}
+		file_http_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Result); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -314,7 +388,7 @@ func file_http_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_http_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

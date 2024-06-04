@@ -1231,6 +1231,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Shelf{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1276,6 +1279,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Shelf{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1317,6 +1323,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &ListShelvesResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1362,6 +1371,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1414,6 +1426,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Shelf{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1466,6 +1481,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Book{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1511,6 +1529,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Book{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1558,6 +1579,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &ListBooksResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1603,6 +1627,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1655,6 +1682,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Book{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1707,6 +1737,9 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Book{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err

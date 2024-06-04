@@ -233,6 +233,9 @@ func NewGreeterHttpClientTransports(scheme string, instance string) GreeterHttpC
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &HelloReply{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err

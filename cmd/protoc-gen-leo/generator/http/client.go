@@ -460,6 +460,9 @@ func (f *ClientGenerator) UnwrapFloatListFormat(srcValue []any, bitSize string) 
 
 func (f *ClientGenerator) PrintDecodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule) error {
 	g.P("func(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (interface{}, error) {")
+	g.P("if ", internal.HttpxPackage.Ident("IsErrorResponse"), "(r) {")
+	g.P("return nil, ", internal.HttpxPackage.Ident("ErrorDecoder"), "(ctx, r)")
+	g.P("}")
 	g.P("resp := &", endpoint.Output().GoIdent, "{}")
 	bodyParameter := httpRule.ResponseBody()
 	switch bodyParameter {

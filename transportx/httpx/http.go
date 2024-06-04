@@ -4,9 +4,7 @@ import (
 	"context"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-leo/leo/v3/endpointx"
-	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
-	"google.golang.org/grpc/status"
 	"net/http"
 )
 
@@ -28,13 +26,4 @@ func TransportInjector(name string) httptransport.RequestFunc {
 	return func(ctx context.Context, request *http.Request) context.Context {
 		return transportx.InjectName(ctx, name)
 	}
-}
-
-func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
-	st, ok := status.FromError(err)
-	if !ok {
-		httptransport.DefaultErrorEncoder(ctx, err, w)
-		return
-	}
-	statusx.Marshal(ctx, statusx.GetEncoder(), st, w)
 }

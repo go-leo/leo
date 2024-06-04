@@ -1025,6 +1025,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &CreateUserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1065,6 +1068,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1112,6 +1118,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1152,6 +1161,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &GetUserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1193,6 +1205,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &GetUsersResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1236,6 +1251,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -1276,6 +1294,9 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &httpbody.HttpBody{}
 				resp.ContentType = r.Header.Get("Content-Type")
 				body, err := io.ReadAll(r.Body)

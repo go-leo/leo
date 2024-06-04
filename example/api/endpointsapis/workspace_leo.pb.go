@@ -643,6 +643,9 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &ListWorkspacesResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -688,6 +691,9 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Workspace{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -740,6 +746,9 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Workspace{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -792,6 +801,9 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &Workspace{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -837,6 +849,9 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &emptypb.Empty{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err

@@ -10,14 +10,14 @@ import (
 //
 // HTTP Mapping: 200 OK
 func OK(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.OK, msg), &httpstatus.Status{Code: int32(httpstatus.Code_OK)})
+	return WithHttpStatus(grpcstatus.New(codes.OK, msg), &httpstatus.Status{Code: int32(httpstatus.Code_OK)})
 }
 
 // Canceled The operation was cancelled, typically by the caller.
 //
 // HTTP Mapping: 499 Client Closed Request
 func Canceled(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Canceled, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CLIENT_CLOSED_REQUEST)})
+	return WithHttpStatus(grpcstatus.New(codes.Canceled, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CLIENT_CLOSED_REQUEST)})
 }
 
 // Unknown error.  For example, this error may be returned when
@@ -28,7 +28,7 @@ func Canceled(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 500 Internal Server Error
 func Unknown(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Unknown, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
+	return WithHttpStatus(grpcstatus.New(codes.Unknown, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
 }
 
 // InvalidArgument The client specified an invalid argument.  Note that this differs
@@ -38,7 +38,7 @@ func Unknown(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 400 Bad Request
 func InvalidArgument(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.InvalidArgument, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
+	return WithHttpStatus(grpcstatus.New(codes.InvalidArgument, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
 }
 
 // DeadlineExceeded The deadline expired before the operation could complete. For operations
@@ -49,7 +49,7 @@ func InvalidArgument(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 504 Gateway Timeout
 func DeadlineExceeded(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.DeadlineExceeded, msg), &httpstatus.Status{Code: int32(httpstatus.Code_GATEWAY_TIMEOUT)})
+	return WithHttpStatus(grpcstatus.New(codes.DeadlineExceeded, msg), &httpstatus.Status{Code: int32(httpstatus.Code_GATEWAY_TIMEOUT)})
 }
 
 // NotFound Some requested entity (e.g., file or directory) was not found.
@@ -62,7 +62,7 @@ func DeadlineExceeded(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 404 Not Found
 func NotFound(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.NotFound, msg), &httpstatus.Status{Code: int32(httpstatus.Code_NOT_FOUND)})
+	return WithHttpStatus(grpcstatus.New(codes.NotFound, msg), &httpstatus.Status{Code: int32(httpstatus.Code_NOT_FOUND)})
 }
 
 // AlreadyExists The entity that a client attempted to create (e.g., file or directory)
@@ -70,7 +70,7 @@ func NotFound(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 409 Conflict
 func AlreadyExists(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.AlreadyExists, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CONFLICT)})
+	return WithHttpStatus(grpcstatus.New(codes.AlreadyExists, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CONFLICT)})
 }
 
 // PermissionDenied The caller does not have permission to execute the specified
@@ -84,7 +84,7 @@ func AlreadyExists(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 403 Forbidden
 func PermissionDenied(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.PermissionDenied, msg), &httpstatus.Status{Code: int32(httpstatus.Code_FORBIDDEN)})
+	return WithHttpStatus(grpcstatus.New(codes.PermissionDenied, msg), &httpstatus.Status{Code: int32(httpstatus.Code_FORBIDDEN)})
 }
 
 // ResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
@@ -92,7 +92,7 @@ func PermissionDenied(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 429 Too Many Requests
 func ResourceExhausted(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.ResourceExhausted, msg), &httpstatus.Status{Code: int32(httpstatus.Code_TOO_MANY_REQUESTS)})
+	return WithHttpStatus(grpcstatus.New(codes.ResourceExhausted, msg), &httpstatus.Status{Code: int32(httpstatus.Code_TOO_MANY_REQUESTS)})
 }
 
 // FailedPrecondition The operation was rejected because the system is not in a state
@@ -115,7 +115,7 @@ func ResourceExhausted(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 400 Bad Request
 func FailedPrecondition(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.FailedPrecondition, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
+	return WithHttpStatus(grpcstatus.New(codes.FailedPrecondition, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
 }
 
 // Aborted The operation was aborted, typically due to a concurrency issue such as
@@ -126,7 +126,7 @@ func FailedPrecondition(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 409 Conflict
 func Aborted(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Aborted, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CONFLICT)})
+	return WithHttpStatus(grpcstatus.New(codes.Aborted, msg), &httpstatus.Status{Code: int32(httpstatus.Code_CONFLICT)})
 }
 
 // OutOfRange The operation was attempted past the valid range.  E.g., seeking or
@@ -147,7 +147,7 @@ func Aborted(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 400 Bad Request
 func OutOfRange(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.OutOfRange, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
+	return WithHttpStatus(grpcstatus.New(codes.OutOfRange, msg), &httpstatus.Status{Code: int32(httpstatus.Code_BAD_REQUEST)})
 }
 
 // Unimplemented The operation is not implemented or is not supported/enabled in this
@@ -155,7 +155,7 @@ func OutOfRange(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 501 Not Implemented
 func Unimplemented(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Unimplemented, msg), &httpstatus.Status{Code: int32(httpstatus.Code_NOT_IMPLEMENTED)})
+	return WithHttpStatus(grpcstatus.New(codes.Unimplemented, msg), &httpstatus.Status{Code: int32(httpstatus.Code_NOT_IMPLEMENTED)})
 }
 
 // Internal Internal errors.  This means that some invariants expected by the
@@ -164,7 +164,7 @@ func Unimplemented(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 500 Internal Server Error
 func Internal(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Internal, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
+	return WithHttpStatus(grpcstatus.New(codes.Internal, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
 }
 
 // Unavailable The service is currently unavailable.  This is most likely a
@@ -178,14 +178,14 @@ func Internal(msg string) *grpcstatus.Status {
 // HTTP Mapping: 503 Service Unavailable
 // Aborted, and Unavailable.
 func Unavailable(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Unavailable, msg), &httpstatus.Status{Code: int32(httpstatus.Code_SERVICE_UNAVAILABLE)})
+	return WithHttpStatus(grpcstatus.New(codes.Unavailable, msg), &httpstatus.Status{Code: int32(httpstatus.Code_SERVICE_UNAVAILABLE)})
 }
 
 // DataLoss Unrecoverable data loss or corruption.
 //
 // HTTP Mapping: 500 Internal Server Error
 func DataLoss(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.DataLoss, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
+	return WithHttpStatus(grpcstatus.New(codes.DataLoss, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
 }
 
 // Unauthenticated The request does not have valid authentication credentials for the
@@ -193,12 +193,12 @@ func DataLoss(msg string) *grpcstatus.Status {
 //
 // HTTP Mapping: 401 Unauthorized
 func Unauthenticated(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Unauthenticated, msg), &httpstatus.Status{Code: int32(httpstatus.Code_UNAUTHORIZED)})
+	return WithHttpStatus(grpcstatus.New(codes.Unauthenticated, msg), &httpstatus.Status{Code: int32(httpstatus.Code_UNAUTHORIZED)})
 }
 
 // OKButFailed is returned on success, but business logic failed.
 //
 // HTTP Mapping: 200 OK
 func OKButFailed(msg string) *grpcstatus.Status {
-	return WithHttpProto(grpcstatus.New(codes.Unknown, msg), &httpstatus.Status{Code: int32(httpstatus.Code_OK)})
+	return WithHttpStatus(grpcstatus.New(codes.Unknown, msg), &httpstatus.Status{Code: int32(httpstatus.Code_OK)})
 }

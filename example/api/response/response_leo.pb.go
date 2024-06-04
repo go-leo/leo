@@ -618,6 +618,9 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &UserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -657,6 +660,9 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &UserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
 					return nil, err
@@ -696,6 +702,9 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &UserResponse{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&resp.User); err != nil {
 					return nil, err
@@ -735,6 +744,9 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &httpbody.HttpBody{}
 				resp.ContentType = r.Header.Get("Content-Type")
 				body, err := io.ReadAll(r.Body)
@@ -777,6 +789,9 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 				return r, nil
 			},
 			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+				if httpx.IsErrorResponse(r) {
+					return nil, httpx.ErrorDecoder(ctx, r)
+				}
 				resp := &HttpBody{}
 				resp.Body = &httpbody.HttpBody{}
 				resp.Body.ContentType = r.Header.Get("Content-Type")

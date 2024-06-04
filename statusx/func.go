@@ -12,7 +12,6 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/protoadapt"
 	"google.golang.org/protobuf/types/known/anypb"
-	"net/http"
 )
 
 // New like grpcstatus.New, but with http status additionally.
@@ -53,7 +52,7 @@ func New(c codes.Code, msg string) *grpcstatus.Status {
 	case codes.Unauthenticated:
 		return Unauthenticated(msg)
 	}
-	return WithHttpProto(grpcstatus.New(c, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
+	return WithHttpStatus(grpcstatus.New(c, msg), &httpstatus.Status{Code: int32(httpstatus.Code_INTERNAL_SERVER_ERROR)})
 }
 
 // Newf like grpcstatus.Newf, but with http status additionally.
@@ -87,36 +86,31 @@ func Equals(current *grpcstatus.Status, target *grpcstatus.Status) bool {
 	return proto.Equal(currentGrpcProto, targetGrpcProto) && proto.Equal(currentHttpProto, targetHttpProto)
 }
 
-// WithHttpProto set the http status protocol buffers
-func WithHttpProto(grpcStatus *grpcstatus.Status, httpStatus *httpstatus.Status) *grpcstatus.Status {
-	return WithDetails(grpcStatus, httpStatus)
-}
-
 // Proto return the gRPC and HTTP status protocol buffers.
 func Proto(grpcStatus *grpcstatus.Status) (*rpcstatus.Status, *httpstatus.Status) {
-	grpcStatusPb := grpcStatus.Proto()
-	if grpcStatusPb == nil {
+	grpcProto := grpcStatus.Proto()
+	if grpcProto == nil {
 		return nil, nil
 	}
 
-	details := grpcStatusPb.GetDetails()
+	details := grpcProto.GetDetails()
 	newDetails := make([]*anypb.Any, 0, len(details))
 	var httpAnyProto *anypb.Any
-	for _, detail := range grpcStatusPb.GetDetails() {
+	for _, detail := range grpcProto.GetDetails() {
 		if detail.GetTypeUrl() == httpstatus.AnyProto.GetTypeUrl() {
 			httpAnyProto = detail
 			continue
 		}
 		newDetails = append(newDetails, detail)
 	}
-	grpcStatusPb.Details = newDetails
+	grpcProto.Details = newDetails
 
 	if httpAnyProto == nil {
-		return grpcStatusPb, nil
+		return grpcProto, nil
 	}
 
 	httpProto, _ := httpAnyProto.UnmarshalNew()
-	return grpcStatusPb, httpProto.(*httpstatus.Status)
+	return grpcProto, httpProto.(*httpstatus.Status)
 }
 
 // WithDetails adds additional details to the status as protocol buffer messages.
@@ -140,6 +134,38 @@ func Details(grpcStatus *grpcstatus.Status) []proto.Message {
 		detailPbs = append(detailPbs, detail.(proto.Message))
 	}
 	return detailPbs
+}
+
+// WithHttpStatus set the http status protocol buffers
+func WithHttpStatus(grpcStatus *grpcstatus.Status, httpStatus *httpstatus.Status) *grpcstatus.Status {
+	return WithDetails(grpcStatus, httpStatus)
+}
+
+// WithHttpHeader sets the http header info.
+func WithHttpHeader(grpcStatus *grpcstatus.Status, infos ...*httpstatus.Header) *grpcstatus.Status {
+	return WithDetails(grpcStatus, protox.MessageSlice(infos)...)
+}
+
+// HttpHeader gets the http header info.
+func HttpHeader(grpcStatus *grpcstatus.Status) []*httpstatus.Header {
+	return protox.ProtoSlice[[]*httpstatus.Header](Details(grpcStatus))
+}
+
+// WithHttpResult sets the http result info.
+func WithHttpResult(grpcStatus *grpcstatus.Status, info *httpstatus.Result) *grpcstatus.Status {
+	return WithDetails(grpcStatus, info)
+}
+
+// HttpResult gets the http header info.
+func HttpResult(grpcStatus *grpcstatus.Status) *httpstatus.Result {
+	var result *httpstatus.Result
+	for _, message := range Details(grpcStatus) {
+		if _, ok := message.(*httpstatus.Result); !ok {
+			continue
+		}
+		result = message.(*httpstatus.Result)
+	}
+	return result
 }
 
 // WithErrorInfo sets the error info.
@@ -242,57 +268,47 @@ func Help(grpcStatus *grpcstatus.Status) []*errdetails.Help {
 	return protox.ProtoSlice[[]*errdetails.Help](Details(grpcStatus))
 }
 
-// WithHttpHeader sets the http header info.
-func WithHttpHeader(grpcStatus *grpcstatus.Status, infos ...*httpstatus.Header) *grpcstatus.Status {
-	return WithDetails(grpcStatus, protox.MessageSlice(infos)...)
-}
-
-// HttpHeader gets the http header info.
-func HttpHeader(grpcStatus *grpcstatus.Status) []*httpstatus.Header {
-	return protox.ProtoSlice[[]*httpstatus.Header](Details(grpcStatus))
-}
-
 // HTTPStatusFromCode converts a gRPC error code into the corresponding HTTP response status.
 // See: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 func HTTPStatusFromCode(code int32) int32 {
 	switch codes.Code(code) {
 	case codes.OK:
-		return http.StatusOK
+		return int32(httpstatus.Code_OK)
 	case codes.Canceled:
-		return 499
+		return int32(httpstatus.Code_CLIENT_CLOSED_REQUEST)
 	case codes.Unknown:
-		return http.StatusInternalServerError
+		return int32(httpstatus.Code_INTERNAL_SERVER_ERROR)
 	case codes.InvalidArgument:
-		return http.StatusBadRequest
+		return int32(httpstatus.Code_BAD_REQUEST)
 	case codes.DeadlineExceeded:
-		return http.StatusGatewayTimeout
+		return int32(httpstatus.Code_GATEWAY_TIMEOUT)
 	case codes.NotFound:
-		return http.StatusNotFound
+		return int32(httpstatus.Code_NOT_FOUND)
 	case codes.AlreadyExists:
-		return http.StatusConflict
+		return int32(httpstatus.Code_CONFLICT)
 	case codes.PermissionDenied:
-		return http.StatusForbidden
+		return int32(httpstatus.Code_FORBIDDEN)
 	case codes.Unauthenticated:
-		return http.StatusUnauthorized
+		return int32(httpstatus.Code_UNAUTHORIZED)
 	case codes.ResourceExhausted:
-		return http.StatusTooManyRequests
+		return int32(httpstatus.Code_TOO_MANY_REQUESTS)
 	case codes.FailedPrecondition:
 		// Note, this deliberately doesn't translate to the similarly named '412 Precondition Failed' HTTP response status.
-		return http.StatusBadRequest
+		return int32(httpstatus.Code_BAD_REQUEST)
 	case codes.Aborted:
-		return http.StatusConflict
+		return int32(httpstatus.Code_CONFLICT)
 	case codes.OutOfRange:
-		return http.StatusBadRequest
+		return int32(httpstatus.Code_BAD_REQUEST)
 	case codes.Unimplemented:
-		return http.StatusNotImplemented
+		return int32(httpstatus.Code_NOT_IMPLEMENTED)
 	case codes.Internal:
-		return http.StatusInternalServerError
+		return int32(httpstatus.Code_INTERNAL_SERVER_ERROR)
 	case codes.Unavailable:
-		return http.StatusServiceUnavailable
+		return int32(httpstatus.Code_SERVICE_UNAVAILABLE)
 	case codes.DataLoss:
-		return http.StatusInternalServerError
+		return int32(httpstatus.Code_INTERNAL_SERVER_ERROR)
 	default:
 		grpclog.Warningf("Unknown gRPC error code: %v", code)
-		return http.StatusInternalServerError
+		return int32(httpstatus.Code_INTERNAL_SERVER_ERROR)
 	}
 }

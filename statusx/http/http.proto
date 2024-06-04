@@ -51,9 +51,18 @@ enum Code {
 
 // Represents an HTTP header.
 message Header {
+
   // The HTTP header key. It is case insensitive.
   string key = 1;
 
   // The HTTP header value.
   string value = 2;
+}
+
+// Represents an HTTP result.
+message Result {
+  // The result code.
+  int32 code = 1;
+  // The result message.
+  string msg = 2;
 }
