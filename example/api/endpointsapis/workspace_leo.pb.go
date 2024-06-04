@@ -215,6 +215,7 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			ListWorkspacesResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getWorkspace: grpc.NewClient(
 			conn,
@@ -225,6 +226,7 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			Workspace{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		createWorkspace: grpc.NewClient(
 			conn,
@@ -235,6 +237,7 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			Workspace{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		updateWorkspace: grpc.NewClient(
 			conn,
@@ -245,6 +248,7 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			Workspace{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteWorkspace: grpc.NewClient(
 			conn,
@@ -255,6 +259,7 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

@@ -195,6 +195,7 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/pb.CQRS/CreateUser")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		findUser: grpc.NewClient(
 			conn,
@@ -205,6 +206,7 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransport
 			GetUserResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/pb.CQRS/FindUser")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

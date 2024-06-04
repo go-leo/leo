@@ -212,6 +212,7 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/StarBody")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedBody: grpc.NewClient(
 			conn,
@@ -222,6 +223,7 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/NamedBody")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		nonBody: grpc.NewClient(
 			conn,
@@ -232,6 +234,7 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/NonBody")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		httpBodyStarBody: grpc.NewClient(
 			conn,
@@ -242,6 +245,7 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		httpBodyNamedBody: grpc.NewClient(
 			conn,
@@ -252,6 +256,7 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

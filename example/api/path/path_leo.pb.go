@@ -327,6 +327,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		int32Path: grpc.NewClient(
 			conn,
@@ -337,6 +338,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		int64Path: grpc.NewClient(
 			conn,
@@ -347,6 +349,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		uint32Path: grpc.NewClient(
 			conn,
@@ -357,6 +360,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		uint64Path: grpc.NewClient(
 			conn,
@@ -367,6 +371,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		floatPath: grpc.NewClient(
 			conn,
@@ -377,6 +382,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		doublePath: grpc.NewClient(
 			conn,
@@ -387,6 +393,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		stringPath: grpc.NewClient(
 			conn,
@@ -397,6 +404,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		enumPath: grpc.NewClient(
 			conn,
@@ -407,6 +415,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

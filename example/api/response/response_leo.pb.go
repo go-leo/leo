@@ -215,6 +215,7 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			UserResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		starResponse: grpc.NewClient(
 			conn,
@@ -225,6 +226,7 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			UserResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedResponse: grpc.NewClient(
 			conn,
@@ -235,6 +237,7 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			UserResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		httpBodyResponse: grpc.NewClient(
 			conn,
@@ -245,6 +248,7 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			httpbody.HttpBody{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		httpBodyNamedResponse: grpc.NewClient(
 			conn,
@@ -255,6 +259,7 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 			HttpBody{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

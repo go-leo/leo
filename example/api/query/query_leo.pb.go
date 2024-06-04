@@ -104,6 +104,7 @@ func NewQueryGrpcClientTransports(conn *grpc1.ClientConn) QueryGrpcClientTranspo
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.query.v1.Query/Query")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

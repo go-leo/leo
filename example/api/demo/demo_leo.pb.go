@@ -452,6 +452,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			CreateUserResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteUser: grpc.NewClient(
 			conn,
@@ -462,6 +463,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		updateUser: grpc.NewClient(
 			conn,
@@ -472,6 +474,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getUser: grpc.NewClient(
 			conn,
@@ -482,6 +485,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			GetUserResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getUsers: grpc.NewClient(
 			conn,
@@ -492,6 +496,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			GetUsersResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		uploadUserAvatar: grpc.NewClient(
 			conn,
@@ -502,6 +507,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getUserAvatar: grpc.NewClient(
 			conn,
@@ -512,6 +518,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 			httpbody.HttpBody{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

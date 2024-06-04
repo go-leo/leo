@@ -242,6 +242,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedPathOptString: grpc.NewClient(
 			conn,
@@ -252,6 +253,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		namedPathWrapString: grpc.NewClient(
 			conn,
@@ -262,6 +264,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		embedNamedPathString: grpc.NewClient(
 			conn,
@@ -272,6 +275,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		embedNamedPathOptString: grpc.NewClient(
 			conn,
@@ -282,6 +286,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		embedNamedPathWrapString: grpc.NewClient(
 			conn,
@@ -292,6 +297,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

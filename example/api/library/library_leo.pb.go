@@ -383,6 +383,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Shelf{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getShelf: grpc.NewClient(
 			conn,
@@ -393,6 +394,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Shelf{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		listShelves: grpc.NewClient(
 			conn,
@@ -403,6 +405,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			ListShelvesResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteShelf: grpc.NewClient(
 			conn,
@@ -413,6 +416,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		mergeShelves: grpc.NewClient(
 			conn,
@@ -423,6 +427,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Shelf{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		createBook: grpc.NewClient(
 			conn,
@@ -433,6 +438,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Book{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		getBook: grpc.NewClient(
 			conn,
@@ -443,6 +449,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Book{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		listBooks: grpc.NewClient(
 			conn,
@@ -453,6 +460,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			ListBooksResponse{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		deleteBook: grpc.NewClient(
 			conn,
@@ -463,6 +471,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		updateBook: grpc.NewClient(
 			conn,
@@ -473,6 +482,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Book{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 		moveBook: grpc.NewClient(
 			conn,
@@ -483,6 +493,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 			Book{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

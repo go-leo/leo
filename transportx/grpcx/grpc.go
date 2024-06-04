@@ -4,6 +4,7 @@ import (
 	"context"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-leo/leo/v3/endpointx"
+	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/transportx"
 	"google.golang.org/grpc/metadata"
 )
@@ -34,4 +35,15 @@ func ServerEndpointInjector(name string) grpctransport.ServerRequestFunc {
 
 func ServerTransportInjector(ctx context.Context, md metadata.MD) context.Context {
 	return transportx.InjectName(ctx, GrpcServer)
+}
+
+func OutgoingMetadata(ctx context.Context, grpcMD *metadata.MD) context.Context {
+	md, ok := metadatax.FromOutgoingContext(ctx)
+	if !ok {
+		return ctx
+	}
+	for _, key := range md.Keys() {
+		md.Set(key, md.Values(key)...)
+	}
+	return ctx
 }

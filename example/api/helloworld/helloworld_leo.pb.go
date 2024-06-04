@@ -98,6 +98,7 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterGrpcClientTra
 			HelloReply{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/helloworld.Greeter/SayHello")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }

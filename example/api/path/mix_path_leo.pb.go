@@ -102,6 +102,7 @@ func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathGrpcClientTra
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.ClientEndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
 			grpc.ClientBefore(grpcx.ClientTransportInjector),
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
 	}
 }
