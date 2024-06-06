@@ -23,18 +23,18 @@ func TestHttpWithBasicAuth(t *testing.T) {
 
 	type want struct {
 		result interface{}
-		err    error
+		err    *statusx.Error
 	}
 	tests := []struct {
 		name       string
 		authHeader interface{}
 		want       want
 	}{
-		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid with nil header", nil, want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid with non-string header", 42, want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid without authHeader", "", want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.ErrUnauthenticated}},
 		{"Is valid for correct creds", makeAuthString(requiredUser, requiredPassword), want{true, nil}},
 	}
 	for _, tt := range tests {
@@ -47,7 +47,7 @@ func TestHttpWithBasicAuth(t *testing.T) {
 			ctx = context.WithValue(ctx, httptransport.ContextKeyRequestAuthorization, tt.authHeader)
 
 			result, err := Middleware(requiredUser, requiredPassword, realm)(passedValidation)(ctx, nil)
-			if result != tt.want.result || !errorx.Equals(err, tt.want.err) {
+			if result != tt.want.result || !tt.want.err.Equals(err) {
 				t.Errorf("WithBasicAuth() = result: %v, err: %v, want result: %v, want error: %v", result, err, tt.want.result, tt.want.err)
 			}
 		})
@@ -68,11 +68,11 @@ func TestGrpcWithBasicAuth(t *testing.T) {
 		authHeader interface{}
 		want       want
 	}{
-		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
-		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated(fmt.Sprintf(`invalid token, Basic realm=%q`, realm)).Err()}},
+		{"Isn't valid with nil header", nil, want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid with non-string header", 42, want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid without authHeader", "", want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.ErrUnauthenticated}},
 		{"Is valid for correct creds", makeAuthString(requiredUser, requiredPassword), want{true, nil}},
 	}
 	for _, tt := range tests {

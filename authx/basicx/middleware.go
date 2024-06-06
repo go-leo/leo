@@ -43,8 +43,8 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 }
 
 var (
-	ErrMissMetadata    = statusx.InvalidArgument("missing metadata").Err()
-	StatusInvalidToken = statusx.Unauthenticated("invalid token")
+	ErrMissMetadata         = statusx.ErrInvalidArgument.WithMessage("missing metadata")
+	ErrInvalidAuthorization = statusx.ErrUnauthenticated.WithMessage("invalid authorization")
 )
 
 func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (interface{}, error) {
@@ -55,7 +55,7 @@ func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endp
 
 	givenUser, givenPassword, ok := parseAuthorization(md.Values(authKey))
 	if !ok {
-		return nil, statusx.WithHttpHeader(StatusInvalidToken, &httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}).Err()
+		return nil, ErrInvalidAuthorization.WithHttpHeader(&httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)})
 	}
 
 	givenUserBytes := toHashSlice(givenUser)
@@ -63,16 +63,15 @@ func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endp
 
 	if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 		subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
-		return nil, statusx.WithHttpHeader(StatusInvalidToken, &httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}).Err()
+		return nil, ErrInvalidAuthorization.WithHttpHeader(&httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)})
 	}
 	// Continue execution of handler after ensuring a valid token.
 	return next(ctx, request)
 }
 
 func handleOutgoing(ctx context.Context, request interface{}, next endpoint.Endpoint, requiredUser, requiredPassword string) (interface{}, error) {
-	metadata := metadatax.New()
-	metadata.Set(authKey, fmt.Sprintf("%s%s", prefix, base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", requiredUser, requiredPassword)))))
-	ctx = metadatax.NewOutgoingContext(ctx, metadata)
+	metadata := metadatax.Pairs(authKey, fmt.Sprintf("%s%s", prefix, base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", requiredUser, requiredPassword)))))
+	ctx = metadatax.AppendToOutgoingContext(ctx, metadata)
 	return next(ctx, request)
 }
 

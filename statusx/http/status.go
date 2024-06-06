@@ -1,12 +1,17 @@
 package http
 
 import (
-	"github.com/go-leo/gox/errorx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"golang.org/x/exp/maps"
+	"net/http"
+	"strings"
 )
 
-var AnyProto *anypb.Any
-
-func init() {
-	AnyProto = errorx.Ignore(anypb.New(&Status{}))
+func (x *Status) HttpHeader() http.Header {
+	header := make(http.Header, len(x.GetHeaders()))
+	for _, h := range x.GetHeaders() {
+		header.Add(h.GetKey(), h.GetValue())
+	}
+	keys := maps.Keys(header)
+	header.Add("X-Leo-Status-Keys", strings.Join(keys, ", "))
+	return header
 }

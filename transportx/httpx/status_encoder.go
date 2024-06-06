@@ -3,6 +3,8 @@ package httpx
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-leo/gox/encodingx/jsonx"
 	"github.com/go-leo/gox/strconvx"
@@ -10,7 +12,8 @@ import (
 	httpstatus "github.com/go-leo/leo/v3/statusx/http"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
-	grpcstatus "google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/structpb"
 	"io"
 	"net/http"
 	"strings"
@@ -33,6 +36,7 @@ const (
 	kErrorEncoderKey = "X-Leo-Error-Encoder"
 	kGrpcCodeKey     = "X-Leo-Grpc-Code"
 	kGrpcMsgKey      = "X-Leo-Grpc-Msg"
+	kStatusKeysKey   = "X-Leo-Status-Keys"
 
 	kKitDefaultValue = "kit-default"
 	kLeoDefaultValue = "leo-default"
@@ -69,60 +73,77 @@ func SetStatusDecoder(c statusx.Decoder) {
 
 type statusEncoder struct{}
 
-func (e statusEncoder) Encode(ctx context.Context, grpcStatus *grpcstatus.Status) (*httpstatus.Status, []*httpstatus.Header, []byte) {
-	grpcProto, httpProto := statusx.Proto(grpcStatus)
-	if httpProto == nil {
-		httpProto = &httpstatus.Status{Code: statusx.HTTPStatusFromCode(grpcProto.GetCode())}
-	}
+func (e statusEncoder) Encode(ctx context.Context, err *statusx.Error) (int, http.Header, []byte) {
+	grpcProto, httpProto := err.Proto()
 
-	httpHeader := statusx.HttpHeader(grpcStatus)
-	httpHeader = append(httpHeader, &httpstatus.Header{Key: kContentTypeKey, Value: kJSONContentType})
-	httpHeader = append(httpHeader, &httpstatus.Header{Key: kErrorEncoderKey, Value: kLeoDefaultValue})
+	header := httpProto.HttpHeader()
+	header.Set(kContentTypeKey, kJSONContentType)
+	header.Set(kErrorEncoderKey, kLeoDefaultValue)
 
 	body := &bytes.Buffer{}
-	httpResult := statusx.HttpResult(grpcStatus)
-	if httpResult != nil {
-		httpHeader = append(httpHeader,
-			&httpstatus.Header{Key: kGrpcCodeKey, Value: strconvx.FormatInt(grpcProto.GetCode(), 10)},
-			&httpstatus.Header{Key: kGrpcMsgKey, Value: grpcProto.GetMessage()},
-		)
-		_ = jsonx.NewEncoder(body).Encode(httpResult)
+	bodyProto := err.HttpBody()
+	if bodyProto != nil {
+		header.Set(kGrpcCodeKey, strconvx.FormatInt(grpcProto.GetCode(), 10))
+		header.Set(kGrpcMsgKey, grpcProto.GetMessage())
+		if bodyAny, err := anypb.New(bodyProto); err != nil {
+			_ = jsonx.NewEncoder(body).Encode(bodyProto)
+		} else {
+			_ = jsonx.NewEncoder(body).Encode(bodyAny)
+		}
 	} else {
 		_ = jsonx.NewEncoder(body).Encode(grpcProto)
 	}
 
-	return httpProto, httpHeader, body.Bytes()
+	return int(httpProto.GetCode()), header, body.Bytes()
 }
 
 type statusDecoder struct {
 }
 
-func (d statusDecoder) Decode(ctx context.Context, httpProto *httpstatus.Status, header []*httpstatus.Header, body []byte) *grpcstatus.Status {
-	var errType string
-	var grpcCode string
-	var grpcMsg string
-	for _, h := range header {
-		key := h.GetKey()
-		if strings.EqualFold(key, kErrorEncoderKey) {
-			errType = h.GetValue()
-		}
-		if strings.EqualFold(key, kGrpcCodeKey) {
-			grpcCode = h.Value
-		}
-		if strings.EqualFold(key, kGrpcMsgKey) {
-			grpcMsg = h.Value
-		}
-	}
+func (d statusDecoder) Decode(ctx context.Context, status int, header http.Header, body []byte) *statusx.Error {
+	errType := header.Get(kErrorEncoderKey)
 	if !strings.EqualFold(errType, kLeoDefaultValue) {
 		return nil
 	}
+
+	keys := header.Values(kStatusKeysKey)
+	headers := make([]*httpstatus.Header, 0, len(keys))
+	for _, key := range keys {
+		for _, values := range header.Values(key) {
+			headers = append(headers, &httpstatus.Header{Key: key, Value: values})
+		}
+	}
+
+	grpcCode := header.Get(kGrpcCodeKey)
 	if grpcCode != "" {
-		code, _ := strconvx.ParseInt[int32](grpcCode, 10, 32)
-		return statusx.WithDetails(grpcstatus.New(codes.Code(code), grpcMsg), httpProto)
+		grpcMsg := header.Get(kGrpcMsgKey)
+		code, _ := strconvx.ParseUint[codes.Code](grpcCode, 10, 32)
+		if status == http.StatusOK && code == codes.Unknown {
+			code = statusx.FailedCode
+		}
+
+		bodyAny := &anypb.Any{}
+		if err := jsonx.Unmarshal(body, &bodyAny); err == nil {
+			bodyProto, err := bodyAny.UnmarshalNew()
+			if err == nil {
+				return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithHttpBody(bodyProto)
+			}
+		}
+
+		bodyStruct := &structpb.Struct{}
+		if err := jsonx.Unmarshal(body, &bodyStruct); err == nil {
+			return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithHttpBody(bodyStruct)
+		}
+
+		return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...)
 	}
 	var grpcProto *rpcstatus.Status
 	_ = jsonx.Unmarshal(body, &grpcProto)
-	return statusx.WithHttpStatus(grpcstatus.FromProto(grpcProto), httpProto)
+	code := codes.Code(grpcProto.GetCode())
+	if status == http.StatusOK && code == codes.Unknown {
+		code = statusx.FailedCode
+	}
+	return statusx.NewError(code, grpcProto.GetMessage()).WithHttpHeader(headers...)
 }
 
 func IsErrorResponse(r *http.Response) bool {
@@ -130,14 +151,14 @@ func IsErrorResponse(r *http.Response) bool {
 }
 
 func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
-	grpcStatus, ok := grpcstatus.FromError(err)
-	if !ok {
+	var statusErr *statusx.Error
+	if !errors.As(err, &statusErr) {
 		w.Header().Set(kErrorEncoderKey, kKitDefaultValue)
 		httptransport.DefaultErrorEncoder(ctx, err, w)
 		return
 	}
 
-	if grpcStatus == nil {
+	if statusErr == nil {
 		w.Header().Set(kErrorEncoderKey, kKitDefaultValue)
 		httptransport.DefaultErrorEncoder(ctx, err, w)
 		return
@@ -150,11 +171,13 @@ func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 		return
 	}
 
-	httpProto, header, body := encoder.Encode(ctx, grpcStatus)
-	for _, h := range header {
-		w.Header().Add(h.GetKey(), h.GetValue())
+	statusCode, header, body := encoder.Encode(ctx, statusErr)
+	for key := range header {
+		for _, value := range header.Values(key) {
+			w.Header().Add(key, value)
+		}
 	}
-	w.WriteHeader(int(httpProto.GetCode()))
+	w.WriteHeader(statusCode)
 	_, _ = w.Write(body)
 }
 
@@ -172,22 +195,14 @@ func ErrorDecoder(ctx context.Context, r *http.Response) error {
 		return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
 	}
 
-	header := make([]*httpstatus.Header, 0, len(r.Header))
-	for key, values := range r.Header {
-		for _, value := range values {
-			header = append(header, &httpstatus.Header{Key: key, Value: value})
-		}
-	}
-
 	body, _ := io.ReadAll(r.Body)
 
-	grpcStatus := decoder.Decode(ctx, &httpstatus.Status{Code: int32(r.StatusCode)}, header, body)
-
-	if grpcStatus == nil {
-		body, _ := io.ReadAll(r.Body)
-		return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
+	statusErr := decoder.Decode(ctx, r.StatusCode, r.Header, body)
+	if statusErr != nil {
+		return statusErr
 	}
-	return grpcStatus.Err()
+
+	return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
 }
 
 type ResponseError struct {
@@ -197,7 +212,7 @@ type ResponseError struct {
 }
 
 func (e *ResponseError) Error() string {
-	return "response error"
+	return fmt.Sprintf("rpc error: status-code = %d, body = %s", e.statusCode, string(e.body))
 }
 
 func (e *ResponseError) StatusCode() int {

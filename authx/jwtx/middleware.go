@@ -2,6 +2,7 @@ package jwtx
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/metadatax"
@@ -41,9 +42,8 @@ func NewSigner(kid string, key []byte, method jwt.SigningMethod, claims jwt.Clai
 				}
 				ctx = NewContentWithToken(ctx, tokenString)
 
-				metadata := metadatax.New()
-				metadata.Set(authKey, fmt.Sprintf("%s%s", prefix, tokenString))
-				ctx = metadatax.NewOutgoingContext(ctx, metadata)
+				metadata := metadatax.Pairs(authKey, fmt.Sprintf("%s%s", prefix, tokenString))
+				ctx = metadatax.AppendToOutgoingContext(ctx, metadata)
 
 				return next(ctx, request)
 			}
@@ -78,27 +78,13 @@ func (StandardClaimsFactory) New() jwt.Claims {
 
 var (
 	// ErrMissMetadata denotes a metadata was not found.
-	ErrMissMetadata = statusx.InvalidArgument("missing metadata").Err()
+	ErrMissMetadata = statusx.ErrInvalidArgument.WithMessage("missing metadata")
 
-	// ErrInvalidToken denotes a token was not able to be parsed.
-	ErrInvalidToken = statusx.Unauthenticated("invalid token").Err()
+	// ErrInvalidAuthorization denotes a token was not able to be parsed.
+	ErrInvalidAuthorization = statusx.ErrUnauthenticated.WithMessage("invalid authorization")
 
 	// ErrTokenInvalid denotes a token was not able to be validated.
-	ErrTokenInvalid = statusx.Unauthenticated("JWT was invalid").Err()
-
-	// ErrTokenExpired denotes a token's expire header (exp) has since passed.
-	ErrTokenExpired = statusx.Unauthenticated("JWT is expired").Err()
-
-	// ErrTokenMalformed denotes a token was not formatted as a JWT.
-	ErrTokenMalformed = statusx.Unauthenticated("JWT is malformed").Err()
-
-	// ErrTokenNotActive denotes a token's not before header (nbf) is in the
-	// future.
-	ErrTokenNotActive = statusx.Unauthenticated("token is not valid yet").Err()
-
-	// ErrUnexpectedSigningMethod denotes a token was signed with an unexpected
-	// signing method.
-	ErrUnexpectedSigningMethod = statusx.Unauthenticated("unexpected signing method").Err()
+	ErrTokenInvalid = statusx.ErrUnauthenticated.WithMessage("JWT was invalid")
 )
 
 // NewParser creates a new JWT parsing middleware, specifying a
@@ -121,7 +107,7 @@ func NewParser(keyFunc jwt.Keyfunc, method jwt.SigningMethod, claimsFactory Clai
 
 				tokenString, ok := parseAuthorization(md.Values(authKey))
 				if !ok {
-					return nil, ErrInvalidToken
+					return nil, ErrInvalidAuthorization
 				}
 
 				// Parse takes the token string and a function for looking up the
@@ -133,31 +119,12 @@ func NewParser(keyFunc jwt.Keyfunc, method jwt.SigningMethod, claimsFactory Clai
 				token, err := jwt.ParseWithClaims(tokenString, claimsFactory.Factory.New(), func(token *jwt.Token) (interface{}, error) {
 					// Don't forget to validate the alg is what you expect:
 					if token.Method != method {
-						return nil, ErrUnexpectedSigningMethod
+						return nil, errors.New("unexpected signing method")
 					}
-
 					return keyFunc(token)
 				})
 				if err != nil {
-					if e, ok := err.(*jwt.ValidationError); ok {
-						switch {
-						case e.Errors&jwt.ValidationErrorMalformed != 0:
-							// Token is malformed
-							return nil, ErrTokenMalformed
-						case e.Errors&jwt.ValidationErrorExpired != 0:
-							// Token is expired
-							return nil, ErrTokenExpired
-						case e.Errors&jwt.ValidationErrorNotValidYet != 0:
-							// Token is not active yet
-							return nil, ErrTokenNotActive
-						case e.Inner != nil:
-							// report e.Inner
-							return nil, e.Inner
-						}
-						// We have a ValidationError but have no specific Go kit error for it.
-						// Fall through to return original error.
-					}
-					return nil, err
+					return nil, statusx.ErrUnauthenticated.WithMessage(err.Error())
 				}
 
 				if !token.Valid {

@@ -7,6 +7,7 @@ import (
 	kitjwt "github.com/go-kit/kit/auth/jwt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/metadatax"
+	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/go-leo/leo/v3/transportx/grpcx"
 	"github.com/go-leo/leo/v3/transportx/httpx"
@@ -109,8 +110,8 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 		t.Error("Parser should have returned an error")
 	}
 
-	if !errors.Is(err, ErrUnexpectedSigningMethod) {
-		t.Errorf("unexpected error returned, expected: %s got: %s", ErrUnexpectedSigningMethod, err)
+	if !statusx.ErrUnauthenticated.Equals(err) {
+		t.Fatalf("Expected %+v, got %+v", statusx.ErrUnauthenticated, err)
 	}
 
 	// Invalid key is used in the parser
@@ -146,8 +147,8 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	parser = NewParser(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, malformedKey)))
 	ctx1, err = parser(ctx, struct{}{})
-	if !errors.Is(err, ErrTokenMalformed) {
-		t.Fatalf("Expected %+v, got %+v", ErrTokenMalformed, err)
+	if !statusx.ErrUnauthenticated.Equals(err) {
+		t.Fatalf("Expected %+v, got %+v", statusx.ErrUnauthenticated, err)
 	}
 
 	// Test for expired token error response
@@ -159,8 +160,8 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, token)))
 	ctx1, err = parser(ctx, struct{}{})
-	if !errors.Is(err, ErrTokenExpired) {
-		t.Fatalf("Expected %+v, got %+v", ErrTokenExpired, err)
+	if !statusx.ErrUnauthenticated.Equals(err) {
+		t.Fatalf("Expected %+v, got %+v", statusx.ErrUnauthenticated, err)
 	}
 
 	// Test for not activated token error response
@@ -172,8 +173,8 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, token)))
 	ctx1, err = parser(ctx, struct{}{})
-	if !errors.Is(err, ErrTokenNotActive) {
-		t.Fatalf("Expected %+v, got %+v", ErrTokenNotActive, err)
+	if !statusx.ErrUnauthenticated.Equals(err) {
+		t.Fatalf("Expected %+v, got %+v", statusx.ErrUnauthenticated, err)
 	}
 
 	// test valid standard claims token

@@ -1,0 +1,23 @@
+syntax = "proto3";
+package leo.statusx.internal;
+option go_package = "github.com/go-leo/leo/v3/internal/statusx;statusx";
+import "google/protobuf/any.proto";
+import "google/rpc/status.proto";
+import "leo/statusx/http/status.proto";
+
+// Error is the error.
+message Error {
+
+  // grpc_status is the grpc status.
+  google.rpc.Status grpc_status = 1;
+
+  // http_status is the http status.
+  leo.statusx.http.Status http_status = 2;
+}
+
+message Cause {
+  oneof cause{
+    string message = 1;
+    google.protobuf.Any error = 2;
+  }
+}

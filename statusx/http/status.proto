@@ -1,11 +1,21 @@
 syntax = "proto3";
-package leo.statusx;
+package leo.statusx.http;
 option go_package = "github.com/go-leo/leo/v3/statusx/http;http";
+
+import "google/protobuf/any.proto";
 
 // Status is a wrapper of http status
 message Status {
+
   // The HTTP status code, such as 200 or 404.
   int32 code = 1;
+
+  // The HTTP response headers. The ordering of the headers is significant.
+  // Multiple headers with the same key may present for the response.
+  repeated Header headers = 3;
+
+  // The HTTP response body. If the body is not expected, it should be empty.
+  google.protobuf.Any body = 4;
 }
 
 enum Code {
@@ -57,12 +67,4 @@ message Header {
 
   // The HTTP header value.
   string value = 2;
-}
-
-// Represents an HTTP result.
-message Result {
-  // The result code.
-  int32 code = 1;
-  // The result message.
-  string msg = 2;
 }

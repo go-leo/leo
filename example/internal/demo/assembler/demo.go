@@ -9,7 +9,6 @@ import (
 	"github.com/go-leo/leo/v3/example/internal/demo/query"
 	"github.com/go-leo/leo/v3/metadatax"
 	"google.golang.org/genproto/googleapis/api/httpbody"
-	"google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -123,21 +122,6 @@ func (assembler *DemoAssembler) ToGetUserAvatarResponse(ctx context.Context, req
 		ContentType: "image/jpg",
 		Data:        res.Data,
 		Extensions:  nil,
-	}, nil
-}
-
-func (assembler *DemoAssembler) FromPushUsersRequest(ctx context.Context, request *http.HttpRequest) (*query.PushUsersArgs, context.Context, error) {
-	return &query.PushUsersArgs{
-		Data: request.GetBody(),
-	}, ctx, nil
-}
-
-func (assembler *DemoAssembler) ToPushUsersResponse(ctx context.Context, request *http.HttpRequest, res *query.PushUsersRes) (*http.HttpResponse, error) {
-	return &http.HttpResponse{
-		Status:  200,
-		Reason:  "OK",
-		Headers: nil,
-		Body:    res.Data,
 	}, nil
 }
 
