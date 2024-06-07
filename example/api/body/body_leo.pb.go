@@ -8,6 +8,7 @@ import (
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
+	sd "github.com/go-kit/kit/sd"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
@@ -88,7 +89,7 @@ func NewBodyEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyE
 
 // =========================== cqrs ===========================
 
-// =========================== grpc transports ===========================
+// =========================== grpc server ===========================
 
 type BodyGrpcServerTransports interface {
 	StarBody() *grpc.Server
@@ -96,14 +97,6 @@ type BodyGrpcServerTransports interface {
 	NonBody() *grpc.Server
 	HttpBodyStarBody() *grpc.Server
 	HttpBodyNamedBody() *grpc.Server
-}
-
-type BodyGrpcClientTransports interface {
-	StarBody() *grpc.Client
-	NamedBody() *grpc.Client
-	NonBody() *grpc.Client
-	HttpBodyStarBody() *grpc.Client
-	HttpBodyNamedBody() *grpc.Client
 }
 
 type bodyGrpcServerTransports struct {
@@ -177,6 +170,79 @@ func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
+}
+
+type bodyGrpcServer struct {
+	starBody          *grpc.Server
+	namedBody         *grpc.Server
+	nonBody           *grpc.Server
+	httpBodyStarBody  *grpc.Server
+	httpBodyNamedBody *grpc.Server
+}
+
+func (s *bodyGrpcServer) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
+	ctx, rep, err := s.starBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *bodyGrpcServer) NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.namedBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *bodyGrpcServer) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
+	ctx, rep, err := s.nonBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *bodyGrpcServer) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+	ctx, rep, err := s.httpBodyStarBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error) {
+	ctx, rep, err := s.httpBodyNamedBody.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewBodyGrpcServer(transports BodyGrpcServerTransports) BodyService {
+	return &bodyGrpcServer{
+		starBody:          transports.StarBody(),
+		namedBody:         transports.NamedBody(),
+		nonBody:           transports.NonBody(),
+		httpBodyStarBody:  transports.HttpBodyStarBody(),
+		httpBodyNamedBody: transports.HttpBodyNamedBody(),
+	}
+}
+
+// =========================== grpc client ===========================
+
+type BodyGrpcClientTransports interface {
+	StarBody() *grpc.Client
+	NamedBody() *grpc.Client
+	NonBody() *grpc.Client
+	HttpBodyStarBody() *grpc.Client
+	HttpBodyNamedBody() *grpc.Client
 }
 
 type bodyGrpcClientTransports struct {
@@ -257,66 +323,106 @@ func NewBodyGrpcClientTransports(conn *grpc1.ClientConn) BodyGrpcClientTransport
 	}
 }
 
-type bodyGrpcServer struct {
-	starBody          *grpc.Server
-	namedBody         *grpc.Server
-	nonBody           *grpc.Server
-	httpBodyStarBody  *grpc.Server
-	httpBodyNamedBody *grpc.Server
+type BodyGrpcClientFactories interface {
+	StarBody() sd.Factory
+	NamedBody() sd.Factory
+	NonBody() sd.Factory
+	HttpBodyStarBody() sd.Factory
+	HttpBodyNamedBody() sd.Factory
 }
 
-func (s *bodyGrpcServer) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
-	ctx, rep, err := s.starBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+type bodyGrpcClientFactories struct {
+	endpoints func(transports BodyGrpcClientTransports) BodyEndpoints
+	opts      []grpc1.DialOption
+}
+
+func (f *bodyGrpcClientFactories) StarBody() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		return endpoints.StarBody(), conn, nil
 	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
 }
 
-func (s *bodyGrpcServer) NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error) {
-	ctx, rep, err := s.namedBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *bodyGrpcClientFactories) NamedBody() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		return endpoints.NamedBody(), conn, nil
 	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
 }
 
-func (s *bodyGrpcServer) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
-	ctx, rep, err := s.nonBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *bodyGrpcClientFactories) NonBody() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		return endpoints.NonBody(), conn, nil
 	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
 }
 
-func (s *bodyGrpcServer) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
-	ctx, rep, err := s.httpBodyStarBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *bodyGrpcClientFactories) HttpBodyStarBody() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		return endpoints.HttpBodyStarBody(), conn, nil
 	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
 }
 
-func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error) {
-	ctx, rep, err := s.httpBodyNamedBody.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *bodyGrpcClientFactories) HttpBodyNamedBody() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		return endpoints.HttpBodyNamedBody(), conn, nil
 	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
 }
 
-func NewBodyGrpcServer(transports BodyGrpcServerTransports) BodyService {
-	return &bodyGrpcServer{
-		starBody:          transports.StarBody(),
-		namedBody:         transports.NamedBody(),
-		nonBody:           transports.NonBody(),
-		httpBodyStarBody:  transports.HttpBodyStarBody(),
-		httpBodyNamedBody: transports.HttpBodyNamedBody(),
+func NewBodyGrpcClientFactories(endpoints func(transports BodyGrpcClientTransports) BodyEndpoints, opts ...grpc1.DialOption) BodyGrpcClientFactories {
+	return &bodyGrpcClientFactories{endpoints: endpoints, opts: opts}
+}
+
+type bodyGrpcClientEndpoints struct {
+	transports  BodyGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *bodyGrpcClientEndpoints) StarBody() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.StarBody().Endpoint(), e.middlewares...)
+}
+
+func (e *bodyGrpcClientEndpoints) NamedBody() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.NamedBody().Endpoint(), e.middlewares...)
+}
+
+func (e *bodyGrpcClientEndpoints) NonBody() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.NonBody().Endpoint(), e.middlewares...)
+}
+
+func (e *bodyGrpcClientEndpoints) HttpBodyStarBody() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.HttpBodyStarBody().Endpoint(), e.middlewares...)
+}
+
+func (e *bodyGrpcClientEndpoints) HttpBodyNamedBody() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.HttpBodyNamedBody().Endpoint(), e.middlewares...)
+}
+
+func NewBodyGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports BodyGrpcClientTransports) BodyEndpoints {
+	return func(transports BodyGrpcClientTransports) BodyEndpoints {
+		return &bodyGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 	}
 }
 
@@ -378,17 +484,17 @@ func (c *bodyGrpcClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewBodyGrpcClient(transports BodyGrpcClientTransports, middlewares ...endpoint.Middleware) BodyService {
+func NewBodyGrpcClient(endpoints BodyEndpoints) BodyService {
 	return &bodyGrpcClient{
-		starBody:          endpointx.Chain(transports.StarBody().Endpoint(), middlewares...),
-		namedBody:         endpointx.Chain(transports.NamedBody().Endpoint(), middlewares...),
-		nonBody:           endpointx.Chain(transports.NonBody().Endpoint(), middlewares...),
-		httpBodyStarBody:  endpointx.Chain(transports.HttpBodyStarBody().Endpoint(), middlewares...),
-		httpBodyNamedBody: endpointx.Chain(transports.HttpBodyNamedBody().Endpoint(), middlewares...),
+		starBody:          endpoints.StarBody(),
+		namedBody:         endpoints.NamedBody(),
+		nonBody:           endpoints.NonBody(),
+		httpBodyStarBody:  endpoints.HttpBodyStarBody(),
+		httpBodyNamedBody: endpoints.HttpBodyNamedBody(),
 	}
 }
 
-// =========================== http transports ===========================
+// =========================== http server ===========================
 
 type BodyHttpServerTransports interface {
 	StarBody() *http.Server
@@ -396,14 +502,6 @@ type BodyHttpServerTransports interface {
 	NonBody() *http.Server
 	HttpBodyStarBody() *http.Server
 	HttpBodyNamedBody() *http.Server
-}
-
-type BodyHttpClientTransports interface {
-	StarBody() *http.Client
-	NamedBody() *http.Client
-	NonBody() *http.Client
-	HttpBodyStarBody() *http.Client
-	HttpBodyNamedBody() *http.Client
 }
 
 type bodyHttpServerTransports struct {
@@ -556,6 +654,26 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
+}
+
+func NewBodyHttpServerHandler(endpoints BodyHttpServerTransports) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(endpoints.StarBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(endpoints.NamedBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(endpoints.NonBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body").Handler(endpoints.HttpBodyStarBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body").Handler(endpoints.HttpBodyNamedBody())
+	return router
+}
+
+// =========================== http client ===========================
+
+type BodyHttpClientTransports interface {
+	StarBody() *http.Client
+	NamedBody() *http.Client
+	NonBody() *http.Client
+	HttpBodyStarBody() *http.Client
+	HttpBodyNamedBody() *http.Client
 }
 
 type bodyHttpClientTransports struct {
@@ -820,16 +938,6 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
-}
-
-func NewBodyHttpServerHandler(endpoints BodyHttpServerTransports) http1.Handler {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(endpoints.StarBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(endpoints.NamedBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(endpoints.NonBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body").Handler(endpoints.HttpBodyStarBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body").Handler(endpoints.HttpBodyNamedBody())
-	return router
 }
 
 type bodyHttpClient struct {

@@ -51,7 +51,7 @@ func (s Service) UnexportedClientName() string {
 }
 
 func (s Service) GrpcServerTransportsName() string {
-	return s.Name() + "GrpcServerTransports"
+	return s.GrpcServerName() + "Transports"
 }
 
 func (s Service) UnexportedGrpcServerTransportsName() string {
@@ -60,7 +60,7 @@ func (s Service) UnexportedGrpcServerTransportsName() string {
 }
 
 func (s Service) HttpServerTransportsName() string {
-	return s.Name() + "HttpServerTransports"
+	return s.HttpServerName() + "Transports"
 }
 
 func (s Service) UnexportedHttpServerTransportsName() string {
@@ -69,7 +69,7 @@ func (s Service) UnexportedHttpServerTransportsName() string {
 }
 
 func (s Service) GrpcClientTransportsName() string {
-	return s.Name() + "GrpcClientTransports"
+	return s.GrpcClientName() + "Transports"
 }
 
 func (s Service) UnexportedGrpcClientTransportsName() string {
@@ -78,11 +78,20 @@ func (s Service) UnexportedGrpcClientTransportsName() string {
 }
 
 func (s Service) HttpClientTransportsName() string {
-	return s.Name() + "HttpClientTransports"
+	return s.HttpClientName() + "Transports"
 }
 
 func (s Service) UnexportedHttpClientTransportsName() string {
 	name := s.HttpClientTransportsName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) GrpcClientFactoriesName() string {
+	return s.GrpcClientName() + "Factories"
+}
+
+func (s Service) UnexportedGrpcClientFactoriesName() string {
+	name := s.GrpcClientFactoriesName()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
@@ -104,8 +113,17 @@ func (s Service) UnexportedGrpcClientName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) GrpcClientEndpointsName() string {
+	return s.GrpcClientName() + "Endpoints"
+}
+
+func (s Service) UnexportedGrpcClientEndpointsName() string {
+	name := s.GrpcClientEndpointsName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func (s Service) HttpServerHandlerName() string {
-	return s.Name() + "HttpServerHandler"
+	return s.HttpServerName() + "Handler"
 }
 
 func (s Service) HttpServerName() string {

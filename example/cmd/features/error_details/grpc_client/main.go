@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/go-kit/kit/sd"
+	"github.com/go-kit/kit/sd/lb"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/statusx"
 	grpc1 "google.golang.org/grpc"
@@ -16,7 +18,13 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
+	factory := helloworld.NewGreeterGrpcClientFactory()
+	endpointer := sd.NewEndpointer(instancer, factory, logger)
+	balancer := lb.NewRoundRobin(endpointer)
+	retry := lb.Retry(*retryMax, *retryTimeout, balancer)
+
 	transports := helloworld.NewGreeterGrpcClientTransports(conn)
+	helloworld.NewNewGreeterGrpcClientEndpoints(transports)
 	client := helloworld.NewGreeterGrpcClient(transports)
 
 	ctx := context.Background()

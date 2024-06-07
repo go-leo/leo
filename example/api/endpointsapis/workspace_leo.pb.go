@@ -8,6 +8,7 @@ import (
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
+	sd "github.com/go-kit/kit/sd"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
@@ -91,7 +92,7 @@ func NewWorkspacesEndpoints(svc WorkspacesService, middlewares ...endpoint.Middl
 
 // =========================== cqrs ===========================
 
-// =========================== grpc transports ===========================
+// =========================== grpc server ===========================
 
 type WorkspacesGrpcServerTransports interface {
 	ListWorkspaces() *grpc.Server
@@ -99,14 +100,6 @@ type WorkspacesGrpcServerTransports interface {
 	CreateWorkspace() *grpc.Server
 	UpdateWorkspace() *grpc.Server
 	DeleteWorkspace() *grpc.Server
-}
-
-type WorkspacesGrpcClientTransports interface {
-	ListWorkspaces() *grpc.Client
-	GetWorkspace() *grpc.Client
-	CreateWorkspace() *grpc.Client
-	UpdateWorkspace() *grpc.Client
-	DeleteWorkspace() *grpc.Client
 }
 
 type workspacesGrpcServerTransports struct {
@@ -180,6 +173,79 @@ func NewWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
+}
+
+type workspacesGrpcServer struct {
+	listWorkspaces  *grpc.Server
+	getWorkspace    *grpc.Server
+	createWorkspace *grpc.Server
+	updateWorkspace *grpc.Server
+	deleteWorkspace *grpc.Server
+}
+
+func (s *workspacesGrpcServer) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+	ctx, rep, err := s.listWorkspaces.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*ListWorkspacesResponse), nil
+}
+
+func (s *workspacesGrpcServer) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+	ctx, rep, err := s.getWorkspace.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Workspace), nil
+}
+
+func (s *workspacesGrpcServer) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+	ctx, rep, err := s.createWorkspace.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Workspace), nil
+}
+
+func (s *workspacesGrpcServer) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+	ctx, rep, err := s.updateWorkspace.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*Workspace), nil
+}
+
+func (s *workspacesGrpcServer) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+	ctx, rep, err := s.deleteWorkspace.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewWorkspacesGrpcServer(transports WorkspacesGrpcServerTransports) WorkspacesService {
+	return &workspacesGrpcServer{
+		listWorkspaces:  transports.ListWorkspaces(),
+		getWorkspace:    transports.GetWorkspace(),
+		createWorkspace: transports.CreateWorkspace(),
+		updateWorkspace: transports.UpdateWorkspace(),
+		deleteWorkspace: transports.DeleteWorkspace(),
+	}
+}
+
+// =========================== grpc client ===========================
+
+type WorkspacesGrpcClientTransports interface {
+	ListWorkspaces() *grpc.Client
+	GetWorkspace() *grpc.Client
+	CreateWorkspace() *grpc.Client
+	UpdateWorkspace() *grpc.Client
+	DeleteWorkspace() *grpc.Client
 }
 
 type workspacesGrpcClientTransports struct {
@@ -260,66 +326,106 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 	}
 }
 
-type workspacesGrpcServer struct {
-	listWorkspaces  *grpc.Server
-	getWorkspace    *grpc.Server
-	createWorkspace *grpc.Server
-	updateWorkspace *grpc.Server
-	deleteWorkspace *grpc.Server
+type WorkspacesGrpcClientFactories interface {
+	ListWorkspaces() sd.Factory
+	GetWorkspace() sd.Factory
+	CreateWorkspace() sd.Factory
+	UpdateWorkspace() sd.Factory
+	DeleteWorkspace() sd.Factory
 }
 
-func (s *workspacesGrpcServer) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
-	ctx, rep, err := s.listWorkspaces.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+type workspacesGrpcClientFactories struct {
+	endpoints func(transports WorkspacesGrpcClientTransports) WorkspacesEndpoints
+	opts      []grpc1.DialOption
+}
+
+func (f *workspacesGrpcClientFactories) ListWorkspaces() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		return endpoints.ListWorkspaces(), conn, nil
 	}
-	_ = ctx
-	return rep.(*ListWorkspacesResponse), nil
 }
 
-func (s *workspacesGrpcServer) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
-	ctx, rep, err := s.getWorkspace.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *workspacesGrpcClientFactories) GetWorkspace() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		return endpoints.GetWorkspace(), conn, nil
 	}
-	_ = ctx
-	return rep.(*Workspace), nil
 }
 
-func (s *workspacesGrpcServer) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
-	ctx, rep, err := s.createWorkspace.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *workspacesGrpcClientFactories) CreateWorkspace() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		return endpoints.CreateWorkspace(), conn, nil
 	}
-	_ = ctx
-	return rep.(*Workspace), nil
 }
 
-func (s *workspacesGrpcServer) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
-	ctx, rep, err := s.updateWorkspace.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *workspacesGrpcClientFactories) UpdateWorkspace() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		return endpoints.UpdateWorkspace(), conn, nil
 	}
-	_ = ctx
-	return rep.(*Workspace), nil
 }
 
-func (s *workspacesGrpcServer) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
-	ctx, rep, err := s.deleteWorkspace.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *workspacesGrpcClientFactories) DeleteWorkspace() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		return endpoints.DeleteWorkspace(), conn, nil
 	}
-	_ = ctx
-	return rep.(*emptypb.Empty), nil
 }
 
-func NewWorkspacesGrpcServer(transports WorkspacesGrpcServerTransports) WorkspacesService {
-	return &workspacesGrpcServer{
-		listWorkspaces:  transports.ListWorkspaces(),
-		getWorkspace:    transports.GetWorkspace(),
-		createWorkspace: transports.CreateWorkspace(),
-		updateWorkspace: transports.UpdateWorkspace(),
-		deleteWorkspace: transports.DeleteWorkspace(),
+func NewWorkspacesGrpcClientFactories(endpoints func(transports WorkspacesGrpcClientTransports) WorkspacesEndpoints, opts ...grpc1.DialOption) WorkspacesGrpcClientFactories {
+	return &workspacesGrpcClientFactories{endpoints: endpoints, opts: opts}
+}
+
+type workspacesGrpcClientEndpoints struct {
+	transports  WorkspacesGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *workspacesGrpcClientEndpoints) ListWorkspaces() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.ListWorkspaces().Endpoint(), e.middlewares...)
+}
+
+func (e *workspacesGrpcClientEndpoints) GetWorkspace() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetWorkspace().Endpoint(), e.middlewares...)
+}
+
+func (e *workspacesGrpcClientEndpoints) CreateWorkspace() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.CreateWorkspace().Endpoint(), e.middlewares...)
+}
+
+func (e *workspacesGrpcClientEndpoints) UpdateWorkspace() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.UpdateWorkspace().Endpoint(), e.middlewares...)
+}
+
+func (e *workspacesGrpcClientEndpoints) DeleteWorkspace() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.DeleteWorkspace().Endpoint(), e.middlewares...)
+}
+
+func NewWorkspacesGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports WorkspacesGrpcClientTransports) WorkspacesEndpoints {
+	return func(transports WorkspacesGrpcClientTransports) WorkspacesEndpoints {
+		return &workspacesGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 	}
 }
 
@@ -381,17 +487,17 @@ func (c *workspacesGrpcClient) DeleteWorkspace(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewWorkspacesGrpcClient(transports WorkspacesGrpcClientTransports, middlewares ...endpoint.Middleware) WorkspacesService {
+func NewWorkspacesGrpcClient(endpoints WorkspacesEndpoints) WorkspacesService {
 	return &workspacesGrpcClient{
-		listWorkspaces:  endpointx.Chain(transports.ListWorkspaces().Endpoint(), middlewares...),
-		getWorkspace:    endpointx.Chain(transports.GetWorkspace().Endpoint(), middlewares...),
-		createWorkspace: endpointx.Chain(transports.CreateWorkspace().Endpoint(), middlewares...),
-		updateWorkspace: endpointx.Chain(transports.UpdateWorkspace().Endpoint(), middlewares...),
-		deleteWorkspace: endpointx.Chain(transports.DeleteWorkspace().Endpoint(), middlewares...),
+		listWorkspaces:  endpoints.ListWorkspaces(),
+		getWorkspace:    endpoints.GetWorkspace(),
+		createWorkspace: endpoints.CreateWorkspace(),
+		updateWorkspace: endpoints.UpdateWorkspace(),
+		deleteWorkspace: endpoints.DeleteWorkspace(),
 	}
 }
 
-// =========================== http transports ===========================
+// =========================== http server ===========================
 
 type WorkspacesHttpServerTransports interface {
 	ListWorkspaces() *http.Server
@@ -399,14 +505,6 @@ type WorkspacesHttpServerTransports interface {
 	CreateWorkspace() *http.Server
 	UpdateWorkspace() *http.Server
 	DeleteWorkspace() *http.Server
-}
-
-type WorkspacesHttpClientTransports interface {
-	ListWorkspaces() *http.Client
-	GetWorkspace() *http.Client
-	CreateWorkspace() *http.Client
-	UpdateWorkspace() *http.Client
-	DeleteWorkspace() *http.Client
 }
 
 type workspacesHttpServerTransports struct {
@@ -583,6 +681,26 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
+}
+
+func NewWorkspacesHttpServerHandler(endpoints WorkspacesHttpServerTransports) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(endpoints.ListWorkspaces())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(endpoints.GetWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(endpoints.CreateWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").Handler(endpoints.UpdateWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(endpoints.DeleteWorkspace())
+	return router
+}
+
+// =========================== http client ===========================
+
+type WorkspacesHttpClientTransports interface {
+	ListWorkspaces() *http.Client
+	GetWorkspace() *http.Client
+	CreateWorkspace() *http.Client
+	UpdateWorkspace() *http.Client
+	DeleteWorkspace() *http.Client
 }
 
 type workspacesHttpClientTransports struct {
@@ -873,16 +991,6 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
-}
-
-func NewWorkspacesHttpServerHandler(endpoints WorkspacesHttpServerTransports) http1.Handler {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(endpoints.ListWorkspaces())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(endpoints.GetWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(endpoints.CreateWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").Handler(endpoints.UpdateWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(endpoints.DeleteWorkspace())
-	return router
 }
 
 type workspacesHttpClient struct {

@@ -56,23 +56,36 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
-	g.P("// =========================== grpc transports ===========================")
-	g.P()
 	grpcGen, err := grpc.NewGenerator(f.Plugin, file)
 	if err != nil {
 		return err
 	}
-	if err := grpcGen.Generate(g); err != nil {
+
+	g.P("// =========================== grpc server ===========================")
+	g.P()
+	if err := grpcGen.GenerateServer(g); err != nil {
 		return err
 	}
 
-	g.P("// =========================== http transports ===========================")
+	g.P("// =========================== grpc client ===========================")
 	g.P()
+	if err := grpcGen.GenerateClient(g); err != nil {
+		return err
+	}
+
 	httpGen, err := http.NewGenerator(f.Plugin, file)
 	if err != nil {
 		return err
 	}
-	if err := httpGen.Generate(g); err != nil {
+	g.P("// =========================== http server ===========================")
+	g.P()
+	if err := httpGen.GenerateServer(g); err != nil {
+		return err
+	}
+
+	g.P("// =========================== http client ===========================")
+	g.P()
+	if err := httpGen.GenerateClient(g); err != nil {
 		return err
 	}
 	return nil

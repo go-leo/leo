@@ -7,12 +7,13 @@ import (
 )
 
 // Breaker execute the endpoint, if the circuit is open, it will return false, nil, nil
-// if the circuit is closed, it will execute the endpoint and return true, response, err
+// if the circuit is closed, it will execute the endpoint and return true, response, err.
+// See HystrixBreaker,
 type Breaker interface {
 	Execute(ctx context.Context, request any, e endpoint.Endpoint) (bool, any, error)
 }
 
-// Newer create the Breaker
+// Newer create the Breaker. See HystrixNewer
 type Newer interface {
 	New() Breaker
 }
@@ -20,9 +21,6 @@ type Newer interface {
 // Factory is the Breaker factory.
 type Factory struct {
 	Newer Newer
-}
-
-type HystrixBreaker struct {
 }
 
 func Middleware(factory Factory) endpoint.Middleware {

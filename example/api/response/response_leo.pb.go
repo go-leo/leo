@@ -7,6 +7,7 @@ import (
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
+	sd "github.com/go-kit/kit/sd"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
@@ -91,7 +92,7 @@ func NewResponseEndpoints(svc ResponseService, middlewares ...endpoint.Middlewar
 
 // =========================== cqrs ===========================
 
-// =========================== grpc transports ===========================
+// =========================== grpc server ===========================
 
 type ResponseGrpcServerTransports interface {
 	OmittedResponse() *grpc.Server
@@ -99,14 +100,6 @@ type ResponseGrpcServerTransports interface {
 	NamedResponse() *grpc.Server
 	HttpBodyResponse() *grpc.Server
 	HttpBodyNamedResponse() *grpc.Server
-}
-
-type ResponseGrpcClientTransports interface {
-	OmittedResponse() *grpc.Client
-	StarResponse() *grpc.Client
-	NamedResponse() *grpc.Client
-	HttpBodyResponse() *grpc.Client
-	HttpBodyNamedResponse() *grpc.Client
 }
 
 type responseGrpcServerTransports struct {
@@ -180,6 +173,79 @@ func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 	}
+}
+
+type responseGrpcServer struct {
+	omittedResponse       *grpc.Server
+	starResponse          *grpc.Server
+	namedResponse         *grpc.Server
+	httpBodyResponse      *grpc.Server
+	httpBodyNamedResponse *grpc.Server
+}
+
+func (s *responseGrpcServer) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx, rep, err := s.omittedResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UserResponse), nil
+}
+
+func (s *responseGrpcServer) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx, rep, err := s.starResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UserResponse), nil
+}
+
+func (s *responseGrpcServer) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx, rep, err := s.namedResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UserResponse), nil
+}
+
+func (s *responseGrpcServer) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	ctx, rep, err := s.httpBodyResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	ctx, rep, err := s.httpBodyNamedResponse.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*HttpBody), nil
+}
+
+func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseService {
+	return &responseGrpcServer{
+		omittedResponse:       transports.OmittedResponse(),
+		starResponse:          transports.StarResponse(),
+		namedResponse:         transports.NamedResponse(),
+		httpBodyResponse:      transports.HttpBodyResponse(),
+		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
+	}
+}
+
+// =========================== grpc client ===========================
+
+type ResponseGrpcClientTransports interface {
+	OmittedResponse() *grpc.Client
+	StarResponse() *grpc.Client
+	NamedResponse() *grpc.Client
+	HttpBodyResponse() *grpc.Client
+	HttpBodyNamedResponse() *grpc.Client
 }
 
 type responseGrpcClientTransports struct {
@@ -260,66 +326,106 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 	}
 }
 
-type responseGrpcServer struct {
-	omittedResponse       *grpc.Server
-	starResponse          *grpc.Server
-	namedResponse         *grpc.Server
-	httpBodyResponse      *grpc.Server
-	httpBodyNamedResponse *grpc.Server
+type ResponseGrpcClientFactories interface {
+	OmittedResponse() sd.Factory
+	StarResponse() sd.Factory
+	NamedResponse() sd.Factory
+	HttpBodyResponse() sd.Factory
+	HttpBodyNamedResponse() sd.Factory
 }
 
-func (s *responseGrpcServer) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx, rep, err := s.omittedResponse.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+type responseGrpcClientFactories struct {
+	endpoints func(transports ResponseGrpcClientTransports) ResponseEndpoints
+	opts      []grpc1.DialOption
+}
+
+func (f *responseGrpcClientFactories) OmittedResponse() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		return endpoints.OmittedResponse(), conn, nil
 	}
-	_ = ctx
-	return rep.(*UserResponse), nil
 }
 
-func (s *responseGrpcServer) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx, rep, err := s.starResponse.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *responseGrpcClientFactories) StarResponse() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		return endpoints.StarResponse(), conn, nil
 	}
-	_ = ctx
-	return rep.(*UserResponse), nil
 }
 
-func (s *responseGrpcServer) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx, rep, err := s.namedResponse.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *responseGrpcClientFactories) NamedResponse() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		return endpoints.NamedResponse(), conn, nil
 	}
-	_ = ctx
-	return rep.(*UserResponse), nil
 }
 
-func (s *responseGrpcServer) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
-	ctx, rep, err := s.httpBodyResponse.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *responseGrpcClientFactories) HttpBodyResponse() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		return endpoints.HttpBodyResponse(), conn, nil
 	}
-	_ = ctx
-	return rep.(*httpbody.HttpBody), nil
 }
 
-func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
-	ctx, rep, err := s.httpBodyNamedResponse.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
+func (f *responseGrpcClientFactories) HttpBodyNamedResponse() sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc1.NewClient(instance, f.opts...)
+		if err != nil {
+			return nil, nil, err
+		}
+		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		return endpoints.HttpBodyNamedResponse(), conn, nil
 	}
-	_ = ctx
-	return rep.(*HttpBody), nil
 }
 
-func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseService {
-	return &responseGrpcServer{
-		omittedResponse:       transports.OmittedResponse(),
-		starResponse:          transports.StarResponse(),
-		namedResponse:         transports.NamedResponse(),
-		httpBodyResponse:      transports.HttpBodyResponse(),
-		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
+func NewResponseGrpcClientFactories(endpoints func(transports ResponseGrpcClientTransports) ResponseEndpoints, opts ...grpc1.DialOption) ResponseGrpcClientFactories {
+	return &responseGrpcClientFactories{endpoints: endpoints, opts: opts}
+}
+
+type responseGrpcClientEndpoints struct {
+	transports  ResponseGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *responseGrpcClientEndpoints) OmittedResponse() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.OmittedResponse().Endpoint(), e.middlewares...)
+}
+
+func (e *responseGrpcClientEndpoints) StarResponse() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.StarResponse().Endpoint(), e.middlewares...)
+}
+
+func (e *responseGrpcClientEndpoints) NamedResponse() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.NamedResponse().Endpoint(), e.middlewares...)
+}
+
+func (e *responseGrpcClientEndpoints) HttpBodyResponse() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.HttpBodyResponse().Endpoint(), e.middlewares...)
+}
+
+func (e *responseGrpcClientEndpoints) HttpBodyNamedResponse() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.HttpBodyNamedResponse().Endpoint(), e.middlewares...)
+}
+
+func NewResponseGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports ResponseGrpcClientTransports) ResponseEndpoints {
+	return func(transports ResponseGrpcClientTransports) ResponseEndpoints {
+		return &responseGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 	}
 }
 
@@ -381,17 +487,17 @@ func (c *responseGrpcClient) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func NewResponseGrpcClient(transports ResponseGrpcClientTransports, middlewares ...endpoint.Middleware) ResponseService {
+func NewResponseGrpcClient(endpoints ResponseEndpoints) ResponseService {
 	return &responseGrpcClient{
-		omittedResponse:       endpointx.Chain(transports.OmittedResponse().Endpoint(), middlewares...),
-		starResponse:          endpointx.Chain(transports.StarResponse().Endpoint(), middlewares...),
-		namedResponse:         endpointx.Chain(transports.NamedResponse().Endpoint(), middlewares...),
-		httpBodyResponse:      endpointx.Chain(transports.HttpBodyResponse().Endpoint(), middlewares...),
-		httpBodyNamedResponse: endpointx.Chain(transports.HttpBodyNamedResponse().Endpoint(), middlewares...),
+		omittedResponse:       endpoints.OmittedResponse(),
+		starResponse:          endpoints.StarResponse(),
+		namedResponse:         endpoints.NamedResponse(),
+		httpBodyResponse:      endpoints.HttpBodyResponse(),
+		httpBodyNamedResponse: endpoints.HttpBodyNamedResponse(),
 	}
 }
 
-// =========================== http transports ===========================
+// =========================== http server ===========================
 
 type ResponseHttpServerTransports interface {
 	OmittedResponse() *http.Server
@@ -399,14 +505,6 @@ type ResponseHttpServerTransports interface {
 	NamedResponse() *http.Server
 	HttpBodyResponse() *http.Server
 	HttpBodyNamedResponse() *http.Server
-}
-
-type ResponseHttpClientTransports interface {
-	OmittedResponse() *http.Client
-	StarResponse() *http.Client
-	NamedResponse() *http.Client
-	HttpBodyResponse() *http.Client
-	HttpBodyNamedResponse() *http.Client
 }
 
 type responseHttpServerTransports struct {
@@ -566,6 +664,26 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
+}
+
+func NewResponseHttpServerHandler(endpoints ResponseHttpServerTransports) http1.Handler {
+	router := mux.NewRouter()
+	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(endpoints.OmittedResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(endpoints.StarResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(endpoints.NamedResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response").Handler(endpoints.HttpBodyResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response").Handler(endpoints.HttpBodyNamedResponse())
+	return router
+}
+
+// =========================== http client ===========================
+
+type ResponseHttpClientTransports interface {
+	OmittedResponse() *http.Client
+	StarResponse() *http.Client
+	NamedResponse() *http.Client
+	HttpBodyResponse() *http.Client
+	HttpBodyNamedResponse() *http.Client
 }
 
 type responseHttpClientTransports struct {
@@ -817,16 +935,6 @@ func NewResponseHttpClientTransports(scheme string, instance string) ResponseHtt
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 	}
-}
-
-func NewResponseHttpServerHandler(endpoints ResponseHttpServerTransports) http1.Handler {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(endpoints.OmittedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(endpoints.StarResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(endpoints.NamedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response").Handler(endpoints.HttpBodyResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response").Handler(endpoints.HttpBodyNamedResponse())
-	return router
 }
 
 type responseHttpClient struct {

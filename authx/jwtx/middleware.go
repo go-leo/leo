@@ -25,7 +25,7 @@ const (
 // the key to use for parsing.
 func NewSigner(kid string, key []byte, method jwt.SigningMethod, claims jwt.Claims) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request any) (response any, err error) {
+		return func(ctx context.Context, request any) (any, error) {
 			name, ok := transportx.ExtractName(ctx)
 			if !ok {
 				return next(ctx, request)

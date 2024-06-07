@@ -19,18 +19,10 @@ func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, err
 	return &Generator{Plugin: plugin, File: file, Services: services}, nil
 }
 
-func (f *Generator) Generate(g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 	server := ServerGenerator{}
-	client := ClientGenerator{}
-
 	for _, service := range f.Services {
 		if err := server.GenerateTransports(service, g); err != nil {
-			return err
-		}
-	}
-
-	for _, service := range f.Services {
-		if err := client.GenerateTransports(service, g); err != nil {
 			return err
 		}
 	}
@@ -42,13 +34,24 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
-		if err := client.GenerateImplementedTransports(service, g); err != nil {
+		if err := server.GenerateServer(service, g); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
+	client := ClientGenerator{}
+
+	for _, service := range f.Services {
+		if err := client.GenerateTransports(service, g); err != nil {
 			return err
 		}
 	}
 
 	for _, service := range f.Services {
-		if err := server.GenerateServer(service, g); err != nil {
+		if err := client.GenerateImplementedTransports(service, g); err != nil {
 			return err
 		}
 	}
