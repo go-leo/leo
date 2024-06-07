@@ -11,14 +11,17 @@ import (
 var OK = NewError(codes.OK, "")
 
 // Failed unlike ErrUnknown error, it just means business logic failed.
+//
 // For example, if client want sign up, but username already exists,
-// it should return OKButFailed("username already exist").
+// it should return Failed("username already exist").
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 200 OK
 var Failed = NewError(FailedCode, "")
 
 // ErrCanceled The operation was cancelled, typically by the caller.
+//
+// For example, client Application cancelled the request.
 //
 // GRPC Mapping: Canceled
 // HTTP Mapping: 499 Client Closed Request
@@ -29,6 +32,11 @@ var ErrCanceled = NewError(codes.Canceled, "")
 // an error space that is not known in this address space.  Also
 // errors raised by APIs that do not return enough error information
 // may be converted to this error.
+//
+// For example, server side application throws an exception (or does
+// something other than returning a Status code to terminate an RPC)
+//
+// # Another example, error parsing returned status
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 500 ErrInternal Server Error
@@ -48,6 +56,11 @@ var ErrInvalidArgument = NewError(codes.InvalidArgument, "")
 // even if the operation has completed successfully.  For example, a
 // successful response from a server could have been delayed long
 // enough for the deadline to expire.
+//
+// For example, deadline expires before server returns status.
+//
+// Another example, no response received before Deadline expires. This may occur either when the
+// client is unable to send the request to the server or when the server fails to respond in time.
 //
 // GRPC Mapping: DeadlineExceeded
 // HTTP Mapping: 504 Gateway Timeout
@@ -86,6 +99,12 @@ var ErrPermissionDenied = NewError(codes.PermissionDenied, "")
 // ErrResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
 // perhaps the entire file system is out of space.
 //
+// Example 1, server temporarily out of resources (e.g., Flow-control resource limits reached)
+//
+// Example 2, client does not have enough memory to hold the server response.
+//
+// Example 3, Sent or received message was larger than configured limit.
+//
 // HTTP Mapping: 429 Too Many Requests
 var ErrResourceExhausted = NewError(codes.ResourceExhausted, "")
 
@@ -113,8 +132,8 @@ var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
 // ErrAborted The operation was aborted, typically due to a concurrency issue such as
 // a sequencer check failure or transaction abort.
 //
-// See the guidelines above for deciding between FailedPrecondition,
-// Aborted, and ErrUnavailable.
+// See the guidelines above for deciding between ErrFailedPrecondition,
+// ErrAborted, and ErrUnavailable.
 //
 // HTTP Mapping: 409 Conflict
 var ErrAborted = NewError(codes.Aborted, "")
@@ -141,12 +160,25 @@ var ErrOutOfRange = NewError(codes.OutOfRange, "")
 // ErrUnimplemented The operation is not implemented or is not supported/enabled in this
 // service.
 //
+// # Example 1, method not found at server.
+//
+// # Example 2, compression mechanism used by client not supported at server.
+//
+// # Example 3, request cardinality violation (method requires exactly one request
+// but client sent some other number of requests or server sent some other number of responses)
+//
 // HTTP Mapping: 501 Not Implemented
 var ErrUnimplemented = NewError(codes.Unimplemented, "")
 
-// ErrInternal ErrInternal errors.  This means that some invariants expected by the
+// ErrInternal internal errors.  This means that some invariants expected by the
 // underlying system have been broken.  This error code is reserved
 // for serious errors.
+//
+// # Example 1, could not decompress, but compression algorithm supported.
+//
+// # Example 2, flow-control protocol violation.
+//
+// # Example 3, error parsing request or response proto.
 //
 // HTTP Mapping: 500 ErrInternal Server Error
 var ErrInternal = NewError(codes.Internal, "")
@@ -156,8 +188,14 @@ var ErrInternal = NewError(codes.Internal, "")
 // a backoff. Note that it is not always safe to retry
 // non-idempotent operations.
 //
-// See the guidelines above for deciding between `FAILED_PRECONDITION`,
-// `ABORTED`, and `UNAVAILABLE`.
+// # Example 1, server shutting down.
+//
+// # Example 2, some data transmitted (e.g., request metadata written to TCP connection) before connection breaks
+//
+// # Example 3, keepalive watchdog times out
+//
+// See the guidelines above for deciding between ErrFailedPrecondition,
+// ErrAborted, and ErrUnavailable.
 //
 // HTTP Mapping: 503 Service ErrUnavailable
 // Aborted, and ErrUnavailable.
@@ -170,6 +208,9 @@ var ErrDataLoss = NewError(codes.DataLoss, "")
 
 // ErrUnauthenticated The request does not have valid authentication credentials for the
 // operation.
+//
+// For example, incorrect Auth metadata ( Credentials failed to get metadata, Incompatible credentials set on channel
+// and call, Invalid host set in :authority metadata, etc.)
 //
 // HTTP Mapping: 401 Unauthorized
 var ErrUnauthenticated = NewError(codes.Unauthenticated, "")

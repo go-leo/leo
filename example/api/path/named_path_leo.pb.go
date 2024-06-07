@@ -738,7 +738,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &namedPathHttpClientTransports{
 		namedPathString: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -774,7 +774,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -787,7 +787,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedPathOptString: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -823,7 +823,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -836,7 +836,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedPathWrapString: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -872,7 +872,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -885,7 +885,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathString: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -919,7 +919,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -932,7 +932,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathOptString: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -966,7 +966,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -979,7 +979,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		embedNamedPathWrapString: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1013,7 +1013,7 @@ func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathH
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

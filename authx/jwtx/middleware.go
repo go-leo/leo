@@ -25,7 +25,7 @@ const (
 // the key to use for parsing.
 func NewSigner(kid string, key []byte, method jwt.SigningMethod, claims jwt.Claims) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		return func(ctx context.Context, request any) (response any, err error) {
 			name, ok := transportx.ExtractName(ctx)
 			if !ok {
 				return next(ctx, request)
@@ -93,7 +93,7 @@ var (
 // Particularly useful for servers.
 func NewParser(keyFunc jwt.Keyfunc, method jwt.SigningMethod, claimsFactory ClaimsFactory) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (interface{}, error) {
+		return func(ctx context.Context, request any) (any, error) {
 			name, ok := transportx.ExtractName(ctx)
 			if !ok {
 				return next(ctx, request)
@@ -116,7 +116,7 @@ func NewParser(keyFunc jwt.Keyfunc, method jwt.SigningMethod, claimsFactory Clai
 				// of the token to identify which key to use, but the parsed token
 				// (head and claims) is provided to the callback, providing
 				// flexibility.
-				token, err := jwt.ParseWithClaims(tokenString, claimsFactory.Factory.New(), func(token *jwt.Token) (interface{}, error) {
+				token, err := jwt.ParseWithClaims(tokenString, claimsFactory.Factory.New(), func(token *jwt.Token) (any, error) {
 					// Don't forget to validate the alg is what you expect:
 					if token.Method != method {
 						return nil, errors.New("unexpected signing method")

@@ -214,7 +214,7 @@ func NewMixPathHttpClientTransports(scheme string, instance string) MixPathHttpC
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &mixPathHttpClientTransports{
 		mixPath: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -249,7 +249,7 @@ func NewMixPathHttpClientTransports(scheme string, instance string) MixPathHttpC
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

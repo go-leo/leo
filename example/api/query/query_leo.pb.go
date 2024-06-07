@@ -278,7 +278,7 @@ func NewQueryHttpClientTransports(scheme string, instance string) QueryHttpClien
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
 	return &queryHttpClientTransports{
 		query: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -375,7 +375,7 @@ func NewQueryHttpClientTransports(scheme string, instance string) QueryHttpClien
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

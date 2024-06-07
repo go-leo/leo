@@ -22,12 +22,12 @@ func TestHttpWithBasicAuth(t *testing.T) {
 	realm := "test realm"
 
 	type want struct {
-		result interface{}
+		result any
 		err    *statusx.Error
 	}
 	tests := []struct {
 		name       string
-		authHeader interface{}
+		authHeader any
 		want       want
 	}{
 		{"Isn't valid with nil header", nil, want{nil, statusx.ErrUnauthenticated}},
@@ -60,12 +60,12 @@ func TestGrpcWithBasicAuth(t *testing.T) {
 	realm := "test realm"
 
 	type want struct {
-		result interface{}
+		result any
 		err    error
 	}
 	tests := []struct {
 		name       string
-		authHeader interface{}
+		authHeader any
 		want       want
 	}{
 		{"Isn't valid with nil header", nil, want{nil, statusx.ErrUnauthenticated}},
@@ -96,6 +96,6 @@ func makeAuthString(user string, password string) string {
 	return fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString(data))
 }
 
-func passedValidation(ctx context.Context, request interface{}) (response interface{}, err error) {
+func passedValidation(ctx context.Context, request any) (response any, err error) {
 	return true, nil
 }

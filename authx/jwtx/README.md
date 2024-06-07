@@ -1,6 +1,6 @@
 # package authx/jwtx
 
-`package authx/basicx` provides basic auth middleware
+`package authx/jwtx` provides jwt auth middleware
 
 ## Usage
 ### gRPC
@@ -14,7 +14,11 @@ func main() {
 	s := grpc1.NewServer()
 	endpoints := helloworld.NewGreeterEndpoints(
 		NewGreeterService(),
-		basicx.Middleware("soyacen", "123456", "basic auth example"),
+		jwtx.NewParser(
+			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
+			jwt.SigningMethodHS256,
+			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
+		),
 	)
 	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
 	service := helloworld.NewGreeterGrpcServer(transports)
@@ -28,7 +32,6 @@ func main() {
 
 #### Client
 ```go
-
 func main() {
 	conn, err := grpc1.Dial(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -36,11 +39,11 @@ func main() {
 	}
 	defer conn.Close()
 	transports := helloworld.NewGreeterGrpcClientTransports(conn)
-	
+
 	// ok
 	client := helloworld.NewGreeterGrpcClient(
 		transports,
-		basicx.Middleware("soyacen", "123456", "basic auth example"),
+		jwtx.NewSigner("kid", []byte("jwt_key_secret"), jwt.SigningMethodHS256, jwt.MapClaims{"user": "go-leo"}),
 	)
 	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
@@ -51,7 +54,7 @@ func main() {
 	// panic
 	client = helloworld.NewGreeterGrpcClient(
 		transports,
-		basicx.Middleware("soyacen", "654321", "basic auth example"),
+		jwtx.NewSigner("kid", []byte("jwt_key_wrong_secret"), jwt.SigningMethodHS256, jwt.MapClaims{"user": "go-leo"}),
 	)
 	reply, err = client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "mint"})
 	if err != nil {
@@ -71,7 +74,11 @@ func main() {
 	}
 	endpoints := helloworld.NewGreeterEndpoints(
 		NewGreeterService(),
-		basicx.Middleware("soyacen", "123456", "basic auth example"),
+		jwtx.NewParser(
+			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
+			jwt.SigningMethodHS256,
+			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
+		),
 	)
 	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
 	handler := helloworld.NewGreeterHttpServerHandler(transports)
@@ -85,32 +92,7 @@ func main() {
 #### Client
 ```go
 
-func main() {
-	transports := helloworld.NewGreeterHttpClientTransports("http", "127.0.0.1:8080")
-
-	// ok
-	client := helloworld.NewGreeterHttpClient(
-		transports,
-		basicx.Middleware("soyacen", "123456", "basic auth example"),
-	)
-	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(reply)
-
-	// panic
-	client = helloworld.NewGreeterHttpClient(
-		transports,
-		basicx.Middleware("soyacen", "654321", "basic auth example"),
-	)
-	reply, err = client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "mint"})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(reply)
-}
 ```
 
 ## Example
-[basic](..%2F..%2Fexample%2Fcmd%2Ffeatures%2Fauth%2Fbasic)
+[jwt](..%2F..%2Fexample%2Fcmd%2Ffeatures%2Fauth%2Fjwt)

@@ -1011,7 +1011,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}")
 	return &demoHttpClientTransports{
 		createUser: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1046,7 +1046,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1059,7 +1059,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteUser: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1088,7 +1088,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1101,7 +1101,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateUser: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1137,7 +1137,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1150,7 +1150,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUser: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1179,7 +1179,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1192,7 +1192,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUsers: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1222,7 +1222,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1235,7 +1235,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uploadUserAvatar: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1267,7 +1267,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1280,7 +1280,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getUserAvatar: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1309,7 +1309,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

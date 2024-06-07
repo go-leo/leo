@@ -60,7 +60,7 @@ func TestNewSigner(t *testing.T) {
 }
 
 func testNewSigner(t *testing.T, ctx context.Context) {
-	e := func(ctx context.Context, i interface{}) (interface{}, error) { return ctx, nil }
+	e := func(ctx context.Context, i any) (any, error) { return ctx, nil }
 	signer := NewSigner(kid, key, method, mapClaims)(e)
 	signingValidator(t, ctx, signer, signedKey)
 
@@ -77,9 +77,9 @@ func TestJWTParser(t *testing.T) {
 }
 
 func testJWTParser(t *testing.T, ctx context.Context) {
-	e := func(ctx context.Context, i interface{}) (interface{}, error) { return ctx, nil }
+	e := func(ctx context.Context, i any) (any, error) { return ctx, nil }
 
-	keys := func(token *jwt.Token) (interface{}, error) {
+	keys := func(token *jwt.Token) (any, error) {
 		return key, nil
 	}
 
@@ -115,7 +115,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 
 	// Invalid key is used in the parser
-	invalidKeys := func(token *jwt.Token) (interface{}, error) {
+	invalidKeys := func(token *jwt.Token) (any, error) {
 		return []byte("bad"), nil
 	}
 
@@ -197,7 +197,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 
 func TestIssue(t *testing.T) {
 	var (
-		kf  = func(token *jwt.Token) (interface{}, error) { return []byte("secret"), nil }
+		kf  = func(token *jwt.Token) (any, error) { return []byte("secret"), nil }
 		e   = NewParser(kf, jwt.SigningMethodHS256, ClaimsFactory{Factory: MapClaimsFactory{}})(endpoint.Nop)
 		key = kitjwt.JWTContextKey
 		val = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ28ta2l0In0.14M2VmYyApdSlV_LZ88ajjwuaLeIFplB8JpyNy0A19E"

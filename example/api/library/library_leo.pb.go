@@ -1229,7 +1229,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move")
 	return &libraryServiceHttpClientTransports{
 		createShelf: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1264,7 +1264,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1277,7 +1277,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getShelf: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1311,7 +1311,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1324,7 +1324,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		listShelves: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1354,7 +1354,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1367,7 +1367,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteShelf: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1401,7 +1401,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1414,7 +1414,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		mergeShelves: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1455,7 +1455,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1468,7 +1468,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		createBook: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1509,7 +1509,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1522,7 +1522,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getBook: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1556,7 +1556,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1569,7 +1569,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		listBooks: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1605,7 +1605,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1618,7 +1618,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteBook: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1652,7 +1652,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1665,7 +1665,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateBook: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1706,7 +1706,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1719,7 +1719,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		moveBook: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1760,7 +1760,7 @@ func NewLibraryServiceHttpClientTransports(scheme string, instance string) Libra
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

@@ -622,7 +622,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
 	return &workspacesHttpClientTransports{
 		listWorkspaces: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -658,7 +658,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -671,7 +671,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		getWorkspace: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -705,7 +705,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -718,7 +718,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		createWorkspace: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -759,7 +759,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -772,7 +772,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		updateWorkspace: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -813,7 +813,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -826,7 +826,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		deleteWorkspace: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -860,7 +860,7 @@ func NewWorkspacesHttpClientTransports(scheme string, instance string) Workspace
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

@@ -26,7 +26,7 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 	requiredUserBytes := toHashSlice([]byte(requiredUser))
 	requiredPasswordBytes := toHashSlice([]byte(requiredPassword))
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (interface{}, error) {
+		return func(ctx context.Context, request any) (any, error) {
 			name, ok := transportx.ExtractName(ctx)
 			if !ok {
 				return next(ctx, request)
@@ -47,7 +47,7 @@ var (
 	ErrInvalidAuthorization = statusx.ErrUnauthenticated.WithMessage("invalid authorization")
 )
 
-func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (interface{}, error) {
+func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (any, error) {
 	md, ok := metadatax.FromIncomingContext(ctx)
 	if !ok {
 		return nil, ErrMissMetadata
@@ -69,7 +69,7 @@ func handleIncoming(ctx context.Context, request interface{}, next endpoint.Endp
 	return next(ctx, request)
 }
 
-func handleOutgoing(ctx context.Context, request interface{}, next endpoint.Endpoint, requiredUser, requiredPassword string) (interface{}, error) {
+func handleOutgoing(ctx context.Context, request any, next endpoint.Endpoint, requiredUser, requiredPassword string) (any, error) {
 	metadata := metadatax.Pairs(authKey, fmt.Sprintf("%s%s", prefix, base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", requiredUser, requiredPassword)))))
 	ctx = metadatax.AppendToOutgoingContext(ctx, metadata)
 	return next(ctx, request)

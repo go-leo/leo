@@ -99,7 +99,7 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 
 func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
 	httpRule := endpoint.HttpRule()
-	g.P("func(ctx context.Context, obj interface{}) (*", internal.HttpPackage.Ident("Request"), ", error) {")
+	g.P("func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
 	g.P("if obj == nil {")
 	g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request object is nil"), ")")
 	g.P("}")
@@ -462,7 +462,7 @@ func (f *ClientGenerator) UnwrapFloatListFormat(srcValue []any, bitSize string) 
 }
 
 func (f *ClientGenerator) PrintDecodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule) error {
-	g.P("func(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (interface{}, error) {")
+	g.P("func(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (any, error) {")
 	g.P("if ", internal.HttpxPackage.Ident("IsErrorResponse"), "(r) {")
 	g.P("return nil, ", internal.HttpxPackage.Ident("ErrorDecoder"), "(ctx, r)")
 	g.P("}")

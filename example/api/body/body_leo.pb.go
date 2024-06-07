@@ -595,7 +595,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
 	return &bodyHttpClientTransports{
 		starBody: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -630,7 +630,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -643,7 +643,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		namedBody: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -678,7 +678,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -691,7 +691,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		nonBody: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -719,7 +719,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -732,7 +732,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyStarBody: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -763,7 +763,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -776,7 +776,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		httpBodyNamedBody: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -807,7 +807,7 @@ func NewBodyHttpClientTransports(scheme string, instance string) BodyHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

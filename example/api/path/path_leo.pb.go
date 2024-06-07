@@ -1387,7 +1387,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}")
 	return &pathHttpClientTransports{
 		boolPath: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1451,7 +1451,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1464,7 +1464,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		int32Path: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1524,7 +1524,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1537,7 +1537,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		int64Path: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1597,7 +1597,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1610,7 +1610,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uint32Path: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1672,7 +1672,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1685,7 +1685,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		uint64Path: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1747,7 +1747,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1760,7 +1760,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		floatPath: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1824,7 +1824,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1837,7 +1837,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		doublePath: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1901,7 +1901,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1914,7 +1914,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		stringPath: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -1978,7 +1978,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -1991,7 +1991,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		enumPath: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -2056,7 +2056,7 @@ func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientT
 				}
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}

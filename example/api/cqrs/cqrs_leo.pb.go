@@ -367,7 +367,7 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
 	return &cQRSHttpClientTransports{
 		createUser: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -402,7 +402,7 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
@@ -415,7 +415,7 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
 		findUser: http.NewExplicitClient(
-			func(ctx context.Context, obj interface{}) (*http1.Request, error) {
+			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
 				}
@@ -450,7 +450,7 @@ func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientT
 				r.Header.Set("Content-Type", contentType)
 				return r, nil
 			},
-			func(ctx context.Context, r *http1.Response) (interface{}, error) {
+			func(ctx context.Context, r *http1.Response) (any, error) {
 				if httpx.IsErrorResponse(r) {
 					return nil, httpx.ErrorDecoder(ctx, r)
 				}
