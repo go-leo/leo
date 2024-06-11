@@ -15,4 +15,5 @@ func NewSDClient(client *grpctransport.Client) *SDClient {
 
 func (c *SDClient) Endpoint() endpoint.Endpoint {
 
+	return nil
 }

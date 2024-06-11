@@ -66,19 +66,15 @@ func NewGreeterEndpoints(svc GreeterService, middlewares ...endpoint.Middleware)
 
 // =========================== grpc server ===========================
 
-type GreeterGrpcServerTransports interface {
-	SayHello() *grpc.Server
-}
-
 type greeterGrpcServerTransports struct {
 	sayHello *grpc.Server
 }
 
-func (t *greeterGrpcServerTransports) SayHello() *grpc.Server {
-	return t.sayHello
+func (t *greeterGrpcServerTransports) SayHello() transportx.Transport {
+	return grpcx.NewServerTransport(t.sayHello)
 }
 
-func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
+func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterTransports {
 	return &greeterGrpcServerTransports{
 		sayHello: grpc.NewServer(
 			endpoints.SayHello(),
@@ -92,11 +88,11 @@ func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServe
 }
 
 type greeterGrpcServer struct {
-	sayHello *grpc.Server
+	sayHello endpoint.Endpoint
 }
 
 func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	ctx, rep, err := s.sayHello.ServeGRPC(ctx, request)
+	rep, err := s.sayHello(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -104,9 +100,9 @@ func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest)
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterGrpcServer(transports GreeterGrpcServerTransports) GreeterService {
+func NewGreeterGrpcServer(transports GreeterTransports) GreeterService {
 	return &greeterGrpcServer{
-		sayHello: transports.SayHello(),
+		sayHello: transports.SayHello().Endpoint(),
 	}
 }
 
