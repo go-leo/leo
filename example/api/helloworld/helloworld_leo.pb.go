@@ -35,7 +35,11 @@ type GreeterEndpoints interface {
 }
 
 type GreeterFactories interface {
-	SayHello() sd.Factory
+	SayHello(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type GreeterEndpointers interface {
+	SayHello() sd.Endpointer
 }
 
 type greeterEndpoints struct {
@@ -164,23 +168,23 @@ func NewGreeterGrpcClient(endpoints GreeterEndpoints) GreeterService {
 }
 
 type greeterGrpcClientFactories struct {
-	endpoints func(transports GreeterGrpcClientTransports) GreeterEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *greeterGrpcClientFactories) SayHello() sd.Factory {
+func (f *greeterGrpcClientFactories) SayHello(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewGreeterGrpcClientTransports(conn))
+		transports := NewGreeterGrpcClientTransports(conn)
+		endpoints := NewGreeterGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.SayHello(), conn, nil
 	}
 }
 
-func NewGreeterGrpcClientFactories(endpoints func(transports GreeterGrpcClientTransports) GreeterEndpoints, opts ...grpc1.DialOption) GreeterFactories {
-	return &greeterGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewGreeterGrpcClientFactories(opts ...grpc1.DialOption) GreeterFactories {
+	return &greeterGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

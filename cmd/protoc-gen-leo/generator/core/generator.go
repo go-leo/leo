@@ -39,6 +39,12 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
+		if err := f.GenerateEndpointers(service, g); err != nil {
+			return err
+		}
+	}
+
+	for _, service := range f.Services {
 		if err := f.GenerateImplementedEndpoints(service, g); err != nil {
 			return err
 		}
@@ -75,7 +81,17 @@ func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.Gen
 func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.FactoriesName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() ", internal.SdPackage.Ident("Factory"))
+		g.P(endpoint.Name(), "(middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.SdPackage.Ident("Factory"))
+	}
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.EndpointersName(), " interface {")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.Name(), "() ", internal.SdPackage.Ident("Endpointer"))
 	}
 	g.P("}")
 	g.P()

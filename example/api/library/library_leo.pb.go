@@ -60,17 +60,31 @@ type LibraryServiceEndpoints interface {
 }
 
 type LibraryServiceFactories interface {
-	CreateShelf() sd.Factory
-	GetShelf() sd.Factory
-	ListShelves() sd.Factory
-	DeleteShelf() sd.Factory
-	MergeShelves() sd.Factory
-	CreateBook() sd.Factory
-	GetBook() sd.Factory
-	ListBooks() sd.Factory
-	DeleteBook() sd.Factory
-	UpdateBook() sd.Factory
-	MoveBook() sd.Factory
+	CreateShelf(middlewares ...endpoint.Middleware) sd.Factory
+	GetShelf(middlewares ...endpoint.Middleware) sd.Factory
+	ListShelves(middlewares ...endpoint.Middleware) sd.Factory
+	DeleteShelf(middlewares ...endpoint.Middleware) sd.Factory
+	MergeShelves(middlewares ...endpoint.Middleware) sd.Factory
+	CreateBook(middlewares ...endpoint.Middleware) sd.Factory
+	GetBook(middlewares ...endpoint.Middleware) sd.Factory
+	ListBooks(middlewares ...endpoint.Middleware) sd.Factory
+	DeleteBook(middlewares ...endpoint.Middleware) sd.Factory
+	UpdateBook(middlewares ...endpoint.Middleware) sd.Factory
+	MoveBook(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type LibraryServiceEndpointers interface {
+	CreateShelf() sd.Endpointer
+	GetShelf() sd.Endpointer
+	ListShelves() sd.Endpointer
+	DeleteShelf() sd.Endpointer
+	MergeShelves() sd.Endpointer
+	CreateBook() sd.Endpointer
+	GetBook() sd.Endpointer
+	ListBooks() sd.Endpointer
+	DeleteBook() sd.Endpointer
+	UpdateBook() sd.Endpointer
+	MoveBook() sd.Endpointer
 }
 
 type libraryServiceEndpoints struct {
@@ -829,133 +843,143 @@ func NewLibraryServiceGrpcClient(endpoints LibraryServiceEndpoints) LibraryServi
 }
 
 type libraryServiceGrpcClientFactories struct {
-	endpoints func(transports LibraryServiceGrpcClientTransports) LibraryServiceEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *libraryServiceGrpcClientFactories) CreateShelf() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) CreateShelf(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.CreateShelf(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) GetShelf() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) GetShelf(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.GetShelf(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) ListShelves() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) ListShelves(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.ListShelves(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) DeleteShelf() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) DeleteShelf(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.DeleteShelf(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) MergeShelves() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) MergeShelves(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.MergeShelves(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) CreateBook() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) CreateBook(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.CreateBook(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) GetBook() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) GetBook(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.GetBook(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) ListBooks() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) ListBooks(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.ListBooks(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) DeleteBook() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) DeleteBook(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.DeleteBook(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) UpdateBook() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) UpdateBook(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.UpdateBook(), conn, nil
 	}
 }
 
-func (f *libraryServiceGrpcClientFactories) MoveBook() sd.Factory {
+func (f *libraryServiceGrpcClientFactories) MoveBook(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewLibraryServiceGrpcClientTransports(conn))
+		transports := NewLibraryServiceGrpcClientTransports(conn)
+		endpoints := NewLibraryServiceGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.MoveBook(), conn, nil
 	}
 }
 
-func NewLibraryServiceGrpcClientFactories(endpoints func(transports LibraryServiceGrpcClientTransports) LibraryServiceEndpoints, opts ...grpc1.DialOption) LibraryServiceFactories {
-	return &libraryServiceGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewLibraryServiceGrpcClientFactories(opts ...grpc1.DialOption) LibraryServiceFactories {
+	return &libraryServiceGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

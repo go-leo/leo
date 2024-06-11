@@ -39,7 +39,11 @@ type MixPathEndpoints interface {
 }
 
 type MixPathFactories interface {
-	MixPath() sd.Factory
+	MixPath(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type MixPathEndpointers interface {
+	MixPath() sd.Endpointer
 }
 
 type mixPathEndpoints struct {
@@ -168,23 +172,23 @@ func NewMixPathGrpcClient(endpoints MixPathEndpoints) MixPathService {
 }
 
 type mixPathGrpcClientFactories struct {
-	endpoints func(transports MixPathGrpcClientTransports) MixPathEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *mixPathGrpcClientFactories) MixPath() sd.Factory {
+func (f *mixPathGrpcClientFactories) MixPath(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewMixPathGrpcClientTransports(conn))
+		transports := NewMixPathGrpcClientTransports(conn)
+		endpoints := NewMixPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.MixPath(), conn, nil
 	}
 }
 
-func NewMixPathGrpcClientFactories(endpoints func(transports MixPathGrpcClientTransports) MixPathEndpoints, opts ...grpc1.DialOption) MixPathFactories {
-	return &mixPathGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewMixPathGrpcClientFactories(opts ...grpc1.DialOption) MixPathFactories {
+	return &mixPathGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

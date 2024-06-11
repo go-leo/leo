@@ -49,12 +49,21 @@ type NamedPathEndpoints interface {
 }
 
 type NamedPathFactories interface {
-	NamedPathString() sd.Factory
-	NamedPathOptString() sd.Factory
-	NamedPathWrapString() sd.Factory
-	EmbedNamedPathString() sd.Factory
-	EmbedNamedPathOptString() sd.Factory
-	EmbedNamedPathWrapString() sd.Factory
+	NamedPathString(middlewares ...endpoint.Middleware) sd.Factory
+	NamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory
+	NamedPathWrapString(middlewares ...endpoint.Middleware) sd.Factory
+	EmbedNamedPathString(middlewares ...endpoint.Middleware) sd.Factory
+	EmbedNamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory
+	EmbedNamedPathWrapString(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type NamedPathEndpointers interface {
+	NamedPathString() sd.Endpointer
+	NamedPathOptString() sd.Endpointer
+	NamedPathWrapString() sd.Endpointer
+	EmbedNamedPathString() sd.Endpointer
+	EmbedNamedPathOptString() sd.Endpointer
+	EmbedNamedPathWrapString() sd.Endpointer
 }
 
 type namedPathEndpoints struct {
@@ -498,78 +507,83 @@ func NewNamedPathGrpcClient(endpoints NamedPathEndpoints) NamedPathService {
 }
 
 type namedPathGrpcClientFactories struct {
-	endpoints func(transports NamedPathGrpcClientTransports) NamedPathEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *namedPathGrpcClientFactories) NamedPathString() sd.Factory {
+func (f *namedPathGrpcClientFactories) NamedPathString(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewNamedPathGrpcClientTransports(conn))
+		transports := NewNamedPathGrpcClientTransports(conn)
+		endpoints := NewNamedPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.NamedPathString(), conn, nil
 	}
 }
 
-func (f *namedPathGrpcClientFactories) NamedPathOptString() sd.Factory {
+func (f *namedPathGrpcClientFactories) NamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewNamedPathGrpcClientTransports(conn))
+		transports := NewNamedPathGrpcClientTransports(conn)
+		endpoints := NewNamedPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.NamedPathOptString(), conn, nil
 	}
 }
 
-func (f *namedPathGrpcClientFactories) NamedPathWrapString() sd.Factory {
+func (f *namedPathGrpcClientFactories) NamedPathWrapString(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewNamedPathGrpcClientTransports(conn))
+		transports := NewNamedPathGrpcClientTransports(conn)
+		endpoints := NewNamedPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.NamedPathWrapString(), conn, nil
 	}
 }
 
-func (f *namedPathGrpcClientFactories) EmbedNamedPathString() sd.Factory {
+func (f *namedPathGrpcClientFactories) EmbedNamedPathString(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewNamedPathGrpcClientTransports(conn))
+		transports := NewNamedPathGrpcClientTransports(conn)
+		endpoints := NewNamedPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.EmbedNamedPathString(), conn, nil
 	}
 }
 
-func (f *namedPathGrpcClientFactories) EmbedNamedPathOptString() sd.Factory {
+func (f *namedPathGrpcClientFactories) EmbedNamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewNamedPathGrpcClientTransports(conn))
+		transports := NewNamedPathGrpcClientTransports(conn)
+		endpoints := NewNamedPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.EmbedNamedPathOptString(), conn, nil
 	}
 }
 
-func (f *namedPathGrpcClientFactories) EmbedNamedPathWrapString() sd.Factory {
+func (f *namedPathGrpcClientFactories) EmbedNamedPathWrapString(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewNamedPathGrpcClientTransports(conn))
+		transports := NewNamedPathGrpcClientTransports(conn)
+		endpoints := NewNamedPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.EmbedNamedPathWrapString(), conn, nil
 	}
 }
 
-func NewNamedPathGrpcClientFactories(endpoints func(transports NamedPathGrpcClientTransports) NamedPathEndpoints, opts ...grpc1.DialOption) NamedPathFactories {
-	return &namedPathGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewNamedPathGrpcClientFactories(opts ...grpc1.DialOption) NamedPathFactories {
+	return &namedPathGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

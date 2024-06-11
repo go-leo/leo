@@ -56,15 +56,27 @@ type PathEndpoints interface {
 }
 
 type PathFactories interface {
-	BoolPath() sd.Factory
-	Int32Path() sd.Factory
-	Int64Path() sd.Factory
-	Uint32Path() sd.Factory
-	Uint64Path() sd.Factory
-	FloatPath() sd.Factory
-	DoublePath() sd.Factory
-	StringPath() sd.Factory
-	EnumPath() sd.Factory
+	BoolPath(middlewares ...endpoint.Middleware) sd.Factory
+	Int32Path(middlewares ...endpoint.Middleware) sd.Factory
+	Int64Path(middlewares ...endpoint.Middleware) sd.Factory
+	Uint32Path(middlewares ...endpoint.Middleware) sd.Factory
+	Uint64Path(middlewares ...endpoint.Middleware) sd.Factory
+	FloatPath(middlewares ...endpoint.Middleware) sd.Factory
+	DoublePath(middlewares ...endpoint.Middleware) sd.Factory
+	StringPath(middlewares ...endpoint.Middleware) sd.Factory
+	EnumPath(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type PathEndpointers interface {
+	BoolPath() sd.Endpointer
+	Int32Path() sd.Endpointer
+	Int64Path() sd.Endpointer
+	Uint32Path() sd.Endpointer
+	Uint64Path() sd.Endpointer
+	FloatPath() sd.Endpointer
+	DoublePath() sd.Endpointer
+	StringPath() sd.Endpointer
+	EnumPath() sd.Endpointer
 }
 
 type pathEndpoints struct {
@@ -697,111 +709,119 @@ func NewPathGrpcClient(endpoints PathEndpoints) PathService {
 }
 
 type pathGrpcClientFactories struct {
-	endpoints func(transports PathGrpcClientTransports) PathEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *pathGrpcClientFactories) BoolPath() sd.Factory {
+func (f *pathGrpcClientFactories) BoolPath(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.BoolPath(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) Int32Path() sd.Factory {
+func (f *pathGrpcClientFactories) Int32Path(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.Int32Path(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) Int64Path() sd.Factory {
+func (f *pathGrpcClientFactories) Int64Path(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.Int64Path(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) Uint32Path() sd.Factory {
+func (f *pathGrpcClientFactories) Uint32Path(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.Uint32Path(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) Uint64Path() sd.Factory {
+func (f *pathGrpcClientFactories) Uint64Path(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.Uint64Path(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) FloatPath() sd.Factory {
+func (f *pathGrpcClientFactories) FloatPath(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.FloatPath(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) DoublePath() sd.Factory {
+func (f *pathGrpcClientFactories) DoublePath(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.DoublePath(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) StringPath() sd.Factory {
+func (f *pathGrpcClientFactories) StringPath(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.StringPath(), conn, nil
 	}
 }
 
-func (f *pathGrpcClientFactories) EnumPath() sd.Factory {
+func (f *pathGrpcClientFactories) EnumPath(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewPathGrpcClientTransports(conn))
+		transports := NewPathGrpcClientTransports(conn)
+		endpoints := NewPathGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.EnumPath(), conn, nil
 	}
 }
 
-func NewPathGrpcClientFactories(endpoints func(transports PathGrpcClientTransports) PathEndpoints, opts ...grpc1.DialOption) PathFactories {
-	return &pathGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewPathGrpcClientFactories(opts ...grpc1.DialOption) PathFactories {
+	return &pathGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

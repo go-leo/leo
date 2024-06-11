@@ -178,34 +178,6 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 	return nil
 }
 
-func (f *Generator) GenerateClientFactory(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedGrpcFactoriesName(), " struct {")
-	g.P("endpoints func(transports ", service.GrpcClientTransportsName(), ")", service.EndpointsName())
-	g.P("opts      []", internal.GrpcPackage.Ident("DialOption"))
-	g.P("}")
-	g.P()
-
-	for _, endpoint := range service.Endpoints {
-		g.P("func (f *", service.UnexportedGrpcFactoriesName(), ") ", endpoint.Name(), "() ", internal.SdPackage.Ident("Factory"), "{")
-		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
-		g.P("conn, err := ", internal.GrpcPackage.Ident("NewClient"), "(instance, f.opts...)")
-		g.P("if err != nil {")
-		g.P("return nil, nil, err")
-		g.P("}")
-		g.P("endpoints := f.endpoints(", "New", service.GrpcClientTransportsName(), "(conn))")
-		g.P("return endpoints.", endpoint.Name(), "(), conn, nil")
-		g.P("}")
-		g.P("}")
-		g.P()
-	}
-
-	g.P("func New", service.GrpcFactoriesName(), "(", "endpoints func(transports ", service.GrpcClientTransportsName(), ")", service.EndpointsName(), ", opts ...", internal.GrpcPackage.Ident("DialOption"), ") ", service.FactoriesName(), " {")
-	g.P("return &", service.UnexportedGrpcFactoriesName(), "{endpoints: endpoints, opts: opts}")
-	g.P("}")
-	g.P()
-	return nil
-}
-
 func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedGrpcClientEndpointsName(), " struct {")
 	g.P("transports ", service.GrpcClientTransportsName())
@@ -253,6 +225,34 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 		g.P(endpoint.UnexportedName(), ": ", "endpoints.", endpoint.Name(), "(),")
 	}
 	g.P("}")
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateClientFactory(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedGrpcFactoriesName(), " struct {")
+	g.P("opts      []", internal.GrpcPackage.Ident("DialOption"))
+	g.P("}")
+	g.P()
+
+	for _, endpoint := range service.Endpoints {
+		g.P("func (f *", service.UnexportedGrpcFactoriesName(), ") ", endpoint.Name(), "(middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.SdPackage.Ident("Factory"), "{")
+		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("conn, err := ", internal.GrpcPackage.Ident("NewClient"), "(instance, f.opts...)")
+		g.P("if err != nil {")
+		g.P("return nil, nil, err")
+		g.P("}")
+		g.P("transports := ", "New", service.GrpcClientTransportsName(), "(conn)")
+		g.P("endpoints := ", "New", service.GrpcClientEndpointsName(), "(transports, middlewares...)")
+		g.P("return endpoints.", endpoint.Name(), "(), conn, nil")
+		g.P("}")
+		g.P("}")
+		g.P()
+	}
+
+	g.P("func New", service.GrpcFactoriesName(), "(opts ...", internal.GrpcPackage.Ident("DialOption"), ") ", service.FactoriesName(), " {")
+	g.P("return &", service.UnexportedGrpcFactoriesName(), "{opts: opts}")
 	g.P("}")
 	g.P()
 	return nil

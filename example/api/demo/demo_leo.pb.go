@@ -59,13 +59,23 @@ type DemoEndpoints interface {
 }
 
 type DemoFactories interface {
-	CreateUser() sd.Factory
-	DeleteUser() sd.Factory
-	UpdateUser() sd.Factory
-	GetUser() sd.Factory
-	GetUsers() sd.Factory
-	UploadUserAvatar() sd.Factory
-	GetUserAvatar() sd.Factory
+	CreateUser(middlewares ...endpoint.Middleware) sd.Factory
+	DeleteUser(middlewares ...endpoint.Middleware) sd.Factory
+	UpdateUser(middlewares ...endpoint.Middleware) sd.Factory
+	GetUser(middlewares ...endpoint.Middleware) sd.Factory
+	GetUsers(middlewares ...endpoint.Middleware) sd.Factory
+	UploadUserAvatar(middlewares ...endpoint.Middleware) sd.Factory
+	GetUserAvatar(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type DemoEndpointers interface {
+	CreateUser() sd.Endpointer
+	DeleteUser() sd.Endpointer
+	UpdateUser() sd.Endpointer
+	GetUser() sd.Endpointer
+	GetUsers() sd.Endpointer
+	UploadUserAvatar() sd.Endpointer
+	GetUserAvatar() sd.Endpointer
 }
 
 type demoEndpoints struct {
@@ -746,89 +756,95 @@ func NewDemoGrpcClient(endpoints DemoEndpoints) DemoService {
 }
 
 type demoGrpcClientFactories struct {
-	endpoints func(transports DemoGrpcClientTransports) DemoEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *demoGrpcClientFactories) CreateUser() sd.Factory {
+func (f *demoGrpcClientFactories) CreateUser(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.CreateUser(), conn, nil
 	}
 }
 
-func (f *demoGrpcClientFactories) DeleteUser() sd.Factory {
+func (f *demoGrpcClientFactories) DeleteUser(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.DeleteUser(), conn, nil
 	}
 }
 
-func (f *demoGrpcClientFactories) UpdateUser() sd.Factory {
+func (f *demoGrpcClientFactories) UpdateUser(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.UpdateUser(), conn, nil
 	}
 }
 
-func (f *demoGrpcClientFactories) GetUser() sd.Factory {
+func (f *demoGrpcClientFactories) GetUser(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.GetUser(), conn, nil
 	}
 }
 
-func (f *demoGrpcClientFactories) GetUsers() sd.Factory {
+func (f *demoGrpcClientFactories) GetUsers(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.GetUsers(), conn, nil
 	}
 }
 
-func (f *demoGrpcClientFactories) UploadUserAvatar() sd.Factory {
+func (f *demoGrpcClientFactories) UploadUserAvatar(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.UploadUserAvatar(), conn, nil
 	}
 }
 
-func (f *demoGrpcClientFactories) GetUserAvatar() sd.Factory {
+func (f *demoGrpcClientFactories) GetUserAvatar(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewDemoGrpcClientTransports(conn))
+		transports := NewDemoGrpcClientTransports(conn)
+		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.GetUserAvatar(), conn, nil
 	}
 }
 
-func NewDemoGrpcClientFactories(endpoints func(transports DemoGrpcClientTransports) DemoEndpoints, opts ...grpc1.DialOption) DemoFactories {
-	return &demoGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewDemoGrpcClientFactories(opts ...grpc1.DialOption) DemoFactories {
+	return &demoGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

@@ -48,11 +48,19 @@ type WorkspacesEndpoints interface {
 }
 
 type WorkspacesFactories interface {
-	ListWorkspaces() sd.Factory
-	GetWorkspace() sd.Factory
-	CreateWorkspace() sd.Factory
-	UpdateWorkspace() sd.Factory
-	DeleteWorkspace() sd.Factory
+	ListWorkspaces(middlewares ...endpoint.Middleware) sd.Factory
+	GetWorkspace(middlewares ...endpoint.Middleware) sd.Factory
+	CreateWorkspace(middlewares ...endpoint.Middleware) sd.Factory
+	UpdateWorkspace(middlewares ...endpoint.Middleware) sd.Factory
+	DeleteWorkspace(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type WorkspacesEndpointers interface {
+	ListWorkspaces() sd.Endpointer
+	GetWorkspace() sd.Endpointer
+	CreateWorkspace() sd.Endpointer
+	UpdateWorkspace() sd.Endpointer
+	DeleteWorkspace() sd.Endpointer
 }
 
 type workspacesEndpoints struct {
@@ -433,67 +441,71 @@ func NewWorkspacesGrpcClient(endpoints WorkspacesEndpoints) WorkspacesService {
 }
 
 type workspacesGrpcClientFactories struct {
-	endpoints func(transports WorkspacesGrpcClientTransports) WorkspacesEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *workspacesGrpcClientFactories) ListWorkspaces() sd.Factory {
+func (f *workspacesGrpcClientFactories) ListWorkspaces(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		transports := NewWorkspacesGrpcClientTransports(conn)
+		endpoints := NewWorkspacesGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.ListWorkspaces(), conn, nil
 	}
 }
 
-func (f *workspacesGrpcClientFactories) GetWorkspace() sd.Factory {
+func (f *workspacesGrpcClientFactories) GetWorkspace(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		transports := NewWorkspacesGrpcClientTransports(conn)
+		endpoints := NewWorkspacesGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.GetWorkspace(), conn, nil
 	}
 }
 
-func (f *workspacesGrpcClientFactories) CreateWorkspace() sd.Factory {
+func (f *workspacesGrpcClientFactories) CreateWorkspace(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		transports := NewWorkspacesGrpcClientTransports(conn)
+		endpoints := NewWorkspacesGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.CreateWorkspace(), conn, nil
 	}
 }
 
-func (f *workspacesGrpcClientFactories) UpdateWorkspace() sd.Factory {
+func (f *workspacesGrpcClientFactories) UpdateWorkspace(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		transports := NewWorkspacesGrpcClientTransports(conn)
+		endpoints := NewWorkspacesGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.UpdateWorkspace(), conn, nil
 	}
 }
 
-func (f *workspacesGrpcClientFactories) DeleteWorkspace() sd.Factory {
+func (f *workspacesGrpcClientFactories) DeleteWorkspace(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewWorkspacesGrpcClientTransports(conn))
+		transports := NewWorkspacesGrpcClientTransports(conn)
+		endpoints := NewWorkspacesGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.DeleteWorkspace(), conn, nil
 	}
 }
 
-func NewWorkspacesGrpcClientFactories(endpoints func(transports WorkspacesGrpcClientTransports) WorkspacesEndpoints, opts ...grpc1.DialOption) WorkspacesFactories {
-	return &workspacesGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewWorkspacesGrpcClientFactories(opts ...grpc1.DialOption) WorkspacesFactories {
+	return &workspacesGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

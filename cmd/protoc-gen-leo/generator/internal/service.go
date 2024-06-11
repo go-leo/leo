@@ -54,6 +54,15 @@ func (s Service) UnexportedFactoriesName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) EndpointersName() string {
+	return s.Name() + "Endpointers"
+}
+
+func (s Service) UnexportedEndpointersName() string {
+	name := s.EndpointersName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func (s Service) ServerName() string {
 	return s.Name() + "Server"
 }

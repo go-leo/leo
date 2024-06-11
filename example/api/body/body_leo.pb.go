@@ -45,11 +45,19 @@ type BodyEndpoints interface {
 }
 
 type BodyFactories interface {
-	StarBody() sd.Factory
-	NamedBody() sd.Factory
-	NonBody() sd.Factory
-	HttpBodyStarBody() sd.Factory
-	HttpBodyNamedBody() sd.Factory
+	StarBody(middlewares ...endpoint.Middleware) sd.Factory
+	NamedBody(middlewares ...endpoint.Middleware) sd.Factory
+	NonBody(middlewares ...endpoint.Middleware) sd.Factory
+	HttpBodyStarBody(middlewares ...endpoint.Middleware) sd.Factory
+	HttpBodyNamedBody(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type BodyEndpointers interface {
+	StarBody() sd.Endpointer
+	NamedBody() sd.Endpointer
+	NonBody() sd.Endpointer
+	HttpBodyStarBody() sd.Endpointer
+	HttpBodyNamedBody() sd.Endpointer
 }
 
 type bodyEndpoints struct {
@@ -430,67 +438,71 @@ func NewBodyGrpcClient(endpoints BodyEndpoints) BodyService {
 }
 
 type bodyGrpcClientFactories struct {
-	endpoints func(transports BodyGrpcClientTransports) BodyEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *bodyGrpcClientFactories) StarBody() sd.Factory {
+func (f *bodyGrpcClientFactories) StarBody(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		transports := NewBodyGrpcClientTransports(conn)
+		endpoints := NewBodyGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.StarBody(), conn, nil
 	}
 }
 
-func (f *bodyGrpcClientFactories) NamedBody() sd.Factory {
+func (f *bodyGrpcClientFactories) NamedBody(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		transports := NewBodyGrpcClientTransports(conn)
+		endpoints := NewBodyGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.NamedBody(), conn, nil
 	}
 }
 
-func (f *bodyGrpcClientFactories) NonBody() sd.Factory {
+func (f *bodyGrpcClientFactories) NonBody(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		transports := NewBodyGrpcClientTransports(conn)
+		endpoints := NewBodyGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.NonBody(), conn, nil
 	}
 }
 
-func (f *bodyGrpcClientFactories) HttpBodyStarBody() sd.Factory {
+func (f *bodyGrpcClientFactories) HttpBodyStarBody(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		transports := NewBodyGrpcClientTransports(conn)
+		endpoints := NewBodyGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.HttpBodyStarBody(), conn, nil
 	}
 }
 
-func (f *bodyGrpcClientFactories) HttpBodyNamedBody() sd.Factory {
+func (f *bodyGrpcClientFactories) HttpBodyNamedBody(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewBodyGrpcClientTransports(conn))
+		transports := NewBodyGrpcClientTransports(conn)
+		endpoints := NewBodyGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.HttpBodyNamedBody(), conn, nil
 	}
 }
 
-func NewBodyGrpcClientFactories(endpoints func(transports BodyGrpcClientTransports) BodyEndpoints, opts ...grpc1.DialOption) BodyFactories {
-	return &bodyGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewBodyGrpcClientFactories(opts ...grpc1.DialOption) BodyFactories {
+	return &bodyGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

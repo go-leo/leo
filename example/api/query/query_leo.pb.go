@@ -41,7 +41,11 @@ type QueryEndpoints interface {
 }
 
 type QueryFactories interface {
-	Query() sd.Factory
+	Query(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type QueryEndpointers interface {
+	Query() sd.Endpointer
 }
 
 type queryEndpoints struct {
@@ -170,23 +174,23 @@ func NewQueryGrpcClient(endpoints QueryEndpoints) QueryService {
 }
 
 type queryGrpcClientFactories struct {
-	endpoints func(transports QueryGrpcClientTransports) QueryEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *queryGrpcClientFactories) Query() sd.Factory {
+func (f *queryGrpcClientFactories) Query(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewQueryGrpcClientTransports(conn))
+		transports := NewQueryGrpcClientTransports(conn)
+		endpoints := NewQueryGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.Query(), conn, nil
 	}
 }
 
-func NewQueryGrpcClientFactories(endpoints func(transports QueryGrpcClientTransports) QueryEndpoints, opts ...grpc1.DialOption) QueryFactories {
-	return &queryGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewQueryGrpcClientFactories(opts ...grpc1.DialOption) QueryFactories {
+	return &queryGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

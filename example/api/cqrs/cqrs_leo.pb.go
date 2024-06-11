@@ -42,8 +42,13 @@ type CQRSEndpoints interface {
 }
 
 type CQRSFactories interface {
-	CreateUser() sd.Factory
-	FindUser() sd.Factory
+	CreateUser(middlewares ...endpoint.Middleware) sd.Factory
+	FindUser(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type CQRSEndpointers interface {
+	CreateUser() sd.Endpointer
+	FindUser() sd.Endpointer
 }
 
 type cQRSEndpoints struct {
@@ -299,34 +304,35 @@ func NewCQRSGrpcClient(endpoints CQRSEndpoints) CQRSService {
 }
 
 type cQRSGrpcClientFactories struct {
-	endpoints func(transports CQRSGrpcClientTransports) CQRSEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *cQRSGrpcClientFactories) CreateUser() sd.Factory {
+func (f *cQRSGrpcClientFactories) CreateUser(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewCQRSGrpcClientTransports(conn))
+		transports := NewCQRSGrpcClientTransports(conn)
+		endpoints := NewCQRSGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.CreateUser(), conn, nil
 	}
 }
 
-func (f *cQRSGrpcClientFactories) FindUser() sd.Factory {
+func (f *cQRSGrpcClientFactories) FindUser(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewCQRSGrpcClientTransports(conn))
+		transports := NewCQRSGrpcClientTransports(conn)
+		endpoints := NewCQRSGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.FindUser(), conn, nil
 	}
 }
 
-func NewCQRSGrpcClientFactories(endpoints func(transports CQRSGrpcClientTransports) CQRSEndpoints, opts ...grpc1.DialOption) CQRSFactories {
-	return &cQRSGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewCQRSGrpcClientFactories(opts ...grpc1.DialOption) CQRSFactories {
+	return &cQRSGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================

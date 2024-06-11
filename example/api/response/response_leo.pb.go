@@ -48,11 +48,19 @@ type ResponseEndpoints interface {
 }
 
 type ResponseFactories interface {
-	OmittedResponse() sd.Factory
-	StarResponse() sd.Factory
-	NamedResponse() sd.Factory
-	HttpBodyResponse() sd.Factory
-	HttpBodyNamedResponse() sd.Factory
+	OmittedResponse(middlewares ...endpoint.Middleware) sd.Factory
+	StarResponse(middlewares ...endpoint.Middleware) sd.Factory
+	NamedResponse(middlewares ...endpoint.Middleware) sd.Factory
+	HttpBodyResponse(middlewares ...endpoint.Middleware) sd.Factory
+	HttpBodyNamedResponse(middlewares ...endpoint.Middleware) sd.Factory
+}
+
+type ResponseEndpointers interface {
+	OmittedResponse() sd.Endpointer
+	StarResponse() sd.Endpointer
+	NamedResponse() sd.Endpointer
+	HttpBodyResponse() sd.Endpointer
+	HttpBodyNamedResponse() sd.Endpointer
 }
 
 type responseEndpoints struct {
@@ -433,67 +441,71 @@ func NewResponseGrpcClient(endpoints ResponseEndpoints) ResponseService {
 }
 
 type responseGrpcClientFactories struct {
-	endpoints func(transports ResponseGrpcClientTransports) ResponseEndpoints
-	opts      []grpc1.DialOption
+	opts []grpc1.DialOption
 }
 
-func (f *responseGrpcClientFactories) OmittedResponse() sd.Factory {
+func (f *responseGrpcClientFactories) OmittedResponse(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		transports := NewResponseGrpcClientTransports(conn)
+		endpoints := NewResponseGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.OmittedResponse(), conn, nil
 	}
 }
 
-func (f *responseGrpcClientFactories) StarResponse() sd.Factory {
+func (f *responseGrpcClientFactories) StarResponse(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		transports := NewResponseGrpcClientTransports(conn)
+		endpoints := NewResponseGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.StarResponse(), conn, nil
 	}
 }
 
-func (f *responseGrpcClientFactories) NamedResponse() sd.Factory {
+func (f *responseGrpcClientFactories) NamedResponse(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		transports := NewResponseGrpcClientTransports(conn)
+		endpoints := NewResponseGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.NamedResponse(), conn, nil
 	}
 }
 
-func (f *responseGrpcClientFactories) HttpBodyResponse() sd.Factory {
+func (f *responseGrpcClientFactories) HttpBodyResponse(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		transports := NewResponseGrpcClientTransports(conn)
+		endpoints := NewResponseGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.HttpBodyResponse(), conn, nil
 	}
 }
 
-func (f *responseGrpcClientFactories) HttpBodyNamedResponse() sd.Factory {
+func (f *responseGrpcClientFactories) HttpBodyNamedResponse(middlewares ...endpoint.Middleware) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc1.NewClient(instance, f.opts...)
 		if err != nil {
 			return nil, nil, err
 		}
-		endpoints := f.endpoints(NewResponseGrpcClientTransports(conn))
+		transports := NewResponseGrpcClientTransports(conn)
+		endpoints := NewResponseGrpcClientEndpoints(transports, middlewares...)
 		return endpoints.HttpBodyNamedResponse(), conn, nil
 	}
 }
 
-func NewResponseGrpcClientFactories(endpoints func(transports ResponseGrpcClientTransports) ResponseEndpoints, opts ...grpc1.DialOption) ResponseFactories {
-	return &responseGrpcClientFactories{endpoints: endpoints, opts: opts}
+func NewResponseGrpcClientFactories(opts ...grpc1.DialOption) ResponseFactories {
+	return &responseGrpcClientFactories{opts: opts}
 }
 
 // =========================== http server ===========================
