@@ -11,29 +11,19 @@ import (
 type ClientGenerator struct{}
 
 func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.HttpClientTransportsName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() *", internal.HttpTransportPackage.Ident("Client"))
-	}
-	g.P("}")
-	g.P()
-	return nil
-}
-
-func (f *ClientGenerator) GenerateImplementedTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpClientTransportsName(), " struct {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " *", internal.HttpTransportPackage.Ident("Client"))
+		g.P(endpoint.UnexportedName(), " ", internal.TransportxPackage.Ident("Transport"))
 	}
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "() *", internal.HttpTransportPackage.Ident("Client"), "{")
+		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("Transport"), "{")
 		g.P("return t.", endpoint.UnexportedName())
 		g.P("}")
 		g.P()
 	}
-	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string) ", service.HttpClientTransportsName(), " {")
+	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string) ", service.TransportsName(), " {")
 
 	if len(service.Endpoints) > 0 {
 		g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
@@ -86,7 +76,7 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 		g.P("}")
 		g.P()
 	}
-	g.P("func New", service.HttpClientName(), "(transports ", service.HttpClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
+	g.P("func New", service.HttpClientName(), "(transports ", service.TransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
 	g.P("return &", service.UnexportedHttpClientName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ":", internal.EndpointxPackage.Ident("Chain"), "(", "transports.", endpoint.Name(), "().Endpoint(), middlewares...),")

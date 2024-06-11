@@ -136,28 +136,21 @@ func (f *Generator) GenerateServerService(service *internal.Service, g *protogen
 }
 
 func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.GrpcClientTransportsName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() *", internal.GrpcTransportPackage.Ident("Client"))
-	}
-	g.P("}")
-	g.P()
-
 	g.P("type ", service.UnexportedGrpcClientTransportsName(), " struct {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " *", internal.GrpcTransportPackage.Ident("Client"))
+		g.P(endpoint.UnexportedName(), " ", internal.TransportxPackage.Ident("Transport"))
 	}
 	g.P("}")
 	g.P()
 
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedGrpcClientTransportsName(), ") ", endpoint.Name(), "() *", internal.GrpcTransportPackage.Ident("Client"), "{")
+		g.P("func (t *", service.UnexportedGrpcClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("Transport"), "{")
 		g.P("return t.", endpoint.UnexportedName())
 		g.P("}")
 		g.P()
 	}
 
-	g.P("func New", service.GrpcClientTransportsName(), "(conn *", internal.GrpcPackage.Ident("ClientConn"), ") ", service.GrpcClientTransportsName(), " {")
+	g.P("func New", service.GrpcClientTransportsName(), "(conn *", internal.GrpcPackage.Ident("ClientConn"), ") ", service.TransportsName(), " {")
 	g.P("return &", service.UnexportedGrpcClientTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ":", internal.GrpcTransportPackage.Ident("NewClient"), "(")
@@ -180,7 +173,7 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 
 func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedGrpcClientEndpointsName(), " struct {")
-	g.P("transports ", service.GrpcClientTransportsName())
+	g.P("transports ", service.TransportsName())
 	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
 	g.P("}")
 	g.P()
@@ -192,7 +185,7 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 		g.P()
 	}
 
-	g.P("func New", service.GrpcClientEndpointsName(), "(transports ", service.GrpcClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ")", service.EndpointsName(), " {")
+	g.P("func New", service.GrpcClientEndpointsName(), "(transports ", service.TransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ")", service.EndpointsName(), " {")
 	g.P("return &", service.UnexportedGrpcClientEndpointsName(), "{transports: transports, middlewares: middlewares}")
 	g.P("}")
 	g.P()

@@ -59,6 +59,20 @@ type LibraryServiceEndpoints interface {
 	MoveBook() endpoint.Endpoint
 }
 
+type LibraryServiceTransports interface {
+	CreateShelf() transportx.Transport
+	GetShelf() transportx.Transport
+	ListShelves() transportx.Transport
+	DeleteShelf() transportx.Transport
+	MergeShelves() transportx.Transport
+	CreateBook() transportx.Transport
+	GetBook() transportx.Transport
+	ListBooks() transportx.Transport
+	DeleteBook() transportx.Transport
+	UpdateBook() transportx.Transport
+	MoveBook() transportx.Transport
+}
+
 type LibraryServiceFactories interface {
 	CreateShelf(middlewares ...endpoint.Middleware) sd.Factory
 	GetShelf(middlewares ...endpoint.Middleware) sd.Factory
@@ -473,79 +487,65 @@ func NewLibraryServiceGrpcServer(transports LibraryServiceGrpcServerTransports) 
 
 // =========================== grpc client ===========================
 
-type LibraryServiceGrpcClientTransports interface {
-	CreateShelf() *grpc.Client
-	GetShelf() *grpc.Client
-	ListShelves() *grpc.Client
-	DeleteShelf() *grpc.Client
-	MergeShelves() *grpc.Client
-	CreateBook() *grpc.Client
-	GetBook() *grpc.Client
-	ListBooks() *grpc.Client
-	DeleteBook() *grpc.Client
-	UpdateBook() *grpc.Client
-	MoveBook() *grpc.Client
-}
-
 type libraryServiceGrpcClientTransports struct {
-	createShelf  *grpc.Client
-	getShelf     *grpc.Client
-	listShelves  *grpc.Client
-	deleteShelf  *grpc.Client
-	mergeShelves *grpc.Client
-	createBook   *grpc.Client
-	getBook      *grpc.Client
-	listBooks    *grpc.Client
-	deleteBook   *grpc.Client
-	updateBook   *grpc.Client
-	moveBook     *grpc.Client
+	createShelf  transportx.Transport
+	getShelf     transportx.Transport
+	listShelves  transportx.Transport
+	deleteShelf  transportx.Transport
+	mergeShelves transportx.Transport
+	createBook   transportx.Transport
+	getBook      transportx.Transport
+	listBooks    transportx.Transport
+	deleteBook   transportx.Transport
+	updateBook   transportx.Transport
+	moveBook     transportx.Transport
 }
 
-func (t *libraryServiceGrpcClientTransports) CreateShelf() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) CreateShelf() transportx.Transport {
 	return t.createShelf
 }
 
-func (t *libraryServiceGrpcClientTransports) GetShelf() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) GetShelf() transportx.Transport {
 	return t.getShelf
 }
 
-func (t *libraryServiceGrpcClientTransports) ListShelves() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) ListShelves() transportx.Transport {
 	return t.listShelves
 }
 
-func (t *libraryServiceGrpcClientTransports) DeleteShelf() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) DeleteShelf() transportx.Transport {
 	return t.deleteShelf
 }
 
-func (t *libraryServiceGrpcClientTransports) MergeShelves() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) MergeShelves() transportx.Transport {
 	return t.mergeShelves
 }
 
-func (t *libraryServiceGrpcClientTransports) CreateBook() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) CreateBook() transportx.Transport {
 	return t.createBook
 }
 
-func (t *libraryServiceGrpcClientTransports) GetBook() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) GetBook() transportx.Transport {
 	return t.getBook
 }
 
-func (t *libraryServiceGrpcClientTransports) ListBooks() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) ListBooks() transportx.Transport {
 	return t.listBooks
 }
 
-func (t *libraryServiceGrpcClientTransports) DeleteBook() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) DeleteBook() transportx.Transport {
 	return t.deleteBook
 }
 
-func (t *libraryServiceGrpcClientTransports) UpdateBook() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) UpdateBook() transportx.Transport {
 	return t.updateBook
 }
 
-func (t *libraryServiceGrpcClientTransports) MoveBook() *grpc.Client {
+func (t *libraryServiceGrpcClientTransports) MoveBook() transportx.Transport {
 	return t.moveBook
 }
 
-func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServiceGrpcClientTransports {
+func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServiceTransports {
 	return &libraryServiceGrpcClientTransports{
 		createShelf: grpc.NewClient(
 			conn,
@@ -650,7 +650,7 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 }
 
 type libraryServiceGrpcClientEndpoints struct {
-	transports  LibraryServiceGrpcClientTransports
+	transports  LibraryServiceTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -698,7 +698,7 @@ func (e *libraryServiceGrpcClientEndpoints) MoveBook() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.MoveBook().Endpoint(), e.middlewares...)
 }
 
-func NewLibraryServiceGrpcClientEndpoints(transports LibraryServiceGrpcClientTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
+func NewLibraryServiceGrpcClientEndpoints(transports LibraryServiceTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
 	return &libraryServiceGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -1385,79 +1385,65 @@ func NewLibraryServiceHttpServerHandler(endpoints LibraryServiceHttpServerTransp
 
 // =========================== http client ===========================
 
-type LibraryServiceHttpClientTransports interface {
-	CreateShelf() *http.Client
-	GetShelf() *http.Client
-	ListShelves() *http.Client
-	DeleteShelf() *http.Client
-	MergeShelves() *http.Client
-	CreateBook() *http.Client
-	GetBook() *http.Client
-	ListBooks() *http.Client
-	DeleteBook() *http.Client
-	UpdateBook() *http.Client
-	MoveBook() *http.Client
-}
-
 type libraryServiceHttpClientTransports struct {
-	createShelf  *http.Client
-	getShelf     *http.Client
-	listShelves  *http.Client
-	deleteShelf  *http.Client
-	mergeShelves *http.Client
-	createBook   *http.Client
-	getBook      *http.Client
-	listBooks    *http.Client
-	deleteBook   *http.Client
-	updateBook   *http.Client
-	moveBook     *http.Client
+	createShelf  transportx.Transport
+	getShelf     transportx.Transport
+	listShelves  transportx.Transport
+	deleteShelf  transportx.Transport
+	mergeShelves transportx.Transport
+	createBook   transportx.Transport
+	getBook      transportx.Transport
+	listBooks    transportx.Transport
+	deleteBook   transportx.Transport
+	updateBook   transportx.Transport
+	moveBook     transportx.Transport
 }
 
-func (t *libraryServiceHttpClientTransports) CreateShelf() *http.Client {
+func (t *libraryServiceHttpClientTransports) CreateShelf() transportx.Transport {
 	return t.createShelf
 }
 
-func (t *libraryServiceHttpClientTransports) GetShelf() *http.Client {
+func (t *libraryServiceHttpClientTransports) GetShelf() transportx.Transport {
 	return t.getShelf
 }
 
-func (t *libraryServiceHttpClientTransports) ListShelves() *http.Client {
+func (t *libraryServiceHttpClientTransports) ListShelves() transportx.Transport {
 	return t.listShelves
 }
 
-func (t *libraryServiceHttpClientTransports) DeleteShelf() *http.Client {
+func (t *libraryServiceHttpClientTransports) DeleteShelf() transportx.Transport {
 	return t.deleteShelf
 }
 
-func (t *libraryServiceHttpClientTransports) MergeShelves() *http.Client {
+func (t *libraryServiceHttpClientTransports) MergeShelves() transportx.Transport {
 	return t.mergeShelves
 }
 
-func (t *libraryServiceHttpClientTransports) CreateBook() *http.Client {
+func (t *libraryServiceHttpClientTransports) CreateBook() transportx.Transport {
 	return t.createBook
 }
 
-func (t *libraryServiceHttpClientTransports) GetBook() *http.Client {
+func (t *libraryServiceHttpClientTransports) GetBook() transportx.Transport {
 	return t.getBook
 }
 
-func (t *libraryServiceHttpClientTransports) ListBooks() *http.Client {
+func (t *libraryServiceHttpClientTransports) ListBooks() transportx.Transport {
 	return t.listBooks
 }
 
-func (t *libraryServiceHttpClientTransports) DeleteBook() *http.Client {
+func (t *libraryServiceHttpClientTransports) DeleteBook() transportx.Transport {
 	return t.deleteBook
 }
 
-func (t *libraryServiceHttpClientTransports) UpdateBook() *http.Client {
+func (t *libraryServiceHttpClientTransports) UpdateBook() transportx.Transport {
 	return t.updateBook
 }
 
-func (t *libraryServiceHttpClientTransports) MoveBook() *http.Client {
+func (t *libraryServiceHttpClientTransports) MoveBook() transportx.Transport {
 	return t.moveBook
 }
 
-func NewLibraryServiceHttpClientTransports(scheme string, instance string) LibraryServiceHttpClientTransports {
+func NewLibraryServiceHttpClientTransports(scheme string, instance string) LibraryServiceTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves")
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}")
@@ -2142,7 +2128,7 @@ func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBo
 	return rep.(*Book), nil
 }
 
-func NewLibraryServiceHttpClient(transports LibraryServiceHttpClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
+func NewLibraryServiceHttpClient(transports LibraryServiceTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
 	return &libraryServiceHttpClient{
 		createShelf:  endpointx.Chain(transports.CreateShelf().Endpoint(), middlewares...),
 		getShelf:     endpointx.Chain(transports.GetShelf().Endpoint(), middlewares...),

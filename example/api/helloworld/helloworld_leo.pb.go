@@ -34,6 +34,10 @@ type GreeterEndpoints interface {
 	SayHello() endpoint.Endpoint
 }
 
+type GreeterTransports interface {
+	SayHello() transportx.Transport
+}
+
 type GreeterFactories interface {
 	SayHello(middlewares ...endpoint.Middleware) sd.Factory
 }
@@ -108,19 +112,15 @@ func NewGreeterGrpcServer(transports GreeterGrpcServerTransports) GreeterService
 
 // =========================== grpc client ===========================
 
-type GreeterGrpcClientTransports interface {
-	SayHello() *grpc.Client
-}
-
 type greeterGrpcClientTransports struct {
-	sayHello *grpc.Client
+	sayHello transportx.Transport
 }
 
-func (t *greeterGrpcClientTransports) SayHello() *grpc.Client {
+func (t *greeterGrpcClientTransports) SayHello() transportx.Transport {
 	return t.sayHello
 }
 
-func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterGrpcClientTransports {
+func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterTransports {
 	return &greeterGrpcClientTransports{
 		sayHello: grpc.NewClient(
 			conn,
@@ -135,7 +135,7 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterGrpcClientTra
 }
 
 type greeterGrpcClientEndpoints struct {
-	transports  GreeterGrpcClientTransports
+	transports  GreeterTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -143,7 +143,7 @@ func (e *greeterGrpcClientEndpoints) SayHello() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.SayHello().Endpoint(), e.middlewares...)
 }
 
-func NewGreeterGrpcClientEndpoints(transports GreeterGrpcClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
+func NewGreeterGrpcClientEndpoints(transports GreeterTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
 	return &greeterGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -237,19 +237,15 @@ func NewGreeterHttpServerHandler(endpoints GreeterHttpServerTransports) http1.Ha
 
 // =========================== http client ===========================
 
-type GreeterHttpClientTransports interface {
-	SayHello() *http.Client
-}
-
 type greeterHttpClientTransports struct {
-	sayHello *http.Client
+	sayHello transportx.Transport
 }
 
-func (t *greeterHttpClientTransports) SayHello() *http.Client {
+func (t *greeterHttpClientTransports) SayHello() transportx.Transport {
 	return t.sayHello
 }
 
-func NewGreeterHttpClientTransports(scheme string, instance string) GreeterHttpClientTransports {
+func NewGreeterHttpClientTransports(scheme string, instance string) GreeterTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
 	return &greeterHttpClientTransports{
@@ -318,7 +314,7 @@ func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest)
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterHttpClient(transports GreeterHttpClientTransports, middlewares ...endpoint.Middleware) GreeterService {
+func NewGreeterHttpClient(transports GreeterTransports, middlewares ...endpoint.Middleware) GreeterService {
 	return &greeterHttpClient{
 		sayHello: endpointx.Chain(transports.SayHello().Endpoint(), middlewares...),
 	}

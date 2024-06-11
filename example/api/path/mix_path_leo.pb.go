@@ -38,6 +38,10 @@ type MixPathEndpoints interface {
 	MixPath() endpoint.Endpoint
 }
 
+type MixPathTransports interface {
+	MixPath() transportx.Transport
+}
+
 type MixPathFactories interface {
 	MixPath(middlewares ...endpoint.Middleware) sd.Factory
 }
@@ -112,19 +116,15 @@ func NewMixPathGrpcServer(transports MixPathGrpcServerTransports) MixPathService
 
 // =========================== grpc client ===========================
 
-type MixPathGrpcClientTransports interface {
-	MixPath() *grpc.Client
-}
-
 type mixPathGrpcClientTransports struct {
-	mixPath *grpc.Client
+	mixPath transportx.Transport
 }
 
-func (t *mixPathGrpcClientTransports) MixPath() *grpc.Client {
+func (t *mixPathGrpcClientTransports) MixPath() transportx.Transport {
 	return t.mixPath
 }
 
-func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathGrpcClientTransports {
+func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathTransports {
 	return &mixPathGrpcClientTransports{
 		mixPath: grpc.NewClient(
 			conn,
@@ -139,7 +139,7 @@ func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathGrpcClientTra
 }
 
 type mixPathGrpcClientEndpoints struct {
-	transports  MixPathGrpcClientTransports
+	transports  MixPathTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -147,7 +147,7 @@ func (e *mixPathGrpcClientEndpoints) MixPath() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.MixPath().Endpoint(), e.middlewares...)
 }
 
-func NewMixPathGrpcClientEndpoints(transports MixPathGrpcClientTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
+func NewMixPathGrpcClientEndpoints(transports MixPathTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -250,19 +250,15 @@ func NewMixPathHttpServerHandler(endpoints MixPathHttpServerTransports) http1.Ha
 
 // =========================== http client ===========================
 
-type MixPathHttpClientTransports interface {
-	MixPath() *http.Client
-}
-
 type mixPathHttpClientTransports struct {
-	mixPath *http.Client
+	mixPath transportx.Transport
 }
 
-func (t *mixPathHttpClientTransports) MixPath() *http.Client {
+func (t *mixPathHttpClientTransports) MixPath() transportx.Transport {
 	return t.mixPath
 }
 
-func NewMixPathHttpClientTransports(scheme string, instance string) MixPathHttpClientTransports {
+func NewMixPathHttpClientTransports(scheme string, instance string) MixPathTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return &mixPathHttpClientTransports{
@@ -331,7 +327,7 @@ func (c *mixPathHttpClient) MixPath(ctx context.Context, request *MixPathRequest
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewMixPathHttpClient(transports MixPathHttpClientTransports, middlewares ...endpoint.Middleware) MixPathService {
+func NewMixPathHttpClient(transports MixPathTransports, middlewares ...endpoint.Middleware) MixPathService {
 	return &mixPathHttpClient{
 		mixPath: endpointx.Chain(transports.MixPath().Endpoint(), middlewares...),
 	}

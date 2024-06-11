@@ -55,6 +55,18 @@ type PathEndpoints interface {
 	EnumPath() endpoint.Endpoint
 }
 
+type PathTransports interface {
+	BoolPath() transportx.Transport
+	Int32Path() transportx.Transport
+	Int64Path() transportx.Transport
+	Uint32Path() transportx.Transport
+	Uint64Path() transportx.Transport
+	FloatPath() transportx.Transport
+	DoublePath() transportx.Transport
+	StringPath() transportx.Transport
+	EnumPath() transportx.Transport
+}
+
 type PathFactories interface {
 	BoolPath(middlewares ...endpoint.Middleware) sd.Factory
 	Int32Path(middlewares ...endpoint.Middleware) sd.Factory
@@ -401,67 +413,55 @@ func NewPathGrpcServer(transports PathGrpcServerTransports) PathService {
 
 // =========================== grpc client ===========================
 
-type PathGrpcClientTransports interface {
-	BoolPath() *grpc.Client
-	Int32Path() *grpc.Client
-	Int64Path() *grpc.Client
-	Uint32Path() *grpc.Client
-	Uint64Path() *grpc.Client
-	FloatPath() *grpc.Client
-	DoublePath() *grpc.Client
-	StringPath() *grpc.Client
-	EnumPath() *grpc.Client
-}
-
 type pathGrpcClientTransports struct {
-	boolPath   *grpc.Client
-	int32Path  *grpc.Client
-	int64Path  *grpc.Client
-	uint32Path *grpc.Client
-	uint64Path *grpc.Client
-	floatPath  *grpc.Client
-	doublePath *grpc.Client
-	stringPath *grpc.Client
-	enumPath   *grpc.Client
+	boolPath   transportx.Transport
+	int32Path  transportx.Transport
+	int64Path  transportx.Transport
+	uint32Path transportx.Transport
+	uint64Path transportx.Transport
+	floatPath  transportx.Transport
+	doublePath transportx.Transport
+	stringPath transportx.Transport
+	enumPath   transportx.Transport
 }
 
-func (t *pathGrpcClientTransports) BoolPath() *grpc.Client {
+func (t *pathGrpcClientTransports) BoolPath() transportx.Transport {
 	return t.boolPath
 }
 
-func (t *pathGrpcClientTransports) Int32Path() *grpc.Client {
+func (t *pathGrpcClientTransports) Int32Path() transportx.Transport {
 	return t.int32Path
 }
 
-func (t *pathGrpcClientTransports) Int64Path() *grpc.Client {
+func (t *pathGrpcClientTransports) Int64Path() transportx.Transport {
 	return t.int64Path
 }
 
-func (t *pathGrpcClientTransports) Uint32Path() *grpc.Client {
+func (t *pathGrpcClientTransports) Uint32Path() transportx.Transport {
 	return t.uint32Path
 }
 
-func (t *pathGrpcClientTransports) Uint64Path() *grpc.Client {
+func (t *pathGrpcClientTransports) Uint64Path() transportx.Transport {
 	return t.uint64Path
 }
 
-func (t *pathGrpcClientTransports) FloatPath() *grpc.Client {
+func (t *pathGrpcClientTransports) FloatPath() transportx.Transport {
 	return t.floatPath
 }
 
-func (t *pathGrpcClientTransports) DoublePath() *grpc.Client {
+func (t *pathGrpcClientTransports) DoublePath() transportx.Transport {
 	return t.doublePath
 }
 
-func (t *pathGrpcClientTransports) StringPath() *grpc.Client {
+func (t *pathGrpcClientTransports) StringPath() transportx.Transport {
 	return t.stringPath
 }
 
-func (t *pathGrpcClientTransports) EnumPath() *grpc.Client {
+func (t *pathGrpcClientTransports) EnumPath() transportx.Transport {
 	return t.enumPath
 }
 
-func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransports {
+func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathTransports {
 	return &pathGrpcClientTransports{
 		boolPath: grpc.NewClient(
 			conn,
@@ -548,7 +548,7 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 }
 
 type pathGrpcClientEndpoints struct {
-	transports  PathGrpcClientTransports
+	transports  PathTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -588,7 +588,7 @@ func (e *pathGrpcClientEndpoints) EnumPath() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.EnumPath().Endpoint(), e.middlewares...)
 }
 
-func NewPathGrpcClientEndpoints(transports PathGrpcClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
+func NewPathGrpcClientEndpoints(transports PathTransports, middlewares ...endpoint.Middleware) PathEndpoints {
 	return &pathGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -1519,67 +1519,55 @@ func NewPathHttpServerHandler(endpoints PathHttpServerTransports) http1.Handler 
 
 // =========================== http client ===========================
 
-type PathHttpClientTransports interface {
-	BoolPath() *http.Client
-	Int32Path() *http.Client
-	Int64Path() *http.Client
-	Uint32Path() *http.Client
-	Uint64Path() *http.Client
-	FloatPath() *http.Client
-	DoublePath() *http.Client
-	StringPath() *http.Client
-	EnumPath() *http.Client
-}
-
 type pathHttpClientTransports struct {
-	boolPath   *http.Client
-	int32Path  *http.Client
-	int64Path  *http.Client
-	uint32Path *http.Client
-	uint64Path *http.Client
-	floatPath  *http.Client
-	doublePath *http.Client
-	stringPath *http.Client
-	enumPath   *http.Client
+	boolPath   transportx.Transport
+	int32Path  transportx.Transport
+	int64Path  transportx.Transport
+	uint32Path transportx.Transport
+	uint64Path transportx.Transport
+	floatPath  transportx.Transport
+	doublePath transportx.Transport
+	stringPath transportx.Transport
+	enumPath   transportx.Transport
 }
 
-func (t *pathHttpClientTransports) BoolPath() *http.Client {
+func (t *pathHttpClientTransports) BoolPath() transportx.Transport {
 	return t.boolPath
 }
 
-func (t *pathHttpClientTransports) Int32Path() *http.Client {
+func (t *pathHttpClientTransports) Int32Path() transportx.Transport {
 	return t.int32Path
 }
 
-func (t *pathHttpClientTransports) Int64Path() *http.Client {
+func (t *pathHttpClientTransports) Int64Path() transportx.Transport {
 	return t.int64Path
 }
 
-func (t *pathHttpClientTransports) Uint32Path() *http.Client {
+func (t *pathHttpClientTransports) Uint32Path() transportx.Transport {
 	return t.uint32Path
 }
 
-func (t *pathHttpClientTransports) Uint64Path() *http.Client {
+func (t *pathHttpClientTransports) Uint64Path() transportx.Transport {
 	return t.uint64Path
 }
 
-func (t *pathHttpClientTransports) FloatPath() *http.Client {
+func (t *pathHttpClientTransports) FloatPath() transportx.Transport {
 	return t.floatPath
 }
 
-func (t *pathHttpClientTransports) DoublePath() *http.Client {
+func (t *pathHttpClientTransports) DoublePath() transportx.Transport {
 	return t.doublePath
 }
 
-func (t *pathHttpClientTransports) StringPath() *http.Client {
+func (t *pathHttpClientTransports) StringPath() transportx.Transport {
 	return t.stringPath
 }
 
-func (t *pathHttpClientTransports) EnumPath() *http.Client {
+func (t *pathHttpClientTransports) EnumPath() transportx.Transport {
 	return t.enumPath
 }
 
-func NewPathHttpClientTransports(scheme string, instance string) PathHttpClientTransports {
+func NewPathHttpClientTransports(scheme string, instance string) PathTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
 	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
@@ -2378,7 +2366,7 @@ func (c *pathHttpClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewPathHttpClient(transports PathHttpClientTransports, middlewares ...endpoint.Middleware) PathService {
+func NewPathHttpClient(transports PathTransports, middlewares ...endpoint.Middleware) PathService {
 	return &pathHttpClient{
 		boolPath:   endpointx.Chain(transports.BoolPath().Endpoint(), middlewares...),
 		int32Path:  endpointx.Chain(transports.Int32Path().Endpoint(), middlewares...),

@@ -41,6 +41,11 @@ type CQRSEndpoints interface {
 	FindUser() endpoint.Endpoint
 }
 
+type CQRSTransports interface {
+	CreateUser() transportx.Transport
+	FindUser() transportx.Transport
+}
+
 type CQRSFactories interface {
 	CreateUser(middlewares ...endpoint.Middleware) sd.Factory
 	FindUser(middlewares ...endpoint.Middleware) sd.Factory
@@ -213,25 +218,20 @@ func NewCQRSGrpcServer(transports CQRSGrpcServerTransports) CQRSService {
 
 // =========================== grpc client ===========================
 
-type CQRSGrpcClientTransports interface {
-	CreateUser() *grpc.Client
-	FindUser() *grpc.Client
-}
-
 type cQRSGrpcClientTransports struct {
-	createUser *grpc.Client
-	findUser   *grpc.Client
+	createUser transportx.Transport
+	findUser   transportx.Transport
 }
 
-func (t *cQRSGrpcClientTransports) CreateUser() *grpc.Client {
+func (t *cQRSGrpcClientTransports) CreateUser() transportx.Transport {
 	return t.createUser
 }
 
-func (t *cQRSGrpcClientTransports) FindUser() *grpc.Client {
+func (t *cQRSGrpcClientTransports) FindUser() transportx.Transport {
 	return t.findUser
 }
 
-func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransports {
+func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSTransports {
 	return &cQRSGrpcClientTransports{
 		createUser: grpc.NewClient(
 			conn,
@@ -255,7 +255,7 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransport
 }
 
 type cQRSGrpcClientEndpoints struct {
-	transports  CQRSGrpcClientTransports
+	transports  CQRSTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -267,7 +267,7 @@ func (e *cQRSGrpcClientEndpoints) FindUser() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.FindUser().Endpoint(), e.middlewares...)
 }
 
-func NewCQRSGrpcClientEndpoints(transports CQRSGrpcClientTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
+func NewCQRSGrpcClientEndpoints(transports CQRSTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
 	return &cQRSGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -415,25 +415,20 @@ func NewCQRSHttpServerHandler(endpoints CQRSHttpServerTransports) http1.Handler 
 
 // =========================== http client ===========================
 
-type CQRSHttpClientTransports interface {
-	CreateUser() *http.Client
-	FindUser() *http.Client
-}
-
 type cQRSHttpClientTransports struct {
-	createUser *http.Client
-	findUser   *http.Client
+	createUser transportx.Transport
+	findUser   transportx.Transport
 }
 
-func (t *cQRSHttpClientTransports) CreateUser() *http.Client {
+func (t *cQRSHttpClientTransports) CreateUser() transportx.Transport {
 	return t.createUser
 }
 
-func (t *cQRSHttpClientTransports) FindUser() *http.Client {
+func (t *cQRSHttpClientTransports) FindUser() transportx.Transport {
 	return t.findUser
 }
 
-func NewCQRSHttpClientTransports(scheme string, instance string) CQRSHttpClientTransports {
+func NewCQRSHttpClientTransports(scheme string, instance string) CQRSTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
@@ -562,7 +557,7 @@ func (c *cQRSHttpClient) FindUser(ctx context.Context, request *FindUserRequest)
 	return rep.(*GetUserResponse), nil
 }
 
-func NewCQRSHttpClient(transports CQRSHttpClientTransports, middlewares ...endpoint.Middleware) CQRSService {
+func NewCQRSHttpClient(transports CQRSTransports, middlewares ...endpoint.Middleware) CQRSService {
 	return &cQRSHttpClient{
 		createUser: endpointx.Chain(transports.CreateUser().Endpoint(), middlewares...),
 		findUser:   endpointx.Chain(transports.FindUser().Endpoint(), middlewares...),

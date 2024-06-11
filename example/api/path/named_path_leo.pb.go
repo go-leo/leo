@@ -48,6 +48,15 @@ type NamedPathEndpoints interface {
 	EmbedNamedPathWrapString() endpoint.Endpoint
 }
 
+type NamedPathTransports interface {
+	NamedPathString() transportx.Transport
+	NamedPathOptString() transportx.Transport
+	NamedPathWrapString() transportx.Transport
+	EmbedNamedPathString() transportx.Transport
+	EmbedNamedPathOptString() transportx.Transport
+	EmbedNamedPathWrapString() transportx.Transport
+}
+
 type NamedPathFactories interface {
 	NamedPathString(middlewares ...endpoint.Middleware) sd.Factory
 	NamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory
@@ -292,49 +301,40 @@ func NewNamedPathGrpcServer(transports NamedPathGrpcServerTransports) NamedPathS
 
 // =========================== grpc client ===========================
 
-type NamedPathGrpcClientTransports interface {
-	NamedPathString() *grpc.Client
-	NamedPathOptString() *grpc.Client
-	NamedPathWrapString() *grpc.Client
-	EmbedNamedPathString() *grpc.Client
-	EmbedNamedPathOptString() *grpc.Client
-	EmbedNamedPathWrapString() *grpc.Client
-}
-
 type namedPathGrpcClientTransports struct {
-	namedPathString          *grpc.Client
-	namedPathOptString       *grpc.Client
-	namedPathWrapString      *grpc.Client
-	embedNamedPathString     *grpc.Client
-	embedNamedPathOptString  *grpc.Client
-	embedNamedPathWrapString *grpc.Client
+	namedPathString          transportx.Transport
+	namedPathOptString       transportx.Transport
+	namedPathWrapString      transportx.Transport
+	embedNamedPathString     transportx.Transport
+	embedNamedPathOptString  transportx.Transport
+	embedNamedPathWrapString transportx.Transport
 }
 
-func (t *namedPathGrpcClientTransports) NamedPathString() *grpc.Client {
+func (t *namedPathGrpcClientTransports) NamedPathString() transportx.Transport {
 	return t.namedPathString
 }
 
-func (t *namedPathGrpcClientTransports) NamedPathOptString() *grpc.Client {
+func (t *namedPathGrpcClientTransports) NamedPathOptString() transportx.Transport {
 	return t.namedPathOptString
 }
 
-func (t *namedPathGrpcClientTransports) NamedPathWrapString() *grpc.Client {
+func (t *namedPathGrpcClientTransports) NamedPathWrapString() transportx.Transport {
 	return t.namedPathWrapString
 }
 
-func (t *namedPathGrpcClientTransports) EmbedNamedPathString() *grpc.Client {
+func (t *namedPathGrpcClientTransports) EmbedNamedPathString() transportx.Transport {
 	return t.embedNamedPathString
 }
 
-func (t *namedPathGrpcClientTransports) EmbedNamedPathOptString() *grpc.Client {
+func (t *namedPathGrpcClientTransports) EmbedNamedPathOptString() transportx.Transport {
 	return t.embedNamedPathOptString
 }
 
-func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString() *grpc.Client {
+func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString() transportx.Transport {
 	return t.embedNamedPathWrapString
 }
 
-func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClientTransports {
+func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathTransports {
 	return &namedPathGrpcClientTransports{
 		namedPathString: grpc.NewClient(
 			conn,
@@ -394,7 +394,7 @@ func NewNamedPathGrpcClientTransports(conn *grpc1.ClientConn) NamedPathGrpcClien
 }
 
 type namedPathGrpcClientEndpoints struct {
-	transports  NamedPathGrpcClientTransports
+	transports  NamedPathTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -422,7 +422,7 @@ func (e *namedPathGrpcClientEndpoints) EmbedNamedPathWrapString() endpoint.Endpo
 	return endpointx.Chain(e.transports.EmbedNamedPathWrapString().Endpoint(), e.middlewares...)
 }
 
-func NewNamedPathGrpcClientEndpoints(transports NamedPathGrpcClientTransports, middlewares ...endpoint.Middleware) NamedPathEndpoints {
+func NewNamedPathGrpcClientEndpoints(transports NamedPathTransports, middlewares ...endpoint.Middleware) NamedPathEndpoints {
 	return &namedPathGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -834,49 +834,40 @@ func NewNamedPathHttpServerHandler(endpoints NamedPathHttpServerTransports) http
 
 // =========================== http client ===========================
 
-type NamedPathHttpClientTransports interface {
-	NamedPathString() *http.Client
-	NamedPathOptString() *http.Client
-	NamedPathWrapString() *http.Client
-	EmbedNamedPathString() *http.Client
-	EmbedNamedPathOptString() *http.Client
-	EmbedNamedPathWrapString() *http.Client
-}
-
 type namedPathHttpClientTransports struct {
-	namedPathString          *http.Client
-	namedPathOptString       *http.Client
-	namedPathWrapString      *http.Client
-	embedNamedPathString     *http.Client
-	embedNamedPathOptString  *http.Client
-	embedNamedPathWrapString *http.Client
+	namedPathString          transportx.Transport
+	namedPathOptString       transportx.Transport
+	namedPathWrapString      transportx.Transport
+	embedNamedPathString     transportx.Transport
+	embedNamedPathOptString  transportx.Transport
+	embedNamedPathWrapString transportx.Transport
 }
 
-func (t *namedPathHttpClientTransports) NamedPathString() *http.Client {
+func (t *namedPathHttpClientTransports) NamedPathString() transportx.Transport {
 	return t.namedPathString
 }
 
-func (t *namedPathHttpClientTransports) NamedPathOptString() *http.Client {
+func (t *namedPathHttpClientTransports) NamedPathOptString() transportx.Transport {
 	return t.namedPathOptString
 }
 
-func (t *namedPathHttpClientTransports) NamedPathWrapString() *http.Client {
+func (t *namedPathHttpClientTransports) NamedPathWrapString() transportx.Transport {
 	return t.namedPathWrapString
 }
 
-func (t *namedPathHttpClientTransports) EmbedNamedPathString() *http.Client {
+func (t *namedPathHttpClientTransports) EmbedNamedPathString() transportx.Transport {
 	return t.embedNamedPathString
 }
 
-func (t *namedPathHttpClientTransports) EmbedNamedPathOptString() *http.Client {
+func (t *namedPathHttpClientTransports) EmbedNamedPathOptString() transportx.Transport {
 	return t.embedNamedPathOptString
 }
 
-func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString() *http.Client {
+func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString() transportx.Transport {
 	return t.embedNamedPathWrapString
 }
 
-func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathHttpClientTransports {
+func NewNamedPathHttpClientTransports(scheme string, instance string) NamedPathTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
@@ -1245,7 +1236,7 @@ func (c *namedPathHttpClient) EmbedNamedPathWrapString(ctx context.Context, requ
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewNamedPathHttpClient(transports NamedPathHttpClientTransports, middlewares ...endpoint.Middleware) NamedPathService {
+func NewNamedPathHttpClient(transports NamedPathTransports, middlewares ...endpoint.Middleware) NamedPathService {
 	return &namedPathHttpClient{
 		namedPathString:          endpointx.Chain(transports.NamedPathString().Endpoint(), middlewares...),
 		namedPathOptString:       endpointx.Chain(transports.NamedPathOptString().Endpoint(), middlewares...),

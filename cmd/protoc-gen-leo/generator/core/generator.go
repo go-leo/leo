@@ -33,6 +33,12 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
+		if err := f.GenerateTransports(service, g); err != nil {
+			return err
+		}
+	}
+
+	for _, service := range f.Services {
 		if err := f.GenerateFactories(service, g); err != nil {
 			return err
 		}
@@ -72,6 +78,16 @@ func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.Gen
 	g.P("type ", service.EndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
+	}
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.TransportsName(), " interface {")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.Name(), "() ", internal.TransportxPackage.Ident("Transport"))
 	}
 	g.P("}")
 	g.P()

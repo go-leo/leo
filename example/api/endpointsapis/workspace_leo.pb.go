@@ -47,6 +47,14 @@ type WorkspacesEndpoints interface {
 	DeleteWorkspace() endpoint.Endpoint
 }
 
+type WorkspacesTransports interface {
+	ListWorkspaces() transportx.Transport
+	GetWorkspace() transportx.Transport
+	CreateWorkspace() transportx.Transport
+	UpdateWorkspace() transportx.Transport
+	DeleteWorkspace() transportx.Transport
+}
+
 type WorkspacesFactories interface {
 	ListWorkspaces(middlewares ...endpoint.Middleware) sd.Factory
 	GetWorkspace(middlewares ...endpoint.Middleware) sd.Factory
@@ -257,43 +265,35 @@ func NewWorkspacesGrpcServer(transports WorkspacesGrpcServerTransports) Workspac
 
 // =========================== grpc client ===========================
 
-type WorkspacesGrpcClientTransports interface {
-	ListWorkspaces() *grpc.Client
-	GetWorkspace() *grpc.Client
-	CreateWorkspace() *grpc.Client
-	UpdateWorkspace() *grpc.Client
-	DeleteWorkspace() *grpc.Client
-}
-
 type workspacesGrpcClientTransports struct {
-	listWorkspaces  *grpc.Client
-	getWorkspace    *grpc.Client
-	createWorkspace *grpc.Client
-	updateWorkspace *grpc.Client
-	deleteWorkspace *grpc.Client
+	listWorkspaces  transportx.Transport
+	getWorkspace    transportx.Transport
+	createWorkspace transportx.Transport
+	updateWorkspace transportx.Transport
+	deleteWorkspace transportx.Transport
 }
 
-func (t *workspacesGrpcClientTransports) ListWorkspaces() *grpc.Client {
+func (t *workspacesGrpcClientTransports) ListWorkspaces() transportx.Transport {
 	return t.listWorkspaces
 }
 
-func (t *workspacesGrpcClientTransports) GetWorkspace() *grpc.Client {
+func (t *workspacesGrpcClientTransports) GetWorkspace() transportx.Transport {
 	return t.getWorkspace
 }
 
-func (t *workspacesGrpcClientTransports) CreateWorkspace() *grpc.Client {
+func (t *workspacesGrpcClientTransports) CreateWorkspace() transportx.Transport {
 	return t.createWorkspace
 }
 
-func (t *workspacesGrpcClientTransports) UpdateWorkspace() *grpc.Client {
+func (t *workspacesGrpcClientTransports) UpdateWorkspace() transportx.Transport {
 	return t.updateWorkspace
 }
 
-func (t *workspacesGrpcClientTransports) DeleteWorkspace() *grpc.Client {
+func (t *workspacesGrpcClientTransports) DeleteWorkspace() transportx.Transport {
 	return t.deleteWorkspace
 }
 
-func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcClientTransports {
+func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesTransports {
 	return &workspacesGrpcClientTransports{
 		listWorkspaces: grpc.NewClient(
 			conn,
@@ -344,7 +344,7 @@ func NewWorkspacesGrpcClientTransports(conn *grpc1.ClientConn) WorkspacesGrpcCli
 }
 
 type workspacesGrpcClientEndpoints struct {
-	transports  WorkspacesGrpcClientTransports
+	transports  WorkspacesTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -368,7 +368,7 @@ func (e *workspacesGrpcClientEndpoints) DeleteWorkspace() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.DeleteWorkspace().Endpoint(), e.middlewares...)
 }
 
-func NewWorkspacesGrpcClientEndpoints(transports WorkspacesGrpcClientTransports, middlewares ...endpoint.Middleware) WorkspacesEndpoints {
+func NewWorkspacesGrpcClientEndpoints(transports WorkspacesTransports, middlewares ...endpoint.Middleware) WorkspacesEndpoints {
 	return &workspacesGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -706,43 +706,35 @@ func NewWorkspacesHttpServerHandler(endpoints WorkspacesHttpServerTransports) ht
 
 // =========================== http client ===========================
 
-type WorkspacesHttpClientTransports interface {
-	ListWorkspaces() *http.Client
-	GetWorkspace() *http.Client
-	CreateWorkspace() *http.Client
-	UpdateWorkspace() *http.Client
-	DeleteWorkspace() *http.Client
-}
-
 type workspacesHttpClientTransports struct {
-	listWorkspaces  *http.Client
-	getWorkspace    *http.Client
-	createWorkspace *http.Client
-	updateWorkspace *http.Client
-	deleteWorkspace *http.Client
+	listWorkspaces  transportx.Transport
+	getWorkspace    transportx.Transport
+	createWorkspace transportx.Transport
+	updateWorkspace transportx.Transport
+	deleteWorkspace transportx.Transport
 }
 
-func (t *workspacesHttpClientTransports) ListWorkspaces() *http.Client {
+func (t *workspacesHttpClientTransports) ListWorkspaces() transportx.Transport {
 	return t.listWorkspaces
 }
 
-func (t *workspacesHttpClientTransports) GetWorkspace() *http.Client {
+func (t *workspacesHttpClientTransports) GetWorkspace() transportx.Transport {
 	return t.getWorkspace
 }
 
-func (t *workspacesHttpClientTransports) CreateWorkspace() *http.Client {
+func (t *workspacesHttpClientTransports) CreateWorkspace() transportx.Transport {
 	return t.createWorkspace
 }
 
-func (t *workspacesHttpClientTransports) UpdateWorkspace() *http.Client {
+func (t *workspacesHttpClientTransports) UpdateWorkspace() transportx.Transport {
 	return t.updateWorkspace
 }
 
-func (t *workspacesHttpClientTransports) DeleteWorkspace() *http.Client {
+func (t *workspacesHttpClientTransports) DeleteWorkspace() transportx.Transport {
 	return t.deleteWorkspace
 }
 
-func NewWorkspacesHttpClientTransports(scheme string, instance string) WorkspacesHttpClientTransports {
+func NewWorkspacesHttpClientTransports(scheme string, instance string) WorkspacesTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces")
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
@@ -1062,7 +1054,7 @@ func (c *workspacesHttpClient) DeleteWorkspace(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewWorkspacesHttpClient(transports WorkspacesHttpClientTransports, middlewares ...endpoint.Middleware) WorkspacesService {
+func NewWorkspacesHttpClient(transports WorkspacesTransports, middlewares ...endpoint.Middleware) WorkspacesService {
 	return &workspacesHttpClient{
 		listWorkspaces:  endpointx.Chain(transports.ListWorkspaces().Endpoint(), middlewares...),
 		getWorkspace:    endpointx.Chain(transports.GetWorkspace().Endpoint(), middlewares...),

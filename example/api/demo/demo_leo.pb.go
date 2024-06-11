@@ -58,6 +58,16 @@ type DemoEndpoints interface {
 	GetUserAvatar() endpoint.Endpoint
 }
 
+type DemoTransports interface {
+	CreateUser() transportx.Transport
+	DeleteUser() transportx.Transport
+	UpdateUser() transportx.Transport
+	GetUser() transportx.Transport
+	GetUsers() transportx.Transport
+	UploadUserAvatar() transportx.Transport
+	GetUserAvatar() transportx.Transport
+}
+
 type DemoFactories interface {
 	CreateUser(middlewares ...endpoint.Middleware) sd.Factory
 	DeleteUser(middlewares ...endpoint.Middleware) sd.Factory
@@ -510,55 +520,45 @@ func NewDemoGrpcServer(transports DemoGrpcServerTransports) DemoService {
 
 // =========================== grpc client ===========================
 
-type DemoGrpcClientTransports interface {
-	CreateUser() *grpc.Client
-	DeleteUser() *grpc.Client
-	UpdateUser() *grpc.Client
-	GetUser() *grpc.Client
-	GetUsers() *grpc.Client
-	UploadUserAvatar() *grpc.Client
-	GetUserAvatar() *grpc.Client
-}
-
 type demoGrpcClientTransports struct {
-	createUser       *grpc.Client
-	deleteUser       *grpc.Client
-	updateUser       *grpc.Client
-	getUser          *grpc.Client
-	getUsers         *grpc.Client
-	uploadUserAvatar *grpc.Client
-	getUserAvatar    *grpc.Client
+	createUser       transportx.Transport
+	deleteUser       transportx.Transport
+	updateUser       transportx.Transport
+	getUser          transportx.Transport
+	getUsers         transportx.Transport
+	uploadUserAvatar transportx.Transport
+	getUserAvatar    transportx.Transport
 }
 
-func (t *demoGrpcClientTransports) CreateUser() *grpc.Client {
+func (t *demoGrpcClientTransports) CreateUser() transportx.Transport {
 	return t.createUser
 }
 
-func (t *demoGrpcClientTransports) DeleteUser() *grpc.Client {
+func (t *demoGrpcClientTransports) DeleteUser() transportx.Transport {
 	return t.deleteUser
 }
 
-func (t *demoGrpcClientTransports) UpdateUser() *grpc.Client {
+func (t *demoGrpcClientTransports) UpdateUser() transportx.Transport {
 	return t.updateUser
 }
 
-func (t *demoGrpcClientTransports) GetUser() *grpc.Client {
+func (t *demoGrpcClientTransports) GetUser() transportx.Transport {
 	return t.getUser
 }
 
-func (t *demoGrpcClientTransports) GetUsers() *grpc.Client {
+func (t *demoGrpcClientTransports) GetUsers() transportx.Transport {
 	return t.getUsers
 }
 
-func (t *demoGrpcClientTransports) UploadUserAvatar() *grpc.Client {
+func (t *demoGrpcClientTransports) UploadUserAvatar() transportx.Transport {
 	return t.uploadUserAvatar
 }
 
-func (t *demoGrpcClientTransports) GetUserAvatar() *grpc.Client {
+func (t *demoGrpcClientTransports) GetUserAvatar() transportx.Transport {
 	return t.getUserAvatar
 }
 
-func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransports {
+func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 	return &demoGrpcClientTransports{
 		createUser: grpc.NewClient(
 			conn,
@@ -627,7 +627,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 }
 
 type demoGrpcClientEndpoints struct {
-	transports  DemoGrpcClientTransports
+	transports  DemoTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -659,7 +659,7 @@ func (e *demoGrpcClientEndpoints) GetUserAvatar() endpoint.Endpoint {
 	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(), e.middlewares...)
 }
 
-func NewDemoGrpcClientEndpoints(transports DemoGrpcClientTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
+func NewDemoGrpcClientEndpoints(transports DemoTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
 	return &demoGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -1119,55 +1119,45 @@ func NewDemoHttpServerHandler(endpoints DemoHttpServerTransports) http1.Handler 
 
 // =========================== http client ===========================
 
-type DemoHttpClientTransports interface {
-	CreateUser() *http.Client
-	DeleteUser() *http.Client
-	UpdateUser() *http.Client
-	GetUser() *http.Client
-	GetUsers() *http.Client
-	UploadUserAvatar() *http.Client
-	GetUserAvatar() *http.Client
-}
-
 type demoHttpClientTransports struct {
-	createUser       *http.Client
-	deleteUser       *http.Client
-	updateUser       *http.Client
-	getUser          *http.Client
-	getUsers         *http.Client
-	uploadUserAvatar *http.Client
-	getUserAvatar    *http.Client
+	createUser       transportx.Transport
+	deleteUser       transportx.Transport
+	updateUser       transportx.Transport
+	getUser          transportx.Transport
+	getUsers         transportx.Transport
+	uploadUserAvatar transportx.Transport
+	getUserAvatar    transportx.Transport
 }
 
-func (t *demoHttpClientTransports) CreateUser() *http.Client {
+func (t *demoHttpClientTransports) CreateUser() transportx.Transport {
 	return t.createUser
 }
 
-func (t *demoHttpClientTransports) DeleteUser() *http.Client {
+func (t *demoHttpClientTransports) DeleteUser() transportx.Transport {
 	return t.deleteUser
 }
 
-func (t *demoHttpClientTransports) UpdateUser() *http.Client {
+func (t *demoHttpClientTransports) UpdateUser() transportx.Transport {
 	return t.updateUser
 }
 
-func (t *demoHttpClientTransports) GetUser() *http.Client {
+func (t *demoHttpClientTransports) GetUser() transportx.Transport {
 	return t.getUser
 }
 
-func (t *demoHttpClientTransports) GetUsers() *http.Client {
+func (t *demoHttpClientTransports) GetUsers() transportx.Transport {
 	return t.getUsers
 }
 
-func (t *demoHttpClientTransports) UploadUserAvatar() *http.Client {
+func (t *demoHttpClientTransports) UploadUserAvatar() transportx.Transport {
 	return t.uploadUserAvatar
 }
 
-func (t *demoHttpClientTransports) GetUserAvatar() *http.Client {
+func (t *demoHttpClientTransports) GetUserAvatar() transportx.Transport {
 	return t.getUserAvatar
 }
 
-func NewDemoHttpClientTransports(scheme string, instance string) DemoHttpClientTransports {
+func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user")
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}")
@@ -1574,7 +1564,7 @@ func (c *demoHttpClient) GetUserAvatar(ctx context.Context, request *GetUserAvat
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func NewDemoHttpClient(transports DemoHttpClientTransports, middlewares ...endpoint.Middleware) DemoService {
+func NewDemoHttpClient(transports DemoTransports, middlewares ...endpoint.Middleware) DemoService {
 	return &demoHttpClient{
 		createUser:       endpointx.Chain(transports.CreateUser().Endpoint(), middlewares...),
 		deleteUser:       endpointx.Chain(transports.DeleteUser().Endpoint(), middlewares...),

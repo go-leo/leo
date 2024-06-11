@@ -47,6 +47,14 @@ type ResponseEndpoints interface {
 	HttpBodyNamedResponse() endpoint.Endpoint
 }
 
+type ResponseTransports interface {
+	OmittedResponse() transportx.Transport
+	StarResponse() transportx.Transport
+	NamedResponse() transportx.Transport
+	HttpBodyResponse() transportx.Transport
+	HttpBodyNamedResponse() transportx.Transport
+}
+
 type ResponseFactories interface {
 	OmittedResponse(middlewares ...endpoint.Middleware) sd.Factory
 	StarResponse(middlewares ...endpoint.Middleware) sd.Factory
@@ -257,43 +265,35 @@ func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseServ
 
 // =========================== grpc client ===========================
 
-type ResponseGrpcClientTransports interface {
-	OmittedResponse() *grpc.Client
-	StarResponse() *grpc.Client
-	NamedResponse() *grpc.Client
-	HttpBodyResponse() *grpc.Client
-	HttpBodyNamedResponse() *grpc.Client
-}
-
 type responseGrpcClientTransports struct {
-	omittedResponse       *grpc.Client
-	starResponse          *grpc.Client
-	namedResponse         *grpc.Client
-	httpBodyResponse      *grpc.Client
-	httpBodyNamedResponse *grpc.Client
+	omittedResponse       transportx.Transport
+	starResponse          transportx.Transport
+	namedResponse         transportx.Transport
+	httpBodyResponse      transportx.Transport
+	httpBodyNamedResponse transportx.Transport
 }
 
-func (t *responseGrpcClientTransports) OmittedResponse() *grpc.Client {
+func (t *responseGrpcClientTransports) OmittedResponse() transportx.Transport {
 	return t.omittedResponse
 }
 
-func (t *responseGrpcClientTransports) StarResponse() *grpc.Client {
+func (t *responseGrpcClientTransports) StarResponse() transportx.Transport {
 	return t.starResponse
 }
 
-func (t *responseGrpcClientTransports) NamedResponse() *grpc.Client {
+func (t *responseGrpcClientTransports) NamedResponse() transportx.Transport {
 	return t.namedResponse
 }
 
-func (t *responseGrpcClientTransports) HttpBodyResponse() *grpc.Client {
+func (t *responseGrpcClientTransports) HttpBodyResponse() transportx.Transport {
 	return t.httpBodyResponse
 }
 
-func (t *responseGrpcClientTransports) HttpBodyNamedResponse() *grpc.Client {
+func (t *responseGrpcClientTransports) HttpBodyNamedResponse() transportx.Transport {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientTransports {
+func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseTransports {
 	return &responseGrpcClientTransports{
 		omittedResponse: grpc.NewClient(
 			conn,
@@ -344,7 +344,7 @@ func NewResponseGrpcClientTransports(conn *grpc1.ClientConn) ResponseGrpcClientT
 }
 
 type responseGrpcClientEndpoints struct {
-	transports  ResponseGrpcClientTransports
+	transports  ResponseTransports
 	middlewares []endpoint.Middleware
 }
 
@@ -368,7 +368,7 @@ func (e *responseGrpcClientEndpoints) HttpBodyNamedResponse() endpoint.Endpoint 
 	return endpointx.Chain(e.transports.HttpBodyNamedResponse().Endpoint(), e.middlewares...)
 }
 
-func NewResponseGrpcClientEndpoints(transports ResponseGrpcClientTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
+func NewResponseGrpcClientEndpoints(transports ResponseTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseGrpcClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -689,43 +689,35 @@ func NewResponseHttpServerHandler(endpoints ResponseHttpServerTransports) http1.
 
 // =========================== http client ===========================
 
-type ResponseHttpClientTransports interface {
-	OmittedResponse() *http.Client
-	StarResponse() *http.Client
-	NamedResponse() *http.Client
-	HttpBodyResponse() *http.Client
-	HttpBodyNamedResponse() *http.Client
-}
-
 type responseHttpClientTransports struct {
-	omittedResponse       *http.Client
-	starResponse          *http.Client
-	namedResponse         *http.Client
-	httpBodyResponse      *http.Client
-	httpBodyNamedResponse *http.Client
+	omittedResponse       transportx.Transport
+	starResponse          transportx.Transport
+	namedResponse         transportx.Transport
+	httpBodyResponse      transportx.Transport
+	httpBodyNamedResponse transportx.Transport
 }
 
-func (t *responseHttpClientTransports) OmittedResponse() *http.Client {
+func (t *responseHttpClientTransports) OmittedResponse() transportx.Transport {
 	return t.omittedResponse
 }
 
-func (t *responseHttpClientTransports) StarResponse() *http.Client {
+func (t *responseHttpClientTransports) StarResponse() transportx.Transport {
 	return t.starResponse
 }
 
-func (t *responseHttpClientTransports) NamedResponse() *http.Client {
+func (t *responseHttpClientTransports) NamedResponse() transportx.Transport {
 	return t.namedResponse
 }
 
-func (t *responseHttpClientTransports) HttpBodyResponse() *http.Client {
+func (t *responseHttpClientTransports) HttpBodyResponse() transportx.Transport {
 	return t.httpBodyResponse
 }
 
-func (t *responseHttpClientTransports) HttpBodyNamedResponse() *http.Client {
+func (t *responseHttpClientTransports) HttpBodyNamedResponse() transportx.Transport {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseHttpClientTransports(scheme string, instance string) ResponseHttpClientTransports {
+func NewResponseHttpClientTransports(scheme string, instance string) ResponseTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
@@ -1006,7 +998,7 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func NewResponseHttpClient(transports ResponseHttpClientTransports, middlewares ...endpoint.Middleware) ResponseService {
+func NewResponseHttpClient(transports ResponseTransports, middlewares ...endpoint.Middleware) ResponseService {
 	return &responseHttpClient{
 		omittedResponse:       endpointx.Chain(transports.OmittedResponse().Endpoint(), middlewares...),
 		starResponse:          endpointx.Chain(transports.StarResponse().Endpoint(), middlewares...),
