@@ -29,7 +29,19 @@ func NewErrorf(c codes.Code, format string, a ...any) *Error {
 
 func FromError(err error) (*Error, bool) {
 	var statusErr *Error
-	return statusErr, errors.As(err, &statusErr)
+	if errors.As(err, &statusErr) {
+		return statusErr, true
+	}
+	grpcStatus, ok := grpcstatus.FromError(err)
+	if ok {
+		return FromStatus(grpcStatus), true
+	}
+	return nil, false
+}
+
+func FromGrpcError(err error) *Error {
+	grpcStatus, _ := grpcstatus.FromError(err)
+	return FromStatus(grpcStatus)
 }
 
 // FromProto returns an error representing the given Status proto.

@@ -12,6 +12,7 @@ import (
 	httpstatus "github.com/go-leo/leo/v3/statusx/http"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/structpb"
 	"io"
@@ -32,11 +33,12 @@ var (
 )
 
 const (
-	kContentTypeKey  = "Content-Type"
-	kErrorEncoderKey = "X-Leo-Error-Encoder"
-	kGrpcCodeKey     = "X-Leo-Grpc-Code"
-	kGrpcMsgKey      = "X-Leo-Grpc-Msg"
-	kStatusKeysKey   = "X-Leo-Status-Keys"
+	kContentTypeKey   = "Content-Type"
+	kErrorEncoderKey  = "X-Leo-Error-Encoder"
+	kGrpcCodeKey      = "X-Leo-Grpc-Code"
+	kGrpcMsgKey       = "X-Leo-Grpc-Msg"
+	kStatusKeysKey    = "X-Leo-Status-Keys"
+	kStatusDetailsKey = "X-Leo-Status-Details"
 
 	kKitDefaultValue = "kit-default"
 	kLeoDefaultValue = "leo-default"
@@ -85,6 +87,20 @@ func (e statusEncoder) Encode(ctx context.Context, err *statusx.Error) (int, htt
 	if bodyProto != nil {
 		header.Set(kGrpcCodeKey, strconvx.FormatInt(grpcProto.GetCode(), 10))
 		header.Set(kGrpcMsgKey, grpcProto.GetMessage())
+
+		detailsProto := err.Details()
+		detailsAny := make([]*anypb.Any, 0, len(detailsProto))
+		for _, detailProto := range detailsProto {
+			detailAny, err := anypb.New(detailProto)
+			if err != nil {
+				continue
+			}
+			detailsAny = append(detailsAny, detailAny)
+		}
+		details := &bytes.Buffer{}
+		_ = jsonx.NewEncoder(details).Encode(detailsAny)
+		header.Set(kStatusDetailsKey, details.String())
+
 		if bodyAny, err := anypb.New(bodyProto); err != nil {
 			_ = jsonx.NewEncoder(body).Encode(bodyProto)
 		} else {
@@ -122,20 +138,33 @@ func (d statusDecoder) Decode(ctx context.Context, status int, header http.Heade
 			code = statusx.FailedCode
 		}
 
+		detailsAny := make([]*anypb.Any, 0)
+		var detailsProto []proto.Message
+		if err := jsonx.Unmarshal([]byte(header.Get(kStatusDetailsKey)), &detailsAny); err == nil {
+			detailsProto = make([]proto.Message, 0, len(detailsProto))
+			for _, detailAny := range detailsAny {
+				detailProto, err := detailAny.UnmarshalNew()
+				if err != nil {
+					continue
+				}
+				detailsProto = append(detailsProto, detailProto)
+			}
+		}
+
 		bodyAny := &anypb.Any{}
 		if err := jsonx.Unmarshal(body, &bodyAny); err == nil {
 			bodyProto, err := bodyAny.UnmarshalNew()
 			if err == nil {
-				return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithHttpBody(bodyProto)
+				return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithHttpBody(bodyProto).WithDetails(detailsProto...)
 			}
 		}
 
 		bodyStruct := &structpb.Struct{}
 		if err := jsonx.Unmarshal(body, &bodyStruct); err == nil {
-			return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithHttpBody(bodyStruct)
+			return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithHttpBody(bodyStruct).WithDetails(detailsProto...)
 		}
 
-		return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...)
+		return statusx.NewError(code, grpcMsg).WithHttpHeader(headers...).WithDetails(detailsProto...)
 	}
 	var grpcProto *rpcstatus.Status
 	_ = jsonx.Unmarshal(body, &grpcProto)

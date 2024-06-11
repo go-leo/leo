@@ -16,6 +16,7 @@ import (
 	protox "github.com/go-leo/gox/protox"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
@@ -37,6 +38,10 @@ type QueryService interface {
 
 type QueryEndpoints interface {
 	Query() endpoint.Endpoint
+}
+
+type QueryFactories interface {
+	Query() sd.Factory
 }
 
 type queryEndpoints struct {
@@ -131,8 +136,37 @@ func NewQueryGrpcClientTransports(conn *grpc1.ClientConn) QueryGrpcClientTranspo
 	}
 }
 
-type QueryGrpcClientFactories interface {
-	Query() sd.Factory
+type queryGrpcClientEndpoints struct {
+	transports  QueryGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *queryGrpcClientEndpoints) Query() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.Query().Endpoint(), e.middlewares...)
+}
+
+func NewQueryGrpcClientEndpoints(transports QueryGrpcClientTransports, middlewares ...endpoint.Middleware) QueryEndpoints {
+	return &queryGrpcClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type queryGrpcClient struct {
+	query endpoint.Endpoint
+}
+
+func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.query(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewQueryGrpcClient(endpoints QueryEndpoints) QueryService {
+	return &queryGrpcClient{
+		query: endpoints.Query(),
+	}
 }
 
 type queryGrpcClientFactories struct {
@@ -151,43 +185,8 @@ func (f *queryGrpcClientFactories) Query() sd.Factory {
 	}
 }
 
-func NewQueryGrpcClientFactories(endpoints func(transports QueryGrpcClientTransports) QueryEndpoints, opts ...grpc1.DialOption) QueryGrpcClientFactories {
+func NewQueryGrpcClientFactories(endpoints func(transports QueryGrpcClientTransports) QueryEndpoints, opts ...grpc1.DialOption) QueryFactories {
 	return &queryGrpcClientFactories{endpoints: endpoints, opts: opts}
-}
-
-type queryGrpcClientEndpoints struct {
-	transports  QueryGrpcClientTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *queryGrpcClientEndpoints) Query() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Query().Endpoint(), e.middlewares...)
-}
-
-func NewQueryGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports QueryGrpcClientTransports) QueryEndpoints {
-	return func(transports QueryGrpcClientTransports) QueryEndpoints {
-		return &queryGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-	}
-}
-
-type queryGrpcClient struct {
-	query endpoint.Endpoint
-}
-
-func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.query(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func NewQueryGrpcClient(endpoints QueryEndpoints) QueryService {
-	return &queryGrpcClient{
-		query: endpoints.Query(),
-	}
 }
 
 // =========================== http server ===========================

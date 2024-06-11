@@ -39,7 +39,7 @@ func (e *Error) Proto() (*rpcstatus.Status, *httpstatus.Status) {
 	return protox.Clone(e.e.GetGrpcStatus()), protox.Clone(e.e.GetHttpStatus())
 }
 
-// Is implements future error.Is functionality.
+// Is implements future errors.Is functionality.
 func (e *Error) Is(target error) bool {
 	return e.e.Is(target)
 }

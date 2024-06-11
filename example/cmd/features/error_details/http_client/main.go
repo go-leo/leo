@@ -16,6 +16,8 @@ func main() {
 	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
 		statusErr, _ := statusx.FromError(err)
+		failure := statusErr.QuotaFailure()
+		log.Printf("Quota failure: %s", failure)
 		body := statusErr.HttpBody()
 		log.Printf("body: %s", body)
 		os.Exit(1)

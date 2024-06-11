@@ -31,6 +31,7 @@ var (
 	GrpcxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpcx")
 	CqrsPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
 	MetadataxPackage  = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
+	StatusxPackage    = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
 
 	ErrorxPackage   = protogen.GoImportPath("github.com/go-leo/gox/errorx")
 	ConvxPackage    = protogen.GoImportPath("github.com/go-leo/gox/convx")

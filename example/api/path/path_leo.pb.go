@@ -15,6 +15,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
@@ -52,6 +53,18 @@ type PathEndpoints interface {
 	DoublePath() endpoint.Endpoint
 	StringPath() endpoint.Endpoint
 	EnumPath() endpoint.Endpoint
+}
+
+type PathFactories interface {
+	BoolPath() sd.Factory
+	Int32Path() sd.Factory
+	Int64Path() sd.Factory
+	Uint32Path() sd.Factory
+	Uint64Path() sd.Factory
+	FloatPath() sd.Factory
+	DoublePath() sd.Factory
+	StringPath() sd.Factory
+	EnumPath() sd.Factory
 }
 
 type pathEndpoints struct {
@@ -522,16 +535,165 @@ func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathGrpcClientTransport
 	}
 }
 
-type PathGrpcClientFactories interface {
-	BoolPath() sd.Factory
-	Int32Path() sd.Factory
-	Int64Path() sd.Factory
-	Uint32Path() sd.Factory
-	Uint64Path() sd.Factory
-	FloatPath() sd.Factory
-	DoublePath() sd.Factory
-	StringPath() sd.Factory
-	EnumPath() sd.Factory
+type pathGrpcClientEndpoints struct {
+	transports  PathGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *pathGrpcClientEndpoints) BoolPath() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.BoolPath().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) Int32Path() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.Int32Path().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) Int64Path() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.Int64Path().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) Uint32Path() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.Uint32Path().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) Uint64Path() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.Uint64Path().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) FloatPath() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.FloatPath().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) DoublePath() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.DoublePath().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) StringPath() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.StringPath().Endpoint(), e.middlewares...)
+}
+
+func (e *pathGrpcClientEndpoints) EnumPath() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.EnumPath().Endpoint(), e.middlewares...)
+}
+
+func NewPathGrpcClientEndpoints(transports PathGrpcClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
+	return &pathGrpcClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type pathGrpcClient struct {
+	boolPath   endpoint.Endpoint
+	int32Path  endpoint.Endpoint
+	int64Path  endpoint.Endpoint
+	uint32Path endpoint.Endpoint
+	uint64Path endpoint.Endpoint
+	floatPath  endpoint.Endpoint
+	doublePath endpoint.Endpoint
+	stringPath endpoint.Endpoint
+	enumPath   endpoint.Endpoint
+}
+
+func (c *pathGrpcClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.boolPath(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.int32Path(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.int64Path(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.uint32Path(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.uint64Path(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.floatPath(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.doublePath(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.stringPath(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *pathGrpcClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.enumPath(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func NewPathGrpcClient(endpoints PathEndpoints) PathService {
+	return &pathGrpcClient{
+		boolPath:   endpoints.BoolPath(),
+		int32Path:  endpoints.Int32Path(),
+		int64Path:  endpoints.Int64Path(),
+		uint32Path: endpoints.Uint32Path(),
+		uint64Path: endpoints.Uint64Path(),
+		floatPath:  endpoints.FloatPath(),
+		doublePath: endpoints.DoublePath(),
+		stringPath: endpoints.StringPath(),
+		enumPath:   endpoints.EnumPath(),
+	}
 }
 
 type pathGrpcClientFactories struct {
@@ -638,171 +800,8 @@ func (f *pathGrpcClientFactories) EnumPath() sd.Factory {
 	}
 }
 
-func NewPathGrpcClientFactories(endpoints func(transports PathGrpcClientTransports) PathEndpoints, opts ...grpc1.DialOption) PathGrpcClientFactories {
+func NewPathGrpcClientFactories(endpoints func(transports PathGrpcClientTransports) PathEndpoints, opts ...grpc1.DialOption) PathFactories {
 	return &pathGrpcClientFactories{endpoints: endpoints, opts: opts}
-}
-
-type pathGrpcClientEndpoints struct {
-	transports  PathGrpcClientTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *pathGrpcClientEndpoints) BoolPath() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.BoolPath().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) Int32Path() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Int32Path().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) Int64Path() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Int64Path().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) Uint32Path() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Uint32Path().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) Uint64Path() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Uint64Path().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) FloatPath() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.FloatPath().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) DoublePath() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DoublePath().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) StringPath() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.StringPath().Endpoint(), e.middlewares...)
-}
-
-func (e *pathGrpcClientEndpoints) EnumPath() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.EnumPath().Endpoint(), e.middlewares...)
-}
-
-func NewPathGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports PathGrpcClientTransports) PathEndpoints {
-	return func(transports PathGrpcClientTransports) PathEndpoints {
-		return &pathGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-	}
-}
-
-type pathGrpcClient struct {
-	boolPath   endpoint.Endpoint
-	int32Path  endpoint.Endpoint
-	int64Path  endpoint.Endpoint
-	uint32Path endpoint.Endpoint
-	uint64Path endpoint.Endpoint
-	floatPath  endpoint.Endpoint
-	doublePath endpoint.Endpoint
-	stringPath endpoint.Endpoint
-	enumPath   endpoint.Endpoint
-}
-
-func (c *pathGrpcClient) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.boolPath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.int32Path(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.int64Path(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.uint32Path(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.uint64Path(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.floatPath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.doublePath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.stringPath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *pathGrpcClient) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.enumPath(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func NewPathGrpcClient(endpoints PathEndpoints) PathService {
-	return &pathGrpcClient{
-		boolPath:   endpoints.BoolPath(),
-		int32Path:  endpoints.Int32Path(),
-		int64Path:  endpoints.Int64Path(),
-		uint32Path: endpoints.Uint32Path(),
-		uint64Path: endpoints.Uint64Path(),
-		floatPath:  endpoints.FloatPath(),
-		doublePath: endpoints.DoublePath(),
-		stringPath: endpoints.StringPath(),
-		enumPath:   endpoints.EnumPath(),
-	}
 }
 
 // =========================== http server ===========================

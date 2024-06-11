@@ -20,6 +20,7 @@ import (
 	command "github.com/go-leo/leo/v3/example/internal/demo/command"
 	query "github.com/go-leo/leo/v3/example/internal/demo/query"
 	metadatax "github.com/go-leo/leo/v3/metadatax"
+	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
@@ -55,6 +56,16 @@ type DemoEndpoints interface {
 	GetUsers() endpoint.Endpoint
 	UploadUserAvatar() endpoint.Endpoint
 	GetUserAvatar() endpoint.Endpoint
+}
+
+type DemoFactories interface {
+	CreateUser() sd.Factory
+	DeleteUser() sd.Factory
+	UpdateUser() sd.Factory
+	GetUser() sd.Factory
+	GetUsers() sd.Factory
+	UploadUserAvatar() sd.Factory
+	GetUserAvatar() sd.Factory
 }
 
 type demoEndpoints struct {
@@ -605,14 +616,133 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoGrpcClientTransport
 	}
 }
 
-type DemoGrpcClientFactories interface {
-	CreateUser() sd.Factory
-	DeleteUser() sd.Factory
-	UpdateUser() sd.Factory
-	GetUser() sd.Factory
-	GetUsers() sd.Factory
-	UploadUserAvatar() sd.Factory
-	GetUserAvatar() sd.Factory
+type demoGrpcClientEndpoints struct {
+	transports  DemoGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *demoGrpcClientEndpoints) CreateUser() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.CreateUser().Endpoint(), e.middlewares...)
+}
+
+func (e *demoGrpcClientEndpoints) DeleteUser() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.DeleteUser().Endpoint(), e.middlewares...)
+}
+
+func (e *demoGrpcClientEndpoints) UpdateUser() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.UpdateUser().Endpoint(), e.middlewares...)
+}
+
+func (e *demoGrpcClientEndpoints) GetUser() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetUser().Endpoint(), e.middlewares...)
+}
+
+func (e *demoGrpcClientEndpoints) GetUsers() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetUsers().Endpoint(), e.middlewares...)
+}
+
+func (e *demoGrpcClientEndpoints) UploadUserAvatar() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.UploadUserAvatar().Endpoint(), e.middlewares...)
+}
+
+func (e *demoGrpcClientEndpoints) GetUserAvatar() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(), e.middlewares...)
+}
+
+func NewDemoGrpcClientEndpoints(transports DemoGrpcClientTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
+	return &demoGrpcClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type demoGrpcClient struct {
+	createUser       endpoint.Endpoint
+	deleteUser       endpoint.Endpoint
+	updateUser       endpoint.Endpoint
+	getUser          endpoint.Endpoint
+	getUsers         endpoint.Endpoint
+	uploadUserAvatar endpoint.Endpoint
+	getUserAvatar    endpoint.Endpoint
+}
+
+func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.createUser(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*CreateUserResponse), nil
+}
+
+func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.deleteUser(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.updateUser(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.getUser(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*GetUserResponse), nil
+}
+
+func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.getUsers(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*GetUsersResponse), nil
+}
+
+func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.uploadUserAvatar(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.getUserAvatar(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*httpbody.HttpBody), nil
+}
+
+func NewDemoGrpcClient(endpoints DemoEndpoints) DemoService {
+	return &demoGrpcClient{
+		createUser:       endpoints.CreateUser(),
+		deleteUser:       endpoints.DeleteUser(),
+		updateUser:       endpoints.UpdateUser(),
+		getUser:          endpoints.GetUser(),
+		getUsers:         endpoints.GetUsers(),
+		uploadUserAvatar: endpoints.UploadUserAvatar(),
+		getUserAvatar:    endpoints.GetUserAvatar(),
+	}
 }
 
 type demoGrpcClientFactories struct {
@@ -697,139 +827,8 @@ func (f *demoGrpcClientFactories) GetUserAvatar() sd.Factory {
 	}
 }
 
-func NewDemoGrpcClientFactories(endpoints func(transports DemoGrpcClientTransports) DemoEndpoints, opts ...grpc1.DialOption) DemoGrpcClientFactories {
+func NewDemoGrpcClientFactories(endpoints func(transports DemoGrpcClientTransports) DemoEndpoints, opts ...grpc1.DialOption) DemoFactories {
 	return &demoGrpcClientFactories{endpoints: endpoints, opts: opts}
-}
-
-type demoGrpcClientEndpoints struct {
-	transports  DemoGrpcClientTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *demoGrpcClientEndpoints) CreateUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) DeleteUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) UpdateUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UpdateUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) GetUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) GetUsers() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUsers().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) UploadUserAvatar() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UploadUserAvatar().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) GetUserAvatar() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(), e.middlewares...)
-}
-
-func NewDemoGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports DemoGrpcClientTransports) DemoEndpoints {
-	return func(transports DemoGrpcClientTransports) DemoEndpoints {
-		return &demoGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-	}
-}
-
-type demoGrpcClient struct {
-	createUser       endpoint.Endpoint
-	deleteUser       endpoint.Endpoint
-	updateUser       endpoint.Endpoint
-	getUser          endpoint.Endpoint
-	getUsers         endpoint.Endpoint
-	uploadUserAvatar endpoint.Endpoint
-	getUserAvatar    endpoint.Endpoint
-}
-
-func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.createUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*CreateUserResponse), nil
-}
-
-func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.deleteUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.updateUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*GetUserResponse), nil
-}
-
-func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getUsers(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*GetUsersResponse), nil
-}
-
-func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.uploadUserAvatar(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getUserAvatar(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*httpbody.HttpBody), nil
-}
-
-func NewDemoGrpcClient(endpoints DemoEndpoints) DemoService {
-	return &demoGrpcClient{
-		createUser:       endpoints.CreateUser(),
-		deleteUser:       endpoints.DeleteUser(),
-		updateUser:       endpoints.UpdateUser(),
-		getUser:          endpoints.GetUser(),
-		getUsers:         endpoints.GetUsers(),
-		uploadUserAvatar: endpoints.UploadUserAvatar(),
-		getUserAvatar:    endpoints.GetUserAvatar(),
-	}
 }
 
 // =========================== http server ===========================

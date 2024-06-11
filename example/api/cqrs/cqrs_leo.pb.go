@@ -17,6 +17,7 @@ import (
 	command "github.com/go-leo/leo/v3/example/internal/cqrs/command"
 	query "github.com/go-leo/leo/v3/example/internal/cqrs/query"
 	metadatax "github.com/go-leo/leo/v3/metadatax"
+	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
@@ -38,6 +39,11 @@ type CQRSService interface {
 type CQRSEndpoints interface {
 	CreateUser() endpoint.Endpoint
 	FindUser() endpoint.Endpoint
+}
+
+type CQRSFactories interface {
+	CreateUser() sd.Factory
+	FindUser() sd.Factory
 }
 
 type cQRSEndpoints struct {
@@ -243,9 +249,53 @@ func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSGrpcClientTransport
 	}
 }
 
-type CQRSGrpcClientFactories interface {
-	CreateUser() sd.Factory
-	FindUser() sd.Factory
+type cQRSGrpcClientEndpoints struct {
+	transports  CQRSGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *cQRSGrpcClientEndpoints) CreateUser() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.CreateUser().Endpoint(), e.middlewares...)
+}
+
+func (e *cQRSGrpcClientEndpoints) FindUser() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.FindUser().Endpoint(), e.middlewares...)
+}
+
+func NewCQRSGrpcClientEndpoints(transports CQRSGrpcClientTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
+	return &cQRSGrpcClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type cQRSGrpcClient struct {
+	createUser endpoint.Endpoint
+	findUser   endpoint.Endpoint
+}
+
+func (c *cQRSGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.createUser(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.findUser(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*GetUserResponse), nil
+}
+
+func NewCQRSGrpcClient(endpoints CQRSEndpoints) CQRSService {
+	return &cQRSGrpcClient{
+		createUser: endpoints.CreateUser(),
+		findUser:   endpoints.FindUser(),
+	}
 }
 
 type cQRSGrpcClientFactories struct {
@@ -275,59 +325,8 @@ func (f *cQRSGrpcClientFactories) FindUser() sd.Factory {
 	}
 }
 
-func NewCQRSGrpcClientFactories(endpoints func(transports CQRSGrpcClientTransports) CQRSEndpoints, opts ...grpc1.DialOption) CQRSGrpcClientFactories {
+func NewCQRSGrpcClientFactories(endpoints func(transports CQRSGrpcClientTransports) CQRSEndpoints, opts ...grpc1.DialOption) CQRSFactories {
 	return &cQRSGrpcClientFactories{endpoints: endpoints, opts: opts}
-}
-
-type cQRSGrpcClientEndpoints struct {
-	transports  CQRSGrpcClientTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *cQRSGrpcClientEndpoints) CreateUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateUser().Endpoint(), e.middlewares...)
-}
-
-func (e *cQRSGrpcClientEndpoints) FindUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.FindUser().Endpoint(), e.middlewares...)
-}
-
-func NewCQRSGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports CQRSGrpcClientTransports) CQRSEndpoints {
-	return func(transports CQRSGrpcClientTransports) CQRSEndpoints {
-		return &cQRSGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-	}
-}
-
-type cQRSGrpcClient struct {
-	createUser endpoint.Endpoint
-	findUser   endpoint.Endpoint
-}
-
-func (c *cQRSGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.createUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.findUser(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*GetUserResponse), nil
-}
-
-func NewCQRSGrpcClient(endpoints CQRSEndpoints) CQRSService {
-	return &cQRSGrpcClient{
-		createUser: endpoints.CreateUser(),
-		findUser:   endpoints.FindUser(),
-	}
 }
 
 // =========================== http server ===========================

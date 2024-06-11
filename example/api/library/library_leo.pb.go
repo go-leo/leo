@@ -16,6 +16,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
@@ -56,6 +57,20 @@ type LibraryServiceEndpoints interface {
 	DeleteBook() endpoint.Endpoint
 	UpdateBook() endpoint.Endpoint
 	MoveBook() endpoint.Endpoint
+}
+
+type LibraryServiceFactories interface {
+	CreateShelf() sd.Factory
+	GetShelf() sd.Factory
+	ListShelves() sd.Factory
+	DeleteShelf() sd.Factory
+	MergeShelves() sd.Factory
+	CreateBook() sd.Factory
+	GetBook() sd.Factory
+	ListBooks() sd.Factory
+	DeleteBook() sd.Factory
+	UpdateBook() sd.Factory
+	MoveBook() sd.Factory
 }
 
 type libraryServiceEndpoints struct {
@@ -620,18 +635,197 @@ func NewLibraryServiceGrpcClientTransports(conn *grpc1.ClientConn) LibraryServic
 	}
 }
 
-type LibraryServiceGrpcClientFactories interface {
-	CreateShelf() sd.Factory
-	GetShelf() sd.Factory
-	ListShelves() sd.Factory
-	DeleteShelf() sd.Factory
-	MergeShelves() sd.Factory
-	CreateBook() sd.Factory
-	GetBook() sd.Factory
-	ListBooks() sd.Factory
-	DeleteBook() sd.Factory
-	UpdateBook() sd.Factory
-	MoveBook() sd.Factory
+type libraryServiceGrpcClientEndpoints struct {
+	transports  LibraryServiceGrpcClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *libraryServiceGrpcClientEndpoints) CreateShelf() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.CreateShelf().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) GetShelf() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetShelf().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) ListShelves() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.ListShelves().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) DeleteShelf() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.DeleteShelf().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) MergeShelves() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.MergeShelves().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) CreateBook() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.CreateBook().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) GetBook() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetBook().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) ListBooks() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.ListBooks().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) DeleteBook() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.DeleteBook().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) UpdateBook() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.UpdateBook().Endpoint(), e.middlewares...)
+}
+
+func (e *libraryServiceGrpcClientEndpoints) MoveBook() endpoint.Endpoint {
+	return endpointx.Chain(e.transports.MoveBook().Endpoint(), e.middlewares...)
+}
+
+func NewLibraryServiceGrpcClientEndpoints(transports LibraryServiceGrpcClientTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
+	return &libraryServiceGrpcClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type libraryServiceGrpcClient struct {
+	createShelf  endpoint.Endpoint
+	getShelf     endpoint.Endpoint
+	listShelves  endpoint.Endpoint
+	deleteShelf  endpoint.Endpoint
+	mergeShelves endpoint.Endpoint
+	createBook   endpoint.Endpoint
+	getBook      endpoint.Endpoint
+	listBooks    endpoint.Endpoint
+	deleteBook   endpoint.Endpoint
+	updateBook   endpoint.Endpoint
+	moveBook     endpoint.Endpoint
+}
+
+func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.createShelf(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.getShelf(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.listShelves(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*ListShelvesResponse), nil
+}
+
+func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.deleteShelf(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.mergeShelves(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Shelf), nil
+}
+
+func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.createBook(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Book), nil
+}
+
+func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.getBook(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Book), nil
+}
+
+func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.listBooks(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*ListBooksResponse), nil
+}
+
+func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.deleteBook(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+
+func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.updateBook(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Book), nil
+}
+
+func (c *libraryServiceGrpcClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
+	rep, err := c.moveBook(ctx, request)
+	if err != nil {
+		return nil, statusx.FromGrpcError(err)
+	}
+	return rep.(*Book), nil
+}
+
+func NewLibraryServiceGrpcClient(endpoints LibraryServiceEndpoints) LibraryServiceService {
+	return &libraryServiceGrpcClient{
+		createShelf:  endpoints.CreateShelf(),
+		getShelf:     endpoints.GetShelf(),
+		listShelves:  endpoints.ListShelves(),
+		deleteShelf:  endpoints.DeleteShelf(),
+		mergeShelves: endpoints.MergeShelves(),
+		createBook:   endpoints.CreateBook(),
+		getBook:      endpoints.GetBook(),
+		listBooks:    endpoints.ListBooks(),
+		deleteBook:   endpoints.DeleteBook(),
+		updateBook:   endpoints.UpdateBook(),
+		moveBook:     endpoints.MoveBook(),
+	}
 }
 
 type libraryServiceGrpcClientFactories struct {
@@ -760,203 +954,8 @@ func (f *libraryServiceGrpcClientFactories) MoveBook() sd.Factory {
 	}
 }
 
-func NewLibraryServiceGrpcClientFactories(endpoints func(transports LibraryServiceGrpcClientTransports) LibraryServiceEndpoints, opts ...grpc1.DialOption) LibraryServiceGrpcClientFactories {
+func NewLibraryServiceGrpcClientFactories(endpoints func(transports LibraryServiceGrpcClientTransports) LibraryServiceEndpoints, opts ...grpc1.DialOption) LibraryServiceFactories {
 	return &libraryServiceGrpcClientFactories{endpoints: endpoints, opts: opts}
-}
-
-type libraryServiceGrpcClientEndpoints struct {
-	transports  LibraryServiceGrpcClientTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *libraryServiceGrpcClientEndpoints) CreateShelf() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateShelf().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) GetShelf() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetShelf().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) ListShelves() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.ListShelves().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) DeleteShelf() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteShelf().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) MergeShelves() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.MergeShelves().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) CreateBook() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateBook().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) GetBook() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetBook().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) ListBooks() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.ListBooks().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) DeleteBook() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteBook().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) UpdateBook() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UpdateBook().Endpoint(), e.middlewares...)
-}
-
-func (e *libraryServiceGrpcClientEndpoints) MoveBook() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.MoveBook().Endpoint(), e.middlewares...)
-}
-
-func NewLibraryServiceGrpcClientEndpoints(middlewares ...endpoint.Middleware) func(transports LibraryServiceGrpcClientTransports) LibraryServiceEndpoints {
-	return func(transports LibraryServiceGrpcClientTransports) LibraryServiceEndpoints {
-		return &libraryServiceGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-	}
-}
-
-type libraryServiceGrpcClient struct {
-	createShelf  endpoint.Endpoint
-	getShelf     endpoint.Endpoint
-	listShelves  endpoint.Endpoint
-	deleteShelf  endpoint.Endpoint
-	mergeShelves endpoint.Endpoint
-	createBook   endpoint.Endpoint
-	getBook      endpoint.Endpoint
-	listBooks    endpoint.Endpoint
-	deleteBook   endpoint.Endpoint
-	updateBook   endpoint.Endpoint
-	moveBook     endpoint.Endpoint
-}
-
-func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.createShelf(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Shelf), nil
-}
-
-func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getShelf(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Shelf), nil
-}
-
-func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.listShelves(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*ListShelvesResponse), nil
-}
-
-func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.deleteShelf(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.mergeShelves(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Shelf), nil
-}
-
-func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.createBook(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Book), nil
-}
-
-func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getBook(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Book), nil
-}
-
-func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.listBooks(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*ListBooksResponse), nil
-}
-
-func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.deleteBook(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.updateBook(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Book), nil
-}
-
-func (c *libraryServiceGrpcClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.moveBook(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*Book), nil
-}
-
-func NewLibraryServiceGrpcClient(endpoints LibraryServiceEndpoints) LibraryServiceService {
-	return &libraryServiceGrpcClient{
-		createShelf:  endpoints.CreateShelf(),
-		getShelf:     endpoints.GetShelf(),
-		listShelves:  endpoints.ListShelves(),
-		deleteShelf:  endpoints.DeleteShelf(),
-		mergeShelves: endpoints.MergeShelves(),
-		createBook:   endpoints.CreateBook(),
-		getBook:      endpoints.GetBook(),
-		listBooks:    endpoints.ListBooks(),
-		deleteBook:   endpoints.DeleteBook(),
-		updateBook:   endpoints.UpdateBook(),
-		moveBook:     endpoints.MoveBook(),
-	}
 }
 
 // =========================== http server ===========================
