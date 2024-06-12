@@ -1,19 +1,28 @@
 package grpcx
 
 import (
+	"context"
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
+	"google.golang.org/grpc"
 )
 
-type SDClient struct {
+type Client struct {
 	client *grpctransport.Client
 }
 
-func NewSDClient(client *grpctransport.Client) *SDClient {
-	return &SDClient{client: client}
+func NewClient(
+	cc *grpc.ClientConn,
+	serviceName string,
+	method string,
+	enc grpctransport.EncodeRequestFunc,
+	dec grpctransport.DecodeResponseFunc,
+	grpcReply interface{},
+	options ...grpctransport.ClientOption,
+) *Client {
+	return &Client{client: grpctransport.NewClient(cc, serviceName, method, enc, dec, grpcReply, options...)}
 }
 
-func (c *SDClient) Endpoint() endpoint.Endpoint {
-
-	return nil
+func (c *Client) Endpoint(ctx context.Context) endpoint.Endpoint {
+	return c.client.Endpoint()
 }

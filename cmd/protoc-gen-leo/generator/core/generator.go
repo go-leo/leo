@@ -33,7 +33,7 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
-		if err := f.GenerateTransports(service, g); err != nil {
+		if err := f.GenerateClientTransports(service, g); err != nil {
 			return err
 		}
 	}
@@ -51,16 +51,17 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
-		if err := f.GenerateImplementedEndpoints(service, g); err != nil {
+		if err := f.GenerateServerEndpoints(service, g); err != nil {
 			return err
 		}
 	}
 
 	for _, service := range f.Services {
-		if err := f.GenerateNewEndpoints(service, g); err != nil {
+		if err := f.GenerateClientEndpoints(service, g); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -77,17 +78,17 @@ func (f *Generator) GenerateServices(service *internal.Service, g *protogen.Gene
 func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.EndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"))
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	g.P("}")
 	g.P()
 	return nil
 }
 
-func (f *Generator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.TransportsName(), " interface {")
+func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.ClientTransportsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() ", internal.TransportxPackage.Ident("Transport"))
+		g.P(endpoint.Name(), "() ", internal.TransportxPackage.Ident("ClientTransport"))
 	}
 	g.P("}")
 	g.P()
@@ -114,15 +115,15 @@ func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.G
 	return nil
 }
 
-func (f *Generator) GenerateImplementedEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedEndpointsName(), " struct {")
+func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedServerEndpointsName(), " struct {")
 	g.P("svc ", service.ServiceName())
 	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
 	g.P("}")
 	g.P()
 
 	for _, endpoint := range service.Endpoints {
-		g.P("func (e *", service.UnexportedEndpointsName(), ") ", endpoint.Name(), "() ", internal.EndpointPackage.Ident("Endpoint"), "{")
+		g.P("func (e *", service.UnexportedServerEndpointsName(), ") ", endpoint.Name(), "(", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"), "{")
 		g.P("component := func(ctx ", internal.ContextPackage.Ident("Context"), ", request any) (any, error) {")
 		g.P("return e.svc.", endpoint.Name(), "(ctx, request.(*", endpoint.InputGoIdent(), "))")
 		g.P("}")
@@ -130,12 +131,30 @@ func (f *Generator) GenerateImplementedEndpoints(service *internal.Service, g *p
 		g.P("}")
 		g.P()
 	}
+
+	g.P("func New", service.ServerEndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), "{")
+	g.P("return &", service.UnexportedServerEndpointsName(), "{svc: svc, middlewares: middlewares}")
+	g.P("}")
+	g.P()
 	return nil
 }
 
-func (f *Generator) GenerateNewEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.EndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), "{")
-	g.P("return &", service.UnexportedEndpointsName(), "{svc: svc, middlewares: middlewares}")
+func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedClientEndpointsName(), " struct {")
+	g.P("transports ", service.ClientTransportsName())
+	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
+	g.P("}")
+	g.P()
+
+	for _, endpoint := range service.Endpoints {
+		g.P("func (e *", service.UnexportedClientEndpointsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"), "{")
+		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(e.transports.", endpoint.Name(), "().Endpoint(ctx), e.middlewares...)")
+		g.P("}")
+		g.P()
+	}
+
+	g.P("func New", service.ClientEndpointsName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ")", service.EndpointsName(), " {")
+	g.P("return &", service.UnexportedClientEndpointsName(), "{transports: transports, middlewares: middlewares}")
 	g.P("}")
 	g.P()
 	return nil

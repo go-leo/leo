@@ -49,23 +49,23 @@ type DemoService interface {
 }
 
 type DemoEndpoints interface {
-	CreateUser() endpoint.Endpoint
-	DeleteUser() endpoint.Endpoint
-	UpdateUser() endpoint.Endpoint
-	GetUser() endpoint.Endpoint
-	GetUsers() endpoint.Endpoint
-	UploadUserAvatar() endpoint.Endpoint
-	GetUserAvatar() endpoint.Endpoint
+	CreateUser(ctx context.Context) endpoint.Endpoint
+	DeleteUser(ctx context.Context) endpoint.Endpoint
+	UpdateUser(ctx context.Context) endpoint.Endpoint
+	GetUser(ctx context.Context) endpoint.Endpoint
+	GetUsers(ctx context.Context) endpoint.Endpoint
+	UploadUserAvatar(ctx context.Context) endpoint.Endpoint
+	GetUserAvatar(ctx context.Context) endpoint.Endpoint
 }
 
-type DemoTransports interface {
-	CreateUser() transportx.Transport
-	DeleteUser() transportx.Transport
-	UpdateUser() transportx.Transport
-	GetUser() transportx.Transport
-	GetUsers() transportx.Transport
-	UploadUserAvatar() transportx.Transport
-	GetUserAvatar() transportx.Transport
+type DemoClientTransports interface {
+	CreateUser() transportx.ClientTransport
+	DeleteUser() transportx.ClientTransport
+	UpdateUser() transportx.ClientTransport
+	GetUser() transportx.ClientTransport
+	GetUsers() transportx.ClientTransport
+	UploadUserAvatar() transportx.ClientTransport
+	GetUserAvatar() transportx.ClientTransport
 }
 
 type DemoFactories interface {
@@ -88,62 +88,99 @@ type DemoEndpointers interface {
 	GetUserAvatar() sd.Endpointer
 }
 
-type demoEndpoints struct {
+type demoServerEndpoints struct {
 	svc         DemoService
 	middlewares []endpoint.Middleware
 }
 
-func (e *demoEndpoints) CreateUser() endpoint.Endpoint {
+func (e *demoServerEndpoints) CreateUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.CreateUser(ctx, request.(*CreateUserRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *demoEndpoints) DeleteUser() endpoint.Endpoint {
+func (e *demoServerEndpoints) DeleteUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.DeleteUser(ctx, request.(*DeleteUsersRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *demoEndpoints) UpdateUser() endpoint.Endpoint {
+func (e *demoServerEndpoints) UpdateUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.UpdateUser(ctx, request.(*UpdateUserRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *demoEndpoints) GetUser() endpoint.Endpoint {
+func (e *demoServerEndpoints) GetUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.GetUser(ctx, request.(*GetUserRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *demoEndpoints) GetUsers() endpoint.Endpoint {
+func (e *demoServerEndpoints) GetUsers(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.GetUsers(ctx, request.(*GetUsersRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *demoEndpoints) UploadUserAvatar() endpoint.Endpoint {
+func (e *demoServerEndpoints) UploadUserAvatar(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.UploadUserAvatar(ctx, request.(*UploadUserAvatarRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func (e *demoEndpoints) GetUserAvatar() endpoint.Endpoint {
+func (e *demoServerEndpoints) GetUserAvatar(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.GetUserAvatar(ctx, request.(*GetUserAvatarRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewDemoEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoEndpoints {
-	return &demoEndpoints{svc: svc, middlewares: middlewares}
+func NewDemoServerEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoEndpoints {
+	return &demoServerEndpoints{svc: svc, middlewares: middlewares}
+}
+
+type demoClientEndpoints struct {
+	transports  DemoClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *demoClientEndpoints) CreateUser(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.CreateUser().Endpoint(ctx), e.middlewares...)
+}
+
+func (e *demoClientEndpoints) DeleteUser(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.DeleteUser().Endpoint(ctx), e.middlewares...)
+}
+
+func (e *demoClientEndpoints) UpdateUser(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.UpdateUser().Endpoint(ctx), e.middlewares...)
+}
+
+func (e *demoClientEndpoints) GetUser(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetUser().Endpoint(ctx), e.middlewares...)
+}
+
+func (e *demoClientEndpoints) GetUsers(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetUsers().Endpoint(ctx), e.middlewares...)
+}
+
+func (e *demoClientEndpoints) UploadUserAvatar(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.UploadUserAvatar().Endpoint(ctx), e.middlewares...)
+}
+
+func (e *demoClientEndpoints) GetUserAvatar(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(ctx), e.middlewares...)
+}
+
+func NewDemoClientEndpoints(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
+	return &demoClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
 // =========================== cqrs ===========================
@@ -375,7 +412,7 @@ func (t *demoGrpcServerTransports) GetUserAvatar() *grpc.Server {
 func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTransports {
 	return &demoGrpcServerTransports{
 		createUser: grpc.NewServer(
-			endpoints.CreateUser(),
+			endpoints.CreateUser(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
@@ -383,7 +420,7 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		deleteUser: grpc.NewServer(
-			endpoints.DeleteUser(),
+			endpoints.DeleteUser(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
@@ -391,7 +428,7 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		updateUser: grpc.NewServer(
-			endpoints.UpdateUser(),
+			endpoints.UpdateUser(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
@@ -399,7 +436,7 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		getUser: grpc.NewServer(
-			endpoints.GetUser(),
+			endpoints.GetUser(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
@@ -407,7 +444,7 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		getUsers: grpc.NewServer(
-			endpoints.GetUsers(),
+			endpoints.GetUsers(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
@@ -415,7 +452,7 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		uploadUserAvatar: grpc.NewServer(
-			endpoints.UploadUserAvatar(),
+			endpoints.UploadUserAvatar(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
@@ -423,7 +460,7 @@ func NewDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			grpc.ServerBefore(grpcx.IncomingMetadata),
 		),
 		getUserAvatar: grpc.NewServer(
-			endpoints.GetUserAvatar(),
+			endpoints.GetUserAvatar(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
@@ -521,46 +558,46 @@ func NewDemoGrpcServer(transports DemoGrpcServerTransports) DemoService {
 // =========================== grpc client ===========================
 
 type demoGrpcClientTransports struct {
-	createUser       transportx.Transport
-	deleteUser       transportx.Transport
-	updateUser       transportx.Transport
-	getUser          transportx.Transport
-	getUsers         transportx.Transport
-	uploadUserAvatar transportx.Transport
-	getUserAvatar    transportx.Transport
+	createUser       transportx.ClientTransport
+	deleteUser       transportx.ClientTransport
+	updateUser       transportx.ClientTransport
+	getUser          transportx.ClientTransport
+	getUsers         transportx.ClientTransport
+	uploadUserAvatar transportx.ClientTransport
+	getUserAvatar    transportx.ClientTransport
 }
 
-func (t *demoGrpcClientTransports) CreateUser() transportx.Transport {
+func (t *demoGrpcClientTransports) CreateUser() transportx.ClientTransport {
 	return t.createUser
 }
 
-func (t *demoGrpcClientTransports) DeleteUser() transportx.Transport {
+func (t *demoGrpcClientTransports) DeleteUser() transportx.ClientTransport {
 	return t.deleteUser
 }
 
-func (t *demoGrpcClientTransports) UpdateUser() transportx.Transport {
+func (t *demoGrpcClientTransports) UpdateUser() transportx.ClientTransport {
 	return t.updateUser
 }
 
-func (t *demoGrpcClientTransports) GetUser() transportx.Transport {
+func (t *demoGrpcClientTransports) GetUser() transportx.ClientTransport {
 	return t.getUser
 }
 
-func (t *demoGrpcClientTransports) GetUsers() transportx.Transport {
+func (t *demoGrpcClientTransports) GetUsers() transportx.ClientTransport {
 	return t.getUsers
 }
 
-func (t *demoGrpcClientTransports) UploadUserAvatar() transportx.Transport {
+func (t *demoGrpcClientTransports) UploadUserAvatar() transportx.ClientTransport {
 	return t.uploadUserAvatar
 }
 
-func (t *demoGrpcClientTransports) GetUserAvatar() transportx.Transport {
+func (t *demoGrpcClientTransports) GetUserAvatar() transportx.ClientTransport {
 	return t.getUserAvatar
 }
 
-func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
+func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoClientTransports {
 	return &demoGrpcClientTransports{
-		createUser: grpc.NewClient(
+		createUser: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"CreateUser",
@@ -569,7 +606,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 			CreateUserResponse{},
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
-		deleteUser: grpc.NewClient(
+		deleteUser: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"DeleteUser",
@@ -578,7 +615,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
-		updateUser: grpc.NewClient(
+		updateUser: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"UpdateUser",
@@ -587,7 +624,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
-		getUser: grpc.NewClient(
+		getUser: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"GetUser",
@@ -596,7 +633,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 			GetUserResponse{},
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
-		getUsers: grpc.NewClient(
+		getUsers: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"GetUsers",
@@ -605,7 +642,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 			GetUsersResponse{},
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
-		uploadUserAvatar: grpc.NewClient(
+		uploadUserAvatar: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"UploadUserAvatar",
@@ -614,7 +651,7 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 			emptypb.Empty{},
 			grpc.ClientBefore(grpcx.OutgoingMetadata),
 		),
-		getUserAvatar: grpc.NewClient(
+		getUserAvatar: grpcx.NewClient(
 			conn,
 			"leo.example.demo.v1.Demo",
 			"GetUserAvatar",
@@ -626,57 +663,14 @@ func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoTransports {
 	}
 }
 
-type demoGrpcClientEndpoints struct {
-	transports  DemoTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *demoGrpcClientEndpoints) CreateUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) DeleteUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) UpdateUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UpdateUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) GetUser() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUser().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) GetUsers() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUsers().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) UploadUserAvatar() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UploadUserAvatar().Endpoint(), e.middlewares...)
-}
-
-func (e *demoGrpcClientEndpoints) GetUserAvatar() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(), e.middlewares...)
-}
-
-func NewDemoGrpcClientEndpoints(transports DemoTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
-	return &demoGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-}
-
 type demoGrpcClient struct {
-	createUser       endpoint.Endpoint
-	deleteUser       endpoint.Endpoint
-	updateUser       endpoint.Endpoint
-	getUser          endpoint.Endpoint
-	getUsers         endpoint.Endpoint
-	uploadUserAvatar endpoint.Endpoint
-	getUserAvatar    endpoint.Endpoint
+	endpoints DemoEndpoints
 }
 
 func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.createUser(ctx, request)
+	rep, err := c.endpoints.CreateUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -686,7 +680,7 @@ func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequ
 func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.deleteUser(ctx, request)
+	rep, err := c.endpoints.DeleteUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -696,7 +690,7 @@ func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersReq
 func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.updateUser(ctx, request)
+	rep, err := c.endpoints.UpdateUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -706,7 +700,7 @@ func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequ
 func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getUser(ctx, request)
+	rep, err := c.endpoints.GetUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -716,7 +710,7 @@ func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (
 func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getUsers(ctx, request)
+	rep, err := c.endpoints.GetUsers(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -726,7 +720,7 @@ func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest)
 func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.uploadUserAvatar(ctx, request)
+	rep, err := c.endpoints.UploadUserAvatar(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -736,7 +730,7 @@ func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.getUserAvatar(ctx, request)
+	rep, err := c.endpoints.GetUserAvatar(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -744,107 +738,7 @@ func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvat
 }
 
 func NewDemoGrpcClient(endpoints DemoEndpoints) DemoService {
-	return &demoGrpcClient{
-		createUser:       endpoints.CreateUser(),
-		deleteUser:       endpoints.DeleteUser(),
-		updateUser:       endpoints.UpdateUser(),
-		getUser:          endpoints.GetUser(),
-		getUsers:         endpoints.GetUsers(),
-		uploadUserAvatar: endpoints.UploadUserAvatar(),
-		getUserAvatar:    endpoints.GetUserAvatar(),
-	}
-}
-
-type demoGrpcClientFactories struct {
-	opts []grpc1.DialOption
-}
-
-func (f *demoGrpcClientFactories) CreateUser(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.CreateUser(), conn, nil
-	}
-}
-
-func (f *demoGrpcClientFactories) DeleteUser(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.DeleteUser(), conn, nil
-	}
-}
-
-func (f *demoGrpcClientFactories) UpdateUser(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.UpdateUser(), conn, nil
-	}
-}
-
-func (f *demoGrpcClientFactories) GetUser(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.GetUser(), conn, nil
-	}
-}
-
-func (f *demoGrpcClientFactories) GetUsers(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.GetUsers(), conn, nil
-	}
-}
-
-func (f *demoGrpcClientFactories) UploadUserAvatar(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.UploadUserAvatar(), conn, nil
-	}
-}
-
-func (f *demoGrpcClientFactories) GetUserAvatar(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewDemoGrpcClientTransports(conn)
-		endpoints := NewDemoGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.GetUserAvatar(), conn, nil
-	}
-}
-
-func NewDemoGrpcClientFactories(opts ...grpc1.DialOption) DemoFactories {
-	return &demoGrpcClientFactories{opts: opts}
+	return &demoGrpcClient{endpoints: endpoints}
 }
 
 // =========================== http server ===========================
@@ -900,7 +794,7 @@ func (t *demoHttpServerTransports) GetUserAvatar() *http.Server {
 func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTransports {
 	return &demoHttpServerTransports{
 		createUser: http.NewServer(
-			endpoints.CreateUser(),
+			endpoints.CreateUser(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
@@ -923,7 +817,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteUser: http.NewServer(
-			endpoints.DeleteUser(),
+			endpoints.DeleteUser(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &DeleteUsersRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -949,7 +843,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		updateUser: http.NewServer(
-			endpoints.UpdateUser(),
+			endpoints.UpdateUser(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
@@ -978,7 +872,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUser: http.NewServer(
-			endpoints.GetUser(),
+			endpoints.GetUser(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetUserRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -1004,7 +898,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUsers: http.NewServer(
-			endpoints.GetUsers(),
+			endpoints.GetUsers(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetUsersRequest{}
 				queries := r.URL.Query()
@@ -1031,7 +925,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uploadUserAvatar: http.NewServer(
-			endpoints.UploadUserAvatar(),
+			endpoints.UploadUserAvatar(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UploadUserAvatarRequest{}
 				req.Avatar = &httpbody.HttpBody{}
@@ -1064,7 +958,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUserAvatar: http.NewServer(
-			endpoints.GetUserAvatar(),
+			endpoints.GetUserAvatar(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &GetUserAvatarRequest{}
 				vars := urlx.FormFromMap(mux.Vars(r))
@@ -1120,44 +1014,44 @@ func NewDemoHttpServerHandler(endpoints DemoHttpServerTransports) http1.Handler 
 // =========================== http client ===========================
 
 type demoHttpClientTransports struct {
-	createUser       transportx.Transport
-	deleteUser       transportx.Transport
-	updateUser       transportx.Transport
-	getUser          transportx.Transport
-	getUsers         transportx.Transport
-	uploadUserAvatar transportx.Transport
-	getUserAvatar    transportx.Transport
+	createUser       transportx.ClientTransport
+	deleteUser       transportx.ClientTransport
+	updateUser       transportx.ClientTransport
+	getUser          transportx.ClientTransport
+	getUsers         transportx.ClientTransport
+	uploadUserAvatar transportx.ClientTransport
+	getUserAvatar    transportx.ClientTransport
 }
 
-func (t *demoHttpClientTransports) CreateUser() transportx.Transport {
+func (t *demoHttpClientTransports) CreateUser() transportx.ClientTransport {
 	return t.createUser
 }
 
-func (t *demoHttpClientTransports) DeleteUser() transportx.Transport {
+func (t *demoHttpClientTransports) DeleteUser() transportx.ClientTransport {
 	return t.deleteUser
 }
 
-func (t *demoHttpClientTransports) UpdateUser() transportx.Transport {
+func (t *demoHttpClientTransports) UpdateUser() transportx.ClientTransport {
 	return t.updateUser
 }
 
-func (t *demoHttpClientTransports) GetUser() transportx.Transport {
+func (t *demoHttpClientTransports) GetUser() transportx.ClientTransport {
 	return t.getUser
 }
 
-func (t *demoHttpClientTransports) GetUsers() transportx.Transport {
+func (t *demoHttpClientTransports) GetUsers() transportx.ClientTransport {
 	return t.getUsers
 }
 
-func (t *demoHttpClientTransports) UploadUserAvatar() transportx.Transport {
+func (t *demoHttpClientTransports) UploadUserAvatar() transportx.ClientTransport {
 	return t.uploadUserAvatar
 }
 
-func (t *demoHttpClientTransports) GetUserAvatar() transportx.Transport {
+func (t *demoHttpClientTransports) GetUserAvatar() transportx.ClientTransport {
 	return t.getUserAvatar
 }
 
-func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports {
+func NewDemoHttpClientTransports(scheme string, instance string) DemoClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user")
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}")
@@ -1167,7 +1061,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/UploadUserAvatar").Methods("POST").Path("/v1/user/{user_id}")
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}")
 	return &demoHttpClientTransports{
-		createUser: http.NewExplicitClient(
+		createUser: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1215,7 +1109,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 			},
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
-		deleteUser: http.NewExplicitClient(
+		deleteUser: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1257,7 +1151,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 			},
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
-		updateUser: http.NewExplicitClient(
+		updateUser: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1306,7 +1200,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 			},
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
-		getUser: http.NewExplicitClient(
+		getUser: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1348,7 +1242,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 			},
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
-		getUsers: http.NewExplicitClient(
+		getUsers: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1391,7 +1285,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 			},
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
-		uploadUserAvatar: http.NewExplicitClient(
+		uploadUserAvatar: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1436,7 +1330,7 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 			},
 			http.ClientBefore(httpx.OutgoingMetadata),
 		),
-		getUserAvatar: http.NewExplicitClient(
+		getUserAvatar: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -1485,19 +1379,13 @@ func NewDemoHttpClientTransports(scheme string, instance string) DemoTransports 
 }
 
 type demoHttpClient struct {
-	createUser       endpoint.Endpoint
-	deleteUser       endpoint.Endpoint
-	updateUser       endpoint.Endpoint
-	getUser          endpoint.Endpoint
-	getUsers         endpoint.Endpoint
-	uploadUserAvatar endpoint.Endpoint
-	getUserAvatar    endpoint.Endpoint
+	endpoints DemoEndpoints
 }
 
 func (c *demoHttpClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.createUser(ctx, request)
+	rep, err := c.endpoints.CreateUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -1507,7 +1395,7 @@ func (c *demoHttpClient) CreateUser(ctx context.Context, request *CreateUserRequ
 func (c *demoHttpClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.deleteUser(ctx, request)
+	rep, err := c.endpoints.DeleteUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -1517,7 +1405,7 @@ func (c *demoHttpClient) DeleteUser(ctx context.Context, request *DeleteUsersReq
 func (c *demoHttpClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.updateUser(ctx, request)
+	rep, err := c.endpoints.UpdateUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -1527,7 +1415,7 @@ func (c *demoHttpClient) UpdateUser(ctx context.Context, request *UpdateUserRequ
 func (c *demoHttpClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.getUser(ctx, request)
+	rep, err := c.endpoints.GetUser(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -1537,7 +1425,7 @@ func (c *demoHttpClient) GetUser(ctx context.Context, request *GetUserRequest) (
 func (c *demoHttpClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.getUsers(ctx, request)
+	rep, err := c.endpoints.GetUsers(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -1547,7 +1435,7 @@ func (c *demoHttpClient) GetUsers(ctx context.Context, request *GetUsersRequest)
 func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.uploadUserAvatar(ctx, request)
+	rep, err := c.endpoints.UploadUserAvatar(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -1557,21 +1445,13 @@ func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 func (c *demoHttpClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.getUserAvatar(ctx, request)
+	rep, err := c.endpoints.GetUserAvatar(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func NewDemoHttpClient(transports DemoTransports, middlewares ...endpoint.Middleware) DemoService {
-	return &demoHttpClient{
-		createUser:       endpointx.Chain(transports.CreateUser().Endpoint(), middlewares...),
-		deleteUser:       endpointx.Chain(transports.DeleteUser().Endpoint(), middlewares...),
-		updateUser:       endpointx.Chain(transports.UpdateUser().Endpoint(), middlewares...),
-		getUser:          endpointx.Chain(transports.GetUser().Endpoint(), middlewares...),
-		getUsers:         endpointx.Chain(transports.GetUsers().Endpoint(), middlewares...),
-		uploadUserAvatar: endpointx.Chain(transports.UploadUserAvatar().Endpoint(), middlewares...),
-		getUserAvatar:    endpointx.Chain(transports.GetUserAvatar().Endpoint(), middlewares...),
-	}
+func NewDemoHttpClient(endpoints DemoEndpoints) DemoService {
+	return &demoGrpcClient{endpoints: endpoints}
 }

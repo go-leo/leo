@@ -28,12 +28,6 @@ func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
-		if err := server.GenerateImplementedTransports(service, g); err != nil {
-			return err
-		}
-	}
-
-	for _, service := range f.Services {
 		if err := server.GenerateServer(service, g); err != nil {
 			return err
 		}

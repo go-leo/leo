@@ -31,11 +31,11 @@ type GreeterService interface {
 }
 
 type GreeterEndpoints interface {
-	SayHello() endpoint.Endpoint
+	SayHello(ctx context.Context) endpoint.Endpoint
 }
 
-type GreeterTransports interface {
-	SayHello() transportx.Transport
+type GreeterClientTransports interface {
+	SayHello() transportx.ClientTransport
 }
 
 type GreeterFactories interface {
@@ -46,38 +46,55 @@ type GreeterEndpointers interface {
 	SayHello() sd.Endpointer
 }
 
-type greeterEndpoints struct {
+type greeterServerEndpoints struct {
 	svc         GreeterService
 	middlewares []endpoint.Middleware
 }
 
-func (e *greeterEndpoints) SayHello() endpoint.Endpoint {
+func (e *greeterServerEndpoints) SayHello(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.SayHello(ctx, request.(*HelloRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewGreeterEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
-	return &greeterEndpoints{svc: svc, middlewares: middlewares}
+func NewGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
+	return &greeterServerEndpoints{svc: svc, middlewares: middlewares}
+}
+
+type greeterClientEndpoints struct {
+	transports  GreeterClientTransports
+	middlewares []endpoint.Middleware
+}
+
+func (e *greeterClientEndpoints) SayHello(ctx context.Context) endpoint.Endpoint {
+	return endpointx.Chain(e.transports.SayHello().Endpoint(ctx), e.middlewares...)
+}
+
+func NewGreeterClientEndpoints(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
+	return &greeterClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
 // =========================== cqrs ===========================
 
 // =========================== grpc server ===========================
 
+type GreeterGrpcServerTransports interface {
+	SayHello() *grpc.Server
+}
+
 type greeterGrpcServerTransports struct {
 	sayHello *grpc.Server
 }
 
-func (t *greeterGrpcServerTransports) SayHello() transportx.Transport {
-	return grpcx.NewServerTransport(t.sayHello)
+func (t *greeterGrpcServerTransports) SayHello() *grpc.Server {
+	return t.sayHello
 }
 
-func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterTransports {
+func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
 	return &greeterGrpcServerTransports{
 		sayHello: grpc.NewServer(
-			endpoints.SayHello(),
+			endpoints.SayHello(context.TODO()),
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
@@ -88,11 +105,11 @@ func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterTransport
 }
 
 type greeterGrpcServer struct {
-	sayHello endpoint.Endpoint
+	sayHello *grpc.Server
 }
 
 func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	rep, err := s.sayHello(ctx, request)
+	ctx, rep, err := s.sayHello.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -100,25 +117,25 @@ func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest)
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterGrpcServer(transports GreeterTransports) GreeterService {
+func NewGreeterGrpcServer(transports GreeterGrpcServerTransports) GreeterService {
 	return &greeterGrpcServer{
-		sayHello: transports.SayHello().Endpoint(),
+		sayHello: transports.SayHello(),
 	}
 }
 
 // =========================== grpc client ===========================
 
 type greeterGrpcClientTransports struct {
-	sayHello transportx.Transport
+	sayHello transportx.ClientTransport
 }
 
-func (t *greeterGrpcClientTransports) SayHello() transportx.Transport {
+func (t *greeterGrpcClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterTransports {
+func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterClientTransports {
 	return &greeterGrpcClientTransports{
-		sayHello: grpc.NewClient(
+		sayHello: grpcx.NewClient(
 			conn,
 			"helloworld.Greeter",
 			"SayHello",
@@ -130,27 +147,14 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterTransports {
 	}
 }
 
-type greeterGrpcClientEndpoints struct {
-	transports  GreeterTransports
-	middlewares []endpoint.Middleware
-}
-
-func (e *greeterGrpcClientEndpoints) SayHello() endpoint.Endpoint {
-	return endpointx.Chain(e.transports.SayHello().Endpoint(), e.middlewares...)
-}
-
-func NewGreeterGrpcClientEndpoints(transports GreeterTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
-	return &greeterGrpcClientEndpoints{transports: transports, middlewares: middlewares}
-}
-
 type greeterGrpcClient struct {
-	sayHello endpoint.Endpoint
+	endpoints GreeterEndpoints
 }
 
 func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
 	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.sayHello(ctx, request)
+	rep, err := c.endpoints.SayHello(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -158,29 +162,7 @@ func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest)
 }
 
 func NewGreeterGrpcClient(endpoints GreeterEndpoints) GreeterService {
-	return &greeterGrpcClient{
-		sayHello: endpoints.SayHello(),
-	}
-}
-
-type greeterGrpcClientFactories struct {
-	opts []grpc1.DialOption
-}
-
-func (f *greeterGrpcClientFactories) SayHello(middlewares ...endpoint.Middleware) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc1.NewClient(instance, f.opts...)
-		if err != nil {
-			return nil, nil, err
-		}
-		transports := NewGreeterGrpcClientTransports(conn)
-		endpoints := NewGreeterGrpcClientEndpoints(transports, middlewares...)
-		return endpoints.SayHello(), conn, nil
-	}
-}
-
-func NewGreeterGrpcClientFactories(opts ...grpc1.DialOption) GreeterFactories {
-	return &greeterGrpcClientFactories{opts: opts}
+	return &greeterGrpcClient{endpoints: endpoints}
 }
 
 // =========================== http server ===========================
@@ -200,7 +182,7 @@ func (t *greeterHttpServerTransports) SayHello() *http.Server {
 func NewGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServerTransports {
 	return &greeterHttpServerTransports{
 		sayHello: http.NewServer(
-			endpoints.SayHello(),
+			endpoints.SayHello(context.TODO()),
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &HelloRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
@@ -234,18 +216,18 @@ func NewGreeterHttpServerHandler(endpoints GreeterHttpServerTransports) http1.Ha
 // =========================== http client ===========================
 
 type greeterHttpClientTransports struct {
-	sayHello transportx.Transport
+	sayHello transportx.ClientTransport
 }
 
-func (t *greeterHttpClientTransports) SayHello() transportx.Transport {
+func (t *greeterHttpClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterHttpClientTransports(scheme string, instance string) GreeterTransports {
+func NewGreeterHttpClientTransports(scheme string, instance string) GreeterClientTransports {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
 	return &greeterHttpClientTransports{
-		sayHello: http.NewExplicitClient(
+		sayHello: httpx.NewClient(
 			func(ctx context.Context, obj any) (*http1.Request, error) {
 				if obj == nil {
 					return nil, errors.New("request object is nil")
@@ -297,21 +279,19 @@ func NewGreeterHttpClientTransports(scheme string, instance string) GreeterTrans
 }
 
 type greeterHttpClient struct {
-	sayHello endpoint.Endpoint
+	endpoints GreeterEndpoints
 }
 
 func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
 	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.sayHello(ctx, request)
+	rep, err := c.endpoints.SayHello(ctx)(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterHttpClient(transports GreeterTransports, middlewares ...endpoint.Middleware) GreeterService {
-	return &greeterHttpClient{
-		sayHello: endpointx.Chain(transports.SayHello().Endpoint(), middlewares...),
-	}
+func NewGreeterHttpClient(endpoints GreeterEndpoints) GreeterService {
+	return &greeterGrpcClient{endpoints: endpoints}
 }

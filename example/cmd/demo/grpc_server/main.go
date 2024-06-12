@@ -30,7 +30,7 @@ func main() {
 	}
 	demoAssembler := assembler.NewDemoAssembler()
 	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
-	endpoints := demo.NewDemoEndpoints(cqrsService)
+	endpoints := demo.NewDemoServerEndpoints(cqrsService)
 	service := demo.NewDemoGrpcServer(demo.NewDemoGrpcServerTransports(endpoints))
 	demo.RegisterDemoServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())

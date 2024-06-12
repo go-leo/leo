@@ -13,17 +13,17 @@ type ClientGenerator struct{}
 func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpClientTransportsName(), " struct {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " ", internal.TransportxPackage.Ident("Transport"))
+		g.P(endpoint.UnexportedName(), " ", internal.TransportxPackage.Ident("ClientTransport"))
 	}
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("Transport"), "{")
+		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("ClientTransport"), "{")
 		g.P("return t.", endpoint.UnexportedName())
 		g.P("}")
 		g.P()
 	}
-	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string) ", service.TransportsName(), " {")
+	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string) ", service.ClientTransportsName(), " {")
 
 	if len(service.Endpoints) > 0 {
 		g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
@@ -37,7 +37,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 
 	g.P("return &", service.UnexportedHttpClientTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ": ", internal.HttpTransportPackage.Ident("NewExplicitClient"), "(")
+		g.P(endpoint.UnexportedName(), ": ", internal.HttpxTransportxPackage.Ident("NewClient"), "(")
 		if err := f.PrintEncodeRequestFunc(g, endpoint); err != nil {
 			return err
 		}
@@ -45,9 +45,9 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 			return err
 		}
 
-		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpClient"), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxPackage.Ident("OutgoingMetadata"), "),")
+		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpClient"), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadata"), "),")
 
 		g.P("),")
 	}
@@ -59,16 +59,14 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 
 func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpClientName(), " struct {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " ", internal.EndpointPackage.Ident("Endpoint"))
-	}
+	g.P("endpoints ", service.EndpointsName())
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (c *", service.UnexportedHttpClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.HttpxPackage.Ident("HttpClient"), ")")
-		g.P("rep, err := c.", endpoint.UnexportedName(), "(ctx, request)")
+		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
+		g.P("rep, err := c.endpoints.", endpoint.Name(), "(ctx)(ctx, request)")
 		g.P("if err != nil {")
 		g.P("return nil, err")
 		g.P("}")
@@ -76,12 +74,8 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 		g.P("}")
 		g.P()
 	}
-	g.P("func New", service.HttpClientName(), "(transports ", service.TransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
-	g.P("return &", service.UnexportedHttpClientName(), "{")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ":", internal.EndpointxPackage.Ident("Chain"), "(", "transports.", endpoint.Name(), "().Endpoint(), middlewares...),")
-	}
-	g.P("}")
+	g.P("func New", service.HttpClientName(), "(endpoints ", service.EndpointsName(), ") ", service.ServiceName(), " {")
+	g.P("return &", service.UnexportedGrpcClientName(), "{endpoints:endpoints}")
 	g.P("}")
 	g.P()
 	return nil
@@ -453,8 +447,8 @@ func (f *ClientGenerator) UnwrapFloatListFormat(srcValue []any, bitSize string) 
 
 func (f *ClientGenerator) PrintDecodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule) error {
 	g.P("func(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (any, error) {")
-	g.P("if ", internal.HttpxPackage.Ident("IsErrorResponse"), "(r) {")
-	g.P("return nil, ", internal.HttpxPackage.Ident("ErrorDecoder"), "(ctx, r)")
+	g.P("if ", internal.HttpxTransportxPackage.Ident("IsErrorResponse"), "(r) {")
+	g.P("return nil, ", internal.HttpxTransportxPackage.Ident("ErrorDecoder"), "(ctx, r)")
 	g.P("}")
 	g.P("resp := &", endpoint.Output().GoIdent, "{}")
 	bodyParameter := httpRule.ResponseBody()

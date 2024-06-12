@@ -29,7 +29,7 @@ func main() {
 	}
 	demoAssembler := assembler.NewDemoAssembler()
 	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
-	endpoints := demo.NewDemoEndpoints(cqrsService)
+	endpoints := demo.NewDemoServerEndpoints(cqrsService)
 	transports := demo.NewDemoHttpServerTransports(endpoints)
 	handler := demo.NewDemoHttpServerHandler(transports)
 	server := http.Server{Handler: handler}

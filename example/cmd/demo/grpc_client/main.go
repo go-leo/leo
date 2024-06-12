@@ -21,7 +21,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := demo.NewDemoGrpcClient(demo.NewDemoGrpcClientTransports(conn))
+	transports := demo.NewDemoGrpcClientTransports(conn)
+	endpoints := demo.NewDemoClientEndpoints(transports)
+	client := demo.NewDemoGrpcClient(endpoints)
 
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		User: &demo.User{

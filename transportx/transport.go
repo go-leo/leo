@@ -1,9 +1,12 @@
 package transportx
 
-import "github.com/go-kit/kit/endpoint"
+import (
+	"context"
+	"github.com/go-kit/kit/endpoint"
+)
 
-// Transport is a transport that can be used to invoke a remote endpoint.
-type Transport interface {
+// ClientTransport is a transport that can be used to invoke a remote endpoint.
+type ClientTransport interface {
 	// Endpoint returns a usable endpoint that invokes the remote endpoint.
-	Endpoint() endpoint.Endpoint
+	Endpoint(ctx context.Context) endpoint.Endpoint
 }

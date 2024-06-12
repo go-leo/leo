@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterEndpoints(
+	endpoints := helloworld.NewGreeterServerEndpoints(
 		NewGreeterService(),
 		jwtx.NewParser(
 			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },

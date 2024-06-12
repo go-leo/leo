@@ -17,16 +17,13 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 	}
 	g.P("}")
 	g.P()
-	return nil
-}
-
-func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpServerTransportsName(), " struct {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), " *", internal.HttpTransportPackage.Ident("Server"))
 	}
 	g.P("}")
 	g.P()
+
 	for _, endpoint := range service.Endpoints {
 		g.P("func (t *", service.UnexportedHttpServerTransportsName(), ") ", endpoint.Name(), "() *", internal.HttpTransportPackage.Ident("Server"), "{")
 		g.P("return t.", endpoint.UnexportedName())
@@ -38,7 +35,7 @@ func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Servic
 	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": ", internal.HttpTransportPackage.Ident("NewServer"), "(")
-		g.P("endpoints.", endpoint.Name(), "(), ")
+		g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
 		if err := f.PrintDecodeRequestFunc(g, endpoint); err != nil {
 			return err
 		}
@@ -47,10 +44,10 @@ func (f *ServerGenerator) GenerateImplementedTransports(service *internal.Servic
 		}
 		g.P("},")
 
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxPackage.Ident("TransportInjector"), "(", internal.HttpxPackage.Ident("HttpServer"), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxPackage.Ident("IncomingMetadata"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxPackage.Ident("ErrorEncoder"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadata"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
 
 		g.P("),")
 	}

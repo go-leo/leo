@@ -45,12 +45,39 @@ func (s Service) UnexportedEndpointsName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) ServerEndpointsName() string {
+	return s.Name() + "ServerEndpoints"
+}
+
+func (s Service) UnexportedServerEndpointsName() string {
+	name := s.ServerEndpointsName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) ClientEndpointsName() string {
+	return s.Name() + "ClientEndpoints"
+}
+
+func (s Service) UnexportedClientEndpointsName() string {
+	name := s.ClientEndpointsName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func (s Service) TransportsName() string {
 	return s.Name() + "Transports"
 }
 
 func (s Service) UnexportedTransportsName() string {
 	name := s.TransportsName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) ClientTransportsName() string {
+	return s.Name() + "ClientTransports"
+}
+
+func (s Service) UnexportedClientTransportsName() string {
+	name := s.ClientTransportsName()
 	return strings.ToLower(name[:1]) + name[1:]
 }
 

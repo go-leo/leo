@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	endpoints := helloworld.NewGreeterEndpoints(
+	endpoints := helloworld.NewGreeterServerEndpoints(
 		NewGreeterService(),
 		basicx.Middleware("soyacen", "123456", "basic auth example"),
 	)
