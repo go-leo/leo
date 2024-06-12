@@ -147,6 +147,21 @@ func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterClientTranspo
 	}
 }
 
+func NewGreeterGrpcClientTransports1(target string, opts ...grpc1.DialOption) GreeterClientTransports {
+	return &greeterGrpcClientTransports{
+		sayHello: grpcx.NewClient(
+			target,
+			opts,
+			"helloworld.Greeter",
+			"SayHello",
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			func(_ context.Context, v any) (any, error) { return v, nil },
+			HelloReply{},
+			grpc.ClientBefore(grpcx.OutgoingMetadata),
+		),
+	}
+}
+
 type greeterGrpcClient struct {
 	endpoints GreeterEndpoints
 }

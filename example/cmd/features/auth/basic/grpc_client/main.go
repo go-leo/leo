@@ -16,6 +16,7 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
+	grpc1.NewClient()
 	transports := helloworld.NewGreeterGrpcClientTransports(conn)
 
 	// ok
