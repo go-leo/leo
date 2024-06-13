@@ -32,7 +32,7 @@ package helloworld
 //}
 //
 //type GreeterEndpoints interface {
-//	SayHello(ctx context.Context) endpoint.Endpoint
+//	SayHello(ctx context.Context) endpoint.Instance
 //}
 //
 //type GreeterRemoteTransports interface {
@@ -52,7 +52,7 @@ package helloworld
 //	middlewares []endpoint.Middleware
 //}
 //
-//func (e *greeterEndpoints) SayHello(context.Context) endpoint.Endpoint {
+//func (e *greeterEndpoints) SayHello(context.Context) endpoint.Instance {
 //	component := func(ctx context.Context, request any) (any, error) {
 //		return e.svc.SayHello(ctx, request.(*HelloRequest))
 //	}
@@ -89,7 +89,7 @@ package helloworld
 //}
 //
 //type greeterGrpcServer struct {
-//	sayHello endpoint.Endpoint
+//	sayHello endpoint.Instance
 //}
 //
 //func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
@@ -103,7 +103,7 @@ package helloworld
 //
 //func NewGreeterGrpcServer(transports GreeterTransports) GreeterService {
 //	return &greeterGrpcServer{
-//		sayHello: transports.SayHello().Endpoint(),
+//		sayHello: transports.SayHello().Instance(),
 //	}
 //}
 //
@@ -136,15 +136,15 @@ package helloworld
 //	middlewares []endpoint.Middleware
 //}
 //
-//func (e *greeterGrpcClientEndpoints) SayHello(ctx context.Context) endpoint.Endpoint {
-//	middlewares := append([]endpoint.Middleware{func(next endpoint.Endpoint) endpoint.Endpoint {
+//func (e *greeterGrpcClientEndpoints) SayHello(ctx context.Context) endpoint.Instance {
+//	middlewares := append([]endpoint.Middleware{func(next endpoint.Instance) endpoint.Instance {
 //		return func(ctx context.Context, request any) (any, error) {
 //			ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
 //			ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
 //			return next(ctx, request)
 //		}
 //	}}, e.middlewares...)
-//	return endpointx.Chain(e.transports.SayHello().Endpoint(ctx), middlewares...)
+//	return endpointx.Chain(e.transports.SayHello().Instance(ctx), middlewares...)
 //}
 //
 //func NewGreeterGrpcClientEndpoints(transports GreeterTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
@@ -174,7 +174,7 @@ package helloworld
 //}
 //
 //func (f *greeterGrpcClientFactories) SayHello(middlewares ...endpoint.Middleware) sd.Factory {
-//	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+//	return func(instance string) (endpoint.Instance, io.Closer, error) {
 //		conn, err := grpc1.NewClient(instance, f.opts...)
 //		if err != nil {
 //			return nil, nil, err
@@ -303,7 +303,7 @@ package helloworld
 //}
 //
 //type greeterHttpClient struct {
-//	sayHello endpoint.Endpoint
+//	sayHello endpoint.Instance
 //}
 //
 //func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
@@ -318,6 +318,6 @@ package helloworld
 //
 //func NewGreeterHttpClient(transports GreeterTransports, middlewares ...endpoint.Middleware) GreeterService {
 //	return &greeterHttpClient{
-//		sayHello: endpointx.Chain(transports.SayHello().Endpoint(), middlewares...),
+//		sayHello: endpointx.Chain(transports.SayHello().Instance(), middlewares...),
 //	}
 //}

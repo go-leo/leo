@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/consul"
-	"github.com/go-kit/log"
+	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
 	"github.com/go-playground/form/v4"
 	"github.com/hashicorp/consul/api"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,29 +19,30 @@ import (
 // All target URLs like 'consul://.../...' will be resolved by this builder
 const schemeName = "consul"
 
-type InstancerBuilder struct {
-	log log.Logger
-}
+type InstancerBuilder struct{}
 
-func (b *InstancerBuilder) Build(ctx context.Context, target *url.URL, colors []string) (sd.Instancer, error) {
-	dsn := strings.Join([]string{schemeName + ":/", target.Host, target.Path + "?" + target.RawQuery}, "/")
+func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color *sdx.Color) (sd.Instancer, error) {
+	dsn := strings.Join([]string{schemeName + ":/", target.URL.Host, target.URL.Path + "?" + target.URL.RawQuery}, "/")
 	service, config, err := parseURL(dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Wrong consul URL")
+		return nil, err
 	}
 	cli, err := api.NewClient(config)
 	if err != nil {
-		return nil, errors.Wrap(err, "Couldn't connect to the Consul API")
+		return nil, err
 	}
-	return consul.NewInstancer(consul.NewClient(cli), b.log, service, colors, true), nil
+	if color == nil {
+		return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, nil, true), nil
+	}
+	return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, color.Color(), true), nil
 }
 
 func (b *InstancerBuilder) Scheme() string {
 	return schemeName
 }
 
-func NewInstancerBuilder(log log.Logger) sdx.InstancerBuilder {
-	return &InstancerBuilder{log: log}
+func NewInstancerBuilder() sdx.InstancerBuilder {
+	return &InstancerBuilder{}
 }
 
 //	parseURL with parameters
@@ -60,16 +60,12 @@ func parseURL(u string) (string, *api.Config, error) {
 		return "", nil, fmt.Errorf("malformed url('%s'). must be in the next format: 'consul://[username:password]@host/service?param=value'", u)
 	}
 
-	username := rawURL.User.Username()
-	password, _ := rawURL.User.Password()
-	addr := rawURL.Host
 	service := strings.TrimLeft(rawURL.Path, "/")
 
-	q := queries{}
+	q := args{}
 	decoder := form.NewDecoder()
 	decoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) { return time.ParseDuration(vals[0]) }, time.Duration(0))
-	err = decoder.Decode(&q, rawURL.Query())
-	if err != nil {
+	if err := decoder.Decode(&q, rawURL.Query()); err != nil {
 		return "", nil, fmt.Errorf("malformed url parameters, %w", err)
 	}
 	if len(q.Near) == 0 {
@@ -78,13 +74,19 @@ func parseURL(u string) (string, *api.Config, error) {
 	if q.MaxBackoff == 0 {
 		q.MaxBackoff = time.Second
 	}
+
 	var auth *api.HttpBasicAuth
+	username := rawURL.User.Username()
+	password, _ := rawURL.User.Password()
 	if len(username) > 0 && len(password) > 0 {
 		auth = &api.HttpBasicAuth{
 			Username: username,
 			Password: password,
 		}
 	}
+
+	addr := rawURL.Host
+
 	config := &api.Config{
 		Address:    addr,
 		HttpAuth:   auth,
@@ -98,7 +100,7 @@ func parseURL(u string) (string, *api.Config, error) {
 	return service, config, nil
 }
 
-type queries struct {
+type args struct {
 	Wait              time.Duration `form:"wait"`
 	Timeout           time.Duration `form:"timeout"`
 	MaxBackoff        time.Duration `form:"max-backoff"`

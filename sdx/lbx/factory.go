@@ -7,7 +7,7 @@ import (
 )
 
 type BalancerFactory interface {
-	New(ctx context.Context, Endpointer sd.Endpointer) lb.Balancer
+	New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer
 }
 
 type RandomFactory struct {

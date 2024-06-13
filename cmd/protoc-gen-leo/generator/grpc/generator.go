@@ -200,7 +200,7 @@ func (f *Generator) GenerateClientFactory(service *internal.Service, g *protogen
 
 	for _, endpoint := range service.Endpoints {
 		g.P("func (f *", service.UnexportedGrpcFactoriesName(), ") ", endpoint.Name(), "(middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.SdPackage.Ident("Factory"), "{")
-		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Instance"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
 		g.P("conn, err := ", internal.GrpcPackage.Ident("NewClient"), "(instance, f.opts...)")
 		g.P("if err != nil {")
 		g.P("return nil, nil, err")

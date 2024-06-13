@@ -37,7 +37,7 @@ package helloworld
 //}
 //
 //type GreeterEndpoints interface {
-//	SayHello() endpoint.Endpoint
+//	SayHello() endpoint.Instance
 //}
 //
 //type GreeterFactories interface {
@@ -57,7 +57,7 @@ package helloworld
 //	middlewares []endpoint.Middleware
 //}
 //
-//func (e *greeterEndpoints) SayHello() endpoint.Endpoint {
+//func (e *greeterEndpoints) SayHello() endpoint.Instance {
 //	component := func(ctx context.Context, request any) (any, error) {
 //		return e.svc.SayHello(ctx, request.(*HelloRequest))
 //	}
@@ -181,8 +181,8 @@ package helloworld
 //	middlewares []endpoint.Middleware
 //}
 //
-//func (e *greeterGrpcClientEndpoints) SayHello() endpoint.Endpoint {
-//	return endpointx.Chain(e.transports.SayHello().Endpoint(), e.middlewares...)
+//func (e *greeterGrpcClientEndpoints) SayHello() endpoint.Instance {
+//	return endpointx.Chain(e.transports.SayHello().Instance(), e.middlewares...)
 //}
 //
 //func NewGreeterGrpcClientEndpoints(transports GreeterGrpcClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
@@ -190,7 +190,7 @@ package helloworld
 //}
 //
 //type greeterGrpcClient struct {
-//	sayHello endpoint.Endpoint
+//	sayHello endpoint.Instance
 //}
 //
 //func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
@@ -214,7 +214,7 @@ package helloworld
 //}
 //
 //func (f *greeterGrpcClientFactories) SayHello(middlewares ...endpoint.Middleware) sd.Factory {
-//	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+//	return func(instance string) (endpoint.Instance, io.Closer, error) {
 //		conn, err := grpc1.NewClient(instance, f.opts...)
 //		if err != nil {
 //			return nil, nil, err
@@ -347,7 +347,7 @@ package helloworld
 //}
 //
 //type greeterHttpClient struct {
-//	sayHello endpoint.Endpoint
+//	sayHello endpoint.Instance
 //}
 //
 //func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
@@ -362,6 +362,6 @@ package helloworld
 //
 //func NewGreeterHttpClient(transports GreeterHttpClientTransports, middlewares ...endpoint.Middleware) GreeterService {
 //	return &greeterHttpClient{
-//		sayHello: endpointx.Chain(transports.SayHello().Endpoint(), middlewares...),
+//		sayHello: endpointx.Chain(transports.SayHello().Instance(), middlewares...),
 //	}
 //}
