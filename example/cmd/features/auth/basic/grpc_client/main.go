@@ -7,17 +7,17 @@ import (
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 )
 
 func main() {
-	conn, err := grpc1.Dial(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
+	//_, err := grpc1.NewClient(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
+	//if err != nil {
+	//	panic(err)
+	//}
+	transports, err := helloworld.NewGreeterGrpcClientTransports(":9090", []grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())})
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		panic(err)
 	}
-	defer conn.Close()
-	grpc1.NewClient()
-	transports := helloworld.NewGreeterGrpcClientTransports(conn)
 
 	// ok
 	endpoints := helloworld.NewGreeterClientEndpoints(

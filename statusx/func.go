@@ -46,11 +46,11 @@ func FromGrpcError(err error) *Error {
 
 // FromProto returns an error representing the given Status proto.
 func FromProto(s *rpcstatus.Status) *Error {
-	anyStatus := errorx.Ignore(anypb.New(&httpstatus.Status{}))
-	var index int
+	httpAny := errorx.Ignore(anypb.New(&httpstatus.Status{}))
+	index := -1
 	var httpProto *httpstatus.Status
 	for i, detailAny := range s.Details {
-		if detailAny.GetTypeUrl() != anyStatus.GetTypeUrl() {
+		if detailAny.GetTypeUrl() != httpAny.GetTypeUrl() {
 			continue
 		}
 		detail, err := detailAny.UnmarshalNew()
@@ -66,7 +66,9 @@ func FromProto(s *rpcstatus.Status) *Error {
 		break
 	}
 	grpcProto := protox.Clone(s)
-	grpcProto.Details = slicex.Delete(grpcProto.Details, index)
+	if index != -1 {
+		grpcProto.Details = slicex.Delete(grpcProto.Details, index)
+	}
 	return &Error{e: &interstatusx.Error{GrpcStatus: grpcProto, HttpStatus: httpProto}}
 }
 

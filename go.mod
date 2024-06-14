@@ -1,11 +1,13 @@
 module github.com/go-leo/leo/v3
 
-go 1.20
+go 1.21
 
 require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/go-kit/kit v0.13.0
+	github.com/go-kit/log v0.2.1
 	github.com/go-leo/gox v0.0.0-20240614074305-c222696defab
+	github.com/go-playground/form/v4 v4.2.1
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/consul/api v1.14.0
@@ -25,7 +27,6 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
-	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect

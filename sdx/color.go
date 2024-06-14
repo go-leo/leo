@@ -27,7 +27,10 @@ func (colors Colors) Find(service string) (*Color, bool) {
 	return slicex.FindFunc(colors, func(color *Color) bool { return color.service == service })
 }
 
-func (color Color) Color() []string {
+func (color *Color) Color() []string {
+	if color == nil {
+		return nil
+	}
 	cloned := slices.Clone(color.values)
 	slices.Sort(cloned)
 	return cloned

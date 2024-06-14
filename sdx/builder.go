@@ -56,6 +56,5 @@ func ParseTarget(target string) (*Target, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &Target{URL: *u}, nil
 }

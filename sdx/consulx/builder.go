@@ -33,7 +33,10 @@ func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color 
 		return nil, fmt.Errorf("malformed url('%s'). must be in the next format: 'consul://[username:password]@host/service?param=value'", dsn)
 	}
 	service := strings.TrimLeft(rawURL.Path, "/")
-	config, err := DefaultConfigParser(rawURL)
+	if b.ConfigParser == nil {
+		b.ConfigParser = DefaultConfigParser
+	}
+	config, err := b.ConfigParser(rawURL)
 	if err != nil {
 		return nil, err
 	}

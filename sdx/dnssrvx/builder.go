@@ -1,4 +1,4 @@
-package consulx
+package dnssrvx
 
 import (
 	"context"

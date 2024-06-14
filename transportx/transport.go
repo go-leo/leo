@@ -10,6 +10,8 @@ import (
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/consulx"
+	"github.com/go-leo/leo/v3/sdx/dnssrvx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
 	"github.com/go-leo/leo/v3/statusx"
@@ -29,6 +31,7 @@ type ClientTransport interface {
 type clientTransport struct {
 	target  *sdx.Target
 	factory sd.Factory
+	builder sdx.InstancerBuilder
 
 	builders         []sdx.InstancerBuilder
 	balancerFactory  lbx.BalancerFactory
@@ -36,6 +39,7 @@ type clientTransport struct {
 	retryTimeout     time.Duration
 	retryBackoffFunc backoff.BackoffFunc
 	options          []sd.EndpointerOption
+	defaultScheme    string
 
 	clients sync.Map
 	sfg     singleflight.Group
@@ -73,26 +77,57 @@ func EndpointerOption(options ...sd.EndpointerOption) ClientTransportOption {
 	}
 }
 
-func NewClientTransport(target string, factory sd.Factory, opts ...ClientTransportOption) (ClientTransport, error) {
-	parsedTarget, err := sdx.ParseTarget(target)
-	if err != nil {
-		return nil, err
+// DefaultScheme is a option that sets the endpointer options.
+func DefaultScheme(scheme string) ClientTransportOption {
+	return func(c *clientTransport) {
+		c.defaultScheme = scheme
 	}
+}
+
+func NewClientTransport(target string, factory sd.Factory, opts ...ClientTransportOption) (ClientTransport, error) {
 	c := &clientTransport{
-		target:           parsedTarget,
-		factory:          factory,
-		builders:         nil,
+		target:  nil,
+		factory: factory,
+		builder: nil,
+		builders: []sdx.InstancerBuilder{
+			&passthroughx.InstancerBuilder{},
+			&dnssrvx.InstancerBuilder{TTL: 30 * time.Second},
+			&consulx.InstancerBuilder{},
+		},
 		balancerFactory:  lbx.RoundRobinFactory{},
 		retryMax:         1,
 		retryTimeout:     1 * time.Second,
 		retryBackoffFunc: backoff.Zero(),
 		options:          nil,
+		defaultScheme:    "passthrough",
 		clients:          sync.Map{},
 		sfg:              singleflight.Group{},
 	}
 	for _, opt := range opts {
 		opt(c)
 	}
+	parsedTarget, err := sdx.ParseTarget(target)
+	if err == nil {
+		c.target = parsedTarget
+		builder := c.getInstancerBuilder(c.target.URL.Scheme)
+		if builder == nil {
+			return nil, statusx.ErrUnimplemented.WithMessage(fmt.Sprintf("could not get instancer builder for scheme: %q", c.target.URL.Scheme))
+		}
+		c.builder = builder
+		return c, nil
+	}
+
+	canonicalTarget := c.defaultScheme + ":///" + target
+	parsedTarget, err = sdx.ParseTarget(canonicalTarget)
+	if err != nil {
+		return nil, statusx.ErrUnimplemented.WithMessage(fmt.Sprintf("could not parse canonical target: %q", canonicalTarget))
+	}
+	c.target = parsedTarget
+	builder := c.getInstancerBuilder(c.target.URL.Scheme)
+	if builder == nil {
+		return nil, statusx.ErrUnimplemented.WithMessage(fmt.Sprintf("could not get instancer builder for default scheme: %q", parsedTarget.URL.Scheme))
+	}
+	c.builder = builder
 	return c, nil
 }
 
@@ -115,11 +150,7 @@ func (c *clientTransport) endpoint(ctx context.Context, color *sdx.Color) endpoi
 		return value.(endpoint.Endpoint)
 	}
 	resC := c.sfg.DoChan(key, func() (interface{}, error) {
-		builder := c.getInstancerBuilder(c.target.URL.Scheme)
-		if builder == nil {
-			return nil, statusx.ErrUnimplemented.WithMessage(fmt.Sprintf("could not get instancer builder for scheme: %q", c.target.URL.Scheme))
-		}
-		instancer, err := builder.Build(ctx, c.target, color)
+		instancer, err := c.builder.Build(ctx, c.target, color)
 		if err != nil {
 			return nil, statusx.ErrFailedPrecondition.WithMessage(err.Error())
 		}
@@ -140,13 +171,18 @@ func (c *clientTransport) endpoint(ctx context.Context, color *sdx.Color) endpoi
 	return result.Val.(endpoint.Endpoint)
 }
 
+// getInstancerBuilder gets the instancer builder for the given scheme.
+// If the scheme is an empty string (""), the function returns an instance of passthroughx.InstancerBuilder.
+// Otherwise, it iterates through a slice c.builders in reverse order (from the last element to the first).
+// This slice presumably contains instances of structs that implement sdx.InstancerBuilder interface,
+// each with a method Scheme() that returns a string representing the scheme it supports.
 func (c *clientTransport) getInstancerBuilder(scheme string) sdx.InstancerBuilder {
 	if scheme == "" {
 		return &passthroughx.InstancerBuilder{}
 	}
-	for _, builder := range c.builders {
-		if scheme == builder.Scheme() {
-			return builder
+	for i := len(c.builders) - 1; i >= 0; i-- {
+		if scheme == c.builders[i].Scheme() {
+			return c.builders[i]
 		}
 	}
 	return nil

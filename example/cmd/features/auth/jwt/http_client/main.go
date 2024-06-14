@@ -9,7 +9,10 @@ import (
 )
 
 func main() {
-	transports := helloworld.NewGreeterHttpClientTransports("http", "127.0.0.1:8080")
+	transports, err := helloworld.NewGreeterHttpClientTransports("127.0.0.1:8080", "http")
+	if err != nil {
+		panic(err)
+	}
 
 	// ok
 	endpoints := helloworld.NewGreeterClientEndpoints(
