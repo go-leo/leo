@@ -17,7 +17,3 @@ func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color 
 func (b *InstancerBuilder) Scheme() string {
 	return schemeName
 }
-
-func NewInstancerBuilder() sdx.InstancerBuilder {
-	return &InstancerBuilder{}
-}

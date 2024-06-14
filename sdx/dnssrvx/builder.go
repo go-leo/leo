@@ -14,17 +14,13 @@ import (
 const schemeName = "dns"
 
 type InstancerBuilder struct {
-	ttl time.Duration
+	TTL time.Duration
 }
 
 func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color *sdx.Color) (sd.Instancer, error) {
-	return dnssrv.NewInstancer(target.Instance(), b.ttl, logx.FromContext(ctx)), nil
+	return dnssrv.NewInstancer(target.Instance(), b.TTL, logx.FromContext(ctx)), nil
 }
 
 func (b *InstancerBuilder) Scheme() string {
 	return schemeName
-}
-
-func NewInstancerBuilder(ttl time.Duration) sdx.InstancerBuilder {
-	return &InstancerBuilder{ttl: ttl}
 }

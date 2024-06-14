@@ -43,7 +43,7 @@ var ErrCanceled = NewError(codes.Canceled, "")
 var ErrUnknown = NewError(codes.Unknown, "")
 
 // ErrInvalidArgument The client specified an invalid argument.  Note that this differs
-// from `FAILED_PRECONDITION`.  `INVALID_ARGUMENT` indicates arguments
+// from ErrFailedPrecondition.  ErrInvalidArgument indicates arguments
 // that are problematic regardless of the state of the system
 // (e.g., a malformed file name).
 //
@@ -70,8 +70,8 @@ var ErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "")
 //
 // Note to server developers: if a request is denied for an entire class
 // of users, such as gradual feature rollout or undocumented allowlist,
-// `NOT_FOUND` may be used. If a request is denied for some users within
-// a class of users, such as user-based access control, `PERMISSION_DENIED`
+// ErrNotFound may be used. If a request is denied for some users within
+// a class of users, such as user-based access control, ErrPermissionDenied
 // must be used.
 //
 // GRPC Mapping: NotFound
@@ -81,18 +81,20 @@ var ErrNotFound = NewError(codes.NotFound, "")
 // ErrAlreadyExists The entity that a client attempted to create (e.g., file or directory)
 // already exists.
 //
+// GRPC Mapping: AlreadyExists
 // HTTP Mapping: 409 Conflict
 var ErrAlreadyExists = NewError(codes.AlreadyExists, "")
 
 // ErrPermissionDenied The caller does not have permission to execute the specified
-// operation. `PERMISSION_DENIED` must not be used for rejections
-// caused by exhausting some resource (use `RESOURCE_EXHAUSTED`
-// instead for those errors). `PERMISSION_DENIED` must not be
-// used if the caller can not be identified (use `UNAUTHENTICATED`
+// operation. ErrPermissionDenied must not be used for rejections
+// caused by exhausting some resource (use ErrResourceExhausted
+// instead for those errors). ErrPermissionDenied must not be
+// used if the caller can not be identified (use ErrUnauthenticated
 // instead for those errors). This error code does not imply the
 // request is valid or the requested entity exists or satisfies
 // other pre-conditions.
 //
+// GRPC Mapping: PermissionDenied
 // HTTP Mapping: 403 Forbidden
 var ErrPermissionDenied = NewError(codes.PermissionDenied, "")
 
@@ -105,6 +107,7 @@ var ErrPermissionDenied = NewError(codes.PermissionDenied, "")
 //
 // Example 3, Sent or received message was larger than configured limit.
 //
+// GRPC Mapping: ResourceExhausted
 // HTTP Mapping: 429 Too Many Requests
 var ErrResourceExhausted = NewError(codes.ResourceExhausted, "")
 
@@ -114,18 +117,19 @@ var ErrResourceExhausted = NewError(codes.ResourceExhausted, "")
 // a non-directory, etc.
 //
 // Service implementors can use the following guidelines to decide
-// between `FAILED_PRECONDITION`, `ABORTED`, and `UNAVAILABLE`:
+// between ErrFailedPrecondition, ErrAborted, and ErrUnavailable:
 //
-//	(a) Use `UNAVAILABLE` if the client can retry just the failing call.
-//	(b) Use `ABORTED` if the client should retry at a higher level. For
+//	(a) Use ErrUnavailable if the client can retry just the failing call.
+//	(b) Use ErrAborted if the client should retry at a higher level. For
 //	    example, when a client-specified test-and-set fails, indicating the
 //	    client should restart a read-modify-write sequence.
-//	(c) Use `FAILED_PRECONDITION` if the client should not retry until
+//	(c) Use ErrFailedPrecondition if the client should not retry until
 //	    the system state has been explicitly fixed. For example, if an "rmdir"
-//	    fails because the directory is non-empty, `FAILED_PRECONDITION`
+//	    fails because the directory is non-empty, ErrFailedPrecondition
 //	    should be returned since the client should not retry unless
 //	    the files are deleted from the directory.
 //
+// GRPC Mapping: FailedPrecondition
 // HTTP Mapping: 400 Bad Request
 var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
 
@@ -135,25 +139,27 @@ var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
 // See the guidelines above for deciding between ErrFailedPrecondition,
 // ErrAborted, and ErrUnavailable.
 //
+// GRPC Mapping: Aborted
 // HTTP Mapping: 409 Conflict
 var ErrAborted = NewError(codes.Aborted, "")
 
 // ErrOutOfRange The operation was attempted past the valid range.  E.g., seeking or
 // reading past end-of-file.
 //
-// Unlike `INVALID_ARGUMENT`, this error indicates a problem that may
+// Unlike ErrInvalidArgument, this error indicates a problem that may
 // be fixed if the system state changes. For example, a 32-bit file
-// system will generate `INVALID_ARGUMENT` if asked to read at an
+// system will generate ErrInvalidArgument if asked to read at an
 // offset that is not in the range [0,2^32-1], but it will generate
-// `OUT_OF_RANGE` if asked to read from an offset past the current
+// ErrOutOfRange if asked to read from an offset past the current
 // file size.
 //
-// There is a fair bit of overlap between `FAILED_PRECONDITION` and
-// `OUT_OF_RANGE`.  We recommend using `OUT_OF_RANGE` (the more specific
+// There is a fair bit of overlap between ErrFailedPrecondition and
+// ErrOutOfRange.  We recommend using ErrOutOfRange (the more specific
 // error) when it applies so that callers who are iterating through
-// a space can easily look for an `OUT_OF_RANGE` error to detect when
+// a space can easily look for an ErrOutOfRange error to detect when
 // they are done.
 //
+// GRPC Mapping: OutOfRange
 // HTTP Mapping: 400 Bad Request
 var ErrOutOfRange = NewError(codes.OutOfRange, "")
 
@@ -167,6 +173,7 @@ var ErrOutOfRange = NewError(codes.OutOfRange, "")
 // # Example 3, request cardinality violation (method requires exactly one request
 // but client sent some other number of requests or server sent some other number of responses)
 //
+// GRPC Mapping: Unimplemented
 // HTTP Mapping: 501 Not Implemented
 var ErrUnimplemented = NewError(codes.Unimplemented, "")
 
@@ -180,6 +187,7 @@ var ErrUnimplemented = NewError(codes.Unimplemented, "")
 //
 // # Example 3, error parsing request or response proto.
 //
+// GRPC Mapping: Internal
 // HTTP Mapping: 500 ErrInternal Server Error
 var ErrInternal = NewError(codes.Internal, "")
 
@@ -197,12 +205,13 @@ var ErrInternal = NewError(codes.Internal, "")
 // See the guidelines above for deciding between ErrFailedPrecondition,
 // ErrAborted, and ErrUnavailable.
 //
+// GRPC Mapping: Unavailable
 // HTTP Mapping: 503 Service ErrUnavailable
-// Aborted, and ErrUnavailable.
 var ErrUnavailable = NewError(codes.Unavailable, "")
 
 // ErrDataLoss Unrecoverable data loss or corruption.
 //
+// GRPC Mapping: DataLoss
 // HTTP Mapping: 500 ErrInternal Server Error
 var ErrDataLoss = NewError(codes.DataLoss, "")
 
@@ -212,5 +221,6 @@ var ErrDataLoss = NewError(codes.DataLoss, "")
 // For example, incorrect Auth metadata ( Credentials failed to get metadata, Incompatible credentials set on channel
 // and call, Invalid host set in :authority metadata, etc.)
 //
+// GRPC Mapping: Unauthenticated
 // HTTP Mapping: 401 Unauthorized
 var ErrUnauthenticated = NewError(codes.Unauthenticated, "")

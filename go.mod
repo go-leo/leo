@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/go-kit/kit v0.13.0
-	github.com/go-leo/gox v0.0.0-20240605064933-b71d51bc5556
+	github.com/go-leo/gox v0.0.0-20240614032224-583fc2a8349e
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/consul/api v1.14.0

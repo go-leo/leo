@@ -8,7 +8,7 @@ import (
 	"io"
 )
 
-func Factory(
+func ClientFactory(
 	serviceName string,
 	method string,
 	enc grpctransport.EncodeRequestFunc,

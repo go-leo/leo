@@ -19,11 +19,21 @@ import (
 // All target URLs like 'consul://.../...' will be resolved by this builder
 const schemeName = "consul"
 
-type InstancerBuilder struct{}
+type InstancerBuilder struct {
+	ConfigParser func(rawURL *url.URL) (*api.Config, error)
+}
 
 func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color *sdx.Color) (sd.Instancer, error) {
 	dsn := strings.Join([]string{schemeName + ":/", target.URL.Host, target.URL.Path + "?" + target.URL.RawQuery}, "/")
-	service, config, err := parseURL(dsn)
+	rawURL, err := url.Parse(dsn)
+	if err != nil {
+		return nil, fmt.Errorf("malformed url, %v", err)
+	}
+	if rawURL.Scheme != schemeName || len(rawURL.Host) == 0 || len(strings.TrimLeft(rawURL.Path, "/")) == 0 {
+		return nil, fmt.Errorf("malformed url('%s'). must be in the next format: 'consul://[username:password]@host/service?param=value'", dsn)
+	}
+	service := strings.TrimLeft(rawURL.Path, "/")
+	config, err := DefaultConfigParser(rawURL)
 	if err != nil {
 		return nil, err
 	}
@@ -41,32 +51,12 @@ func (b *InstancerBuilder) Scheme() string {
 	return schemeName
 }
 
-func NewInstancerBuilder() sdx.InstancerBuilder {
-	return &InstancerBuilder{}
-}
-
-//	parseURL with parameters
-//
-// see README.md for the actual format
-// URL schema will stay stable in the future for backward compatibility
-func parseURL(u string) (string, *api.Config, error) {
-	rawURL, err := url.Parse(u)
-	if err != nil {
-		return "", nil, fmt.Errorf("malformed url, %w", err)
-	}
-
-	if rawURL.Scheme != schemeName ||
-		len(rawURL.Host) == 0 || len(strings.TrimLeft(rawURL.Path, "/")) == 0 {
-		return "", nil, fmt.Errorf("malformed url('%s'). must be in the next format: 'consul://[username:password]@host/service?param=value'", u)
-	}
-
-	service := strings.TrimLeft(rawURL.Path, "/")
-
+func DefaultConfigParser(rawURL *url.URL) (*api.Config, error) {
 	q := args{}
 	decoder := form.NewDecoder()
 	decoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) { return time.ParseDuration(vals[0]) }, time.Duration(0))
 	if err := decoder.Decode(&q, rawURL.Query()); err != nil {
-		return "", nil, fmt.Errorf("malformed url parameters, %w", err)
+		return nil, fmt.Errorf("malformed url parameters, %v", err)
 	}
 	if len(q.Near) == 0 {
 		q.Near = "_agent"
@@ -97,7 +87,7 @@ func parseURL(u string) (string, *api.Config, error) {
 		},
 		Token: q.Token,
 	}
-	return service, config, nil
+	return config, nil
 }
 
 type args struct {

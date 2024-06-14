@@ -7,7 +7,7 @@ import (
 	"io"
 )
 
-func Factory(
+func ClientFactory(
 	scheme string,
 	req func(scheme string, instance string) httptransport.CreateRequestFunc,
 	dec httptransport.DecodeResponseFunc,
@@ -15,6 +15,6 @@ func Factory(
 ) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		client := httptransport.NewExplicitClient(req(scheme, instance), dec, options...)
-		return client.Endpoint(), io.NopCloser(nil), nil
+		return client.Endpoint(), nil, nil
 	}
 }

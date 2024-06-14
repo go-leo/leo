@@ -25,20 +25,55 @@ type ClientTransport interface {
 	Endpoint(ctx context.Context) endpoint.Endpoint
 }
 
+// ClientTransport is a transport that can be used to invoke a remote endpoint.
 type clientTransport struct {
-	target           *sdx.Target
-	factory          sd.Factory
+	target  *sdx.Target
+	factory sd.Factory
+
 	builders         []sdx.InstancerBuilder
 	balancerFactory  lbx.BalancerFactory
 	retryMax         int
 	retryTimeout     time.Duration
 	retryBackoffFunc backoff.BackoffFunc
 	options          []sd.EndpointerOption
-	clients          sync.Map
-	sfg              singleflight.Group
+
+	clients sync.Map
+	sfg     singleflight.Group
 }
 
-func NewClient(target string, factory sd.Factory) (ClientTransport, error) {
+type ClientTransportOption func(c *clientTransport)
+
+// InstancerBuilder is a option that sets the instancer builder.
+func InstancerBuilder(builders ...sdx.InstancerBuilder) ClientTransportOption {
+	return func(c *clientTransport) {
+		c.builders = append(c.builders, builders...)
+	}
+}
+
+// BalancerFactory is a option that sets the balancer factory.
+func BalancerFactory(factory lbx.BalancerFactory) ClientTransportOption {
+	return func(c *clientTransport) {
+		c.balancerFactory = factory
+	}
+}
+
+// Retry is a option that sets the retry options.
+func Retry(max int, timeout time.Duration, backoff backoff.BackoffFunc) ClientTransportOption {
+	return func(c *clientTransport) {
+		c.retryMax = max
+		c.retryTimeout = timeout
+		c.retryBackoffFunc = backoff
+	}
+}
+
+// EndpointerOption is a option that sets the endpointer options.
+func EndpointerOption(options ...sd.EndpointerOption) ClientTransportOption {
+	return func(c *clientTransport) {
+		c.options = append(c.options, options...)
+	}
+}
+
+func NewClientTransport(target string, factory sd.Factory, opts ...ClientTransportOption) (ClientTransport, error) {
 	parsedTarget, err := sdx.ParseTarget(target)
 	if err != nil {
 		return nil, err
@@ -47,10 +82,10 @@ func NewClient(target string, factory sd.Factory) (ClientTransport, error) {
 		target:           parsedTarget,
 		factory:          factory,
 		builders:         nil,
-		balancerFactory:  nil,
-		retryMax:         0,
-		retryTimeout:     0,
-		retryBackoffFunc: nil,
+		balancerFactory:  lbx.RoundRobinFactory{},
+		retryMax:         1,
+		retryTimeout:     1 * time.Second,
+		retryBackoffFunc: backoff.Zero(),
 		options:          nil,
 		clients:          sync.Map{},
 		sfg:              singleflight.Group{},
@@ -76,35 +111,35 @@ func (c *clientTransport) endpoint(ctx context.Context, color *sdx.Color) endpoi
 	if ok {
 		return value.(endpoint.Endpoint)
 	}
-	v, err, _ := c.sfg.Do(key, func() (interface{}, error) {
-		var instancer sd.Instancer
+	resC := c.sfg.DoChan(key, func() (interface{}, error) {
 		builder := c.getInstancerBuilder(c.target.URL.Scheme)
 		if builder == nil {
 			return nil, statusx.ErrUnimplemented.WithMessage(fmt.Sprintf("could not get instancer builder for scheme: %q", c.target.URL.Scheme))
 		}
 		instancer, err := builder.Build(ctx, c.target, color)
 		if err != nil {
-			return nil, err
+			return nil, statusx.ErrFailedPrecondition.WithMessage(err.Error())
 		}
-		ep := lb.RetryWithCallback(
-			c.retryTimeout,
-			c.balancerFactory.New(ctx, sd.NewEndpointer(instancer, c.factory, logx.FromContext(ctx), c.options...)),
-			func(n int, received error) (keepTrying bool, replacement error) {
-				time.Sleep(c.retryBackoffFunc(context.TODO(), uint(n)))
-				return n < c.retryMax, nil
-			})
-		c.clients.Store(key, ep)
-		return ep, nil
+		balancer := c.balancerFactory.New(ctx, sd.NewEndpointer(instancer, c.factory, logx.FromContext(ctx), c.options...))
+		callback := func(n int, _ error) (bool, error) {
+			time.Sleep(c.retryBackoffFunc(ctx, uint(n)))
+			return n < c.retryMax, nil
+		}
+		return lb.RetryWithCallback(c.retryTimeout, balancer, callback), nil
 	})
-	if err != nil {
-		return endpointx.Error(err)
+	result := <-resC
+	if result.Err != nil {
+		return endpointx.Error(result.Err)
 	}
-	return v.(endpoint.Endpoint)
+	if !result.Shared {
+		c.clients.Store(key, result.Val)
+	}
+	return result.Val.(endpoint.Endpoint)
 }
 
 func (c *clientTransport) getInstancerBuilder(scheme string) sdx.InstancerBuilder {
 	if scheme == "" {
-		return passthroughx.NewInstancerBuilder()
+		return &passthroughx.InstancerBuilder{}
 	}
 	for _, builder := range c.builders {
 		if scheme == builder.Scheme() {
