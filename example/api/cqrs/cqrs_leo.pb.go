@@ -410,108 +410,131 @@ func (t *cQRSHttpClientTransports) FindUser() transportx.ClientTransport {
 	return t.findUser
 }
 
-func NewCQRSHttpClientTransports(scheme string, instance string) CQRSClientTransports {
+func NewCQRSHttpClientTransports(
+	target string,
+	scheme string,
+	options ...transportx.ClientTransportOption,
+) (CQRSClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
-	return &cQRSHttpClientTransports{
-		createUser: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*CreateUserRequest)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var bodyBuf bytes.Buffer
-				if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-					return nil, err
-				}
-				body = &bodyBuf
-				contentType := "application/json; charset=utf-8"
-				var pairs []string
-				path, err := router.Get("/pb.CQRS/CreateUser").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-		findUser: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*FindUserRequest)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var bodyBuf bytes.Buffer
-				if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-					return nil, err
-				}
-				body = &bodyBuf
-				contentType := "application/json; charset=utf-8"
-				var pairs []string
-				path, err := router.Get("/pb.CQRS/FindUser").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &GetUserResponse{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-	}
+	t := &cQRSHttpClientTransports{}
+	var err error
+	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*CreateUserRequest)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						var bodyBuf bytes.Buffer
+						if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+							return nil, err
+						}
+						body = &bodyBuf
+						contentType := "application/json; charset=utf-8"
+						var pairs []string
+						path, err := router.Get("/pb.CQRS/CreateUser").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.findUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*FindUserRequest)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						var bodyBuf bytes.Buffer
+						if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+							return nil, err
+						}
+						body = &bodyBuf
+						contentType := "application/json; charset=utf-8"
+						var pairs []string
+						path, err := router.Get("/pb.CQRS/FindUser").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &GetUserResponse{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type cQRSHttpClient struct {

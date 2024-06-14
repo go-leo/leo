@@ -665,240 +665,290 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody() transportx.ClientTranspor
 	return t.httpBodyNamedBody
 }
 
-func NewBodyHttpClientTransports(scheme string, instance string) BodyClientTransports {
+func NewBodyHttpClientTransports(
+	target string,
+	scheme string,
+	options ...transportx.ClientTransportOption,
+) (BodyClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
-	return &bodyHttpClientTransports{
-		starBody: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*User)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var bodyBuf bytes.Buffer
-				if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-					return nil, err
-				}
-				body = &bodyBuf
-				contentType := "application/json; charset=utf-8"
-				var pairs []string
-				path, err := router.Get("/leo.example.body.v1.Body/StarBody").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-		namedBody: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*UserRequest)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var bodyBuf bytes.Buffer
-				if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetUser()); err != nil {
-					return nil, err
-				}
-				body = &bodyBuf
-				contentType := "application/json; charset=utf-8"
-				var pairs []string
-				path, err := router.Get("/leo.example.body.v1.Body/NamedBody").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-		nonBody: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*emptypb.Empty)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var pairs []string
-				path, err := router.Get("/leo.example.body.v1.Body/NonBody").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-		httpBodyStarBody: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*httpbody.HttpBody)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				body = bytes.NewReader(req.GetData())
-				contentType := req.GetContentType()
-				var pairs []string
-				path, err := router.Get("/leo.example.body.v1.Body/HttpBodyStarBody").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-		httpBodyNamedBody: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*HttpBody)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				body = bytes.NewReader(req.GetBody().GetData())
-				contentType := req.GetBody().GetContentType()
-				var pairs []string
-				path, err := router.Get("/leo.example.body.v1.Body/HttpBodyNamedBody").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &emptypb.Empty{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-	}
+	t := &bodyHttpClientTransports{}
+	var err error
+	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*User)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						var bodyBuf bytes.Buffer
+						if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+							return nil, err
+						}
+						body = &bodyBuf
+						contentType := "application/json; charset=utf-8"
+						var pairs []string
+						path, err := router.Get("/leo.example.body.v1.Body/StarBody").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.namedBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*UserRequest)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						var bodyBuf bytes.Buffer
+						if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetUser()); err != nil {
+							return nil, err
+						}
+						body = &bodyBuf
+						contentType := "application/json; charset=utf-8"
+						var pairs []string
+						path, err := router.Get("/leo.example.body.v1.Body/NamedBody").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.nonBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*emptypb.Empty)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						var pairs []string
+						path, err := router.Get("/leo.example.body.v1.Body/NonBody").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.httpBodyStarBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*httpbody.HttpBody)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						body = bytes.NewReader(req.GetData())
+						contentType := req.GetContentType()
+						var pairs []string
+						path, err := router.Get("/leo.example.body.v1.Body/HttpBodyStarBody").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.httpBodyNamedBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*HttpBody)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						body = bytes.NewReader(req.GetBody().GetData())
+						contentType := req.GetBody().GetContentType()
+						var pairs []string
+						path, err := router.Get("/leo.example.body.v1.Body/HttpBodyNamedBody").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &emptypb.Empty{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type bodyHttpClient struct {

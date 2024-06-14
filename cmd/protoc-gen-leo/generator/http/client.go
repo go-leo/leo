@@ -17,13 +17,19 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	}
 	g.P("}")
 	g.P()
+
 	for _, endpoint := range service.Endpoints {
 		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("ClientTransport"), "{")
 		g.P("return t.", endpoint.UnexportedName())
 		g.P("}")
 		g.P()
 	}
-	g.P("func New", service.HttpClientTransportsName(), "(scheme string, instance string) ", service.ClientTransportsName(), " {")
+
+	g.P("func New", service.HttpClientTransportsName(), "(")
+	g.P("target string,")
+	g.P("scheme string,")
+	g.P("options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ",")
+	g.P(") (", service.ClientTransportsName(), ", error) {")
 
 	if len(service.Endpoints) > 0 {
 		g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
@@ -35,23 +41,29 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ")")
 	}
 
-	g.P("return &", service.UnexportedHttpClientTransportsName(), "{")
+	g.P("t := &", service.UnexportedHttpClientTransportsName(), "{}")
+	g.P("var err error")
+
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ": ", internal.HttpxTransportxPackage.Ident("NewClient"), "(")
+		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
+		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
+		g.P("target,")
+		g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
+		g.P("scheme,")
 		if err := f.PrintEncodeRequestFunc(g, endpoint); err != nil {
 			return err
 		}
 		if err := f.PrintDecodeResponseFunc(g, endpoint, endpoint.HttpRule()); err != nil {
 			return err
 		}
-
-		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		//g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpClient"), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadata"), "),")
-
 		g.P("),")
+		g.P("options...,")
+		g.P(")")
+		g.P("})")
 	}
-	g.P("}")
+
+	g.P("return t, err")
 	g.P("}")
 	g.P()
 	return nil
@@ -83,7 +95,8 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 
 func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
 	httpRule := endpoint.HttpRule()
-	g.P("func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
+	g.P("func(scheme string, instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
+	g.P("return func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
 	g.P("if obj == nil {")
 	g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request object is nil"), ")")
 	g.P("}")
@@ -160,6 +173,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endp
 		g.P("r.Header.Set(", strconv.Quote(internal.ContentTypeKey), ", contentType)")
 	}
 	g.P("return r, nil")
+	g.P("}")
 	g.P("},")
 	return nil
 }

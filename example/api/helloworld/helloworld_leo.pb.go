@@ -235,59 +235,73 @@ func (t *greeterHttpClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterHttpClientTransports(scheme string, instance string) GreeterClientTransports {
+func NewGreeterHttpClientTransports(
+	target string,
+	scheme string,
+	options ...transportx.ClientTransportOption,
+) (GreeterClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
-	return &greeterHttpClientTransports{
-		sayHello: httpx.NewClient(
-			func(ctx context.Context, obj any) (*http1.Request, error) {
-				if obj == nil {
-					return nil, errors.New("request object is nil")
-				}
-				req, ok := obj.(*HelloRequest)
-				if !ok {
-					return nil, fmt.Errorf("invalid request object type, %T", obj)
-				}
-				_ = req
-				var body io.Reader
-				var bodyBuf bytes.Buffer
-				if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-					return nil, err
-				}
-				body = &bodyBuf
-				contentType := "application/json; charset=utf-8"
-				var pairs []string
-				path, err := router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
-				if err != nil {
-					return nil, err
-				}
-				queries := url.Values{}
-				target := &url.URL{
-					Scheme:   scheme,
-					Host:     instance,
-					Path:     path.Path,
-					RawQuery: queries.Encode(),
-				}
-				r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-				if err != nil {
-					return nil, err
-				}
-				r.Header.Set("Content-Type", contentType)
-				return r, nil
-			},
-			func(ctx context.Context, r *http1.Response) (any, error) {
-				if httpx.IsErrorResponse(r) {
-					return nil, httpx.ErrorDecoder(ctx, r)
-				}
-				resp := &HelloReply{}
-				if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-					return nil, err
-				}
-				return resp, nil
-			},
-			http.ClientBefore(httpx.OutgoingMetadata),
-		),
-	}
+	t := &greeterHttpClientTransports{}
+	var err error
+	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				scheme,
+				func(scheme string, instance string) http.CreateRequestFunc {
+					return func(ctx context.Context, obj any) (*http1.Request, error) {
+						if obj == nil {
+							return nil, errors.New("request object is nil")
+						}
+						req, ok := obj.(*HelloRequest)
+						if !ok {
+							return nil, fmt.Errorf("invalid request object type, %T", obj)
+						}
+						_ = req
+						var body io.Reader
+						var bodyBuf bytes.Buffer
+						if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+							return nil, err
+						}
+						body = &bodyBuf
+						contentType := "application/json; charset=utf-8"
+						var pairs []string
+						path, err := router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
+						if err != nil {
+							return nil, err
+						}
+						queries := url.Values{}
+						target := &url.URL{
+							Scheme:   scheme,
+							Host:     instance,
+							Path:     path.Path,
+							RawQuery: queries.Encode(),
+						}
+						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+						if err != nil {
+							return nil, err
+						}
+						r.Header.Set("Content-Type", contentType)
+						return r, nil
+					}
+				},
+				func(ctx context.Context, r *http1.Response) (any, error) {
+					if httpx.IsErrorResponse(r) {
+						return nil, httpx.ErrorDecoder(ctx, r)
+					}
+					resp := &HelloReply{}
+					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+						return nil, err
+					}
+					return resp, nil
+				},
+				http.ClientBefore(httpx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type greeterHttpClient struct {
