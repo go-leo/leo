@@ -90,6 +90,9 @@ func NewClientTransport(target string, factory sd.Factory, opts ...ClientTranspo
 		clients:          sync.Map{},
 		sfg:              singleflight.Group{},
 	}
+	for _, opt := range opts {
+		opt(c)
+	}
 	return c, nil
 }
 

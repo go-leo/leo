@@ -595,72 +595,119 @@ func (t *demoGrpcClientTransports) GetUserAvatar() transportx.ClientTransport {
 	return t.getUserAvatar
 }
 
-func NewDemoGrpcClientTransports(conn *grpc1.ClientConn) DemoClientTransports {
-	return &demoGrpcClientTransports{
-		createUser: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"CreateUser",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			CreateUserResponse{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		deleteUser: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"DeleteUser",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		updateUser: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"UpdateUser",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		getUser: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"GetUser",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			GetUserResponse{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		getUsers: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"GetUsers",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			GetUsersResponse{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		uploadUserAvatar: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"UploadUserAvatar",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		getUserAvatar: grpcx.NewClient(
-			conn,
-			"leo.example.demo.v1.Demo",
-			"GetUserAvatar",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			httpbody.HttpBody{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
+func NewDemoGrpcClientTransports(
+	target string,
+	dialOption []grpc1.DialOption,
+	options ...transportx.ClientTransportOption,
+) (DemoClientTransports, error) {
+	t := &demoGrpcClientTransports{}
+	var err error
+	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"CreateUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				CreateUserResponse{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.deleteUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"DeleteUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.updateUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"UpdateUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.getUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"GetUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				GetUserResponse{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.getUsers, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"GetUsers",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				GetUsersResponse{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.uploadUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"UploadUserAvatar",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.getUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.demo.v1.Demo",
+				"GetUserAvatar",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				httpbody.HttpBody{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type demoGrpcClient struct {

@@ -78,7 +78,7 @@ func (f *Generator) GenerateServices(service *internal.Service, g *protogen.Gene
 func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.EndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Instance"))
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	g.P("}")
 	g.P()
@@ -123,7 +123,7 @@ func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protog
 	g.P()
 
 	for _, endpoint := range service.Endpoints {
-		g.P("func (e *", service.UnexportedServerEndpointsName(), ") ", endpoint.Name(), "(", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Instance"), "{")
+		g.P("func (e *", service.UnexportedServerEndpointsName(), ") ", endpoint.Name(), "(", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"), "{")
 		g.P("component := func(ctx ", internal.ContextPackage.Ident("Context"), ", request any) (any, error) {")
 		g.P("return e.svc.", endpoint.Name(), "(ctx, request.(*", endpoint.InputGoIdent(), "))")
 		g.P("}")
@@ -147,8 +147,8 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 	g.P()
 
 	for _, endpoint := range service.Endpoints {
-		g.P("func (e *", service.UnexportedClientEndpointsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Instance"), "{")
-		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(e.transports.", endpoint.Name(), "().Instance(ctx), e.middlewares...)")
+		g.P("func (e *", service.UnexportedClientEndpointsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"), "{")
+		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(e.transports.", endpoint.Name(), "().Endpoint(ctx), e.middlewares...)")
 		g.P("}")
 		g.P()
 	}

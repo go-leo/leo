@@ -506,90 +506,149 @@ func (t *pathGrpcClientTransports) EnumPath() transportx.ClientTransport {
 	return t.enumPath
 }
 
-func NewPathGrpcClientTransports(conn *grpc1.ClientConn) PathClientTransports {
-	return &pathGrpcClientTransports{
-		boolPath: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"BoolPath",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		int32Path: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"Int32Path",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		int64Path: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"Int64Path",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		uint32Path: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"Uint32Path",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		uint64Path: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"Uint64Path",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		floatPath: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"FloatPath",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		doublePath: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"DoublePath",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		stringPath: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"StringPath",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		enumPath: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.Path",
-			"EnumPath",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
+func NewPathGrpcClientTransports(
+	target string,
+	dialOption []grpc1.DialOption,
+	options ...transportx.ClientTransportOption,
+) (PathClientTransports, error) {
+	t := &pathGrpcClientTransports{}
+	var err error
+	t.boolPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"BoolPath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.int32Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"Int32Path",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.int64Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"Int64Path",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.uint32Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"Uint32Path",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.uint64Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"Uint64Path",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.floatPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"FloatPath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.doublePath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"DoublePath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.stringPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"StringPath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.enumPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.Path",
+				"EnumPath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type pathGrpcClient struct {

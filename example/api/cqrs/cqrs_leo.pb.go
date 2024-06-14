@@ -12,6 +12,7 @@ import (
 	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
+	errorx "github.com/go-leo/gox/errorx"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	command "github.com/go-leo/leo/v3/example/internal/cqrs/command"
@@ -248,27 +249,44 @@ func (t *cQRSGrpcClientTransports) FindUser() transportx.ClientTransport {
 	return t.findUser
 }
 
-func NewCQRSGrpcClientTransports(conn *grpc1.ClientConn) CQRSClientTransports {
-	return &cQRSGrpcClientTransports{
-		createUser: grpcx.NewClient(
-			conn,
-			"pb.CQRS",
-			"CreateUser",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-		findUser: grpcx.NewClient(
-			conn,
-			"pb.CQRS",
-			"FindUser",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			GetUserResponse{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
+func NewCQRSGrpcClientTransports(
+	target string,
+	dialOption []grpc1.DialOption,
+	options ...transportx.ClientTransportOption,
+) (CQRSClientTransports, error) {
+	t := &cQRSGrpcClientTransports{}
+	var err error
+	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"pb.CQRS",
+				"CreateUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	t.findUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"pb.CQRS",
+				"FindUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				GetUserResponse{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type cQRSGrpcClient struct {

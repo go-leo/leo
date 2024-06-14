@@ -9,12 +9,12 @@ import (
 )
 
 func ClientFactory(
+	dialOption []grpc.DialOption,
 	serviceName string,
 	method string,
 	enc grpctransport.EncodeRequestFunc,
 	dec grpctransport.DecodeResponseFunc,
 	grpcReply interface{},
-	dialOption []grpc.DialOption,
 	options ...grpctransport.ClientOption,
 ) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {

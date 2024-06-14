@@ -12,6 +12,7 @@ import (
 	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
+	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
@@ -133,33 +134,29 @@ func (t *greeterGrpcClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterGrpcClientTransports(conn *grpc1.ClientConn) GreeterClientTransports {
-	return &greeterGrpcClientTransports{
-		sayHello: grpcx.NewClient(
-			conn,
-			"helloworld.Greeter",
-			"SayHello",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			HelloReply{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
-}
-
-func NewGreeterGrpcClientTransports1(target string, opts ...grpc1.DialOption) GreeterClientTransports {
-	return &greeterGrpcClientTransports{
-		sayHello: grpcx.NewClient(
+func NewGreeterGrpcClientTransports(
+	target string,
+	dialOption []grpc1.DialOption,
+	options ...transportx.ClientTransportOption,
+) (GreeterClientTransports, error) {
+	t := &greeterGrpcClientTransports{}
+	var err error
+	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
 			target,
-			opts,
-			"helloworld.Greeter",
-			"SayHello",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			HelloReply{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
+			grpcx.ClientFactory(
+				dialOption,
+				"helloworld.Greeter",
+				"SayHello",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				HelloReply{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type greeterGrpcClient struct {

@@ -139,18 +139,29 @@ func (t *queryGrpcClientTransports) Query() transportx.ClientTransport {
 	return t.query
 }
 
-func NewQueryGrpcClientTransports(conn *grpc1.ClientConn) QueryClientTransports {
-	return &queryGrpcClientTransports{
-		query: grpcx.NewClient(
-			conn,
-			"leo.example.query.v1.Query",
-			"Query",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
+func NewQueryGrpcClientTransports(
+	target string,
+	dialOption []grpc1.DialOption,
+	options ...transportx.ClientTransportOption,
+) (QueryClientTransports, error) {
+	t := &queryGrpcClientTransports{}
+	var err error
+	t.query, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.query.v1.Query",
+				"Query",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type queryGrpcClient struct {

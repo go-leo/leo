@@ -146,22 +146,31 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func New", service.GrpcClientTransportsName(), "(conn *", internal.GrpcPackage.Ident("ClientConn"), ") ", service.ClientTransportsName(), " {")
-	g.P("return &", service.UnexportedGrpcClientTransportsName(), "{")
+	g.P("func New", service.GrpcClientTransportsName(), "(")
+	g.P("target string,")
+	g.P("dialOption []", internal.GrpcPackage.Ident("DialOption"), ",")
+	g.P("options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ",")
+	g.P(") (", service.ClientTransportsName(), ", error) {")
+	g.P("t := &", service.UnexportedGrpcClientTransportsName(), "{}")
+	g.P("var err error")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ":", internal.GrpcxTransportxPackage.Ident("NewClient"), "(")
-		g.P("conn, ")
+		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
+		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
+		g.P("target,")
+		g.P(internal.GrpcxTransportxPackage.Ident("ClientFactory"), "(")
+		g.P("dialOption, ")
 		g.P(strconv.Quote(service.FullName()), ",")
 		g.P(strconv.Quote(endpoint.Name()), ", ")
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 		g.P(endpoint.OutputGoIdent(), "{},")
-
 		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadata"), "),")
-
 		g.P("),")
+		g.P("options...,")
+		g.P(")")
+		g.P("})")
 	}
-	g.P("}")
+	g.P("return t, err")
 	g.P("}")
 	g.P()
 	return nil
@@ -200,7 +209,7 @@ func (f *Generator) GenerateClientFactory(service *internal.Service, g *protogen
 
 	for _, endpoint := range service.Endpoints {
 		g.P("func (f *", service.UnexportedGrpcFactoriesName(), ") ", endpoint.Name(), "(middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.SdPackage.Ident("Factory"), "{")
-		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Instance"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
 		g.P("conn, err := ", internal.GrpcPackage.Ident("NewClient"), "(instance, f.opts...)")
 		g.P("if err != nil {")
 		g.P("return nil, nil, err")

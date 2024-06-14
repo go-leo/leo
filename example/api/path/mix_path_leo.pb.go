@@ -11,6 +11,7 @@ import (
 	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
+	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
@@ -137,18 +138,29 @@ func (t *mixPathGrpcClientTransports) MixPath() transportx.ClientTransport {
 	return t.mixPath
 }
 
-func NewMixPathGrpcClientTransports(conn *grpc1.ClientConn) MixPathClientTransports {
-	return &mixPathGrpcClientTransports{
-		mixPath: grpcx.NewClient(
-			conn,
-			"leo.example.path.v1.MixPath",
-			"MixPath",
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			emptypb.Empty{},
-			grpc.ClientBefore(grpcx.OutgoingMetadata),
-		),
-	}
+func NewMixPathGrpcClientTransports(
+	target string,
+	dialOption []grpc1.DialOption,
+	options ...transportx.ClientTransportOption,
+) (MixPathClientTransports, error) {
+	t := &mixPathGrpcClientTransports{}
+	var err error
+	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				dialOption,
+				"leo.example.path.v1.MixPath",
+				"MixPath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadata),
+			),
+			options...,
+		)
+	})
+	return t, err
 }
 
 type mixPathGrpcClient struct {
