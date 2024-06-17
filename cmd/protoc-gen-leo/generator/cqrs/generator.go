@@ -79,24 +79,24 @@ func (f *Generator) GenerateCommand(service *internal.Service, endpoint *interna
 	if !os.IsNotExist(err) {
 		return err
 	}
-	generatedFile := f.Plugin.NewGeneratedFile(filename, f.File.GoImportPath)
-	generatedFile.P("package ", service.Command.Name())
-	generatedFile.P("type ", endpoint.ArgsName(), " struct {")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("type ", endpoint.Name(), " ", internal.CqrsPackage.Ident("CommandHandler"), "[*", endpoint.ArgsName(), "]")
-	generatedFile.P()
-	generatedFile.P("func New", endpoint.Name(), "() ", endpoint.Name(), " {")
-	generatedFile.P("return &", endpoint.UnexportedName(), "{}")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("type ", endpoint.UnexportedName(), " struct {")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxPackage.Ident("Metadata"), ", error) {")
-	generatedFile.P(internal.Comments("TODO implement me"))
-	generatedFile.P("panic(", strconv.Quote("implement me"), ")")
-	generatedFile.P("}")
+	g := f.Plugin.NewGeneratedFile(filename, f.File.GoImportPath)
+	g.P("package ", service.Command.Name())
+	g.P("type ", endpoint.ArgsName(), " struct {")
+	g.P("}")
+	g.P()
+	g.P("type ", endpoint.Name(), " ", internal.CqrsPackage.Ident("CommandHandler"), "[*", endpoint.ArgsName(), "]")
+	g.P()
+	g.P("func New", endpoint.Name(), "() ", endpoint.Name(), " {")
+	g.P("return &", endpoint.UnexportedName(), "{}")
+	g.P("}")
+	g.P()
+	g.P("type ", endpoint.UnexportedName(), " struct {")
+	g.P("}")
+	g.P()
+	g.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxPackage.Ident("Metadata"), ", error) {")
+	g.P(internal.Comments("TODO implement me"))
+	g.P("panic(", strconv.Quote("implement me"), ")")
+	g.P("}")
 	return nil
 }
 
@@ -109,106 +109,106 @@ func (f *Generator) GenerateQuery(service *internal.Service, endpoint *internal.
 	if !os.IsNotExist(err) {
 		return err
 	}
-	generatedFile := f.Plugin.NewGeneratedFile(filename, f.File.GoImportPath)
-	generatedFile.P("package ", service.Query.Name())
-	generatedFile.P("type ", endpoint.ArgsName(), " struct {")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("type ", endpoint.ResName(), " struct {")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("type ", endpoint.Name(), " ", internal.CqrsPackage.Ident("QueryHandler"), "[*", endpoint.ArgsName(), ", *", endpoint.ResName(), "]")
-	generatedFile.P()
-	generatedFile.P("func New", endpoint.Name(), "() ", endpoint.Name(), " {")
-	generatedFile.P("return &", endpoint.UnexportedName(), "{}")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("type ", endpoint.UnexportedName(), " struct {")
-	generatedFile.P("}")
-	generatedFile.P()
-	generatedFile.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (*", endpoint.ResName(), ", error) {")
-	generatedFile.P(internal.Comments("TODO implement me"))
-	generatedFile.P("panic(", strconv.Quote("implement me"), ")")
-	generatedFile.P("}")
+	g := f.Plugin.NewGeneratedFile(filename, f.File.GoImportPath)
+	g.P("package ", service.Query.Name())
+	g.P("type ", endpoint.ArgsName(), " struct {")
+	g.P("}")
+	g.P()
+	g.P("type ", endpoint.ResName(), " struct {")
+	g.P("}")
+	g.P()
+	g.P("type ", endpoint.Name(), " ", internal.CqrsPackage.Ident("QueryHandler"), "[*", endpoint.ArgsName(), ", *", endpoint.ResName(), "]")
+	g.P()
+	g.P("func New", endpoint.Name(), "() ", endpoint.Name(), " {")
+	g.P("return &", endpoint.UnexportedName(), "{}")
+	g.P("}")
+	g.P()
+	g.P("type ", endpoint.UnexportedName(), " struct {")
+	g.P("}")
+	g.P()
+	g.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (*", endpoint.ResName(), ", error) {")
+	g.P(internal.Comments("TODO implement me"))
+	g.P("panic(", strconv.Quote("implement me"), ")")
+	g.P("}")
 	return nil
 }
 
-func (f *Generator) GenerateAssembler(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P(internal.Comments(service.AssemblerName() + " responsible for completing the transformation between domain model objects and DTOs"))
-	generatedFile.P("type ", service.AssemblerName(), " interface {")
+func (f *Generator) GenerateAssembler(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.AssemblerName() + " responsible for completing the transformation between domain model objects and DTOs"))
+	g.P("type ", service.AssemblerName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		if endpoint.IsStreaming() {
 			continue
 		}
 		switch {
 		case endpoint.IsCommand():
-			generatedFile.P()
-			generatedFile.P(internal.Comments("From" + endpoint.RequestName() + " convert request to command arguments"))
-			generatedFile.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Command.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
-			generatedFile.P()
-			generatedFile.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
-			generatedFile.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", metadata ", internal.MetadataxPackage.Ident("Metadata"), ") (*", endpoint.OutputGoIdent(), ", error)")
+			g.P()
+			g.P(internal.Comments("From" + endpoint.RequestName() + " convert request to command arguments"))
+			g.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Command.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
+			g.P()
+			g.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
+			g.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", metadata ", internal.MetadataxPackage.Ident("Metadata"), ") (*", endpoint.OutputGoIdent(), ", error)")
 		case endpoint.IsQuery():
-			generatedFile.P()
-			generatedFile.P(internal.Comments("From" + endpoint.RequestName() + " convert request to query arguments"))
-			generatedFile.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
-			generatedFile.P()
-			generatedFile.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
-			generatedFile.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", res *", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.ResName()), ") (*", endpoint.OutputGoIdent(), ", error)")
+			g.P()
+			g.P(internal.Comments("From" + endpoint.RequestName() + " convert request to query arguments"))
+			g.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
+			g.P()
+			g.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
+			g.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", res *", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.ResName()), ") (*", endpoint.OutputGoIdent(), ", error)")
 		}
 	}
-	generatedFile.P("}")
+	g.P("}")
 	return nil
 }
 
-func (f *Generator) GenerateCQRSService(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P(internal.Comments(service.UnexportedCQRSName() + " implement the " + service.ServiceName() + " with CQRS pattern"))
-	generatedFile.P("type ", service.UnexportedCQRSName(), " struct {")
-	generatedFile.P("bus       ", internal.CqrsPackage.Ident("Bus"))
-	generatedFile.P("assembler ", service.AssemblerName())
-	generatedFile.P("}")
-	generatedFile.P()
+func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.UnexportedCQRSName() + " implement the " + service.ServiceName() + " with CQRS pattern"))
+	g.P("type ", service.UnexportedCQRSName(), " struct {")
+	g.P("bus       ", internal.CqrsPackage.Ident("Bus"))
+	g.P("assembler ", service.AssemblerName())
+	g.P("}")
+	g.P()
 
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
-			generatedFile.P("func (svc *", service.UnexportedCQRSName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-			generatedFile.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
-			generatedFile.P("if err != nil {")
-			generatedFile.P("return nil, err")
-			generatedFile.P("}")
-			generatedFile.P("metadata, err := svc.bus.Exec(ctx, args)")
-			generatedFile.P("if err != nil {")
-			generatedFile.P("return nil, err")
-			generatedFile.P("}")
-			generatedFile.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request, metadata)")
-			generatedFile.P("}")
-			generatedFile.P()
+			g.P("func (svc *", service.UnexportedCQRSName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+			g.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
+			g.P("if err != nil {")
+			g.P("return nil, err")
+			g.P("}")
+			g.P("metadata, err := svc.bus.Exec(ctx, args)")
+			g.P("if err != nil {")
+			g.P("return nil, err")
+			g.P("}")
+			g.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request, metadata)")
+			g.P("}")
+			g.P()
 		case endpoint.IsQuery():
-			generatedFile.P("func (svc *", service.UnexportedCQRSName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-			generatedFile.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
-			generatedFile.P("if err != nil {")
-			generatedFile.P("return nil, err")
-			generatedFile.P("}")
-			generatedFile.P("res, err := svc.bus.Query(ctx, args)")
-			generatedFile.P("if err != nil {")
-			generatedFile.P("return nil, err")
-			generatedFile.P("}")
-			generatedFile.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request, res.(*", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.Name()+"Res"), "))")
-			generatedFile.P("}")
-			generatedFile.P()
+			g.P("func (svc *", service.UnexportedCQRSName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+			g.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
+			g.P("if err != nil {")
+			g.P("return nil, err")
+			g.P("}")
+			g.P("res, err := svc.bus.Query(ctx, args)")
+			g.P("if err != nil {")
+			g.P("return nil, err")
+			g.P("}")
+			g.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request, res.(*", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.Name()+"Res"), "))")
+			g.P("}")
+			g.P()
 		}
 	}
 
-	generatedFile.P("func New", service.CQRSName(), "(bus ", internal.CqrsPackage.Ident("Bus"), ", assembler ", service.AssemblerName(), ") ", service.ServiceName(), " {")
-	generatedFile.P("return &", service.UnexportedCQRSName(), "{bus: bus, assembler: assembler}")
-	generatedFile.P("}")
-	generatedFile.P()
+	g.P("func New", service.CQRSName(), "(bus ", internal.CqrsPackage.Ident("Bus"), ", assembler ", service.AssemblerName(), ") ", service.ServiceName(), " {")
+	g.P("return &", service.UnexportedCQRSName(), "{bus: bus, assembler: assembler}")
+	g.P("}")
+	g.P()
 	return nil
 }
 
-func (f *Generator) GenerateBus(service *internal.Service, generatedFile *protogen.GeneratedFile) error {
-	generatedFile.P("func New", service.BusName(), "(")
+func (f *Generator) GenerateBus(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("func New", service.BusName(), "(")
 	for _, endpoint := range service.Endpoints {
 		if endpoint.IsStreaming() {
 			continue
@@ -216,30 +216,30 @@ func (f *Generator) GenerateBus(service *internal.Service, generatedFile *protog
 		switch {
 		case endpoint.IsCommand():
 			importPath := protogen.GoImportPath(service.Command.FullName())
-			generatedFile.P(endpoint.UnexportedName(), " ", importPath.Ident(endpoint.Name()), ",")
+			g.P(endpoint.UnexportedName(), " ", importPath.Ident(endpoint.Name()), ",")
 		case endpoint.IsQuery():
 			importPath := protogen.GoImportPath(service.Query.FullName())
-			generatedFile.P(endpoint.UnexportedName(), " ", importPath.Ident(endpoint.Name()), ",")
+			g.P(endpoint.UnexportedName(), " ", importPath.Ident(endpoint.Name()), ",")
 		}
 	}
-	generatedFile.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
-	generatedFile.P("bus := ", internal.CqrsPackage.Ident("NewBus"), "()")
+	g.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
+	g.P("bus := ", internal.CqrsPackage.Ident("NewBus"), "()")
 	for _, endpoint := range service.Endpoints {
 		if endpoint.IsStreaming() {
 			continue
 		}
 		switch {
 		case endpoint.IsCommand():
-			generatedFile.P("if err := bus.RegisterCommand(", endpoint.UnexportedName(), "); err != nil {")
-			generatedFile.P("return nil, err")
-			generatedFile.P("}")
+			g.P("if err := bus.RegisterCommand(", endpoint.UnexportedName(), "); err != nil {")
+			g.P("return nil, err")
+			g.P("}")
 		case endpoint.IsQuery():
-			generatedFile.P("if err := bus.RegisterQuery(", endpoint.UnexportedName(), "); err != nil {")
-			generatedFile.P("return nil, err")
-			generatedFile.P("}")
+			g.P("if err := bus.RegisterQuery(", endpoint.UnexportedName(), "); err != nil {")
+			g.P("return nil, err")
+			g.P("}")
 		}
 	}
-	generatedFile.P("return bus, nil")
-	generatedFile.P("}")
+	g.P("return bus, nil")
+	g.P("}")
 	return nil
 }

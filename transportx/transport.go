@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
-	"github.com/go-kit/kit/sd/lb"
-	"github.com/go-leo/gox/backoff"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
@@ -33,13 +31,10 @@ type clientTransport struct {
 	factory sd.Factory
 	builder sdx.InstancerBuilder
 
-	builders         []sdx.InstancerBuilder
-	balancerFactory  lbx.BalancerFactory
-	retryMax         int
-	retryTimeout     time.Duration
-	retryBackoffFunc backoff.BackoffFunc
-	options          []sd.EndpointerOption
-	defaultScheme    string
+	builders        []sdx.InstancerBuilder
+	balancerFactory lbx.BalancerFactory
+	options         []sd.EndpointerOption
+	defaultScheme   string
 
 	clients sync.Map
 	sfg     singleflight.Group
@@ -58,15 +53,6 @@ func InstancerBuilder(builders ...sdx.InstancerBuilder) ClientTransportOption {
 func BalancerFactory(factory lbx.BalancerFactory) ClientTransportOption {
 	return func(c *clientTransport) {
 		c.balancerFactory = factory
-	}
-}
-
-// Retry is a option that sets the retry options.
-func Retry(max int, timeout time.Duration, backoff backoff.BackoffFunc) ClientTransportOption {
-	return func(c *clientTransport) {
-		c.retryMax = max
-		c.retryTimeout = timeout
-		c.retryBackoffFunc = backoff
 	}
 }
 
@@ -94,14 +80,11 @@ func NewClientTransport(target string, factory sd.Factory, opts ...ClientTranspo
 			&dnssrvx.InstancerBuilder{TTL: 30 * time.Second},
 			&consulx.InstancerBuilder{},
 		},
-		balancerFactory:  lbx.RoundRobinFactory{},
-		retryMax:         1,
-		retryTimeout:     1 * time.Second,
-		retryBackoffFunc: backoff.Zero(),
-		options:          nil,
-		defaultScheme:    "passthrough",
-		clients:          sync.Map{},
-		sfg:              singleflight.Group{},
+		balancerFactory: lbx.RoundRobinFactory{},
+		options:         nil,
+		defaultScheme:   "passthrough",
+		clients:         sync.Map{},
+		sfg:             singleflight.Group{},
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -152,18 +135,14 @@ func (c *clientTransport) endpoint(ctx context.Context, color *sdx.Color) endpoi
 	resC := c.sfg.DoChan(key, func() (interface{}, error) {
 		instancer, err := c.builder.Build(ctx, c.target, color)
 		if err != nil {
-			return nil, statusx.ErrFailedPrecondition.WithMessage(err.Error())
+			return nil, nil
 		}
 		balancer := c.balancerFactory.New(ctx, sd.NewEndpointer(instancer, c.factory, logx.FromContext(ctx), c.options...))
-		callback := func(n int, _ error) (bool, error) {
-			time.Sleep(c.retryBackoffFunc(ctx, uint(n)))
-			return n < c.retryMax, nil
-		}
-		return lb.RetryWithCallback(c.retryTimeout, balancer, callback), nil
+		return balancer.Endpoint()
 	})
 	result := <-resC
 	if result.Err != nil {
-		return endpointx.Error(result.Err)
+		return endpointx.Error(statusx.ErrFailedPrecondition.WithMessage(result.Err.Error()))
 	}
 	if !result.Shared {
 		c.clients.Store(key, result.Val)

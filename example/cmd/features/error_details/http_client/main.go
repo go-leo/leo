@@ -9,8 +9,12 @@ import (
 )
 
 func main() {
-	transports := helloworld.NewGreeterHttpClientTransports("http", "127.0.0.1:8080")
-	client := helloworld.NewGreeterHttpClient(transports)
+	transports, err := helloworld.NewGreeterHttpClientTransports("127.0.0.1:8080", "http")
+	if err != nil {
+		panic(err)
+	}
+	endpoints := helloworld.NewGreeterClientEndpoints(transports)
+	client := helloworld.NewGreeterHttpClient(endpoints)
 
 	ctx := context.Background()
 	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})

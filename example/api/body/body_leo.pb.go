@@ -508,7 +508,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &User{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				return req, nil
 			},
@@ -517,7 +517,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -531,7 +531,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				return req, nil
 			},
@@ -540,7 +540,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -560,7 +560,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -575,7 +575,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				req := &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
 				if err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				req.Data = body
 				req.ContentType = r.Header.Get("Content-Type")
@@ -586,7 +586,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -602,7 +602,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				req.Body = &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
 				if err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				req.Body.Data = body
 				req.Body.ContentType = r.Header.Get("Content-Type")
@@ -613,7 +613,7 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},

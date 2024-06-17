@@ -16,9 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	endpoints := helloworld.NewGreeterEndpoints(
-		NewGreeterService(),
-	)
+	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterService())
 	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
 	handler := helloworld.NewGreeterHttpServerHandler(transports)
 	server := http.Server{Handler: handler}

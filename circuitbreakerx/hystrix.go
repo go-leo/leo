@@ -2,6 +2,7 @@ package circuitbreakerx
 
 import (
 	"context"
+	"errors"
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/endpointx"

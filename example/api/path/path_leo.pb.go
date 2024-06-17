@@ -823,7 +823,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptBool, varErr = errorx.Break[*bool](varErr)(urlx.GetBoolPtr(vars, "opt_bool"))
 				req.WrapBool, varErr = errorx.Break[*wrapperspb.BoolValue](varErr)(urlx.GetBoolValue(vars, "wrap_bool"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -863,7 +863,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -872,7 +872,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -895,7 +895,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptSfixed32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sfixed32"))
 				req.WrapInt32, varErr = errorx.Break[*wrapperspb.Int32Value](varErr)(urlx.GetInt32Value(vars, "wrap_int32"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -931,7 +931,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -940,7 +940,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -963,7 +963,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptSfixed64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sfixed64"))
 				req.WrapInt64, varErr = errorx.Break[*wrapperspb.Int64Value](varErr)(urlx.GetInt64Value(vars, "wrap_int64"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -999,7 +999,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1008,7 +1008,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1029,7 +1029,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptFixed32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_fixed32"))
 				req.WrapUint32, varErr = errorx.Break[*wrapperspb.UInt32Value](varErr)(urlx.GetUint32Value(vars, "wrap_uint32"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -1067,7 +1067,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1076,7 +1076,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1097,7 +1097,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptFixed64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_fixed64"))
 				req.WrapUint64, varErr = errorx.Break[*wrapperspb.UInt64Value](varErr)(urlx.GetUint64Value(vars, "wrap_uint64"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -1135,7 +1135,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1144,7 +1144,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1163,7 +1163,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptFloat, varErr = errorx.Break[*float32](varErr)(urlx.GetFloatPtr[float32](vars, "opt_float"))
 				req.WrapFloat, varErr = errorx.Break[*wrapperspb.FloatValue](varErr)(urlx.GetFloat32Value(vars, "wrap_float"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -1203,7 +1203,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1212,7 +1212,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1231,7 +1231,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptDouble, varErr = errorx.Break[*float64](varErr)(urlx.GetFloatPtr[float64](vars, "opt_double"))
 				req.WrapDouble, varErr = errorx.Break[*wrapperspb.DoubleValue](varErr)(urlx.GetFloat64Value(vars, "wrap_double"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -1271,7 +1271,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1280,7 +1280,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1299,7 +1299,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptString = proto.String(vars.Get("opt_string"))
 				req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -1339,7 +1339,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
 				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1348,7 +1348,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1366,7 +1366,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.Status, varErr = errorx.Break[PathRequest_Status](varErr)(urlx.GetInt[PathRequest_Status](vars, "status"))
 				req.OptStatus, varErr = errorx.Break[*PathRequest_Status](varErr)(urlx.GetIntPtr[PathRequest_Status](vars, "opt_status"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
@@ -1407,7 +1407,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -1416,7 +1416,7 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},

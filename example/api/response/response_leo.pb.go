@@ -516,7 +516,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -536,7 +536,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -556,7 +556,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -577,7 +577,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				for _, src := range resp.GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
 					if err != nil {
-						return err
+						return statusx.ErrInternal.Wrap(err)
 					}
 					metadata, ok := dst.(*structpb.Struct)
 					if !ok {
@@ -589,7 +589,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				}
 				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetData()); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -610,7 +610,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				for _, src := range resp.GetBody().GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
 					if err != nil {
-						return err
+						return statusx.ErrInternal.Wrap(err)
 					}
 					metadata, ok := dst.(*structpb.Struct)
 					if !ok {
@@ -622,7 +622,7 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				}
 				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetBody().GetData()); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},

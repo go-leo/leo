@@ -845,7 +845,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				return req, nil
 			},
@@ -854,7 +854,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -871,7 +871,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				var varErr error
 				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -880,7 +880,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -894,13 +894,13 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -909,7 +909,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -926,7 +926,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				var varErr error
 				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -935,7 +935,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -953,7 +953,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				req.PageNo, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_no"))
 				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
 				if queryErr != nil {
-					return nil, queryErr
+					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -962,7 +962,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -978,7 +978,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				req.Avatar = &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
 				if err != nil {
-					return nil, err
+					return nil, statusx.ErrInvalidArgument.Wrap(err)
 				}
 				req.Avatar.Data = body
 				req.Avatar.ContentType = r.Header.Get("Content-Type")
@@ -986,7 +986,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				var varErr error
 				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -995,7 +995,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
@@ -1012,7 +1012,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				var varErr error
 				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
 				if varErr != nil {
-					return nil, varErr
+					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -1022,7 +1022,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				for _, src := range resp.GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
 					if err != nil {
-						return err
+						return statusx.ErrInternal.Wrap(err)
 					}
 					metadata, ok := dst.(*structpb.Struct)
 					if !ok {
@@ -1034,7 +1034,7 @@ func NewDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 				}
 				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetData()); err != nil {
-					return err
+					return statusx.ErrInternal.Wrap(err)
 				}
 				return nil
 			},
