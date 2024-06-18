@@ -457,6 +457,7 @@ func (c *queryHttpClient) Query(ctx context.Context, request *QueryRequest) (*em
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewQueryHttpClient(endpoints QueryEndpoints) QueryService {
+func NewQueryHttpClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
+	endpoints := NewQueryClientEndpoints(transports, middlewares...)
 	return &queryGrpcClient{endpoints: endpoints}
 }

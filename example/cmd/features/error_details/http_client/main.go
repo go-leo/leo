@@ -13,8 +13,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	endpoints := helloworld.NewGreeterClientEndpoints(transports)
-	client := helloworld.NewGreeterHttpClient(endpoints)
+	client := helloworld.NewGreeterHttpClient(transports)
 
 	ctx := context.Background()
 	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})

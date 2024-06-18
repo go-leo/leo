@@ -25,9 +25,21 @@ func main() {
 	go runHttp(8080, "red")
 	go runHttp(8081, "blue")
 	go runHttp(8082, "yellow")
+	go runHttp(18080, "red")
+	go runHttp(18081, "blue")
+	go runHttp(18082, "yellow")
+	go runHttp(28080, "red")
+	go runHttp(28081, "blue")
+	go runHttp(28082, "yellow")
 	go runGrpc(9090, "red")
 	go runGrpc(9091, "blue")
 	go runGrpc(9092, "yellow")
+	go runGrpc(19090, "red")
+	go runGrpc(19091, "blue")
+	go runGrpc(19092, "yellow")
+	go runGrpc(29090, "red")
+	go runGrpc(29091, "blue")
+	go runGrpc(29092, "yellow")
 	select {}
 }
 
@@ -43,11 +55,10 @@ func runApi(port int) {
 	if err != nil {
 		panic(err)
 	}
-	httpEndpoints := helloworld.NewGreeterClientEndpoints(
+	httpClient := helloworld.NewGreeterHttpClient(
 		httpTransports,
 		staining.Middleware("X-Color"),
 	)
-	httpClient := helloworld.NewGreeterHttpClient(httpEndpoints)
 
 	endpoints := helloworld.NewGreeterServerEndpoints(
 		NewGreeterApiService(httpClient),
@@ -83,7 +94,8 @@ func NewGreeterApiService(client helloworld.GreeterService) helloworld.GreeterSe
 }
 
 func runHttp(port int, color string) {
-	lis, err := net.Listen("tcp", ":"+strconv.FormatInt(int64(port), 10))
+	address := ":" + strconv.FormatInt(int64(port), 10)
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -97,7 +109,7 @@ func runHttp(port int, color string) {
 	}
 	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, staining.Middleware("X-Color"))
 
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterHttpService(grpcClient, color), staining.Middleware("X-Color"))
+	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterHttpService(grpcClient, address, color), staining.Middleware("X-Color"))
 	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
 	handler := helloworld.NewGreeterHttpServerHandler(transports)
 	server := http.Server{Handler: handler}
@@ -136,8 +148,9 @@ func runHttp(port int, color string) {
 }
 
 type GreeterHttpService struct {
-	client helloworld.GreeterService
-	color  string
+	client  helloworld.GreeterService
+	address string
+	color   string
 }
 
 func (g GreeterHttpService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
@@ -145,21 +158,22 @@ func (g GreeterHttpService) SayHello(ctx context.Context, request *helloworld.He
 	if err != nil {
 		return nil, err
 	}
-	hello.Message = "i am http, my color is " + g.color + ". " + hello.GetMessage()
+	hello.Message = "i am http, my color is " + g.color + "@" + g.address + ". " + hello.GetMessage()
 	return hello, nil
 }
 
-func NewGreeterHttpService(client helloworld.GreeterService, color string) helloworld.GreeterService {
-	return &GreeterHttpService{client: client, color: color}
+func NewGreeterHttpService(client helloworld.GreeterService, address string, color string) helloworld.GreeterService {
+	return &GreeterHttpService{client: client, address: address, color: color}
 }
 
 func runGrpc(port int, color string) {
-	lis, err := net.Listen("tcp", ":"+strconv.FormatInt(int64(port), 10))
+	address := ":" + strconv.FormatInt(int64(port), 10)
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterGrpcService(color), staining.Middleware("X-Color"))
+	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterGrpcService(address, color), staining.Middleware("X-Color"))
 	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
 	service := helloworld.NewGreeterGrpcServer(transports)
 	helloworld.RegisterGreeterServer(s, service)
@@ -197,14 +211,15 @@ func runGrpc(port int, color string) {
 }
 
 type GreeterGrpcService struct {
-	color string
+	color   string
+	address string
 }
 
 func (g GreeterGrpcService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	time.Sleep(time.Second)
-	return &helloworld.HelloReply{Message: "i am grpc, my color is " + g.color + "."}, nil
+	return &helloworld.HelloReply{Message: "i am grpc, my color is " + g.color + "@" + g.address + "."}, nil
 }
 
-func NewGreeterGrpcService(color string) helloworld.GreeterService {
-	return &GreeterGrpcService{color: color}
+func NewGreeterGrpcService(address, color string) helloworld.GreeterService {
+	return &GreeterGrpcService{address: address, color: color}
 }

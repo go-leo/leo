@@ -2370,6 +2370,7 @@ func (c *pathHttpClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewPathHttpClient(endpoints PathEndpoints) PathService {
+func NewPathHttpClient(transports PathClientTransports, middlewares ...endpoint.Middleware) PathService {
+	endpoints := NewPathClientEndpoints(transports, middlewares...)
 	return &pathGrpcClient{endpoints: endpoints}
 }

@@ -1006,6 +1006,7 @@ func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewBodyHttpClient(endpoints BodyEndpoints) BodyService {
+func NewBodyHttpClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
+	endpoints := NewBodyClientEndpoints(transports, middlewares...)
 	return &bodyGrpcClient{endpoints: endpoints}
 }

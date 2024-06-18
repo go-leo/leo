@@ -14,11 +14,10 @@ func main() {
 	}
 
 	// ok
-	endpoints := helloworld.NewGreeterClientEndpoints(
+	client := helloworld.NewGreeterHttpClient(
 		transports,
 		basicx.Middleware("soyacen", "123456", "basic auth example"),
 	)
-	client := helloworld.NewGreeterHttpClient(endpoints)
 	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
 		panic(err)
@@ -26,11 +25,10 @@ func main() {
 	fmt.Println(reply)
 
 	// panic
-	endpoints = helloworld.NewGreeterClientEndpoints(
+	client = helloworld.NewGreeterHttpClient(
 		transports,
 		basicx.Middleware("soyacen", "654321", "basic auth example"),
 	)
-	client = helloworld.NewGreeterHttpClient(endpoints)
 	reply, err = client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "mint"})
 	if err != nil {
 		panic(err)

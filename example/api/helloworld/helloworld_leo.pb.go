@@ -319,6 +319,7 @@ func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest)
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterHttpClient(endpoints GreeterEndpoints) GreeterService {
+func NewGreeterHttpClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
+	endpoints := NewGreeterClientEndpoints(transports, middlewares...)
 	return &greeterGrpcClient{endpoints: endpoints}
 }

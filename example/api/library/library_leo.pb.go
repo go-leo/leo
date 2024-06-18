@@ -2132,6 +2132,7 @@ func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBo
 	return rep.(*Book), nil
 }
 
-func NewLibraryServiceHttpClient(endpoints LibraryServiceEndpoints) LibraryServiceService {
+func NewLibraryServiceHttpClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
+	endpoints := NewLibraryServiceClientEndpoints(transports, middlewares...)
 	return &libraryServiceGrpcClient{endpoints: endpoints}
 }

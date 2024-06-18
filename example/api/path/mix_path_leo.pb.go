@@ -332,6 +332,7 @@ func (c *mixPathHttpClient) MixPath(ctx context.Context, request *MixPathRequest
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewMixPathHttpClient(endpoints MixPathEndpoints) MixPathService {
+func NewMixPathHttpClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
+	endpoints := NewMixPathClientEndpoints(transports, middlewares...)
 	return &mixPathGrpcClient{endpoints: endpoints}
 }

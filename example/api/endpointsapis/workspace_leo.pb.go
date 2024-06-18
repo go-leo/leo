@@ -1058,6 +1058,7 @@ func (c *workspacesHttpClient) DeleteWorkspace(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewWorkspacesHttpClient(endpoints WorkspacesEndpoints) WorkspacesService {
+func NewWorkspacesHttpClient(transports WorkspacesClientTransports, middlewares ...endpoint.Middleware) WorkspacesService {
+	endpoints := NewWorkspacesClientEndpoints(transports, middlewares...)
 	return &workspacesGrpcClient{endpoints: endpoints}
 }

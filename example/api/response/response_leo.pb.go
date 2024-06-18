@@ -1002,6 +1002,7 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func NewResponseHttpClient(endpoints ResponseEndpoints) ResponseService {
+func NewResponseHttpClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
+	endpoints := NewResponseClientEndpoints(transports, middlewares...)
 	return &responseGrpcClient{endpoints: endpoints}
 }

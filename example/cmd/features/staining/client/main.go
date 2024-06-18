@@ -8,9 +8,26 @@ import (
 )
 
 func main() {
-	callApi("red")
-	callApi("blue")
-	callApi("yellow")
+	go func() {
+		for i := 0; i < 90; i++ {
+			callApi("red")
+		}
+	}()
+
+	go func() {
+		for i := 0; i < 90; i++ {
+			callApi("blue")
+		}
+	}()
+
+	go func() {
+		for i := 0; i < 90; i++ {
+			callApi("yellow")
+		}
+	}()
+
+	select {}
+
 }
 
 func callApi(color string) {

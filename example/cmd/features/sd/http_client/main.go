@@ -14,8 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	endpoints := helloworld.NewGreeterClientEndpoints(transports)
-	client := helloworld.NewGreeterHttpClient(endpoints)
+	client := helloworld.NewGreeterHttpClient(transports)
 
 	for i := 0; i < 90; i++ {
 		callRpc(client)
