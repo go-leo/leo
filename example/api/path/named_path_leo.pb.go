@@ -532,7 +532,8 @@ func (c *namedPathGrpcClient) EmbedNamedPathWrapString(ctx context.Context, requ
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewNamedPathGrpcClient(endpoints NamedPathEndpoints) NamedPathService {
+func NewNamedPathGrpcClient(transports NamedPathClientTransports, middlewares ...endpoint.Middleware) NamedPathService {
+	endpoints := NewNamedPathClientEndpoints(transports, middlewares...)
 	return &namedPathGrpcClient{endpoints: endpoints}
 }
 

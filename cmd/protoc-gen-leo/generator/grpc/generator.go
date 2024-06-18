@@ -187,7 +187,8 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 		g.P()
 	}
 
-	g.P("func New", service.GrpcClientName(), "(endpoints ", service.EndpointsName(), ") ", service.ServiceName(), " {")
+	g.P("func New", service.GrpcClientName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
+	g.P("endpoints := New", service.ClientEndpointsName(), "(transports, middlewares...)")
 	g.P("return &", service.UnexportedGrpcClientName(), "{endpoints:endpoints}")
 	g.P("}")
 	g.P()

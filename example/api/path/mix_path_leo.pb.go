@@ -177,7 +177,8 @@ func (c *mixPathGrpcClient) MixPath(ctx context.Context, request *MixPathRequest
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewMixPathGrpcClient(endpoints MixPathEndpoints) MixPathService {
+func NewMixPathGrpcClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
+	endpoints := NewMixPathClientEndpoints(transports, middlewares...)
 	return &mixPathGrpcClient{endpoints: endpoints}
 }
 

@@ -178,7 +178,8 @@ func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*em
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewQueryGrpcClient(endpoints QueryEndpoints) QueryService {
+func NewQueryGrpcClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
+	endpoints := NewQueryClientEndpoints(transports, middlewares...)
 	return &queryGrpcClient{endpoints: endpoints}
 }
 

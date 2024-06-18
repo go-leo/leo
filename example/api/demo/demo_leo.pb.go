@@ -784,7 +784,8 @@ func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvat
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func NewDemoGrpcClient(endpoints DemoEndpoints) DemoService {
+func NewDemoGrpcClient(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoService {
+	endpoints := NewDemoClientEndpoints(transports, middlewares...)
 	return &demoGrpcClient{endpoints: endpoints}
 }
 

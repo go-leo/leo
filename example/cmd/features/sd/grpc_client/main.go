@@ -16,8 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	endpoints := helloworld.NewGreeterClientEndpoints(transports)
-	client := helloworld.NewGreeterGrpcClient(endpoints)
+	client := helloworld.NewGreeterGrpcClient(transports)
 
 	for i := 0; i < 90; i++ {
 		callRpc(client)

@@ -313,7 +313,8 @@ func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest)
 	return rep.(*GetUserResponse), nil
 }
 
-func NewCQRSGrpcClient(endpoints CQRSEndpoints) CQRSService {
+func NewCQRSGrpcClient(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSService {
+	endpoints := NewCQRSClientEndpoints(transports, middlewares...)
 	return &cQRSGrpcClient{endpoints: endpoints}
 }
 

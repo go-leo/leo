@@ -95,8 +95,7 @@ func runHttp(port int, color string) {
 	if err != nil {
 		panic(err)
 	}
-	grpcClientEndpoints := helloworld.NewGreeterClientEndpoints(grpcClientTransports, staining.Middleware("X-Color"))
-	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientEndpoints)
+	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, staining.Middleware("X-Color"))
 
 	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterHttpService(grpcClient, color), staining.Middleware("X-Color"))
 	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
@@ -203,7 +202,7 @@ type GreeterGrpcService struct {
 
 func (g GreeterGrpcService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	time.Sleep(time.Second)
-	return &helloworld.HelloReply{Message: "hi " + request.GetName() + ", i am grpc, my color is " + g.color + "."}, nil
+	return &helloworld.HelloReply{Message: "i am grpc, my color is " + g.color + "."}, nil
 }
 
 func NewGreeterGrpcService(color string) helloworld.GreeterService {

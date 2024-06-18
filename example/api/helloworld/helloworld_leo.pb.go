@@ -173,7 +173,8 @@ func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest)
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterGrpcClient(endpoints GreeterEndpoints) GreeterService {
+func NewGreeterGrpcClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
+	endpoints := NewGreeterClientEndpoints(transports, middlewares...)
 	return &greeterGrpcClient{endpoints: endpoints}
 }
 

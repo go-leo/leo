@@ -461,7 +461,8 @@ func (c *workspacesGrpcClient) DeleteWorkspace(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewWorkspacesGrpcClient(endpoints WorkspacesEndpoints) WorkspacesService {
+func NewWorkspacesGrpcClient(transports WorkspacesClientTransports, middlewares ...endpoint.Middleware) WorkspacesService {
+	endpoints := NewWorkspacesClientEndpoints(transports, middlewares...)
 	return &workspacesGrpcClient{endpoints: endpoints}
 }
 

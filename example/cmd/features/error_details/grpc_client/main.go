@@ -15,8 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	endpoints := helloworld.NewGreeterClientEndpoints(transports)
-	client := helloworld.NewGreeterGrpcClient(endpoints)
+	client := helloworld.NewGreeterGrpcClient(transports)
 	ctx := context.Background()
 	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
