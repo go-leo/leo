@@ -442,7 +442,9 @@ func (s *pathGrpcServer) EnumPath(ctx context.Context, request *PathRequest) (*e
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewPathGrpcServer(transports PathGrpcServerTransports) PathService {
+func NewPathGrpcServer(svc PathService, middlewares ...endpoint.Middleware) PathService {
+	endpoints := NewPathServerEndpoints(svc, middlewares...)
+	transports := NewPathGrpcServerTransports(endpoints)
 	return &pathGrpcServer{
 		boolPath:   transports.BoolPath(),
 		int32Path:  transports.Int32Path(),

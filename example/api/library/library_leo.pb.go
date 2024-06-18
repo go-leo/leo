@@ -522,7 +522,9 @@ func (s *libraryServiceGrpcServer) MoveBook(ctx context.Context, request *MoveBo
 	return rep.(*Book), nil
 }
 
-func NewLibraryServiceGrpcServer(transports LibraryServiceGrpcServerTransports) LibraryServiceService {
+func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceService {
+	endpoints := NewLibraryServiceServerEndpoints(svc, middlewares...)
+	transports := NewLibraryServiceGrpcServerTransports(endpoints)
 	return &libraryServiceGrpcServer{
 		createShelf:  transports.CreateShelf(),
 		getShelf:     transports.GetShelf(),

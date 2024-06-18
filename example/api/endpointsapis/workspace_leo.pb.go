@@ -282,7 +282,9 @@ func (s *workspacesGrpcServer) DeleteWorkspace(ctx context.Context, request *Del
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewWorkspacesGrpcServer(transports WorkspacesGrpcServerTransports) WorkspacesService {
+func NewWorkspacesGrpcServer(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesService {
+	endpoints := NewWorkspacesServerEndpoints(svc, middlewares...)
+	transports := NewWorkspacesGrpcServerTransports(endpoints)
 	return &workspacesGrpcServer{
 		listWorkspaces:  transports.ListWorkspaces(),
 		getWorkspace:    transports.GetWorkspace(),

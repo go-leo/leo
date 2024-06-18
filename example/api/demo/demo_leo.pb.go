@@ -543,7 +543,9 @@ func (s *demoGrpcServer) GetUserAvatar(ctx context.Context, request *GetUserAvat
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func NewDemoGrpcServer(transports DemoGrpcServerTransports) DemoService {
+func NewDemoGrpcServer(svc DemoService, middlewares ...endpoint.Middleware) DemoService {
+	endpoints := NewDemoServerEndpoints(svc, middlewares...)
+	transports := NewDemoGrpcServerTransports(endpoints)
 	return &demoGrpcServer{
 		createUser:       transports.CreateUser(),
 		deleteUser:       transports.DeleteUser(),

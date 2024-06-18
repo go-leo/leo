@@ -280,7 +280,9 @@ func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewBodyGrpcServer(transports BodyGrpcServerTransports) BodyService {
+func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) BodyService {
+	endpoints := NewBodyServerEndpoints(svc, middlewares...)
+	transports := NewBodyGrpcServerTransports(endpoints)
 	return &bodyGrpcServer{
 		starBody:          transports.StarBody(),
 		namedBody:         transports.NamedBody(),

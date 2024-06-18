@@ -173,9 +173,10 @@ func runGrpc(port int, color string) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterGrpcService(address, color), staining.Middleware("X-Color"))
-	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
-	service := helloworld.NewGreeterGrpcServer(transports)
+	service := helloworld.NewGreeterGrpcServer(
+		NewGreeterGrpcService(address, color),
+		staining.Middleware("X-Color"),
+	)
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
 	client, err := stdconsul.NewClient(&stdconsul.Config{

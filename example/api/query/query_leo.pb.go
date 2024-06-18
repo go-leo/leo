@@ -123,7 +123,9 @@ func (s *queryGrpcServer) Query(ctx context.Context, request *QueryRequest) (*em
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewQueryGrpcServer(transports QueryGrpcServerTransports) QueryService {
+func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) QueryService {
+	endpoints := NewQueryServerEndpoints(svc, middlewares...)
+	transports := NewQueryGrpcServerTransports(endpoints)
 	return &queryGrpcServer{
 		query: transports.Query(),
 	}

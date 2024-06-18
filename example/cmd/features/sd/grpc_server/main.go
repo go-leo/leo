@@ -30,9 +30,7 @@ func run(port int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterService(address))
-	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
-	service := helloworld.NewGreeterGrpcServer(transports)
+	service := helloworld.NewGreeterGrpcServer(NewGreeterService(address))
 	helloworld.RegisterGreeterServer(s, service)
 	client, err := stdconsul.NewClient(&stdconsul.Config{
 		Address:    "localhost:8500",

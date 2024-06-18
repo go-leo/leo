@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterServerEndpoints(
+	service := helloworld.NewGreeterGrpcServer(
 		NewGreeterService(),
 		jwtx.NewParser(
 			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
@@ -24,8 +24,6 @@ func main() {
 			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
 		),
 	)
-	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
-	service := helloworld.NewGreeterGrpcServer(transports)
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

@@ -282,7 +282,9 @@ func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request 
 	return rep.(*HttpBody), nil
 }
 
-func NewResponseGrpcServer(transports ResponseGrpcServerTransports) ResponseService {
+func NewResponseGrpcServer(svc ResponseService, middlewares ...endpoint.Middleware) ResponseService {
+	endpoints := NewResponseServerEndpoints(svc, middlewares...)
+	transports := NewResponseGrpcServerTransports(endpoints)
 	return &responseGrpcServer{
 		omittedResponse:       transports.OmittedResponse(),
 		starResponse:          transports.StarResponse(),

@@ -17,9 +17,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterService())
-	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
-	service := helloworld.NewGreeterGrpcServer(transports)
+	service := helloworld.NewGreeterGrpcServer(NewGreeterService())
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

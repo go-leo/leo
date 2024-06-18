@@ -113,7 +113,9 @@ func (f *Generator) GenerateServerService(service *internal.Service, g *protogen
 	}
 	g.P()
 
-	g.P("func New", service.GrpcServerName(), "(transports ", service.GrpcServerTransportsName(), ") ", service.ServiceName(), " {")
+	g.P("func New", service.GrpcServerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
+	g.P("endpoints := New", service.ServerEndpointsName(), "(svc, middlewares...)")
+	g.P("transports := New", service.GrpcServerTransportsName(), "(endpoints)")
 	g.P("return &", service.UnexportedGrpcServerName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": transports.", endpoint.Name(), "(),")

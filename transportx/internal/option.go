@@ -7,6 +7,7 @@ import (
 	"github.com/go-leo/leo/v3/sdx/dnssrvx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
+	"google.golang.org/grpc"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type ClientTransportOptions struct {
 	BalancerFactory   lbx.BalancerFactory
 	EndpointerOptions []sd.EndpointerOption
 	DefaultScheme     string
+	dialOptions       []grpc.DialOption
 }
 
 func (o *ClientTransportOptions) Init() *ClientTransportOptions {
@@ -63,5 +65,11 @@ func EndpointerOption(options ...sd.EndpointerOption) ClientTransportOption {
 func DefaultScheme(scheme string) ClientTransportOption {
 	return func(o *ClientTransportOptions) {
 		o.DefaultScheme = scheme
+	}
+}
+
+func DialOptions(dialOptions ...grpc.DialOption) ClientTransportOption {
+	return func(o *ClientTransportOptions) {
+		o.dialOptions = append(o.dialOptions, dialOptions...)
 	}
 }

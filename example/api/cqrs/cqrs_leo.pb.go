@@ -227,7 +227,9 @@ func (s *cQRSGrpcServer) FindUser(ctx context.Context, request *FindUserRequest)
 	return rep.(*GetUserResponse), nil
 }
 
-func NewCQRSGrpcServer(transports CQRSGrpcServerTransports) CQRSService {
+func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRSService {
+	endpoints := NewCQRSServerEndpoints(svc, middlewares...)
+	transports := NewCQRSGrpcServerTransports(endpoints)
 	return &cQRSGrpcServer{
 		createUser: transports.CreateUser(),
 		findUser:   transports.FindUser(),

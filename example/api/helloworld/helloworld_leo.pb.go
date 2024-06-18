@@ -118,7 +118,9 @@ func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest)
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterGrpcServer(transports GreeterGrpcServerTransports) GreeterService {
+func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware) GreeterService {
+	endpoints := NewGreeterServerEndpoints(svc, middlewares...)
+	transports := NewGreeterGrpcServerTransports(endpoints)
 	return &greeterGrpcServer{
 		sayHello: transports.SayHello(),
 	}

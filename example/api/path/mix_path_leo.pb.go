@@ -122,7 +122,9 @@ func (s *mixPathGrpcServer) MixPath(ctx context.Context, request *MixPathRequest
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewMixPathGrpcServer(transports MixPathGrpcServerTransports) MixPathService {
+func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware) MixPathService {
+	endpoints := NewMixPathServerEndpoints(svc, middlewares...)
+	transports := NewMixPathGrpcServerTransports(endpoints)
 	return &mixPathGrpcServer{
 		mixPath: transports.MixPath(),
 	}

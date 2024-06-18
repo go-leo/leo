@@ -322,7 +322,9 @@ func (s *namedPathGrpcServer) EmbedNamedPathWrapString(ctx context.Context, requ
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewNamedPathGrpcServer(transports NamedPathGrpcServerTransports) NamedPathService {
+func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathService {
+	endpoints := NewNamedPathServerEndpoints(svc, middlewares...)
+	transports := NewNamedPathGrpcServerTransports(endpoints)
 	return &namedPathGrpcServer{
 		namedPathString:          transports.NamedPathString(),
 		namedPathOptString:       transports.NamedPathOptString(),
