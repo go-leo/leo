@@ -17,7 +17,7 @@ type InstancerBuilder struct {
 	TTL time.Duration
 }
 
-func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color *sdx.Color) (sd.Instancer, error) {
+func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target) (sd.Instancer, error) {
 	return dnssrv.NewInstancer(target.Instance(), b.TTL, logx.FromContext(ctx)), nil
 }
 

@@ -40,15 +40,18 @@ func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, ke
 	if !ok {
 		return nil, ErrMissMetadata
 	}
-	ctx = sdx.InjectColors(ctx, sdx.ParseColors(md.Values(key)))
+	ctx = sdx.InjectColor(ctx, sdx.Color(md.Get(key)))
 	return next(ctx, request)
 }
 
 func handleOutgoing(ctx context.Context, request any, next endpoint.Endpoint, key string) (any, error) {
-	colors, ok := sdx.ExtractColors(ctx)
+	color, ok := sdx.ExtractColor(ctx)
 	if !ok {
 		return next(ctx, request)
 	}
-	ctx = metadatax.AppendToOutgoingContext(ctx, metadatax.FromMap(map[string][]string{key: colors.Pairs()}))
+	m := map[string][]string{
+		key: {string(color)},
+	}
+	ctx = metadatax.AppendToOutgoingContext(ctx, metadatax.FromMap(m))
 	return next(ctx, request)
 }

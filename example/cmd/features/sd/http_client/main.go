@@ -2,26 +2,31 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
-	"github.com/go-leo/leo/v3/statusx"
-	"log"
-	"os"
 )
 
 func main() {
-	transports := helloworld.NewGreeterHttpClientTransports("http", "127.0.0.1:8080")
-	client := helloworld.NewGreeterHttpClient(transports)
-
-	ctx := context.Background()
-	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
+	transports, err := helloworld.NewGreeterHttpClientTransports(
+		"consul://localhost:8500/demo.http?dc=dc1",
+		"http")
 	if err != nil {
-		statusErr, _ := statusx.FromError(err)
-		failure := statusErr.QuotaFailure()
-		log.Printf("Quota failure: %s", failure)
-		body := statusErr.HttpBody()
-		log.Printf("body: %s", body)
-		os.Exit(1)
+		panic(err)
 	}
-	log.Printf("Greeting: %s", r.Message)
 
+	endpoints := helloworld.NewGreeterClientEndpoints(transports)
+	client := helloworld.NewGreeterHttpClient(endpoints)
+
+	for i := 0; i < 90; i++ {
+		callRpc(client)
+	}
+}
+
+func callRpc(client helloworld.GreeterService) {
+	ctx := context.Background()
+	reply, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(reply)
 }

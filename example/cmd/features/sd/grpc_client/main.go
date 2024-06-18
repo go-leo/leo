@@ -2,43 +2,33 @@ package main
 
 import (
 	"context"
-	"github.com/go-kit/kit/sd/lb"
+	"fmt"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
-	"github.com/go-leo/leo/v3/sdx/lbx"
-	"github.com/go-leo/leo/v3/statusx"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"os"
 )
 
 func main() {
-	conn, err := grpc1.Dial(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
+	transports, err := helloworld.NewGreeterGrpcClientTransports(
+		"consul://localhost:8500/demo.grpc?dc=dc1",
+		[]grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())},
+	)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		panic(err)
 	}
-	defer conn.Close()
+	endpoints := helloworld.NewGreeterClientEndpoints(transports)
+	client := helloworld.NewGreeterGrpcClient(endpoints)
 
-	ctx := context.TODO()
-	factories := helloworld.NewGreeterGrpcClientFactories()
-	endpointers := helloworld.NewGreeterEndpointers(factories, nil, nil, nil)
-	endpointer := endpointers.SayHello(ctx, nil)
-	factory := lbx.RandomFactory{}
-	balancer := factory.New(ctx, endpointer)
-	endpoint := lb.Retry(3, 10*1000, balancer)
+	for i := 0; i < 90; i++ {
+		callRpc(client)
+	}
+}
 
-	resp, err := endpoint(context.Background(), nil)
-
-	transports := helloworld.NewGreeterGrpcClientTransports(conn)
-	client := helloworld.NewGreeterGrpcClient(helloworld.NewGreeterGrpcClientEndpoints(transports))
-
+func callRpc(client helloworld.GreeterService) {
 	ctx := context.Background()
-	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
+	reply, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
-		statusErr, _ := statusx.FromError(err)
-		failure := statusErr.QuotaFailure()
-		log.Printf("Quota failure: %s", failure)
-		os.Exit(1)
+		panic(err)
 	}
-	log.Printf("Greeting: %s", r.Message)
+	fmt.Println(reply)
 }

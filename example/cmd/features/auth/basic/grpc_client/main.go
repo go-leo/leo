@@ -10,10 +10,6 @@ import (
 )
 
 func main() {
-	//_, err := grpc1.NewClient(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	panic(err)
-	//}
 	transports, err := helloworld.NewGreeterGrpcClientTransports(":9090", []grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())})
 	if err != nil {
 		panic(err)

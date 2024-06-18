@@ -9,6 +9,7 @@ require (
 	github.com/go-leo/gox v0.0.0-20240614074305-c222696defab
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/golang-jwt/jwt/v4 v4.0.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/consul/api v1.14.0
 	github.com/stretchr/testify v1.9.0

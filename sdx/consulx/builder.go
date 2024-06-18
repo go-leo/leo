@@ -23,7 +23,7 @@ type InstancerBuilder struct {
 	ConfigParser func(rawURL *url.URL) (*api.Config, error)
 }
 
-func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color *sdx.Color) (sd.Instancer, error) {
+func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target) (sd.Instancer, error) {
 	dsn := strings.Join([]string{schemeName + ":/", target.URL.Host, target.URL.Path + "?" + target.URL.RawQuery}, "/")
 	rawURL, err := url.Parse(dsn)
 	if err != nil {
@@ -44,10 +44,11 @@ func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target, color 
 	if err != nil {
 		return nil, err
 	}
-	if color == nil {
+	color, ok := sdx.ExtractColor(ctx)
+	if !ok {
 		return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, nil, true), nil
 	}
-	return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, color.Color(), true), nil
+	return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, []string{string(color)}, true), nil
 }
 
 func (b *InstancerBuilder) Scheme() string {
