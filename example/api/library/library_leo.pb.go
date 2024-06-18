@@ -1279,19 +1279,21 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 	}
 }
 
-func NewLibraryServiceHttpServerHandler(endpoints LibraryServiceHttpServerTransports) http1.Handler {
+func NewLibraryServiceHttpServerHandler(svc LibraryServiceService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewLibraryServiceServerEndpoints(svc, middlewares...)
+	transports := NewLibraryServiceHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves").Handler(endpoints.CreateShelf())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}").Handler(endpoints.GetShelf())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListShelves").Methods("GET").Path("/v1/shelves").Handler(endpoints.ListShelves())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteShelf").Methods("DELETE").Path("/v1/shelves/{shelf}").Handler(endpoints.DeleteShelf())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/MergeShelves").Methods("POST").Path("/v1/shelves/{shelf}:merge").Handler(endpoints.MergeShelves())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateBook").Methods("POST").Path("/v1/shelves/{shelf}/books").Handler(endpoints.CreateBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetBook").Methods("GET").Path("/v1/shelves/{shelf}/books/{book}").Handler(endpoints.GetBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListBooks").Methods("GET").Path("/v1/shelves/{shelf}/books").Handler(endpoints.ListBooks())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteBook").Methods("DELETE").Path("/v1/shelves/{shelf}/books/{book}").Handler(endpoints.DeleteBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/UpdateBook").Methods("PATCH").Path("/v1/shelves/{shelf}/books/{book}").Handler(endpoints.UpdateBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move").Handler(endpoints.MoveBook())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves").Handler(transports.CreateShelf())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}").Handler(transports.GetShelf())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListShelves").Methods("GET").Path("/v1/shelves").Handler(transports.ListShelves())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteShelf").Methods("DELETE").Path("/v1/shelves/{shelf}").Handler(transports.DeleteShelf())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/MergeShelves").Methods("POST").Path("/v1/shelves/{shelf}:merge").Handler(transports.MergeShelves())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateBook").Methods("POST").Path("/v1/shelves/{shelf}/books").Handler(transports.CreateBook())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetBook").Methods("GET").Path("/v1/shelves/{shelf}/books/{book}").Handler(transports.GetBook())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListBooks").Methods("GET").Path("/v1/shelves/{shelf}/books").Handler(transports.ListBooks())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteBook").Methods("DELETE").Path("/v1/shelves/{shelf}/books/{book}").Handler(transports.DeleteBook())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/UpdateBook").Methods("PATCH").Path("/v1/shelves/{shelf}/books/{book}").Handler(transports.UpdateBook())
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move").Handler(transports.MoveBook())
 	return router
 }
 

@@ -391,10 +391,12 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 	}
 }
 
-func NewCQRSHttpServerHandler(endpoints CQRSHttpServerTransports) http1.Handler {
+func NewCQRSHttpServerHandler(svc CQRSService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewCQRSServerEndpoints(svc, middlewares...)
+	transports := NewCQRSHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser").Handler(endpoints.CreateUser())
-	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser").Handler(endpoints.FindUser())
+	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
+	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser").Handler(transports.FindUser())
 	return router
 }
 

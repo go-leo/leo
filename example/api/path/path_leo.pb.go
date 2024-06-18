@@ -1431,17 +1431,19 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 	}
 }
 
-func NewPathHttpServerHandler(endpoints PathHttpServerTransports) http1.Handler {
+func NewPathHttpServerHandler(svc PathService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewPathServerEndpoints(svc, middlewares...)
+	transports := NewPathHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}").Handler(endpoints.BoolPath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").Handler(endpoints.Int32Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Int64Path").Methods("GET").Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").Handler(endpoints.Int64Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Uint32Path").Methods("GET").Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}").Handler(endpoints.Uint32Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Uint64Path").Methods("GET").Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}").Handler(endpoints.Uint64Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/FloatPath").Methods("GET").Path("/v1/{float}/{opt_float}/{wrap_float}").Handler(endpoints.FloatPath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/DoublePath").Methods("GET").Path("/v1/{double}/{opt_double}/{wrap_double}").Handler(endpoints.DoublePath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/StringPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}").Handler(endpoints.StringPath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}").Handler(endpoints.EnumPath())
+	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}").Handler(transports.BoolPath())
+	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").Handler(transports.Int32Path())
+	router.NewRoute().Name("/leo.example.path.v1.Path/Int64Path").Methods("GET").Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").Handler(transports.Int64Path())
+	router.NewRoute().Name("/leo.example.path.v1.Path/Uint32Path").Methods("GET").Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}").Handler(transports.Uint32Path())
+	router.NewRoute().Name("/leo.example.path.v1.Path/Uint64Path").Methods("GET").Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}").Handler(transports.Uint64Path())
+	router.NewRoute().Name("/leo.example.path.v1.Path/FloatPath").Methods("GET").Path("/v1/{float}/{opt_float}/{wrap_float}").Handler(transports.FloatPath())
+	router.NewRoute().Name("/leo.example.path.v1.Path/DoublePath").Methods("GET").Path("/v1/{double}/{opt_double}/{wrap_double}").Handler(transports.DoublePath())
+	router.NewRoute().Name("/leo.example.path.v1.Path/StringPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}").Handler(transports.StringPath())
+	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}").Handler(transports.EnumPath())
 	return router
 }
 

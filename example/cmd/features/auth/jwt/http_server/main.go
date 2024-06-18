@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	endpoints := helloworld.NewGreeterServerEndpoints(
+	handler := helloworld.NewGreeterHttpServerHandler(
 		NewGreeterService(),
 		jwtx.NewParser(
 			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
@@ -23,8 +23,6 @@ func main() {
 			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
 		),
 	)
-	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
-	handler := helloworld.NewGreeterHttpServerHandler(transports)
 	server := http.Server{Handler: handler}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {

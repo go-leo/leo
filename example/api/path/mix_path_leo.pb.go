@@ -235,9 +235,11 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 	}
 }
 
-func NewMixPathHttpServerHandler(endpoints MixPathHttpServerTransports) http1.Handler {
+func NewMixPathHttpServerHandler(svc MixPathService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewMixPathServerEndpoints(svc, middlewares...)
+	transports := NewMixPathHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.MixPath())
+	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.MixPath())
 	return router
 }
 

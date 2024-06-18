@@ -58,13 +58,15 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 }
 
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.HttpServerHandlerName(), "(endpoints ", service.HttpServerTransportsName(), ") ", internal.HttpPackage.Ident("Handler"), " {")
+	g.P("func New", service.HttpServerHandlerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.HttpPackage.Ident("Handler"), " {")
+	g.P("endpoints := New", service.ServerEndpointsName(), "(svc, middlewares...)")
+	g.P("transports := New", service.HttpServerTransportsName(), "(endpoints)")
 	g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则
 		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ").Handler(endpoints.", endpoint.Name(), "())")
+		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ").Handler(transports.", endpoint.Name(), "())")
 	}
 	g.P("return router")
 	g.P("}")

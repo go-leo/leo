@@ -654,13 +654,15 @@ func NewWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 	}
 }
 
-func NewWorkspacesHttpServerHandler(endpoints WorkspacesHttpServerTransports) http1.Handler {
+func NewWorkspacesHttpServerHandler(svc WorkspacesService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewWorkspacesServerEndpoints(svc, middlewares...)
+	transports := NewWorkspacesHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(endpoints.ListWorkspaces())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(endpoints.GetWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(endpoints.CreateWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").Handler(endpoints.UpdateWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(endpoints.DeleteWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(transports.ListWorkspaces())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(transports.GetWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(transports.CreateWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").Handler(transports.UpdateWorkspace())
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(transports.DeleteWorkspace())
 	return router
 }
 

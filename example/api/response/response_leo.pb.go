@@ -637,13 +637,15 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 	}
 }
 
-func NewResponseHttpServerHandler(endpoints ResponseHttpServerTransports) http1.Handler {
+func NewResponseHttpServerHandler(svc ResponseService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewResponseServerEndpoints(svc, middlewares...)
+	transports := NewResponseHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(endpoints.OmittedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(endpoints.StarResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(endpoints.NamedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response").Handler(endpoints.HttpBodyResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response").Handler(endpoints.HttpBodyNamedResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(transports.OmittedResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(transports.StarResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(transports.NamedResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response").Handler(transports.HttpBodyResponse())
+	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response").Handler(transports.HttpBodyNamedResponse())
 	return router
 }
 

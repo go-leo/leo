@@ -30,9 +30,7 @@ func run(port int) {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterService(address))
-	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
-	handler := helloworld.NewGreeterHttpServerHandler(transports)
+	handler := helloworld.NewGreeterHttpServerHandler(NewGreeterService(address))
 	server := http.Server{Handler: handler}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
 		Address:    "localhost:8500",

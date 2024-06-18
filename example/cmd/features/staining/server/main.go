@@ -60,12 +60,10 @@ func runApi(port int) {
 		staining.Middleware("X-Color"),
 	)
 
-	endpoints := helloworld.NewGreeterServerEndpoints(
+	handler := helloworld.NewGreeterHttpServerHandler(
 		NewGreeterApiService(httpClient),
 		staining.Middleware("X-Color"),
 	)
-	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
-	handler := helloworld.NewGreeterHttpServerHandler(transports)
 	server := http.Server{Handler: handler}
 	go func() {
 		log.Printf("server listening at %v", lis.Addr())
@@ -109,9 +107,10 @@ func runHttp(port int, color string) {
 	}
 	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, staining.Middleware("X-Color"))
 
-	endpoints := helloworld.NewGreeterServerEndpoints(NewGreeterHttpService(grpcClient, address, color), staining.Middleware("X-Color"))
-	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
-	handler := helloworld.NewGreeterHttpServerHandler(transports)
+	handler := helloworld.NewGreeterHttpServerHandler(
+		NewGreeterHttpService(grpcClient, address, color),
+		staining.Middleware("X-Color"),
+	)
 	server := http.Server{Handler: handler}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
 		Address:    "localhost:8500",

@@ -3,27 +3,20 @@ package main
 import (
 	"context"
 	"crypto/rand"
-	"flag"
 	"fmt"
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 )
 
 func main() {
-	flag.Parse()
-	conn, err := grpc1.Dial(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
+	transports, err := demo.NewDemoGrpcClientTransports(":9090", []grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())})
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		panic(err)
 	}
-	defer conn.Close()
-
-	transports := demo.NewDemoGrpcClientTransports(conn)
-	endpoints := demo.NewDemoClientEndpoints(transports)
-	client := demo.NewDemoGrpcClient(endpoints)
+	client := demo.NewDemoGrpcClient(transports)
 
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		User: &demo.User{

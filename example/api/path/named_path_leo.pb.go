@@ -774,14 +774,16 @@ func NewNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 	}
 }
 
-func NewNamedPathHttpServerHandler(endpoints NamedPathHttpServerTransports) http1.Handler {
+func NewNamedPathHttpServerHandler(svc NamedPathService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewNamedPathServerEndpoints(svc, middlewares...)
+	transports := NewNamedPathHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.NamedPathString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.NamedPathOptString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathWrapString").Methods("GET").Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.NamedPathWrapString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Methods("GET").Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.EmbedNamedPathString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Methods("GET").Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.EmbedNamedPathOptString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(endpoints.EmbedNamedPathWrapString())
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathString())
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathOptString())
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathWrapString").Methods("GET").Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathWrapString())
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Methods("GET").Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.EmbedNamedPathString())
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Methods("GET").Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.EmbedNamedPathOptString())
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.EmbedNamedPathWrapString())
 	return router
 }
 

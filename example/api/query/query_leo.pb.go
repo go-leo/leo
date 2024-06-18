@@ -298,9 +298,11 @@ func NewQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 	}
 }
 
-func NewQueryHttpServerHandler(endpoints QueryHttpServerTransports) http1.Handler {
+func NewQueryHttpServerHandler(svc QueryService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewQueryServerEndpoints(svc, middlewares...)
+	transports := NewQueryHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query").Handler(endpoints.Query())
+	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query").Handler(transports.Query())
 	return router
 }
 

@@ -29,9 +29,7 @@ func main() {
 	}
 	demoAssembler := assembler.NewDemoAssembler()
 	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
-	endpoints := demo.NewDemoServerEndpoints(cqrsService)
-	transports := demo.NewDemoHttpServerTransports(endpoints)
-	handler := demo.NewDemoHttpServerHandler(transports)
+	handler := demo.NewDemoHttpServerHandler(cqrsService)
 	server := http.Server{Handler: handler}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {

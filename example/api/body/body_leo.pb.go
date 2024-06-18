@@ -628,13 +628,15 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 	}
 }
 
-func NewBodyHttpServerHandler(endpoints BodyHttpServerTransports) http1.Handler {
+func NewBodyHttpServerHandler(svc BodyService, middlewares ...endpoint.Middleware) http1.Handler {
+	endpoints := NewBodyServerEndpoints(svc, middlewares...)
+	transports := NewBodyHttpServerTransports(endpoints)
 	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(endpoints.StarBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(endpoints.NamedBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(endpoints.NonBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body").Handler(endpoints.HttpBodyStarBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body").Handler(endpoints.HttpBodyNamedBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(transports.StarBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(transports.NamedBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(transports.NonBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body").Handler(transports.HttpBodyStarBody())
+	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body").Handler(transports.HttpBodyNamedBody())
 	return router
 }
 
