@@ -20,7 +20,6 @@ import (
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
-	grpc1 "google.golang.org/grpc"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -159,7 +158,7 @@ func (e *pathServerEndpoints) EnumPath(context.Context) endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware) PathEndpoints {
+func newPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware) PathEndpoints {
 	return &pathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -204,7 +203,7 @@ func (e *pathClientEndpoints) EnumPath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.EnumPath().Endpoint(ctx), e.middlewares...)
 }
 
-func NewPathClientEndpoints(transports PathClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
+func newPathClientEndpoints(transports PathClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
 	return &pathClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -272,7 +271,7 @@ func (t *pathGrpcServerTransports) EnumPath() *grpc.Server {
 	return t.enumPath
 }
 
-func NewPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTransports {
+func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTransports {
 	return &pathGrpcServerTransports{
 		boolPath: grpc.NewServer(
 			endpoints.BoolPath(context.TODO()),
@@ -443,8 +442,8 @@ func (s *pathGrpcServer) EnumPath(ctx context.Context, request *PathRequest) (*e
 }
 
 func NewPathGrpcServer(svc PathService, middlewares ...endpoint.Middleware) PathService {
-	endpoints := NewPathServerEndpoints(svc, middlewares...)
-	transports := NewPathGrpcServerTransports(endpoints)
+	endpoints := newPathServerEndpoints(svc, middlewares...)
+	transports := newPathGrpcServerTransports(endpoints)
 	return &pathGrpcServer{
 		boolPath:   transports.BoolPath(),
 		int32Path:  transports.Int32Path(),
@@ -508,18 +507,13 @@ func (t *pathGrpcClientTransports) EnumPath() transportx.ClientTransport {
 	return t.enumPath
 }
 
-func NewPathGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (PathClientTransports, error) {
+func NewPathGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (PathClientTransports, error) {
 	t := &pathGrpcClientTransports{}
 	var err error
 	t.boolPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"BoolPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -534,7 +528,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"Int32Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -549,7 +542,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"Int64Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -564,7 +556,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"Uint32Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -579,7 +570,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"Uint64Path",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -594,7 +584,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"FloatPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -609,7 +598,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"DoublePath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -624,7 +612,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"StringPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -639,7 +626,6 @@ func NewPathGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.Path",
 				"EnumPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -748,7 +734,7 @@ func (c *pathGrpcClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 }
 
 func NewPathGrpcClient(transports PathClientTransports, middlewares ...endpoint.Middleware) PathService {
-	endpoints := NewPathClientEndpoints(transports, middlewares...)
+	endpoints := newPathClientEndpoints(transports, middlewares...)
 	return &pathGrpcClient{endpoints: endpoints}
 }
 
@@ -814,7 +800,7 @@ func (t *pathHttpServerTransports) EnumPath() *http.Server {
 	return t.enumPath
 }
 
-func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTransports {
+func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTransports {
 	return &pathHttpServerTransports{
 		boolPath: http.NewServer(
 			endpoints.BoolPath(context.TODO()),
@@ -1432,8 +1418,8 @@ func NewPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 }
 
 func NewPathHttpServerHandler(svc PathService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewPathServerEndpoints(svc, middlewares...)
-	transports := NewPathHttpServerTransports(endpoints)
+	endpoints := newPathServerEndpoints(svc, middlewares...)
+	transports := newPathHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}").Handler(transports.BoolPath())
 	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").Handler(transports.Int32Path())
@@ -1497,11 +1483,7 @@ func (t *pathHttpClientTransports) EnumPath() transportx.ClientTransport {
 	return t.enumPath
 }
 
-func NewPathHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (PathClientTransports, error) {
+func NewPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (PathClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
 	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
@@ -1518,7 +1500,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1604,7 +1585,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1686,7 +1666,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1768,7 +1747,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1852,7 +1830,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1936,7 +1913,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -2022,7 +1998,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -2108,7 +2083,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -2194,7 +2168,6 @@ func NewPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -2375,6 +2348,6 @@ func (c *pathHttpClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 }
 
 func NewPathHttpClient(transports PathClientTransports, middlewares ...endpoint.Middleware) PathService {
-	endpoints := NewPathClientEndpoints(transports, middlewares...)
+	endpoints := newPathClientEndpoints(transports, middlewares...)
 	return &pathGrpcClient{endpoints: endpoints}
 }

@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	transports, err := helloworld.NewGreeterHttpClientTransports(
-		"consul://localhost:8500/demo.http?dc=dc1",
-		"http")
+	transports, err := helloworld.NewGreeterHttpClientTransports("consul://localhost:8500/demo.http?dc=dc1")
 	if err != nil {
 		panic(err)
 	}

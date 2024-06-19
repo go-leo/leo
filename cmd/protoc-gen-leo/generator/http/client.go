@@ -25,12 +25,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func New", service.HttpClientTransportsName(), "(")
-	g.P("target string,")
-	g.P("scheme string,")
-	g.P("options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ",")
-	g.P(") (", service.ClientTransportsName(), ", error) {")
-
+	g.P("func New", service.HttpClientTransportsName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
 	if len(service.Endpoints) > 0 {
 		g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	}
@@ -49,7 +44,6 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
 		g.P("target,")
 		g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
-		g.P("scheme,")
 		if err := f.PrintEncodeRequestFunc(g, endpoint); err != nil {
 			return err
 		}
@@ -87,7 +81,7 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 		g.P()
 	}
 	g.P("func New", service.HttpClientName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
-	g.P("endpoints := New", service.ClientEndpointsName(), "(transports, middlewares...)")
+	g.P("endpoints := new", service.ClientEndpointsName(), "(transports, middlewares...)")
 	g.P("return &", service.UnexportedGrpcClientName(), "{endpoints:endpoints}")
 	g.P("}")
 	g.P()

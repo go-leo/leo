@@ -72,7 +72,7 @@ func (f *Generator) GenerateServerTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func New", service.GrpcServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.GrpcServerTransportsName(), " {")
+	g.P("func new", service.GrpcServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.GrpcServerTransportsName(), " {")
 	g.P("return &", service.UnexportedGrpcServerTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ":", internal.GrpcTransportPackage.Ident("NewServer"), "(")
@@ -114,8 +114,8 @@ func (f *Generator) GenerateServerService(service *internal.Service, g *protogen
 	g.P()
 
 	g.P("func New", service.GrpcServerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
-	g.P("endpoints := New", service.ServerEndpointsName(), "(svc, middlewares...)")
-	g.P("transports := New", service.GrpcServerTransportsName(), "(endpoints)")
+	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
+	g.P("transports := new", service.GrpcServerTransportsName(), "(endpoints)")
 	g.P("return &", service.UnexportedGrpcServerName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": transports.", endpoint.Name(), "(),")
@@ -141,11 +141,7 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func New", service.GrpcClientTransportsName(), "(")
-	g.P("target string,")
-	g.P("dialOption []", internal.GrpcPackage.Ident("DialOption"), ",")
-	g.P("options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ",")
-	g.P(") (", service.ClientTransportsName(), ", error) {")
+	g.P("func New", service.GrpcClientTransportsName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
 	g.P("t := &", service.UnexportedGrpcClientTransportsName(), "{}")
 	g.P("var err error")
 	for _, endpoint := range service.Endpoints {
@@ -153,7 +149,6 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
 		g.P("target,")
 		g.P(internal.GrpcxTransportxPackage.Ident("ClientFactory"), "(")
-		g.P("dialOption, ")
 		g.P(strconv.Quote(service.FullName()), ",")
 		g.P(strconv.Quote(endpoint.Name()), ", ")
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
@@ -190,7 +185,7 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 	}
 
 	g.P("func New", service.GrpcClientName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
-	g.P("endpoints := New", service.ClientEndpointsName(), "(transports, middlewares...)")
+	g.P("endpoints := new", service.ClientEndpointsName(), "(transports, middlewares...)")
 	g.P("return &", service.UnexportedGrpcClientName(), "{endpoints:endpoints}")
 	g.P("}")
 	g.P()

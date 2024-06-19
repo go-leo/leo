@@ -19,7 +19,6 @@ import (
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	grpc1 "google.golang.org/grpc"
 	proto "google.golang.org/protobuf/proto"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -111,7 +110,7 @@ func (e *responseServerEndpoints) HttpBodyNamedResponse(context.Context) endpoin
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseEndpoints {
+func newResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -140,7 +139,7 @@ func (e *responseClientEndpoints) HttpBodyNamedResponse(ctx context.Context) end
 	return endpointx.Chain(e.transports.HttpBodyNamedResponse().Endpoint(ctx), e.middlewares...)
 }
 
-func NewResponseClientEndpoints(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
+func newResponseClientEndpoints(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -184,7 +183,7 @@ func (t *responseGrpcServerTransports) HttpBodyNamedResponse() *grpc.Server {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcServerTransports {
+func newResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcServerTransports {
 	return &responseGrpcServerTransports{
 		omittedResponse: grpc.NewServer(
 			endpoints.OmittedResponse(context.TODO()),
@@ -283,8 +282,8 @@ func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request 
 }
 
 func NewResponseGrpcServer(svc ResponseService, middlewares ...endpoint.Middleware) ResponseService {
-	endpoints := NewResponseServerEndpoints(svc, middlewares...)
-	transports := NewResponseGrpcServerTransports(endpoints)
+	endpoints := newResponseServerEndpoints(svc, middlewares...)
+	transports := newResponseGrpcServerTransports(endpoints)
 	return &responseGrpcServer{
 		omittedResponse:       transports.OmittedResponse(),
 		starResponse:          transports.StarResponse(),
@@ -324,18 +323,13 @@ func (t *responseGrpcClientTransports) HttpBodyNamedResponse() transportx.Client
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (ResponseClientTransports, error) {
+func NewResponseGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (ResponseClientTransports, error) {
 	t := &responseGrpcClientTransports{}
 	var err error
 	t.omittedResponse, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.response.v1.Response",
 				"OmittedResponse",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -350,7 +344,6 @@ func NewResponseGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.response.v1.Response",
 				"StarResponse",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -365,7 +358,6 @@ func NewResponseGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.response.v1.Response",
 				"NamedResponse",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -380,7 +372,6 @@ func NewResponseGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.response.v1.Response",
 				"HttpBodyResponse",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -395,7 +386,6 @@ func NewResponseGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.response.v1.Response",
 				"HttpBodyNamedResponse",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -464,7 +454,7 @@ func (c *responseGrpcClient) HttpBodyNamedResponse(ctx context.Context, request 
 }
 
 func NewResponseGrpcClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
-	endpoints := NewResponseClientEndpoints(transports, middlewares...)
+	endpoints := newResponseClientEndpoints(transports, middlewares...)
 	return &responseGrpcClient{endpoints: endpoints}
 }
 
@@ -506,7 +496,7 @@ func (t *responseHttpServerTransports) HttpBodyNamedResponse() *http.Server {
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpServerTransports {
+func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpServerTransports {
 	return &responseHttpServerTransports{
 		omittedResponse: http.NewServer(
 			endpoints.OmittedResponse(context.TODO()),
@@ -638,8 +628,8 @@ func NewResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 }
 
 func NewResponseHttpServerHandler(svc ResponseService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewResponseServerEndpoints(svc, middlewares...)
-	transports := NewResponseHttpServerTransports(endpoints)
+	endpoints := newResponseServerEndpoints(svc, middlewares...)
+	transports := newResponseHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(transports.OmittedResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(transports.StarResponse())
@@ -679,11 +669,7 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse() transportx.Client
 	return t.httpBodyNamedResponse
 }
 
-func NewResponseHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (ResponseClientTransports, error) {
+func NewResponseHttpClientTransports(target string, options ...transportx.ClientTransportOption) (ResponseClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
@@ -696,7 +682,6 @@ func NewResponseHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -746,7 +731,6 @@ func NewResponseHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -796,7 +780,6 @@ func NewResponseHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -846,7 +829,6 @@ func NewResponseHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -899,7 +881,6 @@ func NewResponseHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1007,6 +988,6 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 }
 
 func NewResponseHttpClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
-	endpoints := NewResponseClientEndpoints(transports, middlewares...)
+	endpoints := newResponseClientEndpoints(transports, middlewares...)
 	return &responseGrpcClient{endpoints: endpoints}
 }

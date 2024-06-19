@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/transportx"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -11,7 +12,7 @@ import (
 func main() {
 	transports, err := helloworld.NewGreeterGrpcClientTransports(
 		"consul://localhost:8500/demo.grpc?dc=dc1",
-		[]grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())},
+		transportx.GrpcDialOption(grpc1.WithTransportCredentials(insecure.NewCredentials())),
 	)
 	if err != nil {
 		panic(err)

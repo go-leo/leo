@@ -3,29 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/gox/netx/httpx/outgoing"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 )
 
 func main() {
-	go func() {
-		for i := 0; i < 90; i++ {
+	for i := 0; i < 900; i++ {
+		r := randx.Int()
+		if r%3 == 0 {
 			callApi("red")
-		}
-	}()
-
-	go func() {
-		for i := 0; i < 90; i++ {
+		} else if r%3 == 1 {
 			callApi("blue")
-		}
-	}()
-
-	go func() {
-		for i := 0; i < 90; i++ {
+		} else {
 			callApi("yellow")
 		}
-	}()
-
+	}
 	select {}
 
 }

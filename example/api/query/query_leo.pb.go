@@ -21,7 +21,6 @@ import (
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
-	grpc1 "google.golang.org/grpc"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -64,7 +63,7 @@ func (e *queryServerEndpoints) Query(context.Context) endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewQueryServerEndpoints(svc QueryService, middlewares ...endpoint.Middleware) QueryEndpoints {
+func newQueryServerEndpoints(svc QueryService, middlewares ...endpoint.Middleware) QueryEndpoints {
 	return &queryServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -77,7 +76,7 @@ func (e *queryClientEndpoints) Query(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.Query().Endpoint(ctx), e.middlewares...)
 }
 
-func NewQueryClientEndpoints(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryEndpoints {
+func newQueryClientEndpoints(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryEndpoints {
 	return &queryClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -97,7 +96,7 @@ func (t *queryGrpcServerTransports) Query() *grpc.Server {
 	return t.query
 }
 
-func NewQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTransports {
+func newQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTransports {
 	return &queryGrpcServerTransports{
 		query: grpc.NewServer(
 			endpoints.Query(context.TODO()),
@@ -124,8 +123,8 @@ func (s *queryGrpcServer) Query(ctx context.Context, request *QueryRequest) (*em
 }
 
 func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) QueryService {
-	endpoints := NewQueryServerEndpoints(svc, middlewares...)
-	transports := NewQueryGrpcServerTransports(endpoints)
+	endpoints := newQueryServerEndpoints(svc, middlewares...)
+	transports := newQueryGrpcServerTransports(endpoints)
 	return &queryGrpcServer{
 		query: transports.Query(),
 	}
@@ -141,18 +140,13 @@ func (t *queryGrpcClientTransports) Query() transportx.ClientTransport {
 	return t.query
 }
 
-func NewQueryGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (QueryClientTransports, error) {
+func NewQueryGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (QueryClientTransports, error) {
 	t := &queryGrpcClientTransports{}
 	var err error
 	t.query, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.query.v1.Query",
 				"Query",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -181,7 +175,7 @@ func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*em
 }
 
 func NewQueryGrpcClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
-	endpoints := NewQueryClientEndpoints(transports, middlewares...)
+	endpoints := newQueryClientEndpoints(transports, middlewares...)
 	return &queryGrpcClient{endpoints: endpoints}
 }
 
@@ -199,7 +193,7 @@ func (t *queryHttpServerTransports) Query() *http.Server {
 	return t.query
 }
 
-func NewQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTransports {
+func newQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTransports {
 	return &queryHttpServerTransports{
 		query: http.NewServer(
 			endpoints.Query(context.TODO()),
@@ -299,8 +293,8 @@ func NewQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 }
 
 func NewQueryHttpServerHandler(svc QueryService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewQueryServerEndpoints(svc, middlewares...)
-	transports := NewQueryHttpServerTransports(endpoints)
+	endpoints := newQueryServerEndpoints(svc, middlewares...)
+	transports := newQueryHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query").Handler(transports.Query())
 	return router
@@ -316,11 +310,7 @@ func (t *queryHttpClientTransports) Query() transportx.ClientTransport {
 	return t.query
 }
 
-func NewQueryHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (QueryClientTransports, error) {
+func NewQueryHttpClientTransports(target string, options ...transportx.ClientTransportOption) (QueryClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
 	t := &queryHttpClientTransports{}
@@ -329,7 +319,6 @@ func NewQueryHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -462,6 +451,6 @@ func (c *queryHttpClient) Query(ctx context.Context, request *QueryRequest) (*em
 }
 
 func NewQueryHttpClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
-	endpoints := NewQueryClientEndpoints(transports, middlewares...)
+	endpoints := newQueryClientEndpoints(transports, middlewares...)
 	return &queryGrpcClient{endpoints: endpoints}
 }

@@ -21,7 +21,6 @@ import (
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
-	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -183,7 +182,7 @@ func (e *libraryServiceServerEndpoints) MoveBook(context.Context) endpoint.Endpo
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewLibraryServiceServerEndpoints(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
+func newLibraryServiceServerEndpoints(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
 	return &libraryServiceServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -236,7 +235,7 @@ func (e *libraryServiceClientEndpoints) MoveBook(ctx context.Context) endpoint.E
 	return endpointx.Chain(e.transports.MoveBook().Endpoint(ctx), e.middlewares...)
 }
 
-func NewLibraryServiceClientEndpoints(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
+func newLibraryServiceClientEndpoints(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
 	return &libraryServiceClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -316,7 +315,7 @@ func (t *libraryServiceGrpcServerTransports) MoveBook() *grpc.Server {
 	return t.moveBook
 }
 
-func NewLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) LibraryServiceGrpcServerTransports {
+func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) LibraryServiceGrpcServerTransports {
 	return &libraryServiceGrpcServerTransports{
 		createShelf: grpc.NewServer(
 			endpoints.CreateShelf(context.TODO()),
@@ -523,8 +522,8 @@ func (s *libraryServiceGrpcServer) MoveBook(ctx context.Context, request *MoveBo
 }
 
 func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceService {
-	endpoints := NewLibraryServiceServerEndpoints(svc, middlewares...)
-	transports := NewLibraryServiceGrpcServerTransports(endpoints)
+	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
+	transports := newLibraryServiceGrpcServerTransports(endpoints)
 	return &libraryServiceGrpcServer{
 		createShelf:  transports.CreateShelf(),
 		getShelf:     transports.GetShelf(),
@@ -600,18 +599,13 @@ func (t *libraryServiceGrpcClientTransports) MoveBook() transportx.ClientTranspo
 	return t.moveBook
 }
 
-func NewLibraryServiceGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (LibraryServiceClientTransports, error) {
+func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (LibraryServiceClientTransports, error) {
 	t := &libraryServiceGrpcClientTransports{}
 	var err error
 	t.createShelf, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"CreateShelf",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -626,7 +620,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"GetShelf",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -641,7 +634,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"ListShelves",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -656,7 +648,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"DeleteShelf",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -671,7 +662,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"MergeShelves",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -686,7 +676,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"CreateBook",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -701,7 +690,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"GetBook",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -716,7 +704,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"ListBooks",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -731,7 +718,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"DeleteBook",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -746,7 +732,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"UpdateBook",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -761,7 +746,6 @@ func NewLibraryServiceGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"google.example.library.v1.LibraryService",
 				"MoveBook",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -890,7 +874,7 @@ func (c *libraryServiceGrpcClient) MoveBook(ctx context.Context, request *MoveBo
 }
 
 func NewLibraryServiceGrpcClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
-	endpoints := NewLibraryServiceClientEndpoints(transports, middlewares...)
+	endpoints := newLibraryServiceClientEndpoints(transports, middlewares...)
 	return &libraryServiceGrpcClient{endpoints: endpoints}
 }
 
@@ -968,7 +952,7 @@ func (t *libraryServiceHttpServerTransports) MoveBook() *http.Server {
 	return t.moveBook
 }
 
-func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) LibraryServiceHttpServerTransports {
+func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) LibraryServiceHttpServerTransports {
 	return &libraryServiceHttpServerTransports{
 		createShelf: http.NewServer(
 			endpoints.CreateShelf(context.TODO()),
@@ -1280,8 +1264,8 @@ func NewLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 }
 
 func NewLibraryServiceHttpServerHandler(svc LibraryServiceService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewLibraryServiceServerEndpoints(svc, middlewares...)
-	transports := NewLibraryServiceHttpServerTransports(endpoints)
+	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
+	transports := newLibraryServiceHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves").Handler(transports.CreateShelf())
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}").Handler(transports.GetShelf())
@@ -1357,11 +1341,7 @@ func (t *libraryServiceHttpClientTransports) MoveBook() transportx.ClientTranspo
 	return t.moveBook
 }
 
-func NewLibraryServiceHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (LibraryServiceClientTransports, error) {
+func NewLibraryServiceHttpClientTransports(target string, options ...transportx.ClientTransportOption) (LibraryServiceClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves")
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}")
@@ -1380,7 +1360,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1437,7 +1416,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1493,7 +1471,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1545,7 +1522,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1601,7 +1577,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1664,7 +1639,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1727,7 +1701,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1783,7 +1756,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1841,7 +1813,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1897,7 +1868,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1960,7 +1930,6 @@ func NewLibraryServiceHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -2137,6 +2106,6 @@ func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBo
 }
 
 func NewLibraryServiceHttpClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
-	endpoints := NewLibraryServiceClientEndpoints(transports, middlewares...)
+	endpoints := newLibraryServiceClientEndpoints(transports, middlewares...)
 	return &libraryServiceGrpcClient{endpoints: endpoints}
 }

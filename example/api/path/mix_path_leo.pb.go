@@ -19,7 +19,6 @@ import (
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
-	grpc1 "google.golang.org/grpc"
 	proto "google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -63,7 +62,7 @@ func (e *mixPathServerEndpoints) MixPath(context.Context) endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathEndpoints {
+func newMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -76,7 +75,7 @@ func (e *mixPathClientEndpoints) MixPath(ctx context.Context) endpoint.Endpoint 
 	return endpointx.Chain(e.transports.MixPath().Endpoint(ctx), e.middlewares...)
 }
 
-func NewMixPathClientEndpoints(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
+func newMixPathClientEndpoints(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -96,7 +95,7 @@ func (t *mixPathGrpcServerTransports) MixPath() *grpc.Server {
 	return t.mixPath
 }
 
-func NewMixPathGrpcServerTransports(endpoints MixPathEndpoints) MixPathGrpcServerTransports {
+func newMixPathGrpcServerTransports(endpoints MixPathEndpoints) MixPathGrpcServerTransports {
 	return &mixPathGrpcServerTransports{
 		mixPath: grpc.NewServer(
 			endpoints.MixPath(context.TODO()),
@@ -123,8 +122,8 @@ func (s *mixPathGrpcServer) MixPath(ctx context.Context, request *MixPathRequest
 }
 
 func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware) MixPathService {
-	endpoints := NewMixPathServerEndpoints(svc, middlewares...)
-	transports := NewMixPathGrpcServerTransports(endpoints)
+	endpoints := newMixPathServerEndpoints(svc, middlewares...)
+	transports := newMixPathGrpcServerTransports(endpoints)
 	return &mixPathGrpcServer{
 		mixPath: transports.MixPath(),
 	}
@@ -140,18 +139,13 @@ func (t *mixPathGrpcClientTransports) MixPath() transportx.ClientTransport {
 	return t.mixPath
 }
 
-func NewMixPathGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (MixPathClientTransports, error) {
+func NewMixPathGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (MixPathClientTransports, error) {
 	t := &mixPathGrpcClientTransports{}
 	var err error
 	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.path.v1.MixPath",
 				"MixPath",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -180,7 +174,7 @@ func (c *mixPathGrpcClient) MixPath(ctx context.Context, request *MixPathRequest
 }
 
 func NewMixPathGrpcClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
-	endpoints := NewMixPathClientEndpoints(transports, middlewares...)
+	endpoints := newMixPathClientEndpoints(transports, middlewares...)
 	return &mixPathGrpcClient{endpoints: endpoints}
 }
 
@@ -198,7 +192,7 @@ func (t *mixPathHttpServerTransports) MixPath() *http.Server {
 	return t.mixPath
 }
 
-func NewMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServerTransports {
+func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServerTransports {
 	return &mixPathHttpServerTransports{
 		mixPath: http.NewServer(
 			endpoints.MixPath(context.TODO()),
@@ -236,8 +230,8 @@ func NewMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 }
 
 func NewMixPathHttpServerHandler(svc MixPathService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewMixPathServerEndpoints(svc, middlewares...)
-	transports := NewMixPathHttpServerTransports(endpoints)
+	endpoints := newMixPathServerEndpoints(svc, middlewares...)
+	transports := newMixPathHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.MixPath())
 	return router
@@ -253,11 +247,7 @@ func (t *mixPathHttpClientTransports) MixPath() transportx.ClientTransport {
 	return t.mixPath
 }
 
-func NewMixPathHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (MixPathClientTransports, error) {
+func NewMixPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (MixPathClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	t := &mixPathHttpClientTransports{}
@@ -266,7 +256,6 @@ func NewMixPathHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -337,6 +326,6 @@ func (c *mixPathHttpClient) MixPath(ctx context.Context, request *MixPathRequest
 }
 
 func NewMixPathHttpClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
-	endpoints := NewMixPathClientEndpoints(transports, middlewares...)
+	endpoints := newMixPathClientEndpoints(transports, middlewares...)
 	return &mixPathGrpcClient{endpoints: endpoints}
 }

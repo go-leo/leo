@@ -7,6 +7,7 @@ import (
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/staining"
+	"github.com/go-leo/leo/v3/transportx"
 	"github.com/google/uuid"
 	stdconsul "github.com/hashicorp/consul/api"
 	grpc1 "google.golang.org/grpc"
@@ -49,9 +50,7 @@ func runApi(port int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	httpTransports, err := helloworld.NewGreeterHttpClientTransports(
-		"consul://localhost:8500/demo.http?dc=dc1",
-		"http")
+	httpTransports, err := helloworld.NewGreeterHttpClientTransports("consul://localhost:8500/demo.http?dc=dc1")
 	if err != nil {
 		panic(err)
 	}
@@ -100,7 +99,7 @@ func runHttp(port int, color string) {
 
 	grpcClientTransports, err := helloworld.NewGreeterGrpcClientTransports(
 		"consul://localhost:8500/demo.grpc?dc=dc1",
-		[]grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())},
+		transportx.GrpcDialOption(grpc1.WithTransportCredentials(insecure.NewCredentials())),
 	)
 	if err != nil {
 		panic(err)

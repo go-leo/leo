@@ -31,7 +31,7 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func New", service.HttpServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.HttpServerTransportsName(), " {")
+	g.P("func new", service.HttpServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.HttpServerTransportsName(), " {")
 	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": ", internal.HttpTransportPackage.Ident("NewServer"), "(")
@@ -59,8 +59,8 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func New", service.HttpServerHandlerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.HttpPackage.Ident("Handler"), " {")
-	g.P("endpoints := New", service.ServerEndpointsName(), "(svc, middlewares...)")
-	g.P("transports := New", service.HttpServerTransportsName(), "(endpoints)")
+	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
+	g.P("transports := new", service.HttpServerTransportsName(), "(endpoints)")
 	g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()

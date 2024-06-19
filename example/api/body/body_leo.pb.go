@@ -20,7 +20,6 @@ import (
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
-	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -109,7 +108,7 @@ func (e *bodyServerEndpoints) HttpBodyNamedBody(context.Context) endpoint.Endpoi
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewBodyServerEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyEndpoints {
+func newBodyServerEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyEndpoints {
 	return &bodyServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -138,7 +137,7 @@ func (e *bodyClientEndpoints) HttpBodyNamedBody(ctx context.Context) endpoint.En
 	return endpointx.Chain(e.transports.HttpBodyNamedBody().Endpoint(ctx), e.middlewares...)
 }
 
-func NewBodyClientEndpoints(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyEndpoints {
+func newBodyClientEndpoints(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyEndpoints {
 	return &bodyClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -182,7 +181,7 @@ func (t *bodyGrpcServerTransports) HttpBodyNamedBody() *grpc.Server {
 	return t.httpBodyNamedBody
 }
 
-func NewBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTransports {
+func newBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTransports {
 	return &bodyGrpcServerTransports{
 		starBody: grpc.NewServer(
 			endpoints.StarBody(context.TODO()),
@@ -281,8 +280,8 @@ func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 }
 
 func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) BodyService {
-	endpoints := NewBodyServerEndpoints(svc, middlewares...)
-	transports := NewBodyGrpcServerTransports(endpoints)
+	endpoints := newBodyServerEndpoints(svc, middlewares...)
+	transports := newBodyGrpcServerTransports(endpoints)
 	return &bodyGrpcServer{
 		starBody:          transports.StarBody(),
 		namedBody:         transports.NamedBody(),
@@ -322,18 +321,13 @@ func (t *bodyGrpcClientTransports) HttpBodyNamedBody() transportx.ClientTranspor
 	return t.httpBodyNamedBody
 }
 
-func NewBodyGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (BodyClientTransports, error) {
+func NewBodyGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (BodyClientTransports, error) {
 	t := &bodyGrpcClientTransports{}
 	var err error
 	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.body.v1.Body",
 				"StarBody",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -348,7 +342,6 @@ func NewBodyGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.body.v1.Body",
 				"NamedBody",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -363,7 +356,6 @@ func NewBodyGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.body.v1.Body",
 				"NonBody",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -378,7 +370,6 @@ func NewBodyGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.body.v1.Body",
 				"HttpBodyStarBody",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -393,7 +384,6 @@ func NewBodyGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"leo.example.body.v1.Body",
 				"HttpBodyNamedBody",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -462,7 +452,7 @@ func (c *bodyGrpcClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 }
 
 func NewBodyGrpcClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
-	endpoints := NewBodyClientEndpoints(transports, middlewares...)
+	endpoints := newBodyClientEndpoints(transports, middlewares...)
 	return &bodyGrpcClient{endpoints: endpoints}
 }
 
@@ -504,7 +494,7 @@ func (t *bodyHttpServerTransports) HttpBodyNamedBody() *http.Server {
 	return t.httpBodyNamedBody
 }
 
-func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTransports {
+func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTransports {
 	return &bodyHttpServerTransports{
 		starBody: http.NewServer(
 			endpoints.StarBody(context.TODO()),
@@ -629,8 +619,8 @@ func NewBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 }
 
 func NewBodyHttpServerHandler(svc BodyService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewBodyServerEndpoints(svc, middlewares...)
-	transports := NewBodyHttpServerTransports(endpoints)
+	endpoints := newBodyServerEndpoints(svc, middlewares...)
+	transports := newBodyHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(transports.StarBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(transports.NamedBody())
@@ -670,11 +660,7 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody() transportx.ClientTranspor
 	return t.httpBodyNamedBody
 }
 
-func NewBodyHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (BodyClientTransports, error) {
+func NewBodyHttpClientTransports(target string, options ...transportx.ClientTransportOption) (BodyClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body")
 	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body")
@@ -687,7 +673,6 @@ func NewBodyHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -744,7 +729,6 @@ func NewBodyHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -801,7 +785,6 @@ func NewBodyHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -851,7 +834,6 @@ func NewBodyHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -904,7 +886,6 @@ func NewBodyHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -1011,6 +992,6 @@ func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 }
 
 func NewBodyHttpClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
-	endpoints := NewBodyClientEndpoints(transports, middlewares...)
+	endpoints := newBodyClientEndpoints(transports, middlewares...)
 	return &bodyGrpcClient{endpoints: endpoints}
 }

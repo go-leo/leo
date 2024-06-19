@@ -9,12 +9,15 @@ import (
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/consulx"
+	"github.com/go-leo/leo/v3/sdx/dnssrvx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
 	"github.com/go-leo/leo/v3/statusx"
-	"github.com/go-leo/leo/v3/transportx/internal"
 	"golang.org/x/sync/singleflight"
+	"google.golang.org/grpc"
 	"sync"
+	"time"
 )
 
 // ClientTransport is a transport that can be used to invoke a remote endpoint.
@@ -26,43 +29,111 @@ type ClientTransport interface {
 // ClientTransport is a transport that can be used to invoke a remote endpoint.
 type clientTransport struct {
 	target  *sdx.Target
-	factory sd.Factory
+	factory sdx.Factory
 	builder sdx.InstancerBuilder
 
-	options *internal.ClientTransportOptions
+	options *clientTransportOptions
 
 	clients sync.Map
 	sfg     singleflight.Group
 }
 
-type ClientTransportOption = internal.ClientTransportOption
+type clientTransportOptions struct {
+	InstancerBuilders []sdx.InstancerBuilder
+	BalancerFactory   lbx.BalancerFactory
+	EndpointerOptions []sd.EndpointerOption
+	DefaultScheme     string
+	FactoryArgs       any
+}
+
+func (o *clientTransportOptions) Init() *clientTransportOptions {
+	o.InstancerBuilders = []sdx.InstancerBuilder{
+		&passthroughx.InstancerBuilder{},
+		&dnssrvx.InstancerBuilder{TTL: 30 * time.Second},
+		&consulx.InstancerBuilder{},
+	}
+	o.BalancerFactory = lbx.RoundRobinFactory{}
+	o.EndpointerOptions = nil
+	o.DefaultScheme = "passthrough"
+	return o
+}
+
+func (o *clientTransportOptions) Apply(opts ...ClientTransportOption) *clientTransportOptions {
+	for _, opt := range opts {
+		opt(o)
+	}
+	return o
+}
+
+type ClientTransportOption func(o *clientTransportOptions)
+
+// HttpScheme is a option that sets the http scheme, http or https, default http
+func HttpScheme(scheme string) ClientTransportOption {
+	return func(o *clientTransportOptions) {
+		if o.FactoryArgs == nil {
+			o.FactoryArgs = scheme
+			return
+		}
+		_, ok := o.FactoryArgs.(string)
+		if !ok {
+			panic("factory args have already been set")
+		}
+		o.FactoryArgs = scheme
+	}
+}
+
+// GrpcDialOption is a option that sets the grpc dial options.
+func GrpcDialOption(options ...grpc.DialOption) ClientTransportOption {
+	return func(o *clientTransportOptions) {
+		if o.FactoryArgs == nil {
+			dialOptions := make([]grpc.DialOption, 0, len(options))
+			dialOptions = append(dialOptions, options...)
+			o.FactoryArgs = dialOptions
+			return
+		}
+		dialOptions, ok := o.FactoryArgs.([]grpc.DialOption)
+		if !ok {
+			panic("factory args have already been set")
+		}
+		dialOptions = append(dialOptions, options...)
+		o.FactoryArgs = dialOptions
+	}
+}
 
 // InstancerBuilder is a option that sets the instancer builder.
 func InstancerBuilder(builders ...sdx.InstancerBuilder) ClientTransportOption {
-	return internal.InstancerBuilder(builders...)
+	return func(o *clientTransportOptions) {
+		o.InstancerBuilders = append(o.InstancerBuilders, builders...)
+	}
 }
 
 // BalancerFactory is a option that sets the balancer factory.
 func BalancerFactory(factory lbx.BalancerFactory) ClientTransportOption {
-	return internal.BalancerFactory(factory)
+	return func(o *clientTransportOptions) {
+		o.BalancerFactory = factory
+	}
 }
 
 // EndpointerOption is a option that sets the endpointer EndpointerOptions.
 func EndpointerOption(options ...sd.EndpointerOption) ClientTransportOption {
-	return internal.EndpointerOption(options...)
+	return func(o *clientTransportOptions) {
+		o.EndpointerOptions = append(o.EndpointerOptions, options...)
+	}
 }
 
 // DefaultScheme is a option that sets the endpointer EndpointerOptions.
 func DefaultScheme(scheme string) ClientTransportOption {
-	return internal.DefaultScheme(scheme)
+	return func(o *clientTransportOptions) {
+		o.DefaultScheme = scheme
+	}
 }
 
-func NewClientTransport(target string, factory sd.Factory, opts ...ClientTransportOption) (ClientTransport, error) {
+func NewClientTransport(target string, factory sdx.Factory, opts ...ClientTransportOption) (ClientTransport, error) {
 	c := &clientTransport{
 		target:  nil,
 		factory: factory,
 		builder: nil,
-		options: new(internal.ClientTransportOptions).Init().Apply(opts...),
+		options: new(clientTransportOptions).Init().Apply(opts...),
 		clients: sync.Map{},
 		sfg:     singleflight.Group{},
 	}
@@ -118,7 +189,7 @@ func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 		if err != nil {
 			return nil, err
 		}
-		balancer := c.options.BalancerFactory.New(ctx, sd.NewEndpointer(instancer, c.factory, logx.FromContext(ctx), c.options.EndpointerOptions...))
+		balancer := c.options.BalancerFactory.New(ctx, sd.NewEndpointer(instancer, c.factory(ctx, c.options.FactoryArgs), logx.FromContext(ctx), c.options.EndpointerOptions...))
 		return balancer, nil
 	})
 	result := <-resC

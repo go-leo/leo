@@ -132,7 +132,7 @@ func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protog
 		g.P()
 	}
 
-	g.P("func New", service.ServerEndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), "{")
+	g.P("func new", service.ServerEndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), "{")
 	g.P("return &", service.UnexportedServerEndpointsName(), "{svc: svc, middlewares: middlewares}")
 	g.P("}")
 	g.P()
@@ -153,7 +153,7 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 		g.P()
 	}
 
-	g.P("func New", service.ClientEndpointsName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), " {")
+	g.P("func new", service.ClientEndpointsName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), " {")
 	g.P("return &", service.UnexportedClientEndpointsName(), "{transports: transports, middlewares: middlewares}")
 	g.P("}")
 	g.P()

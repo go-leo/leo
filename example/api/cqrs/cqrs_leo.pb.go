@@ -23,7 +23,6 @@ import (
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
-	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	http1 "net/http"
@@ -76,7 +75,7 @@ func (e *cQRSServerEndpoints) FindUser(context.Context) endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewCQRSServerEndpoints(svc CQRSService, middlewares ...endpoint.Middleware) CQRSEndpoints {
+func newCQRSServerEndpoints(svc CQRSService, middlewares ...endpoint.Middleware) CQRSEndpoints {
 	return &cQRSServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -93,7 +92,7 @@ func (e *cQRSClientEndpoints) FindUser(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.FindUser().Endpoint(ctx), e.middlewares...)
 }
 
-func NewCQRSClientEndpoints(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
+func newCQRSClientEndpoints(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
 	return &cQRSClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -183,7 +182,7 @@ func (t *cQRSGrpcServerTransports) FindUser() *grpc.Server {
 	return t.findUser
 }
 
-func NewCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTransports {
+func newCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTransports {
 	return &cQRSGrpcServerTransports{
 		createUser: grpc.NewServer(
 			endpoints.CreateUser(context.TODO()),
@@ -228,8 +227,8 @@ func (s *cQRSGrpcServer) FindUser(ctx context.Context, request *FindUserRequest)
 }
 
 func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRSService {
-	endpoints := NewCQRSServerEndpoints(svc, middlewares...)
-	transports := NewCQRSGrpcServerTransports(endpoints)
+	endpoints := newCQRSServerEndpoints(svc, middlewares...)
+	transports := newCQRSGrpcServerTransports(endpoints)
 	return &cQRSGrpcServer{
 		createUser: transports.CreateUser(),
 		findUser:   transports.FindUser(),
@@ -251,18 +250,13 @@ func (t *cQRSGrpcClientTransports) FindUser() transportx.ClientTransport {
 	return t.findUser
 }
 
-func NewCQRSGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (CQRSClientTransports, error) {
+func NewCQRSGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (CQRSClientTransports, error) {
 	t := &cQRSGrpcClientTransports{}
 	var err error
 	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"pb.CQRS",
 				"CreateUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -277,7 +271,6 @@ func NewCQRSGrpcClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"pb.CQRS",
 				"FindUser",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -316,7 +309,7 @@ func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest)
 }
 
 func NewCQRSGrpcClient(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSService {
-	endpoints := NewCQRSClientEndpoints(transports, middlewares...)
+	endpoints := newCQRSClientEndpoints(transports, middlewares...)
 	return &cQRSGrpcClient{endpoints: endpoints}
 }
 
@@ -340,7 +333,7 @@ func (t *cQRSHttpServerTransports) FindUser() *http.Server {
 	return t.findUser
 }
 
-func NewCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTransports {
+func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTransports {
 	return &cQRSHttpServerTransports{
 		createUser: http.NewServer(
 			endpoints.CreateUser(context.TODO()),
@@ -392,8 +385,8 @@ func NewCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 }
 
 func NewCQRSHttpServerHandler(svc CQRSService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewCQRSServerEndpoints(svc, middlewares...)
-	transports := NewCQRSHttpServerTransports(endpoints)
+	endpoints := newCQRSServerEndpoints(svc, middlewares...)
+	transports := newCQRSHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser").Handler(transports.FindUser())
@@ -415,11 +408,7 @@ func (t *cQRSHttpClientTransports) FindUser() transportx.ClientTransport {
 	return t.findUser
 }
 
-func NewCQRSHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (CQRSClientTransports, error) {
+func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTransportOption) (CQRSClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
@@ -429,7 +418,6 @@ func NewCQRSHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -486,7 +474,6 @@ func NewCQRSHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -567,6 +554,6 @@ func (c *cQRSHttpClient) FindUser(ctx context.Context, request *FindUserRequest)
 }
 
 func NewCQRSHttpClient(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSService {
-	endpoints := NewCQRSClientEndpoints(transports, middlewares...)
+	endpoints := newCQRSClientEndpoints(transports, middlewares...)
 	return &cQRSGrpcClient{endpoints: endpoints}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	transports, err := helloworld.NewGreeterHttpClientTransports("127.0.0.1:8080", "http")
+	transports, err := helloworld.NewGreeterHttpClientTransports("127.0.0.1:8080")
 	if err != nil {
 		panic(err)
 	}

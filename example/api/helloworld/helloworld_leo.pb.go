@@ -19,7 +19,6 @@ import (
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
-	grpc1 "google.golang.org/grpc"
 	io "io"
 	http1 "net/http"
 	url "net/url"
@@ -59,7 +58,7 @@ func (e *greeterServerEndpoints) SayHello(context.Context) endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
-func NewGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
+func newGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
 	return &greeterServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
@@ -72,7 +71,7 @@ func (e *greeterClientEndpoints) SayHello(ctx context.Context) endpoint.Endpoint
 	return endpointx.Chain(e.transports.SayHello().Endpoint(ctx), e.middlewares...)
 }
 
-func NewGreeterClientEndpoints(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
+func newGreeterClientEndpoints(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
 	return &greeterClientEndpoints{transports: transports, middlewares: middlewares}
 }
 
@@ -92,7 +91,7 @@ func (t *greeterGrpcServerTransports) SayHello() *grpc.Server {
 	return t.sayHello
 }
 
-func NewGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
+func newGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
 	return &greeterGrpcServerTransports{
 		sayHello: grpc.NewServer(
 			endpoints.SayHello(context.TODO()),
@@ -119,8 +118,8 @@ func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest)
 }
 
 func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware) GreeterService {
-	endpoints := NewGreeterServerEndpoints(svc, middlewares...)
-	transports := NewGreeterGrpcServerTransports(endpoints)
+	endpoints := newGreeterServerEndpoints(svc, middlewares...)
+	transports := newGreeterGrpcServerTransports(endpoints)
 	return &greeterGrpcServer{
 		sayHello: transports.SayHello(),
 	}
@@ -136,18 +135,13 @@ func (t *greeterGrpcClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterGrpcClientTransports(
-	target string,
-	dialOption []grpc1.DialOption,
-	options ...transportx.ClientTransportOption,
-) (GreeterClientTransports, error) {
+func NewGreeterGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (GreeterClientTransports, error) {
 	t := &greeterGrpcClientTransports{}
 	var err error
 	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
 			target,
 			grpcx.ClientFactory(
-				dialOption,
 				"helloworld.Greeter",
 				"SayHello",
 				func(_ context.Context, v any) (any, error) { return v, nil },
@@ -176,7 +170,7 @@ func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest)
 }
 
 func NewGreeterGrpcClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
-	endpoints := NewGreeterClientEndpoints(transports, middlewares...)
+	endpoints := newGreeterClientEndpoints(transports, middlewares...)
 	return &greeterGrpcClient{endpoints: endpoints}
 }
 
@@ -194,7 +188,7 @@ func (t *greeterHttpServerTransports) SayHello() *http.Server {
 	return t.sayHello
 }
 
-func NewGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServerTransports {
+func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServerTransports {
 	return &greeterHttpServerTransports{
 		sayHello: http.NewServer(
 			endpoints.SayHello(context.TODO()),
@@ -223,8 +217,8 @@ func NewGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 }
 
 func NewGreeterHttpServerHandler(svc GreeterService, middlewares ...endpoint.Middleware) http1.Handler {
-	endpoints := NewGreeterServerEndpoints(svc, middlewares...)
-	transports := NewGreeterHttpServerTransports(endpoints)
+	endpoints := newGreeterServerEndpoints(svc, middlewares...)
+	transports := newGreeterHttpServerTransports(endpoints)
 	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
 	return router
@@ -240,11 +234,7 @@ func (t *greeterHttpClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterHttpClientTransports(
-	target string,
-	scheme string,
-	options ...transportx.ClientTransportOption,
-) (GreeterClientTransports, error) {
+func NewGreeterHttpClientTransports(target string, options ...transportx.ClientTransportOption) (GreeterClientTransports, error) {
 	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
 	t := &greeterHttpClientTransports{}
@@ -253,7 +243,6 @@ func NewGreeterHttpClientTransports(
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				scheme,
 				func(scheme string, instance string) http.CreateRequestFunc {
 					return func(ctx context.Context, obj any) (*http1.Request, error) {
 						if obj == nil {
@@ -324,6 +313,6 @@ func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest)
 }
 
 func NewGreeterHttpClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
-	endpoints := NewGreeterClientEndpoints(transports, middlewares...)
+	endpoints := newGreeterClientEndpoints(transports, middlewares...)
 	return &greeterGrpcClient{endpoints: endpoints}
 }

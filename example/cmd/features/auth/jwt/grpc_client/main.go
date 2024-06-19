@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-leo/leo/v3/authx/jwtx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/transportx"
 	"github.com/golang-jwt/jwt/v4"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	transports, err := helloworld.NewGreeterGrpcClientTransports(":9090", []grpc1.DialOption{grpc1.WithTransportCredentials(insecure.NewCredentials())})
+	transports, err := helloworld.NewGreeterGrpcClientTransports(":9090", transportx.GrpcDialOption(grpc1.WithTransportCredentials(insecure.NewCredentials())))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
