@@ -16,7 +16,14 @@ import (
 )
 
 type Error struct {
-	e *interstatusx.Error
+	e      *interstatusx.Error
+	frozen bool
+}
+
+// Error wraps a pointer of a Error proto.
+func (e *Error) freeze() *Error {
+	e.frozen = true
+	return e
 }
 
 // Error wraps a pointer of a Error proto.
