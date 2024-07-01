@@ -4,17 +4,15 @@ import (
 	"context"
 )
 
-type Color string
-
 type colorKey struct{}
 
 // InjectColor injects the colors into the context.
-func InjectColor(ctx context.Context, colors Color) context.Context {
+func InjectColor(ctx context.Context, colors string) context.Context {
 	return context.WithValue(ctx, colorKey{}, colors)
 }
 
 // ExtractColor extracts the colors from the context.
-func ExtractColor(ctx context.Context) (Color, bool) {
-	v, ok := ctx.Value(colorKey{}).(Color)
+func ExtractColor(ctx context.Context) (string, bool) {
+	v, ok := ctx.Value(colorKey{}).(string)
 	return v, ok
 }

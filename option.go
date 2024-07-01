@@ -2,11 +2,13 @@ package leo
 
 import (
 	"github.com/go-leo/leo/v3/runner"
+	"github.com/go-leo/leo/v3/server"
 	"os"
 )
 
 type options struct {
 	Runners []runner.Runner
+	Servers []server.Server
 	Signals []os.Signal
 }
 
@@ -23,14 +25,20 @@ func (o *options) init() *options {
 
 type Option func(o *options)
 
-func Runners(runners ...runner.Runner) Option {
+func Runner(runners ...runner.Runner) Option {
 	return func(o *options) {
 		o.Runners = append(o.Runners, runners...)
 	}
 }
 
-// Signals 信号
-func Signals(signals ...os.Signal) Option {
+func Server(servers ...server.Server) Option {
+	return func(o *options) {
+		o.Servers = append(o.Servers, servers...)
+	}
+}
+
+// Signal
+func Signal(signals ...os.Signal) Option {
 	return func(o *options) {
 		o.Signals = signals
 	}

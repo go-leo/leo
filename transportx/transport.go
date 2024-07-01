@@ -178,7 +178,7 @@ func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 	var key string
 	color, ok := sdx.ExtractColor(ctx)
 	if ok {
-		key = string(color)
+		key = color
 	}
 	value, ok := c.clients.Load(key)
 	if ok {

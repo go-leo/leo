@@ -17,11 +17,18 @@ func NewApp(opts ...Option) *App {
 
 // Run 启动app
 func (app *App) Run(ctx context.Context) error {
-	if app.o.Signals == nil {
-		return runner.MultiRunner(app.o.Runners...).Run(ctx)
+	causeFunc := context.CancelFunc(func() {})
+	if app.o.Signals != nil {
+		ctx, causeFunc = signal.NotifyContext(ctx, app.o.Signals...)
 	}
-	var causeFunc context.CancelFunc
-	ctx, causeFunc = signal.NotifyContext(ctx, app.o.Signals...)
 	defer causeFunc()
-	return runner.MultiRunner(app.o.Runners...).Run(ctx)
+
+	runners := make([]runner.Runner, 0, len(app.o.Runners)+len(app.o.Servers))
+	runners = append(runners, app.o.Runners...)
+
+	for _, server := range app.o.Servers {
+		runners = append(runners, runner.ServerRunner(server))
+	}
+
+	return runner.MultiRunner(runners...).Run(ctx)
 }

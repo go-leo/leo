@@ -10,7 +10,7 @@ import (
 // InstancerBuilder is a builder that can build an instancer for a given target.
 type InstancerBuilder interface {
 
-	// Build builds an instancer for the given target and color.
+	// Build builds an instancer for the given target.
 	// target represents a target for rpc, as specified in:
 	// https://github.com/grpc/grpc/blob/master/doc/naming.md.
 	Build(ctx context.Context, target *Target) (sd.Instancer, error)
