@@ -63,34 +63,18 @@ func (e *Error) Wrap(cause error) *Error {
 	if cause == nil {
 		return e
 	}
-	if causeProto, ok := cause.(proto.Message); ok {
-		if causeAny, err := anypb.New(causeProto); err == nil {
-			return e.WithDetails(&interstatusx.Cause{Cause: &interstatusx.Cause_Error{Error: causeAny}})
-		}
-	}
-	return e.WithDetails(&interstatusx.Cause{Cause: &interstatusx.Cause_Message{Message: cause.Error()}})
+	return e.WithDetails(interstatusx.NewCause(cause))
 }
 
 // Unwrap unwraps the cause error from the current Error.
 func (e *Error) Unwrap() error {
 	var errs []error
 	for _, detail := range e.Details() {
-		causeDetail, ok := detail.(*interstatusx.Cause)
+		cause, ok := detail.(*interstatusx.Cause)
 		if !ok {
 			continue
 		}
-		switch {
-		case causeDetail.GetError() != nil:
-			causeProto, err := causeDetail.GetError().UnmarshalNew()
-			if err != nil {
-				continue
-			}
-			errs = append(errs, causeProto.(error))
-			continue
-		case len(causeDetail.GetMessage()) > 0:
-			errs = append(errs, errors.New(causeDetail.GetMessage()))
-			continue
-		}
+		errs = append(errs, cause.Error())
 	}
 	return errors.Join(errs...)
 }
@@ -100,7 +84,7 @@ func (e *Error) WithMessage(msg string) *Error {
 }
 
 func (e *Error) WithMessagef(format string, a ...any) *Error {
-	return &Error{e: e.e.WithMessage(fmt.Sprintf(format, a...))}
+	return e.WithMessage(fmt.Sprintf(format, a...))
 }
 
 // WithDetails adds additional details to the Error as protocol buffer messages.
