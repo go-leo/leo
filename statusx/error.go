@@ -6,7 +6,6 @@ import (
 	"github.com/go-leo/gox/protox"
 	interstatusx "github.com/go-leo/leo/v3/internal/statusx"
 	httpstatus "github.com/go-leo/leo/v3/statusx/http"
-	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
@@ -16,14 +15,7 @@ import (
 )
 
 type Error struct {
-	e      *interstatusx.Error
-	frozen bool
-}
-
-// Error wraps a pointer of a Error proto.
-func (e *Error) freeze() *Error {
-	e.frozen = true
-	return e
+	e *interstatusx.Error
 }
 
 // Error wraps a pointer of a Error proto.
@@ -38,31 +30,32 @@ func (e *Error) GRPCStatus() *grpcstatus.Status {
 
 // HTTPStatus returns the HTTP Status.
 func (e *Error) HTTPStatus() *httpstatus.Status {
-	return protox.Clone(e.e.GetHttpStatus())
+	return e.e.HTTPStatus()
 }
 
 // Proto return the gRPC and HTTP status protocol buffers.
 func (e *Error) Proto() (*rpcstatus.Status, *httpstatus.Status) {
-	return protox.Clone(e.e.GetGrpcStatus()), protox.Clone(e.e.GetHttpStatus())
+	return e.e.Proto()
 }
 
 // Is implements future errors.Is functionality.
 func (e *Error) Is(target error) bool {
-	return e.e.Is(target)
+	var targetErr *Error
+	if !errors.As(target, &targetErr) {
+		return false
+	}
+	return e.e.Is(targetErr.e)
 }
 
 // Equals checks if the current status is equal to the target status by
 // comparing gRPC status code and http status code.
+// It does not compare the details.
 func (e *Error) Equals(target error) bool {
-	if e == nil && target == nil {
-		return true
-	}
-	tse, ok := target.(*Error)
-	if !ok {
+	var targetErr *Error
+	if !errors.As(target, &targetErr) {
 		return false
 	}
-	return e.e.GetGrpcStatus().GetCode() == tse.e.GetGrpcStatus().GetCode() &&
-		e.e.GetHttpStatus().GetCode() == tse.e.GetHttpStatus().GetCode()
+	return e.e.Equals(targetErr.e)
 }
 
 // Wrap wraps the cause error into the current Error.
@@ -103,15 +96,11 @@ func (e *Error) Unwrap() error {
 }
 
 func (e *Error) WithMessage(msg string) *Error {
-	cloned := protox.Clone(e.e)
-	cloned.GrpcStatus.Message = msg
-	return &Error{e: cloned}
+	return &Error{e: e.e.WithMessage(msg)}
 }
 
 func (e *Error) WithMessagef(format string, a ...any) *Error {
-	cloned := protox.Clone(e.e)
-	cloned.GrpcStatus.Message = fmt.Sprintf(format, a...)
-	return &Error{e: cloned}
+	return &Error{e: e.e.WithMessage(fmt.Sprintf(format, a...))}
 }
 
 // WithDetails adds additional details to the Error as protocol buffer messages.
@@ -122,30 +111,12 @@ func (e *Error) WithDetails(details ...proto.Message) *Error {
 	if e.e.GetGrpcStatus().GetCode() == int32(codes.OK) {
 		return e
 	}
-	anyDetails := make([]*anypb.Any, 0, len(details))
-	for _, detail := range details {
-		anyDetail, err := anypb.New(detail)
-		if err != nil {
-			continue
-		}
-		anyDetails = append(anyDetails, anyDetail)
-	}
-	cloned := protox.Clone(e.e)
-	cloned.GrpcStatus.Details = append(cloned.GrpcStatus.Details, anyDetails...)
-	return &Error{e: cloned}
+	return &Error{e: e.e.WithDetails(details...)}
 }
 
 // Details return additional details from the Error
 func (e *Error) Details() []proto.Message {
-	detailPbs := make([]proto.Message, 0, len(e.e.GetGrpcStatus().GetDetails()))
-	for _, anyDetail := range e.e.GetGrpcStatus().GetDetails() {
-		detail, err := anyDetail.UnmarshalNew()
-		if err != nil {
-			continue
-		}
-		detailPbs = append(detailPbs, detail)
-	}
-	return detailPbs
+	return e.e.Details()
 }
 
 // WithHttpHeader sets the http header info.
@@ -153,14 +124,12 @@ func (e *Error) WithHttpHeader(infos ...*httpstatus.Header) *Error {
 	if len(infos) == 0 {
 		return e
 	}
-	cloned := protox.Clone(e.e)
-	cloned.HttpStatus.Headers = append(cloned.HttpStatus.Headers, infos...)
-	return &Error{e: cloned}
+	return &Error{e: e.e.WithHttpHeader(infos...)}
 }
 
 // HttpHeader gets the http header info.
 func (e *Error) HttpHeader() []*httpstatus.Header {
-	return slices.Clone(e.e.GetHttpStatus().GetHeaders())
+	return e.e.HttpHeader()
 }
 
 // WithHttpBody sets the http body.
@@ -172,21 +141,12 @@ func (e *Error) WithHttpBody(body proto.Message) *Error {
 	if err != nil {
 		return e
 	}
-	cloned := protox.Clone(e.e)
-	cloned.HttpStatus.Body = anyBody
-	return &Error{e: cloned}
+	return &Error{e: e.e.WithHttpBody(anyBody)}
 }
 
 // HttpBody gets the http body.
 func (e *Error) HttpBody() proto.Message {
-	if e.e.GetHttpStatus().GetBody() == nil {
-		return nil
-	}
-	body, err := e.e.GetHttpStatus().GetBody().UnmarshalNew()
-	if err != nil {
-		return nil
-	}
-	return body
+	return e.e.HttpBody()
 }
 
 // WithErrorInfo sets the error info.

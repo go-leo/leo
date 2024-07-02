@@ -8,7 +8,7 @@ import (
 //
 // GRPC Mapping: OK
 // HTTP Mapping: 200 OK
-var OK = NewError(codes.OK, "").freeze()
+var OK = NewError(codes.OK, "")
 
 // Failed unlike ErrUnknown error, it just means business logic failed.
 //
@@ -17,7 +17,7 @@ var OK = NewError(codes.OK, "").freeze()
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 200 OK
-var Failed = NewError(FailedCode, "").freeze()
+var Failed = NewError(FailedCode, "")
 
 // ErrCanceled The operation was cancelled, typically by the caller.
 //
@@ -25,7 +25,7 @@ var Failed = NewError(FailedCode, "").freeze()
 //
 // GRPC Mapping: Canceled
 // HTTP Mapping: 499 Client Closed Request
-var ErrCanceled = NewError(codes.Canceled, "").freeze()
+var ErrCanceled = NewError(codes.Canceled, "")
 
 // ErrUnknown error.  For example, this error may be returned when
 // a `Status` value received from another address space belongs to
@@ -40,7 +40,7 @@ var ErrCanceled = NewError(codes.Canceled, "").freeze()
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrUnknown = NewError(codes.Unknown, "").freeze()
+var ErrUnknown = NewError(codes.Unknown, "")
 
 // ErrInvalidArgument The client specified an invalid argument.  Note that this differs
 // from ErrFailedPrecondition.  ErrInvalidArgument indicates arguments
@@ -49,7 +49,7 @@ var ErrUnknown = NewError(codes.Unknown, "").freeze()
 //
 // GRPC Mapping: InvalidArgument
 // HTTP Mapping: 400 Bad Request
-var ErrInvalidArgument = NewError(codes.InvalidArgument, "").freeze()
+var ErrInvalidArgument = NewError(codes.InvalidArgument, "")
 
 // ErrDeadlineExceeded The deadline expired before the operation could complete. For operations
 // that change the state of the system, this error may be returned
@@ -64,7 +64,7 @@ var ErrInvalidArgument = NewError(codes.InvalidArgument, "").freeze()
 //
 // GRPC Mapping: DeadlineExceeded
 // HTTP Mapping: 504 Gateway Timeout
-var ErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "").freeze()
+var ErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "")
 
 // ErrNotFound Some requested entity (e.g., file or directory) was not found.
 //
@@ -76,14 +76,14 @@ var ErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "").freeze()
 //
 // GRPC Mapping: NotFound
 // HTTP Mapping: 404 Not Found
-var ErrNotFound = NewError(codes.NotFound, "").freeze()
+var ErrNotFound = NewError(codes.NotFound, "")
 
 // ErrAlreadyExists The entity that a client attempted to create (e.g., file or directory)
 // already exists.
 //
 // GRPC Mapping: AlreadyExists
 // HTTP Mapping: 409 Conflict
-var ErrAlreadyExists = NewError(codes.AlreadyExists, "").freeze()
+var ErrAlreadyExists = NewError(codes.AlreadyExists, "")
 
 // ErrPermissionDenied The caller does not have permission to execute the specified
 // operation. ErrPermissionDenied must not be used for rejections
@@ -96,7 +96,7 @@ var ErrAlreadyExists = NewError(codes.AlreadyExists, "").freeze()
 //
 // GRPC Mapping: PermissionDenied
 // HTTP Mapping: 403 Forbidden
-var ErrPermissionDenied = NewError(codes.PermissionDenied, "").freeze()
+var ErrPermissionDenied = NewError(codes.PermissionDenied, "")
 
 // ErrResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
 // perhaps the entire file system is out of space.
@@ -109,7 +109,7 @@ var ErrPermissionDenied = NewError(codes.PermissionDenied, "").freeze()
 //
 // GRPC Mapping: ResourceExhausted
 // HTTP Mapping: 429 Too Many Requests
-var ErrResourceExhausted = NewError(codes.ResourceExhausted, "").freeze()
+var ErrResourceExhausted = NewError(codes.ResourceExhausted, "")
 
 // ErrFailedPrecondition The operation was rejected because the system is not in a state
 // required for the operation's execution.  For example, the directory
@@ -131,7 +131,7 @@ var ErrResourceExhausted = NewError(codes.ResourceExhausted, "").freeze()
 //
 // GRPC Mapping: FailedPrecondition
 // HTTP Mapping: 400 Bad Request
-var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "").freeze()
+var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
 
 // ErrAborted The operation was aborted, typically due to a concurrency issue such as
 // a sequencer check failure or transaction abort.
@@ -141,7 +141,7 @@ var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "").freeze()
 //
 // GRPC Mapping: Aborted
 // HTTP Mapping: 409 Conflict
-var ErrAborted = NewError(codes.Aborted, "").freeze()
+var ErrAborted = NewError(codes.Aborted, "")
 
 // ErrOutOfRange The operation was attempted past the valid range.  E.g., seeking or
 // reading past end-of-file.
@@ -161,7 +161,7 @@ var ErrAborted = NewError(codes.Aborted, "").freeze()
 //
 // GRPC Mapping: OutOfRange
 // HTTP Mapping: 400 Bad Request
-var ErrOutOfRange = NewError(codes.OutOfRange, "").freeze()
+var ErrOutOfRange = NewError(codes.OutOfRange, "")
 
 // ErrUnimplemented The operation is not implemented or is not supported/enabled in this
 // service.
@@ -175,7 +175,7 @@ var ErrOutOfRange = NewError(codes.OutOfRange, "").freeze()
 //
 // GRPC Mapping: Unimplemented
 // HTTP Mapping: 501 Not Implemented
-var ErrUnimplemented = NewError(codes.Unimplemented, "").freeze()
+var ErrUnimplemented = NewError(codes.Unimplemented, "")
 
 // ErrInternal internal errors.  This means that some invariants expected by the
 // underlying system have been broken.  This error code is reserved
@@ -189,7 +189,7 @@ var ErrUnimplemented = NewError(codes.Unimplemented, "").freeze()
 //
 // GRPC Mapping: Internal
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrInternal = NewError(codes.Internal, "").freeze()
+var ErrInternal = NewError(codes.Internal, "")
 
 // ErrUnavailable The service is currently unavailable.  This is most likely a
 // transient condition, which can be corrected by retrying with
@@ -207,13 +207,13 @@ var ErrInternal = NewError(codes.Internal, "").freeze()
 //
 // GRPC Mapping: Unavailable
 // HTTP Mapping: 503 Service ErrUnavailable
-var ErrUnavailable = NewError(codes.Unavailable, "").freeze()
+var ErrUnavailable = NewError(codes.Unavailable, "")
 
 // ErrDataLoss Unrecoverable data loss or corruption.
 //
 // GRPC Mapping: DataLoss
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrDataLoss = NewError(codes.DataLoss, "").freeze()
+var ErrDataLoss = NewError(codes.DataLoss, "")
 
 // ErrUnauthenticated The request does not have valid authentication credentials for the
 // operation.
@@ -223,4 +223,4 @@ var ErrDataLoss = NewError(codes.DataLoss, "").freeze()
 //
 // GRPC Mapping: Unauthenticated
 // HTTP Mapping: 401 Unauthorized
-var ErrUnauthenticated = NewError(codes.Unauthenticated, "").freeze()
+var ErrUnauthenticated = NewError(codes.Unauthenticated, "")

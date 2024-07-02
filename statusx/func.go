@@ -18,8 +18,8 @@ import (
 
 func NewError(c codes.Code, msg string) *Error {
 	return &Error{e: &interstatusx.Error{
-		GrpcStatus: &rpcstatus.Status{Code: GrpcCodeFromCode(c), Message: msg},
-		HttpStatus: &httpstatus.Status{Code: HttpStatusFromCode(c)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(GrpcCodeFromCode(c)), Message: msg},
+		HttpStatus: &httpstatus.Status{Code: int32(HttpStatusFromCode(c))},
 	}}
 }
 
