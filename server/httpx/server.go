@@ -5,6 +5,7 @@ import (
 	"errors"
 	kitlog "github.com/go-kit/log"
 	"github.com/go-leo/gox/netx/addrx"
+	"github.com/go-leo/gox/syncx/brave"
 	"github.com/go-leo/leo/v3/healthx"
 	"github.com/go-leo/leo/v3/logx"
 	"log"
@@ -13,52 +14,60 @@ import (
 	"strconv"
 )
 
-type Server struct {
+type server struct {
 	lis     net.Listener
 	httpSrv *http.Server
 	opts    *options
 	host    string
 	port    int
-	checker *Checker
+	checker *healthChecker
 }
 
-func (s *Server) Start(ctx context.Context) error {
-	err := s.serve(ctx)
-	if errors.Is(err, http.ErrServerClosed) {
-		return nil
-	}
-	return err
+func (s *server) Start(ctx context.Context) error {
+	s.checker.Resume()
+	defer s.checker.Shutdown()
+	return s.serve(ctx)
 }
 
-func (s *Server) Stop(ctx context.Context) error {
+func (s *server) Stop(ctx context.Context) error {
 	s.checker.Shutdown()
 	return s.httpSrv.Shutdown(ctx)
 }
 
-func (s *Server) Host() string {
+func (s *server) Host() string {
 	return s.host
 }
 
-func (s *Server) Port() int {
+func (s *server) Port() int {
 	return s.port
 }
 
-func (s *Server) serve(ctx context.Context) error {
+func (s *server) serve(ctx context.Context) error {
 	s.httpSrv.BaseContext = func(listener net.Listener) context.Context {
 		return ctx
 	}
-	s.checker.Resume()
-	defer s.checker.Shutdown()
-	if s.httpSrv.TLSConfig != nil {
-		return s.httpSrv.ServeTLS(s.lis, "", "")
-	} else {
-		return s.httpSrv.Serve(s.lis)
-	}
+	errC := brave.GoE(func() error {
+		var err error
+		if s.httpSrv.TLSConfig != nil {
+			err = s.httpSrv.ServeTLS(s.lis, "", "")
+		} else {
+			err = s.httpSrv.Serve(s.lis)
+		}
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+		return err
+	})
+	go func() {
+		<-ctx.Done()
+
+	}()
+	return <-errC
 }
 
-func NewServer(handler http.Handler, opts ...Option) (*Server, error) {
-	options := new(options).apply(opts...).init()
-	l, err := net.Listen("tcp", options.Addr)
+func NewServer(handler http.Handler, opts ...Option) (*server, error) {
+	o := new(options).apply(opts...).init()
+	l, err := net.Listen("tcp", o.Addr)
 	if err != nil {
 		return nil, err
 	}
@@ -77,28 +86,34 @@ func NewServer(handler http.Handler, opts ...Option) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newServer(handler, options, l, host, port), nil
+	return newServer(handler, o, l, host, port), nil
 }
 
-func newServer(handler http.Handler, opts *options, lis net.Listener, host string, port int) *Server {
+func newServer(
+	handler http.Handler,
+	o *options,
+	lis net.Listener,
+	host string,
+	port int,
+) *server {
 	httpSrv := &http.Server{
 		Addr:                         "",
 		Handler:                      handler,
-		DisableGeneralOptionsHandler: opts.DisableGeneralOptionsHandler,
-		TLSConfig:                    opts.TLSConfig,
-		ReadTimeout:                  opts.ReadTimeout,
-		ReadHeaderTimeout:            opts.ReadHeaderTimeout,
-		WriteTimeout:                 opts.WriteTimeout,
-		IdleTimeout:                  opts.IdleTimeout,
-		MaxHeaderBytes:               opts.MaxHeaderBytes,
+		DisableGeneralOptionsHandler: o.DisableGeneralOptionsHandler,
+		TLSConfig:                    o.TLSConfig,
+		ReadTimeout:                  o.ReadTimeout,
+		ReadHeaderTimeout:            o.ReadHeaderTimeout,
+		WriteTimeout:                 o.WriteTimeout,
+		IdleTimeout:                  o.IdleTimeout,
+		MaxHeaderBytes:               o.MaxHeaderBytes,
 		TLSNextProto:                 nil,
 		ConnState:                    nil,
 		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(logx.L()), "", 0),
 		BaseContext:                  nil,
 		ConnContext:                  nil,
 	}
-	checker := &Checker{}
-	s := &Server{httpSrv: httpSrv, checker: checker, opts: opts, lis: lis, host: host, port: port}
+	checker := &healthChecker{}
+	s := &server{httpSrv: httpSrv, checker: checker, opts: o, lis: lis, host: host, port: port}
 	healthx.RegisterChecker(checker)
 	return s
 }

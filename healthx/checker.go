@@ -2,6 +2,7 @@ package healthx
 
 import (
 	"context"
+	"github.com/go-leo/gox/mapx"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"sync"
 )
@@ -15,12 +16,7 @@ func RegisterChecker(checker Checker) {
 }
 
 func GetCheckers() map[string]Checker {
-	m := make(map[string]Checker)
-	checkers.Range(func(key, value any) bool {
-		m[key.(string)] = value.(Checker)
-		return true
-	})
-	return m
+	return mapx.FromMapRange[map[string]Checker](&checkers)
 }
 
 // Checker actual health check logic.

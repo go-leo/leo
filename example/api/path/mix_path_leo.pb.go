@@ -208,7 +208,7 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 				req.OptString = proto.String(vars.Get("opt_string"))
 				req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -217,7 +217,7 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},

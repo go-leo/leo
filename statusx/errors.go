@@ -6,9 +6,29 @@ import (
 
 // OK Not an error; returned on success.
 //
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+//
 // GRPC Mapping: OK
 // HTTP Mapping: 200 OK
-var OK = NewError(codes.OK, "")
+func OK(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.OK, msg, args...)
+	}
+	return NewError(codes.OK, msg)
+}
+
+var kOK = NewError(codes.OK, "")
+
+func IsOK(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kOK)
+}
 
 // Failed unlike ErrUnknown error, it just means business logic failed.
 //
@@ -17,210 +37,444 @@ var OK = NewError(codes.OK, "")
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 200 OK
-var Failed = NewError(FailedCode, "")
+func Failed(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(FailedCode, msg, args...)
+	}
+	return NewError(FailedCode, msg)
+}
+
+var kFailed = NewError(FailedCode, "")
+
+func IsFailed(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kFailed)
+}
 
 // ErrCanceled The operation was cancelled, typically by the caller.
 //
-// For example, client Application cancelled the request.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Canceled
 // HTTP Mapping: 499 Client Closed Request
-var ErrCanceled = NewError(codes.Canceled, "")
+func ErrCanceled(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Canceled, msg, args...)
+	}
+	return NewError(codes.Canceled, msg)
+}
 
-// ErrUnknown error.  For example, this error may be returned when
-// a `Status` value received from another address space belongs to
-// an error space that is not known in this address space.  Also
-// errors raised by APIs that do not return enough error information
-// may be converted to this error.
+var kErrCanceled = NewError(codes.Canceled, "")
+
+func IsCanceled(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrCanceled)
+}
+
+// ErrUnknown error.
 //
-// For example, server side application throws an exception (or does
-// something other than returning a Status code to terminate an RPC)
-//
-// # Another example, error parsing returned status
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrUnknown = NewError(codes.Unknown, "")
+func ErrUnknown(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Unknown, msg, args...)
+	}
+	return NewError(codes.Unknown, msg)
+}
 
-// ErrInvalidArgument The client specified an invalid argument.  Note that this differs
-// from ErrFailedPrecondition.  ErrInvalidArgument indicates arguments
-// that are problematic regardless of the state of the system
-// (e.g., a malformed file name).
+var kErrUnknown = NewError(codes.Unknown, "")
+
+func IsUnknown(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrUnknown)
+}
+
+// ErrInvalidArgument The client specified an invalid argument.
+//
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: InvalidArgument
 // HTTP Mapping: 400 Bad Request
-var ErrInvalidArgument = NewError(codes.InvalidArgument, "")
+func ErrInvalidArgument(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.InvalidArgument, msg, args...)
+	}
+	return NewError(codes.InvalidArgument, msg)
+}
 
-// ErrDeadlineExceeded The deadline expired before the operation could complete. For operations
-// that change the state of the system, this error may be returned
-// even if the operation has completed successfully.  For example, a
-// successful response from a server could have been delayed long
-// enough for the deadline to expire.
+var kErrInvalidArgument = NewError(codes.InvalidArgument, "")
+
+func IsInvalidArgument(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrInvalidArgument)
+}
+
+// ErrDeadlineExceeded The deadline expired before the operation could complete.
 //
-// For example, deadline expires before server returns status.
-//
-// Another example, no response received before Deadline expires. This may occur either when the
-// client is unable to send the request to the server or when the server fails to respond in time.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: DeadlineExceeded
 // HTTP Mapping: 504 Gateway Timeout
-var ErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "")
+func ErrDeadlineExceeded(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.DeadlineExceeded, msg, args...)
+	}
+	return NewError(codes.DeadlineExceeded, msg)
+}
+
+var kErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "")
+
+func IsDeadlineExceeded(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrDeadlineExceeded)
+}
 
 // ErrNotFound Some requested entity (e.g., file or directory) was not found.
 //
-// Note to server developers: if a request is denied for an entire class
-// of users, such as gradual feature rollout or undocumented allowlist,
-// ErrNotFound may be used. If a request is denied for some users within
-// a class of users, such as user-based access control, ErrPermissionDenied
-// must be used.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: NotFound
 // HTTP Mapping: 404 Not Found
-var ErrNotFound = NewError(codes.NotFound, "")
+func ErrNotFound(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.NotFound, msg, args...)
+	}
+	return NewError(codes.NotFound, msg)
+}
+
+var kErrNotFound = NewError(codes.NotFound, "")
+
+func IsNotFound(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrNotFound)
+}
 
 // ErrAlreadyExists The entity that a client attempted to create (e.g., file or directory)
 // already exists.
 //
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+//
 // GRPC Mapping: AlreadyExists
 // HTTP Mapping: 409 Conflict
-var ErrAlreadyExists = NewError(codes.AlreadyExists, "")
+func ErrAlreadyExists(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.AlreadyExists, msg, args...)
+	}
+	return NewError(codes.AlreadyExists, msg)
+}
+
+var kErrAlreadyExists = NewError(codes.AlreadyExists, "")
+
+func IsAlreadyExists(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrAlreadyExists)
+}
 
 // ErrPermissionDenied The caller does not have permission to execute the specified
-// operation. ErrPermissionDenied must not be used for rejections
-// caused by exhausting some resource (use ErrResourceExhausted
-// instead for those errors). ErrPermissionDenied must not be
-// used if the caller can not be identified (use ErrUnauthenticated
-// instead for those errors). This error code does not imply the
-// request is valid or the requested entity exists or satisfies
-// other pre-conditions.
+// operation.
+//
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: PermissionDenied
 // HTTP Mapping: 403 Forbidden
-var ErrPermissionDenied = NewError(codes.PermissionDenied, "")
+func ErrPermissionDenied(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.PermissionDenied, msg, args...)
+	}
+	return NewError(codes.PermissionDenied, msg)
+}
+
+var kErrPermissionDenied = NewError(codes.PermissionDenied, "")
+
+func IsPermissionDenied(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrPermissionDenied)
+}
 
 // ErrResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
 // perhaps the entire file system is out of space.
 //
-// Example 1, server temporarily out of resources (e.g., Flow-control resource limits reached)
-//
-// Example 2, client does not have enough memory to hold the server response.
-//
-// Example 3, Sent or received message was larger than configured limit.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: ResourceExhausted
 // HTTP Mapping: 429 Too Many Requests
-var ErrResourceExhausted = NewError(codes.ResourceExhausted, "")
+func ErrResourceExhausted(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.ResourceExhausted, msg, args...)
+	}
+	return NewError(codes.ResourceExhausted, msg)
+}
+
+var kErrResourceExhausted = NewError(codes.ResourceExhausted, "")
+
+func IsResourceExhausted(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrResourceExhausted)
+}
 
 // ErrFailedPrecondition The operation was rejected because the system is not in a state
-// required for the operation's execution.  For example, the directory
-// to be deleted is non-empty, an rmdir operation is applied to
-// a non-directory, etc.
+// required for the operation's execution.
 //
-// Service implementors can use the following guidelines to decide
-// between ErrFailedPrecondition, ErrAborted, and ErrUnavailable:
-//
-//	(a) Use ErrUnavailable if the client can retry just the failing call.
-//	(b) Use ErrAborted if the client should retry at a higher level. For
-//	    example, when a client-specified test-and-set fails, indicating the
-//	    client should restart a read-modify-write sequence.
-//	(c) Use ErrFailedPrecondition if the client should not retry until
-//	    the system state has been explicitly fixed. For example, if an "rmdir"
-//	    fails because the directory is non-empty, ErrFailedPrecondition
-//	    should be returned since the client should not retry unless
-//	    the files are deleted from the directory.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: FailedPrecondition
 // HTTP Mapping: 400 Bad Request
-var ErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
+func ErrFailedPrecondition(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.FailedPrecondition, msg, args...)
+	}
+	return NewError(codes.FailedPrecondition, msg)
+}
+
+var kErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
+
+func IsFailedPrecondition(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrFailedPrecondition)
+}
 
 // ErrAborted The operation was aborted, typically due to a concurrency issue such as
 // a sequencer check failure or transaction abort.
 //
-// See the guidelines above for deciding between ErrFailedPrecondition,
-// ErrAborted, and ErrUnavailable.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Aborted
 // HTTP Mapping: 409 Conflict
-var ErrAborted = NewError(codes.Aborted, "")
+func ErrAborted(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Aborted, msg, args...)
+	}
+	return NewError(codes.Aborted, msg)
+}
 
-// ErrOutOfRange The operation was attempted past the valid range.  E.g., seeking or
-// reading past end-of-file.
+var kErrAborted = NewError(codes.Aborted, "")
+
+func IsAborted(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrAborted)
+}
+
+// ErrOutOfRange The operation was attempted past the valid range.
 //
-// Unlike ErrInvalidArgument, this error indicates a problem that may
-// be fixed if the system state changes. For example, a 32-bit file
-// system will generate ErrInvalidArgument if asked to read at an
-// offset that is not in the range [0,2^32-1], but it will generate
-// ErrOutOfRange if asked to read from an offset past the current
-// file size.
-//
-// There is a fair bit of overlap between ErrFailedPrecondition and
-// ErrOutOfRange.  We recommend using ErrOutOfRange (the more specific
-// error) when it applies so that callers who are iterating through
-// a space can easily look for an ErrOutOfRange error to detect when
-// they are done.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: OutOfRange
 // HTTP Mapping: 400 Bad Request
-var ErrOutOfRange = NewError(codes.OutOfRange, "")
+func ErrOutOfRange(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.OutOfRange, msg, args...)
+	}
+	return NewError(codes.OutOfRange, msg)
+}
+
+var kErrOutOfRange = NewError(codes.OutOfRange, "")
+
+func IsOutOfRange(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrOutOfRange)
+}
 
 // ErrUnimplemented The operation is not implemented or is not supported/enabled in this
 // service.
 //
-// # Example 1, method not found at server.
-//
-// # Example 2, compression mechanism used by client not supported at server.
-//
-// # Example 3, request cardinality violation (method requires exactly one request
-// but client sent some other number of requests or server sent some other number of responses)
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Unimplemented
 // HTTP Mapping: 501 Not Implemented
-var ErrUnimplemented = NewError(codes.Unimplemented, "")
+func ErrUnimplemented(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Unimplemented, msg, args...)
+	}
+	return NewError(codes.Unimplemented, msg)
+}
+
+var kErrUnimplemented = NewError(codes.Unimplemented, "")
+
+func IsUnimplemented(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrUnimplemented)
+}
 
 // ErrInternal internal errors.  This means that some invariants expected by the
 // underlying system have been broken.  This error code is reserved
 // for serious errors.
 //
-// # Example 1, could not decompress, but compression algorithm supported.
-//
-// # Example 2, flow-control protocol violation.
-//
-// # Example 3, error parsing request or response proto.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Internal
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrInternal = NewError(codes.Internal, "")
+func ErrInternal(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Internal, msg, args...)
+	}
+	return NewError(codes.Internal, msg)
+}
 
-// ErrUnavailable The service is currently unavailable.  This is most likely a
-// transient condition, which can be corrected by retrying with
-// a backoff. Note that it is not always safe to retry
-// non-idempotent operations.
+var kErrInternal = NewError(codes.Internal, "")
+
+func IsInternal(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrInternal)
+}
+
+// ErrUnavailable The service is currently unavailable.
 //
-// # Example 1, server shutting down.
-//
-// # Example 2, some data transmitted (e.g., request metadata written to TCP connection) before connection breaks
-//
-// # Example 3, keepalive watchdog times out
-//
-// See the guidelines above for deciding between ErrFailedPrecondition,
-// ErrAborted, and ErrUnavailable.
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Unavailable
 // HTTP Mapping: 503 Service ErrUnavailable
-var ErrUnavailable = NewError(codes.Unavailable, "")
+func ErrUnavailable(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Unavailable, msg, args...)
+	}
+	return NewError(codes.Unavailable, msg)
+}
+
+var kErrUnavailable = NewError(codes.Unavailable, "")
+
+func IsUnavailable(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrUnavailable)
+}
 
 // ErrDataLoss Unrecoverable data loss or corruption.
 //
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+//
 // GRPC Mapping: DataLoss
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrDataLoss = NewError(codes.DataLoss, "")
+func ErrDataLoss(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.DataLoss, msg, args...)
+	}
+	return NewError(codes.DataLoss, msg)
+}
+
+var kErrDataLoss = NewError(codes.DataLoss, "")
+
+func IsDataLoss(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrDataLoss)
+}
 
 // ErrUnauthenticated The request does not have valid authentication credentials for the
 // operation.
 //
-// For example, incorrect Auth metadata ( Credentials failed to get metadata, Incompatible credentials set on channel
-// and call, Invalid host set in :authority metadata, etc.)
+// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+// See: [google api design]: https://cloud.google.com/apis/design/errors
+// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Unauthenticated
 // HTTP Mapping: 401 Unauthorized
-var ErrUnauthenticated = NewError(codes.Unauthenticated, "")
+func ErrUnauthenticated(msg string, args ...any) *Error {
+	if len(args) > 0 {
+		return NewErrorf(codes.Unauthenticated, msg, args...)
+	}
+	return NewError(codes.Unauthenticated, msg)
+}
+
+var kErrUnauthenticated = NewError(codes.Unauthenticated, "")
+
+func IsUnauthenticated(err error) (*Error, bool) {
+	e, ok := FromError(err)
+	if !ok {
+		return nil, false
+	}
+	return e, e.Equals(kErrUnauthenticated)
+}

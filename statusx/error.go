@@ -80,7 +80,8 @@ func (e *Error) Unwrap() error {
 }
 
 func (e *Error) WithMessage(msg string) *Error {
-	return &Error{e: e.e.WithMessage(msg)}
+	e.e.WithMessage(msg)
+	return e
 }
 
 func (e *Error) WithMessagef(format string, a ...any) *Error {
@@ -95,7 +96,8 @@ func (e *Error) WithDetails(details ...proto.Message) *Error {
 	if e.e.GetGrpcStatus().GetCode() == int32(codes.OK) {
 		return e
 	}
-	return &Error{e: e.e.WithDetails(details...)}
+	e.e.WithDetails(details...)
+	return e
 }
 
 // Details return additional details from the Error
@@ -108,7 +110,8 @@ func (e *Error) WithHttpHeader(infos ...*httpstatus.Header) *Error {
 	if len(infos) == 0 {
 		return e
 	}
-	return &Error{e: e.e.WithHttpHeader(infos...)}
+	e.e.WithHttpHeader(infos...)
+	return e
 }
 
 // HttpHeader gets the http header info.
@@ -125,7 +128,8 @@ func (e *Error) WithHttpBody(body proto.Message) *Error {
 	if err != nil {
 		return e
 	}
-	return &Error{e: e.e.WithHttpBody(anyBody)}
+	e.e.WithHttpBody(anyBody)
+	return e
 }
 
 // HttpBody gets the http body.

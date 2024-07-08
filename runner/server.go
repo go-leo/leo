@@ -82,14 +82,14 @@ func StartRunner(starter Starter) Runner {
 	return RunnerFunc(func(ctx context.Context) error { return starter.Start(ctx) })
 }
 
-// ServerRunner wrap Server to Runner
-func ServerRunner(server StartStopper) Runner {
+// StartStopperRunner wrap StartStopper to Runner
+func StartStopperRunner(server StartStopper) Runner {
 	return &startStopperRunner{startStopper: server}
 }
 
-// PriorityServerRunner
+// PriorityStartStopperRunner
 // start dominant StartStopper first，then start subordinate StartStopper.
 // stop subordinate StartStopper first，then stop dominant StartStopper.
-func PriorityServerRunner(dominant, subordinate StartStopper) Runner {
+func PriorityStartStopperRunner(dominant, subordinate StartStopper) Runner {
 	return &priorityStartStopperRunner{dominant: dominant, subordinate: subordinate}
 }

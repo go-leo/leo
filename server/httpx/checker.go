@@ -6,29 +6,29 @@ import (
 	"sync/atomic"
 )
 
-type Checker struct {
+type healthChecker struct {
 	serving atomic.Bool
 }
 
-func (c *Checker) Check(ctx context.Context) healthx.Status {
+func (c *healthChecker) Check(ctx context.Context) healthx.Status {
 	if c.IsServing() {
 		return healthx.Serving
 	}
 	return healthx.NotServing
 }
 
-func (c *Checker) Name() string {
+func (c *healthChecker) Name() string {
 	return "http"
 }
 
-func (c *Checker) IsServing() bool {
+func (c *healthChecker) IsServing() bool {
 	return c.serving.Load()
 }
 
-func (c *Checker) Shutdown() {
+func (c *healthChecker) Shutdown() {
 	c.serving.Store(false)
 }
 
-func (c *Checker) Resume() {
+func (c *healthChecker) Resume() {
 	c.serving.Store(true)
 }

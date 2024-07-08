@@ -506,14 +506,14 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				var varErr error
 				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars.Get("project"), vars.Get("location"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
 				}
 				queries := r.URL.Query()
 				var queryErr error
 				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
 				req.PageToken = queries.Get("page_token")
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
 				}
 				return req, nil
 			},
@@ -522,7 +522,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},
@@ -539,7 +539,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				var varErr error
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars.Get("project"), vars.Get("location"), vars.Get("workspac"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -548,7 +548,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},
@@ -562,13 +562,13 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateWorkspaceRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.Workspace); err != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(err)
+					return nil, statusx.ErrInvalidArgument("").Wrap(err)
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				req.Parent = fmt.Sprintf("projects/%s/locations/%s", vars.Get("project"), vars.Get("location"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -577,7 +577,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},
@@ -591,13 +591,13 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateWorkspaceRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.Workspace); err != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(err)
+					return nil, statusx.ErrInvalidArgument("").Wrap(err)
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/Workspaces/%s", vars.Get("project"), vars.Get("location"), vars.Get("Workspac"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -606,7 +606,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},
@@ -623,7 +623,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				var varErr error
 				req.Name = fmt.Sprintf("projects/%s/locations/%s/workspaces/%s", vars.Get("project"), vars.Get("location"), vars.Get("workspac"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
 				}
 				return req, nil
 			},
@@ -632,7 +632,7 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},

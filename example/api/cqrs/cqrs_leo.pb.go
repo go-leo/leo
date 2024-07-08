@@ -340,7 +340,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(err)
+					return nil, statusx.ErrInvalidArgument("").Wrap(err)
 				}
 				return req, nil
 			},
@@ -349,7 +349,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},
@@ -363,7 +363,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &FindUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.Wrap(err)
+					return nil, statusx.ErrInvalidArgument("").Wrap(err)
 				}
 				return req, nil
 			},
@@ -372,7 +372,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.Wrap(err)
+					return statusx.ErrInternal("").Wrap(err)
 				}
 				return nil
 			},

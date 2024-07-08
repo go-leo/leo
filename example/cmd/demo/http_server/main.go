@@ -1,12 +1,10 @@
 package main
 
 import (
-	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/api/demo"
 	"github.com/go-leo/leo/v3/example/internal/demo/assembler"
 	"github.com/go-leo/leo/v3/example/internal/demo/command"
 	"github.com/go-leo/leo/v3/example/internal/demo/query"
-	"github.com/go-leo/leo/v3/server/httpx"
 	"log"
 	"net"
 	"net/http"
@@ -32,9 +30,7 @@ func main() {
 	demoAssembler := assembler.NewDemoAssembler()
 	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
 	handler := demo.NewDemoHttpServerHandler(cqrsService)
-	server, err := httpx.NewServer(handler)
 
-	leo.NewApp(leo.Runners(server))
 	server := http.Server{Handler: handler}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {

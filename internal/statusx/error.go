@@ -67,31 +67,18 @@ func (x *Error) Equals(target error) bool {
 }
 
 // WithMessage sets the message of the gRPC status.
-func (x *Error) WithMessage(msg string) *Error {
-	cloned := protox.Clone(x)
-	cloned.GrpcStatus.Message = msg
-	return cloned
+func (x *Error) WithMessage(msg string) {
+	x.GrpcStatus.Message = msg
 }
 
 // WithDetails sets the details of the gRPC status.
-func (x *Error) WithDetails(details ...proto.Message) *Error {
-	oldDetails := x.GetGrpcStatus().GetDetails()
-	newDetails := make([]*anypb.Any, 0, len(oldDetails)+len(details))
-	newDetails = append(newDetails, oldDetails...)
+func (x *Error) WithDetails(details ...proto.Message) {
 	for _, detail := range details {
 		anyDetail, err := anypb.New(detail)
 		if err != nil {
 			continue
 		}
-		newDetails = append(newDetails, anyDetail)
-	}
-	return &Error{
-		GrpcStatus: &rpcstatus.Status{
-			Code:    x.GetGrpcStatus().GetCode(),
-			Message: x.GetGrpcStatus().GetMessage(),
-			Details: newDetails,
-		},
-		HttpStatus: protox.Clone(x.GetHttpStatus()),
+		x.GrpcStatus.Details = append(x.GrpcStatus.Details, anyDetail)
 	}
 }
 
@@ -109,20 +96,9 @@ func (x *Error) Details() []proto.Message {
 }
 
 // WithHttpHeader sets the http header info.
-func (x *Error) WithHttpHeader(infos ...*httpstatus.Header) *Error {
-	oldHeaders := x.GetHttpStatus().GetHeaders()
-	newHeaders := make([]*httpstatus.Header, 0, len(oldHeaders)+len(infos))
-	newHeaders = append(newHeaders, oldHeaders...)
+func (x *Error) WithHttpHeader(infos ...*httpstatus.Header) {
 	for _, info := range infos {
-		newHeaders = append(newHeaders, info)
-	}
-	return &Error{
-		GrpcStatus: protox.Clone(x.GetGrpcStatus()),
-		HttpStatus: &httpstatus.Status{
-			Code:    x.GetHttpStatus().GetCode(),
-			Headers: newHeaders,
-			Body:    x.GetHttpStatus().GetBody(),
-		},
+		x.HttpStatus.Headers = append(x.HttpStatus.Headers, info)
 	}
 }
 
@@ -130,10 +106,8 @@ func (x *Error) HttpHeader() []*httpstatus.Header {
 	return slices.Clone(x.GetHttpStatus().GetHeaders())
 }
 
-func (x *Error) WithHttpBody(body *anypb.Any) *Error {
-	cloned := protox.Clone(x)
-	cloned.HttpStatus.Body = body
-	return cloned
+func (x *Error) WithHttpBody(body *anypb.Any) {
+	x.HttpStatus.Body = body
 }
 
 func (x *Error) HttpBody() proto.Message {

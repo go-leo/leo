@@ -27,7 +27,7 @@ func (app *App) Run(ctx context.Context) error {
 	runners = append(runners, app.o.Runners...)
 
 	for _, server := range app.o.Servers {
-		runners = append(runners, runner.ServerRunner(server))
+		runners = append(runners, runner.StartStopperRunner(server))
 	}
 
 	return runner.MultiRunner(runners...).Run(ctx)
