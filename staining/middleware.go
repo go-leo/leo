@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	ErrMissMetadata = statusx.ErrInvalidArgument.WithMessage("missing metadata")
+	ErrMissMetadata = statusx.ErrInvalidArgument.With(statusx.Message("staining: missing metadata"))
 )
 
 // Middleware is a middleware that get color info from incoming metadata and injects the color info into the context

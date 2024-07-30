@@ -6,72 +6,45 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/errorx"
+	"github.com/go-leo/gox/syncx/groupx"
 	"github.com/go-leo/leo/v3/metadatax"
 	"reflect"
 	"sync"
 	"sync/atomic"
-
-	"github.com/go-leo/gox/syncx"
-)
-
-var (
-	// ErrHandlerNil CommandHandler or QueryHandler is nil
-	ErrHandlerNil = errors.New("cqrs: handler is nil")
-
-	// ErrRegistered not register CommandHandler or QueryHandler
-	ErrRegistered = errors.New("cqrs: handler registered")
-
-	// ErrUnregistered is not register CommandHandler or QueryHandler
-	ErrUnregistered = errors.New("cqrs: handler unregistered")
-
-	// ErrArgsNil arguments is nil
-	ErrArgsNil = errors.New("cqrs: arguments is nil")
-
-	// ErrBusClosed bus was closed
-	ErrBusClosed = errors.New("cqrs: bus was closed")
-
-	// ErrUnimplemented handler is not implement CommandHandler or QueryHandler
-	ErrUnimplemented = errors.New("cqrs: handler is not implement CommandHandler or QueryHandler")
 )
 
 var _ Bus = (*defaultBus)(nil)
 
 type defaultBus struct {
-	handlers   *sync.Map
-	wg         *sync.WaitGroup
-	inShutdown *atomic.Bool // true when bus is in shutdown
+	handlers *sync.Map
+	wg       *sync.WaitGroup
+	closed   *atomic.Bool // true when bus is in shutdown
 }
 
 func (b *defaultBus) RegisterCommand(handler any) error {
-	if err := b.checkHandler(handler); err != nil {
+	if err := b.registerCheck(handler); err != nil {
 		return err
 	}
-	handlerRef, err := newReflectedHandler(handler, "command")
+	handlerRef, err := b.newReflectedHandler(handler, "command")
 	if err != nil {
 		return err
 	}
-	if _, loaded := b.handlers.LoadOrStore(handlerRef.InType(), handlerRef); loaded {
-		return ErrRegistered
-	}
-	return nil
+	return b.registerHandler(handlerRef)
 }
 
 func (b *defaultBus) RegisterQuery(handler any) error {
-	if err := b.checkHandler(handler); err != nil {
+	if err := b.registerCheck(handler); err != nil {
 		return err
 	}
-	handlerRef, err := newReflectedHandler(handler, "query")
+	handlerRef, err := b.newReflectedHandler(handler, "query")
 	if err != nil {
 		return err
 	}
-	if _, loaded := b.handlers.LoadOrStore(handlerRef.InType(), handlerRef); loaded {
-		return ErrRegistered
-	}
-	return nil
+	return b.registerHandler(handlerRef)
 }
 
 func (b *defaultBus) Exec(ctx context.Context, args any) (metadatax.Metadata, error) {
-	if err := b.checkArgs(args); err != nil {
+	if err := b.invokeCheck(args); err != nil {
 		return nil, err
 	}
 	info, err := b.loadHandler(args)
@@ -82,7 +55,7 @@ func (b *defaultBus) Exec(ctx context.Context, args any) (metadatax.Metadata, er
 }
 
 func (b *defaultBus) Query(ctx context.Context, args any) (any, error) {
-	if err := b.checkArgs(args); err != nil {
+	if err := b.invokeCheck(args); err != nil {
 		return nil, err
 	}
 	info, err := b.loadHandler(args)
@@ -93,55 +66,110 @@ func (b *defaultBus) Query(ctx context.Context, args any) (any, error) {
 }
 
 func (b *defaultBus) Close(ctx context.Context) error {
-	if b.inShutdown.CompareAndSwap(false, true) {
+	if b.closed.CompareAndSwap(false, true) {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-syncx.WaitNotify(b.wg):
+		case <-groupx.WaitNotify(b.wg):
 			return nil
 		}
 	}
-	return ErrBusClosed
+	return nil
 }
 
-func (b *defaultBus) shuttingDown() bool {
-	return b.inShutdown.Load()
+func (b *defaultBus) registerHandler(handlerRef *reflectedHandler) error {
+	if _, loaded := b.handlers.LoadOrStore(handlerRef.InType(), handlerRef); loaded {
+		return errors.New("cqrs: handler registered")
+	}
+	return nil
 }
 
-func (b *defaultBus) checkHandler(handler any) error {
+func (b *defaultBus) checkClosed() error {
+	if b.closed.Load() {
+		return errors.New("cqrs: bus was closed")
+	}
+	return nil
+}
+
+func (b *defaultBus) registerCheck(handler any) error {
 	if handler == nil {
-		return ErrHandlerNil
+		return errors.New("cqrs: handler is nil")
 	}
-	if b.shuttingDown() {
-		return ErrBusClosed
-	}
-	return nil
+	return b.checkClosed()
 }
 
-func (b *defaultBus) checkArgs(args any) error {
+func (b *defaultBus) invokeCheck(args any) error {
 	if args == nil {
-		return ErrArgsNil
+		return errors.New("cqrs: arguments is nil")
 	}
-	if b.shuttingDown() {
-		return ErrBusClosed
-	}
-	return nil
+	return b.checkClosed()
 }
 
 func (b *defaultBus) loadHandler(args any) (*reflectedHandler, error) {
 	value, ok := b.handlers.Load(reflect.TypeOf(args))
 	if !ok {
-		return nil, ErrUnregistered
+		return nil, errors.New("cqrs: handler unregistered")
 	}
 	info := value.(*reflectedHandler)
 	return info, nil
 }
 
+func (b *defaultBus) newReflectedHandler(handler any, kind string) (*reflectedHandler, error) {
+	handlerVal := reflect.ValueOf(handler)
+	method, ok := handlerVal.Type().MethodByName("Handle")
+	if !ok {
+		return nil, b.unimplemented()
+	}
+	switch kind {
+	case "command":
+		if method.Type.NumIn() != 3 {
+			return nil, b.unimplemented()
+		}
+		if !method.Type.In(1).Implements(contextx.ContextType) {
+			return nil, b.unimplemented()
+		}
+		if method.Type.NumOut() != 2 {
+			return nil, b.unimplemented()
+		}
+		if !method.Type.Out(0).Implements(metadatax.Type) {
+			return nil, b.unimplemented()
+		}
+		if !method.Type.Out(1).Implements(errorx.ErrorType) {
+			return nil, b.unimplemented()
+		}
+	case "query":
+		if method.Type.NumIn() != 3 {
+			return nil, b.unimplemented()
+		}
+		if !method.Type.In(1).Implements(contextx.ContextType) {
+			return nil, b.unimplemented()
+		}
+		if method.Type.NumOut() != 2 {
+			return nil, b.unimplemented()
+		}
+		if !method.Type.Out(1).Implements(errorx.ErrorType) {
+			return nil, b.unimplemented()
+		}
+	default:
+		return nil, fmt.Errorf("cqrs: unknown kind %s", kind)
+	}
+	inType := method.Type.In(2)
+	return &reflectedHandler{
+		value:  handlerVal,
+		method: method,
+		inType: inType,
+	}, nil
+}
+
+func (b *defaultBus) unimplemented() error {
+	return errors.New("cqrs: handler is not implement CommandHandler or QueryHandler")
+}
+
 func NewBus() Bus {
 	return &defaultBus{
-		handlers:   &sync.Map{},
-		wg:         &sync.WaitGroup{},
-		inShutdown: &atomic.Bool{},
+		handlers: &sync.Map{},
+		wg:       &sync.WaitGroup{},
+		closed:   &atomic.Bool{},
 	}
 }
 
@@ -185,51 +213,4 @@ func (handler *reflectedHandler) Query(ctx context.Context, args any) (any, erro
 
 func (handler *reflectedHandler) InType() reflect.Type {
 	return handler.inType
-}
-
-func newReflectedHandler(handler any, kind string) (*reflectedHandler, error) {
-	handlerVal := reflect.ValueOf(handler)
-	method, ok := handlerVal.Type().MethodByName("Handle")
-	if !ok {
-		return nil, ErrUnimplemented
-	}
-	switch kind {
-	case "command":
-		if method.Type.NumIn() != 3 {
-			return nil, ErrUnimplemented
-		}
-		if !method.Type.In(1).Implements(contextx.ContextType) {
-			return nil, ErrUnimplemented
-		}
-		if method.Type.NumOut() != 2 {
-			return nil, ErrUnimplemented
-		}
-		if !method.Type.Out(0).Implements(metadatax.Type) {
-			return nil, ErrUnimplemented
-		}
-		if !method.Type.Out(1).Implements(errorx.ErrorType) {
-			return nil, ErrUnimplemented
-		}
-	case "query":
-		if method.Type.NumIn() != 3 {
-			return nil, ErrUnimplemented
-		}
-		if !method.Type.In(1).Implements(contextx.ContextType) {
-			return nil, ErrUnimplemented
-		}
-		if method.Type.NumOut() != 2 {
-			return nil, ErrUnimplemented
-		}
-		if !method.Type.Out(1).Implements(errorx.ErrorType) {
-			return nil, ErrUnimplemented
-		}
-	default:
-		return nil, fmt.Errorf("unknown kind %s", kind)
-	}
-	inType := method.Type.In(2)
-	return &reflectedHandler{
-		value:  handlerVal,
-		method: method,
-		inType: inType,
-	}, nil
 }

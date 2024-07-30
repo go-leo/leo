@@ -2,7 +2,6 @@ package transportx
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/lb"
@@ -142,7 +141,7 @@ func NewClientTransport(target string, factory sdx.Factory, opts ...ClientTransp
 		c.target = parsedTarget
 		builder := c.getInstancerBuilder(c.target.URL.Scheme)
 		if builder == nil {
-			return nil, statusx.ErrUnimplemented(fmt.Sprintf("could not get instancer builder for scheme: %q", c.target.URL.Scheme))
+			return nil, statusx.ErrUnimplemented.With(statusx.Message("could not get instancer builder for scheme: %q", c.target.URL.Scheme))
 		}
 		c.builder = builder
 		return c, nil
@@ -151,12 +150,12 @@ func NewClientTransport(target string, factory sdx.Factory, opts ...ClientTransp
 	canonicalTarget := c.options.DefaultScheme + ":///" + target
 	parsedTarget, err = sdx.ParseTarget(canonicalTarget)
 	if err != nil {
-		return nil, statusx.ErrUnimplemented(fmt.Sprintf("could not parse canonical target: %q", canonicalTarget))
+		return nil, statusx.ErrUnimplemented.With(statusx.Message("could not parse canonical target: %q", canonicalTarget))
 	}
 	c.target = parsedTarget
 	builder := c.getInstancerBuilder(c.target.URL.Scheme)
 	if builder == nil {
-		return nil, statusx.ErrUnimplemented(fmt.Sprintf("could not get instancer builder for default scheme: %q", parsedTarget.URL.Scheme))
+		return nil, statusx.ErrUnimplemented.With(statusx.Message("could not get instancer builder for default scheme: %q", parsedTarget.URL.Scheme))
 	}
 	c.builder = builder
 	return c, nil
@@ -165,11 +164,11 @@ func NewClientTransport(target string, factory sdx.Factory, opts ...ClientTransp
 func (c *clientTransport) Endpoint(ctx context.Context) endpoint.Endpoint {
 	balancer, err := c.balancer(ctx)
 	if err != nil {
-		return endpointx.Error(statusx.ErrFailedPrecondition(err.Error()))
+		return endpointx.Error(statusx.ErrFailedPrecondition.With(statusx.Wrap(err)))
 	}
 	ep, err := balancer.Endpoint()
 	if err != nil {
-		return endpointx.Error(statusx.ErrFailedPrecondition(err.Error()))
+		return endpointx.Error(statusx.ErrFailedPrecondition.With(statusx.Wrap(err)))
 	}
 	return ep
 }

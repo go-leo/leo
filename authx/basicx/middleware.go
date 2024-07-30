@@ -10,10 +10,10 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/statusx"
-	httpstatus "github.com/go-leo/leo/v3/statusx/http"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/go-leo/leo/v3/transportx/grpcx"
 	"github.com/go-leo/leo/v3/transportx/httpx"
+	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
 	"strings"
 )
 
@@ -43,8 +43,8 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 }
 
 var (
-	ErrMissMetadata         = statusx.ErrInvalidArgument.WithMessage("missing metadata")
-	ErrInvalidAuthorization = statusx.ErrUnauthenticated.WithMessage("invalid authorization")
+	ErrMissMetadata         = statusx.ErrInvalidArgument.With(statusx.Message("missing metadata"))
+	ErrInvalidAuthorization = statusx.ErrUnauthenticated.With(statusx.Message("invalid authorization"))
 )
 
 func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (any, error) {
@@ -55,7 +55,7 @@ func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, re
 
 	givenUser, givenPassword, ok := parseAuthorization(md.Values(authKey))
 	if !ok {
-		return nil, ErrInvalidAuthorization.WithHttpHeader(&httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)})
+		return nil, ErrInvalidAuthorization.With(statusx.HttpHeader(&httpstatus.HttpHeader{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}))
 	}
 
 	givenUserBytes := toHashSlice(givenUser)
@@ -63,7 +63,7 @@ func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, re
 
 	if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 		subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
-		return nil, ErrInvalidAuthorization.WithHttpHeader(&httpstatus.Header{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)})
+		return nil, ErrInvalidAuthorization.With(statusx.HttpHeader(&httpstatus.HttpHeader{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}))
 	}
 	// Continue execution of handler after ensuring a valid token.
 	return next(ctx, request)

@@ -3,7 +3,7 @@ package runner
 import (
 	"context"
 	"errors"
-	"github.com/go-leo/gox/syncx"
+	"github.com/go-leo/gox/syncx/groupx"
 	"golang.org/x/sync/errgroup"
 	"runtime"
 )
@@ -34,7 +34,7 @@ func (r *startStopperRunner) Run(ctx context.Context) error {
 	eg.Go(func() error { return r.startStopper.Start(ctx) })
 	runtime.Gosched()
 	select {
-	case err := <-syncx.WaitNotifyE(eg):
+	case err := <-groupx.WaitNotifyE(eg):
 		return err
 	case <-ctx.Done():
 		ctx = context.WithoutCancel(ctx)
@@ -65,7 +65,7 @@ func (r *priorityStartStopperRunner) Run(ctx context.Context) error {
 	})
 
 	select {
-	case err := <-syncx.WaitNotifyE(eg):
+	case err := <-groupx.WaitNotifyE(eg):
 		return err
 	case <-ctx.Done():
 		ctx = context.WithoutCancel(ctx)

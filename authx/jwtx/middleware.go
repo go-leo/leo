@@ -78,13 +78,13 @@ func (StandardClaimsFactory) New() jwt.Claims {
 
 var (
 	// ErrMissMetadata denotes a metadata was not found.
-	ErrMissMetadata = statusx.ErrInvalidArgument.WithMessage("missing metadata")
+	ErrMissMetadata = statusx.ErrInvalidArgument.With(statusx.Message("missing metadata"))
 
 	// ErrInvalidAuthorization denotes a token was not able to be parsed.
-	ErrInvalidAuthorization = statusx.ErrUnauthenticated.WithMessage("invalid authorization")
+	ErrInvalidAuthorization = statusx.ErrUnauthenticated.With(statusx.Message("invalid authorization"))
 
 	// ErrTokenInvalid denotes a token was not able to be validated.
-	ErrTokenInvalid = statusx.ErrUnauthenticated.WithMessage("JWT was invalid")
+	ErrTokenInvalid = statusx.ErrUnauthenticated.With(statusx.Message("JWT was invalid"))
 )
 
 // NewParser creates a new JWT parsing middleware, specifying a
@@ -124,7 +124,7 @@ func NewParser(keyFunc jwt.Keyfunc, method jwt.SigningMethod, claimsFactory Clai
 					return keyFunc(token)
 				})
 				if err != nil {
-					return nil, statusx.ErrUnauthenticated.WithMessage(err.Error())
+					return nil, statusx.ErrUnauthenticated.With(statusx.Wrap(err))
 				}
 
 				if !token.Valid {

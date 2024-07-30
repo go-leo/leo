@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-leo/leo/v3/metadatax"
 	"net/http"
 	"testing"
 	"time"
@@ -41,7 +42,7 @@ type studyCmd struct{}
 
 type study struct{}
 
-func (s study) Handle(ctx context.Context, args *studyCmd) (Metadata, error) {
+func (s study) Handle(ctx context.Context, args *studyCmd) (metadatax.Metadata, error) {
 	fmt.Println("studying...")
 	<-time.After(1 + time.Second)
 	return nil, nil
@@ -55,7 +56,7 @@ type examCmd struct{}
 
 type exam struct{}
 
-func (e exam) Handle(ctx context.Context, cmd examCmd) (Metadata, error) {
+func (e exam) Handle(ctx context.Context, cmd examCmd) (metadatax.Metadata, error) {
 	fmt.Println("taking an exam ...")
 	<-time.After(1 + time.Second)
 	return nil, errNotPassed
@@ -102,38 +103,38 @@ func (s teacher) Handle(ctx context.Context, q teacherQuery) (teacherResult, err
 func TestBus(t *testing.T) {
 	bus := NewBus()
 	var err error
-	var metadata Metadata
+	var metadata metadatax.Metadata
 	_ = metadata
 	// command
 	err = bus.RegisterCommand(&study{})
 	assert.NoError(t, err)
 
 	err = bus.RegisterCommand(study{})
-	assert.ErrorIs(t, err, ErrRegistered)
+	assert.Error(t, err)
 
 	err = bus.RegisterCommand(new(exam))
 	assert.NoError(t, err)
 
 	err = bus.RegisterCommand(new(exam))
-	assert.ErrorIs(t, err, ErrRegistered)
+	assert.Error(t, err)
 
 	err = bus.RegisterCommand(exam{})
-	assert.ErrorIs(t, err, ErrRegistered)
+	assert.Error(t, err)
 
 	err = bus.RegisterCommand(nil)
-	assert.ErrorIs(t, err, ErrHandlerNil)
+	assert.Error(t, err)
 
 	err = bus.RegisterCommand(new(noHandle))
-	assert.ErrorIs(t, err, ErrUnimplemented)
+	assert.Error(t, err)
 
 	err = bus.RegisterCommand(new(notMetadata))
-	assert.ErrorIs(t, err, ErrUnimplemented)
+	assert.Error(t, err)
 
 	metadata, err = bus.Exec(context.Background(), unknown{})
-	assert.ErrorIs(t, err, ErrUnregistered)
+	assert.Error(t, err)
 
 	metadata, err = bus.Exec(context.Background(), studyCmd{})
-	assert.ErrorIs(t, err, ErrUnregistered)
+	assert.Error(t, err)
 
 	metadata, err = bus.Exec(context.Background(), &studyCmd{})
 	assert.NoError(t, err)
@@ -142,29 +143,29 @@ func TestBus(t *testing.T) {
 	assert.ErrorIs(t, err, errNotPassed)
 
 	metadata, err = bus.Exec(context.Background(), &examCmd{})
-	assert.ErrorIs(t, err, ErrUnregistered)
+	assert.Error(t, err)
 
 	// query
 	err = bus.RegisterQuery(&student{})
 	assert.NoError(t, err)
 
 	err = bus.RegisterQuery(student{})
-	assert.ErrorIs(t, err, ErrRegistered)
+	assert.Error(t, err)
 
 	err = bus.RegisterQuery(&teacher{})
 	assert.NoError(t, err)
 
 	err = bus.RegisterQuery(teacher{})
-	assert.ErrorIs(t, err, ErrRegistered)
+	assert.Error(t, err)
 
 	err = bus.RegisterQuery(new(noHandle))
-	assert.ErrorIs(t, err, ErrUnimplemented)
+	assert.Error(t, err)
 
 	_, err = bus.Query(context.Background(), unknown{})
-	assert.ErrorIs(t, err, ErrUnregistered)
+	assert.Error(t, err)
 
 	_, err = bus.Query(context.Background(), studentQuery{})
-	assert.ErrorIs(t, err, ErrUnregistered)
+	assert.Error(t, err)
 
 	r, err := bus.Query(context.Background(), &studentQuery{Id: 10})
 	assert.NoError(t, err)
