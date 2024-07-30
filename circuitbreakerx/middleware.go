@@ -29,7 +29,7 @@ func Middleware(factory Factory) endpoint.Middleware {
 		return func(ctx context.Context, request any) (any, error) {
 			ok, resp, err := breaker.Execute(ctx, request, next)
 			if !ok {
-				return nil, statusx.ErrUnavailable.WithMessage("circuit open")
+				return nil, statusx.ErrUnavailable("circuit open")
 			}
 			return resp, err
 		}

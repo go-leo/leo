@@ -1,8 +1,14 @@
 package statusx
 
 import (
+	interstatusx "github.com/go-leo/leo/v3/internal/statusx"
+	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
+	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
+	"net/http"
 )
+
+const FailedCode codes.Code = 1717570208
 
 // OK Not an error; returned on success.
 //
@@ -13,21 +19,11 @@ import (
 //
 // GRPC Mapping: OK
 // HTTP Mapping: 200 OK
-func OK(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.OK, msg, args...)
-	}
-	return NewError(codes.OK, msg)
-}
-
-var kOK = NewError(codes.OK, "")
-
-func IsOK(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kOK)
+var OK = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.OK)},
+	},
 }
 
 // Failed unlike ErrUnknown error, it just means business logic failed.
@@ -37,21 +33,11 @@ func IsOK(err error) (*Error, bool) {
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 200 OK
-func Failed(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(FailedCode, msg, args...)
-	}
-	return NewError(FailedCode, msg)
-}
-
-var kFailed = NewError(FailedCode, "")
-
-func IsFailed(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kFailed)
+var Failed = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(FailedCode)},
+	},
 }
 
 // ErrCanceled The operation was cancelled, typically by the caller.
@@ -63,21 +49,11 @@ func IsFailed(err error) (*Error, bool) {
 //
 // GRPC Mapping: Canceled
 // HTTP Mapping: 499 Client Closed Request
-func ErrCanceled(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Canceled, msg, args...)
-	}
-	return NewError(codes.Canceled, msg)
-}
-
-var kErrCanceled = NewError(codes.Canceled, "")
-
-func IsCanceled(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrCanceled)
+var ErrCanceled = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(499)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Canceled)},
+	},
 }
 
 // ErrUnknown error.
@@ -89,21 +65,11 @@ func IsCanceled(err error) (*Error, bool) {
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 500 ErrInternal Server Error
-func ErrUnknown(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Unknown, msg, args...)
-	}
-	return NewError(codes.Unknown, msg)
-}
-
-var kErrUnknown = NewError(codes.Unknown, "")
-
-func IsUnknown(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrUnknown)
+var ErrUnknown = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unknown)},
+	},
 }
 
 // ErrInvalidArgument The client specified an invalid argument.
@@ -115,21 +81,11 @@ func IsUnknown(err error) (*Error, bool) {
 //
 // GRPC Mapping: InvalidArgument
 // HTTP Mapping: 400 Bad Request
-func ErrInvalidArgument(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.InvalidArgument, msg, args...)
-	}
-	return NewError(codes.InvalidArgument, msg)
-}
-
-var kErrInvalidArgument = NewError(codes.InvalidArgument, "")
-
-func IsInvalidArgument(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrInvalidArgument)
+var ErrInvalidArgument = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.InvalidArgument)},
+	},
 }
 
 // ErrDeadlineExceeded The deadline expired before the operation could complete.
@@ -141,21 +97,11 @@ func IsInvalidArgument(err error) (*Error, bool) {
 //
 // GRPC Mapping: DeadlineExceeded
 // HTTP Mapping: 504 Gateway Timeout
-func ErrDeadlineExceeded(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.DeadlineExceeded, msg, args...)
-	}
-	return NewError(codes.DeadlineExceeded, msg)
-}
-
-var kErrDeadlineExceeded = NewError(codes.DeadlineExceeded, "")
-
-func IsDeadlineExceeded(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrDeadlineExceeded)
+var ErrDeadlineExceeded = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusGatewayTimeout)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.DeadlineExceeded)},
+	},
 }
 
 // ErrNotFound Some requested entity (e.g., file or directory) was not found.
@@ -167,21 +113,11 @@ func IsDeadlineExceeded(err error) (*Error, bool) {
 //
 // GRPC Mapping: NotFound
 // HTTP Mapping: 404 Not Found
-func ErrNotFound(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.NotFound, msg, args...)
-	}
-	return NewError(codes.NotFound, msg)
-}
-
-var kErrNotFound = NewError(codes.NotFound, "")
-
-func IsNotFound(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrNotFound)
+var ErrNotFound = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotFound)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.NotFound)},
+	},
 }
 
 // ErrAlreadyExists The entity that a client attempted to create (e.g., file or directory)
@@ -194,21 +130,11 @@ func IsNotFound(err error) (*Error, bool) {
 //
 // GRPC Mapping: AlreadyExists
 // HTTP Mapping: 409 Conflict
-func ErrAlreadyExists(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.AlreadyExists, msg, args...)
-	}
-	return NewError(codes.AlreadyExists, msg)
-}
-
-var kErrAlreadyExists = NewError(codes.AlreadyExists, "")
-
-func IsAlreadyExists(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrAlreadyExists)
+var ErrAlreadyExists = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.AlreadyExists)},
+	},
 }
 
 // ErrPermissionDenied The caller does not have permission to execute the specified
@@ -221,21 +147,11 @@ func IsAlreadyExists(err error) (*Error, bool) {
 //
 // GRPC Mapping: PermissionDenied
 // HTTP Mapping: 403 Forbidden
-func ErrPermissionDenied(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.PermissionDenied, msg, args...)
-	}
-	return NewError(codes.PermissionDenied, msg)
-}
-
-var kErrPermissionDenied = NewError(codes.PermissionDenied, "")
-
-func IsPermissionDenied(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrPermissionDenied)
+var ErrPermissionDenied = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusForbidden)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.PermissionDenied)},
+	},
 }
 
 // ErrResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
@@ -248,21 +164,11 @@ func IsPermissionDenied(err error) (*Error, bool) {
 //
 // GRPC Mapping: ResourceExhausted
 // HTTP Mapping: 429 Too Many Requests
-func ErrResourceExhausted(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.ResourceExhausted, msg, args...)
-	}
-	return NewError(codes.ResourceExhausted, msg)
-}
-
-var kErrResourceExhausted = NewError(codes.ResourceExhausted, "")
-
-func IsResourceExhausted(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrResourceExhausted)
+var ErrResourceExhausted = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusTooManyRequests)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.ResourceExhausted)},
+	},
 }
 
 // ErrFailedPrecondition The operation was rejected because the system is not in a state
@@ -275,21 +181,11 @@ func IsResourceExhausted(err error) (*Error, bool) {
 //
 // GRPC Mapping: FailedPrecondition
 // HTTP Mapping: 400 Bad Request
-func ErrFailedPrecondition(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.FailedPrecondition, msg, args...)
-	}
-	return NewError(codes.FailedPrecondition, msg)
-}
-
-var kErrFailedPrecondition = NewError(codes.FailedPrecondition, "")
-
-func IsFailedPrecondition(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrFailedPrecondition)
+var ErrFailedPrecondition = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.FailedPrecondition)},
+	},
 }
 
 // ErrAborted The operation was aborted, typically due to a concurrency issue such as
@@ -302,21 +198,11 @@ func IsFailedPrecondition(err error) (*Error, bool) {
 //
 // GRPC Mapping: Aborted
 // HTTP Mapping: 409 Conflict
-func ErrAborted(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Aborted, msg, args...)
-	}
-	return NewError(codes.Aborted, msg)
-}
-
-var kErrAborted = NewError(codes.Aborted, "")
-
-func IsAborted(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrAborted)
+var ErrAborted = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Aborted)},
+	},
 }
 
 // ErrOutOfRange The operation was attempted past the valid range.
@@ -328,21 +214,11 @@ func IsAborted(err error) (*Error, bool) {
 //
 // GRPC Mapping: OutOfRange
 // HTTP Mapping: 400 Bad Request
-func ErrOutOfRange(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.OutOfRange, msg, args...)
-	}
-	return NewError(codes.OutOfRange, msg)
-}
-
-var kErrOutOfRange = NewError(codes.OutOfRange, "")
-
-func IsOutOfRange(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrOutOfRange)
+var ErrOutOfRange = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.OutOfRange)},
+	},
 }
 
 // ErrUnimplemented The operation is not implemented or is not supported/enabled in this
@@ -355,21 +231,11 @@ func IsOutOfRange(err error) (*Error, bool) {
 //
 // GRPC Mapping: Unimplemented
 // HTTP Mapping: 501 Not Implemented
-func ErrUnimplemented(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Unimplemented, msg, args...)
-	}
-	return NewError(codes.Unimplemented, msg)
-}
-
-var kErrUnimplemented = NewError(codes.Unimplemented, "")
-
-func IsUnimplemented(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrUnimplemented)
+var ErrUnimplemented = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotImplemented)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unimplemented)},
+	},
 }
 
 // ErrInternal internal errors.  This means that some invariants expected by the
@@ -382,22 +248,12 @@ func IsUnimplemented(err error) (*Error, bool) {
 // See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Internal
-// HTTP Mapping: 500 ErrInternal Server Error
-func ErrInternal(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Internal, msg, args...)
-	}
-	return NewError(codes.Internal, msg)
-}
-
-var kErrInternal = NewError(codes.Internal, "")
-
-func IsInternal(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrInternal)
+// HTTP Mapping: 500 Internal Server Error
+var ErrInternal = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Internal)},
+	},
 }
 
 // ErrUnavailable The service is currently unavailable.
@@ -408,22 +264,12 @@ func IsInternal(err error) (*Error, bool) {
 // See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: Unavailable
-// HTTP Mapping: 503 Service ErrUnavailable
-func ErrUnavailable(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Unavailable, msg, args...)
-	}
-	return NewError(codes.Unavailable, msg)
-}
-
-var kErrUnavailable = NewError(codes.Unavailable, "")
-
-func IsUnavailable(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrUnavailable)
+// HTTP Mapping: 503 Service Unavailable
+var ErrUnavailable = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusServiceUnavailable)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unavailable)},
+	},
 }
 
 // ErrDataLoss Unrecoverable data loss or corruption.
@@ -434,22 +280,12 @@ func IsUnavailable(err error) (*Error, bool) {
 // See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 //
 // GRPC Mapping: DataLoss
-// HTTP Mapping: 500 ErrInternal Server Error
-func ErrDataLoss(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.DataLoss, msg, args...)
-	}
-	return NewError(codes.DataLoss, msg)
-}
-
-var kErrDataLoss = NewError(codes.DataLoss, "")
-
-func IsDataLoss(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrDataLoss)
+// HTTP Mapping: 500 Internal Server Error
+var ErrDataLoss = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.DataLoss)},
+	},
 }
 
 // ErrUnauthenticated The request does not have valid authentication credentials for the
@@ -462,19 +298,9 @@ func IsDataLoss(err error) (*Error, bool) {
 //
 // GRPC Mapping: Unauthenticated
 // HTTP Mapping: 401 Unauthorized
-func ErrUnauthenticated(msg string, args ...any) *Error {
-	if len(args) > 0 {
-		return NewErrorf(codes.Unauthenticated, msg, args...)
-	}
-	return NewError(codes.Unauthenticated, msg)
-}
-
-var kErrUnauthenticated = NewError(codes.Unauthenticated, "")
-
-func IsUnauthenticated(err error) (*Error, bool) {
-	e, ok := FromError(err)
-	if !ok {
-		return nil, false
-	}
-	return e, e.Equals(kErrUnauthenticated)
+var ErrUnauthenticated = &Error{
+	e: &interstatusx.Error{
+		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusUnauthorized)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unauthenticated)},
+	},
 }

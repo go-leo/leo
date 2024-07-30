@@ -6,7 +6,7 @@ require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
-	github.com/go-leo/gox v0.0.0-20240703033645-64b4474cb1ef
+	github.com/go-leo/gox v0.0.0-20240730065051-6b1cedf62538
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/google/uuid v1.6.0

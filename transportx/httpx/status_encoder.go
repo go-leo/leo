@@ -10,6 +10,7 @@ import (
 	"github.com/go-leo/gox/strconvx"
 	"github.com/go-leo/leo/v3/statusx"
 	httpstatus "github.com/go-leo/leo/v3/statusx/http"
+	"golang.org/x/exp/maps"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/proto"
@@ -20,6 +21,14 @@ import (
 	"strings"
 	"sync"
 )
+
+type Encoder interface {
+	Encode(ctx context.Context, err *statusx.Error) (int, http.Header, []byte)
+}
+
+type Decoder interface {
+	Decode(ctx context.Context, status int, header http.Header, body []byte) *statusx.Error
+}
 
 var (
 	// defaultStatusEncoder is the default status encoder
@@ -34,7 +43,7 @@ var (
 
 const (
 	kContentTypeKey   = "Content-Type"
-	kErrorEncoderKey  = "X-Leo-Error-Encoder"
+	kErrorEncoderKey  = "X-Leo-Unwrap-Encoder"
 	kGrpcCodeKey      = "X-Leo-Grpc-Code"
 	kGrpcMsgKey       = "X-Leo-Grpc-Msg"
 	kStatusKeysKey    = "X-Leo-Status-Keys"
@@ -254,4 +263,14 @@ func (e *ResponseError) Header() http.Header {
 
 func (e *ResponseError) Body() []byte {
 	return e.body
+}
+
+func (x *Status) HttpHeader() http.Header {
+	header := make(http.Header, len(x.GetHeaders()))
+	for _, h := range x.GetHeaders() {
+		header.Add(h.GetKey(), h.GetValue())
+	}
+	keys := maps.Keys(header)
+	header.Add("X-Leo-Status-Keys", strings.Join(keys, ", "))
+	return header
 }
