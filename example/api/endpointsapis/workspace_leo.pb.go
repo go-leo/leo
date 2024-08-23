@@ -644,10 +644,9 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 	}
 }
 
-func NewWorkspacesHttpServerHandler(svc WorkspacesService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendWorkspacesHttpRouter(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newWorkspacesServerEndpoints(svc, middlewares...)
 	transports := newWorkspacesHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(transports.ListWorkspaces())
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(transports.GetWorkspace())
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(transports.CreateWorkspace())

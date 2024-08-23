@@ -1417,10 +1417,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 	}
 }
 
-func NewPathHttpServerHandler(svc PathService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendPathHttpRouter(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newPathServerEndpoints(svc, middlewares...)
 	transports := newPathHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}").Handler(transports.BoolPath())
 	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").Handler(transports.Int32Path())
 	router.NewRoute().Name("/leo.example.path.v1.Path/Int64Path").Methods("GET").Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").Handler(transports.Int64Path())

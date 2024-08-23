@@ -7,6 +7,7 @@ import (
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	stdconsul "github.com/hashicorp/consul/api"
 	"log"
 	"net"
@@ -30,8 +31,12 @@ func run(port int) {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	handler := helloworld.NewGreeterHttpServerHandler(NewGreeterService(address))
-	server := http.Server{Handler: handler}
+
+	router := helloworld.AppendGreeterHttpRouter(
+		mux.NewRouter(),
+		NewGreeterService(address),
+	)
+	server := http.Server{Handler: router}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
 		Address:    "localhost:8500",
 		Datacenter: "dc1",

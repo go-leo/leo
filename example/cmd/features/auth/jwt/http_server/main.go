@@ -5,6 +5,7 @@ import (
 	"github.com/go-leo/leo/v3/authx/jwtx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"net/http"
@@ -15,7 +16,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	handler := helloworld.NewGreeterHttpServerHandler(
+	router := helloworld.AppendGreeterHttpRouter(
+		mux.NewRouter(),
 		NewGreeterService(),
 		jwtx.NewParser(
 			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
@@ -23,7 +25,7 @@ func main() {
 			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
 		),
 	)
-	server := http.Server{Handler: handler}
+	server := http.Server{Handler: router}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

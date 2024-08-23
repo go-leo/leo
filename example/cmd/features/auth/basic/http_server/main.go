@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-leo/leo/v3/authx/basicx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"net/http"
@@ -14,11 +15,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	handler := helloworld.NewGreeterHttpServerHandler(
+	router := helloworld.AppendGreeterHttpRouter(
+		mux.NewRouter(),
 		NewGreeterService(),
 		basicx.Middleware("soyacen", "123456", "basic auth example"),
 	)
-	server := http.Server{Handler: handler}
+	server := http.Server{Handler: router}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

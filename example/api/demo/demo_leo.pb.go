@@ -1037,10 +1037,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 	}
 }
 
-func NewDemoHttpServerHandler(svc DemoService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendDemoHttpRouter(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newDemoServerEndpoints(svc, middlewares...)
 	transports := newDemoHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user").Handler(transports.CreateUser())
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}").Handler(transports.DeleteUser())
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/UpdateUser").Methods("PUT").Path("/v1/user/{user_id}").Handler(transports.UpdateUser())

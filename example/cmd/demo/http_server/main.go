@@ -5,6 +5,7 @@ import (
 	"github.com/go-leo/leo/v3/example/internal/demo/assembler"
 	"github.com/go-leo/leo/v3/example/internal/demo/command"
 	"github.com/go-leo/leo/v3/example/internal/demo/query"
+	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"net/http"
@@ -29,9 +30,8 @@ func main() {
 	}
 	demoAssembler := assembler.NewDemoAssembler()
 	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
-	handler := demo.NewDemoHttpServerHandler(cqrsService)
-
-	server := http.Server{Handler: handler}
+	router := demo.AppendDemoHttpRouter(mux.NewRouter(), cqrsService)
+	server := http.Server{Handler: router}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

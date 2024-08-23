@@ -58,10 +58,9 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 }
 
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.HttpServerHandlerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.HttpPackage.Ident("Handler"), " {")
+	g.P("func Append", service.HttpRouterName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
 	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
 	g.P("transports := new", service.HttpServerTransportsName(), "(endpoints)")
-	g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则

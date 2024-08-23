@@ -618,10 +618,9 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 	}
 }
 
-func NewBodyHttpServerHandler(svc BodyService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendBodyHttpRouter(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newBodyServerEndpoints(svc, middlewares...)
 	transports := newBodyHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(transports.StarBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(transports.NamedBody())
 	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(transports.NonBody())

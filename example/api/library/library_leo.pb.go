@@ -1263,10 +1263,9 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 	}
 }
 
-func NewLibraryServiceHttpServerHandler(svc LibraryServiceService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendLibraryServiceHttpRouter(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
 	transports := newLibraryServiceHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves").Handler(transports.CreateShelf())
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}").Handler(transports.GetShelf())
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListShelves").Methods("GET").Path("/v1/shelves").Handler(transports.ListShelves())

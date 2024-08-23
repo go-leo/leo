@@ -627,10 +627,9 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 	}
 }
 
-func NewResponseHttpServerHandler(svc ResponseService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendResponseHttpRouter(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newResponseServerEndpoints(svc, middlewares...)
 	transports := newResponseHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(transports.OmittedResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(transports.StarResponse())
 	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(transports.NamedResponse())

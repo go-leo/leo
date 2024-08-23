@@ -9,6 +9,7 @@ import (
 	"github.com/go-leo/leo/v3/staining"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	stdconsul "github.com/hashicorp/consul/api"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -59,11 +60,12 @@ func runApi(port int) {
 		staining.Middleware("X-Color"),
 	)
 
-	handler := helloworld.NewGreeterHttpServerHandler(
+	router := helloworld.AppendGreeterHttpRouter(
+		mux.NewRouter(),
 		NewGreeterApiService(httpClient),
 		staining.Middleware("X-Color"),
 	)
-	server := http.Server{Handler: handler}
+	server := http.Server{Handler: router}
 	go func() {
 		log.Printf("server listening at %v", lis.Addr())
 		if err := server.Serve(lis); err != nil {
@@ -106,11 +108,12 @@ func runHttp(port int, color string) {
 	}
 	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, staining.Middleware("X-Color"))
 
-	handler := helloworld.NewGreeterHttpServerHandler(
+	router := helloworld.AppendGreeterHttpRouter(
+		mux.NewRouter(),
 		NewGreeterHttpService(grpcClient, address, color),
 		staining.Middleware("X-Color"),
 	)
-	server := http.Server{Handler: handler}
+	server := http.Server{Handler: router}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
 		Address:    "localhost:8500",
 		Datacenter: "dc1",

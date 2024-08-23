@@ -6,6 +6,7 @@ import (
 	"github.com/go-leo/gox/errorx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/statusx"
+	"github.com/gorilla/mux"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -19,8 +20,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	handler := helloworld.NewGreeterHttpServerHandler(NewGreeterService())
-	server := http.Server{Handler: handler}
+	router := helloworld.AppendGreeterHttpRouter(
+		mux.NewRouter(),
+		NewGreeterService(),
+	)
+	server := http.Server{Handler: router}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

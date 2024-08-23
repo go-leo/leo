@@ -229,10 +229,9 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 	}
 }
 
-func NewMixPathHttpServerHandler(svc MixPathService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendMixPathHttpRouter(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newMixPathServerEndpoints(svc, middlewares...)
 	transports := newMixPathHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.MixPath())
 	return router
 }

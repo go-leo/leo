@@ -384,10 +384,9 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 	}
 }
 
-func NewCQRSHttpServerHandler(svc CQRSService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendCQRSHttpRouter(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newCQRSServerEndpoints(svc, middlewares...)
 	transports := newCQRSHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser").Handler(transports.FindUser())
 	return router

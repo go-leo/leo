@@ -216,10 +216,9 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 	}
 }
 
-func NewGreeterHttpServerHandler(svc GreeterService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendGreeterHttpRouter(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newGreeterServerEndpoints(svc, middlewares...)
 	transports := newGreeterHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
 	return router
 }

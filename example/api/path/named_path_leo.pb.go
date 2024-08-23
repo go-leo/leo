@@ -763,10 +763,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 	}
 }
 
-func NewNamedPathHttpServerHandler(svc NamedPathService, middlewares ...endpoint.Middleware) http1.Handler {
+func AppendNamedPathHttpRouter(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
 	transports := newNamedPathHttpServerTransports(endpoints)
-	router := mux.NewRouter()
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathString())
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathOptString())
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathWrapString").Methods("GET").Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathWrapString())
