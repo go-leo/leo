@@ -10,29 +10,38 @@ import (
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+	"net/url"
+	"strconv"
 )
 
 // FromGrpcStatus returns an error representing s.
-func FromGrpcStatus(s *grpcstatus.Status) *Error {
+func FromGrpcStatus(s *grpcstatus.Status) ErrorApi {
+	// s may be nil
 	if s == nil {
 		return nil
 	}
-	details := make([]*anypb.Any, 0, len(s.Details()))
+
 	var errs []error
 	var cause *interstatusx.Cause
 	var detail *interstatusx.Detail
 	var httpProto *httpstatus.HttpResponse
+	details := make([]*anypb.Any, 0, len(s.Details()))
 	for _, value := range s.Details() {
 		switch item := value.(type) {
 		case *interstatusx.Cause:
+			// cause info
 			cause = item
 		case *interstatusx.Detail:
+			// detail info
 			detail = item
 		case *httpstatus.HttpResponse:
+			// http info
 			httpProto = item
 		case error:
+			// error
 			errs = append(errs, item)
 		default:
+			// other details
 			message, ok := item.(proto.Message)
 			if !ok {
 				panic(fmt.Errorf("statusx: failed to convert value to proto.Message, %#v", item))
@@ -47,8 +56,8 @@ func FromGrpcStatus(s *grpcstatus.Status) *Error {
 	if len(errs) > 0 {
 		panic(errors.Join(errs...))
 	}
-	return &Error{
-		e: &interstatusx.Error{
+	return &status{
+		err: &interstatusx.Error{
 			Cause:      cause,
 			Detail:     detail,
 			HttpStatus: httpProto,
@@ -61,11 +70,11 @@ func FromGrpcStatus(s *grpcstatus.Status) *Error {
 	}
 }
 
-func FromError(err error) (*Error, bool) {
+func FromError(err error) (ErrorApi, bool) {
 	if err == nil {
 		return nil, true
 	}
-	var statusErr *Error
+	var statusErr *status
 	if errors.As(err, &statusErr) {
 		return statusErr, true
 	}
@@ -76,21 +85,44 @@ func FromError(err error) (*Error, bool) {
 	return nil, false
 }
 
-func FromGrpcError(err error) *Error {
+func FromGrpcError(err error) ErrorApi {
 	grpcStatus, _ := grpcstatus.FromError(err)
 	return FromGrpcStatus(grpcStatus)
 }
 
 // FromContextError converts a context error to Error
-func FromContextError(err error) *Error {
+func FromContextError(err error) ErrorApi {
 	if err == nil {
 		return nil
 	}
-	if errors.Is(err, context.DeadlineExceeded) {
-		return ErrDeadlineExceeded.With(Wrap(err))
-	}
-	if errors.Is(err, context.Canceled) {
-		return ErrCanceled.With(Wrap(err))
-	}
+
 	return ErrUnknown.With(Wrap(err))
+}
+
+func From(obj any) ErrorApi {
+	if obj == nil {
+		return nil
+	}
+	switch err := obj.(type) {
+	case *interstatusx.Error:
+		return &status{err: err}
+	case error:
+		if errors.Is(err, context.DeadlineExceeded) {
+			return ErrDeadlineExceeded.With(Wrap(err))
+		}
+		if errors.Is(err, context.Canceled) {
+			return ErrCanceled.With(Wrap(err))
+		}
+		if urlErr := new(url.Error); errors.As(err, &urlErr) {
+			return ErrUnavailable.With(Message(strconv.Quote(fmt.Sprintf("%s %s: %s", urlErr.Op, urlErr.URL, urlErr.Err))), Wrap(urlErr))
+		}
+		if statusErr := new(status); errors.As(err, &statusErr) {
+			return statusErr
+		}
+		if grpcStatus, ok := grpcstatus.FromError(err); ok {
+			return FromGrpcStatus(grpcStatus)
+		}
+		return ErrUnknown.With(Wrap(err))
+	}
+	return ErrUnknown
 }

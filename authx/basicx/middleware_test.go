@@ -23,7 +23,7 @@ func TestHttpWithBasicAuth(t *testing.T) {
 
 	type want struct {
 		result any
-		err    *statusx.Error
+		err    statusx.ErrorApi
 	}
 	tests := []struct {
 		name       string

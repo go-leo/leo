@@ -959,7 +959,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateShelfRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.Shelf); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				return req, nil
 			},
@@ -968,7 +968,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -985,7 +985,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				var varErr error
 				req.Name = fmt.Sprintf("shelves/%s", vars.Get("shelf"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -994,7 +994,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1012,7 +1012,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
 				req.PageToken = queries.Get("page_token")
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
 				}
 				return req, nil
 			},
@@ -1021,7 +1021,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1038,7 +1038,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				var varErr error
 				req.Name = fmt.Sprintf("shelves/%s", vars.Get("shelf"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1047,7 +1047,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1061,13 +1061,13 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MergeShelvesRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				req.Name = fmt.Sprintf("shelves/%s", vars.Get("shelf"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1076,7 +1076,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1090,13 +1090,13 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateBookRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.Book); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				req.Parent = fmt.Sprintf("shelves/%s", vars.Get("shelf"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1105,7 +1105,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1122,7 +1122,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				var varErr error
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars.Get("shelf"), vars.Get("book"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1131,7 +1131,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1148,14 +1148,14 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				var varErr error
 				req.Parent = fmt.Sprintf("shelves/%s", vars.Get("shelf"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				queries := r.URL.Query()
 				var queryErr error
 				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
 				req.PageToken = queries.Get("page_token")
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
 				}
 				return req, nil
 			},
@@ -1164,7 +1164,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1181,7 +1181,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				var varErr error
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars.Get("shelf"), vars.Get("book"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1190,7 +1190,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1204,7 +1204,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UpdateBookRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.Book); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
@@ -1213,7 +1213,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				}
 				req.Book.Name = fmt.Sprintf("shelves/%s/books/%s", vars.Get("shelf"), vars.Get("book"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1222,7 +1222,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1236,13 +1236,13 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &MoveBookRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				vars := urlx.FormFromMap(mux.Vars(r))
 				var varErr error
 				req.Name = fmt.Sprintf("shelves/%s/books/%s", vars.Get("shelf"), vars.Get("book"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -1251,7 +1251,7 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -2000,7 +2000,7 @@ func (c *libraryServiceHttpClient) CreateShelf(ctx context.Context, request *Cre
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.CreateShelf(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Shelf), nil
 }
@@ -2010,7 +2010,7 @@ func (c *libraryServiceHttpClient) GetShelf(ctx context.Context, request *GetShe
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.GetShelf(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Shelf), nil
 }
@@ -2020,7 +2020,7 @@ func (c *libraryServiceHttpClient) ListShelves(ctx context.Context, request *Lis
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.ListShelves(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*ListShelvesResponse), nil
 }
@@ -2030,7 +2030,7 @@ func (c *libraryServiceHttpClient) DeleteShelf(ctx context.Context, request *Del
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.DeleteShelf(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -2040,7 +2040,7 @@ func (c *libraryServiceHttpClient) MergeShelves(ctx context.Context, request *Me
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.MergeShelves(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Shelf), nil
 }
@@ -2050,7 +2050,7 @@ func (c *libraryServiceHttpClient) CreateBook(ctx context.Context, request *Crea
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.CreateBook(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Book), nil
 }
@@ -2060,7 +2060,7 @@ func (c *libraryServiceHttpClient) GetBook(ctx context.Context, request *GetBook
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.GetBook(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Book), nil
 }
@@ -2070,7 +2070,7 @@ func (c *libraryServiceHttpClient) ListBooks(ctx context.Context, request *ListB
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.ListBooks(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*ListBooksResponse), nil
 }
@@ -2080,7 +2080,7 @@ func (c *libraryServiceHttpClient) DeleteBook(ctx context.Context, request *Dele
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.DeleteBook(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -2090,7 +2090,7 @@ func (c *libraryServiceHttpClient) UpdateBook(ctx context.Context, request *Upda
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.UpdateBook(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Book), nil
 }
@@ -2100,12 +2100,12 @@ func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBo
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.MoveBook(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*Book), nil
 }
 
 func NewLibraryServiceHttpClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
 	endpoints := newLibraryServiceClientEndpoints(transports, middlewares...)
-	return &libraryServiceGrpcClient{endpoints: endpoints}
+	return &libraryServiceHttpClient{endpoints: endpoints}
 }

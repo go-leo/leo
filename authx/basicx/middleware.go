@@ -43,14 +43,13 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 }
 
 var (
-	ErrMissMetadata         = statusx.ErrInvalidArgument.With(statusx.Message("missing metadata"))
 	ErrInvalidAuthorization = statusx.ErrUnauthenticated.With(statusx.Message("invalid authorization"))
 )
 
 func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (any, error) {
 	md, ok := metadatax.FromIncomingContext(ctx)
 	if !ok {
-		return nil, ErrMissMetadata
+		return nil, statusx.ErrInvalidArgument.With(statusx.Message("missing metadata"))
 	}
 
 	givenUser, givenPassword, ok := parseAuthorization(md.Values(authKey))

@@ -271,7 +271,7 @@ func newQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 				req.OptStatus, queryErr = errorx.Break[*QueryRequest_Status](queryErr)(urlx.GetIntPtr[QueryRequest_Status](queries, "opt_status"))
 				req.RepStatus, queryErr = errorx.Break[[]QueryRequest_Status](queryErr)(urlx.GetIntSlice[QueryRequest_Status](queries, "rep_status"))
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
 				}
 				return req, nil
 			},
@@ -280,7 +280,7 @@ func newQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -445,12 +445,12 @@ func (c *queryHttpClient) Query(ctx context.Context, request *QueryRequest) (*em
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.Query(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
 func NewQueryHttpClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
 	endpoints := newQueryClientEndpoints(transports, middlewares...)
-	return &queryGrpcClient{endpoints: endpoints}
+	return &queryHttpClient{endpoints: endpoints}
 }

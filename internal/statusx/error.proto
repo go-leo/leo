@@ -5,6 +5,7 @@ package leo.internal.statusx;
 option go_package = "github.com/go-leo/leo/v3/internal/statusx;statusx";
 
 import "google/protobuf/any.proto";
+import "google/protobuf/wrappers.proto";
 import "google/rpc/status.proto";
 import "google/rpc/error_details.proto";
 import "google/rpc/http.proto";
@@ -60,7 +61,7 @@ message Detail {
 
 message Cause {
   oneof cause{
-    string message = 1;
+    google.protobuf.StringValue message = 1;
     google.protobuf.Any error = 2;
   }
 }

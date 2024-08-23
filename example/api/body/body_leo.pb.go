@@ -501,7 +501,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &User{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				return req, nil
 			},
@@ -510,7 +510,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -524,7 +524,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &UserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				return req, nil
 			},
@@ -533,7 +533,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -553,7 +553,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -568,7 +568,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				req := &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
 				if err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				req.Data = body
 				req.ContentType = r.Header.Get("Content-Type")
@@ -579,7 +579,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -595,7 +595,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				req.Body = &httpbody.HttpBody{}
 				body, err := io.ReadAll(r.Body)
 				if err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				req.Body.Data = body
 				req.Body.ContentType = r.Header.Get("Content-Type")
@@ -606,7 +606,7 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -946,7 +946,7 @@ func (c *bodyHttpClient) StarBody(ctx context.Context, request *User) (*emptypb.
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.StarBody(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -956,7 +956,7 @@ func (c *bodyHttpClient) NamedBody(ctx context.Context, request *UserRequest) (*
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.NamedBody(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -966,7 +966,7 @@ func (c *bodyHttpClient) NonBody(ctx context.Context, request *emptypb.Empty) (*
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.NonBody(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -976,7 +976,7 @@ func (c *bodyHttpClient) HttpBodyStarBody(ctx context.Context, request *httpbody
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.HttpBodyStarBody(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -986,12 +986,12 @@ func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.HttpBodyNamedBody(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
 func NewBodyHttpClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
 	endpoints := newBodyClientEndpoints(transports, middlewares...)
-	return &bodyGrpcClient{endpoints: endpoints}
+	return &bodyHttpClient{endpoints: endpoints}
 }

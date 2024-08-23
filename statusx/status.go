@@ -8,8 +8,6 @@ import (
 	"net/http"
 )
 
-const FailedCode codes.Code = 1717570208
-
 // OK Not an error; returned on success.
 //
 // See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
@@ -19,12 +17,14 @@ const FailedCode codes.Code = 1717570208
 //
 // GRPC Mapping: OK
 // HTTP Mapping: 200 OK
-var OK = &Error{
-	e: &interstatusx.Error{
+var OK ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.OK)},
 	},
 }
+
+const kFailedCode codes.Code = 1717570208
 
 // Failed unlike ErrUnknown error, it just means business logic failed.
 //
@@ -33,10 +33,10 @@ var OK = &Error{
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 200 OK
-var Failed = &Error{
-	e: &interstatusx.Error{
+var Failed ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(FailedCode)},
+		GrpcStatus: &rpcstatus.Status{Code: int32(kFailedCode)},
 	},
 }
 
@@ -49,8 +49,8 @@ var Failed = &Error{
 //
 // GRPC Mapping: Canceled
 // HTTP Mapping: 499 Client Closed Request
-var ErrCanceled = &Error{
-	e: &interstatusx.Error{
+var ErrCanceled ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(499)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Canceled)},
 	},
@@ -65,8 +65,8 @@ var ErrCanceled = &Error{
 //
 // GRPC Mapping: Unknown
 // HTTP Mapping: 500 ErrInternal Server Error
-var ErrUnknown = &Error{
-	e: &interstatusx.Error{
+var ErrUnknown ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unknown)},
 	},
@@ -81,8 +81,8 @@ var ErrUnknown = &Error{
 //
 // GRPC Mapping: InvalidArgument
 // HTTP Mapping: 400 Bad Request
-var ErrInvalidArgument = &Error{
-	e: &interstatusx.Error{
+var ErrInvalidArgument ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.InvalidArgument)},
 	},
@@ -97,8 +97,8 @@ var ErrInvalidArgument = &Error{
 //
 // GRPC Mapping: DeadlineExceeded
 // HTTP Mapping: 504 Gateway Timeout
-var ErrDeadlineExceeded = &Error{
-	e: &interstatusx.Error{
+var ErrDeadlineExceeded ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusGatewayTimeout)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.DeadlineExceeded)},
 	},
@@ -113,8 +113,8 @@ var ErrDeadlineExceeded = &Error{
 //
 // GRPC Mapping: NotFound
 // HTTP Mapping: 404 Not Found
-var ErrNotFound = &Error{
-	e: &interstatusx.Error{
+var ErrNotFound ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotFound)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.NotFound)},
 	},
@@ -130,8 +130,8 @@ var ErrNotFound = &Error{
 //
 // GRPC Mapping: AlreadyExists
 // HTTP Mapping: 409 Conflict
-var ErrAlreadyExists = &Error{
-	e: &interstatusx.Error{
+var ErrAlreadyExists ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.AlreadyExists)},
 	},
@@ -147,8 +147,8 @@ var ErrAlreadyExists = &Error{
 //
 // GRPC Mapping: PermissionDenied
 // HTTP Mapping: 403 Forbidden
-var ErrPermissionDenied = &Error{
-	e: &interstatusx.Error{
+var ErrPermissionDenied ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusForbidden)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.PermissionDenied)},
 	},
@@ -164,8 +164,8 @@ var ErrPermissionDenied = &Error{
 //
 // GRPC Mapping: ResourceExhausted
 // HTTP Mapping: 429 Too Many Requests
-var ErrResourceExhausted = &Error{
-	e: &interstatusx.Error{
+var ErrResourceExhausted ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusTooManyRequests)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.ResourceExhausted)},
 	},
@@ -181,8 +181,8 @@ var ErrResourceExhausted = &Error{
 //
 // GRPC Mapping: FailedPrecondition
 // HTTP Mapping: 400 Bad Request
-var ErrFailedPrecondition = &Error{
-	e: &interstatusx.Error{
+var ErrFailedPrecondition ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.FailedPrecondition)},
 	},
@@ -198,8 +198,8 @@ var ErrFailedPrecondition = &Error{
 //
 // GRPC Mapping: Aborted
 // HTTP Mapping: 409 Conflict
-var ErrAborted = &Error{
-	e: &interstatusx.Error{
+var ErrAborted ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Aborted)},
 	},
@@ -214,8 +214,8 @@ var ErrAborted = &Error{
 //
 // GRPC Mapping: OutOfRange
 // HTTP Mapping: 400 Bad Request
-var ErrOutOfRange = &Error{
-	e: &interstatusx.Error{
+var ErrOutOfRange ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.OutOfRange)},
 	},
@@ -231,8 +231,8 @@ var ErrOutOfRange = &Error{
 //
 // GRPC Mapping: Unimplemented
 // HTTP Mapping: 501 Not Implemented
-var ErrUnimplemented = &Error{
-	e: &interstatusx.Error{
+var ErrUnimplemented ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotImplemented)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unimplemented)},
 	},
@@ -249,8 +249,8 @@ var ErrUnimplemented = &Error{
 //
 // GRPC Mapping: Internal
 // HTTP Mapping: 500 Internal Server Error
-var ErrInternal = &Error{
-	e: &interstatusx.Error{
+var ErrInternal ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Internal)},
 	},
@@ -265,8 +265,8 @@ var ErrInternal = &Error{
 //
 // GRPC Mapping: Unavailable
 // HTTP Mapping: 503 Service Unavailable
-var ErrUnavailable = &Error{
-	e: &interstatusx.Error{
+var ErrUnavailable ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusServiceUnavailable)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unavailable)},
 	},
@@ -281,8 +281,8 @@ var ErrUnavailable = &Error{
 //
 // GRPC Mapping: DataLoss
 // HTTP Mapping: 500 Internal Server Error
-var ErrDataLoss = &Error{
-	e: &interstatusx.Error{
+var ErrDataLoss ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.DataLoss)},
 	},
@@ -298,8 +298,8 @@ var ErrDataLoss = &Error{
 //
 // GRPC Mapping: Unauthenticated
 // HTTP Mapping: 401 Unauthorized
-var ErrUnauthenticated = &Error{
-	e: &interstatusx.Error{
+var ErrUnauthenticated ErrorApi = &status{
+	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusUnauthorized)},
 		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unauthenticated)},
 	},

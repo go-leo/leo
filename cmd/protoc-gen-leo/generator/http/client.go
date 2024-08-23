@@ -74,7 +74,7 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
 		g.P("rep, err := c.endpoints.", endpoint.Name(), "(ctx)(ctx, request)")
 		g.P("if err != nil {")
-		g.P("return nil, err")
+		g.P("return nil, ", internal.StatusxPackage.Ident("From"), "(err)")
 		g.P("}")
 		g.P("return rep.(*", endpoint.OutputGoIdent(), "), nil")
 		g.P("}")
@@ -82,7 +82,7 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 	}
 	g.P("func New", service.HttpClientName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
 	g.P("endpoints := new", service.ClientEndpointsName(), "(transports, middlewares...)")
-	g.P("return &", service.UnexportedGrpcClientName(), "{endpoints:endpoints}")
+	g.P("return &", service.UnexportedHttpClientName(), "{endpoints:endpoints}")
 	g.P("}")
 	g.P()
 	return nil

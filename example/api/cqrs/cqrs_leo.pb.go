@@ -340,7 +340,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &CreateUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				return req, nil
 			},
@@ -349,7 +349,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -363,7 +363,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &FindUserRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				return req, nil
 			},
@@ -372,7 +372,7 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -538,7 +538,7 @@ func (c *cQRSHttpClient) CreateUser(ctx context.Context, request *CreateUserRequ
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.CreateUser(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -548,12 +548,12 @@ func (c *cQRSHttpClient) FindUser(ctx context.Context, request *FindUserRequest)
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.FindUser(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*GetUserResponse), nil
 }
 
 func NewCQRSHttpClient(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSService {
 	endpoints := newCQRSClientEndpoints(transports, middlewares...)
-	return &cQRSGrpcClient{endpoints: endpoints}
+	return &cQRSHttpClient{endpoints: endpoints}
 }

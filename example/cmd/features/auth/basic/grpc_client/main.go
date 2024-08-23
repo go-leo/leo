@@ -16,6 +16,7 @@ func main() {
 		panic(err)
 	}
 
+	// ok
 	client := helloworld.NewGreeterGrpcClient(transports, basicx.Middleware("soyacen", "123456", "basic auth example"))
 	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {

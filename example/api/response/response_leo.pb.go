@@ -509,7 +509,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -529,7 +529,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -549,7 +549,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -570,7 +570,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				for _, src := range resp.GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
 					if err != nil {
-						return statusx.ErrInternal("").Wrap(err)
+						return statusx.ErrInternal.With(statusx.Wrap(err))
 					}
 					metadata, ok := dst.(*structpb.Struct)
 					if !ok {
@@ -582,7 +582,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				}
 				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetData()); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -603,7 +603,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				for _, src := range resp.GetBody().GetExtensions() {
 					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
 					if err != nil {
-						return statusx.ErrInternal("").Wrap(err)
+						return statusx.ErrInternal.With(statusx.Wrap(err))
 					}
 					metadata, ok := dst.(*structpb.Struct)
 					if !ok {
@@ -615,7 +615,7 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 				}
 				w.WriteHeader(http1.StatusOK)
 				if _, err := w.Write(resp.GetBody().GetData()); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -942,7 +942,7 @@ func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *empty
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.OmittedResponse(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*UserResponse), nil
 }
@@ -952,7 +952,7 @@ func (c *responseHttpClient) StarResponse(ctx context.Context, request *emptypb.
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.StarResponse(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*UserResponse), nil
 }
@@ -962,7 +962,7 @@ func (c *responseHttpClient) NamedResponse(ctx context.Context, request *emptypb
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.NamedResponse(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*UserResponse), nil
 }
@@ -972,7 +972,7 @@ func (c *responseHttpClient) HttpBodyResponse(ctx context.Context, request *empt
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.HttpBodyResponse(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*httpbody.HttpBody), nil
 }
@@ -982,12 +982,12 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.HttpBodyNamedResponse(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*HttpBody), nil
 }
 
 func NewResponseHttpClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
 	endpoints := newResponseClientEndpoints(transports, middlewares...)
-	return &responseGrpcClient{endpoints: endpoints}
+	return &responseHttpClient{endpoints: endpoints}
 }

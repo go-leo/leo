@@ -195,7 +195,7 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 			func(ctx context.Context, r *http1.Request) (any, error) {
 				req := &HelloRequest{}
 				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(err)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 				}
 				return req, nil
 			},
@@ -204,7 +204,7 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -307,12 +307,12 @@ func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest)
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.SayHello(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*HelloReply), nil
 }
 
 func NewGreeterHttpClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
 	endpoints := newGreeterClientEndpoints(transports, middlewares...)
-	return &greeterGrpcClient{endpoints: endpoints}
+	return &greeterHttpClient{endpoints: endpoints}
 }

@@ -582,14 +582,14 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				var varErr error
 				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				queries := r.URL.Query()
 				var queryErr error
 				req.OptString = proto.String(queries.Get("opt_string"))
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
 				}
 				return req, nil
 			},
@@ -598,7 +598,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -615,14 +615,14 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				var varErr error
 				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				queries := r.URL.Query()
 				var queryErr error
 				req.String_ = queries.Get("string")
 				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
 				}
 				return req, nil
 			},
@@ -631,7 +631,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -648,14 +648,14 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				var varErr error
 				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				queries := r.URL.Query()
 				var queryErr error
 				req.String_ = queries.Get("string")
 				req.OptString = proto.String(queries.Get("opt_string"))
 				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(queryErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
 				}
 				return req, nil
 			},
@@ -664,7 +664,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -684,7 +684,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				}
 				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -693,7 +693,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -713,7 +713,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				}
 				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -722,7 +722,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -742,7 +742,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				}
 				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
 				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument("").Wrap(varErr)
+					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 				}
 				return req, nil
 			},
@@ -751,7 +751,7 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http1.StatusOK)
 				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal("").Wrap(err)
+					return statusx.ErrInternal.With(statusx.Wrap(err))
 				}
 				return nil
 			},
@@ -1169,7 +1169,7 @@ func (c *namedPathHttpClient) NamedPathString(ctx context.Context, request *Name
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.NamedPathString(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -1179,7 +1179,7 @@ func (c *namedPathHttpClient) NamedPathOptString(ctx context.Context, request *N
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.NamedPathOptString(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -1189,7 +1189,7 @@ func (c *namedPathHttpClient) NamedPathWrapString(ctx context.Context, request *
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.NamedPathWrapString(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -1199,7 +1199,7 @@ func (c *namedPathHttpClient) EmbedNamedPathString(ctx context.Context, request 
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.EmbedNamedPathString(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -1209,7 +1209,7 @@ func (c *namedPathHttpClient) EmbedNamedPathOptString(ctx context.Context, reque
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.EmbedNamedPathOptString(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
@@ -1219,12 +1219,12 @@ func (c *namedPathHttpClient) EmbedNamedPathWrapString(ctx context.Context, requ
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
 	rep, err := c.endpoints.EmbedNamedPathWrapString(ctx)(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
 func NewNamedPathHttpClient(transports NamedPathClientTransports, middlewares ...endpoint.Middleware) NamedPathService {
 	endpoints := newNamedPathClientEndpoints(transports, middlewares...)
-	return &namedPathGrpcClient{endpoints: endpoints}
+	return &namedPathHttpClient{endpoints: endpoints}
 }

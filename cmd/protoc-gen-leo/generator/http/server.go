@@ -113,7 +113,7 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 		}
 		f.PrintPathField(g, pathFields)
 		g.P("if varErr != nil {")
-		g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), "(", strconv.Quote(""), ").Wrap(varErr)")
+		g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(varErr))")
 		g.P("}")
 	}
 
@@ -122,7 +122,7 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 		g.P("var queryErr error")
 		f.PrintQueryField(g, queryFields)
 		g.P("if queryErr != nil {")
-		g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), "(", strconv.Quote(""), ").Wrap(queryErr)")
+		g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(queryErr))")
 		g.P("}")
 	}
 
@@ -134,7 +134,7 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 func (f *ServerGenerator) PrintGoogleApiHttpBodyDecodeBlock(g *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
 	g.P(append(append([]any{"body, err := ", internal.IOPackage.Ident("ReadAll"), "("}, srcValue...), []any{")"}...)...)
 	g.P("if err != nil {")
-	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), "(", strconv.Quote(""), ").Wrap(err)")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 	g.P(append(append([]any{}, tgtValue...), []any{".Data = body"}...)...)
 	g.P(append(append([]any{}, tgtValue...), []any{".ContentType = r.Header.Get(", strconv.Quote(internal.ContentTypeKey), ")"}...)...)
@@ -142,7 +142,7 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyDecodeBlock(g *protogen.Generate
 
 func (f *ServerGenerator) PrintDecodeBlock(g *protogen.GeneratedFile, decoder protogen.GoIdent, tgtValue []any, srcValue []any) {
 	g.P(append(append(append(append([]any{"if err := ", decoder, "("}, srcValue...), []any{").Decode("}...), tgtValue...), []any{"); err != nil {"}...)...)
-	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), "(", strconv.Quote(""), ").Wrap(err)")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 }
 
@@ -484,7 +484,7 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyEncodeBlock(g *protogen.Generate
 	g.P(append(append([]any{"for _, src := range "}, srcValue...), ".GetExtensions() {")...)
 	g.P("dst, err := ", internal.AnypbPackage.Ident("UnmarshalNew"), "(src, ", internal.ProtoPackage.Ident("UnmarshalOptions"), "{})")
 	g.P("if err != nil {")
-	g.P("return ", internal.StatusxPackage.Ident("ErrInternal"), "(", strconv.Quote(""), ").Wrap(err)")
+	g.P("return ", internal.StatusxPackage.Ident("ErrInternal"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 	g.P("metadata, ok := dst.(*", internal.StructpbPackage.Ident("Struct"), ")")
 	g.P("if !ok {")
@@ -496,7 +496,7 @@ func (f *ServerGenerator) PrintGoogleApiHttpBodyEncodeBlock(g *protogen.Generate
 	g.P("}")
 	g.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	g.P(append(append([]any{"if ", "_, err := w.Write("}, srcValue...), ".GetData())", "; err != nil {")...)
-	g.P("return ", internal.StatusxPackage.Ident("ErrInternal"), "(", strconv.Quote(""), ").Wrap(err)")
+	g.P("return ", internal.StatusxPackage.Ident("ErrInternal"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 }
 
@@ -504,6 +504,6 @@ func (f *ServerGenerator) PrintJsonEncodeBlock(g *protogen.GeneratedFile, srcVal
 	g.P("w.Header().Set(", strconv.Quote("Content-Type"), ", ", strconv.Quote(internal.JsonContentType), ")")
 	g.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
 	g.P(append(append([]any{"if err := ", internal.JsonxPackage.Ident("NewEncoder"), "(w).Encode("}, srcValue...), "); err != nil {")...)
-	g.P("return ", internal.StatusxPackage.Ident("ErrInternal"), "(", strconv.Quote(""), ").Wrap(err)")
+	g.P("return ", internal.StatusxPackage.Ident("ErrInternal"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 }
