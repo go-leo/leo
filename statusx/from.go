@@ -70,33 +70,12 @@ func FromGrpcStatus(s *grpcstatus.Status) ErrorApi {
 	}
 }
 
-func FromError(err error) (ErrorApi, bool) {
-	if err == nil {
-		return nil, true
-	}
-	var statusErr *status
-	if errors.As(err, &statusErr) {
-		return statusErr, true
-	}
-	grpcStatus, ok := grpcstatus.FromError(err)
-	if ok {
-		return FromGrpcStatus(grpcStatus), true
-	}
-	return nil, false
-}
-
 func FromGrpcError(err error) ErrorApi {
-	grpcStatus, _ := grpcstatus.FromError(err)
-	return FromGrpcStatus(grpcStatus)
-}
-
-// FromContextError converts a context error to Error
-func FromContextError(err error) ErrorApi {
 	if err == nil {
 		return nil
 	}
-
-	return ErrUnknown.With(Wrap(err))
+	grpcStatus, _ := grpcstatus.FromError(err)
+	return FromGrpcStatus(grpcStatus)
 }
 
 func From(obj any) ErrorApi {

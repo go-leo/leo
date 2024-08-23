@@ -29,13 +29,11 @@ type GreeterService struct {
 }
 
 func (g GreeterService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
-	return nil, statusx.ErrResourceExhausted.
-		WithMessage("too many requests").
-		WithQuotaFailure(&errdetails.QuotaFailure{
-			Violations: []*errdetails.QuotaFailure_Violation{
-				{Subject: fmt.Sprintf("name:%s", request.Name), Description: "Limit one greeting per person"},
-			},
-		})
+	return nil, statusx.ErrResourceExhausted.With(
+		statusx.Message("too many requests"),
+		statusx.QuotaFailure(&errdetails.QuotaFailure{
+			Violations: []*errdetails.QuotaFailure_Violation{{Subject: fmt.Sprintf("name:%s", request.Name), Description: "Limit one greeting per person"}},
+		}))
 }
 
 func NewGreeterService() helloworld.GreeterService {

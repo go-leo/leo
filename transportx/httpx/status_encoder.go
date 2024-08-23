@@ -81,14 +81,7 @@ func SetStatusDecoder(c StatusDecoder) {
 
 func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 	// check if it is a status error
-	statusErr, ok := statusx.FromError(err)
-	if !ok {
-		// failed to convert to status error, use go-kit default encoder
-		w.Header().Set(kStatusKey, kKitDefaultValue)
-		httptransport.DefaultErrorEncoder(ctx, err, w)
-		return
-	}
-
+	statusErr := statusx.From(err)
 	if statusErr == nil {
 		// status is nil, use go-kit default encoder
 		w.Header().Set(kStatusKey, kKitDefaultValue)

@@ -8,7 +8,6 @@ import (
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"os"
 )
 
 func main() {
@@ -20,10 +19,10 @@ func main() {
 	ctx := context.Background()
 	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
-		statusErr, _ := statusx.FromError(err)
+		statusErr := statusx.From(err)
 		failure := statusErr.QuotaFailure()
 		log.Printf("Quota failure: %s", failure)
-		os.Exit(1)
+		return
 	}
 	log.Printf("Greeting: %s", r.Message)
 }
