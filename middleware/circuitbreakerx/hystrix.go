@@ -8,12 +8,10 @@ import (
 	"github.com/go-leo/leo/v3/endpointx"
 )
 
-// HystrixNewer is the Breaker factory.
-type HystrixNewer struct{}
+// HystrixFactory is the Breaker factory.
+type HystrixFactory struct{}
 
-func (HystrixNewer) New() Breaker {
-	return &HystrixBreaker{}
-}
+func (HystrixFactory) Create() Breaker { return &HystrixBreaker{} }
 
 // HystrixBreaker is the Breaker implementation.
 type HystrixBreaker struct{}

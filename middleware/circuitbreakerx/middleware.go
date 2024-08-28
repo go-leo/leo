@@ -10,21 +10,16 @@ import (
 // if the circuit is closed, it will execute the endpoint and return true, response, err.
 // See HystrixBreaker,
 type Breaker interface {
-	Execute(ctx context.Context, request any, e endpoint.Endpoint) (bool, any, error)
+	Execute(ctx context.Context, request any, next endpoint.Endpoint) (bool, any, error)
 }
 
-// Newer create the Breaker. See HystrixNewer
-type Newer interface {
-	New() Breaker
-}
-
-// Factory is the Breaker factory.
-type Factory struct {
-	Newer Newer
+// Factory create the Breaker. See HystrixNewer
+type Factory interface {
+	Create() Breaker
 }
 
 func Middleware(factory Factory) endpoint.Middleware {
-	breaker := factory.Newer.New()
+	breaker := factory.Create()
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
 			ok, resp, err := breaker.Execute(ctx, request, next)

@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
-	"github.com/go-leo/leo/v3/staining"
+	"github.com/go-leo/leo/v3/middleware/staining"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"

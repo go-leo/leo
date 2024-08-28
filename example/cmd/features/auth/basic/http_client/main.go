@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-leo/leo/v3/authx/basicx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/middleware/authx/basicx"
 )
 
 func main() {
-	transports, err := helloworld.NewGreeterHttpClientTransports("127.0.0.1:8080")
+	transports, err := helloworld.NewGreeterHttpClientTransports(
+		"127.0.0.1:8080",
+	)
 	if err != nil {
 		panic(err)
 	}

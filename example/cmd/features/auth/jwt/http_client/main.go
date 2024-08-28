@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-leo/leo/v3/authx/jwtx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/middleware/authx/jwtx"
 	"github.com/golang-jwt/jwt/v4"
 )
 

@@ -5,6 +5,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/lb"
+	"github.com/go-leo/gox/mapx"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
@@ -175,30 +176,23 @@ func (c *clientTransport) Endpoint(ctx context.Context) endpoint.Endpoint {
 
 func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 	var key string
-	color, ok := sdx.ExtractColor(ctx)
-	if ok {
+	if color, ok := sdx.ExtractColor(ctx); ok {
 		key = color
 	}
-	value, ok := c.clients.Load(key)
-	if ok {
-		return value.(lb.Balancer), nil
-	}
-	resC := c.sfg.DoChan(key, func() (interface{}, error) {
+	value, err, _ := mapx.LoadOrCreate(&c.clients, &c.sfg, key, func() (any, error) {
 		instancer, err := c.builder.Build(ctx, c.target)
 		if err != nil {
 			return nil, err
 		}
-		balancer := c.options.BalancerFactory.New(ctx, sd.NewEndpointer(instancer, c.factory(ctx, c.options.FactoryArgs), logx.FromContext(ctx), c.options.EndpointerOptions...))
+		factory := c.factory(ctx, c.options.FactoryArgs)
+		endpointer := sd.NewEndpointer(instancer, factory, logx.FromContext(ctx), c.options.EndpointerOptions...)
+		balancer := c.options.BalancerFactory.New(ctx, endpointer)
 		return balancer, nil
 	})
-	result := <-resC
-	if result.Err != nil {
-		return nil, result.Err
+	if err != nil {
+		return nil, err
 	}
-	if !result.Shared {
-		c.clients.Store(key, result.Val)
-	}
-	return result.Val.(lb.Balancer), nil
+	return value.(lb.Balancer), nil
 }
 
 // getInstancerBuilder gets the instancer builder for the given scheme.

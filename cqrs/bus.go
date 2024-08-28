@@ -155,9 +155,9 @@ func (b *defaultBus) newReflectedHandler(handler any, kind string) (*reflectedHa
 	}
 	inType := method.Type.In(2)
 	return &reflectedHandler{
-		value:  handlerVal,
-		method: method,
-		inType: inType,
+		receiver: handlerVal,
+		method:   method,
+		inType:   inType,
 	}, nil
 }
 
@@ -174,15 +174,15 @@ func NewBus() Bus {
 }
 
 type reflectedHandler struct {
-	value  reflect.Value
-	method reflect.Method
-	inType reflect.Type
+	receiver reflect.Value
+	method   reflect.Method
+	inType   reflect.Type
 }
 
 func (handler *reflectedHandler) Exec(ctx context.Context, args any) (metadatax.Metadata, error) {
 	resultValues := handler.method.Func.Call(
 		[]reflect.Value{
-			handler.value,
+			handler.receiver,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(args),
 		})
@@ -200,7 +200,7 @@ func (handler *reflectedHandler) Exec(ctx context.Context, args any) (metadatax.
 func (handler *reflectedHandler) Query(ctx context.Context, args any) (any, error) {
 	resultValues := handler.method.Func.Call(
 		[]reflect.Value{
-			handler.value,
+			handler.receiver,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(args),
 		})

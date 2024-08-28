@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/go-leo/leo/v3/authx/basicx"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/middleware/authx/basicx"
 	grpc1 "google.golang.org/grpc"
 	"log"
 	"net"

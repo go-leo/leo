@@ -23,17 +23,17 @@ func ClientFactory(
 		if args == nil {
 			args = make([]grpc.DialOption, 0)
 		}
-		return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return func(target string) (endpoint.Endpoint, io.Closer, error) {
 			dialOptions, ok := args.([]grpc.DialOption)
 			if !ok {
 				return nil, nil, errors.New("invalid grpc factory args")
 			}
-			conn, err := grpc.NewClient(instance, dialOptions...)
+			conn, err := grpc.NewClient(target, dialOptions...)
 			if err != nil {
 				return nil, nil, err
 			}
 			client := grpctransport.NewClient(conn, serviceName, method, enc, dec, grpcReply, options...)
-			return client.Endpoint(), conn, nil
+			return sdx.WithTarget(target, client.Endpoint()), conn, nil
 		}
 	}
 
