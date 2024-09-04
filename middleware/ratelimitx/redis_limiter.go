@@ -38,9 +38,9 @@ type RedisLimiter struct {
 	tokenKey string
 	// timestampKey 时间戳key
 	timestampKey string
-	// rate 令牌桶算法->每秒生成令牌的数量, 漏桶算法->每秒通过请求数量, 滑动窗口算法->滑动窗口流量阈值，每秒请求数量
+	// rate 速率, 令牌桶算法->每秒生成令牌的数量, 漏桶算法->每秒通过请求数量, 滑动窗口算法->滑动窗口流量阈值，每秒请求数量
 	rate float64
-	// capacity 令牌桶算法->令牌桶容量, 漏桶算法->桶最大容量, 滑动窗口算法->限流窗口总请求数量
+	// capacity 容量, 令牌桶算法->令牌桶容量, 漏桶算法->桶最大容量, 滑动窗口算法->限流窗口总请求数量
 	capacity float64
 }
 
