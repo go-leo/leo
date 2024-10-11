@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
-	"github.com/go-leo/leo/v3/middleware/staining"
+	"github.com/go-leo/leo/v3/middleware/stain"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -57,13 +57,13 @@ func runApi(port int) {
 	}
 	httpClient := helloworld.NewGreeterHttpClient(
 		httpTransports,
-		staining.Middleware("X-Color"),
+		stain.Middleware("X-Color"),
 	)
 
 	router := helloworld.AppendGreeterHttpRouter(
 		mux.NewRouter(),
 		NewGreeterApiService(httpClient),
-		staining.Middleware("X-Color"),
+		stain.Middleware("X-Color"),
 	)
 	server := http.Server{Handler: router}
 	go func() {
@@ -106,12 +106,12 @@ func runHttp(port int, color string) {
 	if err != nil {
 		panic(err)
 	}
-	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, staining.Middleware("X-Color"))
+	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, stain.Middleware("X-Color"))
 
 	router := helloworld.AppendGreeterHttpRouter(
 		mux.NewRouter(),
 		NewGreeterHttpService(grpcClient, address, color),
-		staining.Middleware("X-Color"),
+		stain.Middleware("X-Color"),
 	)
 	server := http.Server{Handler: router}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
@@ -176,7 +176,7 @@ func runGrpc(port int, color string) {
 	s := grpc1.NewServer()
 	service := helloworld.NewGreeterGrpcServer(
 		NewGreeterGrpcService(address, color),
-		staining.Middleware("X-Color"),
+		stain.Middleware("X-Color"),
 	)
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())

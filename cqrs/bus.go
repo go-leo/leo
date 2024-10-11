@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/errorx"
-	"github.com/go-leo/gox/syncx/groupx"
+	"github.com/go-leo/gox/syncx"
 	"github.com/go-leo/leo/v3/metadatax"
 	"reflect"
 	"sync"
@@ -70,7 +70,7 @@ func (b *defaultBus) Close(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-groupx.WaitNotify(b.wg):
+		case <-syncx.WaitNotify(b.wg):
 			return nil
 		}
 	}

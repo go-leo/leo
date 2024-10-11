@@ -68,3 +68,7 @@ func (b *hashBalancer) Endpoint() (endpoint.Endpoint, error) {
 	index := hashx.Knuth(uint(b.Hasher.Sum64())) % length
 	return endpoints[index], nil
 }
+
+// IpHash
+
+// URLHash
