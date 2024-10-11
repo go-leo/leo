@@ -16,6 +16,8 @@ type SlideWindowLimiter struct {
 	rate int
 }
 
+// NewSlideWindowLimiter 返回一个初始化的滑动窗口限流器实例，
+// 其中包含一个新链表用于记录请求，以及设定的时间间隔和速率限制。
 func NewSlideWindowLimiter(interval time.Duration, rate int) *SlideWindowLimiter {
 	return &SlideWindowLimiter{
 		queue:    list.New(),
