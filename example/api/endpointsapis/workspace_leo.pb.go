@@ -191,7 +191,7 @@ func newWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		getWorkspace: grpc.NewServer(
 			endpoints.GetWorkspace(context.TODO()),
@@ -199,7 +199,7 @@ func newWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		createWorkspace: grpc.NewServer(
 			endpoints.CreateWorkspace(context.TODO()),
@@ -207,7 +207,7 @@ func newWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		updateWorkspace: grpc.NewServer(
 			endpoints.UpdateWorkspace(context.TODO()),
@@ -215,7 +215,7 @@ func newWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		deleteWorkspace: grpc.NewServer(
 			endpoints.DeleteWorkspace(context.TODO()),
@@ -223,7 +223,7 @@ func newWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -335,7 +335,7 @@ func NewWorkspacesGrpcClientTransports(target string, options ...transportx.Clie
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				ListWorkspacesResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -349,7 +349,7 @@ func NewWorkspacesGrpcClientTransports(target string, options ...transportx.Clie
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Workspace{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -363,7 +363,7 @@ func NewWorkspacesGrpcClientTransports(target string, options ...transportx.Clie
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Workspace{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -377,7 +377,7 @@ func NewWorkspacesGrpcClientTransports(target string, options ...transportx.Clie
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Workspace{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -391,7 +391,7 @@ func NewWorkspacesGrpcClientTransports(target string, options ...transportx.Clie
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -528,8 +528,10 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		getWorkspace: http.NewServer(
 			endpoints.GetWorkspace(context.TODO()),
@@ -554,8 +556,10 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		createWorkspace: http.NewServer(
 			endpoints.CreateWorkspace(context.TODO()),
@@ -583,8 +587,10 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		updateWorkspace: http.NewServer(
 			endpoints.UpdateWorkspace(context.TODO()),
@@ -612,8 +618,10 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		deleteWorkspace: http.NewServer(
 			endpoints.DeleteWorkspace(context.TODO()),
@@ -638,8 +646,10 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -746,7 +756,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -801,7 +811,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -863,7 +873,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -925,7 +935,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -980,7 +990,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)

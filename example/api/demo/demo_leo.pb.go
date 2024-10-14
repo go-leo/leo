@@ -416,7 +416,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		deleteUser: grpc.NewServer(
 			endpoints.DeleteUser(context.TODO()),
@@ -424,7 +424,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		updateUser: grpc.NewServer(
 			endpoints.UpdateUser(context.TODO()),
@@ -432,7 +432,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		getUser: grpc.NewServer(
 			endpoints.GetUser(context.TODO()),
@@ -440,7 +440,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		getUsers: grpc.NewServer(
 			endpoints.GetUsers(context.TODO()),
@@ -448,7 +448,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		uploadUserAvatar: grpc.NewServer(
 			endpoints.UploadUserAvatar(context.TODO()),
@@ -456,7 +456,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		getUserAvatar: grpc.NewServer(
 			endpoints.GetUserAvatar(context.TODO()),
@@ -464,7 +464,7 @@ func newDemoGrpcServerTransports(endpoints DemoEndpoints) DemoGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -608,7 +608,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				CreateUserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -622,7 +622,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -636,7 +636,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -650,7 +650,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -664,7 +664,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUsersResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -678,7 +678,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -692,7 +692,7 @@ func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				httpbody.HttpBody{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -851,8 +851,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		deleteUser: http.NewServer(
 			endpoints.DeleteUser(context.TODO()),
@@ -877,8 +879,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		updateUser: http.NewServer(
 			endpoints.UpdateUser(context.TODO()),
@@ -906,8 +910,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		getUser: http.NewServer(
 			endpoints.GetUser(context.TODO()),
@@ -932,8 +938,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		getUsers: http.NewServer(
 			endpoints.GetUsers(context.TODO()),
@@ -959,8 +967,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		uploadUserAvatar: http.NewServer(
 			endpoints.UploadUserAvatar(context.TODO()),
@@ -992,8 +1002,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		getUserAvatar: http.NewServer(
 			endpoints.GetUserAvatar(context.TODO()),
@@ -1031,8 +1043,10 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -1152,7 +1166,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1202,7 +1216,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1259,7 +1273,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1309,7 +1323,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1360,7 +1374,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1413,7 +1427,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1466,7 +1480,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 					resp.Data = body
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)

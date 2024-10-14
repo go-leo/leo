@@ -50,7 +50,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		if err := f.PrintDecodeResponseFunc(g, endpoint, endpoint.HttpRule()); err != nil {
 			return err
 		}
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadata"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
 		g.P("),")
 		g.P("options...,")
 		g.P(")")

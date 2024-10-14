@@ -323,7 +323,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		getShelf: grpc.NewServer(
 			endpoints.GetShelf(context.TODO()),
@@ -331,7 +331,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		listShelves: grpc.NewServer(
 			endpoints.ListShelves(context.TODO()),
@@ -339,7 +339,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		deleteShelf: grpc.NewServer(
 			endpoints.DeleteShelf(context.TODO()),
@@ -347,7 +347,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		mergeShelves: grpc.NewServer(
 			endpoints.MergeShelves(context.TODO()),
@@ -355,7 +355,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		createBook: grpc.NewServer(
 			endpoints.CreateBook(context.TODO()),
@@ -363,7 +363,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		getBook: grpc.NewServer(
 			endpoints.GetBook(context.TODO()),
@@ -371,7 +371,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		listBooks: grpc.NewServer(
 			endpoints.ListBooks(context.TODO()),
@@ -379,7 +379,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		deleteBook: grpc.NewServer(
 			endpoints.DeleteBook(context.TODO()),
@@ -387,7 +387,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		updateBook: grpc.NewServer(
 			endpoints.UpdateBook(context.TODO()),
@@ -395,7 +395,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		moveBook: grpc.NewServer(
 			endpoints.MoveBook(context.TODO()),
@@ -403,7 +403,7 @@ func newLibraryServiceGrpcServerTransports(endpoints LibraryServiceEndpoints) Li
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -611,7 +611,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Shelf{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -625,7 +625,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Shelf{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -639,7 +639,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				ListShelvesResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -653,7 +653,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -667,7 +667,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Shelf{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -681,7 +681,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -695,7 +695,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -709,7 +709,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				ListBooksResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -723,7 +723,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -737,7 +737,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -751,7 +751,7 @@ func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -974,8 +974,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		getShelf: http.NewServer(
 			endpoints.GetShelf(context.TODO()),
@@ -1000,8 +1002,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		listShelves: http.NewServer(
 			endpoints.ListShelves(context.TODO()),
@@ -1027,8 +1031,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		deleteShelf: http.NewServer(
 			endpoints.DeleteShelf(context.TODO()),
@@ -1053,8 +1059,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		mergeShelves: http.NewServer(
 			endpoints.MergeShelves(context.TODO()),
@@ -1082,8 +1090,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		createBook: http.NewServer(
 			endpoints.CreateBook(context.TODO()),
@@ -1111,8 +1121,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		getBook: http.NewServer(
 			endpoints.GetBook(context.TODO()),
@@ -1137,8 +1149,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		listBooks: http.NewServer(
 			endpoints.ListBooks(context.TODO()),
@@ -1170,8 +1184,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		deleteBook: http.NewServer(
 			endpoints.DeleteBook(context.TODO()),
@@ -1196,8 +1212,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		updateBook: http.NewServer(
 			endpoints.UpdateBook(context.TODO()),
@@ -1228,8 +1246,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		moveBook: http.NewServer(
 			endpoints.MoveBook(context.TODO()),
@@ -1257,8 +1277,10 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 			},
 			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -1406,7 +1428,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1461,7 +1483,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1512,7 +1534,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1567,7 +1589,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1629,7 +1651,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1691,7 +1713,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1746,7 +1768,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1803,7 +1825,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1858,7 +1880,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1920,7 +1942,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1982,7 +2004,7 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)

@@ -279,7 +279,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		int32Path: grpc.NewServer(
 			endpoints.Int32Path(context.TODO()),
@@ -287,7 +287,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		int64Path: grpc.NewServer(
 			endpoints.Int64Path(context.TODO()),
@@ -295,7 +295,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		uint32Path: grpc.NewServer(
 			endpoints.Uint32Path(context.TODO()),
@@ -303,7 +303,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		uint64Path: grpc.NewServer(
 			endpoints.Uint64Path(context.TODO()),
@@ -311,7 +311,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		floatPath: grpc.NewServer(
 			endpoints.FloatPath(context.TODO()),
@@ -319,7 +319,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		doublePath: grpc.NewServer(
 			endpoints.DoublePath(context.TODO()),
@@ -327,7 +327,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		stringPath: grpc.NewServer(
 			endpoints.StringPath(context.TODO()),
@@ -335,7 +335,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		enumPath: grpc.NewServer(
 			endpoints.EnumPath(context.TODO()),
@@ -343,7 +343,7 @@ func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -519,7 +519,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -533,7 +533,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -547,7 +547,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -561,7 +561,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -575,7 +575,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -589,7 +589,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -603,7 +603,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -617,7 +617,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -631,7 +631,7 @@ func NewPathGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -867,8 +867,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		int32Path: http.NewServer(
 			endpoints.Int32Path(context.TODO()),
@@ -935,8 +937,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		int64Path: http.NewServer(
 			endpoints.Int64Path(context.TODO()),
@@ -1003,8 +1007,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		uint32Path: http.NewServer(
 			endpoints.Uint32Path(context.TODO()),
@@ -1071,8 +1077,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		uint64Path: http.NewServer(
 			endpoints.Uint64Path(context.TODO()),
@@ -1139,8 +1147,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		floatPath: http.NewServer(
 			endpoints.FloatPath(context.TODO()),
@@ -1207,8 +1217,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		doublePath: http.NewServer(
 			endpoints.DoublePath(context.TODO()),
@@ -1275,8 +1287,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		stringPath: http.NewServer(
 			endpoints.StringPath(context.TODO()),
@@ -1343,8 +1357,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		enumPath: http.NewServer(
 			endpoints.EnumPath(context.TODO()),
@@ -1411,8 +1427,10 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -1575,7 +1593,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1656,7 +1674,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1737,7 +1755,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1820,7 +1838,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1903,7 +1921,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -1988,7 +2006,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -2073,7 +2091,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -2158,7 +2176,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -2244,7 +2262,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)

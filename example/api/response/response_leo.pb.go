@@ -191,7 +191,7 @@ func newResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		starResponse: grpc.NewServer(
 			endpoints.StarResponse(context.TODO()),
@@ -199,7 +199,7 @@ func newResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		namedResponse: grpc.NewServer(
 			endpoints.NamedResponse(context.TODO()),
@@ -207,7 +207,7 @@ func newResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		httpBodyResponse: grpc.NewServer(
 			endpoints.HttpBodyResponse(context.TODO()),
@@ -215,7 +215,7 @@ func newResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		httpBodyNamedResponse: grpc.NewServer(
 			endpoints.HttpBodyNamedResponse(context.TODO()),
@@ -223,7 +223,7 @@ func newResponseGrpcServerTransports(endpoints ResponseEndpoints) ResponseGrpcSe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -335,7 +335,7 @@ func NewResponseGrpcClientTransports(target string, options ...transportx.Client
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				UserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -349,7 +349,7 @@ func NewResponseGrpcClientTransports(target string, options ...transportx.Client
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				UserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -363,7 +363,7 @@ func NewResponseGrpcClientTransports(target string, options ...transportx.Client
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				UserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -377,7 +377,7 @@ func NewResponseGrpcClientTransports(target string, options ...transportx.Client
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				httpbody.HttpBody{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -391,7 +391,7 @@ func NewResponseGrpcClientTransports(target string, options ...transportx.Client
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				HttpBody{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -515,8 +515,10 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		starResponse: http.NewServer(
 			endpoints.StarResponse(context.TODO()),
@@ -535,8 +537,10 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		namedResponse: http.NewServer(
 			endpoints.NamedResponse(context.TODO()),
@@ -555,8 +559,10 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		httpBodyResponse: http.NewServer(
 			endpoints.HttpBodyResponse(context.TODO()),
@@ -588,8 +594,10 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		httpBodyNamedResponse: http.NewServer(
 			endpoints.HttpBodyNamedResponse(context.TODO()),
@@ -621,8 +629,10 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -721,7 +731,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -770,7 +780,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -819,7 +829,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -871,7 +881,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 					resp.Data = body
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -924,7 +934,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 					resp.Body.Data = body
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)

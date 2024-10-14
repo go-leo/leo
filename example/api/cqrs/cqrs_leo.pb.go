@@ -190,7 +190,7 @@ func newCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 		findUser: grpc.NewServer(
 			endpoints.FindUser(context.TODO()),
@@ -198,7 +198,7 @@ func newCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTranspor
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -262,7 +262,7 @@ func NewCQRSGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -276,7 +276,7 @@ func NewCQRSGrpcClientTransports(target string, options ...transportx.ClientTran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -355,8 +355,10 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 		findUser: http.NewServer(
 			endpoints.FindUser(context.TODO()),
@@ -378,8 +380,10 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			},
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -464,7 +468,7 @@ func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -520,7 +524,7 @@ func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTran
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
 		)

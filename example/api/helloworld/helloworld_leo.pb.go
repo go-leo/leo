@@ -99,7 +99,7 @@ func newGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServe
 			func(_ context.Context, v any) (any, error) { return v, nil },
 			grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
 			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadata),
+			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 		),
 	}
 }
@@ -147,7 +147,7 @@ func NewGreeterGrpcClientTransports(target string, options ...transportx.ClientT
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				HelloReply{},
-				grpc.ClientBefore(grpcx.OutgoingMetadata),
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
 			),
 			options...,
 		)
@@ -210,8 +210,10 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 			},
 			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadata),
+			http.ServerBefore(httpx.IncomingMetadataInjector),
 			http.ServerErrorEncoder(httpx.ErrorEncoder),
+			http.ServerBefore(httpx.TimeoutController),
+			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
 }
@@ -289,7 +291,8 @@ func NewGreeterHttpClientTransports(target string, options ...transportx.ClientT
 					}
 					return resp, nil
 				},
-				http.ClientBefore(httpx.OutgoingMetadata),
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.TimeoutController),
 			),
 			options...,
 		)

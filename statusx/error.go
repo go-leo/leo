@@ -227,43 +227,39 @@ func Details(details ...proto.Message) Option {
 }
 
 func (st *status) With(opts ...Option) ErrorApi {
-	newSt := &status{
-		err: &interstatusx.Error{
-			Cause: st.err.GetCause(),
-			Detail: &interstatusx.Detail{
-				ErrorInfo:           st.err.GetDetail().GetErrorInfo(),
-				RetryInfo:           st.err.GetDetail().GetRetryInfo(),
-				DebugInfo:           st.err.GetDetail().GetDebugInfo(),
-				QuotaFailure:        st.err.GetDetail().GetQuotaFailure(),
-				PreconditionFailure: st.err.GetDetail().GetPreconditionFailure(),
-				BadRequest:          st.err.GetDetail().GetBadRequest(),
-				RequestInfo:         st.err.GetDetail().GetRequestInfo(),
-				ResourceInfo:        st.err.GetDetail().GetResourceInfo(),
-				Help:                st.err.GetDetail().GetHelp(),
-				LocalizedMessage:    st.err.GetDetail().GetLocalizedMessage(),
-			},
-			HttpStatus: &httpstatus.HttpResponse{
-				Status:  st.err.GetHttpStatus().GetStatus(),
-				Reason:  st.err.GetHttpStatus().GetReason(),
-				Headers: st.err.GetHttpStatus().GetHeaders(),
-				Body:    st.err.GetHttpStatus().GetBody(),
-			},
-			GrpcStatus: &rpcstatus.Status{
-				Code:    st.err.GetGrpcStatus().GetCode(),
-				Message: st.err.GetGrpcStatus().GetMessage(),
-				Details: st.err.GetGrpcStatus().GetDetails(),
-			},
-		},
+	clonedSt := &status{
+		err: protox.Clone(st.err),
 	}
 	for _, opt := range opts {
-		opt(newSt)
+		opt(clonedSt)
 	}
-	return newSt
+	return clonedSt
 }
 
 // Error wraps a pointer of a Error proto.
 func (st *status) Error() string {
-	return fmt.Sprintf("statusx: code = %s desc = %s", codes.Code(st.err.GetGrpcStatus().GetCode()), st.err.GetGrpcStatus().GetMessage())
+	grpcStatus := st.err.GetGrpcStatus()
+	code := codes.Code(grpcStatus.GetCode())
+	var message string
+	if causeAny := st.err.GetCause(); causeAny != nil {
+		message = st.causeMessage(causeAny)
+	} else if errorInfo := st.err.GetDetail().GetErrorInfo(); errorInfo != nil {
+		message = errorInfo.GetReason()
+	} else {
+		message = grpcStatus.GetMessage()
+	}
+	return fmt.Sprintf("statusx: code = %s, desc = %s", code, message)
+}
+
+func (st *status) causeMessage(causeAny *interstatusx.Cause) string {
+	if causeProto := causeAny.GetError(); causeProto != nil {
+		causeErr, _ := causeProto.UnmarshalNew()
+		return causeErr.(error).Error()
+	}
+	if causeMsg := causeAny.GetMessage(); causeMsg != nil {
+		return causeMsg.GetValue()
+	}
+	return ""
 }
 
 // GRPCStatus returns the gRPC Status.

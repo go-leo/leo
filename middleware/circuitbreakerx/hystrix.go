@@ -8,21 +8,16 @@ import (
 	"github.com/go-leo/leo/v3/endpointx"
 )
 
-// HystrixFactory is the Breaker factory.
-type HystrixFactory struct{}
-
-func (HystrixFactory) Create() Breaker { return &HystrixBreaker{} }
-
 // HystrixBreaker is the Breaker implementation.
 type HystrixBreaker struct{}
 
-func (breaker *HystrixBreaker) Execute(ctx context.Context, request any, next endpoint.Endpoint) (bool, any, error) {
+func (breaker *HystrixBreaker) Execute(ctx context.Context, request any, next endpoint.Endpoint) (any, bool, error) {
 	name, ok := endpointx.ExtractName(ctx)
 	if !ok {
 		resp, err := next(ctx, request)
-		return true, resp, err
+		return resp, true, err
 	}
-	var resp interface{}
+	var resp any
 	runFunc := func() error {
 		var err error
 		resp, err = next(ctx, request)
@@ -31,9 +26,9 @@ func (breaker *HystrixBreaker) Execute(ctx context.Context, request any, next en
 	if err := hystrix.Do(name, runFunc, nil); err != nil {
 		var circuitErr hystrix.CircuitError
 		if errors.As(err, &circuitErr) {
-			return false, resp, err
+			return resp, false, err
 		}
-		return true, nil, err
+		return nil, true, err
 	}
-	return true, resp, nil
+	return resp, true, nil
 }

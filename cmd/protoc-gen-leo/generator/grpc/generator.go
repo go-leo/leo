@@ -82,7 +82,7 @@ func (f *Generator) GenerateServerTransports(service *internal.Service, g *proto
 
 		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
 		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerTransportInjector"), "),")
-		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingMetadata"), "),")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
 
 		g.P("),")
 	}
@@ -154,7 +154,7 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 		g.P(endpoint.OutputGoIdent(), "{},")
-		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadata"), "),")
+		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
 		g.P("),")
 		g.P("options...,")
 		g.P(")")
