@@ -2,7 +2,11 @@ package circuitbreakerx
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kratos/aegis/circuitbreaker"
+	"github.com/go-leo/gox/syncx/lazyloadx"
+	"github.com/go-leo/leo/v3/statusx"
 )
 
 // Gutter Breaker
@@ -10,25 +14,30 @@ import (
 // GoogleSreBreaker
 // see: https://landing.google.com/sre/sre-book/chapters/handling-overload/
 type GoogleSreBreaker struct {
+	group lazyloadx.Group
 }
 
-func (breaker *GoogleSreBreaker) Execute(ctx context.Context, request any, next endpoint.Endpoint) (any, bool, error) {
-
+func NewGoogleSreBreaker(factory func() circuitbreaker.CircuitBreaker) *GoogleSreBreaker {
+	return &GoogleSreBreaker{group: lazyloadx.Group{New: func() (any, error) { return factory(), nil }}}
 }
 
-// rejectionProbability
-// requests
-//   - The number of requests attempted by the application layer(at the client, on top of the adaptive throttling system).
-//
-// accepts
-//   - The number of requests accepted by the backend.
-//
-// k
-//   - accepts multiplier.
-//     Reducing the multiplier will make adaptive throttling behave more aggressively.
-//     Increasing the multiplier will make adaptive throttling behave less aggressively.
-//
-// see: https://sre.google/sre-book/handling-overload/#eq2101
-func rejectionProbability(requests int, accepts int, k float64) float64 {
-	return max(0, float64(requests)-k*float64(accepts)/float64(requests+1))
+func (cb *GoogleSreBreaker) Execute(ctx context.Context, request any, endpointName string, next endpoint.Endpoint) (any, error, bool) {
+	value, err, _ := cb.group.Load(endpointName)
+	if err != nil {
+		panic(fmt.Errorf("circuitbreakerx: failed to load %s breaker", endpointName))
+	}
+	breaker := value.(circuitbreaker.CircuitBreaker)
+	if err := breaker.Allow(); err != nil {
+		// rejected
+		breaker.MarkFailed()
+		return nil, nil, false
+	}
+	// allowed
+	reply, err := next(ctx, request)
+	if err != nil && (statusx.ErrInternal.Is(err) || statusx.ErrUnavailable.Equals(err) || statusx.ErrDeadlineExceeded.Equals(err)) {
+		breaker.MarkFailed()
+	} else {
+		breaker.MarkSuccess()
+	}
+	return reply, err, true
 }
