@@ -1,3 +1,1 @@
 package ratelimitx
-
-var All = ""

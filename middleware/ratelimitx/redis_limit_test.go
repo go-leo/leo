@@ -2,56 +2,45 @@ package ratelimitx
 
 import (
 	"context"
+	_ "embed"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/redis/go-redis/v9"
+	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
+	"time"
 )
 
-func TestNewRedisSlidingWindowLimiter(t *testing.T) {
-	t.Parallel()
-	for i := 0; i < 20; i++ {
-		limiter := NewRedisSlidingWindowLimiter(redis.NewClient(&redis.Options{Addr: "localhost:6379"}), 1000, 1000)
-		limiter.setKey("hello")
-		go func(limiter ratelimit.Waiter) {
-			for i := 0; i < 1000; i++ {
-				if err := limiter.Wait(context.Background()); err != nil {
-					panic(err)
-				}
-			}
-		}(limiter)
+func TestAcquireLua(t *testing.T) {
+	client := redis.NewClient(&redis.Options{
+		Addr: os.Getenv("ADDR"),
+	})
+	limiter := redisLimiter{
+		rate:         5,
+		rateInterval: 5 * time.Second,
+		scripter:     client,
+		KeyFunc: func(ctx context.Context) string {
+			return "rate_limit:demo"
+		},
 	}
-	select {}
-}
+	ctx := context.Background()
 
-func TestNewRedisLeakyBucketLimiter(t *testing.T) {
-	t.Parallel()
-	for i := 0; i < 20; i++ {
-		limiter := NewRedisLeakyBucketLimiter(redis.NewClient(&redis.Options{Addr: "localhost:6379"}), 1000, 1000)
-		limiter.setKey("hello")
-		go func(limiter ratelimit.Waiter) {
-			for i := 0; i < 1000; i++ {
-				if err := limiter.Wait(context.Background()); err != nil {
-					panic(err)
-				}
-			}
-		}(limiter)
-	}
-	select {}
-}
+	err := limiter.Wait(ctx)
+	assert.NoError(t, err)
 
-func TestNewRedisTokenBucketLimiter(t *testing.T) {
-	t.Parallel()
-	for i := 0; i < 20; i++ {
-		limiter := NewRedisTokenBucketLimiter(redis.NewClient(&redis.Options{Addr: "localhost:6379"}), 1000, 1000)
-		limiter.setKey("hello")
-		go func(limiter ratelimit.Waiter) {
-			for j := 0; j < 1000; j++ {
-				t.Log(i, j)
-				if err := limiter.Wait(context.Background()); err != nil {
-					panic(err)
-				}
-			}
-		}(limiter)
-	}
-	select {}
+	err = limiter.Wait(ctx)
+	assert.NoError(t, err)
+
+	err = limiter.Wait(ctx)
+	assert.NoError(t, err)
+
+	err = limiter.Wait(ctx)
+	assert.NoError(t, err)
+
+	err = limiter.Wait(ctx)
+	assert.NoError(t, err)
+
+	err = limiter.Wait(ctx)
+	assert.ErrorIs(t, err, ratelimit.ErrLimited)
+
 }
