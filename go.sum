@@ -64,6 +64,8 @@ github.com/go-kratos/aegis v0.2.0 h1:dObzCDWn3XVjUkgxyBp6ZeWtx/do0DPZ7LY3yNSJLUQ
 github.com/go-kratos/aegis v0.2.0/go.mod h1:v0R2m73WgEEYB3XYu6aE2WcMwsZkJ/Rzuf5eVccm7bI=
 github.com/go-leo/gox v0.0.0-20241014112640-6f5d057fdedd h1:6hEnDSAmsYkA9sTVwQRgNG6o02iVsmBSb+hcCSF79i8=
 github.com/go-leo/gox v0.0.0-20241014112640-6f5d057fdedd/go.mod h1:q5/+1oxIoTSLlW16wkWhTXtkmQBPco43Vu+RgPEHYu0=
+github.com/go-leo/gox v0.0.0-20241023072605-43785e905ef1 h1:CNAZctiQwnla7eflRsW7biRje6jP1CFE1P7zFZ8JZK4=
+github.com/go-leo/gox v0.0.0-20241023072605-43785e905ef1/go.mod h1:q5/+1oxIoTSLlW16wkWhTXtkmQBPco43Vu+RgPEHYu0=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=

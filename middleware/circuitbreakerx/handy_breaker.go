@@ -2,17 +2,17 @@ package circuitbreakerx
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kratos/aegis/circuitbreaker"
 	"github.com/go-leo/gox/syncx/lazyloadx"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/statusx"
+	"github.com/streadway/handy/breaker"
 )
 
-// GoogleSreBreaker
-// see: https://landing.google.com/sre/sre-book/chapters/handling-overload/
-func GoogleSreBreaker(factory func(endpointName string) circuitbreaker.CircuitBreaker) endpoint.Middleware {
+func HandyBreaker(factory func(endpointName string) breaker.Breaker) endpoint.Middleware {
 	group := lazyloadx.Group{
 		New: func(key string) (any, error) {
 			return factory(key), nil
@@ -28,16 +28,10 @@ func GoogleSreBreaker(factory func(endpointName string) circuitbreaker.CircuitBr
 			if err != nil {
 				panic(fmt.Errorf("circuitbreakerx: failed to load %s breaker", endpointName))
 			}
-			cb := value.(circuitbreaker.CircuitBreaker)
-			if err := cb.Allow(); err != nil {
-				cb.MarkFailed()
+			cb := value.(breaker.Breaker)
+			response, err := circuitbreaker.HandyBreaker(cb)(next)(ctx, request)
+			if errors.Is(err, breaker.ErrCircuitOpen) {
 				return nil, statusx.ErrUnavailable.With(statusx.Wrap(ErrCircuitOpen))
-			}
-			response, err := next(ctx, request)
-			if err != nil && (statusx.ErrInternal.Equals(err) || statusx.ErrUnavailable.Equals(err) || statusx.ErrDeadlineExceeded.Equals(err)) {
-				cb.MarkFailed()
-			} else {
-				cb.MarkSuccess()
 			}
 			return response, err
 		}

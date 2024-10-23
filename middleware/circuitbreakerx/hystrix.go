@@ -4,30 +4,28 @@ import (
 	"context"
 	"errors"
 	"github.com/afex/hystrix-go/hystrix"
+	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-leo/leo/v3/endpointx"
+	"github.com/go-leo/leo/v3/statusx"
 )
 
-// HystrixFactory is the Breaker factory.
-type HystrixFactory struct{}
-
-func (HystrixFactory) Create() Breaker { return &HystrixBreaker{} }
-
-// HystrixBreaker is the Breaker implementation.
-type HystrixBreaker struct{}
-
-func (breaker *HystrixBreaker) Execute(ctx context.Context, request any, endpointName string, next endpoint.Endpoint) (any, error, bool) {
-	var resp any
-	runFunc := func() error {
-		var err error
-		resp, err = next(ctx, request)
-		return err
-	}
-	if err := hystrix.Do(endpointName, runFunc, nil); err != nil {
-		var circuitErr hystrix.CircuitError
-		if errors.As(err, &circuitErr) {
-			return resp, nil, false
+// Hystrix circuit breaker
+// see: https://godoc.org/github.com/afex/hystrix-go/hystrix
+// see: https://github.com/Netflix/Hystrix
+func Hystrix() endpoint.Middleware {
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, request any) (any, error) {
+			endpointName, ok := endpointx.ExtractName(ctx)
+			if !ok {
+				return next(ctx, request)
+			}
+			response, err := circuitbreaker.Hystrix(endpointName)(next)(ctx, request)
+			var circuitErr hystrix.CircuitError
+			if errors.As(err, &circuitErr) {
+				return nil, statusx.ErrUnavailable.With(statusx.Wrap(ErrCircuitOpen))
+			}
+			return response, err
 		}
-		return nil, err, true
 	}
-	return resp, nil, true
 }

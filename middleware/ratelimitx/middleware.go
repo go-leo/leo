@@ -6,6 +6,7 @@ import (
 	"github.com/RussellLuo/slidingwindow"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/ratelimit"
+	kratosrate "github.com/go-kratos/aegis/ratelimit"
 	"github.com/go-kratos/aegis/ratelimit/bbr"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/statusx"
@@ -46,7 +47,8 @@ func TokenBucket(limiter *rate.Limiter) endpoint.Middleware {
 
 // Redis creates a rate-limiting middleware using a redisLimiter.
 // see: https://redis.io/glossary/rate-limiting/
-func Redis(rate int,
+func Redis(
+	rate int,
 	rateInterval time.Duration,
 	client redis.Scripter,
 	KeyFunc func(ctx context.Context) string,
@@ -75,7 +77,24 @@ func RedisGCRA(limiter *redis_rate.Limiter, limit redis_rate.Limit, keyFunc func
 // see: https://go-kratos.dev/docs/component/middleware/ratelimit/
 // see: https://github.com/go-kratos/aegis/tree/main/ratelimit/bbr
 func BBR(limiter *bbr.BBR) endpoint.Middleware {
-	return allowerMiddleware(&bbrLimiter{limiter: limiter})
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, request any) (any, error) {
+			// extract endpoint name
+			endpointName, ok := endpointx.ExtractName(ctx)
+			if !ok {
+				return next(ctx, request)
+			}
+			// limit the request
+			doneFunc, err := limiter.Allow()
+			if err != nil {
+				return nil, statusx.ErrResourceExhausted.With(statusx.Message("ratelimitx: %s is rejected by limiter", endpointName))
+			}
+			// continue handle the request
+			response, err := next(ctx, request)
+			doneFunc(kratosrate.DoneInfo{Err: err})
+			return response, err
+		}
+	}
 }
 
 func allowerMiddleware(limiter ratelimit.Allower) endpoint.Middleware {
@@ -91,7 +110,8 @@ func allowerMiddleware(limiter ratelimit.Allower) endpoint.Middleware {
 				return nil, statusx.ErrResourceExhausted.With(statusx.Message("ratelimitx: %s is rejected by limiter", endpointName))
 			}
 			// continue handle the request
-			return next(ctx, request)
+			response, err := next(ctx, request)
+			return response, err
 		}
 	}
 }
@@ -112,7 +132,8 @@ func waiterMiddleware(limiter ratelimit.Waiter) endpoint.Middleware {
 				return nil, statusx.ErrUnknown.With(statusx.Wrap(err))
 			}
 			// continue handle the request
-			return next(ctx, request)
+			response, err := next(ctx, request)
+			return response, err
 		}
 	}
 }
