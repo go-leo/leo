@@ -8,15 +8,18 @@ import (
 	"net/http"
 )
 
+/*
+define status code
+See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+See: [google api design]: https://cloud.google.com/apis/design/errors
+See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
+See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+*/
+
 // OK Not an error; returned on success.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: OK
-// HTTP Mapping: 200 OK
+// GRPC Code: OK
+// HTTP Status: 200 OK
 var OK ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
@@ -29,10 +32,10 @@ const kFailedCode codes.Code = 1717570208
 // Failed unlike ErrUnknown error, it just means business logic failed.
 //
 // For example, if client want sign up, but username already exists,
-// it should return Failed("username already exist").
+// it can return Failed("username already exist").
 //
-// GRPC Mapping: Unknown
-// HTTP Mapping: 200 OK
+// GRPC Code: Unknown
+// HTTP Status: 200 OK
 var Failed ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
@@ -42,13 +45,8 @@ var Failed ErrorApi = &status{
 
 // ErrCanceled The operation was cancelled, typically by the caller.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Canceled
-// HTTP Mapping: 499 Client Closed Request
+// GRPC Code: Canceled
+// HTTP Status: 499 Client Closed Request
 var ErrCanceled ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(499)},
@@ -58,13 +56,8 @@ var ErrCanceled ErrorApi = &status{
 
 // ErrUnknown error.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Unknown
-// HTTP Mapping: 500 ErrInternal Server Error
+// GRPC Code: Unknown
+// HTTP Status: 500 Internal Server Error
 var ErrUnknown ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
@@ -74,13 +67,8 @@ var ErrUnknown ErrorApi = &status{
 
 // ErrInvalidArgument The client specified an invalid argument.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: InvalidArgument
-// HTTP Mapping: 400 Bad Request
+// GRPC Code: InvalidArgument
+// HTTP Status: 400 Bad Request
 var ErrInvalidArgument ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
@@ -90,13 +78,8 @@ var ErrInvalidArgument ErrorApi = &status{
 
 // ErrDeadlineExceeded The deadline expired before the operation could complete.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: DeadlineExceeded
-// HTTP Mapping: 504 Gateway Timeout
+// GRPC Code: DeadlineExceeded
+// HTTP Status: 504 Gateway Timeout
 var ErrDeadlineExceeded ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusGatewayTimeout)},
@@ -106,13 +89,8 @@ var ErrDeadlineExceeded ErrorApi = &status{
 
 // ErrNotFound Some requested entity (e.g., file or directory) was not found.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: NotFound
-// HTTP Mapping: 404 Not Found
+// GRPC Code: NotFound
+// HTTP Status: 404 Not Found
 var ErrNotFound ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotFound)},
@@ -123,13 +101,8 @@ var ErrNotFound ErrorApi = &status{
 // ErrAlreadyExists The entity that a client attempted to create (e.g., file or directory)
 // already exists.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: AlreadyExists
-// HTTP Mapping: 409 Conflict
+// GRPC Code: AlreadyExists
+// HTTP Status: 409 Conflict
 var ErrAlreadyExists ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
@@ -140,13 +113,8 @@ var ErrAlreadyExists ErrorApi = &status{
 // ErrPermissionDenied The caller does not have permission to execute the specified
 // operation.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: PermissionDenied
-// HTTP Mapping: 403 Forbidden
+// GRPC Code: PermissionDenied
+// HTTP Status: 403 Forbidden
 var ErrPermissionDenied ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusForbidden)},
@@ -157,13 +125,8 @@ var ErrPermissionDenied ErrorApi = &status{
 // ErrResourceExhausted Some resource has been exhausted, perhaps a per-user quota, or
 // perhaps the entire file system is out of space.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: ResourceExhausted
-// HTTP Mapping: 429 Too Many Requests
+// GRPC Code: ResourceExhausted
+// HTTP Status: 429 Too Many Requests
 var ErrResourceExhausted ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusTooManyRequests)},
@@ -174,13 +137,8 @@ var ErrResourceExhausted ErrorApi = &status{
 // ErrFailedPrecondition The operation was rejected because the system is not in a state
 // required for the operation's execution.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: FailedPrecondition
-// HTTP Mapping: 400 Bad Request
+// GRPC Code: FailedPrecondition
+// HTTP Status: 400 Bad Request
 var ErrFailedPrecondition ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
@@ -191,13 +149,8 @@ var ErrFailedPrecondition ErrorApi = &status{
 // ErrAborted The operation was aborted, typically due to a concurrency issue such as
 // a sequencer check failure or transaction abort.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Aborted
-// HTTP Mapping: 409 Conflict
+// GRPC Code: Aborted
+// HTTP Status: 409 Conflict
 var ErrAborted ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
@@ -207,13 +160,8 @@ var ErrAborted ErrorApi = &status{
 
 // ErrOutOfRange The operation was attempted past the valid range.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: OutOfRange
-// HTTP Mapping: 400 Bad Request
+// GRPC Code: OutOfRange
+// HTTP Status: 400 Bad Request
 var ErrOutOfRange ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
@@ -224,13 +172,8 @@ var ErrOutOfRange ErrorApi = &status{
 // ErrUnimplemented The operation is not implemented or is not supported/enabled in this
 // service.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Unimplemented
-// HTTP Mapping: 501 Not Implemented
+// GRPC Code: Unimplemented
+// HTTP Status: 501 Not Implemented
 var ErrUnimplemented ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotImplemented)},
@@ -242,13 +185,8 @@ var ErrUnimplemented ErrorApi = &status{
 // underlying system have been broken.  This error code is reserved
 // for serious errors.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Internal
-// HTTP Mapping: 500 Internal Server Error
+// GRPC Code: Internal
+// HTTP Status: 500 Internal Server Error
 var ErrInternal ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
@@ -258,13 +196,8 @@ var ErrInternal ErrorApi = &status{
 
 // ErrUnavailable The service is currently unavailable.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Unavailable
-// HTTP Mapping: 503 Service Unavailable
+// GRPC Code: Unavailable
+// HTTP Status: 503 Service Unavailable
 var ErrUnavailable ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusServiceUnavailable)},
@@ -274,13 +207,8 @@ var ErrUnavailable ErrorApi = &status{
 
 // ErrDataLoss Unrecoverable data loss or corruption.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: DataLoss
-// HTTP Mapping: 500 Internal Server Error
+// GRPC Code: DataLoss
+// HTTP Status: 500 Internal Server Error
 var ErrDataLoss ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
@@ -291,13 +219,8 @@ var ErrDataLoss ErrorApi = &status{
 // ErrUnauthenticated The request does not have valid authentication credentials for the
 // operation.
 //
-// See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-// See: [google api design]: https://cloud.google.com/apis/design/errors
-// See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
-// See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-//
-// GRPC Mapping: Unauthenticated
-// HTTP Mapping: 401 Unauthorized
+// GRPC Code: Unauthenticated
+// HTTP Status: 401 Unauthorized
 var ErrUnauthenticated ErrorApi = &status{
 	err: &interstatusx.Error{
 		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusUnauthorized)},

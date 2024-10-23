@@ -37,10 +37,6 @@ func (w uberRateLimiterWrapper) start() {
 // Wait is used to control the rate of requests.
 func (w uberRateLimiterWrapper) Wait(ctx context.Context) error {
 	select {
-	case <-ctx.Done():
-		// If the context is canceled or the deadline is exceeded, it returns an error.
-		// the request is restricted
-		return ctx.Err()
 	case <-w.timeC:
 		// If a signal is received, it indicates that the request is allowed, and it returns no error.
 		// request is allowed
@@ -49,5 +45,9 @@ func (w uberRateLimiterWrapper) Wait(ctx context.Context) error {
 		// If a signal is received, it indicates that the rate limiter is disabled, and it returns no error.
 		// disable rate limiter
 		return nil
+	case <-ctx.Done():
+		// If the context is canceled or the deadline is exceeded, it returns an error.
+		// the request is restricted
+		return ctx.Err()
 	}
 }

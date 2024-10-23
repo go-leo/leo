@@ -11,6 +11,7 @@ import (
 )
 
 // GoogleSreBreaker
+// see: github.com/go-kratos/aegis/circuitbreaker/sre
 // see: https://landing.google.com/sre/sre-book/chapters/handling-overload/
 func GoogleSreBreaker(factory func(endpointName string) circuitbreaker.CircuitBreaker) endpoint.Middleware {
 	group := lazyloadx.Group{
