@@ -836,9 +836,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteUser: http.NewServer(
 			endpoints.DeleteUser(context.TODO()),
@@ -847,9 +847,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		updateUser: http.NewServer(
 			endpoints.UpdateUser(context.TODO()),
@@ -858,9 +858,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUser: http.NewServer(
 			endpoints.GetUser(context.TODO()),
@@ -869,9 +869,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUsers: http.NewServer(
 			endpoints.GetUsers(context.TODO()),
@@ -880,9 +880,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uploadUserAvatar: http.NewServer(
 			endpoints.UploadUserAvatar(context.TODO()),
@@ -891,9 +891,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getUserAvatar: http.NewServer(
 			endpoints.GetUserAvatar(context.TODO()),
@@ -902,9 +902,9 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -980,6 +980,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_CreateUser_HttpClient_RequestEncoder(router),
 				_Demo_CreateUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -991,6 +992,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_DeleteUser_HttpClient_RequestEncoder(router),
 				_Demo_DeleteUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1002,6 +1004,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_UpdateUser_HttpClient_RequestEncoder(router),
 				_Demo_UpdateUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1013,6 +1016,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_GetUser_HttpClient_RequestEncoder(router),
 				_Demo_GetUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1024,6 +1028,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_GetUsers_HttpClient_RequestEncoder(router),
 				_Demo_GetUsers_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1035,6 +1040,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_UploadUserAvatar_HttpClient_RequestEncoder(router),
 				_Demo_UploadUserAvatar_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1046,6 +1052,7 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 				_Demo_GetUserAvatar_HttpClient_RequestEncoder(router),
 				_Demo_GetUserAvatar_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

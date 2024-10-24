@@ -195,9 +195,9 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -231,6 +231,7 @@ func NewGreeterHttpClientTransports(target string, options ...transportx.ClientT
 				_Greeter_SayHello_HttpClient_RequestEncoder(router),
 				_Greeter_SayHello_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

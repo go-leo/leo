@@ -504,9 +504,9 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		getWorkspace: http.NewServer(
 			endpoints.GetWorkspace(context.TODO()),
@@ -515,9 +515,9 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		createWorkspace: http.NewServer(
 			endpoints.CreateWorkspace(context.TODO()),
@@ -526,9 +526,9 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		updateWorkspace: http.NewServer(
 			endpoints.UpdateWorkspace(context.TODO()),
@@ -537,9 +537,9 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		deleteWorkspace: http.NewServer(
 			endpoints.DeleteWorkspace(context.TODO()),
@@ -548,9 +548,9 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -612,6 +612,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 				_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router),
 				_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -623,6 +624,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 				_Workspaces_GetWorkspace_HttpClient_RequestEncoder(router),
 				_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -634,6 +636,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 				_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router),
 				_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -645,6 +648,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 				_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router),
 				_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -656,6 +660,7 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 				_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router),
 				_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

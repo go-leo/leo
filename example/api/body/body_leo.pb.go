@@ -501,9 +501,9 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedBody: http.NewServer(
 			endpoints.NamedBody(context.TODO()),
@@ -512,9 +512,9 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		nonBody: http.NewServer(
 			endpoints.NonBody(context.TODO()),
@@ -523,9 +523,9 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyStarBody: http.NewServer(
 			endpoints.HttpBodyStarBody(context.TODO()),
@@ -534,9 +534,9 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyNamedBody: http.NewServer(
 			endpoints.HttpBodyNamedBody(context.TODO()),
@@ -545,9 +545,9 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -609,6 +609,7 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 				_Body_StarBody_HttpClient_RequestEncoder(router),
 				_Body_StarBody_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -620,6 +621,7 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 				_Body_NamedBody_HttpClient_RequestEncoder(router),
 				_Body_NamedBody_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -631,6 +633,7 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 				_Body_NonBody_HttpClient_RequestEncoder(router),
 				_Body_NonBody_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -642,6 +645,7 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 				_Body_HttpBodyStarBody_HttpClient_RequestEncoder(router),
 				_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -653,6 +657,7 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 				_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router),
 				_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

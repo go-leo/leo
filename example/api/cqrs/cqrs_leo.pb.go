@@ -340,9 +340,9 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		findUser: http.NewServer(
 			endpoints.FindUser(context.TODO()),
@@ -351,9 +351,9 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -394,6 +394,7 @@ func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTran
 				_CQRS_CreateUser_HttpClient_RequestEncoder(router),
 				_CQRS_CreateUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -405,6 +406,7 @@ func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTran
 				_CQRS_FindUser_HttpClient_RequestEncoder(router),
 				_CQRS_FindUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

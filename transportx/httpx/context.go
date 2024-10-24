@@ -49,46 +49,31 @@ func IncomingMetadataInjector(ctx context.Context, request *http.Request) contex
 	return metadatax.NewIncomingContext(ctx, metadatax.FromHttpHeader(request.Header))
 }
 
-type timeoutHolderKey struct{}
+type timeLimiterKey struct{}
 
-type timeoutHolder struct {
-	cancelFunc context.CancelFunc
-}
-
-func TimeoutController(ctx context.Context, request *http.Request) context.Context {
-	name, _ := transportx.ExtractName(ctx)
-	if name == HttpServer {
-		return serverTimeoutController(ctx, request)
-	} else if name == HttpClient {
-		return clientTimeoutController(ctx, request)
-	}
-	return ctx
-}
-
-func clientTimeoutController(ctx context.Context, request *http.Request) context.Context {
+func OutgoingTimeLimiter(ctx context.Context, request *http.Request) context.Context {
 	if deadline, ok := ctx.Deadline(); ok {
 		request.Header.Set(kTimeoutKey, internal.EncodeDuration(time.Until(deadline)))
 	}
 	return ctx
 }
 
-func serverTimeoutController(ctx context.Context, request *http.Request) context.Context {
+func IncomingTimeLimiter(ctx context.Context, request *http.Request) context.Context {
 	if value := request.Header.Get(kTimeoutKey); value != "" {
 		timeout, err := internal.DecodeTimeout(value)
 		if err != nil {
 			_ = logx.L().Log("error", err)
 		}
 		ctx, cancelFunc := context.WithTimeout(ctx, timeout)
-		_ = cancelFunc
-		return context.WithValue(ctx, timeoutHolderKey{}, &timeoutHolder{cancelFunc: cancelFunc})
+		return context.WithValue(ctx, timeLimiterKey{}, cancelFunc)
 	}
 	ctx, cancelFunc := context.WithCancel(ctx)
-	return context.WithValue(ctx, timeoutHolderKey{}, &timeoutHolder{cancelFunc: cancelFunc})
+	return context.WithValue(ctx, timeLimiterKey{}, cancelFunc)
 }
 
 func CancelInvoker(ctx context.Context, code int, r *http.Request) {
-	holder, ok := ctx.Value(timeoutHolderKey{}).(*timeoutHolder)
+	cancelFunc, ok := ctx.Value(timeLimiterKey{}).(context.CancelFunc)
 	if ok {
-		holder.cancelFunc()
+		cancelFunc()
 	}
 }

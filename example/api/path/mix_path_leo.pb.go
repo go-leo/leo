@@ -200,9 +200,9 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -236,6 +236,7 @@ func NewMixPathHttpClientTransports(target string, options ...transportx.ClientT
 				_MixPath_MixPath_HttpClient_RequestEncoder(router),
 				_MixPath_MixPath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

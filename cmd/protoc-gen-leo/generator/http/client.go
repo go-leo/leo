@@ -47,6 +47,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P(endpoint.HttpClientRequestEncoderName(), "(router),")
 		g.P(endpoint.HttpClientResponseDecoderName(), ",")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimiter"), "),")
 		g.P("),")
 		g.P("options...,")
 		g.P(")")

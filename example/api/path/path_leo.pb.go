@@ -807,9 +807,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		int32Path: http.NewServer(
 			endpoints.Int32Path(context.TODO()),
@@ -818,9 +818,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		int64Path: http.NewServer(
 			endpoints.Int64Path(context.TODO()),
@@ -829,9 +829,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uint32Path: http.NewServer(
 			endpoints.Uint32Path(context.TODO()),
@@ -840,9 +840,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		uint64Path: http.NewServer(
 			endpoints.Uint64Path(context.TODO()),
@@ -851,9 +851,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		floatPath: http.NewServer(
 			endpoints.FloatPath(context.TODO()),
@@ -862,9 +862,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		doublePath: http.NewServer(
 			endpoints.DoublePath(context.TODO()),
@@ -873,9 +873,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		stringPath: http.NewServer(
 			endpoints.StringPath(context.TODO()),
@@ -884,9 +884,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		enumPath: http.NewServer(
 			endpoints.EnumPath(context.TODO()),
@@ -895,9 +895,9 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -987,6 +987,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_BoolPath_HttpClient_RequestEncoder(router),
 				_Path_BoolPath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -998,6 +999,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_Int32Path_HttpClient_RequestEncoder(router),
 				_Path_Int32Path_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1009,6 +1011,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_Int64Path_HttpClient_RequestEncoder(router),
 				_Path_Int64Path_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1020,6 +1023,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_Uint32Path_HttpClient_RequestEncoder(router),
 				_Path_Uint32Path_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1031,6 +1035,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_Uint64Path_HttpClient_RequestEncoder(router),
 				_Path_Uint64Path_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1042,6 +1047,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_FloatPath_HttpClient_RequestEncoder(router),
 				_Path_FloatPath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1053,6 +1059,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_DoublePath_HttpClient_RequestEncoder(router),
 				_Path_DoublePath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1064,6 +1071,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_StringPath_HttpClient_RequestEncoder(router),
 				_Path_StringPath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -1075,6 +1083,7 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 				_Path_EnumPath_HttpClient_RequestEncoder(router),
 				_Path_EnumPath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

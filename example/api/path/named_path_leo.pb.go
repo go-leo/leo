@@ -580,9 +580,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedPathOptString: http.NewServer(
 			endpoints.NamedPathOptString(context.TODO()),
@@ -591,9 +591,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedPathWrapString: http.NewServer(
 			endpoints.NamedPathWrapString(context.TODO()),
@@ -602,9 +602,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		embedNamedPathString: http.NewServer(
 			endpoints.EmbedNamedPathString(context.TODO()),
@@ -613,9 +613,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		embedNamedPathOptString: http.NewServer(
 			endpoints.EmbedNamedPathOptString(context.TODO()),
@@ -624,9 +624,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		embedNamedPathWrapString: http.NewServer(
 			endpoints.EmbedNamedPathWrapString(context.TODO()),
@@ -635,9 +635,9 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -706,6 +706,7 @@ func NewNamedPathHttpClientTransports(target string, options ...transportx.Clien
 				_NamedPath_NamedPathString_HttpClient_RequestEncoder(router),
 				_NamedPath_NamedPathString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -717,6 +718,7 @@ func NewNamedPathHttpClientTransports(target string, options ...transportx.Clien
 				_NamedPath_NamedPathOptString_HttpClient_RequestEncoder(router),
 				_NamedPath_NamedPathOptString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -728,6 +730,7 @@ func NewNamedPathHttpClientTransports(target string, options ...transportx.Clien
 				_NamedPath_NamedPathWrapString_HttpClient_RequestEncoder(router),
 				_NamedPath_NamedPathWrapString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -739,6 +742,7 @@ func NewNamedPathHttpClientTransports(target string, options ...transportx.Clien
 				_NamedPath_EmbedNamedPathString_HttpClient_RequestEncoder(router),
 				_NamedPath_EmbedNamedPathString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -750,6 +754,7 @@ func NewNamedPathHttpClientTransports(target string, options ...transportx.Clien
 				_NamedPath_EmbedNamedPathOptString_HttpClient_RequestEncoder(router),
 				_NamedPath_EmbedNamedPathOptString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -761,6 +766,7 @@ func NewNamedPathHttpClientTransports(target string, options ...transportx.Clien
 				_NamedPath_EmbedNamedPathWrapString_HttpClient_RequestEncoder(router),
 				_NamedPath_EmbedNamedPathWrapString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

@@ -503,9 +503,9 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		starResponse: http.NewServer(
 			endpoints.StarResponse(context.TODO()),
@@ -514,9 +514,9 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		namedResponse: http.NewServer(
 			endpoints.NamedResponse(context.TODO()),
@@ -525,9 +525,9 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyResponse: http.NewServer(
 			endpoints.HttpBodyResponse(context.TODO()),
@@ -536,9 +536,9 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 		httpBodyNamedResponse: http.NewServer(
 			endpoints.HttpBodyNamedResponse(context.TODO()),
@@ -547,9 +547,9 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-			http.ServerBefore(httpx.TimeoutController),
+			http.ServerBefore(httpx.IncomingTimeLimiter),
 			http.ServerFinalizer(httpx.CancelInvoker),
+			http.ServerErrorEncoder(httpx.ErrorEncoder),
 		),
 	}
 }
@@ -611,6 +611,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 				_Response_OmittedResponse_HttpClient_RequestEncoder(router),
 				_Response_OmittedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -622,6 +623,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 				_Response_StarResponse_HttpClient_RequestEncoder(router),
 				_Response_StarResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -633,6 +635,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 				_Response_NamedResponse_HttpClient_RequestEncoder(router),
 				_Response_NamedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -644,6 +647,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 				_Response_HttpBodyResponse_HttpClient_RequestEncoder(router),
 				_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)
@@ -655,6 +659,7 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 				_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router),
 				_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
 			),
 			options...,
 		)

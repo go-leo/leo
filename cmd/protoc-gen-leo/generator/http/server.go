@@ -41,10 +41,9 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TimeoutController"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimiter"), "),")
 		g.P(internal.HttpTransportPackage.Ident("ServerFinalizer"), "(", internal.HttpxTransportxPackage.Ident("CancelInvoker"), "),")
-
+		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
 		g.P("),")
 	}
 	g.P("}")
