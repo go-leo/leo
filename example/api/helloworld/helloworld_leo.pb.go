@@ -192,8 +192,8 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 	return &greeterHttpServerTransports{
 		sayHello: http.NewServer(
 			endpoints.SayHello(context.TODO()),
-			_Greeter_SayHello_RequestDecoder,
-			_Greeter_SayHello_ResponseEncoder,
+			_Greeter_SayHello_HttpServer_RequestDecoder,
+			_Greeter_SayHello_HttpServer_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -202,24 +202,6 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
-}
-
-func _Greeter_SayHello_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
-	req := &HelloRequest{}
-	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-	}
-	return req, nil
-}
-
-func _Greeter_SayHello_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
-	resp := obj.(*HelloReply)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
 }
 
 func AppendGreeterHttpRouter(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
@@ -248,53 +230,8 @@ func NewGreeterHttpClientTransports(target string, options ...transportx.ClientT
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				func(scheme string, instance string) http.CreateRequestFunc {
-					return func(ctx context.Context, obj any) (*http1.Request, error) {
-						if obj == nil {
-							return nil, errors.New("request object is nil")
-						}
-						req, ok := obj.(*HelloRequest)
-						if !ok {
-							return nil, fmt.Errorf("invalid request object type, %T", obj)
-						}
-						_ = req
-						var body io.Reader
-						var bodyBuf bytes.Buffer
-						if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-							return nil, err
-						}
-						body = &bodyBuf
-						contentType := "application/json; charset=utf-8"
-						var pairs []string
-						path, err := router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
-						if err != nil {
-							return nil, err
-						}
-						queries := url.Values{}
-						target := &url.URL{
-							Scheme:   scheme,
-							Host:     instance,
-							Path:     path.Path,
-							RawQuery: queries.Encode(),
-						}
-						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-						if err != nil {
-							return nil, err
-						}
-						r.Header.Set("Content-Type", contentType)
-						return r, nil
-					}
-				},
-				func(ctx context.Context, r *http1.Response) (any, error) {
-					if httpx.IsErrorResponse(r) {
-						return nil, httpx.ErrorDecoder(ctx, r)
-					}
-					resp := &HelloReply{}
-					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-						return nil, err
-					}
-					return resp, nil
-				},
+				_Greeter_SayHello_HttpClient_RequestEncoder(router),
+				_Greeter_SayHello_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
@@ -320,4 +257,75 @@ func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest)
 func NewGreeterHttpClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
 	endpoints := newGreeterClientEndpoints(transports, middlewares...)
 	return &greeterHttpClient{endpoints: endpoints}
+}
+
+// =========================== http coder ===========================
+
+func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &HelloRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
+			if obj == nil {
+				return nil, errors.New("request object is nil")
+			}
+			req, ok := obj.(*HelloRequest)
+			if !ok {
+				return nil, fmt.Errorf("invalid request object type, %T", obj)
+			}
+			_ = req
+			var body io.Reader
+			var bodyBuf bytes.Buffer
+			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+				return nil, err
+			}
+			body = &bodyBuf
+			contentType := "application/json; charset=utf-8"
+			var pairs []string
+			path, err := router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
+			if err != nil {
+				return nil, err
+			}
+			queries := url.Values{}
+			target := &url.URL{
+				Scheme:   scheme,
+				Host:     instance,
+				Path:     path.Path,
+				RawQuery: queries.Encode(),
+			}
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			if err != nil {
+				return nil, err
+			}
+			r.Header.Set("Content-Type", contentType)
+			return r, nil
+		}
+	}
+}
+
+func _Greeter_SayHello_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*HelloReply)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Greeter_SayHello_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+	if httpx.IsErrorResponse(r) {
+		return nil, httpx.ErrorDecoder(ctx, r)
+	}
+	resp := &HelloReply{}
+	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

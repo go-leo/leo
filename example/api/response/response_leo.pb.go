@@ -500,8 +500,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 	return &responseHttpServerTransports{
 		omittedResponse: http.NewServer(
 			endpoints.OmittedResponse(context.TODO()),
-			_Response_OmittedResponse_RequestDecoder,
-			_Response_OmittedResponse_ResponseEncoder,
+			_Response_OmittedResponse_HttpServer_RequestDecoder,
+			_Response_OmittedResponse_HttpServer_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -511,8 +511,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		starResponse: http.NewServer(
 			endpoints.StarResponse(context.TODO()),
-			_Response_StarResponse_RequestDecoder,
-			_Response_StarResponse_ResponseEncoder,
+			_Response_StarResponse_HttpServer_RequestDecoder,
+			_Response_StarResponse_HttpServer_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -522,8 +522,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		namedResponse: http.NewServer(
 			endpoints.NamedResponse(context.TODO()),
-			_Response_NamedResponse_RequestDecoder,
-			_Response_NamedResponse_ResponseEncoder,
+			_Response_NamedResponse_HttpServer_RequestDecoder,
+			_Response_NamedResponse_HttpServer_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -533,8 +533,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		httpBodyResponse: http.NewServer(
 			endpoints.HttpBodyResponse(context.TODO()),
-			_Response_HttpBodyResponse_RequestDecoder,
-			_Response_HttpBodyResponse_ResponseEncoder,
+			_Response_HttpBodyResponse_HttpServer_RequestDecoder,
+			_Response_HttpBodyResponse_HttpServer_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -544,8 +544,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		httpBodyNamedResponse: http.NewServer(
 			endpoints.HttpBodyNamedResponse(context.TODO()),
-			_Response_HttpBodyNamedResponse_RequestDecoder,
-			_Response_HttpBodyNamedResponse_ResponseEncoder,
+			_Response_HttpBodyNamedResponse_HttpServer_RequestDecoder,
+			_Response_HttpBodyNamedResponse_HttpServer_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -554,107 +554,6 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
-}
-
-func _Response_OmittedResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
-	req := &emptypb.Empty{}
-	return req, nil
-}
-
-func _Response_OmittedResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
-	resp := obj.(*UserResponse)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Response_StarResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
-	req := &emptypb.Empty{}
-	return req, nil
-}
-
-func _Response_StarResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
-	resp := obj.(*UserResponse)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Response_NamedResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
-	req := &emptypb.Empty{}
-	return req, nil
-}
-
-func _Response_NamedResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
-	resp := obj.(*UserResponse)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Response_HttpBodyResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
-	req := &emptypb.Empty{}
-	return req, nil
-}
-
-func _Response_HttpBodyResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
-	resp := obj.(*httpbody.HttpBody)
-	w.Header().Set("Content-Type", resp.GetContentType())
-	for _, src := range resp.GetExtensions() {
-		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
-		if err != nil {
-			return statusx.ErrInternal.With(statusx.Wrap(err))
-		}
-		metadata, ok := dst.(*structpb.Struct)
-		if !ok {
-			continue
-		}
-		for key, value := range metadata.GetFields() {
-			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
-		}
-	}
-	w.WriteHeader(http1.StatusOK)
-	if _, err := w.Write(resp.GetData()); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Response_HttpBodyNamedResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
-	req := &emptypb.Empty{}
-	return req, nil
-}
-
-func _Response_HttpBodyNamedResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
-	resp := obj.(*HttpBody)
-	w.Header().Set("Content-Type", resp.GetBody().GetContentType())
-	for _, src := range resp.GetBody().GetExtensions() {
-		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
-		if err != nil {
-			return statusx.ErrInternal.With(statusx.Wrap(err))
-		}
-		metadata, ok := dst.(*structpb.Struct)
-		if !ok {
-			continue
-		}
-		for key, value := range metadata.GetFields() {
-			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
-		}
-	}
-	w.WriteHeader(http1.StatusOK)
-	if _, err := w.Write(resp.GetBody().GetData()); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
 }
 
 func AppendResponseHttpRouter(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
@@ -711,46 +610,8 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				func(scheme string, instance string) http.CreateRequestFunc {
-					return func(ctx context.Context, obj any) (*http1.Request, error) {
-						if obj == nil {
-							return nil, errors.New("request object is nil")
-						}
-						req, ok := obj.(*emptypb.Empty)
-						if !ok {
-							return nil, fmt.Errorf("invalid request object type, %T", obj)
-						}
-						_ = req
-						var body io.Reader
-						var pairs []string
-						path, err := router.Get("/leo.example.response.v1.Response/OmittedResponse").URLPath(pairs...)
-						if err != nil {
-							return nil, err
-						}
-						queries := url.Values{}
-						target := &url.URL{
-							Scheme:   scheme,
-							Host:     instance,
-							Path:     path.Path,
-							RawQuery: queries.Encode(),
-						}
-						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-						if err != nil {
-							return nil, err
-						}
-						return r, nil
-					}
-				},
-				func(ctx context.Context, r *http1.Response) (any, error) {
-					if httpx.IsErrorResponse(r) {
-						return nil, httpx.ErrorDecoder(ctx, r)
-					}
-					resp := &UserResponse{}
-					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-						return nil, err
-					}
-					return resp, nil
-				},
+				_Response_OmittedResponse_HttpClient_RequestEncoder(router),
+				_Response_OmittedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
@@ -760,46 +621,8 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				func(scheme string, instance string) http.CreateRequestFunc {
-					return func(ctx context.Context, obj any) (*http1.Request, error) {
-						if obj == nil {
-							return nil, errors.New("request object is nil")
-						}
-						req, ok := obj.(*emptypb.Empty)
-						if !ok {
-							return nil, fmt.Errorf("invalid request object type, %T", obj)
-						}
-						_ = req
-						var body io.Reader
-						var pairs []string
-						path, err := router.Get("/leo.example.response.v1.Response/StarResponse").URLPath(pairs...)
-						if err != nil {
-							return nil, err
-						}
-						queries := url.Values{}
-						target := &url.URL{
-							Scheme:   scheme,
-							Host:     instance,
-							Path:     path.Path,
-							RawQuery: queries.Encode(),
-						}
-						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-						if err != nil {
-							return nil, err
-						}
-						return r, nil
-					}
-				},
-				func(ctx context.Context, r *http1.Response) (any, error) {
-					if httpx.IsErrorResponse(r) {
-						return nil, httpx.ErrorDecoder(ctx, r)
-					}
-					resp := &UserResponse{}
-					if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-						return nil, err
-					}
-					return resp, nil
-				},
+				_Response_StarResponse_HttpClient_RequestEncoder(router),
+				_Response_StarResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
@@ -809,46 +632,8 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				func(scheme string, instance string) http.CreateRequestFunc {
-					return func(ctx context.Context, obj any) (*http1.Request, error) {
-						if obj == nil {
-							return nil, errors.New("request object is nil")
-						}
-						req, ok := obj.(*emptypb.Empty)
-						if !ok {
-							return nil, fmt.Errorf("invalid request object type, %T", obj)
-						}
-						_ = req
-						var body io.Reader
-						var pairs []string
-						path, err := router.Get("/leo.example.response.v1.Response/NamedResponse").URLPath(pairs...)
-						if err != nil {
-							return nil, err
-						}
-						queries := url.Values{}
-						target := &url.URL{
-							Scheme:   scheme,
-							Host:     instance,
-							Path:     path.Path,
-							RawQuery: queries.Encode(),
-						}
-						r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
-						if err != nil {
-							return nil, err
-						}
-						return r, nil
-					}
-				},
-				func(ctx context.Context, r *http1.Response) (any, error) {
-					if httpx.IsErrorResponse(r) {
-						return nil, httpx.ErrorDecoder(ctx, r)
-					}
-					resp := &UserResponse{}
-					if err := jsonx.NewDecoder(r.Body).Decode(&resp.User); err != nil {
-						return nil, err
-					}
-					return resp, nil
-				},
+				_Response_NamedResponse_HttpClient_RequestEncoder(router),
+				_Response_NamedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
@@ -858,49 +643,8 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				func(scheme string, instance string) http.CreateRequestFunc {
-					return func(ctx context.Context, obj any) (*http1.Request, error) {
-						if obj == nil {
-							return nil, errors.New("request object is nil")
-						}
-						req, ok := obj.(*emptypb.Empty)
-						if !ok {
-							return nil, fmt.Errorf("invalid request object type, %T", obj)
-						}
-						_ = req
-						var body io.Reader
-						var pairs []string
-						path, err := router.Get("/leo.example.response.v1.Response/HttpBodyResponse").URLPath(pairs...)
-						if err != nil {
-							return nil, err
-						}
-						queries := url.Values{}
-						target := &url.URL{
-							Scheme:   scheme,
-							Host:     instance,
-							Path:     path.Path,
-							RawQuery: queries.Encode(),
-						}
-						r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
-						if err != nil {
-							return nil, err
-						}
-						return r, nil
-					}
-				},
-				func(ctx context.Context, r *http1.Response) (any, error) {
-					if httpx.IsErrorResponse(r) {
-						return nil, httpx.ErrorDecoder(ctx, r)
-					}
-					resp := &httpbody.HttpBody{}
-					resp.ContentType = r.Header.Get("Content-Type")
-					body, err := io.ReadAll(r.Body)
-					if err != nil {
-						return nil, err
-					}
-					resp.Data = body
-					return resp, nil
-				},
+				_Response_HttpBodyResponse_HttpClient_RequestEncoder(router),
+				_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
@@ -910,50 +654,8 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 		return transportx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
-				func(scheme string, instance string) http.CreateRequestFunc {
-					return func(ctx context.Context, obj any) (*http1.Request, error) {
-						if obj == nil {
-							return nil, errors.New("request object is nil")
-						}
-						req, ok := obj.(*emptypb.Empty)
-						if !ok {
-							return nil, fmt.Errorf("invalid request object type, %T", obj)
-						}
-						_ = req
-						var body io.Reader
-						var pairs []string
-						path, err := router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").URLPath(pairs...)
-						if err != nil {
-							return nil, err
-						}
-						queries := url.Values{}
-						target := &url.URL{
-							Scheme:   scheme,
-							Host:     instance,
-							Path:     path.Path,
-							RawQuery: queries.Encode(),
-						}
-						r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
-						if err != nil {
-							return nil, err
-						}
-						return r, nil
-					}
-				},
-				func(ctx context.Context, r *http1.Response) (any, error) {
-					if httpx.IsErrorResponse(r) {
-						return nil, httpx.ErrorDecoder(ctx, r)
-					}
-					resp := &HttpBody{}
-					resp.Body = &httpbody.HttpBody{}
-					resp.Body.ContentType = r.Header.Get("Content-Type")
-					body, err := io.ReadAll(r.Body)
-					if err != nil {
-						return nil, err
-					}
-					resp.Body.Data = body
-					return resp, nil
-				},
+				_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router),
+				_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 			),
 			options...,
@@ -1019,4 +721,334 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 func NewResponseHttpClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
 	endpoints := newResponseClientEndpoints(transports, middlewares...)
 	return &responseHttpClient{endpoints: endpoints}
+}
+
+// =========================== http coder ===========================
+
+func _Response_OmittedResponse_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_OmittedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
+			if obj == nil {
+				return nil, errors.New("request object is nil")
+			}
+			req, ok := obj.(*emptypb.Empty)
+			if !ok {
+				return nil, fmt.Errorf("invalid request object type, %T", obj)
+			}
+			_ = req
+			var body io.Reader
+			var pairs []string
+			path, err := router.Get("/leo.example.response.v1.Response/OmittedResponse").URLPath(pairs...)
+			if err != nil {
+				return nil, err
+			}
+			queries := url.Values{}
+			target := &url.URL{
+				Scheme:   scheme,
+				Host:     instance,
+				Path:     path.Path,
+				RawQuery: queries.Encode(),
+			}
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			if err != nil {
+				return nil, err
+			}
+			return r, nil
+		}
+	}
+}
+
+func _Response_OmittedResponse_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*UserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_OmittedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+	if httpx.IsErrorResponse(r) {
+		return nil, httpx.ErrorDecoder(ctx, r)
+	}
+	resp := &UserResponse{}
+	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func _Response_StarResponse_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_StarResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
+			if obj == nil {
+				return nil, errors.New("request object is nil")
+			}
+			req, ok := obj.(*emptypb.Empty)
+			if !ok {
+				return nil, fmt.Errorf("invalid request object type, %T", obj)
+			}
+			_ = req
+			var body io.Reader
+			var pairs []string
+			path, err := router.Get("/leo.example.response.v1.Response/StarResponse").URLPath(pairs...)
+			if err != nil {
+				return nil, err
+			}
+			queries := url.Values{}
+			target := &url.URL{
+				Scheme:   scheme,
+				Host:     instance,
+				Path:     path.Path,
+				RawQuery: queries.Encode(),
+			}
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			if err != nil {
+				return nil, err
+			}
+			return r, nil
+		}
+	}
+}
+
+func _Response_StarResponse_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*UserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_StarResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+	if httpx.IsErrorResponse(r) {
+		return nil, httpx.ErrorDecoder(ctx, r)
+	}
+	resp := &UserResponse{}
+	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func _Response_NamedResponse_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_NamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
+			if obj == nil {
+				return nil, errors.New("request object is nil")
+			}
+			req, ok := obj.(*emptypb.Empty)
+			if !ok {
+				return nil, fmt.Errorf("invalid request object type, %T", obj)
+			}
+			_ = req
+			var body io.Reader
+			var pairs []string
+			path, err := router.Get("/leo.example.response.v1.Response/NamedResponse").URLPath(pairs...)
+			if err != nil {
+				return nil, err
+			}
+			queries := url.Values{}
+			target := &url.URL{
+				Scheme:   scheme,
+				Host:     instance,
+				Path:     path.Path,
+				RawQuery: queries.Encode(),
+			}
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			if err != nil {
+				return nil, err
+			}
+			return r, nil
+		}
+	}
+}
+
+func _Response_NamedResponse_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*UserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_NamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+	if httpx.IsErrorResponse(r) {
+		return nil, httpx.ErrorDecoder(ctx, r)
+	}
+	resp := &UserResponse{}
+	if err := jsonx.NewDecoder(r.Body).Decode(&resp.User); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func _Response_HttpBodyResponse_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_HttpBodyResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
+			if obj == nil {
+				return nil, errors.New("request object is nil")
+			}
+			req, ok := obj.(*emptypb.Empty)
+			if !ok {
+				return nil, fmt.Errorf("invalid request object type, %T", obj)
+			}
+			_ = req
+			var body io.Reader
+			var pairs []string
+			path, err := router.Get("/leo.example.response.v1.Response/HttpBodyResponse").URLPath(pairs...)
+			if err != nil {
+				return nil, err
+			}
+			queries := url.Values{}
+			target := &url.URL{
+				Scheme:   scheme,
+				Host:     instance,
+				Path:     path.Path,
+				RawQuery: queries.Encode(),
+			}
+			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			if err != nil {
+				return nil, err
+			}
+			return r, nil
+		}
+	}
+}
+
+func _Response_HttpBodyResponse_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*httpbody.HttpBody)
+	w.Header().Set("Content-Type", resp.GetContentType())
+	for _, src := range resp.GetExtensions() {
+		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
+		if err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		metadata, ok := dst.(*structpb.Struct)
+		if !ok {
+			continue
+		}
+		for key, value := range metadata.GetFields() {
+			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
+		}
+	}
+	w.WriteHeader(http1.StatusOK)
+	if _, err := w.Write(resp.GetData()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_HttpBodyResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+	if httpx.IsErrorResponse(r) {
+		return nil, httpx.ErrorDecoder(ctx, r)
+	}
+	resp := &httpbody.HttpBody{}
+	resp.ContentType = r.Header.Get("Content-Type")
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	resp.Data = body
+	return resp, nil
+}
+
+func _Response_HttpBodyNamedResponse_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
+			if obj == nil {
+				return nil, errors.New("request object is nil")
+			}
+			req, ok := obj.(*emptypb.Empty)
+			if !ok {
+				return nil, fmt.Errorf("invalid request object type, %T", obj)
+			}
+			_ = req
+			var body io.Reader
+			var pairs []string
+			path, err := router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").URLPath(pairs...)
+			if err != nil {
+				return nil, err
+			}
+			queries := url.Values{}
+			target := &url.URL{
+				Scheme:   scheme,
+				Host:     instance,
+				Path:     path.Path,
+				RawQuery: queries.Encode(),
+			}
+			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			if err != nil {
+				return nil, err
+			}
+			return r, nil
+		}
+	}
+}
+
+func _Response_HttpBodyNamedResponse_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*HttpBody)
+	w.Header().Set("Content-Type", resp.GetBody().GetContentType())
+	for _, src := range resp.GetBody().GetExtensions() {
+		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
+		if err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		metadata, ok := dst.(*structpb.Struct)
+		if !ok {
+			continue
+		}
+		for key, value := range metadata.GetFields() {
+			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
+		}
+	}
+	w.WriteHeader(http1.StatusOK)
+	if _, err := w.Write(resp.GetBody().GetData()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+	if httpx.IsErrorResponse(r) {
+		return nil, httpx.ErrorDecoder(ctx, r)
+	}
+	resp := &HttpBody{}
+	resp.Body = &httpbody.HttpBody{}
+	resp.Body.ContentType = r.Header.Get("Content-Type")
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	resp.Body.Data = body
+	return resp, nil
 }

@@ -37,7 +37,6 @@ func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 
 func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 	client := ClientGenerator{}
-
 	for _, service := range f.Services {
 		if err := client.GenerateTransports(service, g); err != nil {
 			return err
@@ -47,6 +46,29 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 	for _, service := range f.Services {
 		if err := client.GenerateClient(service, g); err != nil {
 			return err
+		}
+
+	}
+	return nil
+}
+
+func (f *Generator) GenerateCoder(g *protogen.GeneratedFile) error {
+	server := ServerGenerator{}
+	client := ClientGenerator{}
+	for _, service := range f.Services {
+		for _, endpoint := range service.Endpoints {
+			if err := server.PrintDecodeRequestFunc(g, endpoint); err != nil {
+				return err
+			}
+			if err := client.PrintEncodeRequestFunc(g, endpoint); err != nil {
+				return err
+			}
+			if err := server.PrintEncodeResponseFunc(g, endpoint); err != nil {
+				return err
+			}
+			if err := client.PrintDecodeResponseFunc(g, endpoint); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

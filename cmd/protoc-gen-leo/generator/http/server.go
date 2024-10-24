@@ -36,8 +36,8 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": ", internal.HttpTransportPackage.Ident("NewServer"), "(")
 		g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
-		g.P(endpoint.RequestDecoderName(), ",")
-		g.P(endpoint.ResponseEncoderName(), ",")
+		g.P(endpoint.HttpServerRequestDecoderName(), ",")
+		g.P(endpoint.HttpServerResponseEncoderName(), ",")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
@@ -51,12 +51,16 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 	g.P("}")
 	g.P()
 
+	return nil
+}
+
+func (f *ServerGenerator) GenerateCoder(service *internal.Service, g *protogen.GeneratedFile) error {
 	for _, endpoint := range service.Endpoints {
 		if err := f.PrintDecodeRequestFunc(g, endpoint); err != nil {
 			return err
 		}
 
-		if err := f.PrintEncodeResponseFuncV2(g, endpoint); err != nil {
+		if err := f.PrintEncodeResponseFunc(g, endpoint); err != nil {
 			return err
 		}
 	}
@@ -82,7 +86,7 @@ func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.
 func (f *ServerGenerator) PrintDecodeRequestFunc(
 	g *protogen.GeneratedFile, endpoint *internal.Endpoint,
 ) error {
-	g.P("func ", endpoint.RequestDecoderName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.HttpPackage.Ident("Request"), ") (any, error) {")
+	g.P("func ", endpoint.HttpServerRequestDecoderName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.HttpPackage.Ident("Request"), ") (any, error) {")
 	g.P("req := &", endpoint.InputGoIdent(), "{}")
 
 	bodyMessage, bodyField, namedPathFields, pathFields, queryFields, err := endpoint.ParseParameters()
@@ -137,9 +141,9 @@ func (f *ServerGenerator) PrintDecodeRequestFunc(
 	return nil
 }
 
-func (f *ServerGenerator) PrintEncodeResponseFuncV2(g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+func (f *ServerGenerator) PrintEncodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
 	httpRule := endpoint.HttpRule()
-	g.P("func ", endpoint.ResponseEncoderName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
+	g.P("func ", endpoint.HttpServerResponseEncoderName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
 	g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
 	bodyParameter := httpRule.ResponseBody()
 	switch bodyParameter {
@@ -486,36 +490,6 @@ func (f *ServerGenerator) PrintStringListAssign(g *protogen.GeneratedFile, tgtVa
 
 func (f *ServerGenerator) PrintWrapStringListAssign(g *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
 	g.P(append(tgtValue, append(append([]any{internal.ProtoxPackage.Ident("WrapStringSlice"), "("}, srcValue...), ")")...)...)
-}
-
-func (f *ServerGenerator) PrintEncodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule) error {
-	g.P("func(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
-	g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
-	bodyParameter := httpRule.ResponseBody()
-	switch bodyParameter {
-	case "", "*":
-		srcValue := []any{"resp"}
-		message := endpoint.Output()
-		switch message.Desc.FullName() {
-		case "google.api.HttpBody":
-			f.PrintGoogleApiHttpBodyEncodeBlock(g, srcValue)
-		default:
-			f.PrintJsonEncodeBlock(g, srcValue)
-		}
-	default:
-		bodyField := internal.FindField(bodyParameter, endpoint.Output())
-		if bodyField == nil {
-			return fmt.Errorf("%s, failed to find body response field %s", endpoint.FullName(), bodyParameter)
-		}
-		srcValue := []any{"resp.Get", bodyField.GoName, "()"}
-		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
-			f.PrintGoogleApiHttpBodyEncodeBlock(g, srcValue)
-		} else {
-			f.PrintJsonEncodeBlock(g, srcValue)
-		}
-	}
-	g.P("return nil")
-	return nil
 }
 
 func (f *ServerGenerator) PrintGoogleApiHttpBodyEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {

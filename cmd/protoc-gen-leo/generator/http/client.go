@@ -44,12 +44,8 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
 		g.P("target,")
 		g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
-		if err := f.PrintEncodeRequestFunc(g, endpoint); err != nil {
-			return err
-		}
-		if err := f.PrintDecodeResponseFunc(g, endpoint, endpoint.HttpRule()); err != nil {
-			return err
-		}
+		g.P(endpoint.HttpClientRequestEncoderName(), "(router),")
+		g.P(endpoint.HttpClientResponseDecoderName(), ",")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
 		g.P("),")
 		g.P("options...,")
@@ -60,6 +56,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	g.P("return t, err")
 	g.P("}")
 	g.P()
+
 	return nil
 }
 
@@ -88,9 +85,22 @@ func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.
 	return nil
 }
 
+func (f *ClientGenerator) GenerateCoder(service *internal.Service, g *protogen.GeneratedFile) error {
+	for _, endpoint := range service.Endpoints {
+		if err := f.PrintEncodeRequestFunc(g, endpoint); err != nil {
+			return err
+		}
+		if err := f.PrintDecodeResponseFunc(g, endpoint); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
 	httpRule := endpoint.HttpRule()
-	g.P("func(scheme string, instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
+	g.P("func ", endpoint.HttpClientRequestEncoderName(), "(router *", internal.MuxPackage.Ident("Router"), ") func(scheme string, instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
+	g.P("return func(scheme string, instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
 	g.P("return func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
 	g.P("if obj == nil {")
 	g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request object is nil"), ")")
@@ -169,7 +179,50 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endp
 	}
 	g.P("return r, nil")
 	g.P("}")
-	g.P("},")
+	g.P("}")
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *ClientGenerator) PrintDecodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	httpRule := endpoint.HttpRule()
+	g.P("func ", endpoint.HttpClientResponseDecoderName(), "(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (any, error) {")
+	g.P("if ", internal.HttpxTransportxPackage.Ident("IsErrorResponse"), "(r) {")
+	g.P("return nil, ", internal.HttpxTransportxPackage.Ident("ErrorDecoder"), "(ctx, r)")
+	g.P("}")
+	g.P("resp := &", endpoint.Output().GoIdent, "{}")
+	bodyParameter := httpRule.ResponseBody()
+	switch bodyParameter {
+	case "", "*":
+		srcValue := []any{"resp"}
+		message := endpoint.Output()
+		switch message.Desc.FullName() {
+		case "google.api.HttpBody":
+			f.PrintGoogleApiHttpBodyDecodeBlock(g, srcValue)
+		default:
+			f.PrintJsonDecodeBlock(g, srcValue)
+		}
+	default:
+		bodyField := internal.FindField(bodyParameter, endpoint.Output())
+		if bodyField == nil {
+			return fmt.Errorf("%s, failed to find body response field %s", endpoint.FullName(), bodyParameter)
+		}
+		srcValue := []any{"resp.", bodyField.GoName}
+		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
+			g.P(append(append([]any{}, srcValue...), " = &", bodyField.Message.GoIdent, "{}")...)
+			f.PrintGoogleApiHttpBodyDecodeBlock(g, srcValue)
+		} else {
+			_, pointer := internal.FieldGoType(g, bodyField)
+			if !pointer {
+				srcValue = append([]any{"&"}, srcValue...)
+			}
+			f.PrintJsonDecodeBlock(g, srcValue)
+		}
+	}
+	g.P("return resp, nil")
+	g.P("}")
+	g.P()
 	return nil
 }
 
@@ -452,45 +505,6 @@ func (f *ClientGenerator) UnwrapFloatValueFormat(srcValue []any, bitSize string)
 
 func (f *ClientGenerator) UnwrapFloatListFormat(srcValue []any, bitSize string) []any {
 	return append(append([]any{internal.StrconvxPackage.Ident("FormatFloatSlice"), "(", internal.ProtoxPackage.Ident("UnwrapFloat" + bitSize + "Slice"), "("}, srcValue...), []any{"), 'f', -1, ", bitSize, ")"}...)
-}
-
-func (f *ClientGenerator) PrintDecodeResponseFunc(g *protogen.GeneratedFile, endpoint *internal.Endpoint, httpRule *internal.HttpRule) error {
-	g.P("func(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (any, error) {")
-	g.P("if ", internal.HttpxTransportxPackage.Ident("IsErrorResponse"), "(r) {")
-	g.P("return nil, ", internal.HttpxTransportxPackage.Ident("ErrorDecoder"), "(ctx, r)")
-	g.P("}")
-	g.P("resp := &", endpoint.Output().GoIdent, "{}")
-	bodyParameter := httpRule.ResponseBody()
-	switch bodyParameter {
-	case "", "*":
-		srcValue := []any{"resp"}
-		message := endpoint.Output()
-		switch message.Desc.FullName() {
-		case "google.api.HttpBody":
-			f.PrintGoogleApiHttpBodyDecodeBlock(g, srcValue)
-		default:
-			f.PrintJsonDecodeBlock(g, srcValue)
-		}
-	default:
-		bodyField := internal.FindField(bodyParameter, endpoint.Output())
-		if bodyField == nil {
-			return fmt.Errorf("%s, failed to find body response field %s", endpoint.FullName(), bodyParameter)
-		}
-		srcValue := []any{"resp.", bodyField.GoName}
-		if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
-			g.P(append(append([]any{}, srcValue...), " = &", bodyField.Message.GoIdent, "{}")...)
-			f.PrintGoogleApiHttpBodyDecodeBlock(g, srcValue)
-		} else {
-			_, pointer := internal.FieldGoType(g, bodyField)
-			if !pointer {
-				srcValue = append([]any{"&"}, srcValue...)
-			}
-			f.PrintJsonDecodeBlock(g, srcValue)
-		}
-	}
-	g.P("return resp, nil")
-	g.P("},")
-	return nil
 }
 
 func (f *ClientGenerator) PrintJsonDecodeBlock(g *protogen.GeneratedFile, srcValue []any) {
