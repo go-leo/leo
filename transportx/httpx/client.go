@@ -3,7 +3,6 @@ package httpx
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -21,18 +20,14 @@ func ClientFactory(
 		if args == nil {
 			args = "http"
 		}
-		fmt.Println("sdx.Factory")
 		return func(target string) (endpoint.Endpoint, io.Closer, error) {
 			scheme, ok := args.(string)
 			if !ok {
 				return nil, nil, errors.New("invalid http factory args")
 			}
-
-			opts := []httptransport.ClientOption{httptransport.ClientBefore(func(ctx context.Context, request *http.Request) context.Context {
-				fmt.Println("ClientBefore")
-				return sdx.InjectTarget(ctx, target)
-			})}
-			fmt.Println("d.Factory")
+			opts := []httptransport.ClientOption{
+				httptransport.ClientBefore(func(ctx context.Context, request *http.Request) context.Context { return sdx.InjectTarget(ctx, target) }),
+			}
 			opts = append(opts, options...)
 			client := httptransport.NewExplicitClient(req(scheme, target), dec, opts...)
 			return sdx.WithTarget(target, client.Endpoint()), nil, nil

@@ -5,7 +5,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/lb"
-	"github.com/go-leo/gox/mapx"
+	"github.com/go-leo/gox/syncx/lazyloadx"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
@@ -16,7 +16,6 @@ import (
 	"github.com/go-leo/leo/v3/statusx"
 	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc"
-	"sync"
 	"time"
 )
 
@@ -34,7 +33,7 @@ type clientTransport struct {
 
 	options *clientTransportOptions
 
-	clients sync.Map
+	clients lazyloadx.Group
 	sfg     singleflight.Group
 }
 
@@ -134,7 +133,7 @@ func NewClientTransport(target string, factory sdx.Factory, opts ...ClientTransp
 		factory: factory,
 		builder: nil,
 		options: new(clientTransportOptions).Init().Apply(opts...),
-		clients: sync.Map{},
+		clients: lazyloadx.Group{},
 		sfg:     singleflight.Group{},
 	}
 	parsedTarget, err := sdx.ParseTarget(target)
@@ -179,7 +178,7 @@ func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 	if color, ok := sdx.ExtractColor(ctx); ok {
 		key = color
 	}
-	value, err, _ := mapx.LoadOrCreate(&c.clients, &c.sfg, key, func() (any, error) {
+	value, err, _ := c.clients.LoadOrNew(key, func(key string) (any, error) {
 		instancer, err := c.builder.Build(ctx, c.target)
 		if err != nil {
 			return nil, err

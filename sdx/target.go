@@ -2,7 +2,6 @@ package sdx
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 )
 
@@ -20,9 +19,7 @@ func ExtractTarget(ctx context.Context) (string, bool) {
 }
 
 func WithTarget(target string, do endpoint.Endpoint) endpoint.Endpoint {
-	fmt.Println("WithTarget")
 	return func(ctx context.Context, request any) (any, error) {
-		fmt.Println("WithTarget Callback")
 		return do(InjectTarget(ctx, target), request)
 	}
 }

@@ -15,10 +15,10 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-type ErrorApi interface {
+type Api interface {
 	error
 	// With wraps the current Error with the given options and return new Error.
-	With(opts ...Option) ErrorApi
+	With(opts ...Option) Api
 	// GRPCStatus returns the gRPC Status.
 	GRPCStatus() *grpcstatus.Status
 	// HTTPStatus returns the HTTP Status.
@@ -226,7 +226,7 @@ func Details(details ...proto.Message) Option {
 	}
 }
 
-func (st *status) With(opts ...Option) ErrorApi {
+func (st *status) With(opts ...Option) Api {
 	clonedSt := &status{
 		err: protox.Clone(st.err),
 	}

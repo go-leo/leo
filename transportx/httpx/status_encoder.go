@@ -16,54 +16,10 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"sync"
 )
 
-type StatusEncoder interface {
-	Encode(ctx context.Context, err statusx.ErrorApi) (int, http.Header, []byte)
-}
-
-type StatusDecoder interface {
-	Decode(ctx context.Context, status int, header http.Header, body []byte) statusx.ErrorApi
-}
-
-var (
-	// defaultStatusEncoder is the default status encoder
-	defaultStatusEncoder StatusEncoder = defaultStatusCoder{}
-
-	// defaultStatusDecoder is the default status decoder
-	defaultStatusDecoder StatusDecoder = defaultStatusCoder{}
-
-	// defaultStatusLocker is the default status locker
-	defaultStatusLocker sync.RWMutex
-)
-
-func GetStatusEncoder() StatusEncoder {
-	var c StatusEncoder
-	defaultStatusLocker.RLock()
-	c = defaultStatusEncoder
-	defaultStatusLocker.RUnlock()
-	return c
-}
-
-func SetStatusEncoder(c StatusEncoder) {
-	defaultStatusLocker.Lock()
-	defaultStatusEncoder = c
-	defaultStatusLocker.Unlock()
-}
-
-func GetStatusDecoder() StatusDecoder {
-	var c StatusDecoder
-	defaultStatusLocker.RLock()
-	c = defaultStatusDecoder
-	defaultStatusLocker.RUnlock()
-	return c
-}
-
-func SetStatusDecoder(c StatusDecoder) {
-	defaultStatusLocker.Lock()
-	defaultStatusDecoder = c
-	defaultStatusLocker.Unlock()
+func IsErrorResponse(r *http.Response) bool {
+	return r.Header.Get(kStatusCoderKey) != ""
 }
 
 func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
@@ -71,23 +27,14 @@ func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 	statusErr := statusx.From(err)
 	if statusErr == nil {
 		// status is nil, use go-kit default encoder
-		w.Header().Set(kStatusKey, kKitDefaultValue)
-		httptransport.DefaultErrorEncoder(ctx, err, w)
-		return
-	}
-
-	// get leo status encoder
-	encoder := GetStatusEncoder()
-	if encoder == nil {
-		// failed to get leo status encoder, use go-kit default encoder
-		w.Header().Set(kStatusKey, kKitDefaultValue)
+		w.Header().Set(kStatusCoderKey, kKitDefaultValue)
 		httptransport.DefaultErrorEncoder(ctx, err, w)
 		return
 	}
 
 	// encode status error
-	statusCode, header, body := encoder.Encode(ctx, statusErr)
-	w.Header().Set(kStatusKey, kLeoDefaultValue)
+	statusCode, header, body := encode(ctx, statusErr)
+	w.Header().Set(kStatusCoderKey, kLeoDefaultValue)
 	// write response
 	for key := range header {
 		for _, value := range header.Values(key) {
@@ -98,31 +45,21 @@ func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 	_, _ = w.Write(body)
 }
 
-func IsErrorResponse(r *http.Response) bool {
-	return r.Header.Get(kStatusKey) != ""
-}
-
 // ErrorDecoder decode error from http response
 func ErrorDecoder(ctx context.Context, r *http.Response) error {
 	// get error encoder
-	errHeader := r.Header.Get(kStatusKey)
+	errHeader := r.Header.Get(kStatusCoderKey)
 	body, _ := io.ReadAll(r.Body)
 	// use go-kit default encoder
 	if strings.EqualFold(errHeader, kKitDefaultValue) {
 		return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
 	}
-
-	if strings.EqualFold(errHeader, kLeoDefaultValue) {
-		decoder := GetStatusDecoder()
-		if decoder == nil {
-			// failed to get leo status encoder, use go-kit default encoder
-			return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
-		}
-		if statusErr := decoder.Decode(ctx, r.StatusCode, r.Header, body); statusErr != nil {
-			return statusErr
-		}
+	if !strings.EqualFold(errHeader, kLeoDefaultValue) {
+		return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
 	}
-
+	if statusErr := decode(ctx, r.StatusCode, r.Header, body); statusErr != nil {
+		return statusErr
+	}
 	return &ResponseError{statusCode: r.StatusCode, header: r.Header, body: body}
 }
 
@@ -148,9 +85,7 @@ func (e *ResponseError) Body() []byte {
 	return e.body
 }
 
-type defaultStatusCoder struct{}
-
-func (e defaultStatusCoder) Encode(ctx context.Context, errApi statusx.ErrorApi) (int, http.Header, []byte) {
+func encode(ctx context.Context, errApi statusx.Api) (int, http.Header, []byte) {
 	grpcProto, httpProto := errApi.Proto()
 
 	headers := httpProto.GetHeaders()
@@ -210,7 +145,7 @@ func (e defaultStatusCoder) Encode(ctx context.Context, errApi statusx.ErrorApi)
 	return int(httpProto.GetStatus()), header, httpProto.GetBody()
 }
 
-func (d defaultStatusCoder) Decode(ctx context.Context, status int, header http.Header, body []byte) statusx.ErrorApi {
+func decode(ctx context.Context, status int, header http.Header, body []byte) statusx.Api {
 	keys := header.Values(kStatusKeysKey)
 	headers := make([]*httpstatus.HttpHeader, 0, len(keys))
 	for _, key := range keys {

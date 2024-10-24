@@ -15,7 +15,7 @@ import (
 )
 
 // FromGrpcStatus returns an error representing s.
-func FromGrpcStatus(s *grpcstatus.Status) ErrorApi {
+func FromGrpcStatus(s *grpcstatus.Status) Api {
 	// s may be nil
 	if s == nil {
 		return nil
@@ -70,7 +70,7 @@ func FromGrpcStatus(s *grpcstatus.Status) ErrorApi {
 	}
 }
 
-func FromGrpcError(err error) ErrorApi {
+func FromGrpcError(err error) Api {
 	if err == nil {
 		return nil
 	}
@@ -78,11 +78,15 @@ func FromGrpcError(err error) ErrorApi {
 	return FromGrpcStatus(grpcStatus)
 }
 
-func From(obj any) ErrorApi {
+func From(obj any) Api {
 	if obj == nil {
 		return nil
 	}
 	switch err := obj.(type) {
+	case *status:
+		return err
+	case Api:
+		return err
 	case *interstatusx.Error:
 		return &status{err: err}
 	case error:
