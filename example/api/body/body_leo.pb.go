@@ -498,22 +498,8 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 	return &bodyHttpServerTransports{
 		starBody: http.NewServer(
 			endpoints.StarBody(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &User{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Body_StarBody_RequestDecoder,
+			_Body_StarBody_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -523,22 +509,8 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 		),
 		namedBody: http.NewServer(
 			endpoints.NamedBody(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &UserRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Body_NamedBody_RequestDecoder,
+			_Body_NamedBody_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -548,19 +520,8 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 		),
 		nonBody: http.NewServer(
 			endpoints.NonBody(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &emptypb.Empty{}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Body_NonBody_RequestDecoder,
+			_Body_NonBody_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -570,25 +531,8 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 		),
 		httpBodyStarBody: http.NewServer(
 			endpoints.HttpBodyStarBody(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &httpbody.HttpBody{}
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				req.Data = body
-				req.ContentType = r.Header.Get("Content-Type")
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Body_HttpBodyStarBody_RequestDecoder,
+			_Body_HttpBodyStarBody_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -598,26 +542,8 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 		),
 		httpBodyNamedBody: http.NewServer(
 			endpoints.HttpBodyNamedBody(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &HttpBody{}
-				req.Body = &httpbody.HttpBody{}
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				req.Body.Data = body
-				req.Body.ContentType = r.Header.Get("Content-Type")
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Body_HttpBodyNamedBody_RequestDecoder,
+			_Body_HttpBodyNamedBody_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -626,6 +552,100 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _Body_StarBody_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &User{}
+	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _Body_StarBody_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Body_NamedBody_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &UserRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _Body_NamedBody_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Body_NonBody_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Body_NonBody_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Body_HttpBodyStarBody_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &httpbody.HttpBody{}
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	req.Data = body
+	req.ContentType = r.Header.Get("Content-Type")
+	return req, nil
+}
+
+func _Body_HttpBodyStarBody_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Body_HttpBodyNamedBody_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &HttpBody{}
+	req.Body = &httpbody.HttpBody{}
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	req.Body.Data = body
+	req.Body.ContentType = r.Header.Get("Content-Type")
+	return req, nil
+}
+
+func _Body_HttpBodyNamedBody_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendBodyHttpRouter(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
@@ -786,7 +806,6 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 					return resp, nil
 				},
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.TimeoutController),
 			),
 			options...,
 		)

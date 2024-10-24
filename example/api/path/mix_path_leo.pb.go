@@ -196,31 +196,8 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 	return &mixPathHttpServerTransports{
 		mixPath: http.NewServer(
 			endpoints.MixPath(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &MixPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
-				req.String_ = vars.Get("string")
-				req.OptString = proto.String(vars.Get("opt_string"))
-				req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_MixPath_MixPath_RequestDecoder,
+			_MixPath_MixPath_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -229,6 +206,33 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _MixPath_MixPath_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &MixPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	if req.Embed == nil {
+		req.Embed = &NamedPathRequest{}
+	}
+	req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+	req.String_ = vars.Get("string")
+	req.OptString = proto.String(vars.Get("opt_string"))
+	req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _MixPath_MixPath_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendMixPathHttpRouter(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {

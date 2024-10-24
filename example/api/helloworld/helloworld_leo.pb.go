@@ -192,22 +192,8 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 	return &greeterHttpServerTransports{
 		sayHello: http.NewServer(
 			endpoints.SayHello(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &HelloRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*HelloReply)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Greeter_SayHello_RequestDecoder,
+			_Greeter_SayHello_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -216,6 +202,24 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _Greeter_SayHello_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &HelloRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _Greeter_SayHello_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*HelloReply)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendGreeterHttpRouter(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
@@ -292,7 +296,6 @@ func NewGreeterHttpClientTransports(target string, options ...transportx.ClientT
 					return resp, nil
 				},
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.TimeoutController),
 			),
 			options...,
 		)

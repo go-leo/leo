@@ -31,6 +31,14 @@ func (e Endpoint) FullName() string {
 	return fmt.Sprintf("/%s/%s", e.method.Parent.Desc.FullName(), e.method.Desc.Name())
 }
 
+func (e Endpoint) RequestDecoderName() string {
+	return fmt.Sprintf("_%s_%s_RequestDecoder", e.method.Parent.GoName, e.method.GoName)
+}
+
+func (e Endpoint) ResponseEncoderName() string {
+	return fmt.Sprintf("_%s_%s_ResponseEncoder", e.method.Parent.GoName, e.method.GoName)
+}
+
 func (e Endpoint) ArgsName() string {
 	return e.method.GoName + "Args"
 }

@@ -576,32 +576,8 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 	return &namedPathHttpServerTransports{
 		namedPathString: http.NewServer(
 			endpoints.NamedPathString(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &NamedPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_NamedPath_NamedPathString_RequestDecoder,
+			_NamedPath_NamedPathString_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -611,32 +587,8 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 		),
 		namedPathOptString: http.NewServer(
 			endpoints.NamedPathOptString(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &NamedPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.String_ = queries.Get("string")
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_NamedPath_NamedPathOptString_RequestDecoder,
+			_NamedPath_NamedPathOptString_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -646,32 +598,8 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 		),
 		namedPathWrapString: http.NewServer(
 			endpoints.NamedPathWrapString(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &NamedPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_NamedPath_NamedPathWrapString_RequestDecoder,
+			_NamedPath_NamedPathWrapString_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -681,28 +609,8 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 		),
 		embedNamedPathString: http.NewServer(
 			endpoints.EmbedNamedPathString(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &EmbedNamedPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_NamedPath_EmbedNamedPathString_RequestDecoder,
+			_NamedPath_EmbedNamedPathString_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -712,28 +620,8 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 		),
 		embedNamedPathOptString: http.NewServer(
 			endpoints.EmbedNamedPathOptString(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &EmbedNamedPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_NamedPath_EmbedNamedPathOptString_RequestDecoder,
+			_NamedPath_EmbedNamedPathOptString_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -743,28 +631,8 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 		),
 		embedNamedPathWrapString: http.NewServer(
 			endpoints.EmbedNamedPathWrapString(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &EmbedNamedPathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				if req.Embed == nil {
-					req.Embed = &NamedPathRequest{}
-				}
-				req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_NamedPath_EmbedNamedPathWrapString_RequestDecoder,
+			_NamedPath_EmbedNamedPathWrapString_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -773,6 +641,162 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _NamedPath_NamedPathString_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &NamedPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _NamedPath_NamedPathString_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _NamedPath_NamedPathOptString_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &NamedPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.String_ = queries.Get("string")
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _NamedPath_NamedPathOptString_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _NamedPath_NamedPathWrapString_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &NamedPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _NamedPath_NamedPathWrapString_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _NamedPath_EmbedNamedPathString_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &EmbedNamedPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	if req.Embed == nil {
+		req.Embed = &NamedPathRequest{}
+	}
+	req.Embed.String_ = fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _NamedPath_EmbedNamedPathString_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _NamedPath_EmbedNamedPathOptString_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &EmbedNamedPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	if req.Embed == nil {
+		req.Embed = &NamedPathRequest{}
+	}
+	req.Embed.OptString = proto.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _NamedPath_EmbedNamedPathOptString_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _NamedPath_EmbedNamedPathWrapString_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &EmbedNamedPathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	if req.Embed == nil {
+		req.Embed = &NamedPathRequest{}
+	}
+	req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _NamedPath_EmbedNamedPathWrapString_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendNamedPathHttpRouter(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {

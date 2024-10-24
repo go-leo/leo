@@ -500,19 +500,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 	return &responseHttpServerTransports{
 		omittedResponse: http.NewServer(
 			endpoints.OmittedResponse(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &emptypb.Empty{}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*UserResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Response_OmittedResponse_RequestDecoder,
+			_Response_OmittedResponse_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -522,19 +511,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		starResponse: http.NewServer(
 			endpoints.StarResponse(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &emptypb.Empty{}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*UserResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Response_StarResponse_RequestDecoder,
+			_Response_StarResponse_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -544,19 +522,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		namedResponse: http.NewServer(
 			endpoints.NamedResponse(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &emptypb.Empty{}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*UserResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Response_NamedResponse_RequestDecoder,
+			_Response_NamedResponse_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -566,32 +533,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		httpBodyResponse: http.NewServer(
 			endpoints.HttpBodyResponse(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &emptypb.Empty{}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*httpbody.HttpBody)
-				w.Header().Set("Content-Type", resp.GetContentType())
-				for _, src := range resp.GetExtensions() {
-					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
-					if err != nil {
-						return statusx.ErrInternal.With(statusx.Wrap(err))
-					}
-					metadata, ok := dst.(*structpb.Struct)
-					if !ok {
-						continue
-					}
-					for key, value := range metadata.GetFields() {
-						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
-					}
-				}
-				w.WriteHeader(http1.StatusOK)
-				if _, err := w.Write(resp.GetData()); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Response_HttpBodyResponse_RequestDecoder,
+			_Response_HttpBodyResponse_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -601,32 +544,8 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 		),
 		httpBodyNamedResponse: http.NewServer(
 			endpoints.HttpBodyNamedResponse(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &emptypb.Empty{}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*HttpBody)
-				w.Header().Set("Content-Type", resp.GetBody().GetContentType())
-				for _, src := range resp.GetBody().GetExtensions() {
-					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
-					if err != nil {
-						return statusx.ErrInternal.With(statusx.Wrap(err))
-					}
-					metadata, ok := dst.(*structpb.Struct)
-					if !ok {
-						continue
-					}
-					for key, value := range metadata.GetFields() {
-						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
-					}
-				}
-				w.WriteHeader(http1.StatusOK)
-				if _, err := w.Write(resp.GetBody().GetData()); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Response_HttpBodyNamedResponse_RequestDecoder,
+			_Response_HttpBodyNamedResponse_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -635,6 +554,107 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _Response_OmittedResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_OmittedResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*UserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_StarResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_StarResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*UserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_NamedResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_NamedResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*UserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_HttpBodyResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_HttpBodyResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*httpbody.HttpBody)
+	w.Header().Set("Content-Type", resp.GetContentType())
+	for _, src := range resp.GetExtensions() {
+		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
+		if err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		metadata, ok := dst.(*structpb.Struct)
+		if !ok {
+			continue
+		}
+		for key, value := range metadata.GetFields() {
+			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
+		}
+	}
+	w.WriteHeader(http1.StatusOK)
+	if _, err := w.Write(resp.GetData()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Response_HttpBodyNamedResponse_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &emptypb.Empty{}
+	return req, nil
+}
+
+func _Response_HttpBodyNamedResponse_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*HttpBody)
+	w.Header().Set("Content-Type", resp.GetBody().GetContentType())
+	for _, src := range resp.GetBody().GetExtensions() {
+		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
+		if err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		metadata, ok := dst.(*structpb.Struct)
+		if !ok {
+			continue
+		}
+		for key, value := range metadata.GetFields() {
+			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
+		}
+	}
+	w.WriteHeader(http1.StatusOK)
+	if _, err := w.Write(resp.GetBody().GetData()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendResponseHttpRouter(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {

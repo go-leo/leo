@@ -804,67 +804,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 	return &pathHttpServerTransports{
 		boolPath: http.NewServer(
 			endpoints.BoolPath(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Bool, varErr = errorx.Break[bool](varErr)(urlx.GetBool(vars, "bool"))
-				req.OptBool, varErr = errorx.Break[*bool](varErr)(urlx.GetBoolPtr(vars, "opt_bool"))
-				req.WrapBool, varErr = errorx.Break[*wrapperspb.BoolValue](varErr)(urlx.GetBoolValue(vars, "wrap_bool"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_BoolPath_RequestDecoder,
+			_Path_BoolPath_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -874,67 +815,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		int32Path: http.NewServer(
 			endpoints.Int32Path(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Int32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "int32"))
-				req.Sint32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "sint32"))
-				req.Sfixed32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "sfixed32"))
-				req.OptInt32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_int32"))
-				req.OptSint32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sint32"))
-				req.OptSfixed32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sfixed32"))
-				req.WrapInt32, varErr = errorx.Break[*wrapperspb.Int32Value](varErr)(urlx.GetInt32Value(vars, "wrap_int32"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_Int32Path_RequestDecoder,
+			_Path_Int32Path_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -944,67 +826,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		int64Path: http.NewServer(
 			endpoints.Int64Path(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Int64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "int64"))
-				req.Sint64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "sint64"))
-				req.Sfixed64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "sfixed64"))
-				req.OptInt64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_int64"))
-				req.OptSint64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sint64"))
-				req.OptSfixed64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sfixed64"))
-				req.WrapInt64, varErr = errorx.Break[*wrapperspb.Int64Value](varErr)(urlx.GetInt64Value(vars, "wrap_int64"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_Int64Path_RequestDecoder,
+			_Path_Int64Path_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1014,67 +837,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		uint32Path: http.NewServer(
 			endpoints.Uint32Path(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Uint32, varErr = errorx.Break[uint32](varErr)(urlx.GetUint[uint32](vars, "uint32"))
-				req.Fixed32, varErr = errorx.Break[uint32](varErr)(urlx.GetUint[uint32](vars, "fixed32"))
-				req.OptUint32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_uint32"))
-				req.OptFixed32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_fixed32"))
-				req.WrapUint32, varErr = errorx.Break[*wrapperspb.UInt32Value](varErr)(urlx.GetUint32Value(vars, "wrap_uint32"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_Uint32Path_RequestDecoder,
+			_Path_Uint32Path_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1084,67 +848,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		uint64Path: http.NewServer(
 			endpoints.Uint64Path(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Uint64, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "uint64"))
-				req.Fixed64, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "fixed64"))
-				req.OptUint64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_uint64"))
-				req.OptFixed64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_fixed64"))
-				req.WrapUint64, varErr = errorx.Break[*wrapperspb.UInt64Value](varErr)(urlx.GetUint64Value(vars, "wrap_uint64"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_Uint64Path_RequestDecoder,
+			_Path_Uint64Path_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1154,67 +859,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		floatPath: http.NewServer(
 			endpoints.FloatPath(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Float, varErr = errorx.Break[float32](varErr)(urlx.GetFloat[float32](vars, "float"))
-				req.OptFloat, varErr = errorx.Break[*float32](varErr)(urlx.GetFloatPtr[float32](vars, "opt_float"))
-				req.WrapFloat, varErr = errorx.Break[*wrapperspb.FloatValue](varErr)(urlx.GetFloat32Value(vars, "wrap_float"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_FloatPath_RequestDecoder,
+			_Path_FloatPath_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1224,67 +870,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		doublePath: http.NewServer(
 			endpoints.DoublePath(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Double, varErr = errorx.Break[float64](varErr)(urlx.GetFloat[float64](vars, "double"))
-				req.OptDouble, varErr = errorx.Break[*float64](varErr)(urlx.GetFloatPtr[float64](vars, "opt_double"))
-				req.WrapDouble, varErr = errorx.Break[*wrapperspb.DoubleValue](varErr)(urlx.GetFloat64Value(vars, "wrap_double"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_DoublePath_RequestDecoder,
+			_Path_DoublePath_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1294,67 +881,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		stringPath: http.NewServer(
 			endpoints.StringPath(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.String_ = vars.Get("string")
-				req.OptString = proto.String(vars.Get("opt_string"))
-				req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
-				req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_StringPath_RequestDecoder,
+			_Path_StringPath_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1364,67 +892,8 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 		),
 		enumPath: http.NewServer(
 			endpoints.EnumPath(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &PathRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.Status, varErr = errorx.Break[PathRequest_Status](varErr)(urlx.GetInt[PathRequest_Status](vars, "status"))
-				req.OptStatus, varErr = errorx.Break[*PathRequest_Status](varErr)(urlx.GetIntPtr[PathRequest_Status](vars, "opt_status"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				queries := r.URL.Query()
-				var queryErr error
-				req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
-				req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
-				req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
-				req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
-				req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
-				req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
-				req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
-				req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
-				req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
-				req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
-				req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
-				req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
-				req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
-				req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
-				req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
-				req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
-				req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
-				req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
-				req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
-				req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
-				req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
-				req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
-				req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
-				req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
-				req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
-				req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
-				req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
-				req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
-				req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
-				req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
-				req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
-				req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
-				req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
-				req.String_ = queries.Get("string")
-				req.OptString = proto.String(queries.Get("opt_string"))
-				req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Path_EnumPath_RequestDecoder,
+			_Path_EnumPath_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1433,6 +902,573 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _Path_BoolPath_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Bool, varErr = errorx.Break[bool](varErr)(urlx.GetBool(vars, "bool"))
+	req.OptBool, varErr = errorx.Break[*bool](varErr)(urlx.GetBoolPtr(vars, "opt_bool"))
+	req.WrapBool, varErr = errorx.Break[*wrapperspb.BoolValue](varErr)(urlx.GetBoolValue(vars, "wrap_bool"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_BoolPath_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_Int32Path_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Int32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "int32"))
+	req.Sint32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "sint32"))
+	req.Sfixed32, varErr = errorx.Break[int32](varErr)(urlx.GetInt[int32](vars, "sfixed32"))
+	req.OptInt32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_int32"))
+	req.OptSint32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sint32"))
+	req.OptSfixed32, varErr = errorx.Break[*int32](varErr)(urlx.GetIntPtr[int32](vars, "opt_sfixed32"))
+	req.WrapInt32, varErr = errorx.Break[*wrapperspb.Int32Value](varErr)(urlx.GetInt32Value(vars, "wrap_int32"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_Int32Path_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_Int64Path_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Int64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "int64"))
+	req.Sint64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "sint64"))
+	req.Sfixed64, varErr = errorx.Break[int64](varErr)(urlx.GetInt[int64](vars, "sfixed64"))
+	req.OptInt64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_int64"))
+	req.OptSint64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sint64"))
+	req.OptSfixed64, varErr = errorx.Break[*int64](varErr)(urlx.GetIntPtr[int64](vars, "opt_sfixed64"))
+	req.WrapInt64, varErr = errorx.Break[*wrapperspb.Int64Value](varErr)(urlx.GetInt64Value(vars, "wrap_int64"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_Int64Path_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_Uint32Path_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Uint32, varErr = errorx.Break[uint32](varErr)(urlx.GetUint[uint32](vars, "uint32"))
+	req.Fixed32, varErr = errorx.Break[uint32](varErr)(urlx.GetUint[uint32](vars, "fixed32"))
+	req.OptUint32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_uint32"))
+	req.OptFixed32, varErr = errorx.Break[*uint32](varErr)(urlx.GetUintPtr[uint32](vars, "opt_fixed32"))
+	req.WrapUint32, varErr = errorx.Break[*wrapperspb.UInt32Value](varErr)(urlx.GetUint32Value(vars, "wrap_uint32"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_Uint32Path_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_Uint64Path_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Uint64, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "uint64"))
+	req.Fixed64, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "fixed64"))
+	req.OptUint64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_uint64"))
+	req.OptFixed64, varErr = errorx.Break[*uint64](varErr)(urlx.GetUintPtr[uint64](vars, "opt_fixed64"))
+	req.WrapUint64, varErr = errorx.Break[*wrapperspb.UInt64Value](varErr)(urlx.GetUint64Value(vars, "wrap_uint64"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_Uint64Path_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_FloatPath_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Float, varErr = errorx.Break[float32](varErr)(urlx.GetFloat[float32](vars, "float"))
+	req.OptFloat, varErr = errorx.Break[*float32](varErr)(urlx.GetFloatPtr[float32](vars, "opt_float"))
+	req.WrapFloat, varErr = errorx.Break[*wrapperspb.FloatValue](varErr)(urlx.GetFloat32Value(vars, "wrap_float"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_FloatPath_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_DoublePath_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Double, varErr = errorx.Break[float64](varErr)(urlx.GetFloat[float64](vars, "double"))
+	req.OptDouble, varErr = errorx.Break[*float64](varErr)(urlx.GetFloatPtr[float64](vars, "opt_double"))
+	req.WrapDouble, varErr = errorx.Break[*wrapperspb.DoubleValue](varErr)(urlx.GetFloat64Value(vars, "wrap_double"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_DoublePath_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_StringPath_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.String_ = vars.Get("string")
+	req.OptString = proto.String(vars.Get("opt_string"))
+	req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.Status, queryErr = errorx.Break[PathRequest_Status](queryErr)(urlx.GetInt[PathRequest_Status](queries, "status"))
+	req.OptStatus, queryErr = errorx.Break[*PathRequest_Status](queryErr)(urlx.GetIntPtr[PathRequest_Status](queries, "opt_status"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_StringPath_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Path_EnumPath_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &PathRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Status, varErr = errorx.Break[PathRequest_Status](varErr)(urlx.GetInt[PathRequest_Status](vars, "status"))
+	req.OptStatus, varErr = errorx.Break[*PathRequest_Status](varErr)(urlx.GetIntPtr[PathRequest_Status](vars, "opt_status"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	queries := r.URL.Query()
+	var queryErr error
+	req.Bool, queryErr = errorx.Break[bool](queryErr)(urlx.GetBool(queries, "bool"))
+	req.OptBool, queryErr = errorx.Break[*bool](queryErr)(urlx.GetBoolPtr(queries, "opt_bool"))
+	req.WrapBool, queryErr = errorx.Break[*wrapperspb.BoolValue](queryErr)(urlx.GetBoolValue(queries, "wrap_bool"))
+	req.Int32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "int32"))
+	req.Sint32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sint32"))
+	req.Sfixed32, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "sfixed32"))
+	req.OptInt32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_int32"))
+	req.OptSint32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sint32"))
+	req.OptSfixed32, queryErr = errorx.Break[*int32](queryErr)(urlx.GetIntPtr[int32](queries, "opt_sfixed32"))
+	req.WrapInt32, queryErr = errorx.Break[*wrapperspb.Int32Value](queryErr)(urlx.GetInt32Value(queries, "wrap_int32"))
+	req.Int64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "int64"))
+	req.Sint64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sint64"))
+	req.Sfixed64, queryErr = errorx.Break[int64](queryErr)(urlx.GetInt[int64](queries, "sfixed64"))
+	req.OptInt64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_int64"))
+	req.OptSint64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sint64"))
+	req.OptSfixed64, queryErr = errorx.Break[*int64](queryErr)(urlx.GetIntPtr[int64](queries, "opt_sfixed64"))
+	req.WrapInt64, queryErr = errorx.Break[*wrapperspb.Int64Value](queryErr)(urlx.GetInt64Value(queries, "wrap_int64"))
+	req.Uint32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "uint32"))
+	req.Fixed32, queryErr = errorx.Break[uint32](queryErr)(urlx.GetUint[uint32](queries, "fixed32"))
+	req.OptUint32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_uint32"))
+	req.OptFixed32, queryErr = errorx.Break[*uint32](queryErr)(urlx.GetUintPtr[uint32](queries, "opt_fixed32"))
+	req.WrapUint32, queryErr = errorx.Break[*wrapperspb.UInt32Value](queryErr)(urlx.GetUint32Value(queries, "wrap_uint32"))
+	req.Uint64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "uint64"))
+	req.Fixed64, queryErr = errorx.Break[uint64](queryErr)(urlx.GetUint[uint64](queries, "fixed64"))
+	req.OptUint64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_uint64"))
+	req.OptFixed64, queryErr = errorx.Break[*uint64](queryErr)(urlx.GetUintPtr[uint64](queries, "opt_fixed64"))
+	req.WrapUint64, queryErr = errorx.Break[*wrapperspb.UInt64Value](queryErr)(urlx.GetUint64Value(queries, "wrap_uint64"))
+	req.Float, queryErr = errorx.Break[float32](queryErr)(urlx.GetFloat[float32](queries, "float"))
+	req.OptFloat, queryErr = errorx.Break[*float32](queryErr)(urlx.GetFloatPtr[float32](queries, "opt_float"))
+	req.WrapFloat, queryErr = errorx.Break[*wrapperspb.FloatValue](queryErr)(urlx.GetFloat32Value(queries, "wrap_float"))
+	req.Double, queryErr = errorx.Break[float64](queryErr)(urlx.GetFloat[float64](queries, "double"))
+	req.OptDouble, queryErr = errorx.Break[*float64](queryErr)(urlx.GetFloatPtr[float64](queries, "opt_double"))
+	req.WrapDouble, queryErr = errorx.Break[*wrapperspb.DoubleValue](queryErr)(urlx.GetFloat64Value(queries, "wrap_double"))
+	req.String_ = queries.Get("string")
+	req.OptString = proto.String(queries.Get("opt_string"))
+	req.WrapString = wrapperspb.String(queries.Get("wrap_string"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Path_EnumPath_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendPathHttpRouter(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {

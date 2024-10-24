@@ -337,22 +337,8 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 	return &cQRSHttpServerTransports{
 		createUser: http.NewServer(
 			endpoints.CreateUser(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &CreateUserRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_CQRS_CreateUser_RequestDecoder,
+			_CQRS_CreateUser_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -362,22 +348,8 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 		),
 		findUser: http.NewServer(
 			endpoints.FindUser(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &FindUserRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*GetUserResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_CQRS_FindUser_RequestDecoder,
+			_CQRS_FindUser_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -386,6 +358,42 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _CQRS_CreateUser_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &CreateUserRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _CQRS_CreateUser_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _CQRS_FindUser_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &FindUserRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _CQRS_FindUser_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*GetUserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendCQRSHttpRouter(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {

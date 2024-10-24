@@ -833,22 +833,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 	return &demoHttpServerTransports{
 		createUser: http.NewServer(
 			endpoints.CreateUser(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &CreateUserRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*CreateUserResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_CreateUser_RequestDecoder,
+			_Demo_CreateUser_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -858,25 +844,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 		),
 		deleteUser: http.NewServer(
 			endpoints.DeleteUser(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &DeleteUsersRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_DeleteUser_RequestDecoder,
+			_Demo_DeleteUser_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -886,28 +855,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 		),
 		updateUser: http.NewServer(
 			endpoints.UpdateUser(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &UpdateUserRequest{}
-				if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_UpdateUser_RequestDecoder,
+			_Demo_UpdateUser_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -917,25 +866,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 		),
 		getUser: http.NewServer(
 			endpoints.GetUser(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &GetUserRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*GetUserResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_GetUser_RequestDecoder,
+			_Demo_GetUser_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -945,26 +877,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 		),
 		getUsers: http.NewServer(
 			endpoints.GetUsers(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &GetUsersRequest{}
-				queries := r.URL.Query()
-				var queryErr error
-				req.PageNo, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_no"))
-				req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
-				if queryErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*GetUsersResponse)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_GetUsers_RequestDecoder,
+			_Demo_GetUsers_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -974,32 +888,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 		),
 		uploadUserAvatar: http.NewServer(
 			endpoints.UploadUserAvatar(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &UploadUserAvatarRequest{}
-				req.Avatar = &httpbody.HttpBody{}
-				body, err := io.ReadAll(r.Body)
-				if err != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-				}
-				req.Avatar.Data = body
-				req.Avatar.ContentType = r.Header.Get("Content-Type")
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*emptypb.Empty)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http1.StatusOK)
-				if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_UploadUserAvatar_RequestDecoder,
+			_Demo_UploadUserAvatar_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1009,38 +899,8 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 		),
 		getUserAvatar: http.NewServer(
 			endpoints.GetUserAvatar(context.TODO()),
-			func(ctx context.Context, r *http1.Request) (any, error) {
-				req := &GetUserAvatarRequest{}
-				vars := urlx.FormFromMap(mux.Vars(r))
-				var varErr error
-				req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
-				if varErr != nil {
-					return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-				}
-				return req, nil
-			},
-			func(ctx context.Context, w http1.ResponseWriter, obj any) error {
-				resp := obj.(*httpbody.HttpBody)
-				w.Header().Set("Content-Type", resp.GetContentType())
-				for _, src := range resp.GetExtensions() {
-					dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
-					if err != nil {
-						return statusx.ErrInternal.With(statusx.Wrap(err))
-					}
-					metadata, ok := dst.(*structpb.Struct)
-					if !ok {
-						continue
-					}
-					for key, value := range metadata.GetFields() {
-						w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
-					}
-				}
-				w.WriteHeader(http1.StatusOK)
-				if _, err := w.Write(resp.GetData()); err != nil {
-					return statusx.ErrInternal.With(statusx.Wrap(err))
-				}
-				return nil
-			},
+			_Demo_GetUserAvatar_RequestDecoder,
+			_Demo_GetUserAvatar_ResponseEncoder,
 			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
 			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
 			http.ServerBefore(httpx.IncomingMetadataInjector),
@@ -1049,6 +909,174 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 			http.ServerFinalizer(httpx.CancelInvoker),
 		),
 	}
+}
+
+func _Demo_CreateUser_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &CreateUserRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	return req, nil
+}
+
+func _Demo_CreateUser_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*CreateUserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Demo_DeleteUser_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &DeleteUsersRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _Demo_DeleteUser_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Demo_UpdateUser_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &UpdateUserRequest{}
+	if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _Demo_UpdateUser_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Demo_GetUser_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &GetUserRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _Demo_GetUser_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*GetUserResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Demo_GetUsers_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &GetUsersRequest{}
+	queries := r.URL.Query()
+	var queryErr error
+	req.PageNo, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_no"))
+	req.PageSize, queryErr = errorx.Break[int32](queryErr)(urlx.GetInt[int32](queries, "page_size"))
+	if queryErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(queryErr))
+	}
+	return req, nil
+}
+
+func _Demo_GetUsers_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*GetUsersResponse)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Demo_UploadUserAvatar_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &UploadUserAvatarRequest{}
+	req.Avatar = &httpbody.HttpBody{}
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	}
+	req.Avatar.Data = body
+	req.Avatar.ContentType = r.Header.Get("Content-Type")
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _Demo_UploadUserAvatar_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*emptypb.Empty)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http1.StatusOK)
+	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
+}
+
+func _Demo_GetUserAvatar_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+	req := &GetUserAvatarRequest{}
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.UserId, varErr = errorx.Break[uint64](varErr)(urlx.GetUint[uint64](vars, "user_id"))
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+	}
+	return req, nil
+}
+
+func _Demo_GetUserAvatar_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+	resp := obj.(*httpbody.HttpBody)
+	w.Header().Set("Content-Type", resp.GetContentType())
+	for _, src := range resp.GetExtensions() {
+		dst, err := anypb.UnmarshalNew(src, proto.UnmarshalOptions{})
+		if err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		metadata, ok := dst.(*structpb.Struct)
+		if !ok {
+			continue
+		}
+		for key, value := range metadata.GetFields() {
+			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
+		}
+	}
+	w.WriteHeader(http1.StatusOK)
+	if _, err := w.Write(resp.GetData()); err != nil {
+		return statusx.ErrInternal.With(statusx.Wrap(err))
+	}
+	return nil
 }
 
 func AppendDemoHttpRouter(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
