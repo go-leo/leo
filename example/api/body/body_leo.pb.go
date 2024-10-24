@@ -5,8 +5,6 @@ package body
 import (
 	bytes "bytes"
 	context "context"
-	errors "errors"
-	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
 	grpc "github.com/go-kit/kit/transport/grpc"
@@ -735,24 +733,24 @@ func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*User)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
 			var bodyBuf bytes.Buffer
 			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			body = &bodyBuf
 			contentType := "application/json; charset=utf-8"
 			var pairs []string
 			path, err := router.Get("/leo.example.body.v1.Body/StarBody").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			target := &url.URL{
@@ -763,7 +761,7 @@ func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			}
 			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			r.Header.Set("Content-Type", contentType)
 			return r, nil
@@ -804,24 +802,24 @@ func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*UserRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
 			var bodyBuf bytes.Buffer
 			if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetUser()); err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			body = &bodyBuf
 			contentType := "application/json; charset=utf-8"
 			var pairs []string
 			path, err := router.Get("/leo.example.body.v1.Body/NamedBody").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			target := &url.URL{
@@ -832,7 +830,7 @@ func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			}
 			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			r.Header.Set("Content-Type", contentType)
 			return r, nil
@@ -870,18 +868,18 @@ func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*emptypb.Empty)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
 			var pairs []string
 			path, err := router.Get("/leo.example.body.v1.Body/NonBody").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			target := &url.URL{
@@ -892,7 +890,7 @@ func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -935,11 +933,11 @@ func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(s
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*httpbody.HttpBody)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -948,7 +946,7 @@ func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(s
 			var pairs []string
 			path, err := router.Get("/leo.example.body.v1.Body/HttpBodyStarBody").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			target := &url.URL{
@@ -959,7 +957,7 @@ func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(s
 			}
 			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			r.Header.Set("Content-Type", contentType)
 			return r, nil
@@ -1004,11 +1002,11 @@ func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*HttpBody)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1017,7 +1015,7 @@ func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(
 			var pairs []string
 			path, err := router.Get("/leo.example.body.v1.Body/HttpBodyNamedBody").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			target := &url.URL{
@@ -1028,7 +1026,7 @@ func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(
 			}
 			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			r.Header.Set("Content-Type", contentType)
 			return r, nil

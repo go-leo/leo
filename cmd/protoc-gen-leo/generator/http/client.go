@@ -103,11 +103,11 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endp
 	g.P("return func(scheme string, instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
 	g.P("return func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
 	g.P("if obj == nil {")
-	g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request object is nil"), ")")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Message"), "(", strconv.Quote("request is nil"), "))")
 	g.P("}")
 	g.P("req, ok := obj.(*", endpoint.InputGoIdent(), ")")
 	g.P("if !ok {")
-	g.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid request object type, %T"), ", obj)")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Message"), "(", strconv.Quote("invalid request type, %T"), ", obj))")
 	g.P("}")
 	g.P("_ = req")
 
@@ -155,7 +155,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endp
 
 	g.P("path, err := router.Get(", strconv.Quote(endpoint.FullName()), ").URLPath(pairs...)")
 	g.P("if err != nil {")
-	g.P("return nil, err")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 
 	g.P("queries := ", internal.UrlPackage.Ident("Values"), "{}")
@@ -172,7 +172,7 @@ func (f *ClientGenerator) PrintEncodeRequestFunc(g *protogen.GeneratedFile, endp
 
 	g.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, ", strconv.Quote(httpRule.Method()), ", target.String(), body)")
 	g.P("if err != nil {")
-	g.P("return nil, err")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 	if bodyMessage != nil || bodyField != nil {
 		g.P("r.Header.Set(", strconv.Quote(internal.ContentTypeKey), ", contentType)")
@@ -232,7 +232,7 @@ func (f *ClientGenerator) PrintReaderBlock(g *protogen.GeneratedFile, readerPkg 
 
 func (f *ClientGenerator) PrintEncodeBlock(g *protogen.GeneratedFile, encoder protogen.GoIdent, tgtValue []any, srcValue []any) {
 	g.P(append(append(append(append([]any{"if err := ", encoder, "("}, tgtValue...), []any{").Encode("}...), srcValue...), []any{"); err != nil {"}...)...)
-	g.P("return nil, err")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Wrap"), "(err))")
 	g.P("}")
 }
 
@@ -249,7 +249,7 @@ func (f *ClientGenerator) PrintNamedPathField(g *protogen.GeneratedFile, namedPa
 
 	g.P("namedPathValues := ", internal.StringsPackage.Ident("Split"), "(namedPathParameter, ", strconv.Quote("/"), ")")
 	g.P("if len(namedPathValues) != ", strconv.Itoa(len(namedPathParameters)*2), " {")
-	g.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
+	g.P("return nil, ", internal.StatusxPackage.Ident("ErrInvalidArgument"), ".With(", internal.StatusxPackage.Ident("Message"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter))")
 	g.P("}")
 
 	pairs := []any{"pairs = append(pairs"}

@@ -4,8 +4,6 @@ package path
 
 import (
 	context "context"
-	errors "errors"
-	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
 	grpc "github.com/go-kit/kit/transport/grpc"
@@ -1242,11 +1240,11 @@ func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1254,7 +1252,7 @@ func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			pairs = append(pairs, "bool", strconvx.FormatBool(req.GetBool()), "opt_bool", strconvx.FormatBool(req.GetOptBool()), "wrap_bool", strconvx.FormatBool(req.GetWrapBool().GetValue()))
 			path, err := router.Get("/leo.example.path.v1.Path/BoolPath").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
@@ -1300,7 +1298,7 @@ func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -1385,11 +1383,11 @@ func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1397,7 +1395,7 @@ func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			pairs = append(pairs, "int32", strconvx.FormatInt(req.GetInt32(), 10), "sint32", strconvx.FormatInt(req.GetSint32(), 10), "sfixed32", strconvx.FormatInt(req.GetSfixed32(), 10), "opt_int32", strconvx.FormatInt(req.GetOptInt32(), 10), "opt_sint32", strconvx.FormatInt(req.GetOptSint32(), 10), "opt_sfixed32", strconvx.FormatInt(req.GetOptSfixed32(), 10), "wrap_int32", strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
 			path, err := router.Get("/leo.example.path.v1.Path/Int32Path").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -1439,7 +1437,7 @@ func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -1524,11 +1522,11 @@ func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1536,7 +1534,7 @@ func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			pairs = append(pairs, "int64", strconvx.FormatInt(req.GetInt64(), 10), "sint64", strconvx.FormatInt(req.GetSint64(), 10), "sfixed64", strconvx.FormatInt(req.GetSfixed64(), 10), "opt_int64", strconvx.FormatInt(req.GetOptInt64(), 10), "opt_sint64", strconvx.FormatInt(req.GetOptSint64(), 10), "opt_sfixed64", strconvx.FormatInt(req.GetOptSfixed64(), 10), "wrap_int64", strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
 			path, err := router.Get("/leo.example.path.v1.Path/Int64Path").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -1578,7 +1576,7 @@ func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -1663,11 +1661,11 @@ func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1675,7 +1673,7 @@ func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			pairs = append(pairs, "uint32", strconvx.FormatUint(req.GetUint32(), 10), "fixed32", strconvx.FormatUint(req.GetFixed32(), 10), "opt_uint32", strconvx.FormatUint(req.GetOptUint32(), 10), "opt_fixed32", strconvx.FormatUint(req.GetOptFixed32(), 10), "wrap_uint32", strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
 			path, err := router.Get("/leo.example.path.v1.Path/Uint32Path").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -1719,7 +1717,7 @@ func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -1804,11 +1802,11 @@ func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1816,7 +1814,7 @@ func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			pairs = append(pairs, "uint64", strconvx.FormatUint(req.GetUint64(), 10), "fixed64", strconvx.FormatUint(req.GetFixed64(), 10), "opt_uint64", strconvx.FormatUint(req.GetOptUint64(), 10), "opt_fixed64", strconvx.FormatUint(req.GetOptFixed64(), 10), "wrap_uint64", strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
 			path, err := router.Get("/leo.example.path.v1.Path/Uint64Path").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -1860,7 +1858,7 @@ func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -1945,11 +1943,11 @@ func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -1957,7 +1955,7 @@ func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			pairs = append(pairs, "float", strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32), "opt_float", strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32), "wrap_float", strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
 			path, err := router.Get("/leo.example.path.v1.Path/FloatPath").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -2003,7 +2001,7 @@ func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -2088,11 +2086,11 @@ func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -2100,7 +2098,7 @@ func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			pairs = append(pairs, "double", strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64), "opt_double", strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64), "wrap_double", strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
 			path, err := router.Get("/leo.example.path.v1.Path/DoublePath").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -2146,7 +2144,7 @@ func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -2231,11 +2229,11 @@ func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -2243,7 +2241,7 @@ func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
 			path, err := router.Get("/leo.example.path.v1.Path/StringPath").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -2289,7 +2287,7 @@ func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
@@ -2374,11 +2372,11 @@ func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*PathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -2386,7 +2384,7 @@ func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			pairs = append(pairs, "status", strconvx.FormatInt(req.GetStatus(), 10), "opt_status", strconvx.FormatInt(req.GetOptStatus(), 10))
 			path, err := router.Get("/leo.example.path.v1.Path/EnumPath").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
@@ -2433,7 +2431,7 @@ func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}

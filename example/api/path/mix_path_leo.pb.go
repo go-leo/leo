@@ -4,7 +4,6 @@ package path
 
 import (
 	context "context"
-	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
@@ -286,11 +285,11 @@ func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	return func(scheme string, instance string) http.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
-				return nil, errors.New("request object is nil")
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
 			req, ok := obj.(*MixPathRequest)
 			if !ok {
-				return nil, fmt.Errorf("invalid request object type, %T", obj)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
 			}
 			_ = req
 			var body io.Reader
@@ -298,13 +297,13 @@ func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
 			namedPathValues := strings.Split(namedPathParameter, "/")
 			if len(namedPathValues) != 8 {
-				return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
+				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
 			}
 			pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
 			pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
 			path, err := router.Get("/leo.example.path.v1.MixPath/MixPath").URLPath(pairs...)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			queries := url.Values{}
 			target := &url.URL{
@@ -315,7 +314,7 @@ func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			}
 			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
-				return nil, err
+				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
 			return r, nil
 		}
