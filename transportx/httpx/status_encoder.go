@@ -6,11 +6,9 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	interstatusx "github.com/go-leo/leo/v3/internal/statusx"
 	"github.com/go-leo/leo/v3/statusx"
-	"golang.org/x/exp/maps"
 	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
@@ -27,14 +25,14 @@ func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 	statusErr := statusx.From(err)
 	if statusErr == nil {
 		// status is nil, use go-kit default encoder
-		w.Header().Set(kStatusCoderKey, kKitDefaultValue)
+		w.Header().Set(kStatusCoderKey, kKitCoderValue)
 		httptransport.DefaultErrorEncoder(ctx, err, w)
 		return
 	}
 
 	// encode status error
 	statusCode, header, body := encode(ctx, statusErr)
-	w.Header().Set(kStatusCoderKey, kLeoDefaultValue)
+	w.Header().Set(kStatusCoderKey, kLeoCoderValue)
 	// write response
 	for key := range header {
 		for _, value := range header.Values(key) {
@@ -83,66 +81,6 @@ func (e *ResponseError) Header() http.Header {
 
 func (e *ResponseError) Body() []byte {
 	return e.body
-}
-
-func encode(ctx context.Context, errApi statusx.Api) (int, http.Header, []byte) {
-	grpcProto, httpProto := errApi.Proto()
-
-	headers := httpProto.GetHeaders()
-
-	header := make(http.Header, len(headers))
-	for _, h := range headers {
-		header.Add(h.GetKey(), h.GetValue())
-	}
-	keys := maps.Keys(header)
-	for _, key := range keys {
-		header.Add(kStatusKeysKey, key)
-	}
-
-	// add cause error
-	if cause := errApi.Unwrap(); cause != nil {
-		if causeProto, ok := cause.(proto.Message); ok {
-			causeAny, err := anypb.New(causeProto)
-			if err != nil {
-				panic(err)
-			}
-			causeAnyData, err := protojson.Marshal(causeAny)
-			if err != nil {
-				panic(err)
-			}
-			header.Set(kStatusCauseErrorKey, string(causeAnyData))
-		} else {
-			header.Set(kStatusCauseMessageKey, cause.Error())
-		}
-	}
-
-	// add detail info
-	detail := &interstatusx.Detail{
-		ErrorInfo:           errApi.ErrorInfo(),
-		RetryInfo:           errApi.RetryInfo(),
-		DebugInfo:           errApi.DebugInfo(),
-		QuotaFailure:        errApi.QuotaFailure(),
-		PreconditionFailure: errApi.PreconditionFailure(),
-		BadRequest:          errApi.BadRequest(),
-		RequestInfo:         errApi.RequestInfo(),
-		ResourceInfo:        errApi.ResourceInfo(),
-		Help:                errApi.Help(),
-		LocalizedMessage:    errApi.LocalizedMessage(),
-	}
-	detailData, err := protojson.Marshal(detail)
-	if err != nil {
-		panic(err)
-	}
-	header.Set(kStatusDetailKey, string(detailData))
-
-	// add grpc status
-	grpcProtoData, err := protojson.Marshal(grpcProto)
-	if err != nil {
-		panic(err)
-	}
-	header.Set(kStatusGrpcKey, string(grpcProtoData))
-
-	return int(httpProto.GetStatus()), header, httpProto.GetBody()
 }
 
 func decode(ctx context.Context, status int, header http.Header, body []byte) statusx.Api {
