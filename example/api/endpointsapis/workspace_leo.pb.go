@@ -325,76 +325,11 @@ func (t *workspacesGrpcClientTransports) DeleteWorkspace() transportx.ClientTran
 func NewWorkspacesGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (WorkspacesClientTransports, error) {
 	t := &workspacesGrpcClientTransports{}
 	var err error
-	t.listWorkspaces, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.endpointsapis.v1.Workspaces",
-				"ListWorkspaces",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				ListWorkspacesResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.getWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.endpointsapis.v1.Workspaces",
-				"GetWorkspace",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Workspace{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.createWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.endpointsapis.v1.Workspaces",
-				"CreateWorkspace",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Workspace{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.updateWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.endpointsapis.v1.Workspaces",
-				"UpdateWorkspace",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Workspace{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.deleteWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.endpointsapis.v1.Workspaces",
-				"DeleteWorkspace",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.listWorkspaces, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_ListWorkspaces_GrpcClient_Transport(target, options...))
+	t.getWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_GetWorkspace_GrpcClient_Transport(target, options...))
+	t.createWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_CreateWorkspace_GrpcClient_Transport(target, options...))
+	t.updateWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_UpdateWorkspace_GrpcClient_Transport(target, options...))
+	t.deleteWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_DeleteWorkspace_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -455,6 +390,91 @@ func (c *workspacesGrpcClient) DeleteWorkspace(ctx context.Context, request *Del
 func NewWorkspacesGrpcClient(transports WorkspacesClientTransports, middlewares ...endpoint.Middleware) WorkspacesService {
 	endpoints := newWorkspacesClientEndpoints(transports, middlewares...)
 	return &workspacesGrpcClient{endpoints: endpoints}
+}
+
+func _Workspaces_ListWorkspaces_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"google.example.endpointsapis.v1.Workspaces",
+				"ListWorkspaces",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				ListWorkspacesResponse{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_GetWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"google.example.endpointsapis.v1.Workspaces",
+				"GetWorkspace",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				Workspace{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_CreateWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"google.example.endpointsapis.v1.Workspaces",
+				"CreateWorkspace",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				Workspace{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_UpdateWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"google.example.endpointsapis.v1.Workspaces",
+				"UpdateWorkspace",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				Workspace{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_DeleteWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"google.example.endpointsapis.v1.Workspaces",
+				"DeleteWorkspace",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================

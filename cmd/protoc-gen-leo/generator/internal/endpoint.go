@@ -47,6 +47,10 @@ func (e Endpoint) HttpClientResponseDecoderName() string {
 	return fmt.Sprintf("_%s_%s_HttpClient_ResponseDecoder", e.method.Parent.GoName, e.method.GoName)
 }
 
+func (e Endpoint) GrpcClientTransportName() any {
+	return fmt.Sprintf("_%s_%s_GrpcClient_Transport", e.method.Parent.GoName, e.method.GoName)
+}
+
 func (e Endpoint) ArgsName() string {
 	return e.method.GoName + "Args"
 }

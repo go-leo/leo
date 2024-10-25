@@ -322,76 +322,11 @@ func (t *bodyGrpcClientTransports) HttpBodyNamedBody() transportx.ClientTranspor
 func NewBodyGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (BodyClientTransports, error) {
 	t := &bodyGrpcClientTransports{}
 	var err error
-	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.body.v1.Body",
-				"StarBody",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.namedBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.body.v1.Body",
-				"NamedBody",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.nonBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.body.v1.Body",
-				"NonBody",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.httpBodyStarBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.body.v1.Body",
-				"HttpBodyStarBody",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.httpBodyNamedBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.body.v1.Body",
-				"HttpBodyNamedBody",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_StarBody_GrpcClient_Transport(target, options...))
+	t.namedBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_NamedBody_GrpcClient_Transport(target, options...))
+	t.nonBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_NonBody_GrpcClient_Transport(target, options...))
+	t.httpBodyStarBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_HttpBodyStarBody_GrpcClient_Transport(target, options...))
+	t.httpBodyNamedBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_HttpBodyNamedBody_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -452,6 +387,91 @@ func (c *bodyGrpcClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 func NewBodyGrpcClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
 	endpoints := newBodyClientEndpoints(transports, middlewares...)
 	return &bodyGrpcClient{endpoints: endpoints}
+}
+
+func _Body_StarBody_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.body.v1.Body",
+				"StarBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_NamedBody_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.body.v1.Body",
+				"NamedBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_NonBody_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.body.v1.Body",
+				"NonBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_HttpBodyStarBody_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.body.v1.Body",
+				"HttpBodyStarBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_HttpBodyNamedBody_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.body.v1.Body",
+				"HttpBodyNamedBody",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================

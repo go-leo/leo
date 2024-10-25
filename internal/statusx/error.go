@@ -6,17 +6,15 @@ import (
 	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 )
 
 const (
-	kStatusKeysKey         = "X-Leo-Status-Keys"
-	kStatusCauseMessageKey = "X-Leo-Status-Cause-Message"
-	kStatusCauseErrorKey   = "X-Leo-Status-Cause-Error"
-	kStatusDetailKey       = "X-Leo-Status-Detail"
-	kStatusGrpcKey         = "X-Leo-Status-Grpc"
+	kStatusCoderKey  = "X-Leo-Status-Coder"
+	kStatusKeysKey   = "X-Leo-Status-Keys"
+	kStatusDetailKey = "X-Leo-Status-Detail"
+	kStatusCauseKey  = "X-Leo-Status-Cause"
+	kStatusGrpcKey   = "X-Leo-Status-Grpc"
 )
 
 func (x *Error) Encode() (int, http.Header, []byte) {
@@ -40,15 +38,11 @@ func (x *Error) Encode() (int, http.Header, []byte) {
 
 	// handle cause error
 	if cause := x.GetCause(); cause != nil {
-		if causeMsg := cause.GetMessage(); causeMsg != nil {
-			header.Set(kStatusCauseMessageKey, causeMsg.GetValue())
-		} else if causeAny := cause.GetError(); causeAny != nil {
-			causeAnyData, err := protojson.Marshal(causeAny)
-			if err != nil {
-				panic(err)
-			}
-			header.Set(kStatusCauseErrorKey, string(causeAnyData))
+		causeData, err := protojson.Marshal(cause)
+		if err != nil {
+			panic(err)
 		}
+		header.Set(kStatusCauseKey, string(causeData))
 	}
 
 	// handle detail info
@@ -67,18 +61,20 @@ func (x *Error) Encode() (int, http.Header, []byte) {
 	}
 	header.Set(kStatusGrpcKey, string(grpcProtoData))
 
+	// return
 	return int(httpProto.GetStatus()), header, httpProto.GetBody()
 }
 
 func (x *Error) Decode(status int, header http.Header, body []byte) {
 	if x == nil {
-		*x = Error{
-			HttpStatus: &httpstatus.HttpResponse{
-				Status: int32(status),
-				Reason: http.StatusText(status),
-				Body:   body,
-			},
-		}
+		*x = Error{}
+	}
+
+	// handle http status
+	x.HttpStatus = &httpstatus.HttpResponse{
+		Status: int32(status),
+		Reason: http.StatusText(status),
+		Body:   body,
 	}
 
 	// handle headers
@@ -94,22 +90,12 @@ func (x *Error) Decode(status int, header http.Header, body []byte) {
 	}
 
 	// handle cause error
-	if message := header.Get(kStatusCauseMessageKey); message != "" {
-		x.Cause = &Cause{
-			Cause: &Cause_Message{
-				Message: wrapperspb.String(message),
-			},
-		}
-	} else if causeProtoData := header.Get(kStatusCauseErrorKey); causeProtoData != "" {
-		var causeAny anypb.Any
-		if err := protojson.Unmarshal([]byte(causeProtoData), &causeAny); err != nil {
+	if causeData := header.Get(kStatusCauseKey); causeData != "" {
+		var cause Cause
+		if err := protojson.Unmarshal([]byte(causeData), &cause); err != nil {
 			panic(err)
 		}
-		x.Cause = &Cause{
-			Cause: &Cause_Error{
-				Error: &causeAny,
-			},
-		}
+		x.Cause = &cause
 	}
 
 	// handle detail info

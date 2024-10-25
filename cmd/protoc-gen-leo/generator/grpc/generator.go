@@ -48,6 +48,12 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 		}
 	}
 
+	for _, service := range f.Services {
+		if err := f.GenerateTransport(service, g); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -145,22 +151,40 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 	g.P("t := &", service.UnexportedGrpcClientTransportsName(), "{}")
 	g.P("var err error")
 	for _, endpoint := range service.Endpoints {
-		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
-		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
-		g.P("target,")
-		g.P(internal.GrpcxTransportxPackage.Ident("ClientFactory"), "(")
-		g.P(strconv.Quote(service.FullName()), ",")
-		g.P(strconv.Quote(endpoint.Name()), ", ")
-		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
-		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
-		g.P(endpoint.OutputGoIdent(), "{},")
-		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
-		g.P("),")
-		g.P("options...,")
-		g.P(")")
-		g.P("})")
+		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(", endpoint.GrpcClientTransportName(), "(target, options...))")
 	}
 	g.P("return t, err")
+	g.P("}")
+	g.P()
+
+	return nil
+}
+
+func (f *Generator) GenerateTransport(service *internal.Service, g *protogen.GeneratedFile) error {
+	for _, endpoint := range service.Endpoints {
+		if err := f.GenerateClientEndpointTransport(service, g, endpoint); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (f *Generator) GenerateClientEndpointTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	g.P("func ", endpoint.GrpcClientTransportName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
+	g.P("return func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
+	g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
+	g.P("target,")
+	g.P(internal.GrpcxTransportxPackage.Ident("ClientFactory"), "(")
+	g.P(strconv.Quote(service.FullName()), ",")
+	g.P(strconv.Quote(endpoint.Name()), ", ")
+	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
+	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
+	g.P(endpoint.OutputGoIdent(), "{},")
+	g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
+	g.P("),")
+	g.P("options...,")
+	g.P(")")
+	g.P("}")
 	g.P("}")
 	g.P()
 	return nil

@@ -21,26 +21,14 @@ func IsErrorResponse(r *http.Response) bool {
 }
 
 func ErrorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
-	// check if it is a status error
 	statusErr := statusx.From(err)
 	if statusErr == nil {
-		// status is nil, use go-kit default encoder
 		w.Header().Set(kStatusCoderKey, kKitCoderValue)
 		httptransport.DefaultErrorEncoder(ctx, err, w)
 		return
 	}
-
-	// encode status error
-	statusCode, header, body := encode(ctx, statusErr)
 	w.Header().Set(kStatusCoderKey, kLeoCoderValue)
-	// write response
-	for key := range header {
-		for _, value := range header.Values(key) {
-			w.Header().Add(key, value)
-		}
-	}
-	w.WriteHeader(statusCode)
-	_, _ = w.Write(body)
+	statusErr.Write(w)
 }
 
 // ErrorDecoder decode error from http response

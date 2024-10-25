@@ -10,7 +10,7 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.2-0.20230606174503-c7bf81493e58
 	github.com/go-kratos/aegis v0.2.0
-	github.com/go-leo/gox v0.0.0-20241024030428-32dd7f696d53
+	github.com/go-leo/gox v0.0.0-20241025024309-4fb2f1092a00
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/golang-jwt/jwt/v4 v4.0.0

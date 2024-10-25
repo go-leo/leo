@@ -141,20 +141,7 @@ func (t *queryGrpcClientTransports) Query() transportx.ClientTransport {
 func NewQueryGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (QueryClientTransports, error) {
 	t := &queryGrpcClientTransports{}
 	var err error
-	t.query, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.query.v1.Query",
-				"Query",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.query, err = errorx.Break[transportx.ClientTransport](err)(_Query_Query_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -175,6 +162,23 @@ func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*em
 func NewQueryGrpcClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
 	endpoints := newQueryClientEndpoints(transports, middlewares...)
 	return &queryGrpcClient{endpoints: endpoints}
+}
+
+func _Query_Query_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.query.v1.Query",
+				"Query",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================

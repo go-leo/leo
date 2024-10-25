@@ -251,34 +251,8 @@ func (t *cQRSGrpcClientTransports) FindUser() transportx.ClientTransport {
 func NewCQRSGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (CQRSClientTransports, error) {
 	t := &cQRSGrpcClientTransports{}
 	var err error
-	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"pb.CQRS",
-				"CreateUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.findUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"pb.CQRS",
-				"FindUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				GetUserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(_CQRS_CreateUser_GrpcClient_Transport(target, options...))
+	t.findUser, err = errorx.Break[transportx.ClientTransport](err)(_CQRS_FindUser_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -309,6 +283,40 @@ func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest)
 func NewCQRSGrpcClient(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSService {
 	endpoints := newCQRSClientEndpoints(transports, middlewares...)
 	return &cQRSGrpcClient{endpoints: endpoints}
+}
+
+func _CQRS_CreateUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"pb.CQRS",
+				"CreateUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _CQRS_FindUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"pb.CQRS",
+				"FindUser",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				GetUserResponse{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================

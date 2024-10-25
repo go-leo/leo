@@ -3,6 +3,7 @@ package statusx
 import (
 	"errors"
 	"fmt"
+	"github.com/go-leo/gox/netx/httpx"
 	"github.com/go-leo/gox/protox"
 	interstatusx "github.com/go-leo/leo/v3/internal/statusx"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -13,52 +14,81 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+	"io"
+	"net/http"
 )
 
 type Api interface {
 	error
+
 	// With wraps the current Error with the given options and return new Error.
 	With(opts ...Option) Api
+
 	// GRPCStatus returns the gRPC Status.
 	GRPCStatus() *grpcstatus.Status
+
 	// HTTPStatus returns the HTTP Status.
 	HTTPStatus() *httpstatus.HttpResponse
+
 	// Proto return the gRPC and HTTP status protocol buffers.
 	Proto() (*rpcstatus.Status, *httpstatus.HttpResponse)
+
 	// Is implements future errors.Is functionality.
 	Is(target error) bool
+
 	// Equals checks if the current status is equal to the target status by
 	// comparing gRPC status code and http status code.
 	// It does not compare the details.
 	Equals(target error) bool
+
 	// Unwrap unwraps the cause error from the current Error.
 	Unwrap() error
+
 	// Message gets the message.
 	Message() string
+
 	// HttpHeader gets the http header info.
 	HttpHeader() []*httpstatus.HttpHeader
+
 	// HttpBody gets the http body.
 	HttpBody() *wrapperspb.BytesValue
+
+	// From create status from http.Response
+	From(resp *http.Response)
+
+	// Write status to http.ResponseWriter
+	Write(resp http.ResponseWriter)
+
 	// ErrorInfo gets the error info.
 	ErrorInfo() *errdetails.ErrorInfo
+
 	// RetryInfo gets the retry info.
 	RetryInfo() *errdetails.RetryInfo
+
 	// DebugInfo gets the debug info.
 	DebugInfo() *errdetails.DebugInfo
+
 	// QuotaFailure gets the quota failure info.
 	QuotaFailure() *errdetails.QuotaFailure
+
 	// PreconditionFailure gets the precondition failure info.
 	PreconditionFailure() *errdetails.PreconditionFailure
+
 	// BadRequest gets the bad request info.
 	BadRequest() *errdetails.BadRequest
+
 	// RequestInfo gets the request info.
 	RequestInfo() *errdetails.RequestInfo
+
 	// ResourceInfo gets the resource info.
 	ResourceInfo() *errdetails.ResourceInfo
+
 	// Help gets the help info.
 	Help() *errdetails.Help
+
 	// LocalizedMessage gets the localized message info.
 	LocalizedMessage() *errdetails.LocalizedMessage
+
 	// Details return additional details from the Error
 	Details() []proto.Message
 }
@@ -110,6 +140,26 @@ func HttpBody(info *wrapperspb.BytesValue) Option {
 	return func(st *status) {
 		st.err.HttpStatus.Body = info.GetValue()
 	}
+}
+
+// From create status from http.Response
+func (st *status) From(resp *http.Response) {
+	if st == nil {
+		*st = status{
+			err: &interstatusx.Error{},
+		}
+	}
+	body, _ := io.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	st.err.Decode(resp.StatusCode, resp.Header, body)
+}
+
+// Write status to http.ResponseWriter
+func (st *status) Write(resp http.ResponseWriter) {
+	statusCode, header, body := st.err.Encode()
+	httpx.CopyHeader(resp.Header(), header)
+	resp.WriteHeader(statusCode)
+	_, _ = resp.Write(body)
 }
 
 // ErrorInfo sets the error info.
@@ -265,46 +315,38 @@ func (st *status) causeMessage(causeAny *interstatusx.Cause) string {
 // GRPCStatus returns the gRPC Status.
 func (st *status) GRPCStatus() *grpcstatus.Status {
 	grpcStatus := st.err.GetGrpcStatus()
+	// return new grpc status
+	grpcProto := &rpcstatus.Status{
+		Code:    grpcStatus.GetCode(),
+		Message: grpcStatus.GetMessage(),
+	}
 
 	// copy grpc status details
 	details := make([]*anypb.Any, 0, len(grpcStatus.GetDetails())+3)
 
 	// add cause info
 	if st.err.GetCause() != nil {
-		cause, err := anypb.New(st.err.GetCause())
-		if err != nil {
-			panic(err)
-		}
+		cause, _ := anypb.New(st.err.GetCause())
 		details = append(details, cause)
 	}
 
 	// add detail
 	if st.err.GetDetail() != nil {
-		detail, err := anypb.New(st.err.GetDetail())
-		if err != nil {
-			panic(err)
-		}
+		detail, _ := anypb.New(st.err.GetDetail())
 		details = append(details, detail)
 	}
 
 	// add http status info
 	if st.err.GetHttpStatus() != nil {
-		httpStatus, err := anypb.New(st.err.GetHttpStatus())
-		if err != nil {
-			panic(err)
-		}
+		httpStatus, _ := anypb.New(st.err.GetHttpStatus())
 		details = append(details, httpStatus)
 	}
 
 	// add grpc status details
 	details = append(details, grpcStatus.GetDetails()...)
 
-	// return new grpc status
-	return grpcstatus.FromProto(&rpcstatus.Status{
-		Code:    grpcStatus.GetCode(),
-		Message: grpcStatus.GetMessage(),
-		Details: details,
-	})
+	grpcProto.Details = details
+	return grpcstatus.FromProto(grpcProto)
 }
 
 // HTTPStatus returns the HTTP Status.

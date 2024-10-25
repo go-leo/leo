@@ -371,90 +371,12 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString() transportx.Cl
 func NewNamedPathGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (NamedPathClientTransports, error) {
 	t := &namedPathGrpcClientTransports{}
 	var err error
-	t.namedPathString, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.NamedPath",
-				"NamedPathString",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.namedPathOptString, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.NamedPath",
-				"NamedPathOptString",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.namedPathWrapString, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.NamedPath",
-				"NamedPathWrapString",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.embedNamedPathString, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.NamedPath",
-				"EmbedNamedPathString",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.embedNamedPathOptString, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.NamedPath",
-				"EmbedNamedPathOptString",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
-	t.embedNamedPathWrapString, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.NamedPath",
-				"EmbedNamedPathWrapString",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.namedPathString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathString_GrpcClient_Transport(target, options...))
+	t.namedPathOptString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathOptString_GrpcClient_Transport(target, options...))
+	t.namedPathWrapString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathWrapString_GrpcClient_Transport(target, options...))
+	t.embedNamedPathString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_EmbedNamedPathString_GrpcClient_Transport(target, options...))
+	t.embedNamedPathOptString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_EmbedNamedPathOptString_GrpcClient_Transport(target, options...))
+	t.embedNamedPathWrapString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_EmbedNamedPathWrapString_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -525,6 +447,108 @@ func (c *namedPathGrpcClient) EmbedNamedPathWrapString(ctx context.Context, requ
 func NewNamedPathGrpcClient(transports NamedPathClientTransports, middlewares ...endpoint.Middleware) NamedPathService {
 	endpoints := newNamedPathClientEndpoints(transports, middlewares...)
 	return &namedPathGrpcClient{endpoints: endpoints}
+}
+
+func _NamedPath_NamedPathString_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.NamedPath",
+				"NamedPathString",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _NamedPath_NamedPathOptString_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.NamedPath",
+				"NamedPathOptString",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _NamedPath_NamedPathWrapString_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.NamedPath",
+				"NamedPathWrapString",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _NamedPath_EmbedNamedPathString_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.NamedPath",
+				"EmbedNamedPathString",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _NamedPath_EmbedNamedPathOptString_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.NamedPath",
+				"EmbedNamedPathOptString",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
+}
+
+func _NamedPath_EmbedNamedPathWrapString_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.NamedPath",
+				"EmbedNamedPathWrapString",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================

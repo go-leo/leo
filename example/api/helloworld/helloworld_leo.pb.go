@@ -136,20 +136,7 @@ func (t *greeterGrpcClientTransports) SayHello() transportx.ClientTransport {
 func NewGreeterGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (GreeterClientTransports, error) {
 	t := &greeterGrpcClientTransports{}
 	var err error
-	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"helloworld.Greeter",
-				"SayHello",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				HelloReply{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(_Greeter_SayHello_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -170,6 +157,23 @@ func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest)
 func NewGreeterGrpcClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
 	endpoints := newGreeterClientEndpoints(transports, middlewares...)
 	return &greeterGrpcClient{endpoints: endpoints}
+}
+
+func _Greeter_SayHello_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"helloworld.Greeter",
+				"SayHello",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				HelloReply{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================

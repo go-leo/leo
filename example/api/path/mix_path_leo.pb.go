@@ -141,20 +141,7 @@ func (t *mixPathGrpcClientTransports) MixPath() transportx.ClientTransport {
 func NewMixPathGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (MixPathClientTransports, error) {
 	t := &mixPathGrpcClientTransports{}
 	var err error
-	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.MixPath",
-				"MixPath",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-			),
-			options...,
-		)
-	})
+	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(_MixPath_MixPath_GrpcClient_Transport(target, options...))
 	return t, err
 }
 
@@ -175,6 +162,23 @@ func (c *mixPathGrpcClient) MixPath(ctx context.Context, request *MixPathRequest
 func NewMixPathGrpcClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
 	endpoints := newMixPathClientEndpoints(transports, middlewares...)
 	return &mixPathGrpcClient{endpoints: endpoints}
+}
+
+func _MixPath_MixPath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			grpcx.ClientFactory(
+				"leo.example.path.v1.MixPath",
+				"MixPath",
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				func(_ context.Context, v any) (any, error) { return v, nil },
+				emptypb.Empty{},
+				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http server ===========================
