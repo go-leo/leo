@@ -27,7 +27,7 @@ import (
 	strings "strings"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type NamedPathService interface {
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
@@ -577,6 +577,18 @@ func _NamedPath_EmbedNamedPathWrapString_GrpcClient_Transport(target string, opt
 	}
 }
 
+// =========================== http router ===========================
+
+func appendNamedPathHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathWrapString").Methods("GET").Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Methods("GET").Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Methods("GET").Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	return router
+}
+
 // =========================== http server ===========================
 
 type NamedPathHttpServerTransports interface {
@@ -632,15 +644,16 @@ func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHtt
 	}
 }
 
-func AppendNamedPathHttpRouter(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendNamedPathHttpRoutes(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
 	transports := newNamedPathHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathOptString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathWrapString").Methods("GET").Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.NamedPathWrapString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Methods("GET").Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.EmbedNamedPathString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Methods("GET").Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.EmbedNamedPathOptString())
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.EmbedNamedPathWrapString())
+	router = appendNamedPathHttpRoutes(router)
+	router.Get("/leo.example.path.v1.NamedPath/NamedPathString").Handler(transports.NamedPathString())
+	router.Get("/leo.example.path.v1.NamedPath/NamedPathOptString").Handler(transports.NamedPathOptString())
+	router.Get("/leo.example.path.v1.NamedPath/NamedPathWrapString").Handler(transports.NamedPathWrapString())
+	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Handler(transports.EmbedNamedPathString())
+	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Handler(transports.EmbedNamedPathOptString())
+	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Handler(transports.EmbedNamedPathWrapString())
 	return router
 }
 
@@ -680,13 +693,8 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString() transportx.Cl
 }
 
 func NewNamedPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (NamedPathClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathString").Methods("GET").Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathOptString").Methods("GET").Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/NamedPathWrapString").Methods("GET").Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Methods("GET").Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Methods("GET").Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
-	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router := appendNamedPathHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &namedPathHttpClientTransports{}
 	var err error
 	t.namedPathString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathString_HttpClient_Transport(target, router, options...))

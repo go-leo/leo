@@ -36,7 +36,7 @@ func (f *Generator) GenerateFile() error {
 	g.P("package ", file.GoPackageName)
 	g.P()
 
-	g.P("// =========================== endpoints ===========================")
+	g.P("// =========================== core ===========================")
 	g.P()
 	coreGen, err := core.NewGenerator(f.Plugin, file)
 	if err != nil {
@@ -83,6 +83,13 @@ func (f *Generator) GenerateFile() error {
 	if err != nil {
 		return err
 	}
+
+	g.P("// =========================== http router ===========================")
+	g.P()
+	if err := httpGen.GenerateRoutes(g); err != nil {
+		return err
+	}
+
 	g.P("// =========================== http server ===========================")
 	g.P()
 	if err := httpGen.GenerateServer(g); err != nil {

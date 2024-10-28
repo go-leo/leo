@@ -27,7 +27,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type QueryService interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
@@ -187,6 +187,13 @@ func _Query_Query_GrpcClient_Transport(target string, options ...transportx.Clie
 	}
 }
 
+// =========================== http router ===========================
+
+func appendQueryHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
+	return router
+}
+
 // =========================== http server ===========================
 
 type QueryHttpServerTransports interface {
@@ -207,10 +214,11 @@ func newQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTrans
 	}
 }
 
-func AppendQueryHttpRouter(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newQueryServerEndpoints(svc, middlewares...)
 	transports := newQueryHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query").Handler(transports.Query())
+	router = appendQueryHttpRoutes(router)
+	router.Get("/leo.example.query.v1.Query/Query").Handler(transports.Query())
 	return router
 }
 
@@ -225,8 +233,8 @@ func (t *queryHttpClientTransports) Query() transportx.ClientTransport {
 }
 
 func NewQueryHttpClientTransports(target string, options ...transportx.ClientTransportOption) (QueryClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
+	router := appendQueryHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &queryHttpClientTransports{}
 	var err error
 	t.query, err = errorx.Break[transportx.ClientTransport](err)(_Query_Query_HttpClient_Transport(target, router, options...))

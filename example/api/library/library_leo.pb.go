@@ -27,7 +27,7 @@ import (
 	strings "strings"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type LibraryServiceService interface {
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
@@ -967,6 +967,23 @@ func _LibraryService_MoveBook_GrpcClient_Transport(target string, options ...tra
 	}
 }
 
+// =========================== http router ===========================
+
+func appendLibraryServiceHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListShelves").Methods("GET").Path("/v1/shelves")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteShelf").Methods("DELETE").Path("/v1/shelves/{shelf}")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/MergeShelves").Methods("POST").Path("/v1/shelves/{shelf}:merge")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateBook").Methods("POST").Path("/v1/shelves/{shelf}/books")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetBook").Methods("GET").Path("/v1/shelves/{shelf}/books/{book}")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListBooks").Methods("GET").Path("/v1/shelves/{shelf}/books")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteBook").Methods("DELETE").Path("/v1/shelves/{shelf}/books/{book}")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/UpdateBook").Methods("PATCH").Path("/v1/shelves/{shelf}/books/{book}")
+	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move")
+	return router
+}
+
 // =========================== http server ===========================
 
 type LibraryServiceHttpServerTransports interface {
@@ -1057,20 +1074,21 @@ func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) Li
 	}
 }
 
-func AppendLibraryServiceHttpRouter(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
 	transports := newLibraryServiceHttpServerTransports(endpoints)
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves").Handler(transports.CreateShelf())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}").Handler(transports.GetShelf())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListShelves").Methods("GET").Path("/v1/shelves").Handler(transports.ListShelves())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteShelf").Methods("DELETE").Path("/v1/shelves/{shelf}").Handler(transports.DeleteShelf())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/MergeShelves").Methods("POST").Path("/v1/shelves/{shelf}:merge").Handler(transports.MergeShelves())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateBook").Methods("POST").Path("/v1/shelves/{shelf}/books").Handler(transports.CreateBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetBook").Methods("GET").Path("/v1/shelves/{shelf}/books/{book}").Handler(transports.GetBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListBooks").Methods("GET").Path("/v1/shelves/{shelf}/books").Handler(transports.ListBooks())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteBook").Methods("DELETE").Path("/v1/shelves/{shelf}/books/{book}").Handler(transports.DeleteBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/UpdateBook").Methods("PATCH").Path("/v1/shelves/{shelf}/books/{book}").Handler(transports.UpdateBook())
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move").Handler(transports.MoveBook())
+	router = appendLibraryServiceHttpRoutes(router)
+	router.Get("/google.example.library.v1.LibraryService/CreateShelf").Handler(transports.CreateShelf())
+	router.Get("/google.example.library.v1.LibraryService/GetShelf").Handler(transports.GetShelf())
+	router.Get("/google.example.library.v1.LibraryService/ListShelves").Handler(transports.ListShelves())
+	router.Get("/google.example.library.v1.LibraryService/DeleteShelf").Handler(transports.DeleteShelf())
+	router.Get("/google.example.library.v1.LibraryService/MergeShelves").Handler(transports.MergeShelves())
+	router.Get("/google.example.library.v1.LibraryService/CreateBook").Handler(transports.CreateBook())
+	router.Get("/google.example.library.v1.LibraryService/GetBook").Handler(transports.GetBook())
+	router.Get("/google.example.library.v1.LibraryService/ListBooks").Handler(transports.ListBooks())
+	router.Get("/google.example.library.v1.LibraryService/DeleteBook").Handler(transports.DeleteBook())
+	router.Get("/google.example.library.v1.LibraryService/UpdateBook").Handler(transports.UpdateBook())
+	router.Get("/google.example.library.v1.LibraryService/MoveBook").Handler(transports.MoveBook())
 	return router
 }
 
@@ -1135,18 +1153,8 @@ func (t *libraryServiceHttpClientTransports) MoveBook() transportx.ClientTranspo
 }
 
 func NewLibraryServiceHttpClientTransports(target string, options ...transportx.ClientTransportOption) (LibraryServiceClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListShelves").Methods("GET").Path("/v1/shelves")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteShelf").Methods("DELETE").Path("/v1/shelves/{shelf}")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/MergeShelves").Methods("POST").Path("/v1/shelves/{shelf}:merge")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateBook").Methods("POST").Path("/v1/shelves/{shelf}/books")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetBook").Methods("GET").Path("/v1/shelves/{shelf}/books/{book}")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/ListBooks").Methods("GET").Path("/v1/shelves/{shelf}/books")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/DeleteBook").Methods("DELETE").Path("/v1/shelves/{shelf}/books/{book}")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/UpdateBook").Methods("PATCH").Path("/v1/shelves/{shelf}/books/{book}")
-	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move")
+	router := appendLibraryServiceHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &libraryServiceHttpClientTransports{}
 	var err error
 	t.createShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_CreateShelf_HttpClient_Transport(target, router, options...))

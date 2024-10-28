@@ -27,7 +27,7 @@ import (
 	strings "strings"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type MixPathService interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
@@ -187,6 +187,13 @@ func _MixPath_MixPath_GrpcClient_Transport(target string, options ...transportx.
 	}
 }
 
+// =========================== http router ===========================
+
+func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	return router
+}
+
 // =========================== http server ===========================
 
 type MixPathHttpServerTransports interface {
@@ -207,10 +214,11 @@ func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServe
 	}
 }
 
-func AppendMixPathHttpRouter(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newMixPathServerEndpoints(svc, middlewares...)
 	transports := newMixPathHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}").Handler(transports.MixPath())
+	router = appendMixPathHttpRoutes(router)
+	router.Get("/leo.example.path.v1.MixPath/MixPath").Handler(transports.MixPath())
 	return router
 }
 
@@ -225,8 +233,8 @@ func (t *mixPathHttpClientTransports) MixPath() transportx.ClientTransport {
 }
 
 func NewMixPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (MixPathClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
+	router := appendMixPathHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &mixPathHttpClientTransports{}
 	var err error
 	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(_MixPath_MixPath_HttpClient_Transport(target, router, options...))

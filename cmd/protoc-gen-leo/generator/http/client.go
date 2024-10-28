@@ -26,15 +26,9 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	}
 
 	g.P("func New", service.HttpClientTransportsName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
-	if len(service.Endpoints) > 0 {
-		g.P("router := ", internal.MuxPackage.Ident("NewRouter"), "()")
-	}
-	for _, endpoint := range service.Endpoints {
-		httpRule := endpoint.HttpRule()
-		// 调整路径，来适应 github.com/gorilla/mux 路由规则
-		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ")")
-	}
+
+	g.P("router := append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "())")
+	g.P("_ = router")
 
 	g.P("t := &", service.UnexportedHttpClientTransportsName(), "{}")
 	g.P("var err error")

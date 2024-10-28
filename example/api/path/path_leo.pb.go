@@ -26,7 +26,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type PathService interface {
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
@@ -810,6 +810,21 @@ func _Path_EnumPath_GrpcClient_Transport(target string, options ...transportx.Cl
 	}
 }
 
+// =========================== http router ===========================
+
+func appendPathHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/Int64Path").Methods("GET").Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/Uint32Path").Methods("GET").Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/Uint64Path").Methods("GET").Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/FloatPath").Methods("GET").Path("/v1/{float}/{opt_float}/{wrap_float}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/DoublePath").Methods("GET").Path("/v1/{double}/{opt_double}/{wrap_double}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/StringPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}")
+	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}")
+	return router
+}
+
 // =========================== http server ===========================
 
 type PathHttpServerTransports interface {
@@ -886,18 +901,19 @@ func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTranspor
 	}
 }
 
-func AppendPathHttpRouter(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newPathServerEndpoints(svc, middlewares...)
 	transports := newPathHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}").Handler(transports.BoolPath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}").Handler(transports.Int32Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Int64Path").Methods("GET").Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}").Handler(transports.Int64Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Uint32Path").Methods("GET").Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}").Handler(transports.Uint32Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/Uint64Path").Methods("GET").Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}").Handler(transports.Uint64Path())
-	router.NewRoute().Name("/leo.example.path.v1.Path/FloatPath").Methods("GET").Path("/v1/{float}/{opt_float}/{wrap_float}").Handler(transports.FloatPath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/DoublePath").Methods("GET").Path("/v1/{double}/{opt_double}/{wrap_double}").Handler(transports.DoublePath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/StringPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}").Handler(transports.StringPath())
-	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}").Handler(transports.EnumPath())
+	router = appendPathHttpRoutes(router)
+	router.Get("/leo.example.path.v1.Path/BoolPath").Handler(transports.BoolPath())
+	router.Get("/leo.example.path.v1.Path/Int32Path").Handler(transports.Int32Path())
+	router.Get("/leo.example.path.v1.Path/Int64Path").Handler(transports.Int64Path())
+	router.Get("/leo.example.path.v1.Path/Uint32Path").Handler(transports.Uint32Path())
+	router.Get("/leo.example.path.v1.Path/Uint64Path").Handler(transports.Uint64Path())
+	router.Get("/leo.example.path.v1.Path/FloatPath").Handler(transports.FloatPath())
+	router.Get("/leo.example.path.v1.Path/DoublePath").Handler(transports.DoublePath())
+	router.Get("/leo.example.path.v1.Path/StringPath").Handler(transports.StringPath())
+	router.Get("/leo.example.path.v1.Path/EnumPath").Handler(transports.EnumPath())
 	return router
 }
 
@@ -952,16 +968,8 @@ func (t *pathHttpClientTransports) EnumPath() transportx.ClientTransport {
 }
 
 func NewPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (PathClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/Int64Path").Methods("GET").Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/Uint32Path").Methods("GET").Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/Uint64Path").Methods("GET").Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/FloatPath").Methods("GET").Path("/v1/{float}/{opt_float}/{wrap_float}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/DoublePath").Methods("GET").Path("/v1/{double}/{opt_double}/{wrap_double}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/StringPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}")
-	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}")
+	router := appendPathHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &pathHttpClientTransports{}
 	var err error
 	t.boolPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_BoolPath_HttpClient_Transport(target, router, options...))

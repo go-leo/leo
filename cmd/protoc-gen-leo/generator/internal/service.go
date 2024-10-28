@@ -207,8 +207,8 @@ func (s Service) UnexportedHttpClientTransportsName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) HttpRouterName() string {
-	return s.Name() + "HttpRouter"
+func (s Service) HttpRoutesName() string {
+	return s.Name() + "HttpRoutes"
 }
 
 func (s Service) UnimplementedServerName() string {

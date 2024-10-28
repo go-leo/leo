@@ -27,7 +27,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type CQRSService interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
@@ -329,6 +329,14 @@ func _CQRS_FindUser_GrpcClient_Transport(target string, options ...transportx.Cl
 	}
 }
 
+// =========================== http router ===========================
+
+func appendCQRSHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
+	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
+	return router
+}
+
 // =========================== http server ===========================
 
 type CQRSHttpServerTransports interface {
@@ -356,11 +364,12 @@ func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTranspor
 	}
 }
 
-func AppendCQRSHttpRouter(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendCQRSHttpRoutes(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newCQRSServerEndpoints(svc, middlewares...)
 	transports := newCQRSHttpServerTransports(endpoints)
-	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
-	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser").Handler(transports.FindUser())
+	router = appendCQRSHttpRoutes(router)
+	router.Get("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
+	router.Get("/pb.CQRS/FindUser").Handler(transports.FindUser())
 	return router
 }
 
@@ -380,9 +389,8 @@ func (t *cQRSHttpClientTransports) FindUser() transportx.ClientTransport {
 }
 
 func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTransportOption) (CQRSClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
-	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
+	router := appendCQRSHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &cQRSHttpClientTransports{}
 	var err error
 	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(_CQRS_CreateUser_HttpClient_Transport(target, router, options...))

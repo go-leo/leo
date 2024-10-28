@@ -27,7 +27,7 @@ import (
 	strings "strings"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type WorkspacesService interface {
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
@@ -499,6 +499,17 @@ func _Workspaces_DeleteWorkspace_GrpcClient_Transport(target string, options ...
 	}
 }
 
+// =========================== http router ===========================
+
+func appendWorkspacesHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces")
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces")
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}")
+	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
+	return router
+}
+
 // =========================== http server ===========================
 
 type WorkspacesHttpServerTransports interface {
@@ -547,14 +558,15 @@ func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) Workspaces
 	}
 }
 
-func AppendWorkspacesHttpRouter(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendWorkspacesHttpRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newWorkspacesServerEndpoints(svc, middlewares...)
 	transports := newWorkspacesHttpServerTransports(endpoints)
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(transports.ListWorkspaces())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(transports.GetWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces").Handler(transports.CreateWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}").Handler(transports.UpdateWorkspace())
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}").Handler(transports.DeleteWorkspace())
+	router = appendWorkspacesHttpRoutes(router)
+	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(transports.ListWorkspaces())
+	router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Handler(transports.GetWorkspace())
+	router.Get("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Handler(transports.CreateWorkspace())
+	router.Get("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Handler(transports.UpdateWorkspace())
+	router.Get("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Handler(transports.DeleteWorkspace())
 	return router
 }
 
@@ -589,12 +601,8 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace() transportx.ClientTran
 }
 
 func NewWorkspacesHttpClientTransports(target string, options ...transportx.ClientTransportOption) (WorkspacesClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces")
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Methods("POST").Path("/v1/projects/{project}/locations/{location}/workspaces")
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Methods("PATCH").Path("/v1/projects/{project}/locations/{location}/Workspaces/{Workspac}")
-	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
+	router := appendWorkspacesHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &workspacesHttpClientTransports{}
 	var err error
 	t.listWorkspaces, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_ListWorkspaces_HttpClient_Transport(target, router, options...))

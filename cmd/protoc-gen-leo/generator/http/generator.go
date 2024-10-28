@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo/generator/internal"
 	"google.golang.org/protobuf/compiler/protogen"
+	"strconv"
 )
 
 type Generator struct {
@@ -17,6 +18,21 @@ func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, err
 		return nil, err
 	}
 	return &Generator{Plugin: plugin, File: file, Services: services}, nil
+}
+
+func (f *Generator) GenerateRoutes(g *protogen.GeneratedFile) error {
+	for _, service := range f.Services {
+		g.P("func append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
+		for _, endpoint := range service.Endpoints {
+			httpRule := endpoint.HttpRule()
+			// 调整路径，来适应 github.com/gorilla/mux 路由规则
+			path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
+			g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ")")
+		}
+		g.P("return router")
+		g.P("}")
+	}
+	return nil
 }
 
 func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {

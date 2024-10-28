@@ -75,14 +75,12 @@ func (f *ServerGenerator) GenerateCoder(service *internal.Service, g *protogen.G
 }
 
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func Append", service.HttpRouterName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
+	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
 	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
 	g.P("transports := new", service.HttpServerTransportsName(), "(endpoints)")
+	g.P("router = append", service.HttpRoutesName(), "(router)")
 	for _, endpoint := range service.Endpoints {
-		httpRule := endpoint.HttpRule()
-		// 调整路径，来适应 github.com/gorilla/mux 路由规则
-		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ").Handler(transports.", endpoint.Name(), "())")
+		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
 	}
 	g.P("return router")
 	g.P("}")

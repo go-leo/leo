@@ -33,7 +33,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type DemoService interface {
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
@@ -835,6 +835,19 @@ func _Demo_GetUserAvatar_GrpcClient_Transport(target string, options ...transpor
 	}
 }
 
+// =========================== http router ===========================
+
+func appendDemoHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user")
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}")
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/UpdateUser").Methods("PUT").Path("/v1/user/{user_id}")
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUser").Methods("GET").Path("/v1/user/{user_id}")
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUsers").Methods("GET").Path("/v1/users")
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/UploadUserAvatar").Methods("POST").Path("/v1/user/{user_id}")
+	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}")
+	return router
+}
+
 // =========================== http server ===========================
 
 type DemoHttpServerTransports interface {
@@ -897,16 +910,17 @@ func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTranspor
 	}
 }
 
-func AppendDemoHttpRouter(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newDemoServerEndpoints(svc, middlewares...)
 	transports := newDemoHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user").Handler(transports.CreateUser())
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}").Handler(transports.DeleteUser())
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/UpdateUser").Methods("PUT").Path("/v1/user/{user_id}").Handler(transports.UpdateUser())
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUser").Methods("GET").Path("/v1/user/{user_id}").Handler(transports.GetUser())
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUsers").Methods("GET").Path("/v1/users").Handler(transports.GetUsers())
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/UploadUserAvatar").Methods("POST").Path("/v1/user/{user_id}").Handler(transports.UploadUserAvatar())
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}").Handler(transports.GetUserAvatar())
+	router = appendDemoHttpRoutes(router)
+	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(transports.CreateUser())
+	router.Get("/leo.example.demo.v1.Demo/DeleteUser").Handler(transports.DeleteUser())
+	router.Get("/leo.example.demo.v1.Demo/UpdateUser").Handler(transports.UpdateUser())
+	router.Get("/leo.example.demo.v1.Demo/GetUser").Handler(transports.GetUser())
+	router.Get("/leo.example.demo.v1.Demo/GetUsers").Handler(transports.GetUsers())
+	router.Get("/leo.example.demo.v1.Demo/UploadUserAvatar").Handler(transports.UploadUserAvatar())
+	router.Get("/leo.example.demo.v1.Demo/GetUserAvatar").Handler(transports.GetUserAvatar())
 	return router
 }
 
@@ -951,14 +965,8 @@ func (t *demoHttpClientTransports) GetUserAvatar() transportx.ClientTransport {
 }
 
 func NewDemoHttpClientTransports(target string, options ...transportx.ClientTransportOption) (DemoClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/CreateUser").Methods("POST").Path("/v1/user")
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/DeleteUser").Methods("DELETE").Path("/v1/user/{user_id}")
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/UpdateUser").Methods("PUT").Path("/v1/user/{user_id}")
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUser").Methods("GET").Path("/v1/user/{user_id}")
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUsers").Methods("GET").Path("/v1/users")
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/UploadUserAvatar").Methods("POST").Path("/v1/user/{user_id}")
-	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}")
+	router := appendDemoHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &demoHttpClientTransports{}
 	var err error
 	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_CreateUser_HttpClient_Transport(target, router, options...))

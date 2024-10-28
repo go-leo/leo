@@ -24,7 +24,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type BodyService interface {
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
@@ -496,6 +496,17 @@ func _Body_HttpBodyNamedBody_GrpcClient_Transport(target string, options ...tran
 	}
 }
 
+// =========================== http router ===========================
+
+func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body")
+	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body")
+	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body")
+	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body")
+	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
+	return router
+}
+
 // =========================== http server ===========================
 
 type BodyHttpServerTransports interface {
@@ -544,14 +555,15 @@ func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTranspor
 	}
 }
 
-func AppendBodyHttpRouter(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newBodyServerEndpoints(svc, middlewares...)
 	transports := newBodyHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body").Handler(transports.StarBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body").Handler(transports.NamedBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body").Handler(transports.NonBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body").Handler(transports.HttpBodyStarBody())
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body").Handler(transports.HttpBodyNamedBody())
+	router = appendBodyHttpRoutes(router)
+	router.Get("/leo.example.body.v1.Body/StarBody").Handler(transports.StarBody())
+	router.Get("/leo.example.body.v1.Body/NamedBody").Handler(transports.NamedBody())
+	router.Get("/leo.example.body.v1.Body/NonBody").Handler(transports.NonBody())
+	router.Get("/leo.example.body.v1.Body/HttpBodyStarBody").Handler(transports.HttpBodyStarBody())
+	router.Get("/leo.example.body.v1.Body/HttpBodyNamedBody").Handler(transports.HttpBodyNamedBody())
 	return router
 }
 
@@ -586,12 +598,8 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody() transportx.ClientTranspor
 }
 
 func NewBodyHttpClientTransports(target string, options ...transportx.ClientTransportOption) (BodyClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.body.v1.Body/StarBody").Methods("POST").Path("/v1/star/body")
-	router.NewRoute().Name("/leo.example.body.v1.Body/NamedBody").Methods("POST").Path("/v1/named/body")
-	router.NewRoute().Name("/leo.example.body.v1.Body/NonBody").Methods("GET").Path("/v1/user_body")
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyStarBody").Methods("PUT").Path("/v1/http/body/star/body")
-	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
+	router := appendBodyHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &bodyHttpClientTransports{}
 	var err error
 	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_StarBody_HttpClient_Transport(target, router, options...))

@@ -22,7 +22,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type GreeterService interface {
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
@@ -182,6 +182,13 @@ func _Greeter_SayHello_GrpcClient_Transport(target string, options ...transportx
 	}
 }
 
+// =========================== http router ===========================
+
+func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
+	return router
+}
+
 // =========================== http server ===========================
 
 type GreeterHttpServerTransports interface {
@@ -202,10 +209,11 @@ func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServe
 	}
 }
 
-func AppendGreeterHttpRouter(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newGreeterServerEndpoints(svc, middlewares...)
 	transports := newGreeterHttpServerTransports(endpoints)
-	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
+	router = appendGreeterHttpRoutes(router)
+	router.Get("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
 	return router
 }
 
@@ -220,8 +228,8 @@ func (t *greeterHttpClientTransports) SayHello() transportx.ClientTransport {
 }
 
 func NewGreeterHttpClientTransports(target string, options ...transportx.ClientTransportOption) (GreeterClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
+	router := appendGreeterHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &greeterHttpClientTransports{}
 	var err error
 	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(_Greeter_SayHello_HttpClient_Transport(target, router, options...))

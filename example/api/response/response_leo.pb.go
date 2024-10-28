@@ -26,7 +26,7 @@ import (
 	url "net/url"
 )
 
-// =========================== endpoints ===========================
+// =========================== core ===========================
 
 type ResponseService interface {
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
@@ -498,6 +498,17 @@ func _Response_HttpBodyNamedResponse_GrpcClient_Transport(target string, options
 	}
 }
 
+// =========================== http router ===========================
+
+func appendResponseHttpRoutes(router *mux.Router) *mux.Router {
+	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
+	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
+	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response")
+	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response")
+	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response")
+	return router
+}
+
 // =========================== http server ===========================
 
 type ResponseHttpServerTransports interface {
@@ -546,14 +557,15 @@ func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpSe
 	}
 }
 
-func AppendResponseHttpRouter(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newResponseServerEndpoints(svc, middlewares...)
 	transports := newResponseHttpServerTransports(endpoints)
-	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response").Handler(transports.OmittedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response").Handler(transports.StarResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response").Handler(transports.NamedResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response").Handler(transports.HttpBodyResponse())
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response").Handler(transports.HttpBodyNamedResponse())
+	router = appendResponseHttpRoutes(router)
+	router.Get("/leo.example.response.v1.Response/OmittedResponse").Handler(transports.OmittedResponse())
+	router.Get("/leo.example.response.v1.Response/StarResponse").Handler(transports.StarResponse())
+	router.Get("/leo.example.response.v1.Response/NamedResponse").Handler(transports.NamedResponse())
+	router.Get("/leo.example.response.v1.Response/HttpBodyResponse").Handler(transports.HttpBodyResponse())
+	router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").Handler(transports.HttpBodyNamedResponse())
 	return router
 }
 
@@ -588,12 +600,8 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse() transportx.Client
 }
 
 func NewResponseHttpClientTransports(target string, options ...transportx.ClientTransportOption) (ResponseClientTransports, error) {
-	router := mux.NewRouter()
-	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
-	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
-	router.NewRoute().Name("/leo.example.response.v1.Response/NamedResponse").Methods("POST").Path("/v1/named/response")
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyResponse").Methods("PUT").Path("/v1/http/body/omitted/response")
-	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response")
+	router := appendResponseHttpRoutes(mux.NewRouter())
+	_ = router
 	t := &responseHttpClientTransports{}
 	var err error
 	t.omittedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_OmittedResponse_HttpClient_Transport(target, router, options...))
