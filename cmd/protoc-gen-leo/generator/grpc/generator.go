@@ -48,12 +48,6 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 		}
 	}
 
-	for _, service := range f.Services {
-		if err := f.GenerateTransport(service, g); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -166,13 +160,15 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 	return nil
 }
 
-func (f *Generator) GenerateTransport(service *internal.Service, g *protogen.GeneratedFile) error {
-	for _, endpoint := range service.Endpoints {
-		if err := f.GenerateServerEndpointTransport(service, g, endpoint); err != nil {
-			return err
-		}
-		if err := f.GenerateClientEndpointTransport(service, g, endpoint); err != nil {
-			return err
+func (f *Generator) GenerateTransport(g *protogen.GeneratedFile) error {
+	for _, service := range f.Services {
+		for _, endpoint := range service.Endpoints {
+			if err := f.GenerateServerEndpointTransport(service, g, endpoint); err != nil {
+				return err
+			}
+			if err := f.GenerateClientEndpointTransport(service, g, endpoint); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

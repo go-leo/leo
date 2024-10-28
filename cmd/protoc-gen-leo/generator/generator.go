@@ -73,6 +73,12 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
+	g.P("// =========================== grpc transport ===========================")
+	g.P()
+	if err := grpcGen.GenerateTransport(g); err != nil {
+		return err
+	}
+
 	httpGen, err := http.NewGenerator(f.Plugin, file)
 	if err != nil {
 		return err
@@ -86,6 +92,12 @@ func (f *Generator) GenerateFile() error {
 	g.P("// =========================== http client ===========================")
 	g.P()
 	if err := httpGen.GenerateClient(g); err != nil {
+		return err
+	}
+
+	g.P("// =========================== http transport ===========================")
+	g.P()
+	if err := httpGen.GenerateTransport(g); err != nil {
 		return err
 	}
 

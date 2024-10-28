@@ -556,6 +556,8 @@ func NewPathGrpcClient(transports PathClientTransports, middlewares ...endpoint.
 	return &pathGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Path_BoolPath_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.BoolPath(context.TODO()),
@@ -872,105 +874,15 @@ func (t *pathHttpServerTransports) EnumPath() *http.Server {
 
 func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTransports {
 	return &pathHttpServerTransports{
-		boolPath: http.NewServer(
-			endpoints.BoolPath(context.TODO()),
-			_Path_BoolPath_HttpServer_RequestDecoder,
-			_Path_BoolPath_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		int32Path: http.NewServer(
-			endpoints.Int32Path(context.TODO()),
-			_Path_Int32Path_HttpServer_RequestDecoder,
-			_Path_Int32Path_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		int64Path: http.NewServer(
-			endpoints.Int64Path(context.TODO()),
-			_Path_Int64Path_HttpServer_RequestDecoder,
-			_Path_Int64Path_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		uint32Path: http.NewServer(
-			endpoints.Uint32Path(context.TODO()),
-			_Path_Uint32Path_HttpServer_RequestDecoder,
-			_Path_Uint32Path_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		uint64Path: http.NewServer(
-			endpoints.Uint64Path(context.TODO()),
-			_Path_Uint64Path_HttpServer_RequestDecoder,
-			_Path_Uint64Path_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		floatPath: http.NewServer(
-			endpoints.FloatPath(context.TODO()),
-			_Path_FloatPath_HttpServer_RequestDecoder,
-			_Path_FloatPath_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		doublePath: http.NewServer(
-			endpoints.DoublePath(context.TODO()),
-			_Path_DoublePath_HttpServer_RequestDecoder,
-			_Path_DoublePath_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		stringPath: http.NewServer(
-			endpoints.StringPath(context.TODO()),
-			_Path_StringPath_HttpServer_RequestDecoder,
-			_Path_StringPath_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		enumPath: http.NewServer(
-			endpoints.EnumPath(context.TODO()),
-			_Path_EnumPath_HttpServer_RequestDecoder,
-			_Path_EnumPath_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		boolPath:   _Path_BoolPath_HttpServer_Transport(endpoints),
+		int32Path:  _Path_Int32Path_HttpServer_Transport(endpoints),
+		int64Path:  _Path_Int64Path_HttpServer_Transport(endpoints),
+		uint32Path: _Path_Uint32Path_HttpServer_Transport(endpoints),
+		uint64Path: _Path_Uint64Path_HttpServer_Transport(endpoints),
+		floatPath:  _Path_FloatPath_HttpServer_Transport(endpoints),
+		doublePath: _Path_DoublePath_HttpServer_Transport(endpoints),
+		stringPath: _Path_StringPath_HttpServer_Transport(endpoints),
+		enumPath:   _Path_EnumPath_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -1052,114 +964,15 @@ func NewPathHttpClientTransports(target string, options ...transportx.ClientTran
 	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}")
 	t := &pathHttpClientTransports{}
 	var err error
-	t.boolPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_BoolPath_HttpClient_RequestEncoder(router),
-				_Path_BoolPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.int32Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Int32Path_HttpClient_RequestEncoder(router),
-				_Path_Int32Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.int64Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Int64Path_HttpClient_RequestEncoder(router),
-				_Path_Int64Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.uint32Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Uint32Path_HttpClient_RequestEncoder(router),
-				_Path_Uint32Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.uint64Path, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Uint64Path_HttpClient_RequestEncoder(router),
-				_Path_Uint64Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.floatPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_FloatPath_HttpClient_RequestEncoder(router),
-				_Path_FloatPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.doublePath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_DoublePath_HttpClient_RequestEncoder(router),
-				_Path_DoublePath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.stringPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_StringPath_HttpClient_RequestEncoder(router),
-				_Path_StringPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.enumPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_EnumPath_HttpClient_RequestEncoder(router),
-				_Path_EnumPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.boolPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_BoolPath_HttpClient_Transport(target, router, options...))
+	t.int32Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Int32Path_HttpClient_Transport(target, router, options...))
+	t.int64Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Int64Path_HttpClient_Transport(target, router, options...))
+	t.uint32Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Uint32Path_HttpClient_Transport(target, router, options...))
+	t.uint64Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Uint64Path_HttpClient_Transport(target, router, options...))
+	t.floatPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_FloatPath_HttpClient_Transport(target, router, options...))
+	t.doublePath, err = errorx.Break[transportx.ClientTransport](err)(_Path_DoublePath_HttpClient_Transport(target, router, options...))
+	t.stringPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_StringPath_HttpClient_Transport(target, router, options...))
+	t.enumPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_EnumPath_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -1260,6 +1073,269 @@ func (c *pathHttpClient) EnumPath(ctx context.Context, request *PathRequest) (*e
 func NewPathHttpClient(transports PathClientTransports, middlewares ...endpoint.Middleware) PathService {
 	endpoints := newPathClientEndpoints(transports, middlewares...)
 	return &pathHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Path_BoolPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.BoolPath(context.TODO()),
+		_Path_BoolPath_HttpServer_RequestDecoder,
+		_Path_BoolPath_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_BoolPath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_BoolPath_HttpClient_RequestEncoder(router),
+				_Path_BoolPath_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_Int32Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.Int32Path(context.TODO()),
+		_Path_Int32Path_HttpServer_RequestDecoder,
+		_Path_Int32Path_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_Int32Path_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_Int32Path_HttpClient_RequestEncoder(router),
+				_Path_Int32Path_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_Int64Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.Int64Path(context.TODO()),
+		_Path_Int64Path_HttpServer_RequestDecoder,
+		_Path_Int64Path_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_Int64Path_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_Int64Path_HttpClient_RequestEncoder(router),
+				_Path_Int64Path_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_Uint32Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.Uint32Path(context.TODO()),
+		_Path_Uint32Path_HttpServer_RequestDecoder,
+		_Path_Uint32Path_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_Uint32Path_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_Uint32Path_HttpClient_RequestEncoder(router),
+				_Path_Uint32Path_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_Uint64Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.Uint64Path(context.TODO()),
+		_Path_Uint64Path_HttpServer_RequestDecoder,
+		_Path_Uint64Path_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_Uint64Path_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_Uint64Path_HttpClient_RequestEncoder(router),
+				_Path_Uint64Path_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_FloatPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.FloatPath(context.TODO()),
+		_Path_FloatPath_HttpServer_RequestDecoder,
+		_Path_FloatPath_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_FloatPath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_FloatPath_HttpClient_RequestEncoder(router),
+				_Path_FloatPath_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_DoublePath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.DoublePath(context.TODO()),
+		_Path_DoublePath_HttpServer_RequestDecoder,
+		_Path_DoublePath_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_DoublePath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_DoublePath_HttpClient_RequestEncoder(router),
+				_Path_DoublePath_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_StringPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.StringPath(context.TODO()),
+		_Path_StringPath_HttpServer_RequestDecoder,
+		_Path_StringPath_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_StringPath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_StringPath_HttpClient_RequestEncoder(router),
+				_Path_StringPath_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Path_EnumPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.EnumPath(context.TODO()),
+		_Path_EnumPath_HttpServer_RequestDecoder,
+		_Path_EnumPath_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Path_EnumPath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Path_EnumPath_HttpClient_RequestEncoder(router),
+				_Path_EnumPath_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

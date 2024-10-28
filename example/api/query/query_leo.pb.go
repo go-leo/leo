@@ -157,6 +157,8 @@ func NewQueryGrpcClient(transports QueryClientTransports, middlewares ...endpoin
 	return &queryGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Query_Query_GrpcServer_Transport(endpoints QueryEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.Query(context.TODO()),
@@ -201,17 +203,7 @@ func (t *queryHttpServerTransports) Query() *http.Server {
 
 func newQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTransports {
 	return &queryHttpServerTransports{
-		query: http.NewServer(
-			endpoints.Query(context.TODO()),
-			_Query_Query_HttpServer_RequestDecoder,
-			_Query_Query_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		query: _Query_Query_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -237,18 +229,7 @@ func NewQueryHttpClientTransports(target string, options ...transportx.ClientTra
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
 	t := &queryHttpClientTransports{}
 	var err error
-	t.query, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Query_Query_HttpClient_RequestEncoder(router),
-				_Query_Query_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.query, err = errorx.Break[transportx.ClientTransport](err)(_Query_Query_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -269,6 +250,37 @@ func (c *queryHttpClient) Query(ctx context.Context, request *QueryRequest) (*em
 func NewQueryHttpClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
 	endpoints := newQueryClientEndpoints(transports, middlewares...)
 	return &queryHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Query_Query_HttpServer_Transport(endpoints QueryEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.Query(context.TODO()),
+		_Query_Query_HttpServer_RequestDecoder,
+		_Query_Query_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Query_Query_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Query_Query_HttpClient_RequestEncoder(router),
+				_Query_Query_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

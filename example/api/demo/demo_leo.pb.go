@@ -637,6 +637,8 @@ func NewDemoGrpcClient(transports DemoClientTransports, middlewares ...endpoint.
 	return &demoGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Demo_CreateUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.CreateUser(context.TODO()),
@@ -885,83 +887,13 @@ func (t *demoHttpServerTransports) GetUserAvatar() *http.Server {
 
 func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTransports {
 	return &demoHttpServerTransports{
-		createUser: http.NewServer(
-			endpoints.CreateUser(context.TODO()),
-			_Demo_CreateUser_HttpServer_RequestDecoder,
-			_Demo_CreateUser_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		deleteUser: http.NewServer(
-			endpoints.DeleteUser(context.TODO()),
-			_Demo_DeleteUser_HttpServer_RequestDecoder,
-			_Demo_DeleteUser_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		updateUser: http.NewServer(
-			endpoints.UpdateUser(context.TODO()),
-			_Demo_UpdateUser_HttpServer_RequestDecoder,
-			_Demo_UpdateUser_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		getUser: http.NewServer(
-			endpoints.GetUser(context.TODO()),
-			_Demo_GetUser_HttpServer_RequestDecoder,
-			_Demo_GetUser_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		getUsers: http.NewServer(
-			endpoints.GetUsers(context.TODO()),
-			_Demo_GetUsers_HttpServer_RequestDecoder,
-			_Demo_GetUsers_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		uploadUserAvatar: http.NewServer(
-			endpoints.UploadUserAvatar(context.TODO()),
-			_Demo_UploadUserAvatar_HttpServer_RequestDecoder,
-			_Demo_UploadUserAvatar_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		getUserAvatar: http.NewServer(
-			endpoints.GetUserAvatar(context.TODO()),
-			_Demo_GetUserAvatar_HttpServer_RequestDecoder,
-			_Demo_GetUserAvatar_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		createUser:       _Demo_CreateUser_HttpServer_Transport(endpoints),
+		deleteUser:       _Demo_DeleteUser_HttpServer_Transport(endpoints),
+		updateUser:       _Demo_UpdateUser_HttpServer_Transport(endpoints),
+		getUser:          _Demo_GetUser_HttpServer_Transport(endpoints),
+		getUsers:         _Demo_GetUsers_HttpServer_Transport(endpoints),
+		uploadUserAvatar: _Demo_UploadUserAvatar_HttpServer_Transport(endpoints),
+		getUserAvatar:    _Demo_GetUserAvatar_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -1029,90 +961,13 @@ func NewDemoHttpClientTransports(target string, options ...transportx.ClientTran
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}")
 	t := &demoHttpClientTransports{}
 	var err error
-	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_CreateUser_HttpClient_RequestEncoder(router),
-				_Demo_CreateUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.deleteUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_DeleteUser_HttpClient_RequestEncoder(router),
-				_Demo_DeleteUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.updateUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_UpdateUser_HttpClient_RequestEncoder(router),
-				_Demo_UpdateUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.getUser, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_GetUser_HttpClient_RequestEncoder(router),
-				_Demo_GetUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.getUsers, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_GetUsers_HttpClient_RequestEncoder(router),
-				_Demo_GetUsers_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.uploadUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_UploadUserAvatar_HttpClient_RequestEncoder(router),
-				_Demo_UploadUserAvatar_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.getUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_GetUserAvatar_HttpClient_RequestEncoder(router),
-				_Demo_GetUserAvatar_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_CreateUser_HttpClient_Transport(target, router, options...))
+	t.deleteUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_DeleteUser_HttpClient_Transport(target, router, options...))
+	t.updateUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_UpdateUser_HttpClient_Transport(target, router, options...))
+	t.getUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUser_HttpClient_Transport(target, router, options...))
+	t.getUsers, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUsers_HttpClient_Transport(target, router, options...))
+	t.uploadUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(_Demo_UploadUserAvatar_HttpClient_Transport(target, router, options...))
+	t.getUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUserAvatar_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -1193,6 +1048,211 @@ func (c *demoHttpClient) GetUserAvatar(ctx context.Context, request *GetUserAvat
 func NewDemoHttpClient(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoService {
 	endpoints := newDemoClientEndpoints(transports, middlewares...)
 	return &demoHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Demo_CreateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.CreateUser(context.TODO()),
+		_Demo_CreateUser_HttpServer_RequestDecoder,
+		_Demo_CreateUser_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_CreateUser_HttpClient_RequestEncoder(router),
+				_Demo_CreateUser_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Demo_DeleteUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.DeleteUser(context.TODO()),
+		_Demo_DeleteUser_HttpServer_RequestDecoder,
+		_Demo_DeleteUser_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_DeleteUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_DeleteUser_HttpClient_RequestEncoder(router),
+				_Demo_DeleteUser_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Demo_UpdateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.UpdateUser(context.TODO()),
+		_Demo_UpdateUser_HttpServer_RequestDecoder,
+		_Demo_UpdateUser_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_UpdateUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_UpdateUser_HttpClient_RequestEncoder(router),
+				_Demo_UpdateUser_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Demo_GetUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.GetUser(context.TODO()),
+		_Demo_GetUser_HttpServer_RequestDecoder,
+		_Demo_GetUser_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_GetUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_GetUser_HttpClient_RequestEncoder(router),
+				_Demo_GetUser_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Demo_GetUsers_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.GetUsers(context.TODO()),
+		_Demo_GetUsers_HttpServer_RequestDecoder,
+		_Demo_GetUsers_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_GetUsers_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_GetUsers_HttpClient_RequestEncoder(router),
+				_Demo_GetUsers_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Demo_UploadUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.UploadUserAvatar(context.TODO()),
+		_Demo_UploadUserAvatar_HttpServer_RequestDecoder,
+		_Demo_UploadUserAvatar_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_UploadUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_UploadUserAvatar_HttpClient_RequestEncoder(router),
+				_Demo_UploadUserAvatar_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Demo_GetUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.GetUserAvatar(context.TODO()),
+		_Demo_GetUserAvatar_HttpServer_RequestDecoder,
+		_Demo_GetUserAvatar_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Demo_GetUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Demo_GetUserAvatar_HttpClient_RequestEncoder(router),
+				_Demo_GetUserAvatar_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

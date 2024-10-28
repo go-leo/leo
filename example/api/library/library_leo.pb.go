@@ -657,6 +657,8 @@ func NewLibraryServiceGrpcClient(transports LibraryServiceClientTransports, midd
 	return &libraryServiceGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _LibraryService_CreateShelf_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.CreateShelf(context.TODO()),
@@ -1041,127 +1043,17 @@ func (t *libraryServiceHttpServerTransports) MoveBook() *http.Server {
 
 func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) LibraryServiceHttpServerTransports {
 	return &libraryServiceHttpServerTransports{
-		createShelf: http.NewServer(
-			endpoints.CreateShelf(context.TODO()),
-			_LibraryService_CreateShelf_HttpServer_RequestDecoder,
-			_LibraryService_CreateShelf_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		getShelf: http.NewServer(
-			endpoints.GetShelf(context.TODO()),
-			_LibraryService_GetShelf_HttpServer_RequestDecoder,
-			_LibraryService_GetShelf_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		listShelves: http.NewServer(
-			endpoints.ListShelves(context.TODO()),
-			_LibraryService_ListShelves_HttpServer_RequestDecoder,
-			_LibraryService_ListShelves_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		deleteShelf: http.NewServer(
-			endpoints.DeleteShelf(context.TODO()),
-			_LibraryService_DeleteShelf_HttpServer_RequestDecoder,
-			_LibraryService_DeleteShelf_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		mergeShelves: http.NewServer(
-			endpoints.MergeShelves(context.TODO()),
-			_LibraryService_MergeShelves_HttpServer_RequestDecoder,
-			_LibraryService_MergeShelves_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		createBook: http.NewServer(
-			endpoints.CreateBook(context.TODO()),
-			_LibraryService_CreateBook_HttpServer_RequestDecoder,
-			_LibraryService_CreateBook_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		getBook: http.NewServer(
-			endpoints.GetBook(context.TODO()),
-			_LibraryService_GetBook_HttpServer_RequestDecoder,
-			_LibraryService_GetBook_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		listBooks: http.NewServer(
-			endpoints.ListBooks(context.TODO()),
-			_LibraryService_ListBooks_HttpServer_RequestDecoder,
-			_LibraryService_ListBooks_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		deleteBook: http.NewServer(
-			endpoints.DeleteBook(context.TODO()),
-			_LibraryService_DeleteBook_HttpServer_RequestDecoder,
-			_LibraryService_DeleteBook_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		updateBook: http.NewServer(
-			endpoints.UpdateBook(context.TODO()),
-			_LibraryService_UpdateBook_HttpServer_RequestDecoder,
-			_LibraryService_UpdateBook_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		moveBook: http.NewServer(
-			endpoints.MoveBook(context.TODO()),
-			_LibraryService_MoveBook_HttpServer_RequestDecoder,
-			_LibraryService_MoveBook_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		createShelf:  _LibraryService_CreateShelf_HttpServer_Transport(endpoints),
+		getShelf:     _LibraryService_GetShelf_HttpServer_Transport(endpoints),
+		listShelves:  _LibraryService_ListShelves_HttpServer_Transport(endpoints),
+		deleteShelf:  _LibraryService_DeleteShelf_HttpServer_Transport(endpoints),
+		mergeShelves: _LibraryService_MergeShelves_HttpServer_Transport(endpoints),
+		createBook:   _LibraryService_CreateBook_HttpServer_Transport(endpoints),
+		getBook:      _LibraryService_GetBook_HttpServer_Transport(endpoints),
+		listBooks:    _LibraryService_ListBooks_HttpServer_Transport(endpoints),
+		deleteBook:   _LibraryService_DeleteBook_HttpServer_Transport(endpoints),
+		updateBook:   _LibraryService_UpdateBook_HttpServer_Transport(endpoints),
+		moveBook:     _LibraryService_MoveBook_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -1257,138 +1149,17 @@ func NewLibraryServiceHttpClientTransports(target string, options ...transportx.
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move")
 	t := &libraryServiceHttpClientTransports{}
 	var err error
-	t.createShelf, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_CreateShelf_HttpClient_RequestEncoder(router),
-				_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.getShelf, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_GetShelf_HttpClient_RequestEncoder(router),
-				_LibraryService_GetShelf_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.listShelves, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_ListShelves_HttpClient_RequestEncoder(router),
-				_LibraryService_ListShelves_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.deleteShelf, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_DeleteShelf_HttpClient_RequestEncoder(router),
-				_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.mergeShelves, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_MergeShelves_HttpClient_RequestEncoder(router),
-				_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.createBook, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_CreateBook_HttpClient_RequestEncoder(router),
-				_LibraryService_CreateBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.getBook, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_GetBook_HttpClient_RequestEncoder(router),
-				_LibraryService_GetBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.listBooks, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_ListBooks_HttpClient_RequestEncoder(router),
-				_LibraryService_ListBooks_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.deleteBook, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_DeleteBook_HttpClient_RequestEncoder(router),
-				_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.updateBook, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_UpdateBook_HttpClient_RequestEncoder(router),
-				_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.moveBook, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_MoveBook_HttpClient_RequestEncoder(router),
-				_LibraryService_MoveBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.createShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_CreateShelf_HttpClient_Transport(target, router, options...))
+	t.getShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_GetShelf_HttpClient_Transport(target, router, options...))
+	t.listShelves, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_ListShelves_HttpClient_Transport(target, router, options...))
+	t.deleteShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_DeleteShelf_HttpClient_Transport(target, router, options...))
+	t.mergeShelves, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_MergeShelves_HttpClient_Transport(target, router, options...))
+	t.createBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_CreateBook_HttpClient_Transport(target, router, options...))
+	t.getBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_GetBook_HttpClient_Transport(target, router, options...))
+	t.listBooks, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_ListBooks_HttpClient_Transport(target, router, options...))
+	t.deleteBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_DeleteBook_HttpClient_Transport(target, router, options...))
+	t.updateBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_UpdateBook_HttpClient_Transport(target, router, options...))
+	t.moveBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_MoveBook_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -1509,6 +1280,327 @@ func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBo
 func NewLibraryServiceHttpClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
 	endpoints := newLibraryServiceClientEndpoints(transports, middlewares...)
 	return &libraryServiceHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _LibraryService_CreateShelf_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.CreateShelf(context.TODO()),
+		_LibraryService_CreateShelf_HttpServer_RequestDecoder,
+		_LibraryService_CreateShelf_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_CreateShelf_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_CreateShelf_HttpClient_RequestEncoder(router),
+				_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_GetShelf_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.GetShelf(context.TODO()),
+		_LibraryService_GetShelf_HttpServer_RequestDecoder,
+		_LibraryService_GetShelf_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_GetShelf_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_GetShelf_HttpClient_RequestEncoder(router),
+				_LibraryService_GetShelf_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_ListShelves_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.ListShelves(context.TODO()),
+		_LibraryService_ListShelves_HttpServer_RequestDecoder,
+		_LibraryService_ListShelves_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_ListShelves_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_ListShelves_HttpClient_RequestEncoder(router),
+				_LibraryService_ListShelves_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_DeleteShelf_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.DeleteShelf(context.TODO()),
+		_LibraryService_DeleteShelf_HttpServer_RequestDecoder,
+		_LibraryService_DeleteShelf_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_DeleteShelf_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_DeleteShelf_HttpClient_RequestEncoder(router),
+				_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_MergeShelves_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.MergeShelves(context.TODO()),
+		_LibraryService_MergeShelves_HttpServer_RequestDecoder,
+		_LibraryService_MergeShelves_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_MergeShelves_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_MergeShelves_HttpClient_RequestEncoder(router),
+				_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_CreateBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.CreateBook(context.TODO()),
+		_LibraryService_CreateBook_HttpServer_RequestDecoder,
+		_LibraryService_CreateBook_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_CreateBook_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_CreateBook_HttpClient_RequestEncoder(router),
+				_LibraryService_CreateBook_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_GetBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.GetBook(context.TODO()),
+		_LibraryService_GetBook_HttpServer_RequestDecoder,
+		_LibraryService_GetBook_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_GetBook_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_GetBook_HttpClient_RequestEncoder(router),
+				_LibraryService_GetBook_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_ListBooks_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.ListBooks(context.TODO()),
+		_LibraryService_ListBooks_HttpServer_RequestDecoder,
+		_LibraryService_ListBooks_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_ListBooks_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_ListBooks_HttpClient_RequestEncoder(router),
+				_LibraryService_ListBooks_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_DeleteBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.DeleteBook(context.TODO()),
+		_LibraryService_DeleteBook_HttpServer_RequestDecoder,
+		_LibraryService_DeleteBook_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_DeleteBook_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_DeleteBook_HttpClient_RequestEncoder(router),
+				_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_UpdateBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.UpdateBook(context.TODO()),
+		_LibraryService_UpdateBook_HttpServer_RequestDecoder,
+		_LibraryService_UpdateBook_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_UpdateBook_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_UpdateBook_HttpClient_RequestEncoder(router),
+				_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _LibraryService_MoveBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.MoveBook(context.TODO()),
+		_LibraryService_MoveBook_HttpServer_RequestDecoder,
+		_LibraryService_MoveBook_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _LibraryService_MoveBook_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_LibraryService_MoveBook_HttpClient_RequestEncoder(router),
+				_LibraryService_MoveBook_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

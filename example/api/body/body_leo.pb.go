@@ -354,6 +354,8 @@ func NewBodyGrpcClient(transports BodyClientTransports, middlewares ...endpoint.
 	return &bodyGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Body_StarBody_GrpcServer_Transport(endpoints BodyEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.StarBody(context.TODO()),
@@ -534,61 +536,11 @@ func (t *bodyHttpServerTransports) HttpBodyNamedBody() *http.Server {
 
 func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTransports {
 	return &bodyHttpServerTransports{
-		starBody: http.NewServer(
-			endpoints.StarBody(context.TODO()),
-			_Body_StarBody_HttpServer_RequestDecoder,
-			_Body_StarBody_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		namedBody: http.NewServer(
-			endpoints.NamedBody(context.TODO()),
-			_Body_NamedBody_HttpServer_RequestDecoder,
-			_Body_NamedBody_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		nonBody: http.NewServer(
-			endpoints.NonBody(context.TODO()),
-			_Body_NonBody_HttpServer_RequestDecoder,
-			_Body_NonBody_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		httpBodyStarBody: http.NewServer(
-			endpoints.HttpBodyStarBody(context.TODO()),
-			_Body_HttpBodyStarBody_HttpServer_RequestDecoder,
-			_Body_HttpBodyStarBody_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		httpBodyNamedBody: http.NewServer(
-			endpoints.HttpBodyNamedBody(context.TODO()),
-			_Body_HttpBodyNamedBody_HttpServer_RequestDecoder,
-			_Body_HttpBodyNamedBody_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		starBody:          _Body_StarBody_HttpServer_Transport(endpoints),
+		namedBody:         _Body_NamedBody_HttpServer_Transport(endpoints),
+		nonBody:           _Body_NonBody_HttpServer_Transport(endpoints),
+		httpBodyStarBody:  _Body_HttpBodyStarBody_HttpServer_Transport(endpoints),
+		httpBodyNamedBody: _Body_HttpBodyNamedBody_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -642,66 +594,11 @@ func NewBodyHttpClientTransports(target string, options ...transportx.ClientTran
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
 	t := &bodyHttpClientTransports{}
 	var err error
-	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_StarBody_HttpClient_RequestEncoder(router),
-				_Body_StarBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.namedBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_NamedBody_HttpClient_RequestEncoder(router),
-				_Body_NamedBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.nonBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_NonBody_HttpClient_RequestEncoder(router),
-				_Body_NonBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.httpBodyStarBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_HttpBodyStarBody_HttpClient_RequestEncoder(router),
-				_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.httpBodyNamedBody, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router),
-				_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_StarBody_HttpClient_Transport(target, router, options...))
+	t.namedBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_NamedBody_HttpClient_Transport(target, router, options...))
+	t.nonBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_NonBody_HttpClient_Transport(target, router, options...))
+	t.httpBodyStarBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_HttpBodyStarBody_HttpClient_Transport(target, router, options...))
+	t.httpBodyNamedBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_HttpBodyNamedBody_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -762,6 +659,153 @@ func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 func NewBodyHttpClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
 	endpoints := newBodyClientEndpoints(transports, middlewares...)
 	return &bodyHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Body_StarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.StarBody(context.TODO()),
+		_Body_StarBody_HttpServer_RequestDecoder,
+		_Body_StarBody_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Body_StarBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Body_StarBody_HttpClient_RequestEncoder(router),
+				_Body_StarBody_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_NamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.NamedBody(context.TODO()),
+		_Body_NamedBody_HttpServer_RequestDecoder,
+		_Body_NamedBody_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Body_NamedBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Body_NamedBody_HttpClient_RequestEncoder(router),
+				_Body_NamedBody_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_NonBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.NonBody(context.TODO()),
+		_Body_NonBody_HttpServer_RequestDecoder,
+		_Body_NonBody_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Body_NonBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Body_NonBody_HttpClient_RequestEncoder(router),
+				_Body_NonBody_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_HttpBodyStarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.HttpBodyStarBody(context.TODO()),
+		_Body_HttpBodyStarBody_HttpServer_RequestDecoder,
+		_Body_HttpBodyStarBody_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Body_HttpBodyStarBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Body_HttpBodyStarBody_HttpClient_RequestEncoder(router),
+				_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Body_HttpBodyNamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.HttpBodyNamedBody(context.TODO()),
+		_Body_HttpBodyNamedBody_HttpServer_RequestDecoder,
+		_Body_HttpBodyNamedBody_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Body_HttpBodyNamedBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router),
+				_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

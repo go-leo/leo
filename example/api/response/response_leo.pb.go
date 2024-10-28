@@ -356,6 +356,8 @@ func NewResponseGrpcClient(transports ResponseClientTransports, middlewares ...e
 	return &responseGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Response_OmittedResponse_GrpcServer_Transport(endpoints ResponseEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.OmittedResponse(context.TODO()),
@@ -536,61 +538,11 @@ func (t *responseHttpServerTransports) HttpBodyNamedResponse() *http.Server {
 
 func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpServerTransports {
 	return &responseHttpServerTransports{
-		omittedResponse: http.NewServer(
-			endpoints.OmittedResponse(context.TODO()),
-			_Response_OmittedResponse_HttpServer_RequestDecoder,
-			_Response_OmittedResponse_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		starResponse: http.NewServer(
-			endpoints.StarResponse(context.TODO()),
-			_Response_StarResponse_HttpServer_RequestDecoder,
-			_Response_StarResponse_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		namedResponse: http.NewServer(
-			endpoints.NamedResponse(context.TODO()),
-			_Response_NamedResponse_HttpServer_RequestDecoder,
-			_Response_NamedResponse_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		httpBodyResponse: http.NewServer(
-			endpoints.HttpBodyResponse(context.TODO()),
-			_Response_HttpBodyResponse_HttpServer_RequestDecoder,
-			_Response_HttpBodyResponse_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		httpBodyNamedResponse: http.NewServer(
-			endpoints.HttpBodyNamedResponse(context.TODO()),
-			_Response_HttpBodyNamedResponse_HttpServer_RequestDecoder,
-			_Response_HttpBodyNamedResponse_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		omittedResponse:       _Response_OmittedResponse_HttpServer_Transport(endpoints),
+		starResponse:          _Response_StarResponse_HttpServer_Transport(endpoints),
+		namedResponse:         _Response_NamedResponse_HttpServer_Transport(endpoints),
+		httpBodyResponse:      _Response_HttpBodyResponse_HttpServer_Transport(endpoints),
+		httpBodyNamedResponse: _Response_HttpBodyNamedResponse_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -644,66 +596,11 @@ func NewResponseHttpClientTransports(target string, options ...transportx.Client
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response")
 	t := &responseHttpClientTransports{}
 	var err error
-	t.omittedResponse, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Response_OmittedResponse_HttpClient_RequestEncoder(router),
-				_Response_OmittedResponse_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.starResponse, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Response_StarResponse_HttpClient_RequestEncoder(router),
-				_Response_StarResponse_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.namedResponse, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Response_NamedResponse_HttpClient_RequestEncoder(router),
-				_Response_NamedResponse_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.httpBodyResponse, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Response_HttpBodyResponse_HttpClient_RequestEncoder(router),
-				_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.httpBodyNamedResponse, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router),
-				_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.omittedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_OmittedResponse_HttpClient_Transport(target, router, options...))
+	t.starResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_StarResponse_HttpClient_Transport(target, router, options...))
+	t.namedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_NamedResponse_HttpClient_Transport(target, router, options...))
+	t.httpBodyResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_HttpBodyResponse_HttpClient_Transport(target, router, options...))
+	t.httpBodyNamedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_HttpBodyNamedResponse_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -764,6 +661,153 @@ func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request 
 func NewResponseHttpClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
 	endpoints := newResponseClientEndpoints(transports, middlewares...)
 	return &responseHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Response_OmittedResponse_HttpServer_Transport(endpoints ResponseEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.OmittedResponse(context.TODO()),
+		_Response_OmittedResponse_HttpServer_RequestDecoder,
+		_Response_OmittedResponse_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Response_OmittedResponse_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Response_OmittedResponse_HttpClient_RequestEncoder(router),
+				_Response_OmittedResponse_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Response_StarResponse_HttpServer_Transport(endpoints ResponseEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.StarResponse(context.TODO()),
+		_Response_StarResponse_HttpServer_RequestDecoder,
+		_Response_StarResponse_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Response_StarResponse_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Response_StarResponse_HttpClient_RequestEncoder(router),
+				_Response_StarResponse_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Response_NamedResponse_HttpServer_Transport(endpoints ResponseEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.NamedResponse(context.TODO()),
+		_Response_NamedResponse_HttpServer_RequestDecoder,
+		_Response_NamedResponse_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Response_NamedResponse_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Response_NamedResponse_HttpClient_RequestEncoder(router),
+				_Response_NamedResponse_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Response_HttpBodyResponse_HttpServer_Transport(endpoints ResponseEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.HttpBodyResponse(context.TODO()),
+		_Response_HttpBodyResponse_HttpServer_RequestDecoder,
+		_Response_HttpBodyResponse_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Response_HttpBodyResponse_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Response_HttpBodyResponse_HttpClient_RequestEncoder(router),
+				_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Response_HttpBodyNamedResponse_HttpServer_Transport(endpoints ResponseEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.HttpBodyNamedResponse(context.TODO()),
+		_Response_HttpBodyNamedResponse_HttpServer_RequestDecoder,
+		_Response_HttpBodyNamedResponse_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Response_HttpBodyNamedResponse_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router),
+				_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

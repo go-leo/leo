@@ -34,22 +34,30 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 	g.P("func new", service.HttpServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.HttpServerTransportsName(), " {")
 	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ": ", internal.HttpTransportPackage.Ident("NewServer"), "(")
-		g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
-		g.P(endpoint.HttpServerRequestDecoderName(), ",")
-		g.P(endpoint.HttpServerResponseEncoderName(), ",")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimiter"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ServerFinalizer"), "(", internal.HttpxTransportxPackage.Ident("CancelInvoker"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
-		g.P("),")
+		g.P(endpoint.UnexportedName(), ": ", endpoint.HttpServerTransportName(), "(endpoints), ")
 	}
 	g.P("}")
 	g.P("}")
 	g.P()
 
+	return nil
+}
+
+func (f *ServerGenerator) GenerateServerTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	g.P("func ", endpoint.HttpServerTransportName(), "(endpoints ", service.EndpointsName(), ") *", internal.HttpTransportPackage.Ident("Server"), " {")
+	g.P("return ", internal.HttpTransportPackage.Ident("NewServer"), "(")
+	g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
+	g.P(endpoint.HttpServerRequestDecoderName(), ",")
+	g.P(endpoint.HttpServerResponseEncoderName(), ",")
+	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
+	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
+	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimiter"), "),")
+	g.P(internal.HttpTransportPackage.Ident("ServerFinalizer"), "(", internal.HttpxTransportxPackage.Ident("CancelInvoker"), "),")
+	g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
+	g.P(")")
+	g.P("}")
+	g.P()
 	return nil
 }
 

@@ -47,12 +47,20 @@ func (e Endpoint) HttpClientResponseDecoderName() string {
 	return fmt.Sprintf("_%s_%s_HttpClient_ResponseDecoder", e.method.Parent.GoName, e.method.GoName)
 }
 
-func (e Endpoint) GrpcServerTransportName() any {
+func (e Endpoint) GrpcServerTransportName() string {
 	return fmt.Sprintf("_%s_%s_GrpcServer_Transport", e.method.Parent.GoName, e.method.GoName)
 }
 
-func (e Endpoint) GrpcClientTransportName() any {
+func (e Endpoint) GrpcClientTransportName() string {
 	return fmt.Sprintf("_%s_%s_GrpcClient_Transport", e.method.Parent.GoName, e.method.GoName)
+}
+
+func (e Endpoint) HttpServerTransportName() any {
+	return fmt.Sprintf("_%s_%s_HttpServer_Transport", e.method.Parent.GoName, e.method.GoName)
+}
+
+func (e Endpoint) HttpClientTransportName() any {
+	return fmt.Sprintf("_%s_%s_HttpClient_Transport", e.method.Parent.GoName, e.method.GoName)
 }
 
 func (e Endpoint) ArgsName() string {

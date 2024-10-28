@@ -40,24 +40,30 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	g.P("var err error")
 
 	for _, endpoint := range service.Endpoints {
-		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
-		g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
-		g.P("target,")
-		g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
-		g.P(endpoint.HttpClientRequestEncoderName(), "(router),")
-		g.P(endpoint.HttpClientResponseDecoderName(), ",")
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
-		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimiter"), "),")
-		g.P("),")
-		g.P("options...,")
-		g.P(")")
-		g.P("})")
+		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(", endpoint.HttpClientTransportName(), "(target, router, options...))")
 	}
-
 	g.P("return t, err")
 	g.P("}")
 	g.P()
+	return nil
+}
 
+func (f *ClientGenerator) GenerateClientTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	g.P("func ", endpoint.HttpClientTransportName(), "(target string, router *", internal.MuxPackage.Ident("Router"), ", options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ")", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error)", " {")
+	g.P("return ", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
+	g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
+	g.P("target,")
+	g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
+	g.P(endpoint.HttpClientRequestEncoderName(), "(router),")
+	g.P(endpoint.HttpClientResponseDecoderName(), ",")
+	g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
+	g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimiter"), "),")
+	g.P("),")
+	g.P("options...,")
+	g.P(")")
+	g.P("}")
+	g.P("}")
+	g.P()
 	return nil
 }
 

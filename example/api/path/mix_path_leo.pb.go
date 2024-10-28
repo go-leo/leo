@@ -157,6 +157,8 @@ func NewMixPathGrpcClient(transports MixPathClientTransports, middlewares ...end
 	return &mixPathGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _MixPath_MixPath_GrpcServer_Transport(endpoints MixPathEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.MixPath(context.TODO()),
@@ -201,17 +203,7 @@ func (t *mixPathHttpServerTransports) MixPath() *http.Server {
 
 func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServerTransports {
 	return &mixPathHttpServerTransports{
-		mixPath: http.NewServer(
-			endpoints.MixPath(context.TODO()),
-			_MixPath_MixPath_HttpServer_RequestDecoder,
-			_MixPath_MixPath_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		mixPath: _MixPath_MixPath_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -237,18 +229,7 @@ func NewMixPathHttpClientTransports(target string, options ...transportx.ClientT
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	t := &mixPathHttpClientTransports{}
 	var err error
-	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_MixPath_MixPath_HttpClient_RequestEncoder(router),
-				_MixPath_MixPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(_MixPath_MixPath_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -269,6 +250,37 @@ func (c *mixPathHttpClient) MixPath(ctx context.Context, request *MixPathRequest
 func NewMixPathHttpClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
 	endpoints := newMixPathClientEndpoints(transports, middlewares...)
 	return &mixPathHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _MixPath_MixPath_HttpServer_Transport(endpoints MixPathEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.MixPath(context.TODO()),
+		_MixPath_MixPath_HttpServer_RequestDecoder,
+		_MixPath_MixPath_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _MixPath_MixPath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_MixPath_MixPath_HttpClient_RequestEncoder(router),
+				_MixPath_MixPath_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

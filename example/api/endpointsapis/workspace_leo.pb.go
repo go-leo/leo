@@ -357,6 +357,8 @@ func NewWorkspacesGrpcClient(transports WorkspacesClientTransports, middlewares 
 	return &workspacesGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Workspaces_ListWorkspaces_GrpcServer_Transport(endpoints WorkspacesEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.ListWorkspaces(context.TODO()),
@@ -537,61 +539,11 @@ func (t *workspacesHttpServerTransports) DeleteWorkspace() *http.Server {
 
 func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) WorkspacesHttpServerTransports {
 	return &workspacesHttpServerTransports{
-		listWorkspaces: http.NewServer(
-			endpoints.ListWorkspaces(context.TODO()),
-			_Workspaces_ListWorkspaces_HttpServer_RequestDecoder,
-			_Workspaces_ListWorkspaces_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		getWorkspace: http.NewServer(
-			endpoints.GetWorkspace(context.TODO()),
-			_Workspaces_GetWorkspace_HttpServer_RequestDecoder,
-			_Workspaces_GetWorkspace_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		createWorkspace: http.NewServer(
-			endpoints.CreateWorkspace(context.TODO()),
-			_Workspaces_CreateWorkspace_HttpServer_RequestDecoder,
-			_Workspaces_CreateWorkspace_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		updateWorkspace: http.NewServer(
-			endpoints.UpdateWorkspace(context.TODO()),
-			_Workspaces_UpdateWorkspace_HttpServer_RequestDecoder,
-			_Workspaces_UpdateWorkspace_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
-		deleteWorkspace: http.NewServer(
-			endpoints.DeleteWorkspace(context.TODO()),
-			_Workspaces_DeleteWorkspace_HttpServer_RequestDecoder,
-			_Workspaces_DeleteWorkspace_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		listWorkspaces:  _Workspaces_ListWorkspaces_HttpServer_Transport(endpoints),
+		getWorkspace:    _Workspaces_GetWorkspace_HttpServer_Transport(endpoints),
+		createWorkspace: _Workspaces_CreateWorkspace_HttpServer_Transport(endpoints),
+		updateWorkspace: _Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints),
+		deleteWorkspace: _Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -645,66 +597,11 @@ func NewWorkspacesHttpClientTransports(target string, options ...transportx.Clie
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
 	t := &workspacesHttpClientTransports{}
 	var err error
-	t.listWorkspaces, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router),
-				_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.getWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_GetWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.createWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.updateWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
-	t.deleteWorkspace, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.listWorkspaces, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_ListWorkspaces_HttpClient_Transport(target, router, options...))
+	t.getWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_GetWorkspace_HttpClient_Transport(target, router, options...))
+	t.createWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_CreateWorkspace_HttpClient_Transport(target, router, options...))
+	t.updateWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_UpdateWorkspace_HttpClient_Transport(target, router, options...))
+	t.deleteWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_DeleteWorkspace_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -765,6 +662,153 @@ func (c *workspacesHttpClient) DeleteWorkspace(ctx context.Context, request *Del
 func NewWorkspacesHttpClient(transports WorkspacesClientTransports, middlewares ...endpoint.Middleware) WorkspacesService {
 	endpoints := newWorkspacesClientEndpoints(transports, middlewares...)
 	return &workspacesHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Workspaces_ListWorkspaces_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.ListWorkspaces(context.TODO()),
+		_Workspaces_ListWorkspaces_HttpServer_RequestDecoder,
+		_Workspaces_ListWorkspaces_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Workspaces_ListWorkspaces_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router),
+				_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_GetWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.GetWorkspace(context.TODO()),
+		_Workspaces_GetWorkspace_HttpServer_RequestDecoder,
+		_Workspaces_GetWorkspace_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Workspaces_GetWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Workspaces_GetWorkspace_HttpClient_RequestEncoder(router),
+				_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_CreateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.CreateWorkspace(context.TODO()),
+		_Workspaces_CreateWorkspace_HttpServer_RequestDecoder,
+		_Workspaces_CreateWorkspace_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Workspaces_CreateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router),
+				_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.UpdateWorkspace(context.TODO()),
+		_Workspaces_UpdateWorkspace_HttpServer_RequestDecoder,
+		_Workspaces_UpdateWorkspace_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Workspaces_UpdateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router),
+				_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
+}
+
+func _Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.DeleteWorkspace(context.TODO()),
+		_Workspaces_DeleteWorkspace_HttpServer_RequestDecoder,
+		_Workspaces_DeleteWorkspace_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Workspaces_DeleteWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router),
+				_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================

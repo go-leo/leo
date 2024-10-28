@@ -152,6 +152,8 @@ func NewGreeterGrpcClient(transports GreeterClientTransports, middlewares ...end
 	return &greeterGrpcClient{endpoints: endpoints}
 }
 
+// =========================== grpc transport ===========================
+
 func _Greeter_SayHello_GrpcServer_Transport(endpoints GreeterEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.SayHello(context.TODO()),
@@ -196,17 +198,7 @@ func (t *greeterHttpServerTransports) SayHello() *http.Server {
 
 func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServerTransports {
 	return &greeterHttpServerTransports{
-		sayHello: http.NewServer(
-			endpoints.SayHello(context.TODO()),
-			_Greeter_SayHello_HttpServer_RequestDecoder,
-			_Greeter_SayHello_HttpServer_ResponseEncoder,
-			http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
-			http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-			http.ServerBefore(httpx.IncomingMetadataInjector),
-			http.ServerBefore(httpx.IncomingTimeLimiter),
-			http.ServerFinalizer(httpx.CancelInvoker),
-			http.ServerErrorEncoder(httpx.ErrorEncoder),
-		),
+		sayHello: _Greeter_SayHello_HttpServer_Transport(endpoints),
 	}
 }
 
@@ -232,18 +224,7 @@ func NewGreeterHttpClientTransports(target string, options ...transportx.ClientT
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
 	t := &greeterHttpClientTransports{}
 	var err error
-	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Greeter_SayHello_HttpClient_RequestEncoder(router),
-				_Greeter_SayHello_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-			),
-			options...,
-		)
-	})
+	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(_Greeter_SayHello_HttpClient_Transport(target, router, options...))
 	return t, err
 }
 
@@ -264,6 +245,37 @@ func (c *greeterHttpClient) SayHello(ctx context.Context, request *HelloRequest)
 func NewGreeterHttpClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
 	endpoints := newGreeterClientEndpoints(transports, middlewares...)
 	return &greeterHttpClient{endpoints: endpoints}
+}
+
+// =========================== http transport ===========================
+
+func _Greeter_SayHello_HttpServer_Transport(endpoints GreeterEndpoints) *http.Server {
+	return http.NewServer(
+		endpoints.SayHello(context.TODO()),
+		_Greeter_SayHello_HttpServer_RequestDecoder,
+		_Greeter_SayHello_HttpServer_ResponseEncoder,
+		http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
+		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimiter),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func _Greeter_SayHello_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+	return func() (transportx.ClientTransport, error) {
+		return transportx.NewClientTransport(
+			target,
+			httpx.ClientFactory(
+				_Greeter_SayHello_HttpClient_RequestEncoder(router),
+				_Greeter_SayHello_HttpClient_ResponseDecoder,
+				http.ClientBefore(httpx.OutgoingMetadataInjector),
+				http.ClientBefore(httpx.OutgoingTimeLimiter),
+			),
+			options...,
+		)
+	}
 }
 
 // =========================== http coder ===========================
