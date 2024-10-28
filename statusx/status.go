@@ -15,6 +15,28 @@ See: [google api design]: https://cloud.google.com/apis/design/errors
 See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
 See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 */
+const kFailedCode codes.Code = 1717570208
+
+var codeMap = map[codes.Code]int{
+	codes.OK:                 http.StatusOK,
+	kFailedCode:              http.StatusOK,
+	codes.Canceled:           499,
+	codes.Unknown:            http.StatusInternalServerError,
+	codes.InvalidArgument:    http.StatusBadRequest,
+	codes.DeadlineExceeded:   http.StatusGatewayTimeout,
+	codes.NotFound:           http.StatusNotFound,
+	codes.AlreadyExists:      http.StatusConflict,
+	codes.PermissionDenied:   http.StatusForbidden,
+	codes.ResourceExhausted:  http.StatusTooManyRequests,
+	codes.FailedPrecondition: http.StatusBadRequest,
+	codes.Aborted:            http.StatusConflict,
+	codes.OutOfRange:         http.StatusBadRequest,
+	codes.Unimplemented:      http.StatusNotImplemented,
+	codes.Internal:           http.StatusInternalServerError,
+	codes.Unavailable:        http.StatusServiceUnavailable,
+	codes.DataLoss:           http.StatusInternalServerError,
+	codes.Unauthenticated:    http.StatusUnauthorized,
+}
 
 // OK Not an error; returned on success.
 //
@@ -22,12 +44,14 @@ See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/goo
 // HTTP Status: 200 OK
 var OK Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.OK)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.OK]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.OK),
+		},
 	},
 }
-
-const kFailedCode codes.Code = 1717570208
 
 // Failed unlike ErrUnknown error, it just means business logic failed.
 //
@@ -38,8 +62,12 @@ const kFailedCode codes.Code = 1717570208
 // HTTP Status: 200 OK
 var Failed Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusOK)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(kFailedCode)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[kFailedCode]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(kFailedCode),
+		},
 	},
 }
 
@@ -49,8 +77,12 @@ var Failed Api = &status{
 // HTTP Status: 499 Client Closed Request
 var ErrCanceled Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(499)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Canceled)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Canceled]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Canceled),
+		},
 	},
 }
 
@@ -60,8 +92,12 @@ var ErrCanceled Api = &status{
 // HTTP Status: 500 Internal Server Error
 var ErrUnknown Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unknown)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Unknown]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Unknown),
+		},
 	},
 }
 
@@ -71,8 +107,12 @@ var ErrUnknown Api = &status{
 // HTTP Status: 400 Bad Request
 var ErrInvalidArgument Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.InvalidArgument)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.InvalidArgument]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.InvalidArgument),
+		},
 	},
 }
 
@@ -82,8 +122,12 @@ var ErrInvalidArgument Api = &status{
 // HTTP Status: 504 Gateway Timeout
 var ErrDeadlineExceeded Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusGatewayTimeout)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.DeadlineExceeded)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.DeadlineExceeded]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.DeadlineExceeded),
+		},
 	},
 }
 
@@ -93,8 +137,12 @@ var ErrDeadlineExceeded Api = &status{
 // HTTP Status: 404 Not Found
 var ErrNotFound Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotFound)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.NotFound)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.NotFound]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.NotFound),
+		},
 	},
 }
 
@@ -105,8 +153,12 @@ var ErrNotFound Api = &status{
 // HTTP Status: 409 Conflict
 var ErrAlreadyExists Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.AlreadyExists)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.AlreadyExists]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.AlreadyExists),
+		},
 	},
 }
 
@@ -117,8 +169,12 @@ var ErrAlreadyExists Api = &status{
 // HTTP Status: 403 Forbidden
 var ErrPermissionDenied Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusForbidden)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.PermissionDenied)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.PermissionDenied]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.PermissionDenied),
+		},
 	},
 }
 
@@ -129,8 +185,12 @@ var ErrPermissionDenied Api = &status{
 // HTTP Status: 429 Too Many Requests
 var ErrResourceExhausted Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusTooManyRequests)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.ResourceExhausted)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.ResourceExhausted]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.ResourceExhausted),
+		},
 	},
 }
 
@@ -141,8 +201,12 @@ var ErrResourceExhausted Api = &status{
 // HTTP Status: 400 Bad Request
 var ErrFailedPrecondition Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.FailedPrecondition)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.FailedPrecondition]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.FailedPrecondition),
+		},
 	},
 }
 
@@ -153,8 +217,12 @@ var ErrFailedPrecondition Api = &status{
 // HTTP Status: 409 Conflict
 var ErrAborted Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusConflict)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Aborted)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Aborted]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Aborted),
+		},
 	},
 }
 
@@ -164,8 +232,12 @@ var ErrAborted Api = &status{
 // HTTP Status: 400 Bad Request
 var ErrOutOfRange Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusBadRequest)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.OutOfRange)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.OutOfRange]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.OutOfRange),
+		},
 	},
 }
 
@@ -176,8 +248,12 @@ var ErrOutOfRange Api = &status{
 // HTTP Status: 501 Not Implemented
 var ErrUnimplemented Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusNotImplemented)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unimplemented)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Unimplemented]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Unimplemented),
+		},
 	},
 }
 
@@ -189,8 +265,12 @@ var ErrUnimplemented Api = &status{
 // HTTP Status: 500 Internal Server Error
 var ErrInternal Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Internal)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Internal]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Internal),
+		},
 	},
 }
 
@@ -200,8 +280,12 @@ var ErrInternal Api = &status{
 // HTTP Status: 503 Service Unavailable
 var ErrUnavailable Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusServiceUnavailable)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unavailable)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Unavailable]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Unavailable),
+		},
 	},
 }
 
@@ -211,8 +295,12 @@ var ErrUnavailable Api = &status{
 // HTTP Status: 500 Internal Server Error
 var ErrDataLoss Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusInternalServerError)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.DataLoss)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.DataLoss]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.DataLoss),
+		},
 	},
 }
 
@@ -223,7 +311,11 @@ var ErrDataLoss Api = &status{
 // HTTP Status: 401 Unauthorized
 var ErrUnauthenticated Api = &status{
 	err: &interstatusx.Error{
-		HttpStatus: &httpstatus.HttpResponse{Status: int32(http.StatusUnauthorized)},
-		GrpcStatus: &rpcstatus.Status{Code: int32(codes.Unauthenticated)},
+		HttpStatus: &httpstatus.HttpResponse{
+			Status: int32(codeMap[codes.Unauthenticated]),
+		},
+		GrpcStatus: &rpcstatus.Status{
+			Code: int32(codes.Unauthenticated),
+		},
 	},
 }
