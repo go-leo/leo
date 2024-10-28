@@ -271,78 +271,15 @@ func (t *pathGrpcServerTransports) EnumPath() *grpc.Server {
 
 func newPathGrpcServerTransports(endpoints PathEndpoints) PathGrpcServerTransports {
 	return &pathGrpcServerTransports{
-		boolPath: grpc.NewServer(
-			endpoints.BoolPath(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/BoolPath")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		int32Path: grpc.NewServer(
-			endpoints.Int32Path(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Int32Path")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		int64Path: grpc.NewServer(
-			endpoints.Int64Path(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Int64Path")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		uint32Path: grpc.NewServer(
-			endpoints.Uint32Path(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		uint64Path: grpc.NewServer(
-			endpoints.Uint64Path(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		floatPath: grpc.NewServer(
-			endpoints.FloatPath(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/FloatPath")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		doublePath: grpc.NewServer(
-			endpoints.DoublePath(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/DoublePath")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		stringPath: grpc.NewServer(
-			endpoints.StringPath(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/StringPath")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		enumPath: grpc.NewServer(
-			endpoints.EnumPath(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/EnumPath")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
+		boolPath:   _Path_BoolPath_GrpcServer_Transport(endpoints),
+		int32Path:  _Path_Int32Path_GrpcServer_Transport(endpoints),
+		int64Path:  _Path_Int64Path_GrpcServer_Transport(endpoints),
+		uint32Path: _Path_Uint32Path_GrpcServer_Transport(endpoints),
+		uint64Path: _Path_Uint64Path_GrpcServer_Transport(endpoints),
+		floatPath:  _Path_FloatPath_GrpcServer_Transport(endpoints),
+		doublePath: _Path_DoublePath_GrpcServer_Transport(endpoints),
+		stringPath: _Path_StringPath_GrpcServer_Transport(endpoints),
+		enumPath:   _Path_EnumPath_GrpcServer_Transport(endpoints),
 	}
 }
 
@@ -619,6 +556,17 @@ func NewPathGrpcClient(transports PathClientTransports, middlewares ...endpoint.
 	return &pathGrpcClient{endpoints: endpoints}
 }
 
+func _Path_BoolPath_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.BoolPath(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/BoolPath")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Path_BoolPath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -634,6 +582,17 @@ func _Path_BoolPath_GrpcClient_Transport(target string, options ...transportx.Cl
 			options...,
 		)
 	}
+}
+
+func _Path_Int32Path_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.Int32Path(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Int32Path")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Path_Int32Path_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
@@ -653,6 +612,17 @@ func _Path_Int32Path_GrpcClient_Transport(target string, options ...transportx.C
 	}
 }
 
+func _Path_Int64Path_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.Int64Path(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Int64Path")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Path_Int64Path_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -668,6 +638,17 @@ func _Path_Int64Path_GrpcClient_Transport(target string, options ...transportx.C
 			options...,
 		)
 	}
+}
+
+func _Path_Uint32Path_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.Uint32Path(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Path_Uint32Path_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
@@ -687,6 +668,17 @@ func _Path_Uint32Path_GrpcClient_Transport(target string, options ...transportx.
 	}
 }
 
+func _Path_Uint64Path_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.Uint64Path(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Path_Uint64Path_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -702,6 +694,17 @@ func _Path_Uint64Path_GrpcClient_Transport(target string, options ...transportx.
 			options...,
 		)
 	}
+}
+
+func _Path_FloatPath_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.FloatPath(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/FloatPath")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Path_FloatPath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
@@ -721,6 +724,17 @@ func _Path_FloatPath_GrpcClient_Transport(target string, options ...transportx.C
 	}
 }
 
+func _Path_DoublePath_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.DoublePath(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/DoublePath")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Path_DoublePath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -738,6 +752,17 @@ func _Path_DoublePath_GrpcClient_Transport(target string, options ...transportx.
 	}
 }
 
+func _Path_StringPath_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.StringPath(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/StringPath")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Path_StringPath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -753,6 +778,17 @@ func _Path_StringPath_GrpcClient_Transport(target string, options ...transportx.
 			options...,
 		)
 	}
+}
+
+func _Path_EnumPath_GrpcServer_Transport(endpoints PathEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.EnumPath(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.Path/EnumPath")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Path_EnumPath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {

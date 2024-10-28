@@ -96,14 +96,7 @@ func (t *queryGrpcServerTransports) Query() *grpc.Server {
 
 func newQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTransports {
 	return &queryGrpcServerTransports{
-		query: grpc.NewServer(
-			endpoints.Query(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.query.v1.Query/Query")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
+		query: _Query_Query_GrpcServer_Transport(endpoints),
 	}
 }
 
@@ -162,6 +155,17 @@ func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*em
 func NewQueryGrpcClient(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryService {
 	endpoints := newQueryClientEndpoints(transports, middlewares...)
 	return &queryGrpcClient{endpoints: endpoints}
+}
+
+func _Query_Query_GrpcServer_Transport(endpoints QueryEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.Query(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.query.v1.Query/Query")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Query_Query_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {

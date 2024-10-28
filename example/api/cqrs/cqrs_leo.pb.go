@@ -182,22 +182,8 @@ func (t *cQRSGrpcServerTransports) FindUser() *grpc.Server {
 
 func newCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTransports {
 	return &cQRSGrpcServerTransports{
-		createUser: grpc.NewServer(
-			endpoints.CreateUser(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		findUser: grpc.NewServer(
-			endpoints.FindUser(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
+		createUser: _CQRS_CreateUser_GrpcServer_Transport(endpoints),
+		findUser:   _CQRS_FindUser_GrpcServer_Transport(endpoints),
 	}
 }
 
@@ -285,6 +271,17 @@ func NewCQRSGrpcClient(transports CQRSClientTransports, middlewares ...endpoint.
 	return &cQRSGrpcClient{endpoints: endpoints}
 }
 
+func _CQRS_CreateUser_GrpcServer_Transport(endpoints CQRSEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.CreateUser(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _CQRS_CreateUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -300,6 +297,17 @@ func _CQRS_CreateUser_GrpcClient_Transport(target string, options ...transportx.
 			options...,
 		)
 	}
+}
+
+func _CQRS_FindUser_GrpcServer_Transport(endpoints CQRSEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.FindUser(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _CQRS_FindUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {

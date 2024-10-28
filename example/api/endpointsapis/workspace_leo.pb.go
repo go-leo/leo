@@ -184,46 +184,11 @@ func (t *workspacesGrpcServerTransports) DeleteWorkspace() *grpc.Server {
 
 func newWorkspacesGrpcServerTransports(endpoints WorkspacesEndpoints) WorkspacesGrpcServerTransports {
 	return &workspacesGrpcServerTransports{
-		listWorkspaces: grpc.NewServer(
-			endpoints.ListWorkspaces(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		getWorkspace: grpc.NewServer(
-			endpoints.GetWorkspace(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		createWorkspace: grpc.NewServer(
-			endpoints.CreateWorkspace(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		updateWorkspace: grpc.NewServer(
-			endpoints.UpdateWorkspace(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
-		deleteWorkspace: grpc.NewServer(
-			endpoints.DeleteWorkspace(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
+		listWorkspaces:  _Workspaces_ListWorkspaces_GrpcServer_Transport(endpoints),
+		getWorkspace:    _Workspaces_GetWorkspace_GrpcServer_Transport(endpoints),
+		createWorkspace: _Workspaces_CreateWorkspace_GrpcServer_Transport(endpoints),
+		updateWorkspace: _Workspaces_UpdateWorkspace_GrpcServer_Transport(endpoints),
+		deleteWorkspace: _Workspaces_DeleteWorkspace_GrpcServer_Transport(endpoints),
 	}
 }
 
@@ -392,6 +357,17 @@ func NewWorkspacesGrpcClient(transports WorkspacesClientTransports, middlewares 
 	return &workspacesGrpcClient{endpoints: endpoints}
 }
 
+func _Workspaces_ListWorkspaces_GrpcServer_Transport(endpoints WorkspacesEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.ListWorkspaces(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Workspaces_ListWorkspaces_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -407,6 +383,17 @@ func _Workspaces_ListWorkspaces_GrpcClient_Transport(target string, options ...t
 			options...,
 		)
 	}
+}
+
+func _Workspaces_GetWorkspace_GrpcServer_Transport(endpoints WorkspacesEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.GetWorkspace(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Workspaces_GetWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
@@ -426,6 +413,17 @@ func _Workspaces_GetWorkspace_GrpcClient_Transport(target string, options ...tra
 	}
 }
 
+func _Workspaces_CreateWorkspace_GrpcServer_Transport(endpoints WorkspacesEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.CreateWorkspace(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Workspaces_CreateWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -443,6 +441,17 @@ func _Workspaces_CreateWorkspace_GrpcClient_Transport(target string, options ...
 	}
 }
 
+func _Workspaces_UpdateWorkspace_GrpcServer_Transport(endpoints WorkspacesEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.UpdateWorkspace(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
+}
+
 func _Workspaces_UpdateWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
 		return transportx.NewClientTransport(
@@ -458,6 +467,17 @@ func _Workspaces_UpdateWorkspace_GrpcClient_Transport(target string, options ...
 			options...,
 		)
 	}
+}
+
+func _Workspaces_DeleteWorkspace_GrpcServer_Transport(endpoints WorkspacesEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.DeleteWorkspace(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Workspaces_DeleteWorkspace_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {

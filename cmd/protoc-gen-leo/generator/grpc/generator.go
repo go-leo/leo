@@ -81,18 +81,24 @@ func (f *Generator) GenerateServerTransports(service *internal.Service, g *proto
 	g.P("func new", service.GrpcServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.GrpcServerTransportsName(), " {")
 	g.P("return &", service.UnexportedGrpcServerTransportsName(), "{")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ":", internal.GrpcTransportPackage.Ident("NewServer"), "(")
-		g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
-		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
-		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
-
-		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerTransportInjector"), "),")
-		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
-
-		g.P("),")
+		g.P(endpoint.UnexportedName(), ":", endpoint.GrpcServerTransportName(), "(endpoints),")
 	}
 	g.P("}")
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateServerEndpointTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
+	g.P("func ", endpoint.GrpcServerTransportName(), "(endpoints ", service.EndpointsName(), ") *", internal.GrpcTransportPackage.Ident("Server"), " {")
+	g.P("return ", internal.GrpcTransportPackage.Ident("NewServer"), "(")
+	g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
+	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
+	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
+	g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+	g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerTransportInjector"), "),")
+	g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
+	g.P(")")
 	g.P("}")
 	g.P()
 	return nil
@@ -162,6 +168,9 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 
 func (f *Generator) GenerateTransport(service *internal.Service, g *protogen.GeneratedFile) error {
 	for _, endpoint := range service.Endpoints {
+		if err := f.GenerateServerEndpointTransport(service, g, endpoint); err != nil {
+			return err
+		}
 		if err := f.GenerateClientEndpointTransport(service, g, endpoint); err != nil {
 			return err
 		}

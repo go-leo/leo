@@ -91,14 +91,7 @@ func (t *greeterGrpcServerTransports) SayHello() *grpc.Server {
 
 func newGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
 	return &greeterGrpcServerTransports{
-		sayHello: grpc.NewServer(
-			endpoints.SayHello(context.TODO()),
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			func(_ context.Context, v any) (any, error) { return v, nil },
-			grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
-			grpc.ServerBefore(grpcx.ServerTransportInjector),
-			grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		),
+		sayHello: _Greeter_SayHello_GrpcServer_Transport(endpoints),
 	}
 }
 
@@ -157,6 +150,17 @@ func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest)
 func NewGreeterGrpcClient(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterService {
 	endpoints := newGreeterClientEndpoints(transports, middlewares...)
 	return &greeterGrpcClient{endpoints: endpoints}
+}
+
+func _Greeter_SayHello_GrpcServer_Transport(endpoints GreeterEndpoints) *grpc.Server {
+	return grpc.NewServer(
+		endpoints.SayHello(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+	)
 }
 
 func _Greeter_SayHello_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
