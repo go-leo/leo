@@ -182,6 +182,40 @@ func newDemoClientEndpoints(transports DemoClientTransports, middlewares ...endp
 
 // =========================== cqrs ===========================
 
+func NewDemoBus(
+	createUser command.CreateUser,
+	deleteUser command.DeleteUser,
+	updateUser command.UpdateUser,
+	getUser query.GetUser,
+	getUsers query.GetUsers,
+	uploadUserAvatar command.UploadUserAvatar,
+	getUserAvatar query.GetUserAvatar,
+) (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
+	if err := bus.RegisterCommand(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(deleteUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(updateUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUsers); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(uploadUserAvatar); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUserAvatar); err != nil {
+		return nil, err
+	}
+	return bus, nil
+}
+
 // DemoAssembler responsible for completing the transformation between domain model objects and DTOs
 type DemoAssembler interface {
 
@@ -320,40 +354,6 @@ func (svc *demoCqrsService) GetUserAvatar(ctx context.Context, request *GetUserA
 
 func NewDemoCqrsService(bus cqrs.Bus, assembler DemoAssembler) DemoService {
 	return &demoCqrsService{bus: bus, assembler: assembler}
-}
-
-func NewDemoBus(
-	createUser command.CreateUser,
-	deleteUser command.DeleteUser,
-	updateUser command.UpdateUser,
-	getUser query.GetUser,
-	getUsers query.GetUsers,
-	uploadUserAvatar command.UploadUserAvatar,
-	getUserAvatar query.GetUserAvatar,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus()
-	if err := bus.RegisterCommand(createUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(deleteUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(updateUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUsers); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(uploadUserAvatar); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUserAvatar); err != nil {
-		return nil, err
-	}
-	return bus, nil
 }
 
 // =========================== grpc server ===========================

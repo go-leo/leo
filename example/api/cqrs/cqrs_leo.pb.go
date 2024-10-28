@@ -96,6 +96,20 @@ func newCQRSClientEndpoints(transports CQRSClientTransports, middlewares ...endp
 
 // =========================== cqrs ===========================
 
+func NewCQRSBus(
+	createUser command.CreateUser,
+	findUser query.FindUser,
+) (cqrs.Bus, error) {
+	bus := cqrs.NewBus()
+	if err := bus.RegisterCommand(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(findUser); err != nil {
+		return nil, err
+	}
+	return bus, nil
+}
+
 // CQRSAssembler responsible for completing the transformation between domain model objects and DTOs
 type CQRSAssembler interface {
 
@@ -144,20 +158,6 @@ func (svc *cQRSCqrsService) FindUser(ctx context.Context, request *FindUserReque
 
 func NewCQRSCqrsService(bus cqrs.Bus, assembler CQRSAssembler) CQRSService {
 	return &cQRSCqrsService{bus: bus, assembler: assembler}
-}
-
-func NewCQRSBus(
-	createUser command.CreateUser,
-	findUser query.FindUser,
-) (cqrs.Bus, error) {
-	bus := cqrs.NewBus()
-	if err := bus.RegisterCommand(createUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(findUser); err != nil {
-		return nil, err
-	}
-	return bus, nil
 }
 
 // =========================== grpc server ===========================

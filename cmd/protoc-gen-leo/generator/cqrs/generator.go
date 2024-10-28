@@ -25,6 +25,11 @@ func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, err
 
 func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	for _, service := range f.Services {
+		if err := f.GenerateBus(service, g); err != nil {
+			return err
+		}
+	}
+	for _, service := range f.Services {
 		if err := f.GenerateEndpoints(service); err != nil {
 			return err
 		}
@@ -36,12 +41,6 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 	for _, service := range f.Services {
 		if err := f.GenerateCQRSService(service, g); err != nil {
-			return err
-		}
-	}
-
-	for _, service := range f.Services {
-		if err := f.GenerateBus(service, g); err != nil {
 			return err
 		}
 	}
