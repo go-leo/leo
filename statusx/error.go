@@ -145,9 +145,10 @@ func HttpBody(info *wrapperspb.BytesValue) Option {
 // From create status from http.Response
 func (st *status) From(resp *http.Response) {
 	if st == nil {
-		*st = status{
-			err: &interstatusx.Error{},
-		}
+		panic(fmt.Errorf("statusx: status is nil"))
+	}
+	if st.err == nil {
+		st.err = &interstatusx.Error{}
 	}
 	body, _ := io.ReadAll(resp.Body)
 	_ = resp.Body.Close()
@@ -165,6 +166,9 @@ func (st *status) Write(resp http.ResponseWriter) {
 // ErrorInfo sets the error info.
 func ErrorInfo(info *errdetails.ErrorInfo) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.ErrorInfo = info
 	}
 }
@@ -172,6 +176,9 @@ func ErrorInfo(info *errdetails.ErrorInfo) Option {
 // RetryInfo sets the retry info.
 func RetryInfo(info *errdetails.RetryInfo) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.RetryInfo = info
 	}
 }
@@ -179,6 +186,9 @@ func RetryInfo(info *errdetails.RetryInfo) Option {
 // DebugInfo sets the debug info.
 func DebugInfo(info *errdetails.DebugInfo) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.DebugInfo = info
 	}
 }
@@ -186,6 +196,9 @@ func DebugInfo(info *errdetails.DebugInfo) Option {
 // QuotaFailure sets the quota failure info.
 func QuotaFailure(info *errdetails.QuotaFailure) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.QuotaFailure = info
 	}
 }
@@ -193,6 +206,9 @@ func QuotaFailure(info *errdetails.QuotaFailure) Option {
 // PreconditionFailure sets the precondition failure info.
 func PreconditionFailure(info *errdetails.PreconditionFailure) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.PreconditionFailure = info
 	}
 }
@@ -200,6 +216,9 @@ func PreconditionFailure(info *errdetails.PreconditionFailure) Option {
 // BadRequest sets the bad request info.
 func BadRequest(info *errdetails.BadRequest) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.BadRequest = info
 	}
 }
@@ -207,6 +226,9 @@ func BadRequest(info *errdetails.BadRequest) Option {
 // RequestInfo sets the request info.
 func RequestInfo(info *errdetails.RequestInfo) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.RequestInfo = info
 	}
 }
@@ -214,6 +236,9 @@ func RequestInfo(info *errdetails.RequestInfo) Option {
 // ResourceInfo sets the resource info.
 func ResourceInfo(info *errdetails.ResourceInfo) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.ResourceInfo = info
 	}
 }
@@ -221,6 +246,9 @@ func ResourceInfo(info *errdetails.ResourceInfo) Option {
 // Help sets the help info.
 func Help(info *errdetails.Help) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.Help = info
 	}
 }
@@ -228,6 +256,9 @@ func Help(info *errdetails.Help) Option {
 // LocalizedMessage sets the localized message info.
 func LocalizedMessage(info *errdetails.LocalizedMessage) Option {
 	return func(st *status) {
+		if st.err.Detail == nil {
+			st.err.Detail = &interstatusx.Detail{}
+		}
 		st.err.Detail.LocalizedMessage = info
 	}
 }

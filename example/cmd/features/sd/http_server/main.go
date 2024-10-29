@@ -32,7 +32,7 @@ func run(port int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	router := helloworld.AppendGreeterHttpRouter(
+	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterService(address),
 	)

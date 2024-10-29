@@ -24,7 +24,7 @@ func main() {
 }
 
 func callApi(color string) {
-	req := &helloworld.HelloRequest{Name: "macbook"}
+	req := &helloworld.HelloRequest{Name: color}
 	receiver, err := outgoing.Sender().Post().
 		URLString("http://localhost:8000/helloworld.Greeter/SayHello").
 		JSONBody(req).

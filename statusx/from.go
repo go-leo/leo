@@ -121,10 +121,13 @@ func fromRpcStatus(grpcProto *rpcstatus.Status) Error {
 	for _, value := range grpcProto.GetDetails() {
 		switch {
 		case value.MessageIs(&interstatusx.Cause{}):
+			st.err.Cause = new(interstatusx.Cause)
 			_ = value.UnmarshalTo(st.err.Cause)
 		case value.MessageIs(&interstatusx.Detail{}):
+			st.err.Detail = new(interstatusx.Detail)
 			_ = value.UnmarshalTo(st.err.Detail)
 		case value.MessageIs(&httpstatus.HttpResponse{}):
+			st.err.HttpStatus = new(httpstatus.HttpResponse)
 			_ = value.UnmarshalTo(st.err.HttpStatus)
 		default:
 			st.err.GrpcStatus.Details = append(st.err.GrpcStatus.Details, value)

@@ -46,7 +46,8 @@ func main() {
 }
 
 func runApi(port int) {
-	lis, err := net.Listen("tcp", ":"+strconv.FormatInt(int64(port), 10))
+	address := ":" + strconv.FormatInt(int64(port), 10)
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -60,9 +61,9 @@ func runApi(port int) {
 		stain.Middleware("X-Color"),
 	)
 
-	router := helloworld.AppendGreeterHttpRouter(
+	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
-		NewGreeterApiService(httpClient),
+		NewGreeterApiService(httpClient, address),
 		stain.Middleware("X-Color"),
 	)
 	server := http.Server{Handler: router}
@@ -76,7 +77,8 @@ func runApi(port int) {
 }
 
 type GreeterApiService struct {
-	client helloworld.GreeterService
+	client  helloworld.GreeterService
+	address string
 }
 
 func (g GreeterApiService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
@@ -84,12 +86,12 @@ func (g GreeterApiService) SayHello(ctx context.Context, request *helloworld.Hel
 	if err != nil {
 		return nil, err
 	}
-	hello.Message = "i am api. " + hello.GetMessage()
+	hello.Message = "i am client, my need color is " + request.GetName() + ". i am api. @" + g.address + ". " + hello.GetMessage()
 	return hello, nil
 }
 
-func NewGreeterApiService(client helloworld.GreeterService) helloworld.GreeterService {
-	return &GreeterApiService{client: client}
+func NewGreeterApiService(client helloworld.GreeterService, address string) helloworld.GreeterService {
+	return &GreeterApiService{client: client, address: address}
 }
 
 func runHttp(port int, color string) {
@@ -108,7 +110,7 @@ func runHttp(port int, color string) {
 	}
 	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, stain.Middleware("X-Color"))
 
-	router := helloworld.AppendGreeterHttpRouter(
+	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterHttpService(grpcClient, address, color),
 		stain.Middleware("X-Color"),

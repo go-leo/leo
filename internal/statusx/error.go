@@ -2,6 +2,7 @@ package statusx
 
 import (
 	"errors"
+	"fmt"
 	"golang.org/x/exp/maps"
 	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
@@ -67,7 +68,7 @@ func (x *Error) Encode() (int, http.Header, []byte) {
 
 func (x *Error) Decode(status int, header http.Header, body []byte) {
 	if x == nil {
-		*x = Error{}
+		panic(fmt.Errorf("statusx: error is nil"))
 	}
 
 	// handle http status

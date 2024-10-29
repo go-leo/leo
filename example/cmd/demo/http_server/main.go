@@ -30,7 +30,7 @@ func main() {
 	}
 	demoAssembler := assembler.NewDemoAssembler()
 	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
-	router := demo.AppendDemoHttpRouter(mux.NewRouter(), cqrsService)
+	router := demo.AppendDemoHttpRoutes(mux.NewRouter(), cqrsService)
 	server := http.Server{Handler: router}
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {

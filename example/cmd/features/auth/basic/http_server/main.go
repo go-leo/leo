@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	router := helloworld.AppendGreeterHttpRouter(
+	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterService(),
 		basicx.Middleware("soyacen", "123456", "basic auth example"),

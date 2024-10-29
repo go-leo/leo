@@ -11,7 +11,7 @@ import (
 func main() {
 	transports, err := helloworld.NewGreeterHttpClientTransports(
 		"consul://localhost:8500/demo.http?dc=dc1",
-		transportx.BalancerFactory(lbx.LeastRequestFactory{}),
+		transportx.BalancerFactory(lbx.RandomFactory{}),
 	)
 	if err != nil {
 		panic(err)
@@ -19,9 +19,6 @@ func main() {
 
 	client := helloworld.NewGreeterHttpClient(transports)
 
-	callRpc(client)
-
-	return
 	for i := 0; i < 90; i++ {
 		callRpc(client)
 	}

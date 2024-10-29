@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	client := helloworld.NewGreeterGrpcClient(transports)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
