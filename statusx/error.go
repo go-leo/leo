@@ -18,11 +18,11 @@ import (
 	"net/http"
 )
 
-type Api interface {
+type Error interface {
 	error
 
 	// With wraps the current Error with the given options and return new Error.
-	With(opts ...Option) Api
+	With(opts ...Option) Error
 
 	// GRPCStatus returns the gRPC Status.
 	GRPCStatus() *grpcstatus.Status
@@ -276,7 +276,7 @@ func Details(details ...proto.Message) Option {
 	}
 }
 
-func (st *status) With(opts ...Option) Api {
+func (st *status) With(opts ...Option) Error {
 	clonedSt := &status{
 		err: protox.Clone(st.err),
 	}

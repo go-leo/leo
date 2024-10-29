@@ -9,6 +9,5 @@ const (
 	kStatusDetailKey       = "X-Leo-Status-Detail"
 	kStatusGrpcKey         = "X-Leo-Status-Grpc"
 
-	kKitCoderValue = "kit-coder"
 	kLeoCoderValue = "leo-coder"
 )

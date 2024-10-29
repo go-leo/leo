@@ -2,22 +2,26 @@ package statusx
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	httptransport "github.com/go-kit/kit/transport/http"
 	interstatusx "github.com/go-leo/leo/v3/internal/statusx"
 	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
+	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 	"net/url"
 	"strconv"
 )
 
-func From(obj any) Api {
+func From(obj any) Error {
 	switch err := obj.(type) {
 	case *status:
 		return err
-	case Api:
+	case Error:
 		return err
 	case *interstatusx.Error:
 		return &status{err: err}
@@ -31,6 +35,10 @@ func From(obj any) Api {
 		return fromRpcStatus(err.Proto())
 	case interface{ GRPCStatus() *grpcstatus.Status }:
 		return From(err.GRPCStatus())
+	case codes.Code:
+		return fromGrpcCode(err)
+	case int:
+		return fromHttpCode(err)
 	case error:
 		return fromError(err)
 	default:
@@ -38,7 +46,7 @@ func From(obj any) Api {
 	}
 }
 
-func FromGrpcError(err error) Api {
+func FromGrpcError(err error) Error {
 	if err == nil {
 		return nil
 	}
@@ -48,14 +56,7 @@ func FromGrpcError(err error) Api {
 	return ErrUnknown.With(Wrap(err))
 }
 
-func FromHttpError(err error) Api {
-	if err == nil {
-		return nil
-	}
-
-}
-
-func fromError(err error) Api {
+func fromError(err error) Error {
 	if errors.Is(err, context.DeadlineExceeded) {
 		return ErrDeadlineExceeded.With(Wrap(err))
 	}
@@ -71,10 +72,44 @@ func fromError(err error) Api {
 	if grpcStatus, ok := grpcstatus.FromError(err); ok {
 		return From(grpcStatus)
 	}
-	return ErrUnknown.With(Wrap(err))
+	return fromDefaultErrorEncoder(err)
 }
 
-func fromRpcStatus(grpcProto *rpcstatus.Status) Api {
+func fromDefaultErrorEncoder(err error) Error {
+	statusCode := http.StatusInternalServerError
+	if sc, ok := err.(httptransport.StatusCoder); ok {
+		statusCode = sc.StatusCode()
+	}
+	statusErr := fromHttpCode(statusCode)
+
+	// body
+	contentType, body := "text/plain; charset=utf-8", []byte(err.Error())
+	if marshaler, ok := err.(json.Marshaler); ok {
+		if jsonBody, marshalErr := marshaler.MarshalJSON(); marshalErr == nil {
+			contentType, body = "application/json; charset=utf-8", jsonBody
+		}
+	}
+
+	// header
+	header := make([]*httpstatus.HttpHeader, 0)
+	header = append(header, &httpstatus.HttpHeader{
+		Key:   "Content-Type",
+		Value: contentType,
+	})
+	if headerer, ok := err.(httptransport.Headerer); ok {
+		for key, values := range headerer.Headers() {
+			for _, value := range values {
+				header = append(header, &httpstatus.HttpHeader{
+					Key:   key,
+					Value: value,
+				})
+			}
+		}
+	}
+	return statusErr.With(HttpHeader(header...), HttpBody(wrapperspb.Bytes(body)))
+}
+
+func fromRpcStatus(grpcProto *rpcstatus.Status) Error {
 	st := &status{
 		err: &interstatusx.Error{
 			GrpcStatus: &rpcstatus.Status{
@@ -96,4 +131,52 @@ func fromRpcStatus(grpcProto *rpcstatus.Status) Api {
 		}
 	}
 	return st
+}
+
+var kGrpcToHttpCode = map[codes.Code]Error{
+	codes.OK:                 OK,
+	kFailedCode:              Failed,
+	codes.Canceled:           ErrCanceled,
+	codes.Unknown:            ErrUnknown,
+	codes.InvalidArgument:    ErrInvalidArgument,
+	codes.DeadlineExceeded:   ErrDeadlineExceeded,
+	codes.NotFound:           ErrNotFound,
+	codes.AlreadyExists:      ErrAlreadyExists,
+	codes.PermissionDenied:   ErrPermissionDenied,
+	codes.ResourceExhausted:  ErrResourceExhausted,
+	codes.FailedPrecondition: ErrFailedPrecondition,
+	codes.Aborted:            ErrAborted,
+	codes.OutOfRange:         ErrOutOfRange,
+	codes.Unimplemented:      ErrUnimplemented,
+	codes.Internal:           ErrInternal,
+	codes.Unavailable:        ErrUnavailable,
+	codes.DataLoss:           ErrDataLoss,
+	codes.Unauthenticated:    ErrUnauthenticated,
+}
+
+func fromGrpcCode(code codes.Code) Error {
+	statusErr, ok := kGrpcToHttpCode[code]
+	if ok {
+		return statusErr
+	}
+	return ErrUnknown
+}
+
+var kHttpToGrpcCode = map[int]Error{
+	http.StatusBadRequest:         ErrInternal,
+	http.StatusUnauthorized:       ErrUnauthenticated,
+	http.StatusForbidden:          ErrPermissionDenied,
+	http.StatusNotFound:           ErrUnimplemented,
+	http.StatusTooManyRequests:    ErrUnavailable,
+	http.StatusBadGateway:         ErrUnavailable,
+	http.StatusServiceUnavailable: ErrUnavailable,
+	http.StatusGatewayTimeout:     ErrUnavailable,
+}
+
+func fromHttpCode(code int) Error {
+	statusErr, ok := kHttpToGrpcCode[code]
+	if ok {
+		return statusErr
+	}
+	return ErrUnknown
 }
