@@ -1,4 +1,4 @@
-package sdx
+package stainx
 
 import (
 	"context"

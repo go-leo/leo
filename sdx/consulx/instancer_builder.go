@@ -7,6 +7,7 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/stainx"
 	"github.com/hashicorp/consul/api"
 	"net/url"
 	"strings"
@@ -41,7 +42,7 @@ func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target) (sd.In
 	if err != nil {
 		return nil, err
 	}
-	color, ok := sdx.ExtractColor(ctx)
+	color, ok := stainx.ExtractColor(ctx)
 	if !ok {
 		return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, nil, true), nil
 	}

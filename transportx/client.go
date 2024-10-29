@@ -13,6 +13,7 @@ import (
 	"github.com/go-leo/leo/v3/sdx/dnssrvx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
+	"github.com/go-leo/leo/v3/sdx/stainx"
 	"github.com/go-leo/leo/v3/statusx"
 	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc"
@@ -175,7 +176,7 @@ func (c *clientTransport) Endpoint(ctx context.Context) endpoint.Endpoint {
 
 func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 	var key string
-	if color, ok := sdx.ExtractColor(ctx); ok {
+	if color, ok := stainx.ExtractColor(ctx); ok {
 		key = color
 	}
 	value, err, _ := c.clients.LoadOrNew(key, func(key string) (any, error) {
