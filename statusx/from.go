@@ -154,6 +154,7 @@ var kGrpcToHttpCode = map[codes.Code]Error{
 	codes.Unauthenticated:    ErrUnauthenticated,
 }
 
+// fromGrpcCode converts a gRPC status code to Error.
 func fromGrpcCode(code codes.Code) Error {
 	statusErr, ok := kGrpcToHttpCode[code]
 	if ok {
@@ -173,6 +174,8 @@ var kHttpToGrpcCode = map[int]Error{
 	http.StatusGatewayTimeout:     ErrUnavailable,
 }
 
+// fromHttpCode converts an HTTP status code to Error.
+// See: [HTTP to gRPC Status Code Mapping]: https://github.com/grpc/grpc/blob/master/doc/http-grpc-status-mapping.md
 func fromHttpCode(code int) Error {
 	statusErr, ok := kHttpToGrpcCode[code]
 	if ok {

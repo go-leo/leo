@@ -10,11 +10,10 @@ import (
 
 /*
 define status code
-See: [gRPC documentation]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+See: [Status codes and their use in gRPC]: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
 See: [google api design]: https://cloud.google.com/apis/design/errors
 See: [gRPC codes]: https://github.com/grpc/grpc-go/blob/master/codes/codes.go
 See: [google rpc code]: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-See: [HTTP to gRPC Status Code Mapping]: https://github.com/grpc/grpc/blob/master/doc/http-grpc-status-mapping.md
 */
 const kFailedCode codes.Code = 1717570208
 

@@ -5,7 +5,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/gox/backoff"
 	"github.com/go-leo/gox/retry"
-	"github.com/go-leo/leo/v3/statusx"
 	"time"
 )
 
@@ -42,10 +41,7 @@ func Middleware(opts ...Option) endpoint.Middleware {
 	o := &options{
 		maxAttempts: 3,
 		backoffFunc: backoff.Constant(500 * time.Millisecond),
-		retryOnFunc: func(err error) bool {
-			 := statusx.From(err)
-			return .Code() == statusx.CodeUnknown
-		},
+		retryOnFunc: func(err error) bool { return err != nil },
 	}
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
