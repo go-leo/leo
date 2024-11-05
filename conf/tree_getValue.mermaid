@@ -1,0 +1,14 @@
+flowchart TD
+    Start[开始] -->|初始化变量| WalkTree[遍历树]
+    WalkTree -->|匹配前缀| CheckChildren{是否存在子节点}
+    CheckChildren -->|存在匹配子节点| ContinueWalk[继续遍历]
+    CheckChildren -->|不存在匹配子节点| CheckWildChild{是否存在通配符子节点}
+    CheckWildChild -->|存在通配符子节点| HandleWildChild[处理通配符子节点]
+    CheckWildChild -->|不存在通配符子节点| CheckTSR{是否推荐尾斜杠重定向}
+    CheckTSR -->|推荐重定向| ReturnTSR[返回重定向建议]
+    CheckTSR -->|不推荐重定向| ReturnNotFound[返回未找到]
+    HandleWildChild -->|处理成功| ReturnHandlers[返回处理器链]
+    ContinueWalk -->|继续遍历| WalkTree
+    ReturnHandlers -->|返回处理器链| End[结束]
+    ReturnTSR -->|返回重定向建议| End
+    ReturnNotFound -->|返回未找到| End

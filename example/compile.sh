@@ -18,4 +18,5 @@ api/response/*.proto \
 api/library/*.proto \
 api/endpointsapis/*.proto \
 api/cqrs/*.proto \
-api/demo/*.proto
+api/demo/*.proto \
+configs/*.proto

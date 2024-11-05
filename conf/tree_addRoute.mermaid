@@ -1,0 +1,12 @@
+flowchart TD
+    Start[开始] -->|检查路径是否为空| EmptyTree{树是否为空}
+    EmptyTree -->|是| InsertRoot[插入根节点]
+    EmptyTree -->|否| WalkTree[遍历树]
+    WalkTree -->|找到最长公共前缀| SplitEdge{是否需要拆分边}
+    SplitEdge -->|是| SplitNode[拆分节点]
+    SplitEdge -->|否| CheckChildren{检查子节点}
+    CheckChildren -->|存在匹配子节点| ContinueWalk[继续遍历]
+    CheckChildren -->|不存在匹配子节点| InsertChild[插入新子节点]
+    InsertChild -->|插入成功| Return[返回]
+    ContinueWalk -->|继续遍历| WalkTree
+    InsertRoot -->|插入成功| Return

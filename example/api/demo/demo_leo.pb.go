@@ -1046,8 +1046,7 @@ func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 func (c *demoHttpClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	endpoint := c.endpoints.GetUserAvatar(ctx)
-	rep, err := endpoint(ctx, request)
+	rep, err := c.endpoints.GetUserAvatar(ctx)(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
