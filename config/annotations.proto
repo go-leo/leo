@@ -1,0 +1,10 @@
+syntax = "proto3";
+package leo.config;
+import "google/protobuf/descriptor.proto";
+option go_package = "github.com/go-leo/leo/v3/config;config";
+
+// Config rules applied at the message level
+extend google.protobuf.MessageOptions {
+  // root identifies this as a configuration root and generate methods for it.
+  bool root = 32782311;
+}

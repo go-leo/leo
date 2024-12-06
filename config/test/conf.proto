@@ -1,0 +1,9 @@
+syntax = "proto3";
+package config.test;
+
+option go_package = "github.com/go-leo/leo/v3/config/test/v1;test";
+
+message Application {
+  string addr = 1;
+  int32 port = 2;
+}
