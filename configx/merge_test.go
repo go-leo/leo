@@ -1,4 +1,4 @@
-package config
+package configx
 
 import (
 	"github.com/go-leo/gox/errorx"

@@ -1,7 +1,7 @@
 syntax = "proto3";
-package leo.config;
+package leo.configx;
 import "google/protobuf/descriptor.proto";
-option go_package = "github.com/go-leo/leo/v3/config;config";
+option go_package = "github.com/go-leo/leo/v3/configx;configx";
 
 // Config rules applied at the message level
 extend google.protobuf.MessageOptions {

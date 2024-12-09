@@ -56,6 +56,7 @@ require (
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/serf v0.10.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230110061619-bbe2e5e100de // indirect

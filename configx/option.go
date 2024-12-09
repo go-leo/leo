@@ -1,4 +1,4 @@
-package config
+package configx
 
 // options 结构体用于存储配置项，包括资源、解析器和合并器。
 type options struct {

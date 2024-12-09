@@ -4,8 +4,7 @@ package internal.conf;
 option go_package = "github.com/go-leo/leo/v3/example/configs/v1;configs";
 
 import "google/protobuf/duration.proto";
-import "leo/config/annotations.proto";
-import "leo/cqrs/annotations.proto";
+import "leo/configx/annotations.proto";
 
 message HTTP {
     string network = 1;
@@ -33,7 +32,7 @@ message Redis {
 }
 
 message Application {
-    option (leo.config.application) = true;
+    option (leo.configx.root) = true;
     HTTP http = 1;
     GRPC grpc = 2;
     Database database = 3;

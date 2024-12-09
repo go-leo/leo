@@ -1,9 +1,9 @@
-package config
+package configx
 
 import (
 	"context"
 	"fmt"
-	"github.com/go-leo/leo/v3/config/test"
+	"github.com/go-leo/leo/v3/configx/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/protobuf/types/known/structpb"

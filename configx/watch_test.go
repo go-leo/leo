@@ -1,11 +1,11 @@
-package config
+package configx
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"github.com/go-leo/gox/mathx/randx"
-	"github.com/go-leo/leo/v3/config/test"
+	"github.com/go-leo/leo/v3/configx/test"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/protobuf/types/known/structpb"
 	"testing"
