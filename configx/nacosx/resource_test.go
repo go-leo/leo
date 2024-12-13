@@ -56,14 +56,14 @@ func TestResource_Load_Nacos(t *testing.T) {
 			Group:  "test",
 		})
 		if err != nil {
-			t.Errorf("PublishConfig() error = %v", err)
+			t.Errorf("DeleteConfig() error = %v", err)
 			return
 		}
 	}()
 
 	time.Sleep(time.Second)
 
-	r := Nacos{
+	r := Resource{
 		Formatter: configx.Env{},
 		Client:    configClient,
 		Group:     "test",
@@ -107,14 +107,14 @@ func TestResource_Watch_Nacos(t *testing.T) {
 			Group:  "test",
 		})
 		if err != nil {
-			t.Errorf("PublishConfig() error = %v", err)
+			t.Errorf("DeleteConfig() error = %v", err)
 			return
 		}
 	}()
 
 	time.Sleep(time.Second)
 
-	r := Nacos{
+	r := Resource{
 		Formatter: configx.Env{},
 		Client:    configClient,
 		Group:     "test",

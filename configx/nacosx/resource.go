@@ -7,20 +7,20 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 )
 
-var _ configx.Resource = (*Nacos)(nil)
+var _ configx.Resource = (*Resource)(nil)
 
-type Nacos struct {
+type Resource struct {
 	Formatter configx.Formatter
 	Client    config_client.IConfigClient
 	Group     string
 	DataId    string
 }
 
-func (r *Nacos) Format() string {
+func (r *Resource) Format() string {
 	return r.Formatter.Format()
 }
 
-func (r *Nacos) Load(ctx context.Context) ([]byte, error) {
+func (r *Resource) Load(ctx context.Context) ([]byte, error) {
 	content, err := r.Client.GetConfig(vo.ConfigParam{
 		Group:  r.Group,
 		DataId: r.DataId,
@@ -31,7 +31,7 @@ func (r *Nacos) Load(ctx context.Context) ([]byte, error) {
 	return []byte(content), nil
 }
 
-func (r *Nacos) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
+func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
 	err := r.Client.ListenConfig(vo.ConfigParam{
 		Group:  r.Group,
 		DataId: r.DataId,

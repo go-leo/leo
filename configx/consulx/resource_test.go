@@ -4,68 +4,48 @@ import (
 	"context"
 	"errors"
 	"github.com/go-leo/leo/v3/configx"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
-	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-	"os"
+	"github.com/hashicorp/consul/api"
 	"strings"
 	"testing"
 	"time"
 )
 
-func consulFactory() (config_client.IConfigClient, error) {
-	sc := []constant.ServerConfig{*constant.NewServerConfig(os.Getenv("Addr"), 8848)}
-	cc := *constant.NewClientConfig(
-		constant.WithNamespaceId("dev"),
-		constant.WithTimeoutMs(5000),
-		constant.WithNotLoadCacheAtStart(true),
-		constant.WithLogLevel("debug"),
-		constant.WithLogDir("/tmp/nacos.log"),
-		constant.WithAccessKey(os.Getenv("AccessKey")),
-		constant.WithSecretKey(os.Getenv("SecretKey")),
-	)
-	return clients.NewConfigClient(
-		vo.NacosClientParam{
-			ClientConfig:  &cc,
-			ServerConfigs: sc,
-		},
-	)
+func consulFactory() (*api.Client, error) {
+	return api.NewClient(api.DefaultConfig())
 }
 
 func TestResource_Load_Consul(t *testing.T) {
-	configClient, err := consulFactory()
+	client, err := consulFactory()
 	if err != nil {
 		t.Errorf("factory() error = %v", err)
 		return
 	}
 
-	_, err = configClient.PublishConfig(vo.ConfigParam{
-		DataId:  "nacos",
-		Group:   "test",
-		Content: "TEST_KEY=test_value",
-	})
+	_, err = client.KV().Put(&api.KVPair{
+		Key:   "consul",
+		Value: []byte("TEST_KEY=test_value"),
+	}, nil)
 	if err != nil {
-		t.Errorf("PublishConfig() error = %v", err)
+		t.Errorf("Put() error = %v", err)
 		return
 	}
 
 	defer func() {
-		_, err = configClient.DeleteConfig(vo.ConfigParam{
-			DataId: "nacos",
-			Group:  "test",
-		})
+		_, err = client.KV().Delete("consul", nil)
 		if err != nil {
-			t.Errorf("PublishConfig() error = %v", err)
+			t.Errorf("Delete() error = %v", err)
 			return
 		}
 	}()
 
 	time.Sleep(time.Second)
 
-	r := NewNacos(configClient, configx.Env{})
+	r := Resource{
+		Formatter: configx.Env{},
+		Client:    client,
+		Key:       "consul",
+	}
 	ctx := context.Background()
-	ctx = WithNacosParam(ctx, "test", "nacos")
 	content, err := r.Load(ctx)
 	if err != nil {
 		t.Errorf("Load() error = %v", err)
@@ -75,33 +55,28 @@ func TestResource_Load_Consul(t *testing.T) {
 	if !strings.Contains(string(content), "TEST_KEY=test_value") {
 		t.Errorf("Load() data = %v, want data to contain 'TEST_KEY=test_value'", string(content))
 	}
-
 	time.Sleep(time.Second)
 
 }
 
 func TestResource_Watch_Consul(t *testing.T) {
-	configClient, err := consulFactory()
+	client, err := consulFactory()
 	if err != nil {
 		t.Errorf("factory() error = %v", err)
 		return
 	}
 
-	_, err = configClient.PublishConfig(vo.ConfigParam{
-		DataId:  "nacos",
-		Group:   "test",
-		Content: "TEST_KEY=test_value",
-	})
+	_, err = client.KV().Put(&api.KVPair{
+		Key:   "consul",
+		Value: []byte("TEST_KEY=test_value"),
+	}, nil)
 	if err != nil {
 		t.Errorf("PublishConfig() error = %v", err)
 		return
 	}
 
 	defer func() {
-		_, err = configClient.DeleteConfig(vo.ConfigParam{
-			DataId: "nacos",
-			Group:  "test",
-		})
+		_, err = client.KV().Delete("consul", nil)
 		if err != nil {
 			t.Errorf("PublishConfig() error = %v", err)
 			return
@@ -110,11 +85,15 @@ func TestResource_Watch_Consul(t *testing.T) {
 
 	time.Sleep(time.Second)
 
-	r := NewNacos(configClient, configx.Yaml{})
+	r := Resource{
+		Formatter: configx.Env{},
+		Client:    client,
+		Key:       "consul",
+	}
+
 	notifyC := make(chan *configx.Event, 1)
 	// Start watching
 	ctx := context.Background()
-	ctx = WithNacosParam(ctx, "test", "nacos")
 	stopFunc, err := r.Watch(ctx, notifyC)
 	if err != nil {
 		t.Errorf("Watch() error = %v", err)
@@ -125,16 +104,14 @@ func TestResource_Watch_Consul(t *testing.T) {
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			ok, err := configClient.PublishConfig(vo.ConfigParam{
-				DataId:  "nacos",
-				Group:   "test",
-				Content: "TEST_KEY_NEW=test_value_new" + time.Now().Format(time.RFC3339),
-			})
+			_, err = client.KV().Put(&api.KVPair{
+				Key:   "nacos",
+				Value: []byte("TEST_KEY_NEW=test_value_new" + time.Now().Format(time.RFC3339)),
+			}, nil)
 			if err != nil {
 				t.Errorf("PublishConfig() error = %v", err)
 				return
 			}
-			t.Log(ok)
 		}
 	}()
 
@@ -150,11 +127,10 @@ func TestResource_Watch_Consul(t *testing.T) {
 
 	stopFunc()
 
-	_, err = configClient.PublishConfig(vo.ConfigParam{
-		DataId:  "nacos",
-		Group:   "test",
-		Content: "TEST_KEY=another_test_value",
-	})
+	_, err = client.KV().Put(&api.KVPair{
+		Key:   "nacos",
+		Value: []byte("TEST_KEY=another_test_value"),
+	}, nil)
 	if err != nil {
 		t.Errorf("PublishConfig() error = %v", err)
 		return
