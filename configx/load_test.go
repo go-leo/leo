@@ -45,8 +45,8 @@ func (m *MockParser) Support(format Formatter) bool {
 	return args.Bool(0)
 }
 
-func (m *MockParser) Parse(source []byte) (*structpb.Struct, error) {
-	args := m.Called(source)
+func (m *MockParser) Parse(data []byte) (*structpb.Struct, error) {
+	args := m.Called(data)
 	return args.Get(0).(*structpb.Struct), args.Error(1)
 }
 

@@ -26,7 +26,7 @@ func Load[Config proto.Message](ctx context.Context, opts ...Option) (Config, er
 	var values []*structpb.Struct
 	for _, loader := range opt.Resources {
 		// 使用资源加载器加载数据
-		source, err := loader.Load(ctx)
+		data, err := loader.Load(ctx)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -34,18 +34,30 @@ func Load[Config proto.Message](ctx context.Context, opts ...Option) (Config, er
 
 		// 使用解析器解析数据
 		foundParser := false
+		parser, ok := loader.(Parser)
+		if ok {
+			foundParser = true
+			value, err := parser.Parse(data)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+			values = append(values, value)
+			continue
+		}
 		for _, parser := range opt.Parsers {
 			// 判断解析器是否支持当前资源格式
-			if parser.Support(loader) {
-				foundParser = true
-				value, err := parser.Parse(source)
-				if err != nil {
-					errs = append(errs, err)
-					break
-				}
-				values = append(values, value)
+			if !parser.Support(loader) {
+				continue
+			}
+			foundParser = true
+			value, err := parser.Parse(data)
+			if err != nil {
+				errs = append(errs, err)
 				break
 			}
+			values = append(values, value)
+			break
 		}
 		// 如果没有匹配的解析器，则记录错误
 		if !foundParser {

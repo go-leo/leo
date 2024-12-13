@@ -38,15 +38,15 @@ func TestWatch(t *testing.T) {
 		go func() {
 			for i := 0; i < 10; i++ {
 				if randx.Bool() {
-					notifyC <- &Event{Kind: &DataEvent{Data: &structpb.Struct{}}}
+					notifyC <- &Event{kind: &DataEvent{Data: nil}}
 				} else {
-					notifyC <- &Event{Kind: &ErrorEvent{Err: fmt.Errorf("error")}}
+					notifyC <- &Event{kind: &ErrorEvent{Err: fmt.Errorf("error")}}
 				}
 				<-time.After(time.Second)
 			}
 		}()
 	}).Return(func() {
-		notifyC <- &Event{Kind: &ErrorEvent{Err: ErrStopWatch}}
+		notifyC <- &Event{kind: &ErrorEvent{Err: ErrStopWatch}}
 	}, nil)
 
 	confC, errC, stop := Watch[*test.Application](ctx, WithResource(mockResource), WithParser(mockParser))

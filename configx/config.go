@@ -10,6 +10,7 @@ import (
 var ErrStopWatch = errors.New("config: stop watch")
 
 // EventKind 定义了一个事件类型接口，用于标识配置数据的变化。
+// see: ErrorEvent and DataEvent
 type EventKind interface {
 	isEventKind()
 }
@@ -20,16 +21,16 @@ type ErrorEvent struct{ Err error }
 func (ErrorEvent) isEventKind() {}
 
 // DataEvent 定义了一个数据变化事件，用于表示监听配置数据时发生的数据变化。
-type DataEvent struct{ Data *structpb.Struct }
+type DataEvent struct{ Data []byte }
 
 func (DataEvent) isEventKind() {}
 
 // Event 表示一个动态类型的值，它可以是 ErrorEvent 或 DataEvent。
-type Event struct{ Kind EventKind }
+type Event struct{ kind EventKind }
 
 func (e *Event) GetKind() EventKind {
 	if e != nil {
-		return e.Kind
+		return e.kind
 	}
 	return nil
 }
@@ -48,23 +49,26 @@ func (e *Event) AsDataEvent() (*DataEvent, bool) {
 	return nil, false
 }
 
+func NewErrorEvent(err error) *Event {
+	return &Event{kind: &ErrorEvent{Err: err}}
+}
+
+func NewDataEvent(data []byte) *Event {
+	return &Event{kind: &DataEvent{Data: data}}
+}
+
 // Formatter 定义了格式化器接口，用于标识不同的数据格式，例如 JSON、YAML 等。
 type Formatter interface {
 	// Format 返回表示格式的字符串。
 	Format() string
 }
 
-// FormatSupporter 定义了一个格式支持者接口，用于判断是否支持某种格式。
-type FormatSupporter interface {
+// Parser 定义了一个解析器接口。用于判断是否支持某种格式和解析加载器/监视器提供的字节切片数据，并将其转换为 structpb.Struct 类型。
+type Parser interface {
 	// Support 判断是否支持某种格式。
 	Support(format Formatter) bool
-}
-
-// Parser 定义了一个解析器接口。用于解析加载器提供的字节切片数据，并将其转换为 structpb.Struct 类型。
-type Parser interface {
-	FormatSupporter
 	// Parse 解析字节切片数据，并返回 structpb.Struct 类型和可能的错误
-	Parse(source []byte) (*structpb.Struct, error)
+	Parse(data []byte) (*structpb.Struct, error)
 }
 
 // Merger 定义了一个合并器接口。用于将多个 structpb.Struct 对象合并成一个。
@@ -75,6 +79,7 @@ type Merger interface {
 
 // Loader 定义了一个加载器接口，用于从某种数据源（如文件、网络等）加载配置数据，并返回字节切片和可能的错误。
 type Loader interface {
+	Formatter
 	// Load 返回字节切片和可能的错误
 	Load(ctx context.Context) ([]byte, error)
 }
