@@ -1,11 +1,15 @@
 package configx
 
 import (
+	"errors"
 	"github.com/go-leo/gox/encodingx/envx"
 	"github.com/go-leo/gox/encodingx/jsonx"
 	"github.com/go-leo/gox/encodingx/tomlx"
 	"github.com/go-leo/gox/encodingx/yamlx"
+	"github.com/go-leo/gox/reflectx"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
+	"reflect"
 	"slices"
 	"strings"
 )
@@ -85,6 +89,35 @@ func (Yaml) Support(format Formatter) bool {
 func (Yaml) Parse(data []byte) (*structpb.Struct, error) {
 	v := make(map[string]any)
 	if err := yamlx.Unmarshal(data, &v); err != nil {
+		return nil, err
+	}
+	jsonData, err := jsonx.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	value := &structpb.Struct{Fields: make(map[string]*structpb.Value)}
+	return value, value.UnmarshalJSON(jsonData)
+}
+
+var _ Formatter = (*Proto)(nil)
+var _ Parser = (*Proto)(nil)
+
+type Proto struct {
+	Message proto.Message
+}
+
+func (Proto) Format() string { return "proto" }
+
+func (Proto) Support(format Formatter) bool {
+	return slices.ContainsFunc([]string{"proto", "pb"}, func(s string) bool { return strings.EqualFold(format.Format(), s) })
+}
+
+func (p Proto) Parse(data []byte) (*structpb.Struct, error) {
+	if p.Message == nil {
+		return nil, errors.New("configx: proto message is nil")
+	}
+	v := reflect.New(reflectx.IndirectType(reflect.TypeOf(p.Message))).Interface().(proto.Message)
+	if err := proto.Unmarshal(data, v); err != nil {
 		return nil, err
 	}
 	jsonData, err := jsonx.Marshal(v)

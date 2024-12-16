@@ -1,7 +1,9 @@
 package configx
 
 import (
+	"github.com/go-leo/leo/v3/configx/test"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 	"testing"
 )
@@ -115,6 +117,46 @@ func TestYAML_Parse(t *testing.T) {
 	assert.IsType(t, &structpb.Struct{}, result)
 	assert.EqualValues(t, "value", result.GetFields()["key"].GetStringValue(), "Expected field value to be 'value1'")
 
+}
+
+func TestProto_Support(t *testing.T) {
+	parser := &Proto{}
+
+	// Test for supported formats
+	supportedFormats := []Formatter{
+		&MockFormatter{format: "proto"},
+		&MockFormatter{format: "pb"},
+	}
+	for _, format := range supportedFormats {
+		assert.True(t, parser.Support(format), "Expected format to be supported")
+	}
+
+	// Test for unsupported formats
+	unsupportedFormats := []Formatter{
+		&MockFormatter{format: "protobuf"},
+		&MockFormatter{format: "protobuffer"},
+	}
+	for _, format := range unsupportedFormats {
+		assert.False(t, parser.Support(format), "Expected format to be unsupported")
+	}
+}
+
+func TestProto_Parse(t *testing.T) {
+	application := test.Application{
+		Addr: "localhost",
+		Port: 8080,
+	}
+	validProto, _ := proto.Marshal(&application)
+
+	protoParser := &Proto{Message: &test.Application{}}
+	result, err := protoParser.Parse(validProto)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+
+	// 测试结果是否符合预期，这里只是基本的非空和类型检查
+	// 详细的字段检查应该在解析后的struct上进行
+	assert.IsType(t, &structpb.Struct{}, result)
+	assert.EqualValues(t, "localhost", result.GetFields()["addr"].GetStringValue(), "Expected field value to be 'localhost'")
 }
 
 // MockFormatter is a mock implementation of the Formatter interface for testing purposes
