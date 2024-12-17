@@ -3,7 +3,6 @@
 package helloworld
 
 import (
-	bytes "bytes"
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
@@ -11,6 +10,7 @@ import (
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
+	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
@@ -185,7 +185,7 @@ func _Greeter_SayHello_GrpcClient_Transport(target string, options ...transportx
 // =========================== http router ===========================
 
 func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
-	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/helloworld.Greeter/SayHello")
+	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("GET").Path("/helloworld/{name}")
 	return router
 }
 
@@ -290,8 +290,11 @@ func _Greeter_SayHello_HttpClient_Transport(target string, router *mux.Router, o
 
 func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
 	req := &HelloRequest{}
-	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+	vars := urlx.FormFromMap(mux.Vars(r))
+	var varErr error
+	req.Name = vars.Get("name")
+	if varErr != nil {
+		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
 	}
 	return req, nil
 }
@@ -308,13 +311,8 @@ func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme
 			}
 			_ = req
 			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
 			var pairs []string
+			pairs = append(pairs, "name", req.GetName())
 			path, err := router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -326,11 +324,10 @@ func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
-			r.Header.Set("Content-Type", contentType)
 			return r, nil
 		}
 	}

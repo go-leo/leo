@@ -21,11 +21,17 @@ option java_outer_classname = "HelloWorldProto";
 
 package helloworld;
 
+import "google/api/annotations.proto";
 
 // The greeting service definition.
 service Greeter {
   // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayHello (HelloRequest) returns (HelloReply) {
+    option (google.api.http) = {
+      // 定义一个 GET 接口，并且把 name 映射到 HelloRequest
+      get: "/helloworld/{name}",
+    };
+  }
 }
 
 // The request message containing the user's name.
@@ -36,9 +42,4 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
   string message = 1;
-}
-
-message CodeMessage {
-  int32 code = 1;
-  string message = 2;
 }

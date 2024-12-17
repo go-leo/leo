@@ -57,9 +57,6 @@ func (f *Generator) GenerateEndpoints(service *internal.Service) error {
 }
 
 func (f *Generator) GenerateEndpoint(service *internal.Service, endpoint *internal.Endpoint) error {
-	if endpoint.IsStreaming() {
-		return nil
-	}
 	switch {
 	case endpoint.IsCommand():
 		return f.GenerateCommand(service, endpoint)
@@ -136,9 +133,6 @@ func (f *Generator) GenerateAssembler(service *internal.Service, g *protogen.Gen
 	g.P(internal.Comments(service.AssemblerName() + " responsible for completing the transformation between domain model objects and DTOs"))
 	g.P("type ", service.AssemblerName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		if endpoint.IsStreaming() {
-			continue
-		}
 		switch {
 		case endpoint.IsCommand():
 			g.P()
@@ -209,9 +203,6 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.G
 func (f *Generator) GenerateBus(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func New", service.BusName(), "(")
 	for _, endpoint := range service.Endpoints {
-		if endpoint.IsStreaming() {
-			continue
-		}
 		switch {
 		case endpoint.IsCommand():
 			importPath := protogen.GoImportPath(service.Command.FullName())
@@ -224,9 +215,6 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 	g.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
 	g.P("bus := ", internal.CqrsPackage.Ident("NewBus"), "()")
 	for _, endpoint := range service.Endpoints {
-		if endpoint.IsStreaming() {
-			continue
-		}
 		switch {
 		case endpoint.IsCommand():
 			g.P("if err := bus.RegisterCommand(", endpoint.UnexportedName(), "); err != nil {")
