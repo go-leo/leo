@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/go-leo/gox/encodingx/envx"
 	"github.com/go-leo/gox/encodingx/jsonx"
+	"github.com/go-leo/gox/encodingx/protobufx"
 	"github.com/go-leo/gox/encodingx/tomlx"
 	"github.com/go-leo/gox/encodingx/yamlx"
 	"github.com/go-leo/gox/reflectx"
@@ -12,7 +13,31 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"sync"
 )
+
+var parsers = []Parser{
+	&Env{},
+	&Json{},
+	&Toml{},
+	&Yaml{},
+}
+
+var parsersMutex sync.RWMutex
+
+func RegisterParser(parser Parser) {
+	parsersMutex.Lock()
+	parsers = append(parsers, parser)
+	parsersMutex.Unlock()
+}
+
+func getParsers() []Parser {
+	var r []Parser
+	parsersMutex.RLock()
+	r = slices.Clone(parsers)
+	parsersMutex.RUnlock()
+	return r
+}
 
 var _ Formatter = (*Env)(nil)
 var _ Parser = (*Env)(nil)
@@ -117,7 +142,7 @@ func (p Proto) Parse(data []byte) (*structpb.Struct, error) {
 		return nil, errors.New("configx: proto message is nil")
 	}
 	v := reflect.New(reflectx.IndirectType(reflect.TypeOf(p.Message))).Interface().(proto.Message)
-	if err := proto.Unmarshal(data, v); err != nil {
+	if err := protobufx.Unmarshal(data, v); err != nil {
 		return nil, err
 	}
 	jsonData, err := jsonx.Marshal(v)

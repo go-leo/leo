@@ -15,7 +15,7 @@ func TestResource_Env_Load(t *testing.T) {
 	os.Setenv("TEST_KEY", "test_value")
 	defer os.Unsetenv("TEST_KEY")
 
-	r := &Environ{}
+	r := &Resource{}
 	data, err := r.Load(context.Background())
 	if err != nil {
 		t.Errorf("Load() error = %v", err)
@@ -32,7 +32,7 @@ func TestResource_Env_Watch(t *testing.T) {
 	defer os.Unsetenv("TEST_KEY")
 
 	notifyC := make(chan *configx.Event, 1)
-	r := &Environ{}
+	r := &Resource{}
 
 	// Start watching
 	stopFunc, err := r.Watch(context.Background(), notifyC)

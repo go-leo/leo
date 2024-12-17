@@ -1,4 +1,4 @@
-package configx
+package filex
 
 import (
 	"context"

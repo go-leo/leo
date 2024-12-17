@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
+	"slices"
 )
 
 var (
@@ -45,8 +46,7 @@ func Load[Config proto.Message](ctx context.Context, opts ...Option) (Config, er
 			values = append(values, value)
 			continue
 		}
-		for _, parser := range opt.Parsers {
-			// 判断解析器是否支持当前资源格式
+		for _, parser := range append(slices.Clone(opt.Parsers), getParsers()...) {
 			if !parser.Support(loader) {
 				continue
 			}
@@ -59,6 +59,7 @@ func Load[Config proto.Message](ctx context.Context, opts ...Option) (Config, er
 			values = append(values, value)
 			break
 		}
+
 		// 如果没有匹配的解析器，则记录错误
 		if !foundParser {
 			errs = append(errs, ErrUnsupportedFormat)

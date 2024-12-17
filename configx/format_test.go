@@ -1,10 +1,12 @@
 package configx
 
 import (
+	"fmt"
 	"github.com/go-leo/leo/v3/configx/test"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
+	"gopkg.in/yaml.v3"
 	"testing"
 )
 
@@ -166,4 +168,32 @@ type MockFormatter struct {
 
 func (m *MockFormatter) Format() string {
 	return m.format
+}
+
+func TestWrongYaml(t *testing.T) {
+	c := `redis:
+    addr: localhost:6379
+    db: 0
+    network: tcp
+    password: test`
+	var conf map[string]any
+	err := yaml.Unmarshal([]byte(c), &conf)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	data, err := yaml.Marshal(map[string]any{
+		"redis": map[string]any{
+			"network":  "tcp",
+			"addr":     "localhost:6379",
+			"password": "test",
+			"db":       0,
+		},
+	})
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	fmt.Println(string(data))
+
 }

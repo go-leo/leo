@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-var _ configx.Resource = (*Environ)(nil)
+var _ configx.Resource = (*Resource)(nil)
 
-type Environ struct {
+type Resource struct {
 	configx.Env
 	Prefix string
 }
 
-func (r *Environ) Load(ctx context.Context) ([]byte, error) {
+func (r *Resource) Load(ctx context.Context) ([]byte, error) {
 	// 获取当前进程的所有环境变量。
 	environs := os.Environ()
 
@@ -33,7 +33,7 @@ func (r *Environ) Load(ctx context.Context) ([]byte, error) {
 	return []byte(strings.Join(sortx.Asc(prefixedEnvirons), "\n")), nil
 }
 
-func (r *Environ) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
+func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
 	// 创建停止通道,用于停止监视。
 	stopC := make(chan struct{})
 

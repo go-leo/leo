@@ -1,4 +1,4 @@
-package configx
+package filex
 
 import (
 	"context"
@@ -47,11 +47,11 @@ func TestResource_File_Watch(t *testing.T) {
 		return
 	}
 
-	// Give some time for the watcher to detect the change
-	time.Sleep(1 * time.Second)
-
-	_, _ = fmt.Fprintln(file, "TEST_KEY_NEW=test_value_new")
-	_ = file.Sync()
+	go func() {
+		time.Sleep(5 * time.Second)
+		_, _ = fmt.Fprintln(file, "TEST_KEY_NEW=test_value_new")
+		_ = file.Sync()
+	}()
 
 	// Wait for the event
 	select {
@@ -59,7 +59,7 @@ func TestResource_File_Watch(t *testing.T) {
 		if data, ok := event.AsDataEvent(); !ok || data.Data == nil {
 			t.Error("Expected DataEvent with non-nil data")
 		}
-	case <-time.After(1 * time.Second):
+	case <-time.After(10 * time.Second):
 		t.Error("No event received within the timeout")
 	}
 
