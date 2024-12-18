@@ -28,29 +28,10 @@ func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type GreeterHttpServerTransports interface {
-	SayHello() *http.Server
-}
-
-type greeterHttpServerTransports struct {
-	sayHello *http.Server
-}
-
-func (t *greeterHttpServerTransports) SayHello() *http.Server {
-	return t.sayHello
-}
-
-func newGreeterHttpServerTransports(endpoints GreeterEndpoints) GreeterHttpServerTransports {
-	return &greeterHttpServerTransports{
-		sayHello: _Greeter_SayHello_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newGreeterServerEndpoints(svc, middlewares...)
-	transports := newGreeterHttpServerTransports(endpoints)
 	router = appendGreeterHttpRoutes(router)
-	router.Get("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
+	router.Get("/helloworld.Greeter/SayHello").Handler(_Greeter_SayHello_HttpServer_Transport(endpoints))
 	return router
 }
 

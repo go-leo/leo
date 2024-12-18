@@ -33,29 +33,10 @@ func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type MixPathHttpServerTransports interface {
-	MixPath() *http.Server
-}
-
-type mixPathHttpServerTransports struct {
-	mixPath *http.Server
-}
-
-func (t *mixPathHttpServerTransports) MixPath() *http.Server {
-	return t.mixPath
-}
-
-func newMixPathHttpServerTransports(endpoints MixPathEndpoints) MixPathHttpServerTransports {
-	return &mixPathHttpServerTransports{
-		mixPath: _MixPath_MixPath_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newMixPathServerEndpoints(svc, middlewares...)
-	transports := newMixPathHttpServerTransports(endpoints)
 	router = appendMixPathHttpRoutes(router)
-	router.Get("/leo.example.path.v1.MixPath/MixPath").Handler(transports.MixPath())
+	router.Get("/leo.example.path.v1.MixPath/MixPath").Handler(_MixPath_MixPath_HttpServer_Transport(endpoints))
 	return router
 }
 

@@ -38,69 +38,15 @@ func appendNamedPathHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type NamedPathHttpServerTransports interface {
-	NamedPathString() *http.Server
-	NamedPathOptString() *http.Server
-	NamedPathWrapString() *http.Server
-	EmbedNamedPathString() *http.Server
-	EmbedNamedPathOptString() *http.Server
-	EmbedNamedPathWrapString() *http.Server
-}
-
-type namedPathHttpServerTransports struct {
-	namedPathString          *http.Server
-	namedPathOptString       *http.Server
-	namedPathWrapString      *http.Server
-	embedNamedPathString     *http.Server
-	embedNamedPathOptString  *http.Server
-	embedNamedPathWrapString *http.Server
-}
-
-func (t *namedPathHttpServerTransports) NamedPathString() *http.Server {
-	return t.namedPathString
-}
-
-func (t *namedPathHttpServerTransports) NamedPathOptString() *http.Server {
-	return t.namedPathOptString
-}
-
-func (t *namedPathHttpServerTransports) NamedPathWrapString() *http.Server {
-	return t.namedPathWrapString
-}
-
-func (t *namedPathHttpServerTransports) EmbedNamedPathString() *http.Server {
-	return t.embedNamedPathString
-}
-
-func (t *namedPathHttpServerTransports) EmbedNamedPathOptString() *http.Server {
-	return t.embedNamedPathOptString
-}
-
-func (t *namedPathHttpServerTransports) EmbedNamedPathWrapString() *http.Server {
-	return t.embedNamedPathWrapString
-}
-
-func newNamedPathHttpServerTransports(endpoints NamedPathEndpoints) NamedPathHttpServerTransports {
-	return &namedPathHttpServerTransports{
-		namedPathString:          _NamedPath_NamedPathString_HttpServer_Transport(endpoints),
-		namedPathOptString:       _NamedPath_NamedPathOptString_HttpServer_Transport(endpoints),
-		namedPathWrapString:      _NamedPath_NamedPathWrapString_HttpServer_Transport(endpoints),
-		embedNamedPathString:     _NamedPath_EmbedNamedPathString_HttpServer_Transport(endpoints),
-		embedNamedPathOptString:  _NamedPath_EmbedNamedPathOptString_HttpServer_Transport(endpoints),
-		embedNamedPathWrapString: _NamedPath_EmbedNamedPathWrapString_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendNamedPathHttpRoutes(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
-	transports := newNamedPathHttpServerTransports(endpoints)
 	router = appendNamedPathHttpRoutes(router)
-	router.Get("/leo.example.path.v1.NamedPath/NamedPathString").Handler(transports.NamedPathString())
-	router.Get("/leo.example.path.v1.NamedPath/NamedPathOptString").Handler(transports.NamedPathOptString())
-	router.Get("/leo.example.path.v1.NamedPath/NamedPathWrapString").Handler(transports.NamedPathWrapString())
-	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Handler(transports.EmbedNamedPathString())
-	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Handler(transports.EmbedNamedPathOptString())
-	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Handler(transports.EmbedNamedPathWrapString())
+	router.Get("/leo.example.path.v1.NamedPath/NamedPathString").Handler(_NamedPath_NamedPathString_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.NamedPath/NamedPathOptString").Handler(_NamedPath_NamedPathOptString_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.NamedPath/NamedPathWrapString").Handler(_NamedPath_NamedPathWrapString_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathString").Handler(_NamedPath_EmbedNamedPathString_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString").Handler(_NamedPath_EmbedNamedPathOptString_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Handler(_NamedPath_EmbedNamedPathWrapString_HttpServer_Transport(endpoints))
 	return router
 }
 

@@ -33,29 +33,10 @@ func appendQueryHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type QueryHttpServerTransports interface {
-	Query() *http.Server
-}
-
-type queryHttpServerTransports struct {
-	query *http.Server
-}
-
-func (t *queryHttpServerTransports) Query() *http.Server {
-	return t.query
-}
-
-func newQueryHttpServerTransports(endpoints QueryEndpoints) QueryHttpServerTransports {
-	return &queryHttpServerTransports{
-		query: _Query_Query_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newQueryServerEndpoints(svc, middlewares...)
-	transports := newQueryHttpServerTransports(endpoints)
 	router = appendQueryHttpRoutes(router)
-	router.Get("/leo.example.query.v1.Query/Query").Handler(transports.Query())
+	router.Get("/leo.example.query.v1.Query/Query").Handler(_Query_Query_HttpServer_Transport(endpoints))
 	return router
 }
 

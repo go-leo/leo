@@ -77,10 +77,10 @@ func (f *ServerGenerator) GenerateCoder(service *internal.Service, g *protogen.G
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
 	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
-	g.P("transports := new", service.HttpServerTransportsName(), "(endpoints)")
+	//g.P("transports := new", service.HttpServerTransportsName(), "(endpoints)")
 	g.P("router = append", service.HttpRoutesName(), "(router)")
 	for _, endpoint := range service.Endpoints {
-		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
+		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(", endpoint.HttpServerTransportName(), "(endpoints))")
 	}
 	g.P("return router")
 	g.P("}")

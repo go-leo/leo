@@ -36,61 +36,14 @@ func appendResponseHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type ResponseHttpServerTransports interface {
-	OmittedResponse() *http.Server
-	StarResponse() *http.Server
-	NamedResponse() *http.Server
-	HttpBodyResponse() *http.Server
-	HttpBodyNamedResponse() *http.Server
-}
-
-type responseHttpServerTransports struct {
-	omittedResponse       *http.Server
-	starResponse          *http.Server
-	namedResponse         *http.Server
-	httpBodyResponse      *http.Server
-	httpBodyNamedResponse *http.Server
-}
-
-func (t *responseHttpServerTransports) OmittedResponse() *http.Server {
-	return t.omittedResponse
-}
-
-func (t *responseHttpServerTransports) StarResponse() *http.Server {
-	return t.starResponse
-}
-
-func (t *responseHttpServerTransports) NamedResponse() *http.Server {
-	return t.namedResponse
-}
-
-func (t *responseHttpServerTransports) HttpBodyResponse() *http.Server {
-	return t.httpBodyResponse
-}
-
-func (t *responseHttpServerTransports) HttpBodyNamedResponse() *http.Server {
-	return t.httpBodyNamedResponse
-}
-
-func newResponseHttpServerTransports(endpoints ResponseEndpoints) ResponseHttpServerTransports {
-	return &responseHttpServerTransports{
-		omittedResponse:       _Response_OmittedResponse_HttpServer_Transport(endpoints),
-		starResponse:          _Response_StarResponse_HttpServer_Transport(endpoints),
-		namedResponse:         _Response_NamedResponse_HttpServer_Transport(endpoints),
-		httpBodyResponse:      _Response_HttpBodyResponse_HttpServer_Transport(endpoints),
-		httpBodyNamedResponse: _Response_HttpBodyNamedResponse_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newResponseServerEndpoints(svc, middlewares...)
-	transports := newResponseHttpServerTransports(endpoints)
 	router = appendResponseHttpRoutes(router)
-	router.Get("/leo.example.response.v1.Response/OmittedResponse").Handler(transports.OmittedResponse())
-	router.Get("/leo.example.response.v1.Response/StarResponse").Handler(transports.StarResponse())
-	router.Get("/leo.example.response.v1.Response/NamedResponse").Handler(transports.NamedResponse())
-	router.Get("/leo.example.response.v1.Response/HttpBodyResponse").Handler(transports.HttpBodyResponse())
-	router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").Handler(transports.HttpBodyNamedResponse())
+	router.Get("/leo.example.response.v1.Response/OmittedResponse").Handler(_Response_OmittedResponse_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.response.v1.Response/StarResponse").Handler(_Response_StarResponse_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.response.v1.Response/NamedResponse").Handler(_Response_NamedResponse_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.response.v1.Response/HttpBodyResponse").Handler(_Response_HttpBodyResponse_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").Handler(_Response_HttpBodyNamedResponse_HttpServer_Transport(endpoints))
 	return router
 }
 

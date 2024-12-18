@@ -43,109 +43,20 @@ func appendLibraryServiceHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type LibraryServiceHttpServerTransports interface {
-	CreateShelf() *http.Server
-	GetShelf() *http.Server
-	ListShelves() *http.Server
-	DeleteShelf() *http.Server
-	MergeShelves() *http.Server
-	CreateBook() *http.Server
-	GetBook() *http.Server
-	ListBooks() *http.Server
-	DeleteBook() *http.Server
-	UpdateBook() *http.Server
-	MoveBook() *http.Server
-}
-
-type libraryServiceHttpServerTransports struct {
-	createShelf  *http.Server
-	getShelf     *http.Server
-	listShelves  *http.Server
-	deleteShelf  *http.Server
-	mergeShelves *http.Server
-	createBook   *http.Server
-	getBook      *http.Server
-	listBooks    *http.Server
-	deleteBook   *http.Server
-	updateBook   *http.Server
-	moveBook     *http.Server
-}
-
-func (t *libraryServiceHttpServerTransports) CreateShelf() *http.Server {
-	return t.createShelf
-}
-
-func (t *libraryServiceHttpServerTransports) GetShelf() *http.Server {
-	return t.getShelf
-}
-
-func (t *libraryServiceHttpServerTransports) ListShelves() *http.Server {
-	return t.listShelves
-}
-
-func (t *libraryServiceHttpServerTransports) DeleteShelf() *http.Server {
-	return t.deleteShelf
-}
-
-func (t *libraryServiceHttpServerTransports) MergeShelves() *http.Server {
-	return t.mergeShelves
-}
-
-func (t *libraryServiceHttpServerTransports) CreateBook() *http.Server {
-	return t.createBook
-}
-
-func (t *libraryServiceHttpServerTransports) GetBook() *http.Server {
-	return t.getBook
-}
-
-func (t *libraryServiceHttpServerTransports) ListBooks() *http.Server {
-	return t.listBooks
-}
-
-func (t *libraryServiceHttpServerTransports) DeleteBook() *http.Server {
-	return t.deleteBook
-}
-
-func (t *libraryServiceHttpServerTransports) UpdateBook() *http.Server {
-	return t.updateBook
-}
-
-func (t *libraryServiceHttpServerTransports) MoveBook() *http.Server {
-	return t.moveBook
-}
-
-func newLibraryServiceHttpServerTransports(endpoints LibraryServiceEndpoints) LibraryServiceHttpServerTransports {
-	return &libraryServiceHttpServerTransports{
-		createShelf:  _LibraryService_CreateShelf_HttpServer_Transport(endpoints),
-		getShelf:     _LibraryService_GetShelf_HttpServer_Transport(endpoints),
-		listShelves:  _LibraryService_ListShelves_HttpServer_Transport(endpoints),
-		deleteShelf:  _LibraryService_DeleteShelf_HttpServer_Transport(endpoints),
-		mergeShelves: _LibraryService_MergeShelves_HttpServer_Transport(endpoints),
-		createBook:   _LibraryService_CreateBook_HttpServer_Transport(endpoints),
-		getBook:      _LibraryService_GetBook_HttpServer_Transport(endpoints),
-		listBooks:    _LibraryService_ListBooks_HttpServer_Transport(endpoints),
-		deleteBook:   _LibraryService_DeleteBook_HttpServer_Transport(endpoints),
-		updateBook:   _LibraryService_UpdateBook_HttpServer_Transport(endpoints),
-		moveBook:     _LibraryService_MoveBook_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
-	transports := newLibraryServiceHttpServerTransports(endpoints)
 	router = appendLibraryServiceHttpRoutes(router)
-	router.Get("/google.example.library.v1.LibraryService/CreateShelf").Handler(transports.CreateShelf())
-	router.Get("/google.example.library.v1.LibraryService/GetShelf").Handler(transports.GetShelf())
-	router.Get("/google.example.library.v1.LibraryService/ListShelves").Handler(transports.ListShelves())
-	router.Get("/google.example.library.v1.LibraryService/DeleteShelf").Handler(transports.DeleteShelf())
-	router.Get("/google.example.library.v1.LibraryService/MergeShelves").Handler(transports.MergeShelves())
-	router.Get("/google.example.library.v1.LibraryService/CreateBook").Handler(transports.CreateBook())
-	router.Get("/google.example.library.v1.LibraryService/GetBook").Handler(transports.GetBook())
-	router.Get("/google.example.library.v1.LibraryService/ListBooks").Handler(transports.ListBooks())
-	router.Get("/google.example.library.v1.LibraryService/DeleteBook").Handler(transports.DeleteBook())
-	router.Get("/google.example.library.v1.LibraryService/UpdateBook").Handler(transports.UpdateBook())
-	router.Get("/google.example.library.v1.LibraryService/MoveBook").Handler(transports.MoveBook())
+	router.Get("/google.example.library.v1.LibraryService/CreateShelf").Handler(_LibraryService_CreateShelf_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/GetShelf").Handler(_LibraryService_GetShelf_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/ListShelves").Handler(_LibraryService_ListShelves_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/DeleteShelf").Handler(_LibraryService_DeleteShelf_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/MergeShelves").Handler(_LibraryService_MergeShelves_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/CreateBook").Handler(_LibraryService_CreateBook_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/GetBook").Handler(_LibraryService_GetBook_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/ListBooks").Handler(_LibraryService_ListBooks_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/DeleteBook").Handler(_LibraryService_DeleteBook_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/UpdateBook").Handler(_LibraryService_UpdateBook_HttpServer_Transport(endpoints))
+	router.Get("/google.example.library.v1.LibraryService/MoveBook").Handler(_LibraryService_MoveBook_HttpServer_Transport(endpoints))
 	return router
 }
 

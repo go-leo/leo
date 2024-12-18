@@ -34,61 +34,14 @@ func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type BodyHttpServerTransports interface {
-	StarBody() *http.Server
-	NamedBody() *http.Server
-	NonBody() *http.Server
-	HttpBodyStarBody() *http.Server
-	HttpBodyNamedBody() *http.Server
-}
-
-type bodyHttpServerTransports struct {
-	starBody          *http.Server
-	namedBody         *http.Server
-	nonBody           *http.Server
-	httpBodyStarBody  *http.Server
-	httpBodyNamedBody *http.Server
-}
-
-func (t *bodyHttpServerTransports) StarBody() *http.Server {
-	return t.starBody
-}
-
-func (t *bodyHttpServerTransports) NamedBody() *http.Server {
-	return t.namedBody
-}
-
-func (t *bodyHttpServerTransports) NonBody() *http.Server {
-	return t.nonBody
-}
-
-func (t *bodyHttpServerTransports) HttpBodyStarBody() *http.Server {
-	return t.httpBodyStarBody
-}
-
-func (t *bodyHttpServerTransports) HttpBodyNamedBody() *http.Server {
-	return t.httpBodyNamedBody
-}
-
-func newBodyHttpServerTransports(endpoints BodyEndpoints) BodyHttpServerTransports {
-	return &bodyHttpServerTransports{
-		starBody:          _Body_StarBody_HttpServer_Transport(endpoints),
-		namedBody:         _Body_NamedBody_HttpServer_Transport(endpoints),
-		nonBody:           _Body_NonBody_HttpServer_Transport(endpoints),
-		httpBodyStarBody:  _Body_HttpBodyStarBody_HttpServer_Transport(endpoints),
-		httpBodyNamedBody: _Body_HttpBodyNamedBody_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newBodyServerEndpoints(svc, middlewares...)
-	transports := newBodyHttpServerTransports(endpoints)
 	router = appendBodyHttpRoutes(router)
-	router.Get("/leo.example.body.v1.Body/StarBody").Handler(transports.StarBody())
-	router.Get("/leo.example.body.v1.Body/NamedBody").Handler(transports.NamedBody())
-	router.Get("/leo.example.body.v1.Body/NonBody").Handler(transports.NonBody())
-	router.Get("/leo.example.body.v1.Body/HttpBodyStarBody").Handler(transports.HttpBodyStarBody())
-	router.Get("/leo.example.body.v1.Body/HttpBodyNamedBody").Handler(transports.HttpBodyNamedBody())
+	router.Get("/leo.example.body.v1.Body/StarBody").Handler(_Body_StarBody_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.body.v1.Body/NamedBody").Handler(_Body_NamedBody_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.body.v1.Body/NonBody").Handler(_Body_NonBody_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.body.v1.Body/HttpBodyStarBody").Handler(_Body_HttpBodyStarBody_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.body.v1.Body/HttpBodyNamedBody").Handler(_Body_HttpBodyNamedBody_HttpServer_Transport(endpoints))
 	return router
 }
 

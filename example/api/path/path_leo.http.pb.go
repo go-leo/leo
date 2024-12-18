@@ -40,93 +40,18 @@ func appendPathHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type PathHttpServerTransports interface {
-	BoolPath() *http.Server
-	Int32Path() *http.Server
-	Int64Path() *http.Server
-	Uint32Path() *http.Server
-	Uint64Path() *http.Server
-	FloatPath() *http.Server
-	DoublePath() *http.Server
-	StringPath() *http.Server
-	EnumPath() *http.Server
-}
-
-type pathHttpServerTransports struct {
-	boolPath   *http.Server
-	int32Path  *http.Server
-	int64Path  *http.Server
-	uint32Path *http.Server
-	uint64Path *http.Server
-	floatPath  *http.Server
-	doublePath *http.Server
-	stringPath *http.Server
-	enumPath   *http.Server
-}
-
-func (t *pathHttpServerTransports) BoolPath() *http.Server {
-	return t.boolPath
-}
-
-func (t *pathHttpServerTransports) Int32Path() *http.Server {
-	return t.int32Path
-}
-
-func (t *pathHttpServerTransports) Int64Path() *http.Server {
-	return t.int64Path
-}
-
-func (t *pathHttpServerTransports) Uint32Path() *http.Server {
-	return t.uint32Path
-}
-
-func (t *pathHttpServerTransports) Uint64Path() *http.Server {
-	return t.uint64Path
-}
-
-func (t *pathHttpServerTransports) FloatPath() *http.Server {
-	return t.floatPath
-}
-
-func (t *pathHttpServerTransports) DoublePath() *http.Server {
-	return t.doublePath
-}
-
-func (t *pathHttpServerTransports) StringPath() *http.Server {
-	return t.stringPath
-}
-
-func (t *pathHttpServerTransports) EnumPath() *http.Server {
-	return t.enumPath
-}
-
-func newPathHttpServerTransports(endpoints PathEndpoints) PathHttpServerTransports {
-	return &pathHttpServerTransports{
-		boolPath:   _Path_BoolPath_HttpServer_Transport(endpoints),
-		int32Path:  _Path_Int32Path_HttpServer_Transport(endpoints),
-		int64Path:  _Path_Int64Path_HttpServer_Transport(endpoints),
-		uint32Path: _Path_Uint32Path_HttpServer_Transport(endpoints),
-		uint64Path: _Path_Uint64Path_HttpServer_Transport(endpoints),
-		floatPath:  _Path_FloatPath_HttpServer_Transport(endpoints),
-		doublePath: _Path_DoublePath_HttpServer_Transport(endpoints),
-		stringPath: _Path_StringPath_HttpServer_Transport(endpoints),
-		enumPath:   _Path_EnumPath_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newPathServerEndpoints(svc, middlewares...)
-	transports := newPathHttpServerTransports(endpoints)
 	router = appendPathHttpRoutes(router)
-	router.Get("/leo.example.path.v1.Path/BoolPath").Handler(transports.BoolPath())
-	router.Get("/leo.example.path.v1.Path/Int32Path").Handler(transports.Int32Path())
-	router.Get("/leo.example.path.v1.Path/Int64Path").Handler(transports.Int64Path())
-	router.Get("/leo.example.path.v1.Path/Uint32Path").Handler(transports.Uint32Path())
-	router.Get("/leo.example.path.v1.Path/Uint64Path").Handler(transports.Uint64Path())
-	router.Get("/leo.example.path.v1.Path/FloatPath").Handler(transports.FloatPath())
-	router.Get("/leo.example.path.v1.Path/DoublePath").Handler(transports.DoublePath())
-	router.Get("/leo.example.path.v1.Path/StringPath").Handler(transports.StringPath())
-	router.Get("/leo.example.path.v1.Path/EnumPath").Handler(transports.EnumPath())
+	router.Get("/leo.example.path.v1.Path/BoolPath").Handler(_Path_BoolPath_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/Int32Path").Handler(_Path_Int32Path_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/Int64Path").Handler(_Path_Int64Path_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/Uint32Path").Handler(_Path_Uint32Path_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/Uint64Path").Handler(_Path_Uint64Path_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/FloatPath").Handler(_Path_FloatPath_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/DoublePath").Handler(_Path_DoublePath_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/StringPath").Handler(_Path_StringPath_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.path.v1.Path/EnumPath").Handler(_Path_EnumPath_HttpServer_Transport(endpoints))
 	return router
 }
 

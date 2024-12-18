@@ -37,61 +37,14 @@ func appendWorkspacesHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type WorkspacesHttpServerTransports interface {
-	ListWorkspaces() *http.Server
-	GetWorkspace() *http.Server
-	CreateWorkspace() *http.Server
-	UpdateWorkspace() *http.Server
-	DeleteWorkspace() *http.Server
-}
-
-type workspacesHttpServerTransports struct {
-	listWorkspaces  *http.Server
-	getWorkspace    *http.Server
-	createWorkspace *http.Server
-	updateWorkspace *http.Server
-	deleteWorkspace *http.Server
-}
-
-func (t *workspacesHttpServerTransports) ListWorkspaces() *http.Server {
-	return t.listWorkspaces
-}
-
-func (t *workspacesHttpServerTransports) GetWorkspace() *http.Server {
-	return t.getWorkspace
-}
-
-func (t *workspacesHttpServerTransports) CreateWorkspace() *http.Server {
-	return t.createWorkspace
-}
-
-func (t *workspacesHttpServerTransports) UpdateWorkspace() *http.Server {
-	return t.updateWorkspace
-}
-
-func (t *workspacesHttpServerTransports) DeleteWorkspace() *http.Server {
-	return t.deleteWorkspace
-}
-
-func newWorkspacesHttpServerTransports(endpoints WorkspacesEndpoints) WorkspacesHttpServerTransports {
-	return &workspacesHttpServerTransports{
-		listWorkspaces:  _Workspaces_ListWorkspaces_HttpServer_Transport(endpoints),
-		getWorkspace:    _Workspaces_GetWorkspace_HttpServer_Transport(endpoints),
-		createWorkspace: _Workspaces_CreateWorkspace_HttpServer_Transport(endpoints),
-		updateWorkspace: _Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints),
-		deleteWorkspace: _Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendWorkspacesHttpRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newWorkspacesServerEndpoints(svc, middlewares...)
-	transports := newWorkspacesHttpServerTransports(endpoints)
 	router = appendWorkspacesHttpRoutes(router)
-	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(transports.ListWorkspaces())
-	router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Handler(transports.GetWorkspace())
-	router.Get("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Handler(transports.CreateWorkspace())
-	router.Get("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Handler(transports.UpdateWorkspace())
-	router.Get("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Handler(transports.DeleteWorkspace())
+	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(_Workspaces_ListWorkspaces_HttpServer_Transport(endpoints))
+	router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Handler(_Workspaces_GetWorkspace_HttpServer_Transport(endpoints))
+	router.Get("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").Handler(_Workspaces_CreateWorkspace_HttpServer_Transport(endpoints))
+	router.Get("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").Handler(_Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints))
+	router.Get("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Handler(_Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints))
 	return router
 }
 

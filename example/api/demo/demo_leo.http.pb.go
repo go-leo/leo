@@ -41,77 +41,16 @@ func appendDemoHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type DemoHttpServerTransports interface {
-	CreateUser() *http.Server
-	DeleteUser() *http.Server
-	UpdateUser() *http.Server
-	GetUser() *http.Server
-	GetUsers() *http.Server
-	UploadUserAvatar() *http.Server
-	GetUserAvatar() *http.Server
-}
-
-type demoHttpServerTransports struct {
-	createUser       *http.Server
-	deleteUser       *http.Server
-	updateUser       *http.Server
-	getUser          *http.Server
-	getUsers         *http.Server
-	uploadUserAvatar *http.Server
-	getUserAvatar    *http.Server
-}
-
-func (t *demoHttpServerTransports) CreateUser() *http.Server {
-	return t.createUser
-}
-
-func (t *demoHttpServerTransports) DeleteUser() *http.Server {
-	return t.deleteUser
-}
-
-func (t *demoHttpServerTransports) UpdateUser() *http.Server {
-	return t.updateUser
-}
-
-func (t *demoHttpServerTransports) GetUser() *http.Server {
-	return t.getUser
-}
-
-func (t *demoHttpServerTransports) GetUsers() *http.Server {
-	return t.getUsers
-}
-
-func (t *demoHttpServerTransports) UploadUserAvatar() *http.Server {
-	return t.uploadUserAvatar
-}
-
-func (t *demoHttpServerTransports) GetUserAvatar() *http.Server {
-	return t.getUserAvatar
-}
-
-func newDemoHttpServerTransports(endpoints DemoEndpoints) DemoHttpServerTransports {
-	return &demoHttpServerTransports{
-		createUser:       _Demo_CreateUser_HttpServer_Transport(endpoints),
-		deleteUser:       _Demo_DeleteUser_HttpServer_Transport(endpoints),
-		updateUser:       _Demo_UpdateUser_HttpServer_Transport(endpoints),
-		getUser:          _Demo_GetUser_HttpServer_Transport(endpoints),
-		getUsers:         _Demo_GetUsers_HttpServer_Transport(endpoints),
-		uploadUserAvatar: _Demo_UploadUserAvatar_HttpServer_Transport(endpoints),
-		getUserAvatar:    _Demo_GetUserAvatar_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newDemoServerEndpoints(svc, middlewares...)
-	transports := newDemoHttpServerTransports(endpoints)
 	router = appendDemoHttpRoutes(router)
-	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(transports.CreateUser())
-	router.Get("/leo.example.demo.v1.Demo/DeleteUser").Handler(transports.DeleteUser())
-	router.Get("/leo.example.demo.v1.Demo/UpdateUser").Handler(transports.UpdateUser())
-	router.Get("/leo.example.demo.v1.Demo/GetUser").Handler(transports.GetUser())
-	router.Get("/leo.example.demo.v1.Demo/GetUsers").Handler(transports.GetUsers())
-	router.Get("/leo.example.demo.v1.Demo/UploadUserAvatar").Handler(transports.UploadUserAvatar())
-	router.Get("/leo.example.demo.v1.Demo/GetUserAvatar").Handler(transports.GetUserAvatar())
+	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(_Demo_CreateUser_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/DeleteUser").Handler(_Demo_DeleteUser_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/UpdateUser").Handler(_Demo_UpdateUser_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/GetUser").Handler(_Demo_GetUser_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/GetUsers").Handler(_Demo_GetUsers_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/UploadUserAvatar").Handler(_Demo_UploadUserAvatar_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/GetUserAvatar").Handler(_Demo_GetUserAvatar_HttpServer_Transport(endpoints))
 	return router
 }
 

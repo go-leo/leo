@@ -30,37 +30,11 @@ func appendCQRSHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type CQRSHttpServerTransports interface {
-	CreateUser() *http.Server
-	FindUser() *http.Server
-}
-
-type cQRSHttpServerTransports struct {
-	createUser *http.Server
-	findUser   *http.Server
-}
-
-func (t *cQRSHttpServerTransports) CreateUser() *http.Server {
-	return t.createUser
-}
-
-func (t *cQRSHttpServerTransports) FindUser() *http.Server {
-	return t.findUser
-}
-
-func newCQRSHttpServerTransports(endpoints CQRSEndpoints) CQRSHttpServerTransports {
-	return &cQRSHttpServerTransports{
-		createUser: _CQRS_CreateUser_HttpServer_Transport(endpoints),
-		findUser:   _CQRS_FindUser_HttpServer_Transport(endpoints),
-	}
-}
-
 func AppendCQRSHttpRoutes(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newCQRSServerEndpoints(svc, middlewares...)
-	transports := newCQRSHttpServerTransports(endpoints)
 	router = appendCQRSHttpRoutes(router)
-	router.Get("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
-	router.Get("/pb.CQRS/FindUser").Handler(transports.FindUser())
+	router.Get("/pb.CQRS/CreateUser").Handler(_CQRS_CreateUser_HttpServer_Transport(endpoints))
+	router.Get("/pb.CQRS/FindUser").Handler(_CQRS_FindUser_HttpServer_Transport(endpoints))
 	return router
 }
 
