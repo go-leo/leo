@@ -38,7 +38,12 @@ type clientTransportOptions struct {
 	EndpointerOptions []sd.EndpointerOption
 	DefaultScheme     string
 	FactoryArgs       any
+	Middlewares       []endpoint.Middleware
 }
+
+//func NewClientTransportOptions() *clientTransportOptions {
+//	return &clientTransportOptions{}
+//}
 
 func (o *clientTransportOptions) Init() *clientTransportOptions {
 	o.InstancerBuilders = []sdx.InstancerBuilder{
@@ -101,6 +106,12 @@ func EndpointerOption(options ...sd.EndpointerOption) ClientTransportOption {
 func DefaultScheme(scheme string) ClientTransportOption {
 	return func(o *clientTransportOptions) {
 		o.DefaultScheme = scheme
+	}
+}
+
+func Middleware(middlewares ...endpoint.Middleware) ClientTransportOption {
+	return func(o *clientTransportOptions) {
+		o.Middlewares = append(o.Middlewares, middlewares...)
 	}
 }
 
