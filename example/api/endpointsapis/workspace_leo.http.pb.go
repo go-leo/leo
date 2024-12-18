@@ -78,7 +78,7 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace() transportx.ClientTran
 	return t.deleteWorkspace
 }
 
-func NewWorkspacesHttpClientTransports(target string, options ...transportx.ClientTransportOption) (WorkspacesClientTransports, error) {
+func NewWorkspacesHttpClientTransports(target string, options ...httpx.ClientTransportOption) (WorkspacesClientTransports, error) {
 	router := appendWorkspacesHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &workspacesHttpClientTransports{}
@@ -166,9 +166,9 @@ func _Workspaces_ListWorkspaces_HttpServer_Transport(endpoints WorkspacesEndpoin
 	)
 }
 
-func _Workspaces_ListWorkspaces_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Workspaces_ListWorkspaces_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router),
@@ -195,9 +195,9 @@ func _Workspaces_GetWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints
 	)
 }
 
-func _Workspaces_GetWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Workspaces_GetWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Workspaces_GetWorkspace_HttpClient_RequestEncoder(router),
@@ -224,9 +224,9 @@ func _Workspaces_CreateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoi
 	)
 }
 
-func _Workspaces_CreateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Workspaces_CreateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router),
@@ -253,9 +253,9 @@ func _Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoi
 	)
 }
 
-func _Workspaces_UpdateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Workspaces_UpdateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router),
@@ -282,9 +282,9 @@ func _Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoi
 	)
 }
 
-func _Workspaces_DeleteWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Workspaces_DeleteWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router),

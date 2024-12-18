@@ -85,7 +85,7 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString() transportx.Cl
 	return t.embedNamedPathWrapString
 }
 
-func NewNamedPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (NamedPathClientTransports, error) {
+func NewNamedPathHttpClientTransports(target string, options ...httpx.ClientTransportOption) (NamedPathClientTransports, error) {
 	router := appendNamedPathHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &namedPathHttpClientTransports{}
@@ -184,9 +184,9 @@ func _NamedPath_NamedPathString_HttpServer_Transport(endpoints NamedPathEndpoint
 	)
 }
 
-func _NamedPath_NamedPathString_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _NamedPath_NamedPathString_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_NamedPath_NamedPathString_HttpClient_RequestEncoder(router),
@@ -213,9 +213,9 @@ func _NamedPath_NamedPathOptString_HttpServer_Transport(endpoints NamedPathEndpo
 	)
 }
 
-func _NamedPath_NamedPathOptString_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _NamedPath_NamedPathOptString_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_NamedPath_NamedPathOptString_HttpClient_RequestEncoder(router),
@@ -242,9 +242,9 @@ func _NamedPath_NamedPathWrapString_HttpServer_Transport(endpoints NamedPathEndp
 	)
 }
 
-func _NamedPath_NamedPathWrapString_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _NamedPath_NamedPathWrapString_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_NamedPath_NamedPathWrapString_HttpClient_RequestEncoder(router),
@@ -271,9 +271,9 @@ func _NamedPath_EmbedNamedPathString_HttpServer_Transport(endpoints NamedPathEnd
 	)
 }
 
-func _NamedPath_EmbedNamedPathString_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _NamedPath_EmbedNamedPathString_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_NamedPath_EmbedNamedPathString_HttpClient_RequestEncoder(router),
@@ -300,9 +300,9 @@ func _NamedPath_EmbedNamedPathOptString_HttpServer_Transport(endpoints NamedPath
 	)
 }
 
-func _NamedPath_EmbedNamedPathOptString_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _NamedPath_EmbedNamedPathOptString_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_NamedPath_EmbedNamedPathOptString_HttpClient_RequestEncoder(router),
@@ -329,9 +329,9 @@ func _NamedPath_EmbedNamedPathWrapString_HttpServer_Transport(endpoints NamedPat
 	)
 }
 
-func _NamedPath_EmbedNamedPathWrapString_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _NamedPath_EmbedNamedPathWrapString_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_NamedPath_EmbedNamedPathWrapString_HttpClient_RequestEncoder(router),

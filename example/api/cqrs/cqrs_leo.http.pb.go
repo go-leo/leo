@@ -53,7 +53,7 @@ func (t *cQRSHttpClientTransports) FindUser() transportx.ClientTransport {
 	return t.findUser
 }
 
-func NewCQRSHttpClientTransports(target string, options ...transportx.ClientTransportOption) (CQRSClientTransports, error) {
+func NewCQRSHttpClientTransports(target string, options ...httpx.ClientTransportOption) (CQRSClientTransports, error) {
 	router := appendCQRSHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &cQRSHttpClientTransports{}
@@ -108,9 +108,9 @@ func _CQRS_CreateUser_HttpServer_Transport(endpoints CQRSEndpoints) *http.Server
 	)
 }
 
-func _CQRS_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _CQRS_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_CQRS_CreateUser_HttpClient_RequestEncoder(router),
@@ -137,9 +137,9 @@ func _CQRS_FindUser_HttpServer_Transport(endpoints CQRSEndpoints) *http.Server {
 	)
 }
 
-func _CQRS_FindUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _CQRS_FindUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_CQRS_FindUser_HttpClient_RequestEncoder(router),

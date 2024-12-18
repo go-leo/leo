@@ -45,7 +45,7 @@ func (t *greeterHttpClientTransports) SayHello() transportx.ClientTransport {
 	return t.sayHello
 }
 
-func NewGreeterHttpClientTransports(target string, options ...transportx.ClientTransportOption) (GreeterClientTransports, error) {
+func NewGreeterHttpClientTransports(target string, options ...httpx.ClientTransportOption) (GreeterClientTransports, error) {
 	router := appendGreeterHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &greeterHttpClientTransports{}
@@ -89,9 +89,9 @@ func _Greeter_SayHello_HttpServer_Transport(endpoints GreeterEndpoints) *http.Se
 	)
 }
 
-func _Greeter_SayHello_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Greeter_SayHello_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Greeter_SayHello_HttpClient_RequestEncoder(router),

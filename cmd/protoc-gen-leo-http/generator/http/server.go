@@ -10,39 +10,6 @@ import (
 
 type ServerGenerator struct{}
 
-func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.HttpServerTransportsName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() *", internal.HttpTransportPackage.Ident("Server"))
-	}
-	g.P("}")
-	g.P()
-	g.P("type ", service.UnexportedHttpServerTransportsName(), " struct {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " *", internal.HttpTransportPackage.Ident("Server"))
-	}
-	g.P("}")
-	g.P()
-
-	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpServerTransportsName(), ") ", endpoint.Name(), "() *", internal.HttpTransportPackage.Ident("Server"), "{")
-		g.P("return t.", endpoint.UnexportedName())
-		g.P("}")
-		g.P()
-	}
-
-	g.P("func new", service.HttpServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.HttpServerTransportsName(), " {")
-	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ": ", endpoint.HttpServerTransportName(), "(endpoints), ")
-	}
-	g.P("}")
-	g.P("}")
-	g.P()
-
-	return nil
-}
-
 func (f *ServerGenerator) GenerateServerTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
 	g.P("func ", endpoint.HttpServerTransportName(), "(endpoints ", service.EndpointsName(), ") *", internal.HttpTransportPackage.Ident("Server"), " {")
 	g.P("return ", internal.HttpTransportPackage.Ident("NewServer"), "(")

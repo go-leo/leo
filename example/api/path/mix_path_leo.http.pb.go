@@ -50,7 +50,7 @@ func (t *mixPathHttpClientTransports) MixPath() transportx.ClientTransport {
 	return t.mixPath
 }
 
-func NewMixPathHttpClientTransports(target string, options ...transportx.ClientTransportOption) (MixPathClientTransports, error) {
+func NewMixPathHttpClientTransports(target string, options ...httpx.ClientTransportOption) (MixPathClientTransports, error) {
 	router := appendMixPathHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &mixPathHttpClientTransports{}
@@ -94,9 +94,9 @@ func _MixPath_MixPath_HttpServer_Transport(endpoints MixPathEndpoints) *http.Ser
 	)
 }
 
-func _MixPath_MixPath_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _MixPath_MixPath_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_MixPath_MixPath_HttpClient_RequestEncoder(router),

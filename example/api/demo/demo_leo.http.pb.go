@@ -94,7 +94,7 @@ func (t *demoHttpClientTransports) GetUserAvatar() transportx.ClientTransport {
 	return t.getUserAvatar
 }
 
-func NewDemoHttpClientTransports(target string, options ...transportx.ClientTransportOption) (DemoClientTransports, error) {
+func NewDemoHttpClientTransports(target string, options ...httpx.ClientTransportOption) (DemoClientTransports, error) {
 	router := appendDemoHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &demoHttpClientTransports{}
@@ -204,9 +204,9 @@ func _Demo_CreateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server
 	)
 }
 
-func _Demo_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_CreateUser_HttpClient_RequestEncoder(router),
@@ -233,9 +233,9 @@ func _Demo_DeleteUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server
 	)
 }
 
-func _Demo_DeleteUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_DeleteUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_DeleteUser_HttpClient_RequestEncoder(router),
@@ -262,9 +262,9 @@ func _Demo_UpdateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server
 	)
 }
 
-func _Demo_UpdateUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_UpdateUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_UpdateUser_HttpClient_RequestEncoder(router),
@@ -291,9 +291,9 @@ func _Demo_GetUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	)
 }
 
-func _Demo_GetUser_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_GetUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_GetUser_HttpClient_RequestEncoder(router),
@@ -320,9 +320,9 @@ func _Demo_GetUsers_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	)
 }
 
-func _Demo_GetUsers_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_GetUsers_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_GetUsers_HttpClient_RequestEncoder(router),
@@ -349,9 +349,9 @@ func _Demo_UploadUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.
 	)
 }
 
-func _Demo_UploadUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_UploadUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_UploadUserAvatar_HttpClient_RequestEncoder(router),
@@ -378,9 +378,9 @@ func _Demo_GetUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Ser
 	)
 }
 
-func _Demo_GetUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Demo_GetUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Demo_GetUserAvatar_HttpClient_RequestEncoder(router),

@@ -50,7 +50,7 @@ func (t *queryHttpClientTransports) Query() transportx.ClientTransport {
 	return t.query
 }
 
-func NewQueryHttpClientTransports(target string, options ...transportx.ClientTransportOption) (QueryClientTransports, error) {
+func NewQueryHttpClientTransports(target string, options ...httpx.ClientTransportOption) (QueryClientTransports, error) {
 	router := appendQueryHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &queryHttpClientTransports{}
@@ -94,9 +94,9 @@ func _Query_Query_HttpServer_Transport(endpoints QueryEndpoints) *http.Server {
 	)
 }
 
-func _Query_Query_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Query_Query_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Query_Query_HttpClient_RequestEncoder(router),

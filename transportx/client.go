@@ -34,7 +34,7 @@ type clientTransport struct {
 
 	options *clientTransportOptions
 
-	clients lazyloadx.Group
+	clients lazyloadx.Group[lb.Balancer]
 	sfg     singleflight.Group
 }
 
@@ -134,7 +134,7 @@ func NewClientTransport(target string, factory sdx.Factory, opts ...ClientTransp
 		factory: factory,
 		builder: nil,
 		options: new(clientTransportOptions).Init().Apply(opts...),
-		clients: lazyloadx.Group{},
+		clients: lazyloadx.Group[lb.Balancer]{},
 		sfg:     singleflight.Group{},
 	}
 	parsedTarget, err := sdx.ParseTarget(target)
@@ -179,7 +179,7 @@ func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 	if color, ok := stainx.ExtractColor(ctx); ok {
 		key = color
 	}
-	value, err, _ := c.clients.LoadOrNew(key, func(key string) (any, error) {
+	value, err, _ := c.clients.LoadOrNew(key, func(key string) (lb.Balancer, error) {
 		instancer, err := c.builder.Build(ctx, c.target)
 		if err != nil {
 			return nil, err

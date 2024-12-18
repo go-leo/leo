@@ -25,7 +25,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func New", service.HttpClientTransportsName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
+	g.P("func New", service.HttpClientTransportsName(), "(target string, options ...", internal.HttpxTransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
 
 	g.P("router := append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "())")
 	g.P("_ = router")
@@ -43,9 +43,9 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 }
 
 func (f *ClientGenerator) GenerateClientTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
-	g.P("func ", endpoint.HttpClientTransportName(), "(target string, router *", internal.MuxPackage.Ident("Router"), ", options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ")", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error)", " {")
+	g.P("func ", endpoint.HttpClientTransportName(), "(target string, router *", internal.MuxPackage.Ident("Router"), ", options ...", internal.HttpxTransportxPackage.Ident("ClientTransportOption"), ")", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error)", " {")
 	g.P("return ", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
-	g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
+	g.P("return ", internal.HttpxTransportxPackage.Ident("NewClientTransport"), "(")
 	g.P("target,")
 	g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
 	g.P(endpoint.HttpClientRequestEncoderName(), "(router),")

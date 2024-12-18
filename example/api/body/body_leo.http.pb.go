@@ -75,7 +75,7 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody() transportx.ClientTranspor
 	return t.httpBodyNamedBody
 }
 
-func NewBodyHttpClientTransports(target string, options ...transportx.ClientTransportOption) (BodyClientTransports, error) {
+func NewBodyHttpClientTransports(target string, options ...httpx.ClientTransportOption) (BodyClientTransports, error) {
 	router := appendBodyHttpRoutes(mux.NewRouter())
 	_ = router
 	t := &bodyHttpClientTransports{}
@@ -163,9 +163,9 @@ func _Body_StarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	)
 }
 
-func _Body_StarBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Body_StarBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Body_StarBody_HttpClient_RequestEncoder(router),
@@ -192,9 +192,9 @@ func _Body_NamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server 
 	)
 }
 
-func _Body_NamedBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Body_NamedBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Body_NamedBody_HttpClient_RequestEncoder(router),
@@ -221,9 +221,9 @@ func _Body_NonBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	)
 }
 
-func _Body_NonBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Body_NonBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Body_NonBody_HttpClient_RequestEncoder(router),
@@ -250,9 +250,9 @@ func _Body_HttpBodyStarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.
 	)
 }
 
-func _Body_HttpBodyStarBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Body_HttpBodyStarBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Body_HttpBodyStarBody_HttpClient_RequestEncoder(router),
@@ -279,9 +279,9 @@ func _Body_HttpBodyNamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http
 	)
 }
 
-func _Body_HttpBodyNamedBody_HttpClient_Transport(target string, router *mux.Router, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
+func _Body_HttpBodyNamedBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
 	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
+		return httpx.NewClientTransport(
 			target,
 			httpx.ClientFactory(
 				_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router),

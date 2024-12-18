@@ -37,12 +37,6 @@ func (f *Generator) GenerateRoutes(g *protogen.GeneratedFile) error {
 
 func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 	server := ServerGenerator{}
-	//for _, service := range f.Services {
-	//	if err := server.GenerateTransports(service, g); err != nil {
-	//		return err
-	//	}
-	//}
-
 	for _, service := range f.Services {
 		if err := server.GenerateServer(service, g); err != nil {
 			return err
