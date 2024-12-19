@@ -61,7 +61,11 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 			return err
 		}
 	}
-
+	for _, service := range f.Services {
+		if err := f.GenerateClientTransportsImplements(service, g); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -92,13 +96,20 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 	}
 	g.P("}")
 	g.P()
+
+	g.P("type ", service.ClientTransportsNameV2(), " interface {")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error)")
+	}
+	g.P("}")
+	g.P()
 	return nil
 }
 
 func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.FactoriesName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "(middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", internal.SdPackage.Ident("Factory"))
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.SdPackage.Ident("Factory"))
 	}
 	g.P("}")
 	g.P()
@@ -159,3 +170,39 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 	g.P()
 	return nil
 }
+
+func (f *Generator) GenerateClientTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedFactoriesName(), " struct {")
+	g.P("transports ", service.ClientTransportsNameV2())
+	g.P("}")
+	g.P()
+
+	for _, endpoint := range service.Endpoints {
+		g.P("func (f *", service.UnexportedFactoriesName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.SdPackage.Ident("Factory"), "{")
+		g.P("return func(instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("return f.transports.", endpoint.Name(), "(ctx, instance)")
+		g.P("}")
+		g.P("}")
+		g.P()
+	}
+
+	g.P("func new", service.FactoriesName(), "(transports ", service.ClientTransportsNameV2(), ") ", service.FactoriesName(), " {")
+	g.P("return &", service.UnexportedFactoriesName(), "{transports: transports}")
+	g.P("}")
+	g.P()
+	return nil
+}
+
+//type greeterFactories struct {
+//	GreeterClientTransportsV2 GreeterClientTransportsV2
+//}
+//
+//func (g greeterFactories) SayHello(ctx context.Context) sd.Factory {
+//	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+//		return g.GreeterClientTransportsV2.SayHello(ctx, instance)
+//	}
+//}
+//
+//func newGreeterFactories(GreeterClientTransportsV2 GreeterClientTransportsV2) GreeterFactories {
+//	return &greeterFactories{GreeterClientTransportsV2: GreeterClientTransportsV2}
+//}

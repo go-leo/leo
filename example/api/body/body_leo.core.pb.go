@@ -10,6 +10,7 @@ import (
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type BodyService interface {
@@ -36,12 +37,20 @@ type BodyClientTransports interface {
 	HttpBodyNamedBody() transportx.ClientTransport
 }
 
+type BodyClientTransportsV2 interface {
+	StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	HttpBodyStarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type BodyFactories interface {
-	StarBody(middlewares ...endpoint.Middleware) sd.Factory
-	NamedBody(middlewares ...endpoint.Middleware) sd.Factory
-	NonBody(middlewares ...endpoint.Middleware) sd.Factory
-	HttpBodyStarBody(middlewares ...endpoint.Middleware) sd.Factory
-	HttpBodyNamedBody(middlewares ...endpoint.Middleware) sd.Factory
+	StarBody(ctx context.Context) sd.Factory
+	NamedBody(ctx context.Context) sd.Factory
+	NonBody(ctx context.Context) sd.Factory
+	HttpBodyStarBody(ctx context.Context) sd.Factory
+	HttpBodyNamedBody(ctx context.Context) sd.Factory
 }
 
 type BodyEndpointers interface {
@@ -123,4 +132,42 @@ func (e *bodyClientEndpoints) HttpBodyNamedBody(ctx context.Context) endpoint.En
 
 func newBodyClientEndpoints(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyEndpoints {
 	return &bodyClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type bodyFactories struct {
+	transports BodyClientTransportsV2
+}
+
+func (f *bodyFactories) StarBody(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.StarBody(ctx, instance)
+	}
+}
+
+func (f *bodyFactories) NamedBody(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.NamedBody(ctx, instance)
+	}
+}
+
+func (f *bodyFactories) NonBody(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.NonBody(ctx, instance)
+	}
+}
+
+func (f *bodyFactories) HttpBodyStarBody(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.HttpBodyStarBody(ctx, instance)
+	}
+}
+
+func (f *bodyFactories) HttpBodyNamedBody(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.HttpBodyNamedBody(ctx, instance)
+	}
+}
+
+func newBodyFactories(transports BodyClientTransportsV2) BodyFactories {
+	return &bodyFactories{transports: transports}
 }

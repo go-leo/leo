@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type PathService interface {
@@ -47,16 +48,28 @@ type PathClientTransports interface {
 	EnumPath() transportx.ClientTransport
 }
 
+type PathClientTransportsV2 interface {
+	BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type PathFactories interface {
-	BoolPath(middlewares ...endpoint.Middleware) sd.Factory
-	Int32Path(middlewares ...endpoint.Middleware) sd.Factory
-	Int64Path(middlewares ...endpoint.Middleware) sd.Factory
-	Uint32Path(middlewares ...endpoint.Middleware) sd.Factory
-	Uint64Path(middlewares ...endpoint.Middleware) sd.Factory
-	FloatPath(middlewares ...endpoint.Middleware) sd.Factory
-	DoublePath(middlewares ...endpoint.Middleware) sd.Factory
-	StringPath(middlewares ...endpoint.Middleware) sd.Factory
-	EnumPath(middlewares ...endpoint.Middleware) sd.Factory
+	BoolPath(ctx context.Context) sd.Factory
+	Int32Path(ctx context.Context) sd.Factory
+	Int64Path(ctx context.Context) sd.Factory
+	Uint32Path(ctx context.Context) sd.Factory
+	Uint64Path(ctx context.Context) sd.Factory
+	FloatPath(ctx context.Context) sd.Factory
+	DoublePath(ctx context.Context) sd.Factory
+	StringPath(ctx context.Context) sd.Factory
+	EnumPath(ctx context.Context) sd.Factory
 }
 
 type PathEndpointers interface {
@@ -186,4 +199,66 @@ func (e *pathClientEndpoints) EnumPath(ctx context.Context) endpoint.Endpoint {
 
 func newPathClientEndpoints(transports PathClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
 	return &pathClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type pathFactories struct {
+	transports PathClientTransportsV2
+}
+
+func (f *pathFactories) BoolPath(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.BoolPath(ctx, instance)
+	}
+}
+
+func (f *pathFactories) Int32Path(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.Int32Path(ctx, instance)
+	}
+}
+
+func (f *pathFactories) Int64Path(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.Int64Path(ctx, instance)
+	}
+}
+
+func (f *pathFactories) Uint32Path(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.Uint32Path(ctx, instance)
+	}
+}
+
+func (f *pathFactories) Uint64Path(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.Uint64Path(ctx, instance)
+	}
+}
+
+func (f *pathFactories) FloatPath(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.FloatPath(ctx, instance)
+	}
+}
+
+func (f *pathFactories) DoublePath(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.DoublePath(ctx, instance)
+	}
+}
+
+func (f *pathFactories) StringPath(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.StringPath(ctx, instance)
+	}
+}
+
+func (f *pathFactories) EnumPath(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.EnumPath(ctx, instance)
+	}
+}
+
+func newPathFactories(transports PathClientTransportsV2) PathFactories {
+	return &pathFactories{transports: transports}
 }

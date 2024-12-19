@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type MixPathService interface {
@@ -23,8 +24,12 @@ type MixPathClientTransports interface {
 	MixPath() transportx.ClientTransport
 }
 
+type MixPathClientTransportsV2 interface {
+	MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type MixPathFactories interface {
-	MixPath(middlewares ...endpoint.Middleware) sd.Factory
+	MixPath(ctx context.Context) sd.Factory
 }
 
 type MixPathEndpointers interface {
@@ -58,4 +63,18 @@ func (e *mixPathClientEndpoints) MixPath(ctx context.Context) endpoint.Endpoint 
 
 func newMixPathClientEndpoints(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type mixPathFactories struct {
+	transports MixPathClientTransportsV2
+}
+
+func (f *mixPathFactories) MixPath(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.MixPath(ctx, instance)
+	}
+}
+
+func newMixPathFactories(transports MixPathClientTransportsV2) MixPathFactories {
+	return &mixPathFactories{transports: transports}
 }

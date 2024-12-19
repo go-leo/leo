@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type QueryService interface {
@@ -23,8 +24,12 @@ type QueryClientTransports interface {
 	Query() transportx.ClientTransport
 }
 
+type QueryClientTransportsV2 interface {
+	Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type QueryFactories interface {
-	Query(middlewares ...endpoint.Middleware) sd.Factory
+	Query(ctx context.Context) sd.Factory
 }
 
 type QueryEndpointers interface {
@@ -58,4 +63,18 @@ func (e *queryClientEndpoints) Query(ctx context.Context) endpoint.Endpoint {
 
 func newQueryClientEndpoints(transports QueryClientTransports, middlewares ...endpoint.Middleware) QueryEndpoints {
 	return &queryClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type queryFactories struct {
+	transports QueryClientTransportsV2
+}
+
+func (f *queryFactories) Query(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.Query(ctx, instance)
+	}
+}
+
+func newQueryFactories(transports QueryClientTransportsV2) QueryFactories {
+	return &queryFactories{transports: transports}
 }

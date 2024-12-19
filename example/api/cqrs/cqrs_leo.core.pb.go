@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type CQRSService interface {
@@ -26,9 +27,14 @@ type CQRSClientTransports interface {
 	FindUser() transportx.ClientTransport
 }
 
+type CQRSClientTransportsV2 interface {
+	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type CQRSFactories interface {
-	CreateUser(middlewares ...endpoint.Middleware) sd.Factory
-	FindUser(middlewares ...endpoint.Middleware) sd.Factory
+	CreateUser(ctx context.Context) sd.Factory
+	FindUser(ctx context.Context) sd.Factory
 }
 
 type CQRSEndpointers interface {
@@ -74,4 +80,24 @@ func (e *cQRSClientEndpoints) FindUser(ctx context.Context) endpoint.Endpoint {
 
 func newCQRSClientEndpoints(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
 	return &cQRSClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type cQRSFactories struct {
+	transports CQRSClientTransportsV2
+}
+
+func (f *cQRSFactories) CreateUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.CreateUser(ctx, instance)
+	}
+}
+
+func (f *cQRSFactories) FindUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.FindUser(ctx, instance)
+	}
+}
+
+func newCQRSFactories(transports CQRSClientTransportsV2) CQRSFactories {
+	return &cQRSFactories{transports: transports}
 }

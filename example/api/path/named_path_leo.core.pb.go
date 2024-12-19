@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type NamedPathService interface {
@@ -38,13 +39,22 @@ type NamedPathClientTransports interface {
 	EmbedNamedPathWrapString() transportx.ClientTransport
 }
 
+type NamedPathClientTransportsV2 interface {
+	NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	NamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	NamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	EmbedNamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	EmbedNamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	EmbedNamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type NamedPathFactories interface {
-	NamedPathString(middlewares ...endpoint.Middleware) sd.Factory
-	NamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory
-	NamedPathWrapString(middlewares ...endpoint.Middleware) sd.Factory
-	EmbedNamedPathString(middlewares ...endpoint.Middleware) sd.Factory
-	EmbedNamedPathOptString(middlewares ...endpoint.Middleware) sd.Factory
-	EmbedNamedPathWrapString(middlewares ...endpoint.Middleware) sd.Factory
+	NamedPathString(ctx context.Context) sd.Factory
+	NamedPathOptString(ctx context.Context) sd.Factory
+	NamedPathWrapString(ctx context.Context) sd.Factory
+	EmbedNamedPathString(ctx context.Context) sd.Factory
+	EmbedNamedPathOptString(ctx context.Context) sd.Factory
+	EmbedNamedPathWrapString(ctx context.Context) sd.Factory
 }
 
 type NamedPathEndpointers interface {
@@ -138,4 +148,48 @@ func (e *namedPathClientEndpoints) EmbedNamedPathWrapString(ctx context.Context)
 
 func newNamedPathClientEndpoints(transports NamedPathClientTransports, middlewares ...endpoint.Middleware) NamedPathEndpoints {
 	return &namedPathClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type namedPathFactories struct {
+	transports NamedPathClientTransportsV2
+}
+
+func (f *namedPathFactories) NamedPathString(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.NamedPathString(ctx, instance)
+	}
+}
+
+func (f *namedPathFactories) NamedPathOptString(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.NamedPathOptString(ctx, instance)
+	}
+}
+
+func (f *namedPathFactories) NamedPathWrapString(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.NamedPathWrapString(ctx, instance)
+	}
+}
+
+func (f *namedPathFactories) EmbedNamedPathString(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.EmbedNamedPathString(ctx, instance)
+	}
+}
+
+func (f *namedPathFactories) EmbedNamedPathOptString(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.EmbedNamedPathOptString(ctx, instance)
+	}
+}
+
+func (f *namedPathFactories) EmbedNamedPathWrapString(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.EmbedNamedPathWrapString(ctx, instance)
+	}
+}
+
+func newNamedPathFactories(transports NamedPathClientTransportsV2) NamedPathFactories {
+	return &namedPathFactories{transports: transports}
 }

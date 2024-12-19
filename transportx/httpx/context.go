@@ -77,3 +77,9 @@ func CancelInvoker(ctx context.Context, code int, r *http.Request) {
 		cancelFunc()
 	}
 }
+
+type targetKey struct{}
+
+func InjectTarget(ctx context.Context, target string) context.Context {
+	return context.WithValue(ctx, targetKey{}, target)
+}

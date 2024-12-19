@@ -10,6 +10,7 @@ import (
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type DemoService interface {
@@ -42,14 +43,24 @@ type DemoClientTransports interface {
 	GetUserAvatar() transportx.ClientTransport
 }
 
+type DemoClientTransportsV2 interface {
+	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	GetUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	GetUsers(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	UploadUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	GetUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type DemoFactories interface {
-	CreateUser(middlewares ...endpoint.Middleware) sd.Factory
-	DeleteUser(middlewares ...endpoint.Middleware) sd.Factory
-	UpdateUser(middlewares ...endpoint.Middleware) sd.Factory
-	GetUser(middlewares ...endpoint.Middleware) sd.Factory
-	GetUsers(middlewares ...endpoint.Middleware) sd.Factory
-	UploadUserAvatar(middlewares ...endpoint.Middleware) sd.Factory
-	GetUserAvatar(middlewares ...endpoint.Middleware) sd.Factory
+	CreateUser(ctx context.Context) sd.Factory
+	DeleteUser(ctx context.Context) sd.Factory
+	UpdateUser(ctx context.Context) sd.Factory
+	GetUser(ctx context.Context) sd.Factory
+	GetUsers(ctx context.Context) sd.Factory
+	UploadUserAvatar(ctx context.Context) sd.Factory
+	GetUserAvatar(ctx context.Context) sd.Factory
 }
 
 type DemoEndpointers interface {
@@ -155,4 +166,54 @@ func (e *demoClientEndpoints) GetUserAvatar(ctx context.Context) endpoint.Endpoi
 
 func newDemoClientEndpoints(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
 	return &demoClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type demoFactories struct {
+	transports DemoClientTransportsV2
+}
+
+func (f *demoFactories) CreateUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.CreateUser(ctx, instance)
+	}
+}
+
+func (f *demoFactories) DeleteUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.DeleteUser(ctx, instance)
+	}
+}
+
+func (f *demoFactories) UpdateUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.UpdateUser(ctx, instance)
+	}
+}
+
+func (f *demoFactories) GetUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.GetUser(ctx, instance)
+	}
+}
+
+func (f *demoFactories) GetUsers(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.GetUsers(ctx, instance)
+	}
+}
+
+func (f *demoFactories) UploadUserAvatar(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.UploadUserAvatar(ctx, instance)
+	}
+}
+
+func (f *demoFactories) GetUserAvatar(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.GetUserAvatar(ctx, instance)
+	}
+}
+
+func newDemoFactories(transports DemoClientTransportsV2) DemoFactories {
+	return &demoFactories{transports: transports}
 }

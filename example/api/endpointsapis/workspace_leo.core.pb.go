@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type WorkspacesService interface {
@@ -35,12 +36,20 @@ type WorkspacesClientTransports interface {
 	DeleteWorkspace() transportx.ClientTransport
 }
 
+type WorkspacesClientTransportsV2 interface {
+	ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	UpdateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type WorkspacesFactories interface {
-	ListWorkspaces(middlewares ...endpoint.Middleware) sd.Factory
-	GetWorkspace(middlewares ...endpoint.Middleware) sd.Factory
-	CreateWorkspace(middlewares ...endpoint.Middleware) sd.Factory
-	UpdateWorkspace(middlewares ...endpoint.Middleware) sd.Factory
-	DeleteWorkspace(middlewares ...endpoint.Middleware) sd.Factory
+	ListWorkspaces(ctx context.Context) sd.Factory
+	GetWorkspace(ctx context.Context) sd.Factory
+	CreateWorkspace(ctx context.Context) sd.Factory
+	UpdateWorkspace(ctx context.Context) sd.Factory
+	DeleteWorkspace(ctx context.Context) sd.Factory
 }
 
 type WorkspacesEndpointers interface {
@@ -122,4 +131,42 @@ func (e *workspacesClientEndpoints) DeleteWorkspace(ctx context.Context) endpoin
 
 func newWorkspacesClientEndpoints(transports WorkspacesClientTransports, middlewares ...endpoint.Middleware) WorkspacesEndpoints {
 	return &workspacesClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type workspacesFactories struct {
+	transports WorkspacesClientTransportsV2
+}
+
+func (f *workspacesFactories) ListWorkspaces(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.ListWorkspaces(ctx, instance)
+	}
+}
+
+func (f *workspacesFactories) GetWorkspace(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.GetWorkspace(ctx, instance)
+	}
+}
+
+func (f *workspacesFactories) CreateWorkspace(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.CreateWorkspace(ctx, instance)
+	}
+}
+
+func (f *workspacesFactories) UpdateWorkspace(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.UpdateWorkspace(ctx, instance)
+	}
+}
+
+func (f *workspacesFactories) DeleteWorkspace(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.DeleteWorkspace(ctx, instance)
+	}
+}
+
+func newWorkspacesFactories(transports WorkspacesClientTransportsV2) WorkspacesFactories {
+	return &workspacesFactories{transports: transports}
 }

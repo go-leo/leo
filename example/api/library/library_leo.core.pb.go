@@ -9,6 +9,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type LibraryServiceService interface {
@@ -53,18 +54,32 @@ type LibraryServiceClientTransports interface {
 	MoveBook() transportx.ClientTransport
 }
 
+type LibraryServiceClientTransportsV2 interface {
+	CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	DeleteShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	MergeShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	CreateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	GetBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	ListBooks(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	DeleteBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	UpdateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type LibraryServiceFactories interface {
-	CreateShelf(middlewares ...endpoint.Middleware) sd.Factory
-	GetShelf(middlewares ...endpoint.Middleware) sd.Factory
-	ListShelves(middlewares ...endpoint.Middleware) sd.Factory
-	DeleteShelf(middlewares ...endpoint.Middleware) sd.Factory
-	MergeShelves(middlewares ...endpoint.Middleware) sd.Factory
-	CreateBook(middlewares ...endpoint.Middleware) sd.Factory
-	GetBook(middlewares ...endpoint.Middleware) sd.Factory
-	ListBooks(middlewares ...endpoint.Middleware) sd.Factory
-	DeleteBook(middlewares ...endpoint.Middleware) sd.Factory
-	UpdateBook(middlewares ...endpoint.Middleware) sd.Factory
-	MoveBook(middlewares ...endpoint.Middleware) sd.Factory
+	CreateShelf(ctx context.Context) sd.Factory
+	GetShelf(ctx context.Context) sd.Factory
+	ListShelves(ctx context.Context) sd.Factory
+	DeleteShelf(ctx context.Context) sd.Factory
+	MergeShelves(ctx context.Context) sd.Factory
+	CreateBook(ctx context.Context) sd.Factory
+	GetBook(ctx context.Context) sd.Factory
+	ListBooks(ctx context.Context) sd.Factory
+	DeleteBook(ctx context.Context) sd.Factory
+	UpdateBook(ctx context.Context) sd.Factory
+	MoveBook(ctx context.Context) sd.Factory
 }
 
 type LibraryServiceEndpointers interface {
@@ -218,4 +233,78 @@ func (e *libraryServiceClientEndpoints) MoveBook(ctx context.Context) endpoint.E
 
 func newLibraryServiceClientEndpoints(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
 	return &libraryServiceClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type libraryServiceFactories struct {
+	transports LibraryServiceClientTransportsV2
+}
+
+func (f *libraryServiceFactories) CreateShelf(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.CreateShelf(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) GetShelf(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.GetShelf(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) ListShelves(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.ListShelves(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) DeleteShelf(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.DeleteShelf(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) MergeShelves(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.MergeShelves(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) CreateBook(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.CreateBook(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) GetBook(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.GetBook(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) ListBooks(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.ListBooks(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) DeleteBook(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.DeleteBook(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) UpdateBook(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.UpdateBook(ctx, instance)
+	}
+}
+
+func (f *libraryServiceFactories) MoveBook(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.MoveBook(ctx, instance)
+	}
+}
+
+func newLibraryServiceFactories(transports LibraryServiceClientTransportsV2) LibraryServiceFactories {
+	return &libraryServiceFactories{transports: transports}
 }

@@ -10,6 +10,7 @@ import (
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 type ResponseService interface {
@@ -36,12 +37,20 @@ type ResponseClientTransports interface {
 	HttpBodyNamedResponse() transportx.ClientTransport
 }
 
+type ResponseClientTransportsV2 interface {
+	OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type ResponseFactories interface {
-	OmittedResponse(middlewares ...endpoint.Middleware) sd.Factory
-	StarResponse(middlewares ...endpoint.Middleware) sd.Factory
-	NamedResponse(middlewares ...endpoint.Middleware) sd.Factory
-	HttpBodyResponse(middlewares ...endpoint.Middleware) sd.Factory
-	HttpBodyNamedResponse(middlewares ...endpoint.Middleware) sd.Factory
+	OmittedResponse(ctx context.Context) sd.Factory
+	StarResponse(ctx context.Context) sd.Factory
+	NamedResponse(ctx context.Context) sd.Factory
+	HttpBodyResponse(ctx context.Context) sd.Factory
+	HttpBodyNamedResponse(ctx context.Context) sd.Factory
 }
 
 type ResponseEndpointers interface {
@@ -123,4 +132,42 @@ func (e *responseClientEndpoints) HttpBodyNamedResponse(ctx context.Context) end
 
 func newResponseClientEndpoints(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type responseFactories struct {
+	transports ResponseClientTransportsV2
+}
+
+func (f *responseFactories) OmittedResponse(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.OmittedResponse(ctx, instance)
+	}
+}
+
+func (f *responseFactories) StarResponse(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.StarResponse(ctx, instance)
+	}
+}
+
+func (f *responseFactories) NamedResponse(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.NamedResponse(ctx, instance)
+	}
+}
+
+func (f *responseFactories) HttpBodyResponse(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.HttpBodyResponse(ctx, instance)
+	}
+}
+
+func (f *responseFactories) HttpBodyNamedResponse(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.HttpBodyNamedResponse(ctx, instance)
+	}
+}
+
+func newResponseFactories(transports ResponseClientTransportsV2) ResponseFactories {
+	return &responseFactories{transports: transports}
 }
