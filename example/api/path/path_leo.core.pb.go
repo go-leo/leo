@@ -6,6 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	log "github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -47,7 +48,6 @@ type PathClientTransports interface {
 	StringPath() transportx.ClientTransport
 	EnumPath() transportx.ClientTransport
 }
-
 type PathClientTransportsV2 interface {
 	BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -73,15 +73,15 @@ type PathFactories interface {
 }
 
 type PathEndpointers interface {
-	BoolPath() sd.Endpointer
-	Int32Path() sd.Endpointer
-	Int64Path() sd.Endpointer
-	Uint32Path() sd.Endpointer
-	Uint64Path() sd.Endpointer
-	FloatPath() sd.Endpointer
-	DoublePath() sd.Endpointer
-	StringPath() sd.Endpointer
-	EnumPath() sd.Endpointer
+	BoolPath(ctx context.Context) sd.Endpointer
+	Int32Path(ctx context.Context) sd.Endpointer
+	Int64Path(ctx context.Context) sd.Endpointer
+	Uint32Path(ctx context.Context) sd.Endpointer
+	Uint64Path(ctx context.Context) sd.Endpointer
+	FloatPath(ctx context.Context) sd.Endpointer
+	DoublePath(ctx context.Context) sd.Endpointer
+	StringPath(ctx context.Context) sd.Endpointer
+	EnumPath(ctx context.Context) sd.Endpointer
 }
 
 type pathServerEndpoints struct {
@@ -95,63 +95,54 @@ func (e *pathServerEndpoints) BoolPath(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) Int32Path(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.Int32Path(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) Int64Path(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.Int64Path(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) Uint32Path(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.Uint32Path(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) Uint64Path(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.Uint64Path(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) FloatPath(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.FloatPath(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) DoublePath(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.DoublePath(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) StringPath(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.StringPath(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *pathServerEndpoints) EnumPath(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.EnumPath(ctx, request.(*PathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func newPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware) PathEndpoints {
 	return &pathServerEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -164,39 +155,30 @@ type pathClientEndpoints struct {
 func (e *pathClientEndpoints) BoolPath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.BoolPath().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) Int32Path(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.Int32Path().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) Int64Path(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.Int64Path().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) Uint32Path(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.Uint32Path().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) Uint64Path(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.Uint64Path().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) FloatPath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.FloatPath().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) DoublePath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.DoublePath().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) StringPath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.StringPath().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *pathClientEndpoints) EnumPath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.EnumPath().Endpoint(ctx), e.middlewares...)
 }
-
 func newPathClientEndpoints(transports PathClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
 	return &pathClientEndpoints{transports: transports, middlewares: middlewares}
 }
@@ -210,55 +192,84 @@ func (f *pathFactories) BoolPath(ctx context.Context) sd.Factory {
 		return f.transports.BoolPath(ctx, instance)
 	}
 }
-
 func (f *pathFactories) Int32Path(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.Int32Path(ctx, instance)
 	}
 }
-
 func (f *pathFactories) Int64Path(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.Int64Path(ctx, instance)
 	}
 }
-
 func (f *pathFactories) Uint32Path(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.Uint32Path(ctx, instance)
 	}
 }
-
 func (f *pathFactories) Uint64Path(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.Uint64Path(ctx, instance)
 	}
 }
-
 func (f *pathFactories) FloatPath(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.FloatPath(ctx, instance)
 	}
 }
-
 func (f *pathFactories) DoublePath(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.DoublePath(ctx, instance)
 	}
 }
-
 func (f *pathFactories) StringPath(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.StringPath(ctx, instance)
 	}
 }
-
 func (f *pathFactories) EnumPath(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.EnumPath(ctx, instance)
 	}
 }
-
 func newPathFactories(transports PathClientTransportsV2) PathFactories {
 	return &pathFactories{transports: transports}
+}
+
+type pathEndpointers struct {
+	instancer sd.Instancer
+	factories PathFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
+}
+
+func (e *pathEndpointers) BoolPath(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.BoolPath(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) Int32Path(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.Int32Path(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) Int64Path(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.Int64Path(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) Uint32Path(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.Uint32Path(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) Uint64Path(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.Uint64Path(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) FloatPath(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.FloatPath(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) DoublePath(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.DoublePath(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) StringPath(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.StringPath(ctx), e.logger, e.options...)
+}
+func (e *pathEndpointers) EnumPath(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.EnumPath(ctx), e.logger, e.options...)
+}
+func newPathEndpointers(instancer sd.Instancer, factories PathFactories, logger log.Logger, options ...sd.EndpointerOption) PathEndpointers {
+	return &pathEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
 }

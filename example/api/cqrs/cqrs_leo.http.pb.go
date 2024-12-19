@@ -63,6 +63,50 @@ func NewCQRSHttpClientTransports(target string, options ...httpx.ClientTransport
 	return t, err
 }
 
+type cQRSHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *cQRSHttpClientTransportsV2) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_CQRS_CreateUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_CQRS_CreateUser_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *cQRSHttpClientTransportsV2) FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_CQRS_FindUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_CQRS_FindUser_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewCQRSHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransportsV2 {
+	return &cQRSHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendCQRSHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type cQRSHttpClient struct {
 	endpoints CQRSEndpoints
 }

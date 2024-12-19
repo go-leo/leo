@@ -59,6 +59,36 @@ func NewMixPathHttpClientTransports(target string, options ...httpx.ClientTransp
 	return t, err
 }
 
+type mixPathHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *mixPathHttpClientTransportsV2) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_MixPath_MixPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_MixPath_MixPath_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewMixPathHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransportsV2 {
+	return &mixPathHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendMixPathHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type mixPathHttpClient struct {
 	endpoints MixPathEndpoints
 }

@@ -24,6 +24,7 @@ var (
 	HttpTransportPackage = protogen.GoImportPath("github.com/go-kit/kit/transport/http")
 	EndpointPackage      = protogen.GoImportPath("github.com/go-kit/kit/endpoint")
 	SdPackage            = protogen.GoImportPath("github.com/go-kit/kit/sd")
+	LogPackage           = protogen.GoImportPath("github.com/go-kit/log")
 
 	EndpointxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")

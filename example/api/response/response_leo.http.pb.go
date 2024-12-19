@@ -90,6 +90,92 @@ func NewResponseHttpClientTransports(target string, options ...httpx.ClientTrans
 	return t, err
 }
 
+type responseHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *responseHttpClientTransportsV2) OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Response_OmittedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_OmittedResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransportsV2) StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Response_StarResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_StarResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransportsV2) NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Response_NamedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_NamedResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransportsV2) HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Response_HttpBodyResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransportsV2) HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewResponseHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransportsV2 {
+	return &responseHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendResponseHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type responseHttpClient struct {
 	endpoints ResponseEndpoints
 }

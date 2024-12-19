@@ -11,7 +11,7 @@ const schemeName = "passthrough"
 type InstancerBuilder struct{}
 
 func (b *InstancerBuilder) Build(ctx context.Context, target *sdx.Target) (sd.Instancer, error) {
-	return NewInstancer(target.Instance()), nil
+	return Instancer{Instance: target.Instance()}, nil
 }
 
 func (b *InstancerBuilder) Scheme() string {

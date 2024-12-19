@@ -139,6 +139,176 @@ func NewLibraryServiceHttpClientTransports(target string, options ...httpx.Clien
 	return t, err
 }
 
+type libraryServiceHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *libraryServiceHttpClientTransportsV2) CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_CreateShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_GetShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_GetShelf_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_ListShelves_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_ListShelves_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) DeleteShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_DeleteShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) MergeShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_MergeShelves_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) CreateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_CreateBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_CreateBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) GetBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_GetBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_GetBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) ListBooks(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_ListBooks_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_ListBooks_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) DeleteBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_DeleteBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) UpdateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_UpdateBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransportsV2) MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_LibraryService_MoveBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_MoveBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewLibraryServiceHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) LibraryServiceClientTransportsV2 {
+	return &libraryServiceHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendLibraryServiceHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type libraryServiceHttpClient struct {
 	endpoints LibraryServiceEndpoints
 }

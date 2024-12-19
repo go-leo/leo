@@ -88,6 +88,92 @@ func NewBodyHttpClientTransports(target string, options ...httpx.ClientTransport
 	return t, err
 }
 
+type bodyHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *bodyHttpClientTransportsV2) StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Body_StarBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Body_StarBody_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *bodyHttpClientTransportsV2) NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Body_NamedBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Body_NamedBody_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *bodyHttpClientTransportsV2) NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Body_NonBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Body_NonBody_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *bodyHttpClientTransportsV2) HttpBodyStarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Body_HttpBodyStarBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *bodyHttpClientTransportsV2) HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewBodyHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) BodyClientTransportsV2 {
+	return &bodyHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendBodyHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type bodyHttpClient struct {
 	endpoints BodyEndpoints
 }

@@ -6,6 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	log "github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
@@ -42,7 +43,6 @@ type DemoClientTransports interface {
 	UploadUserAvatar() transportx.ClientTransport
 	GetUserAvatar() transportx.ClientTransport
 }
-
 type DemoClientTransportsV2 interface {
 	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -64,13 +64,13 @@ type DemoFactories interface {
 }
 
 type DemoEndpointers interface {
-	CreateUser() sd.Endpointer
-	DeleteUser() sd.Endpointer
-	UpdateUser() sd.Endpointer
-	GetUser() sd.Endpointer
-	GetUsers() sd.Endpointer
-	UploadUserAvatar() sd.Endpointer
-	GetUserAvatar() sd.Endpointer
+	CreateUser(ctx context.Context) sd.Endpointer
+	DeleteUser(ctx context.Context) sd.Endpointer
+	UpdateUser(ctx context.Context) sd.Endpointer
+	GetUser(ctx context.Context) sd.Endpointer
+	GetUsers(ctx context.Context) sd.Endpointer
+	UploadUserAvatar(ctx context.Context) sd.Endpointer
+	GetUserAvatar(ctx context.Context) sd.Endpointer
 }
 
 type demoServerEndpoints struct {
@@ -84,49 +84,42 @@ func (e *demoServerEndpoints) CreateUser(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *demoServerEndpoints) DeleteUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.DeleteUser(ctx, request.(*DeleteUsersRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *demoServerEndpoints) UpdateUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.UpdateUser(ctx, request.(*UpdateUserRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *demoServerEndpoints) GetUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.GetUser(ctx, request.(*GetUserRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *demoServerEndpoints) GetUsers(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.GetUsers(ctx, request.(*GetUsersRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *demoServerEndpoints) UploadUserAvatar(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.UploadUserAvatar(ctx, request.(*UploadUserAvatarRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *demoServerEndpoints) GetUserAvatar(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.GetUserAvatar(ctx, request.(*GetUserAvatarRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func newDemoServerEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoEndpoints {
 	return &demoServerEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -139,31 +132,24 @@ type demoClientEndpoints struct {
 func (e *demoClientEndpoints) CreateUser(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.CreateUser().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *demoClientEndpoints) DeleteUser(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.DeleteUser().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *demoClientEndpoints) UpdateUser(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.UpdateUser().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *demoClientEndpoints) GetUser(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.GetUser().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *demoClientEndpoints) GetUsers(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.GetUsers().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *demoClientEndpoints) UploadUserAvatar(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.UploadUserAvatar().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *demoClientEndpoints) GetUserAvatar(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(ctx), e.middlewares...)
 }
-
 func newDemoClientEndpoints(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
 	return &demoClientEndpoints{transports: transports, middlewares: middlewares}
 }
@@ -177,43 +163,68 @@ func (f *demoFactories) CreateUser(ctx context.Context) sd.Factory {
 		return f.transports.CreateUser(ctx, instance)
 	}
 }
-
 func (f *demoFactories) DeleteUser(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.DeleteUser(ctx, instance)
 	}
 }
-
 func (f *demoFactories) UpdateUser(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.UpdateUser(ctx, instance)
 	}
 }
-
 func (f *demoFactories) GetUser(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.GetUser(ctx, instance)
 	}
 }
-
 func (f *demoFactories) GetUsers(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.GetUsers(ctx, instance)
 	}
 }
-
 func (f *demoFactories) UploadUserAvatar(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.UploadUserAvatar(ctx, instance)
 	}
 }
-
 func (f *demoFactories) GetUserAvatar(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.GetUserAvatar(ctx, instance)
 	}
 }
-
 func newDemoFactories(transports DemoClientTransportsV2) DemoFactories {
 	return &demoFactories{transports: transports}
+}
+
+type demoEndpointers struct {
+	instancer sd.Instancer
+	factories DemoFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
+}
+
+func (e *demoEndpointers) CreateUser(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.CreateUser(ctx), e.logger, e.options...)
+}
+func (e *demoEndpointers) DeleteUser(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.DeleteUser(ctx), e.logger, e.options...)
+}
+func (e *demoEndpointers) UpdateUser(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.UpdateUser(ctx), e.logger, e.options...)
+}
+func (e *demoEndpointers) GetUser(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.GetUser(ctx), e.logger, e.options...)
+}
+func (e *demoEndpointers) GetUsers(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.GetUsers(ctx), e.logger, e.options...)
+}
+func (e *demoEndpointers) UploadUserAvatar(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.UploadUserAvatar(ctx), e.logger, e.options...)
+}
+func (e *demoEndpointers) GetUserAvatar(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.GetUserAvatar(ctx), e.logger, e.options...)
+}
+func newDemoEndpointers(instancer sd.Instancer, factories DemoFactories, logger log.Logger, options ...sd.EndpointerOption) DemoEndpointers {
+	return &demoEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
 }

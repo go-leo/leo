@@ -91,6 +91,92 @@ func NewWorkspacesHttpClientTransports(target string, options ...httpx.ClientTra
 	return t, err
 }
 
+type workspacesHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *workspacesHttpClientTransportsV2) ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *workspacesHttpClientTransportsV2) GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Workspaces_GetWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *workspacesHttpClientTransportsV2) CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *workspacesHttpClientTransportsV2) UpdateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *workspacesHttpClientTransportsV2) DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewWorkspacesHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransportsV2 {
+	return &workspacesHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendWorkspacesHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type workspacesHttpClient struct {
 	endpoints WorkspacesEndpoints
 }

@@ -54,6 +54,36 @@ func NewGreeterHttpClientTransports(target string, options ...httpx.ClientTransp
 	return t, err
 }
 
+type greeterHttpClientTransportsV2 struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *greeterHttpClientTransportsV2) SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimiter),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http.NewExplicitClient(
+		_Greeter_SayHello_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Greeter_SayHello_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func NewGreeterHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransportsV2 {
+	return &greeterHttpClientTransportsV2{
+		scheme:        scheme,
+		router:        appendGreeterHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
 type greeterHttpClient struct {
 	endpoints GreeterEndpoints
 }

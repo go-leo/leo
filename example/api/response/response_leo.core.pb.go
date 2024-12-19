@@ -6,6 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	log "github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
@@ -36,7 +37,6 @@ type ResponseClientTransports interface {
 	HttpBodyResponse() transportx.ClientTransport
 	HttpBodyNamedResponse() transportx.ClientTransport
 }
-
 type ResponseClientTransportsV2 interface {
 	OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -54,11 +54,11 @@ type ResponseFactories interface {
 }
 
 type ResponseEndpointers interface {
-	OmittedResponse() sd.Endpointer
-	StarResponse() sd.Endpointer
-	NamedResponse() sd.Endpointer
-	HttpBodyResponse() sd.Endpointer
-	HttpBodyNamedResponse() sd.Endpointer
+	OmittedResponse(ctx context.Context) sd.Endpointer
+	StarResponse(ctx context.Context) sd.Endpointer
+	NamedResponse(ctx context.Context) sd.Endpointer
+	HttpBodyResponse(ctx context.Context) sd.Endpointer
+	HttpBodyNamedResponse(ctx context.Context) sd.Endpointer
 }
 
 type responseServerEndpoints struct {
@@ -72,35 +72,30 @@ func (e *responseServerEndpoints) OmittedResponse(context.Context) endpoint.Endp
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *responseServerEndpoints) StarResponse(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.StarResponse(ctx, request.(*emptypb.Empty))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *responseServerEndpoints) NamedResponse(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.NamedResponse(ctx, request.(*emptypb.Empty))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *responseServerEndpoints) HttpBodyResponse(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.HttpBodyResponse(ctx, request.(*emptypb.Empty))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *responseServerEndpoints) HttpBodyNamedResponse(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.HttpBodyNamedResponse(ctx, request.(*emptypb.Empty))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func newResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseServerEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -113,23 +108,18 @@ type responseClientEndpoints struct {
 func (e *responseClientEndpoints) OmittedResponse(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.OmittedResponse().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *responseClientEndpoints) StarResponse(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.StarResponse().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *responseClientEndpoints) NamedResponse(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.NamedResponse().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *responseClientEndpoints) HttpBodyResponse(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.HttpBodyResponse().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *responseClientEndpoints) HttpBodyNamedResponse(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.HttpBodyNamedResponse().Endpoint(ctx), e.middlewares...)
 }
-
 func newResponseClientEndpoints(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
 	return &responseClientEndpoints{transports: transports, middlewares: middlewares}
 }
@@ -143,31 +133,52 @@ func (f *responseFactories) OmittedResponse(ctx context.Context) sd.Factory {
 		return f.transports.OmittedResponse(ctx, instance)
 	}
 }
-
 func (f *responseFactories) StarResponse(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.StarResponse(ctx, instance)
 	}
 }
-
 func (f *responseFactories) NamedResponse(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.NamedResponse(ctx, instance)
 	}
 }
-
 func (f *responseFactories) HttpBodyResponse(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.HttpBodyResponse(ctx, instance)
 	}
 }
-
 func (f *responseFactories) HttpBodyNamedResponse(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.HttpBodyNamedResponse(ctx, instance)
 	}
 }
-
 func newResponseFactories(transports ResponseClientTransportsV2) ResponseFactories {
 	return &responseFactories{transports: transports}
+}
+
+type responseEndpointers struct {
+	instancer sd.Instancer
+	factories ResponseFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
+}
+
+func (e *responseEndpointers) OmittedResponse(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.OmittedResponse(ctx), e.logger, e.options...)
+}
+func (e *responseEndpointers) StarResponse(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.StarResponse(ctx), e.logger, e.options...)
+}
+func (e *responseEndpointers) NamedResponse(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.NamedResponse(ctx), e.logger, e.options...)
+}
+func (e *responseEndpointers) HttpBodyResponse(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.HttpBodyResponse(ctx), e.logger, e.options...)
+}
+func (e *responseEndpointers) HttpBodyNamedResponse(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.HttpBodyNamedResponse(ctx), e.logger, e.options...)
+}
+func newResponseEndpointers(instancer sd.Instancer, factories ResponseFactories, logger log.Logger, options ...sd.EndpointerOption) ResponseEndpointers {
+	return &responseEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
 }

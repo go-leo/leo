@@ -42,6 +42,44 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	return nil
 }
 
+func (f *ClientGenerator) GenerateTransportsV2(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedHttpClientTransportsNameV2(), " struct {")
+	g.P("scheme        string")
+	g.P("router        *", internal.MuxPackage.Ident("Router"))
+	g.P("clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"))
+	g.P("middlewares   []", internal.EndpointPackage.Ident("Middleware"))
+	g.P("}")
+	g.P()
+
+	for _, endpoint := range service.Endpoints {
+		g.P("func (t *", service.UnexportedHttpClientTransportsNameV2(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("opts := []", internal.HttpTransportPackage.Ident("ClientOption"), "{")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimiter"), "),")
+		g.P("}")
+		g.P("opts = append(opts, t.clientOptions...)")
+		g.P("client := ", internal.HttpTransportPackage.Ident("NewExplicitClient"), "(")
+		g.P(endpoint.HttpClientRequestEncoderName(), "(t.router)(t.scheme, instance),")
+		g.P(endpoint.HttpClientResponseDecoderName(), ",")
+		g.P("opts...,")
+		g.P(")")
+		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(client.Endpoint(), t.middlewares...), nil, nil")
+		g.P("}")
+		g.P()
+	}
+
+	g.P("func New", service.HttpClientTransportsNameV2(), "(scheme string, clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"), ", middlewares []", internal.EndpointPackage.Ident("Middleware"), ") ", service.ClientTransportsNameV2(), " {")
+	g.P("return &", service.UnexportedHttpClientTransportsNameV2(), "{")
+	g.P("scheme:        scheme,")
+	g.P("router:        append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "()),")
+	g.P("clientOptions: clientOptions,")
+	g.P("middlewares:   middlewares,")
+	g.P("}")
+	g.P("}")
+	g.P()
+	return nil
+}
+
 func (f *ClientGenerator) GenerateClientTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
 	g.P("func ", endpoint.HttpClientTransportName(), "(target string, router *", internal.MuxPackage.Ident("Router"), ", options ...", internal.HttpxTransportxPackage.Ident("ClientTransportOption"), ")", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error)", " {")
 	g.P("return ", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")

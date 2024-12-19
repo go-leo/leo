@@ -6,6 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	log "github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	io "io"
@@ -22,7 +23,6 @@ type GreeterEndpoints interface {
 type GreeterClientTransports interface {
 	SayHello() transportx.ClientTransport
 }
-
 type GreeterClientTransportsV2 interface {
 	SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
@@ -32,7 +32,7 @@ type GreeterFactories interface {
 }
 
 type GreeterEndpointers interface {
-	SayHello() sd.Endpointer
+	SayHello(ctx context.Context) sd.Endpointer
 }
 
 type greeterServerEndpoints struct {
@@ -46,7 +46,6 @@ func (e *greeterServerEndpoints) SayHello(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func newGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
 	return &greeterServerEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -59,7 +58,6 @@ type greeterClientEndpoints struct {
 func (e *greeterClientEndpoints) SayHello(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.SayHello().Endpoint(ctx), e.middlewares...)
 }
-
 func newGreeterClientEndpoints(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
 	return &greeterClientEndpoints{transports: transports, middlewares: middlewares}
 }
@@ -73,7 +71,20 @@ func (f *greeterFactories) SayHello(ctx context.Context) sd.Factory {
 		return f.transports.SayHello(ctx, instance)
 	}
 }
-
 func newGreeterFactories(transports GreeterClientTransportsV2) GreeterFactories {
 	return &greeterFactories{transports: transports}
+}
+
+type greeterEndpointers struct {
+	instancer sd.Instancer
+	factories GreeterFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
+}
+
+func (e *greeterEndpointers) SayHello(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.SayHello(ctx), e.logger, e.options...)
+}
+func newGreeterEndpointers(instancer sd.Instancer, factories GreeterFactories, logger log.Logger, options ...sd.EndpointerOption) GreeterEndpointers {
+	return &greeterEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
 }

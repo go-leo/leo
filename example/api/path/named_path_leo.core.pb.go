@@ -6,6 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	log "github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -38,7 +39,6 @@ type NamedPathClientTransports interface {
 	EmbedNamedPathOptString() transportx.ClientTransport
 	EmbedNamedPathWrapString() transportx.ClientTransport
 }
-
 type NamedPathClientTransportsV2 interface {
 	NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	NamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -58,12 +58,12 @@ type NamedPathFactories interface {
 }
 
 type NamedPathEndpointers interface {
-	NamedPathString() sd.Endpointer
-	NamedPathOptString() sd.Endpointer
-	NamedPathWrapString() sd.Endpointer
-	EmbedNamedPathString() sd.Endpointer
-	EmbedNamedPathOptString() sd.Endpointer
-	EmbedNamedPathWrapString() sd.Endpointer
+	NamedPathString(ctx context.Context) sd.Endpointer
+	NamedPathOptString(ctx context.Context) sd.Endpointer
+	NamedPathWrapString(ctx context.Context) sd.Endpointer
+	EmbedNamedPathString(ctx context.Context) sd.Endpointer
+	EmbedNamedPathOptString(ctx context.Context) sd.Endpointer
+	EmbedNamedPathWrapString(ctx context.Context) sd.Endpointer
 }
 
 type namedPathServerEndpoints struct {
@@ -77,42 +77,36 @@ func (e *namedPathServerEndpoints) NamedPathString(context.Context) endpoint.End
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *namedPathServerEndpoints) NamedPathOptString(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.NamedPathOptString(ctx, request.(*NamedPathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *namedPathServerEndpoints) NamedPathWrapString(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.NamedPathWrapString(ctx, request.(*NamedPathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *namedPathServerEndpoints) EmbedNamedPathString(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.EmbedNamedPathString(ctx, request.(*EmbedNamedPathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *namedPathServerEndpoints) EmbedNamedPathOptString(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.EmbedNamedPathOptString(ctx, request.(*EmbedNamedPathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func (e *namedPathServerEndpoints) EmbedNamedPathWrapString(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.EmbedNamedPathWrapString(ctx, request.(*EmbedNamedPathRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func newNamedPathServerEndpoints(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathEndpoints {
 	return &namedPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -125,27 +119,21 @@ type namedPathClientEndpoints struct {
 func (e *namedPathClientEndpoints) NamedPathString(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.NamedPathString().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *namedPathClientEndpoints) NamedPathOptString(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.NamedPathOptString().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *namedPathClientEndpoints) NamedPathWrapString(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.NamedPathWrapString().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *namedPathClientEndpoints) EmbedNamedPathString(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.EmbedNamedPathString().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *namedPathClientEndpoints) EmbedNamedPathOptString(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.EmbedNamedPathOptString().Endpoint(ctx), e.middlewares...)
 }
-
 func (e *namedPathClientEndpoints) EmbedNamedPathWrapString(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.EmbedNamedPathWrapString().Endpoint(ctx), e.middlewares...)
 }
-
 func newNamedPathClientEndpoints(transports NamedPathClientTransports, middlewares ...endpoint.Middleware) NamedPathEndpoints {
 	return &namedPathClientEndpoints{transports: transports, middlewares: middlewares}
 }
@@ -159,37 +147,60 @@ func (f *namedPathFactories) NamedPathString(ctx context.Context) sd.Factory {
 		return f.transports.NamedPathString(ctx, instance)
 	}
 }
-
 func (f *namedPathFactories) NamedPathOptString(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.NamedPathOptString(ctx, instance)
 	}
 }
-
 func (f *namedPathFactories) NamedPathWrapString(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.NamedPathWrapString(ctx, instance)
 	}
 }
-
 func (f *namedPathFactories) EmbedNamedPathString(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.EmbedNamedPathString(ctx, instance)
 	}
 }
-
 func (f *namedPathFactories) EmbedNamedPathOptString(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.EmbedNamedPathOptString(ctx, instance)
 	}
 }
-
 func (f *namedPathFactories) EmbedNamedPathWrapString(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.EmbedNamedPathWrapString(ctx, instance)
 	}
 }
-
 func newNamedPathFactories(transports NamedPathClientTransportsV2) NamedPathFactories {
 	return &namedPathFactories{transports: transports}
+}
+
+type namedPathEndpointers struct {
+	instancer sd.Instancer
+	factories NamedPathFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
+}
+
+func (e *namedPathEndpointers) NamedPathString(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.NamedPathString(ctx), e.logger, e.options...)
+}
+func (e *namedPathEndpointers) NamedPathOptString(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.NamedPathOptString(ctx), e.logger, e.options...)
+}
+func (e *namedPathEndpointers) NamedPathWrapString(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.NamedPathWrapString(ctx), e.logger, e.options...)
+}
+func (e *namedPathEndpointers) EmbedNamedPathString(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.EmbedNamedPathString(ctx), e.logger, e.options...)
+}
+func (e *namedPathEndpointers) EmbedNamedPathOptString(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.EmbedNamedPathOptString(ctx), e.logger, e.options...)
+}
+func (e *namedPathEndpointers) EmbedNamedPathWrapString(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.EmbedNamedPathWrapString(ctx), e.logger, e.options...)
+}
+func newNamedPathEndpointers(instancer sd.Instancer, factories NamedPathFactories, logger log.Logger, options ...sd.EndpointerOption) NamedPathEndpointers {
+	return &namedPathEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
 }

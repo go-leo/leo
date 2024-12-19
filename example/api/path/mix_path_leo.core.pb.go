@@ -6,6 +6,7 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	log "github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -23,7 +24,6 @@ type MixPathEndpoints interface {
 type MixPathClientTransports interface {
 	MixPath() transportx.ClientTransport
 }
-
 type MixPathClientTransportsV2 interface {
 	MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
@@ -33,7 +33,7 @@ type MixPathFactories interface {
 }
 
 type MixPathEndpointers interface {
-	MixPath() sd.Endpointer
+	MixPath(ctx context.Context) sd.Endpointer
 }
 
 type mixPathServerEndpoints struct {
@@ -47,7 +47,6 @@ func (e *mixPathServerEndpoints) MixPath(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-
 func newMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
@@ -60,7 +59,6 @@ type mixPathClientEndpoints struct {
 func (e *mixPathClientEndpoints) MixPath(ctx context.Context) endpoint.Endpoint {
 	return endpointx.Chain(e.transports.MixPath().Endpoint(ctx), e.middlewares...)
 }
-
 func newMixPathClientEndpoints(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
 	return &mixPathClientEndpoints{transports: transports, middlewares: middlewares}
 }
@@ -74,7 +72,20 @@ func (f *mixPathFactories) MixPath(ctx context.Context) sd.Factory {
 		return f.transports.MixPath(ctx, instance)
 	}
 }
-
 func newMixPathFactories(transports MixPathClientTransportsV2) MixPathFactories {
 	return &mixPathFactories{transports: transports}
+}
+
+type mixPathEndpointers struct {
+	instancer sd.Instancer
+	factories MixPathFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
+}
+
+func (e *mixPathEndpointers) MixPath(ctx context.Context) sd.Endpointer {
+	return sd.NewEndpointer(e.instancer, e.factories.MixPath(ctx), e.logger, e.options...)
+}
+func newMixPathEndpointers(instancer sd.Instancer, factories MixPathFactories, logger log.Logger, options ...sd.EndpointerOption) MixPathEndpointers {
+	return &mixPathEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
 }
