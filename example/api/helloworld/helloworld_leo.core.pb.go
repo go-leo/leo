@@ -8,6 +8,7 @@ import (
 	sd "github.com/go-kit/kit/sd"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	transportx "github.com/go-leo/leo/v3/transportx"
+	io "io"
 )
 
 type GreeterService interface {
@@ -22,8 +23,12 @@ type GreeterClientTransports interface {
 	SayHello() transportx.ClientTransport
 }
 
+type GreeterClientTransportsV2 interface {
+	SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+}
+
 type GreeterFactories interface {
-	SayHello(middlewares ...endpoint.Middleware) sd.Factory
+	SayHello(ctx context.Context) sd.Factory
 }
 
 type GreeterEndpointers interface {
@@ -57,4 +62,18 @@ func (e *greeterClientEndpoints) SayHello(ctx context.Context) endpoint.Endpoint
 
 func newGreeterClientEndpoints(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
 	return &greeterClientEndpoints{transports: transports, middlewares: middlewares}
+}
+
+type greeterFactories struct {
+	transports GreeterClientTransportsV2
+}
+
+func (f *greeterFactories) SayHello(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.SayHello(ctx, instance)
+	}
+}
+
+func newGreeterFactories(transports GreeterClientTransportsV2) GreeterFactories {
+	return &greeterFactories{transports: transports}
 }
