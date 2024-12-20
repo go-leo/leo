@@ -115,6 +115,7 @@ func _Query_Query_GrpcClient_Transport(target string, options ...transportx.Clie
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

@@ -114,6 +114,7 @@ func _Greeter_SayHello_GrpcClient_Transport(target string, options ...transportx
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				HelloReply{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

@@ -387,6 +387,7 @@ func _Path_BoolPath_GrpcClient_Transport(target string, options ...transportx.Cl
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -415,6 +416,7 @@ func _Path_Int32Path_GrpcClient_Transport(target string, options ...transportx.C
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -443,6 +445,7 @@ func _Path_Int64Path_GrpcClient_Transport(target string, options ...transportx.C
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -471,6 +474,7 @@ func _Path_Uint32Path_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -499,6 +503,7 @@ func _Path_Uint64Path_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -527,6 +532,7 @@ func _Path_FloatPath_GrpcClient_Transport(target string, options ...transportx.C
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -555,6 +561,7 @@ func _Path_DoublePath_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -583,6 +590,7 @@ func _Path_StringPath_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -611,6 +619,7 @@ func _Path_EnumPath_GrpcClient_Transport(target string, options ...transportx.Cl
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

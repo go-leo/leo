@@ -186,6 +186,7 @@ func (f *Generator) GenerateClientEndpointTransport(service *internal.Service, g
 	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
 	g.P(endpoint.OutputGoIdent(), "{},")
 	g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
+	g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingStain"), "),")
 	g.P("),")
 	g.P("options...,")
 	g.P(")")

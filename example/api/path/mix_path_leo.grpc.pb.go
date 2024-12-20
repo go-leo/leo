@@ -115,6 +115,7 @@ func _MixPath_MixPath_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

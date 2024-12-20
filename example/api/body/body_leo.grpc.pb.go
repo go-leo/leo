@@ -252,6 +252,7 @@ func _Body_StarBody_GrpcClient_Transport(target string, options ...transportx.Cl
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -280,6 +281,7 @@ func _Body_NamedBody_GrpcClient_Transport(target string, options ...transportx.C
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -308,6 +310,7 @@ func _Body_NonBody_GrpcClient_Transport(target string, options ...transportx.Cli
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -336,6 +339,7 @@ func _Body_HttpBodyStarBody_GrpcClient_Transport(target string, options ...trans
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -364,6 +368,7 @@ func _Body_HttpBodyNamedBody_GrpcClient_Transport(target string, options ...tran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

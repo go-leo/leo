@@ -285,6 +285,7 @@ func _NamedPath_NamedPathString_GrpcClient_Transport(target string, options ...t
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -313,6 +314,7 @@ func _NamedPath_NamedPathOptString_GrpcClient_Transport(target string, options .
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -341,6 +343,7 @@ func _NamedPath_NamedPathWrapString_GrpcClient_Transport(target string, options 
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -369,6 +372,7 @@ func _NamedPath_EmbedNamedPathString_GrpcClient_Transport(target string, options
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -397,6 +401,7 @@ func _NamedPath_EmbedNamedPathOptString_GrpcClient_Transport(target string, opti
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -425,6 +430,7 @@ func _NamedPath_EmbedNamedPathWrapString_GrpcClient_Transport(target string, opt
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

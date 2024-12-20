@@ -5,6 +5,7 @@ import (
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/metadatax"
+	"github.com/go-leo/leo/v3/sdx/stainx"
 	"github.com/go-leo/leo/v3/transportx"
 	"google.golang.org/grpc/metadata"
 )
@@ -12,9 +13,12 @@ import (
 const (
 	// GrpcServer is the name of the grpc server transport.
 	GrpcServer = "grpc.server"
-
 	// GrpcClient is the name of the grpc client transport.
 	GrpcClient = "grpc.client"
+)
+
+const (
+	kStainKey = "X-Leo-Stain"
 )
 
 func ClientEndpointInjector(name string) grpctransport.ClientRequestFunc {
@@ -50,4 +54,13 @@ func OutgoingMetadataInjector(ctx context.Context, grpcMD *metadata.MD) context.
 
 func IncomingMetadataInjector(ctx context.Context, md metadata.MD) context.Context {
 	return metadatax.NewIncomingContext(ctx, metadatax.FromGrpcMetadata(md))
+}
+
+func OutgoingStain(ctx context.Context, grpcMD *metadata.MD) context.Context {
+	color, ok := stainx.ExtractColor(ctx)
+	if !ok {
+		return ctx
+	}
+	grpcMD.Set(kStainKey, color)
+	return ctx
 }

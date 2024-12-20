@@ -251,6 +251,7 @@ func _Workspaces_ListWorkspaces_GrpcClient_Transport(target string, options ...t
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				ListWorkspacesResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -279,6 +280,7 @@ func _Workspaces_GetWorkspace_GrpcClient_Transport(target string, options ...tra
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Workspace{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -307,6 +309,7 @@ func _Workspaces_CreateWorkspace_GrpcClient_Transport(target string, options ...
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Workspace{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -335,6 +338,7 @@ func _Workspaces_UpdateWorkspace_GrpcClient_Transport(target string, options ...
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Workspace{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -363,6 +367,7 @@ func _Workspaces_DeleteWorkspace_GrpcClient_Transport(target string, options ...
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

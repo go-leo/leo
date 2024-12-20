@@ -320,6 +320,7 @@ func _Demo_CreateUser_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				CreateUserResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -348,6 +349,7 @@ func _Demo_DeleteUser_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -376,6 +378,7 @@ func _Demo_UpdateUser_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -404,6 +407,7 @@ func _Demo_GetUser_GrpcClient_Transport(target string, options ...transportx.Cli
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUserResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -432,6 +436,7 @@ func _Demo_GetUsers_GrpcClient_Transport(target string, options ...transportx.Cl
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUsersResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -460,6 +465,7 @@ func _Demo_UploadUserAvatar_GrpcClient_Transport(target string, options ...trans
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -488,6 +494,7 @@ func _Demo_GetUserAvatar_GrpcClient_Transport(target string, options ...transpor
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				httpbody.HttpBody{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

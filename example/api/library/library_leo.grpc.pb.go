@@ -455,6 +455,7 @@ func _LibraryService_CreateShelf_GrpcClient_Transport(target string, options ...
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Shelf{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -483,6 +484,7 @@ func _LibraryService_GetShelf_GrpcClient_Transport(target string, options ...tra
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Shelf{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -511,6 +513,7 @@ func _LibraryService_ListShelves_GrpcClient_Transport(target string, options ...
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				ListShelvesResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -539,6 +542,7 @@ func _LibraryService_DeleteShelf_GrpcClient_Transport(target string, options ...
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -567,6 +571,7 @@ func _LibraryService_MergeShelves_GrpcClient_Transport(target string, options ..
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Shelf{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -595,6 +600,7 @@ func _LibraryService_CreateBook_GrpcClient_Transport(target string, options ...t
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -623,6 +629,7 @@ func _LibraryService_GetBook_GrpcClient_Transport(target string, options ...tran
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -651,6 +658,7 @@ func _LibraryService_ListBooks_GrpcClient_Transport(target string, options ...tr
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				ListBooksResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -679,6 +687,7 @@ func _LibraryService_DeleteBook_GrpcClient_Transport(target string, options ...t
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -707,6 +716,7 @@ func _LibraryService_UpdateBook_GrpcClient_Transport(target string, options ...t
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -735,6 +745,7 @@ func _LibraryService_MoveBook_GrpcClient_Transport(target string, options ...tra
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				Book{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)

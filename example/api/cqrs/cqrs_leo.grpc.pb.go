@@ -149,6 +149,7 @@ func _CQRS_CreateUser_GrpcClient_Transport(target string, options ...transportx.
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				emptypb.Empty{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
@@ -177,6 +178,7 @@ func _CQRS_FindUser_GrpcClient_Transport(target string, options ...transportx.Cl
 				func(_ context.Context, v any) (any, error) { return v, nil },
 				GetUserResponse{},
 				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+				grpc.ClientBefore(grpcx.OutgoingStain),
 			),
 			options...,
 		)
