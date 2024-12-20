@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -53,11 +58,19 @@ type WorkspacesFactories interface {
 }
 
 type WorkspacesEndpointers interface {
-	ListWorkspaces(ctx context.Context) sd.Endpointer
-	GetWorkspace(ctx context.Context) sd.Endpointer
-	CreateWorkspace(ctx context.Context) sd.Endpointer
-	UpdateWorkspace(ctx context.Context) sd.Endpointer
-	DeleteWorkspace(ctx context.Context) sd.Endpointer
+	ListWorkspaces(ctx context.Context, color string) (sd.Endpointer, error)
+	GetWorkspace(ctx context.Context, color string) (sd.Endpointer, error)
+	CreateWorkspace(ctx context.Context, color string) (sd.Endpointer, error)
+	UpdateWorkspace(ctx context.Context, color string) (sd.Endpointer, error)
+	DeleteWorkspace(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type WorkspacesBalancers interface {
+	ListWorkspaces(ctx context.Context) (lb.Balancer, error)
+	GetWorkspace(ctx context.Context) (lb.Balancer, error)
+	CreateWorkspace(ctx context.Context) (lb.Balancer, error)
+	UpdateWorkspace(ctx context.Context) (lb.Balancer, error)
+	DeleteWorkspace(ctx context.Context) (lb.Balancer, error)
 }
 
 type workspacesServerEndpoints struct {
@@ -157,27 +170,87 @@ func newWorkspacesFactories(transports WorkspacesClientTransportsV2) WorkspacesF
 }
 
 type workspacesEndpointers struct {
-	instancer sd.Instancer
-	factories WorkspacesFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        WorkspacesFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *workspacesEndpointers) ListWorkspaces(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.ListWorkspaces(ctx), e.logger, e.options...)
+func (e *workspacesEndpointers) ListWorkspaces(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.ListWorkspaces(ctx), e.logger, e.options...)
 }
-func (e *workspacesEndpointers) GetWorkspace(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.GetWorkspace(ctx), e.logger, e.options...)
+func (e *workspacesEndpointers) GetWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetWorkspace(ctx), e.logger, e.options...)
 }
-func (e *workspacesEndpointers) CreateWorkspace(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.CreateWorkspace(ctx), e.logger, e.options...)
+func (e *workspacesEndpointers) CreateWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateWorkspace(ctx), e.logger, e.options...)
 }
-func (e *workspacesEndpointers) UpdateWorkspace(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.UpdateWorkspace(ctx), e.logger, e.options...)
+func (e *workspacesEndpointers) UpdateWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateWorkspace(ctx), e.logger, e.options...)
 }
-func (e *workspacesEndpointers) DeleteWorkspace(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.DeleteWorkspace(ctx), e.logger, e.options...)
+func (e *workspacesEndpointers) DeleteWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteWorkspace(ctx), e.logger, e.options...)
 }
-func newWorkspacesEndpointers(instancer sd.Instancer, factories WorkspacesFactories, logger log.Logger, options ...sd.EndpointerOption) WorkspacesEndpointers {
-	return &workspacesEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newWorkspacesEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories WorkspacesFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) WorkspacesEndpointers {
+	return &workspacesEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type workspacesBalancers struct {
+	factory         lbx.BalancerFactory
+	endpointer      WorkspacesEndpointers
+	listWorkspaces  lazyloadx.Group[lb.Balancer]
+	getWorkspace    lazyloadx.Group[lb.Balancer]
+	createWorkspace lazyloadx.Group[lb.Balancer]
+	updateWorkspace lazyloadx.Group[lb.Balancer]
+	deleteWorkspace lazyloadx.Group[lb.Balancer]
+}
+
+func (b *workspacesBalancers) ListWorkspaces(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.listWorkspaces.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListWorkspaces))
+	return balancer, err
+}
+func (b *workspacesBalancers) GetWorkspace(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.getWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetWorkspace))
+	return balancer, err
+}
+func (b *workspacesBalancers) CreateWorkspace(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.createWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateWorkspace))
+	return balancer, err
+}
+func (b *workspacesBalancers) UpdateWorkspace(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.updateWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateWorkspace))
+	return balancer, err
+}
+func (b *workspacesBalancers) DeleteWorkspace(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.deleteWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteWorkspace))
+	return balancer, err
+}
+func newWorkspacesBalancers(factory lbx.BalancerFactory, endpointer WorkspacesEndpointers) WorkspacesBalancers {
+	return &workspacesBalancers{
+		factory:         factory,
+		endpointer:      endpointer,
+		listWorkspaces:  lazyloadx.Group[lb.Balancer]{},
+		getWorkspace:    lazyloadx.Group[lb.Balancer]{},
+		createWorkspace: lazyloadx.Group[lb.Balancer]{},
+		updateWorkspace: lazyloadx.Group[lb.Balancer]{},
+		deleteWorkspace: lazyloadx.Group[lb.Balancer]{},
+	}
 }

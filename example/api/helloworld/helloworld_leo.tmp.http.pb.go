@@ -6,26 +6,27 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
-	"github.com/go-kit/kit/sd/lb"
 	"github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/lbx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 )
 
 type greeterHttpClientV2 struct {
-	target             string
-	GreeterEndpointers GreeterEndpointers
+	balancers GreeterBalancers
 }
 
 func (c *greeterHttpClientV2) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
 	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	ctx = httpx.InjectTarget(ctx, c.target)
-	endpointer := c.GreeterEndpointers.SayHello(ctx)
-	balancer := lb.NewRoundRobin(endpointer)
+	balancer, err := c.balancers.SayHello(ctx)
+	if err != nil {
+		return nil, err
+	}
 	endpoint, err := balancer.Endpoint()
 	if err != nil {
 		return nil, err
@@ -39,18 +40,17 @@ func (c *greeterHttpClientV2) SayHello(ctx context.Context, request *HelloReques
 
 func NewGreeterHttpClientV2(
 	scheme string,
+	target string,
 	clientOptions []http.ClientOption,
 	middlewares []endpoint.Middleware,
-	target string,
-	instancer sd.Instancer,
+	instancerFactory sdx.InstancerFactory,
 	EndpointerOptions []sd.EndpointerOption,
 	log log.Logger,
+	factory lbx.BalancerFactory,
 ) (GreeterService, error) {
 	transportsV2 := NewGreeterHttpClientTransportsV2(scheme, clientOptions, middlewares)
 	factories := newGreeterFactories(transportsV2)
-	endpointers := newGreeterEndpointers(instancer, factories, log, EndpointerOptions...)
-	return &greeterHttpClientV2{
-		target:             target,
-		GreeterEndpointers: endpointers,
-	}, nil
+	endpointers := newGreeterEndpointers(target, instancerFactory, factories, log, EndpointerOptions...)
+	balancers := newGreeterBalancers(factory, endpointers)
+	return &greeterHttpClientV2{balancers: balancers}, nil
 }

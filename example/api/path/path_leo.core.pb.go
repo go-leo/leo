@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -73,15 +78,27 @@ type PathFactories interface {
 }
 
 type PathEndpointers interface {
-	BoolPath(ctx context.Context) sd.Endpointer
-	Int32Path(ctx context.Context) sd.Endpointer
-	Int64Path(ctx context.Context) sd.Endpointer
-	Uint32Path(ctx context.Context) sd.Endpointer
-	Uint64Path(ctx context.Context) sd.Endpointer
-	FloatPath(ctx context.Context) sd.Endpointer
-	DoublePath(ctx context.Context) sd.Endpointer
-	StringPath(ctx context.Context) sd.Endpointer
-	EnumPath(ctx context.Context) sd.Endpointer
+	BoolPath(ctx context.Context, color string) (sd.Endpointer, error)
+	Int32Path(ctx context.Context, color string) (sd.Endpointer, error)
+	Int64Path(ctx context.Context, color string) (sd.Endpointer, error)
+	Uint32Path(ctx context.Context, color string) (sd.Endpointer, error)
+	Uint64Path(ctx context.Context, color string) (sd.Endpointer, error)
+	FloatPath(ctx context.Context, color string) (sd.Endpointer, error)
+	DoublePath(ctx context.Context, color string) (sd.Endpointer, error)
+	StringPath(ctx context.Context, color string) (sd.Endpointer, error)
+	EnumPath(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type PathBalancers interface {
+	BoolPath(ctx context.Context) (lb.Balancer, error)
+	Int32Path(ctx context.Context) (lb.Balancer, error)
+	Int64Path(ctx context.Context) (lb.Balancer, error)
+	Uint32Path(ctx context.Context) (lb.Balancer, error)
+	Uint64Path(ctx context.Context) (lb.Balancer, error)
+	FloatPath(ctx context.Context) (lb.Balancer, error)
+	DoublePath(ctx context.Context) (lb.Balancer, error)
+	StringPath(ctx context.Context) (lb.Balancer, error)
+	EnumPath(ctx context.Context) (lb.Balancer, error)
 }
 
 type pathServerEndpoints struct {
@@ -237,39 +254,127 @@ func newPathFactories(transports PathClientTransportsV2) PathFactories {
 }
 
 type pathEndpointers struct {
-	instancer sd.Instancer
-	factories PathFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        PathFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *pathEndpointers) BoolPath(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.BoolPath(ctx), e.logger, e.options...)
+func (e *pathEndpointers) BoolPath(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.BoolPath(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) Int32Path(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.Int32Path(ctx), e.logger, e.options...)
+func (e *pathEndpointers) Int32Path(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Int32Path(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) Int64Path(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.Int64Path(ctx), e.logger, e.options...)
+func (e *pathEndpointers) Int64Path(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Int64Path(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) Uint32Path(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.Uint32Path(ctx), e.logger, e.options...)
+func (e *pathEndpointers) Uint32Path(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Uint32Path(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) Uint64Path(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.Uint64Path(ctx), e.logger, e.options...)
+func (e *pathEndpointers) Uint64Path(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Uint64Path(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) FloatPath(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.FloatPath(ctx), e.logger, e.options...)
+func (e *pathEndpointers) FloatPath(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.FloatPath(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) DoublePath(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.DoublePath(ctx), e.logger, e.options...)
+func (e *pathEndpointers) DoublePath(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DoublePath(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) StringPath(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.StringPath(ctx), e.logger, e.options...)
+func (e *pathEndpointers) StringPath(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.StringPath(ctx), e.logger, e.options...)
 }
-func (e *pathEndpointers) EnumPath(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.EnumPath(ctx), e.logger, e.options...)
+func (e *pathEndpointers) EnumPath(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.EnumPath(ctx), e.logger, e.options...)
 }
-func newPathEndpointers(instancer sd.Instancer, factories PathFactories, logger log.Logger, options ...sd.EndpointerOption) PathEndpointers {
-	return &pathEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newPathEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories PathFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) PathEndpointers {
+	return &pathEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type pathBalancers struct {
+	factory    lbx.BalancerFactory
+	endpointer PathEndpointers
+	boolPath   lazyloadx.Group[lb.Balancer]
+	int32Path  lazyloadx.Group[lb.Balancer]
+	int64Path  lazyloadx.Group[lb.Balancer]
+	uint32Path lazyloadx.Group[lb.Balancer]
+	uint64Path lazyloadx.Group[lb.Balancer]
+	floatPath  lazyloadx.Group[lb.Balancer]
+	doublePath lazyloadx.Group[lb.Balancer]
+	stringPath lazyloadx.Group[lb.Balancer]
+	enumPath   lazyloadx.Group[lb.Balancer]
+}
+
+func (b *pathBalancers) BoolPath(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.boolPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.BoolPath))
+	return balancer, err
+}
+func (b *pathBalancers) Int32Path(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.int32Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int32Path))
+	return balancer, err
+}
+func (b *pathBalancers) Int64Path(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.int64Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int64Path))
+	return balancer, err
+}
+func (b *pathBalancers) Uint32Path(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.uint32Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint32Path))
+	return balancer, err
+}
+func (b *pathBalancers) Uint64Path(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.uint64Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint64Path))
+	return balancer, err
+}
+func (b *pathBalancers) FloatPath(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.floatPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.FloatPath))
+	return balancer, err
+}
+func (b *pathBalancers) DoublePath(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.doublePath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DoublePath))
+	return balancer, err
+}
+func (b *pathBalancers) StringPath(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.stringPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StringPath))
+	return balancer, err
+}
+func (b *pathBalancers) EnumPath(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.enumPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EnumPath))
+	return balancer, err
+}
+func newPathBalancers(factory lbx.BalancerFactory, endpointer PathEndpointers) PathBalancers {
+	return &pathBalancers{
+		factory:    factory,
+		endpointer: endpointer,
+		boolPath:   lazyloadx.Group[lb.Balancer]{},
+		int32Path:  lazyloadx.Group[lb.Balancer]{},
+		int64Path:  lazyloadx.Group[lb.Balancer]{},
+		uint32Path: lazyloadx.Group[lb.Balancer]{},
+		uint64Path: lazyloadx.Group[lb.Balancer]{},
+		floatPath:  lazyloadx.Group[lb.Balancer]{},
+		doublePath: lazyloadx.Group[lb.Balancer]{},
+		stringPath: lazyloadx.Group[lb.Balancer]{},
+		enumPath:   lazyloadx.Group[lb.Balancer]{},
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/middleware/authx/basicx"
+	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
 )
 
@@ -45,12 +46,13 @@ func main() {
 	// ok
 	client, err := helloworld.NewGreeterHttpClientV2(
 		"http",
+		"127.0.0.1:8080",
 		nil,
 		[]endpoint.Middleware{basicx.Middleware("soyacen", "123456", "basic auth example")},
-		"127.0.0.1:8080",
-		passthroughx.Instancer{Instance: "127.0.0.1:8080"},
+		passthroughx.Factory{},
 		nil,
 		logx.L(),
+		lbx.RoundRobinFactory{},
 	)
 	if err != nil {
 		panic(err)
@@ -64,12 +66,13 @@ func main() {
 	// panic
 	client, err = helloworld.NewGreeterHttpClientV2(
 		"http",
+		"127.0.0.1:8080",
 		nil,
 		[]endpoint.Middleware{basicx.Middleware("soyacen", "654321", "basic auth example")},
-		"127.0.0.1:8080",
-		passthroughx.Instancer{Instance: "127.0.0.1:8080"},
+		passthroughx.Factory{},
 		nil,
 		logx.L(),
+		lbx.RoundRobinFactory{},
 	)
 	if err != nil {
 		panic(err)

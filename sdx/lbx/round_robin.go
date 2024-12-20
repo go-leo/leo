@@ -9,19 +9,17 @@ import (
 )
 
 // RoundRobinFactory create a round robin balancer
-type RoundRobinFactory struct {
-}
+type RoundRobinFactory struct{}
 
-func (f RoundRobinFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
+func (RoundRobinFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
 	return lb.NewRoundRobin(endpointer)
 }
 
 // 加权轮询
 
-type WeightedRoundRobinFactory struct {
-}
+type WeightedRoundRobinFactory struct{}
 
-func (f WeightedRoundRobinFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
+func (WeightedRoundRobinFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
 	return &weightedRoundRobin{
 		s: endpointer,
 		c: 0,

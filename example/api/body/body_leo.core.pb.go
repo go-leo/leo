@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -54,11 +59,19 @@ type BodyFactories interface {
 }
 
 type BodyEndpointers interface {
-	StarBody(ctx context.Context) sd.Endpointer
-	NamedBody(ctx context.Context) sd.Endpointer
-	NonBody(ctx context.Context) sd.Endpointer
-	HttpBodyStarBody(ctx context.Context) sd.Endpointer
-	HttpBodyNamedBody(ctx context.Context) sd.Endpointer
+	StarBody(ctx context.Context, color string) (sd.Endpointer, error)
+	NamedBody(ctx context.Context, color string) (sd.Endpointer, error)
+	NonBody(ctx context.Context, color string) (sd.Endpointer, error)
+	HttpBodyStarBody(ctx context.Context, color string) (sd.Endpointer, error)
+	HttpBodyNamedBody(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type BodyBalancers interface {
+	StarBody(ctx context.Context) (lb.Balancer, error)
+	NamedBody(ctx context.Context) (lb.Balancer, error)
+	NonBody(ctx context.Context) (lb.Balancer, error)
+	HttpBodyStarBody(ctx context.Context) (lb.Balancer, error)
+	HttpBodyNamedBody(ctx context.Context) (lb.Balancer, error)
 }
 
 type bodyServerEndpoints struct {
@@ -158,27 +171,87 @@ func newBodyFactories(transports BodyClientTransportsV2) BodyFactories {
 }
 
 type bodyEndpointers struct {
-	instancer sd.Instancer
-	factories BodyFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        BodyFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *bodyEndpointers) StarBody(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.StarBody(ctx), e.logger, e.options...)
+func (e *bodyEndpointers) StarBody(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.StarBody(ctx), e.logger, e.options...)
 }
-func (e *bodyEndpointers) NamedBody(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.NamedBody(ctx), e.logger, e.options...)
+func (e *bodyEndpointers) NamedBody(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedBody(ctx), e.logger, e.options...)
 }
-func (e *bodyEndpointers) NonBody(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.NonBody(ctx), e.logger, e.options...)
+func (e *bodyEndpointers) NonBody(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NonBody(ctx), e.logger, e.options...)
 }
-func (e *bodyEndpointers) HttpBodyStarBody(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.HttpBodyStarBody(ctx), e.logger, e.options...)
+func (e *bodyEndpointers) HttpBodyStarBody(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyStarBody(ctx), e.logger, e.options...)
 }
-func (e *bodyEndpointers) HttpBodyNamedBody(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.HttpBodyNamedBody(ctx), e.logger, e.options...)
+func (e *bodyEndpointers) HttpBodyNamedBody(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyNamedBody(ctx), e.logger, e.options...)
 }
-func newBodyEndpointers(instancer sd.Instancer, factories BodyFactories, logger log.Logger, options ...sd.EndpointerOption) BodyEndpointers {
-	return &bodyEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newBodyEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories BodyFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) BodyEndpointers {
+	return &bodyEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type bodyBalancers struct {
+	factory           lbx.BalancerFactory
+	endpointer        BodyEndpointers
+	starBody          lazyloadx.Group[lb.Balancer]
+	namedBody         lazyloadx.Group[lb.Balancer]
+	nonBody           lazyloadx.Group[lb.Balancer]
+	httpBodyStarBody  lazyloadx.Group[lb.Balancer]
+	httpBodyNamedBody lazyloadx.Group[lb.Balancer]
+}
+
+func (b *bodyBalancers) StarBody(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.starBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StarBody))
+	return balancer, err
+}
+func (b *bodyBalancers) NamedBody(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.namedBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedBody))
+	return balancer, err
+}
+func (b *bodyBalancers) NonBody(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.nonBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NonBody))
+	return balancer, err
+}
+func (b *bodyBalancers) HttpBodyStarBody(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.httpBodyStarBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyStarBody))
+	return balancer, err
+}
+func (b *bodyBalancers) HttpBodyNamedBody(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.httpBodyNamedBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyNamedBody))
+	return balancer, err
+}
+func newBodyBalancers(factory lbx.BalancerFactory, endpointer BodyEndpointers) BodyBalancers {
+	return &bodyBalancers{
+		factory:           factory,
+		endpointer:        endpointer,
+		starBody:          lazyloadx.Group[lb.Balancer]{},
+		namedBody:         lazyloadx.Group[lb.Balancer]{},
+		nonBody:           lazyloadx.Group[lb.Balancer]{},
+		httpBodyStarBody:  lazyloadx.Group[lb.Balancer]{},
+		httpBodyNamedBody: lazyloadx.Group[lb.Balancer]{},
+	}
 }

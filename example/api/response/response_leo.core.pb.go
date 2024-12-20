@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -54,11 +59,19 @@ type ResponseFactories interface {
 }
 
 type ResponseEndpointers interface {
-	OmittedResponse(ctx context.Context) sd.Endpointer
-	StarResponse(ctx context.Context) sd.Endpointer
-	NamedResponse(ctx context.Context) sd.Endpointer
-	HttpBodyResponse(ctx context.Context) sd.Endpointer
-	HttpBodyNamedResponse(ctx context.Context) sd.Endpointer
+	OmittedResponse(ctx context.Context, color string) (sd.Endpointer, error)
+	StarResponse(ctx context.Context, color string) (sd.Endpointer, error)
+	NamedResponse(ctx context.Context, color string) (sd.Endpointer, error)
+	HttpBodyResponse(ctx context.Context, color string) (sd.Endpointer, error)
+	HttpBodyNamedResponse(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type ResponseBalancers interface {
+	OmittedResponse(ctx context.Context) (lb.Balancer, error)
+	StarResponse(ctx context.Context) (lb.Balancer, error)
+	NamedResponse(ctx context.Context) (lb.Balancer, error)
+	HttpBodyResponse(ctx context.Context) (lb.Balancer, error)
+	HttpBodyNamedResponse(ctx context.Context) (lb.Balancer, error)
 }
 
 type responseServerEndpoints struct {
@@ -158,27 +171,87 @@ func newResponseFactories(transports ResponseClientTransportsV2) ResponseFactori
 }
 
 type responseEndpointers struct {
-	instancer sd.Instancer
-	factories ResponseFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        ResponseFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *responseEndpointers) OmittedResponse(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.OmittedResponse(ctx), e.logger, e.options...)
+func (e *responseEndpointers) OmittedResponse(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.OmittedResponse(ctx), e.logger, e.options...)
 }
-func (e *responseEndpointers) StarResponse(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.StarResponse(ctx), e.logger, e.options...)
+func (e *responseEndpointers) StarResponse(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.StarResponse(ctx), e.logger, e.options...)
 }
-func (e *responseEndpointers) NamedResponse(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.NamedResponse(ctx), e.logger, e.options...)
+func (e *responseEndpointers) NamedResponse(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedResponse(ctx), e.logger, e.options...)
 }
-func (e *responseEndpointers) HttpBodyResponse(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.HttpBodyResponse(ctx), e.logger, e.options...)
+func (e *responseEndpointers) HttpBodyResponse(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyResponse(ctx), e.logger, e.options...)
 }
-func (e *responseEndpointers) HttpBodyNamedResponse(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.HttpBodyNamedResponse(ctx), e.logger, e.options...)
+func (e *responseEndpointers) HttpBodyNamedResponse(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyNamedResponse(ctx), e.logger, e.options...)
 }
-func newResponseEndpointers(instancer sd.Instancer, factories ResponseFactories, logger log.Logger, options ...sd.EndpointerOption) ResponseEndpointers {
-	return &responseEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newResponseEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories ResponseFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) ResponseEndpointers {
+	return &responseEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type responseBalancers struct {
+	factory               lbx.BalancerFactory
+	endpointer            ResponseEndpointers
+	omittedResponse       lazyloadx.Group[lb.Balancer]
+	starResponse          lazyloadx.Group[lb.Balancer]
+	namedResponse         lazyloadx.Group[lb.Balancer]
+	httpBodyResponse      lazyloadx.Group[lb.Balancer]
+	httpBodyNamedResponse lazyloadx.Group[lb.Balancer]
+}
+
+func (b *responseBalancers) OmittedResponse(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.omittedResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.OmittedResponse))
+	return balancer, err
+}
+func (b *responseBalancers) StarResponse(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.starResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StarResponse))
+	return balancer, err
+}
+func (b *responseBalancers) NamedResponse(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.namedResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedResponse))
+	return balancer, err
+}
+func (b *responseBalancers) HttpBodyResponse(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.httpBodyResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyResponse))
+	return balancer, err
+}
+func (b *responseBalancers) HttpBodyNamedResponse(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.httpBodyNamedResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyNamedResponse))
+	return balancer, err
+}
+func newResponseBalancers(factory lbx.BalancerFactory, endpointer ResponseEndpointers) ResponseBalancers {
+	return &responseBalancers{
+		factory:               factory,
+		endpointer:            endpointer,
+		omittedResponse:       lazyloadx.Group[lb.Balancer]{},
+		starResponse:          lazyloadx.Group[lb.Balancer]{},
+		namedResponse:         lazyloadx.Group[lb.Balancer]{},
+		httpBodyResponse:      lazyloadx.Group[lb.Balancer]{},
+		httpBodyNamedResponse: lazyloadx.Group[lb.Balancer]{},
+	}
 }

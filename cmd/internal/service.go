@@ -108,6 +108,15 @@ func (s Service) UnexportedEndpointersName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) BalancersName() string {
+	return s.Name() + "Balancers"
+}
+
+func (s Service) UnexportedBalancersName() string {
+	name := s.BalancersName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func (s Service) ServerName() string {
 	return s.Name() + "Server"
 }

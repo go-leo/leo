@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -33,7 +38,11 @@ type MixPathFactories interface {
 }
 
 type MixPathEndpointers interface {
-	MixPath(ctx context.Context) sd.Endpointer
+	MixPath(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type MixPathBalancers interface {
+	MixPath(ctx context.Context) (lb.Balancer, error)
 }
 
 type mixPathServerEndpoints struct {
@@ -77,15 +86,47 @@ func newMixPathFactories(transports MixPathClientTransportsV2) MixPathFactories 
 }
 
 type mixPathEndpointers struct {
-	instancer sd.Instancer
-	factories MixPathFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        MixPathFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *mixPathEndpointers) MixPath(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.MixPath(ctx), e.logger, e.options...)
+func (e *mixPathEndpointers) MixPath(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.MixPath(ctx), e.logger, e.options...)
 }
-func newMixPathEndpointers(instancer sd.Instancer, factories MixPathFactories, logger log.Logger, options ...sd.EndpointerOption) MixPathEndpointers {
-	return &mixPathEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newMixPathEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories MixPathFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) MixPathEndpointers {
+	return &mixPathEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type mixPathBalancers struct {
+	factory    lbx.BalancerFactory
+	endpointer MixPathEndpointers
+	mixPath    lazyloadx.Group[lb.Balancer]
+}
+
+func (b *mixPathBalancers) MixPath(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.mixPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MixPath))
+	return balancer, err
+}
+func newMixPathBalancers(factory lbx.BalancerFactory, endpointer MixPathEndpointers) MixPathBalancers {
+	return &mixPathBalancers{
+		factory:    factory,
+		endpointer: endpointer,
+		mixPath:    lazyloadx.Group[lb.Balancer]{},
+	}
 }

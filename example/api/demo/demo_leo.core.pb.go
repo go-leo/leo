@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -64,13 +69,23 @@ type DemoFactories interface {
 }
 
 type DemoEndpointers interface {
-	CreateUser(ctx context.Context) sd.Endpointer
-	DeleteUser(ctx context.Context) sd.Endpointer
-	UpdateUser(ctx context.Context) sd.Endpointer
-	GetUser(ctx context.Context) sd.Endpointer
-	GetUsers(ctx context.Context) sd.Endpointer
-	UploadUserAvatar(ctx context.Context) sd.Endpointer
-	GetUserAvatar(ctx context.Context) sd.Endpointer
+	CreateUser(ctx context.Context, color string) (sd.Endpointer, error)
+	DeleteUser(ctx context.Context, color string) (sd.Endpointer, error)
+	UpdateUser(ctx context.Context, color string) (sd.Endpointer, error)
+	GetUser(ctx context.Context, color string) (sd.Endpointer, error)
+	GetUsers(ctx context.Context, color string) (sd.Endpointer, error)
+	UploadUserAvatar(ctx context.Context, color string) (sd.Endpointer, error)
+	GetUserAvatar(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type DemoBalancers interface {
+	CreateUser(ctx context.Context) (lb.Balancer, error)
+	DeleteUser(ctx context.Context) (lb.Balancer, error)
+	UpdateUser(ctx context.Context) (lb.Balancer, error)
+	GetUser(ctx context.Context) (lb.Balancer, error)
+	GetUsers(ctx context.Context) (lb.Balancer, error)
+	UploadUserAvatar(ctx context.Context) (lb.Balancer, error)
+	GetUserAvatar(ctx context.Context) (lb.Balancer, error)
 }
 
 type demoServerEndpoints struct {
@@ -198,33 +213,107 @@ func newDemoFactories(transports DemoClientTransportsV2) DemoFactories {
 }
 
 type demoEndpointers struct {
-	instancer sd.Instancer
-	factories DemoFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        DemoFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *demoEndpointers) CreateUser(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.CreateUser(ctx), e.logger, e.options...)
+func (e *demoEndpointers) CreateUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateUser(ctx), e.logger, e.options...)
 }
-func (e *demoEndpointers) DeleteUser(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.DeleteUser(ctx), e.logger, e.options...)
+func (e *demoEndpointers) DeleteUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteUser(ctx), e.logger, e.options...)
 }
-func (e *demoEndpointers) UpdateUser(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.UpdateUser(ctx), e.logger, e.options...)
+func (e *demoEndpointers) UpdateUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateUser(ctx), e.logger, e.options...)
 }
-func (e *demoEndpointers) GetUser(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.GetUser(ctx), e.logger, e.options...)
+func (e *demoEndpointers) GetUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetUser(ctx), e.logger, e.options...)
 }
-func (e *demoEndpointers) GetUsers(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.GetUsers(ctx), e.logger, e.options...)
+func (e *demoEndpointers) GetUsers(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetUsers(ctx), e.logger, e.options...)
 }
-func (e *demoEndpointers) UploadUserAvatar(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.UploadUserAvatar(ctx), e.logger, e.options...)
+func (e *demoEndpointers) UploadUserAvatar(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UploadUserAvatar(ctx), e.logger, e.options...)
 }
-func (e *demoEndpointers) GetUserAvatar(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.GetUserAvatar(ctx), e.logger, e.options...)
+func (e *demoEndpointers) GetUserAvatar(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetUserAvatar(ctx), e.logger, e.options...)
 }
-func newDemoEndpointers(instancer sd.Instancer, factories DemoFactories, logger log.Logger, options ...sd.EndpointerOption) DemoEndpointers {
-	return &demoEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newDemoEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories DemoFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) DemoEndpointers {
+	return &demoEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type demoBalancers struct {
+	factory          lbx.BalancerFactory
+	endpointer       DemoEndpointers
+	createUser       lazyloadx.Group[lb.Balancer]
+	deleteUser       lazyloadx.Group[lb.Balancer]
+	updateUser       lazyloadx.Group[lb.Balancer]
+	getUser          lazyloadx.Group[lb.Balancer]
+	getUsers         lazyloadx.Group[lb.Balancer]
+	uploadUserAvatar lazyloadx.Group[lb.Balancer]
+	getUserAvatar    lazyloadx.Group[lb.Balancer]
+}
+
+func (b *demoBalancers) CreateUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.createUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateUser))
+	return balancer, err
+}
+func (b *demoBalancers) DeleteUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.deleteUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteUser))
+	return balancer, err
+}
+func (b *demoBalancers) UpdateUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.updateUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateUser))
+	return balancer, err
+}
+func (b *demoBalancers) GetUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.getUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUser))
+	return balancer, err
+}
+func (b *demoBalancers) GetUsers(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.getUsers.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUsers))
+	return balancer, err
+}
+func (b *demoBalancers) UploadUserAvatar(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.uploadUserAvatar.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UploadUserAvatar))
+	return balancer, err
+}
+func (b *demoBalancers) GetUserAvatar(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.getUserAvatar.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUserAvatar))
+	return balancer, err
+}
+func newDemoBalancers(factory lbx.BalancerFactory, endpointer DemoEndpointers) DemoBalancers {
+	return &demoBalancers{
+		factory:          factory,
+		endpointer:       endpointer,
+		createUser:       lazyloadx.Group[lb.Balancer]{},
+		deleteUser:       lazyloadx.Group[lb.Balancer]{},
+		updateUser:       lazyloadx.Group[lb.Balancer]{},
+		getUser:          lazyloadx.Group[lb.Balancer]{},
+		getUsers:         lazyloadx.Group[lb.Balancer]{},
+		uploadUserAvatar: lazyloadx.Group[lb.Balancer]{},
+		getUserAvatar:    lazyloadx.Group[lb.Balancer]{},
+	}
 }

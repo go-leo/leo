@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -33,7 +38,11 @@ type QueryFactories interface {
 }
 
 type QueryEndpointers interface {
-	Query(ctx context.Context) sd.Endpointer
+	Query(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type QueryBalancers interface {
+	Query(ctx context.Context) (lb.Balancer, error)
 }
 
 type queryServerEndpoints struct {
@@ -77,15 +86,47 @@ func newQueryFactories(transports QueryClientTransportsV2) QueryFactories {
 }
 
 type queryEndpointers struct {
-	instancer sd.Instancer
-	factories QueryFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        QueryFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *queryEndpointers) Query(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.Query(ctx), e.logger, e.options...)
+func (e *queryEndpointers) Query(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Query(ctx), e.logger, e.options...)
 }
-func newQueryEndpointers(instancer sd.Instancer, factories QueryFactories, logger log.Logger, options ...sd.EndpointerOption) QueryEndpointers {
-	return &queryEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newQueryEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories QueryFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) QueryEndpointers {
+	return &queryEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type queryBalancers struct {
+	factory    lbx.BalancerFactory
+	endpointer QueryEndpointers
+	query      lazyloadx.Group[lb.Balancer]
+}
+
+func (b *queryBalancers) Query(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Query))
+	return balancer, err
+}
+func newQueryBalancers(factory lbx.BalancerFactory, endpointer QueryEndpointers) QueryBalancers {
+	return &queryBalancers{
+		factory:    factory,
+		endpointer: endpointer,
+		query:      lazyloadx.Group[lb.Balancer]{},
+	}
 }

@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -38,8 +43,13 @@ type CQRSFactories interface {
 }
 
 type CQRSEndpointers interface {
-	CreateUser(ctx context.Context) sd.Endpointer
-	FindUser(ctx context.Context) sd.Endpointer
+	CreateUser(ctx context.Context, color string) (sd.Endpointer, error)
+	FindUser(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type CQRSBalancers interface {
+	CreateUser(ctx context.Context) (lb.Balancer, error)
+	FindUser(ctx context.Context) (lb.Balancer, error)
 }
 
 type cQRSServerEndpoints struct {
@@ -97,18 +107,57 @@ func newCQRSFactories(transports CQRSClientTransportsV2) CQRSFactories {
 }
 
 type cQRSEndpointers struct {
-	instancer sd.Instancer
-	factories CQRSFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        CQRSFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *cQRSEndpointers) CreateUser(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.CreateUser(ctx), e.logger, e.options...)
+func (e *cQRSEndpointers) CreateUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateUser(ctx), e.logger, e.options...)
 }
-func (e *cQRSEndpointers) FindUser(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.FindUser(ctx), e.logger, e.options...)
+func (e *cQRSEndpointers) FindUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.FindUser(ctx), e.logger, e.options...)
 }
-func newCQRSEndpointers(instancer sd.Instancer, factories CQRSFactories, logger log.Logger, options ...sd.EndpointerOption) CQRSEndpointers {
-	return &cQRSEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newCQRSEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories CQRSFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) CQRSEndpointers {
+	return &cQRSEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type cQRSBalancers struct {
+	factory    lbx.BalancerFactory
+	endpointer CQRSEndpointers
+	createUser lazyloadx.Group[lb.Balancer]
+	findUser   lazyloadx.Group[lb.Balancer]
+}
+
+func (b *cQRSBalancers) CreateUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.createUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateUser))
+	return balancer, err
+}
+func (b *cQRSBalancers) FindUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.findUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.FindUser))
+	return balancer, err
+}
+func newCQRSBalancers(factory lbx.BalancerFactory, endpointer CQRSEndpointers) CQRSBalancers {
+	return &cQRSBalancers{
+		factory:    factory,
+		endpointer: endpointer,
+		createUser: lazyloadx.Group[lb.Balancer]{},
+		findUser:   lazyloadx.Group[lb.Balancer]{},
+	}
 }

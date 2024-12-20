@@ -51,6 +51,12 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
+		if err := f.GenerateBalancers(service, g); err != nil {
+			return err
+		}
+	}
+
+	for _, service := range f.Services {
 		if err := f.GenerateServerEndpoints(service, g); err != nil {
 			return err
 		}
@@ -68,6 +74,11 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 	for _, service := range f.Services {
 		if err := f.GenerateEndpointersImplements(service, g); err != nil {
+			return err
+		}
+	}
+	for _, service := range f.Services {
+		if err := f.GenerateBalancersImplements(service, g); err != nil {
 			return err
 		}
 	}
@@ -122,7 +133,17 @@ func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.Gen
 func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.EndpointersName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.SdPackage.Ident("Endpointer"))
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", color string) (", internal.SdPackage.Ident("Endpointer"), ", error)")
+	}
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateBalancers(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.BalancersName(), " interface {")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.LbPackage.Ident("Balancer"), ", error)")
 	}
 	g.P("}")
 	g.P()
@@ -187,19 +208,59 @@ func (f *Generator) GenerateClientTransportsImplements(service *internal.Service
 
 func (f *Generator) GenerateEndpointersImplements(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedEndpointersName(), " struct {")
-	g.P("instancer ", internal.SdPackage.Ident("Instancer"))
+	g.P("target string")
+	g.P("instancerFactory ", internal.SdxPackage.Ident("InstancerFactory"))
 	g.P("factories ", service.FactoriesName())
 	g.P("logger ", internal.LogPackage.Ident("Logger"))
 	g.P("options []", internal.SdPackage.Ident("EndpointerOption"))
 	g.P("}")
 	for _, endpoint := range service.Endpoints {
-		g.P("func (e *", service.UnexportedEndpointersName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.SdPackage.Ident("Endpointer"), " {")
-		g.P("return ", internal.SdPackage.Ident("NewEndpointer"), "(e.instancer, e.factories.", endpoint.Name(), "(ctx), e.logger, e.options...)")
+		g.P("func (e *", service.UnexportedEndpointersName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", color string) (", internal.SdPackage.Ident("Endpointer"), ", error) {")
+		g.P("return ", internal.SdxPackage.Ident("NewEndpointer"), "(ctx, e.target, color, e.instancerFactory, e.factories.", endpoint.Name(), "(ctx), e.logger, e.options...)")
 		g.P("}")
 	}
-	g.P("func new", service.EndpointersName(), "(instancer ", internal.SdPackage.Ident("Instancer"), ", factories ", service.FactoriesName(), ", logger ", internal.LogPackage.Ident("Logger"), ", options ...", internal.SdPackage.Ident("EndpointerOption"), ") ", service.EndpointersName(), " {")
-	g.P("return &", service.UnexportedEndpointersName(), "{instancer: instancer, factories: factories, logger: logger, options: options}")
+	g.P("func new", service.EndpointersName(), "(")
+	g.P("target string,")
+	g.P("instancerFactory ", internal.SdxPackage.Ident("InstancerFactory"), ",")
+	g.P("factories ", service.FactoriesName(), ",")
+	g.P("logger ", internal.LogPackage.Ident("Logger"), ",")
+	g.P("options ...", internal.SdPackage.Ident("EndpointerOption"), ",")
+	g.P(")", service.EndpointersName(), " {")
+	g.P("return &", service.UnexportedEndpointersName(), "{")
+	g.P("target: target,")
+	g.P("instancerFactory: instancerFactory,")
+	g.P("factories: factories,")
+	g.P("logger: logger,")
+	g.P("options: options,")
+	g.P("}")
 	g.P("}")
 	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedBalancersName(), " struct {")
+	g.P("factory ", internal.LbxPackage.Ident("BalancerFactory"))
+	g.P("endpointer ", service.EndpointersName())
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.UnexportedName(), " ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]")
+	}
+	g.P("}")
+	for _, endpoint := range service.Endpoints {
+		g.P("func (b *", service.UnexportedBalancersName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.LbPackage.Ident("Balancer"), ", error) {")
+		g.P("color, _ := ", internal.StainxPackage.Ident("ExtractColor"), "(ctx)")
+		g.P("balancer, err, _ := b.", endpoint.UnexportedName(), ".LoadOrNew(color, ", internal.LbxPackage.Ident("NewBalancer"), "(ctx, b.factory, b.endpointer.", endpoint.Name(), "))")
+		g.P("return balancer, err")
+		g.P("}")
+	}
+	g.P("func new", service.BalancersName(), "(factory ", internal.LbxPackage.Ident("BalancerFactory"), ", endpointer ", service.EndpointersName(), ") ", service.BalancersName(), " {")
+	g.P("return &", service.UnexportedBalancersName(), "{")
+	g.P("factory: factory,")
+	g.P("endpointer: endpointer,")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.UnexportedName(), ": ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]{},")
+	}
+	g.P("}")
+	g.P("}")
 	return nil
 }

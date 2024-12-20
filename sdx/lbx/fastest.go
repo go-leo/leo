@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-type Balancer struct {
+type _Balancer struct {
 	mutex    sync.RWMutex
 	conns    []*conn
 	lastSync time.Time
 	endpoint string
 }
 
-func (b *Balancer) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
+func (b *_Balancer) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 	b.mutex.RLock()
 	if len(b.conns) == 0 {
 		b.mutex.RUnlock()
@@ -36,7 +36,7 @@ func (b *Balancer) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 	}, nil
 }
 
-func (b *Builder) Build(info base.PickerBuildInfo) balancer.Picker {
+func (b *_Builder) Build(info base.PickerBuildInfo) balancer.Picker {
 	conns := make([]*conn, 0, len(info.ReadySCs))
 	for con, val := range info.ReadySCs {
 		conns = append(conns, &conn{
@@ -47,7 +47,7 @@ func (b *Builder) Build(info base.PickerBuildInfo) balancer.Picker {
 			response: time.Millisecond * 100,
 		})
 	}
-	res := &Balancer{
+	res := &_Balancer{
 		conns: conns,
 	}
 
@@ -58,11 +58,11 @@ func (b *Builder) Build(info base.PickerBuildInfo) balancer.Picker {
 	return res
 }
 
-func (b *Balancer) updateRespTime(endpoint, query string) {
+func (b *_Balancer) updateRespTime(endpoint, query string) {
 
 }
 
-type Builder struct {
+type _Builder struct {
 	// prometheus 的地址
 	Endpoint string
 	Query    string

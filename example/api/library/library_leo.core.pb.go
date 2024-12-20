@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -83,17 +88,31 @@ type LibraryServiceFactories interface {
 }
 
 type LibraryServiceEndpointers interface {
-	CreateShelf(ctx context.Context) sd.Endpointer
-	GetShelf(ctx context.Context) sd.Endpointer
-	ListShelves(ctx context.Context) sd.Endpointer
-	DeleteShelf(ctx context.Context) sd.Endpointer
-	MergeShelves(ctx context.Context) sd.Endpointer
-	CreateBook(ctx context.Context) sd.Endpointer
-	GetBook(ctx context.Context) sd.Endpointer
-	ListBooks(ctx context.Context) sd.Endpointer
-	DeleteBook(ctx context.Context) sd.Endpointer
-	UpdateBook(ctx context.Context) sd.Endpointer
-	MoveBook(ctx context.Context) sd.Endpointer
+	CreateShelf(ctx context.Context, color string) (sd.Endpointer, error)
+	GetShelf(ctx context.Context, color string) (sd.Endpointer, error)
+	ListShelves(ctx context.Context, color string) (sd.Endpointer, error)
+	DeleteShelf(ctx context.Context, color string) (sd.Endpointer, error)
+	MergeShelves(ctx context.Context, color string) (sd.Endpointer, error)
+	CreateBook(ctx context.Context, color string) (sd.Endpointer, error)
+	GetBook(ctx context.Context, color string) (sd.Endpointer, error)
+	ListBooks(ctx context.Context, color string) (sd.Endpointer, error)
+	DeleteBook(ctx context.Context, color string) (sd.Endpointer, error)
+	UpdateBook(ctx context.Context, color string) (sd.Endpointer, error)
+	MoveBook(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type LibraryServiceBalancers interface {
+	CreateShelf(ctx context.Context) (lb.Balancer, error)
+	GetShelf(ctx context.Context) (lb.Balancer, error)
+	ListShelves(ctx context.Context) (lb.Balancer, error)
+	DeleteShelf(ctx context.Context) (lb.Balancer, error)
+	MergeShelves(ctx context.Context) (lb.Balancer, error)
+	CreateBook(ctx context.Context) (lb.Balancer, error)
+	GetBook(ctx context.Context) (lb.Balancer, error)
+	ListBooks(ctx context.Context) (lb.Balancer, error)
+	DeleteBook(ctx context.Context) (lb.Balancer, error)
+	UpdateBook(ctx context.Context) (lb.Balancer, error)
+	MoveBook(ctx context.Context) (lb.Balancer, error)
 }
 
 type libraryServiceServerEndpoints struct {
@@ -277,45 +296,147 @@ func newLibraryServiceFactories(transports LibraryServiceClientTransportsV2) Lib
 }
 
 type libraryServiceEndpointers struct {
-	instancer sd.Instancer
-	factories LibraryServiceFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        LibraryServiceFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *libraryServiceEndpointers) CreateShelf(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.CreateShelf(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) CreateShelf(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateShelf(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) GetShelf(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.GetShelf(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) GetShelf(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetShelf(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) ListShelves(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.ListShelves(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) ListShelves(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.ListShelves(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) DeleteShelf(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.DeleteShelf(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) DeleteShelf(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteShelf(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) MergeShelves(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.MergeShelves(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) MergeShelves(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.MergeShelves(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) CreateBook(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.CreateBook(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) CreateBook(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateBook(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) GetBook(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.GetBook(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) GetBook(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetBook(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) ListBooks(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.ListBooks(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) ListBooks(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.ListBooks(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) DeleteBook(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.DeleteBook(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) DeleteBook(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteBook(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) UpdateBook(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.UpdateBook(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) UpdateBook(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateBook(ctx), e.logger, e.options...)
 }
-func (e *libraryServiceEndpointers) MoveBook(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.MoveBook(ctx), e.logger, e.options...)
+func (e *libraryServiceEndpointers) MoveBook(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.MoveBook(ctx), e.logger, e.options...)
 }
-func newLibraryServiceEndpointers(instancer sd.Instancer, factories LibraryServiceFactories, logger log.Logger, options ...sd.EndpointerOption) LibraryServiceEndpointers {
-	return &libraryServiceEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newLibraryServiceEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories LibraryServiceFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) LibraryServiceEndpointers {
+	return &libraryServiceEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type libraryServiceBalancers struct {
+	factory      lbx.BalancerFactory
+	endpointer   LibraryServiceEndpointers
+	createShelf  lazyloadx.Group[lb.Balancer]
+	getShelf     lazyloadx.Group[lb.Balancer]
+	listShelves  lazyloadx.Group[lb.Balancer]
+	deleteShelf  lazyloadx.Group[lb.Balancer]
+	mergeShelves lazyloadx.Group[lb.Balancer]
+	createBook   lazyloadx.Group[lb.Balancer]
+	getBook      lazyloadx.Group[lb.Balancer]
+	listBooks    lazyloadx.Group[lb.Balancer]
+	deleteBook   lazyloadx.Group[lb.Balancer]
+	updateBook   lazyloadx.Group[lb.Balancer]
+	moveBook     lazyloadx.Group[lb.Balancer]
+}
+
+func (b *libraryServiceBalancers) CreateShelf(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.createShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateShelf))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) GetShelf(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.getShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetShelf))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) ListShelves(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.listShelves.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListShelves))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) DeleteShelf(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.deleteShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteShelf))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) MergeShelves(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.mergeShelves.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MergeShelves))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) CreateBook(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.createBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateBook))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) GetBook(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.getBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetBook))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) ListBooks(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.listBooks.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListBooks))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) DeleteBook(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.deleteBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteBook))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) UpdateBook(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.updateBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateBook))
+	return balancer, err
+}
+func (b *libraryServiceBalancers) MoveBook(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.moveBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MoveBook))
+	return balancer, err
+}
+func newLibraryServiceBalancers(factory lbx.BalancerFactory, endpointer LibraryServiceEndpointers) LibraryServiceBalancers {
+	return &libraryServiceBalancers{
+		factory:      factory,
+		endpointer:   endpointer,
+		createShelf:  lazyloadx.Group[lb.Balancer]{},
+		getShelf:     lazyloadx.Group[lb.Balancer]{},
+		listShelves:  lazyloadx.Group[lb.Balancer]{},
+		deleteShelf:  lazyloadx.Group[lb.Balancer]{},
+		mergeShelves: lazyloadx.Group[lb.Balancer]{},
+		createBook:   lazyloadx.Group[lb.Balancer]{},
+		getBook:      lazyloadx.Group[lb.Balancer]{},
+		listBooks:    lazyloadx.Group[lb.Balancer]{},
+		deleteBook:   lazyloadx.Group[lb.Balancer]{},
+		updateBook:   lazyloadx.Group[lb.Balancer]{},
+		moveBook:     lazyloadx.Group[lb.Balancer]{},
+	}
 }

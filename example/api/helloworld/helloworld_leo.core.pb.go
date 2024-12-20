@@ -6,8 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	sd "github.com/go-kit/kit/sd"
+	lb "github.com/go-kit/kit/sd/lb"
 	log "github.com/go-kit/log"
+	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	sdx "github.com/go-leo/leo/v3/sdx"
+	lbx "github.com/go-leo/leo/v3/sdx/lbx"
+	stainx "github.com/go-leo/leo/v3/sdx/stainx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	io "io"
 )
@@ -32,7 +37,11 @@ type GreeterFactories interface {
 }
 
 type GreeterEndpointers interface {
-	SayHello(ctx context.Context) sd.Endpointer
+	SayHello(ctx context.Context, color string) (sd.Endpointer, error)
+}
+
+type GreeterBalancers interface {
+	SayHello(ctx context.Context) (lb.Balancer, error)
 }
 
 type greeterServerEndpoints struct {
@@ -76,15 +85,47 @@ func newGreeterFactories(transports GreeterClientTransportsV2) GreeterFactories 
 }
 
 type greeterEndpointers struct {
-	instancer sd.Instancer
-	factories GreeterFactories
-	logger    log.Logger
-	options   []sd.EndpointerOption
+	target           string
+	instancerFactory sdx.InstancerFactory
+	factories        GreeterFactories
+	logger           log.Logger
+	options          []sd.EndpointerOption
 }
 
-func (e *greeterEndpointers) SayHello(ctx context.Context) sd.Endpointer {
-	return sd.NewEndpointer(e.instancer, e.factories.SayHello(ctx), e.logger, e.options...)
+func (e *greeterEndpointers) SayHello(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.SayHello(ctx), e.logger, e.options...)
 }
-func newGreeterEndpointers(instancer sd.Instancer, factories GreeterFactories, logger log.Logger, options ...sd.EndpointerOption) GreeterEndpointers {
-	return &greeterEndpointers{instancer: instancer, factories: factories, logger: logger, options: options}
+func newGreeterEndpointers(
+	target string,
+	instancerFactory sdx.InstancerFactory,
+	factories GreeterFactories,
+	logger log.Logger,
+	options ...sd.EndpointerOption,
+) GreeterEndpointers {
+	return &greeterEndpointers{
+		target:           target,
+		instancerFactory: instancerFactory,
+		factories:        factories,
+		logger:           logger,
+		options:          options,
+	}
+}
+
+type greeterBalancers struct {
+	factory    lbx.BalancerFactory
+	endpointer GreeterEndpointers
+	sayHello   lazyloadx.Group[lb.Balancer]
+}
+
+func (b *greeterBalancers) SayHello(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.sayHello.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.SayHello))
+	return balancer, err
+}
+func newGreeterBalancers(factory lbx.BalancerFactory, endpointer GreeterEndpointers) GreeterBalancers {
+	return &greeterBalancers{
+		factory:    factory,
+		endpointer: endpointer,
+		sayHello:   lazyloadx.Group[lb.Balancer]{},
+	}
 }
