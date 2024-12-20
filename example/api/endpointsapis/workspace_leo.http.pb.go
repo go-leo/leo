@@ -102,6 +102,7 @@ func (t *workspacesHttpClientTransportsV2) ListWorkspaces(ctx context.Context, i
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -116,6 +117,7 @@ func (t *workspacesHttpClientTransportsV2) GetWorkspace(ctx context.Context, ins
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -130,6 +132,7 @@ func (t *workspacesHttpClientTransportsV2) CreateWorkspace(ctx context.Context, 
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -144,6 +147,7 @@ func (t *workspacesHttpClientTransportsV2) UpdateWorkspace(ctx context.Context, 
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -158,6 +162,7 @@ func (t *workspacesHttpClientTransportsV2) DeleteWorkspace(ctx context.Context, 
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -261,6 +266,7 @@ func _Workspaces_ListWorkspaces_HttpClient_Transport(target string, router *mux.
 				_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -290,6 +296,7 @@ func _Workspaces_GetWorkspace_HttpClient_Transport(target string, router *mux.Ro
 				_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -319,6 +326,7 @@ func _Workspaces_CreateWorkspace_HttpClient_Transport(target string, router *mux
 				_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -348,6 +356,7 @@ func _Workspaces_UpdateWorkspace_HttpClient_Transport(target string, router *mux
 				_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -377,6 +386,7 @@ func _Workspaces_DeleteWorkspace_HttpClient_Transport(target string, router *mux
 				_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

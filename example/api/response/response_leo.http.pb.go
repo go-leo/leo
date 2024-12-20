@@ -101,6 +101,7 @@ func (t *responseHttpClientTransportsV2) OmittedResponse(ctx context.Context, in
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -115,6 +116,7 @@ func (t *responseHttpClientTransportsV2) StarResponse(ctx context.Context, insta
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -129,6 +131,7 @@ func (t *responseHttpClientTransportsV2) NamedResponse(ctx context.Context, inst
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -143,6 +146,7 @@ func (t *responseHttpClientTransportsV2) HttpBodyResponse(ctx context.Context, i
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -157,6 +161,7 @@ func (t *responseHttpClientTransportsV2) HttpBodyNamedResponse(ctx context.Conte
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -260,6 +265,7 @@ func _Response_OmittedResponse_HttpClient_Transport(target string, router *mux.R
 				_Response_OmittedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -289,6 +295,7 @@ func _Response_StarResponse_HttpClient_Transport(target string, router *mux.Rout
 				_Response_StarResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -318,6 +325,7 @@ func _Response_NamedResponse_HttpClient_Transport(target string, router *mux.Rou
 				_Response_NamedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -347,6 +355,7 @@ func _Response_HttpBodyResponse_HttpClient_Transport(target string, router *mux.
 				_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -376,6 +385,7 @@ func _Response_HttpBodyNamedResponse_HttpClient_Transport(target string, router 
 				_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

@@ -110,6 +110,7 @@ func (t *namedPathHttpClientTransportsV2) NamedPathString(ctx context.Context, i
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -124,6 +125,7 @@ func (t *namedPathHttpClientTransportsV2) NamedPathOptString(ctx context.Context
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -138,6 +140,7 @@ func (t *namedPathHttpClientTransportsV2) NamedPathWrapString(ctx context.Contex
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -152,6 +155,7 @@ func (t *namedPathHttpClientTransportsV2) EmbedNamedPathString(ctx context.Conte
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -166,6 +170,7 @@ func (t *namedPathHttpClientTransportsV2) EmbedNamedPathOptString(ctx context.Co
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -180,6 +185,7 @@ func (t *namedPathHttpClientTransportsV2) EmbedNamedPathWrapString(ctx context.C
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -293,6 +299,7 @@ func _NamedPath_NamedPathString_HttpClient_Transport(target string, router *mux.
 				_NamedPath_NamedPathString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -322,6 +329,7 @@ func _NamedPath_NamedPathOptString_HttpClient_Transport(target string, router *m
 				_NamedPath_NamedPathOptString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -351,6 +359,7 @@ func _NamedPath_NamedPathWrapString_HttpClient_Transport(target string, router *
 				_NamedPath_NamedPathWrapString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -380,6 +389,7 @@ func _NamedPath_EmbedNamedPathString_HttpClient_Transport(target string, router 
 				_NamedPath_EmbedNamedPathString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -409,6 +419,7 @@ func _NamedPath_EmbedNamedPathOptString_HttpClient_Transport(target string, rout
 				_NamedPath_EmbedNamedPathOptString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -438,6 +449,7 @@ func _NamedPath_EmbedNamedPathWrapString_HttpClient_Transport(target string, rou
 				_NamedPath_EmbedNamedPathWrapString_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

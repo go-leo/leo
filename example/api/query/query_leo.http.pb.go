@@ -70,6 +70,7 @@ func (t *queryHttpClientTransportsV2) Query(ctx context.Context, instance string
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -133,6 +134,7 @@ func _Query_Query_HttpClient_Transport(target string, router *mux.Router, option
 				_Query_Query_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

@@ -10,10 +10,12 @@ import (
 
 var _ sdx.InstancerFactory = (*Factory)(nil)
 
+const schemeName = "passthrough"
+
 type Factory struct{}
 
 func (Factory) Scheme() string {
-	return "passthrough"
+	return schemeName
 }
 
 func (Factory) New(ctx context.Context, target *url.URL, color string) (sd.Instancer, error) {

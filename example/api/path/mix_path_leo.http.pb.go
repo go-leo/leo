@@ -70,6 +70,7 @@ func (t *mixPathHttpClientTransportsV2) MixPath(ctx context.Context, instance st
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -133,6 +134,7 @@ func _MixPath_MixPath_HttpClient_Transport(target string, router *mux.Router, op
 				_MixPath_MixPath_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

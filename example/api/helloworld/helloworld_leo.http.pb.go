@@ -65,6 +65,7 @@ func (t *greeterHttpClientTransportsV2) SayHello(ctx context.Context, instance s
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -128,6 +129,7 @@ func _Greeter_SayHello_HttpClient_Transport(target string, router *mux.Router, o
 				_Greeter_SayHello_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

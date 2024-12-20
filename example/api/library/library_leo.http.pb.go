@@ -150,6 +150,7 @@ func (t *libraryServiceHttpClientTransportsV2) CreateShelf(ctx context.Context, 
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -164,6 +165,7 @@ func (t *libraryServiceHttpClientTransportsV2) GetShelf(ctx context.Context, ins
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -178,6 +180,7 @@ func (t *libraryServiceHttpClientTransportsV2) ListShelves(ctx context.Context, 
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -192,6 +195,7 @@ func (t *libraryServiceHttpClientTransportsV2) DeleteShelf(ctx context.Context, 
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -206,6 +210,7 @@ func (t *libraryServiceHttpClientTransportsV2) MergeShelves(ctx context.Context,
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -220,6 +225,7 @@ func (t *libraryServiceHttpClientTransportsV2) CreateBook(ctx context.Context, i
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -234,6 +240,7 @@ func (t *libraryServiceHttpClientTransportsV2) GetBook(ctx context.Context, inst
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -248,6 +255,7 @@ func (t *libraryServiceHttpClientTransportsV2) ListBooks(ctx context.Context, in
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -262,6 +270,7 @@ func (t *libraryServiceHttpClientTransportsV2) DeleteBook(ctx context.Context, i
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -276,6 +285,7 @@ func (t *libraryServiceHttpClientTransportsV2) UpdateBook(ctx context.Context, i
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -290,6 +300,7 @@ func (t *libraryServiceHttpClientTransportsV2) MoveBook(ctx context.Context, ins
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -453,6 +464,7 @@ func _LibraryService_CreateShelf_HttpClient_Transport(target string, router *mux
 				_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -482,6 +494,7 @@ func _LibraryService_GetShelf_HttpClient_Transport(target string, router *mux.Ro
 				_LibraryService_GetShelf_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -511,6 +524,7 @@ func _LibraryService_ListShelves_HttpClient_Transport(target string, router *mux
 				_LibraryService_ListShelves_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -540,6 +554,7 @@ func _LibraryService_DeleteShelf_HttpClient_Transport(target string, router *mux
 				_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -569,6 +584,7 @@ func _LibraryService_MergeShelves_HttpClient_Transport(target string, router *mu
 				_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -598,6 +614,7 @@ func _LibraryService_CreateBook_HttpClient_Transport(target string, router *mux.
 				_LibraryService_CreateBook_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -627,6 +644,7 @@ func _LibraryService_GetBook_HttpClient_Transport(target string, router *mux.Rou
 				_LibraryService_GetBook_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -656,6 +674,7 @@ func _LibraryService_ListBooks_HttpClient_Transport(target string, router *mux.R
 				_LibraryService_ListBooks_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -685,6 +704,7 @@ func _LibraryService_DeleteBook_HttpClient_Transport(target string, router *mux.
 				_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -714,6 +734,7 @@ func _LibraryService_UpdateBook_HttpClient_Transport(target string, router *mux.
 				_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -743,6 +764,7 @@ func _LibraryService_MoveBook_HttpClient_Transport(target string, router *mux.Ro
 				_LibraryService_MoveBook_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)

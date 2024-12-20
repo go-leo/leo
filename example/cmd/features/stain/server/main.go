@@ -58,13 +58,13 @@ func runApi(port int) {
 	}
 	httpClient := helloworld.NewGreeterHttpClient(
 		httpTransports,
-		stain.Middleware("X-Color"),
+		stain.Middleware("X-Leo-Stain"),
 	)
 
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterApiService(httpClient, address),
-		stain.Middleware("X-Color"),
+		stain.Middleware("X-Leo-Stain"),
 	)
 	server := http.Server{Handler: router}
 	go func() {
@@ -86,7 +86,7 @@ func (g GreeterApiService) SayHello(ctx context.Context, request *helloworld.Hel
 	if err != nil {
 		return nil, err
 	}
-	hello.Message = "i am client, my need color is " + request.GetName() + ". i am api. @" + g.address + ". " + hello.GetMessage()
+	hello.Message = "[client," + request.GetName() + "]" + "[api," + g.address + "]" + hello.GetMessage()
 	return hello, nil
 }
 
@@ -108,12 +108,12 @@ func runHttp(port int, color string) {
 	if err != nil {
 		panic(err)
 	}
-	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, stain.Middleware("X-Color"))
+	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, stain.Middleware("X-Leo-Stain"))
 
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterHttpService(grpcClient, address, color),
-		stain.Middleware("X-Color"),
+		stain.Middleware("X-Leo-Stain"),
 	)
 	server := http.Server{Handler: router}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
@@ -161,7 +161,7 @@ func (g GreeterHttpService) SayHello(ctx context.Context, request *helloworld.He
 	if err != nil {
 		return nil, err
 	}
-	hello.Message = "i am http, my color is " + g.color + "@" + g.address + ". " + hello.GetMessage()
+	hello.Message = "[http," + g.color + "," + g.address + "]" + hello.GetMessage()
 	return hello, nil
 }
 
@@ -178,7 +178,7 @@ func runGrpc(port int, color string) {
 	s := grpc1.NewServer()
 	service := helloworld.NewGreeterGrpcServer(
 		NewGreeterGrpcService(address, color),
-		stain.Middleware("X-Color"),
+		stain.Middleware("X-Leo-Color"),
 	)
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())
@@ -221,7 +221,9 @@ type GreeterGrpcService struct {
 
 func (g GreeterGrpcService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	time.Sleep(time.Second)
-	return &helloworld.HelloReply{Message: "i am grpc, my color is " + g.color + "@" + g.address + "."}, nil
+	return &helloworld.HelloReply{
+		Message: "[http," + g.color + "," + g.address + "]",
+	}, nil
 }
 
 func NewGreeterGrpcService(address, color string) helloworld.GreeterService {

@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+const (
+	kStatusCoderKey = "X-Leo-Status-Coder"
+	kLeoCoderValue  = "leo-coder"
+)
+
 func IsErrorResponse(r *http.Response) bool {
 	return r.Header.Get(kStatusCoderKey) != ""
 }

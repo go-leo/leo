@@ -6,6 +6,7 @@ import (
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/metadatax"
+	"github.com/go-leo/leo/v3/sdx/stainx"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/go-leo/leo/v3/transportx/httpx/internal"
 	"net/http"
@@ -15,9 +16,13 @@ import (
 const (
 	// HttpServer is the name of the http server transport.
 	HttpServer = "http.server"
-
 	// HttpClient is the name of the http client transport.
 	HttpClient = "http.client"
+)
+
+const (
+	kTimeoutKey = "X-Leo-Timeout"
+	kStainKey   = "X-Leo-Stain"
 )
 
 func EndpointInjector(name string) httptransport.RequestFunc {
@@ -82,4 +87,13 @@ type targetKey struct{}
 
 func InjectTarget(ctx context.Context, target string) context.Context {
 	return context.WithValue(ctx, targetKey{}, target)
+}
+
+func OutgoingStain(ctx context.Context, request *http.Request) context.Context {
+	color, ok := stainx.ExtractColor(ctx)
+	if !ok {
+		return ctx
+	}
+	request.Header.Set(kStainKey, color)
+	return ctx
 }

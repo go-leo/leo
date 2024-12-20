@@ -4,23 +4,30 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/logx"
+	"github.com/go-leo/leo/v3/sdx/consulx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
-	"github.com/go-leo/leo/v3/transportx"
+	"time"
 )
 
 func main() {
-	transports, err := helloworld.NewGreeterHttpClientTransports(
+	client, err := helloworld.NewGreeterHttpClientV2(
+		"http",
 		"consul://localhost:8500/demo.http?dc=dc1",
-		transportx.BalancerFactory(lbx.RandomFactory{}),
+		nil,
+		nil,
+		consulx.Factory{},
+		nil,
+		logx.L(),
+		lbx.RandomFactory{},
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	client := helloworld.NewGreeterHttpClient(transports)
-
 	for i := 0; i < 90; i++ {
 		callRpc(client)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 

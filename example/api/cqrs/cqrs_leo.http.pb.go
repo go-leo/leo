@@ -74,6 +74,7 @@ func (t *cQRSHttpClientTransportsV2) CreateUser(ctx context.Context, instance st
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -88,6 +89,7 @@ func (t *cQRSHttpClientTransportsV2) FindUser(ctx context.Context, instance stri
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
+		http.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http.NewExplicitClient(
@@ -161,6 +163,7 @@ func _CQRS_CreateUser_HttpClient_Transport(target string, router *mux.Router, op
 				_CQRS_CreateUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
@@ -190,6 +193,7 @@ func _CQRS_FindUser_HttpClient_Transport(target string, router *mux.Router, opti
 				_CQRS_FindUser_HttpClient_ResponseDecoder,
 				http.ClientBefore(httpx.OutgoingMetadataInjector),
 				http.ClientBefore(httpx.OutgoingTimeLimiter),
+				http.ClientBefore(httpx.OutgoingStain),
 			),
 			options...,
 		)
