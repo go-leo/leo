@@ -378,22 +378,6 @@ func _LibraryService_CreateShelf_HttpServer_Transport(endpoints LibraryServiceEn
 	)
 }
 
-func _LibraryService_CreateShelf_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_CreateShelf_HttpClient_RequestEncoder(router),
-				_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_GetShelf_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.GetShelf(context.TODO()),
@@ -406,22 +390,6 @@ func _LibraryService_GetShelf_HttpServer_Transport(endpoints LibraryServiceEndpo
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _LibraryService_GetShelf_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_GetShelf_HttpClient_RequestEncoder(router),
-				_LibraryService_GetShelf_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_ListShelves_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
@@ -438,22 +406,6 @@ func _LibraryService_ListShelves_HttpServer_Transport(endpoints LibraryServiceEn
 	)
 }
 
-func _LibraryService_ListShelves_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_ListShelves_HttpClient_RequestEncoder(router),
-				_LibraryService_ListShelves_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_DeleteShelf_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.DeleteShelf(context.TODO()),
@@ -466,22 +418,6 @@ func _LibraryService_DeleteShelf_HttpServer_Transport(endpoints LibraryServiceEn
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _LibraryService_DeleteShelf_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_DeleteShelf_HttpClient_RequestEncoder(router),
-				_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_MergeShelves_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
@@ -498,22 +434,6 @@ func _LibraryService_MergeShelves_HttpServer_Transport(endpoints LibraryServiceE
 	)
 }
 
-func _LibraryService_MergeShelves_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_MergeShelves_HttpClient_RequestEncoder(router),
-				_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_CreateBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.CreateBook(context.TODO()),
@@ -526,22 +446,6 @@ func _LibraryService_CreateBook_HttpServer_Transport(endpoints LibraryServiceEnd
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _LibraryService_CreateBook_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_CreateBook_HttpClient_RequestEncoder(router),
-				_LibraryService_CreateBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_GetBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
@@ -558,22 +462,6 @@ func _LibraryService_GetBook_HttpServer_Transport(endpoints LibraryServiceEndpoi
 	)
 }
 
-func _LibraryService_GetBook_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_GetBook_HttpClient_RequestEncoder(router),
-				_LibraryService_GetBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_ListBooks_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.ListBooks(context.TODO()),
@@ -586,22 +474,6 @@ func _LibraryService_ListBooks_HttpServer_Transport(endpoints LibraryServiceEndp
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _LibraryService_ListBooks_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_ListBooks_HttpClient_RequestEncoder(router),
-				_LibraryService_ListBooks_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_DeleteBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
@@ -618,22 +490,6 @@ func _LibraryService_DeleteBook_HttpServer_Transport(endpoints LibraryServiceEnd
 	)
 }
 
-func _LibraryService_DeleteBook_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_DeleteBook_HttpClient_RequestEncoder(router),
-				_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_UpdateBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.UpdateBook(context.TODO()),
@@ -648,22 +504,6 @@ func _LibraryService_UpdateBook_HttpServer_Transport(endpoints LibraryServiceEnd
 	)
 }
 
-func _LibraryService_UpdateBook_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_UpdateBook_HttpClient_RequestEncoder(router),
-				_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_MoveBook_HttpServer_Transport(endpoints LibraryServiceEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.MoveBook(context.TODO()),
@@ -676,22 +516,6 @@ func _LibraryService_MoveBook_HttpServer_Transport(endpoints LibraryServiceEndpo
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _LibraryService_MoveBook_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_LibraryService_MoveBook_HttpClient_RequestEncoder(router),
-				_LibraryService_MoveBook_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 // =========================== http coder ===========================

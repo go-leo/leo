@@ -108,22 +108,6 @@ func _Query_Query_HttpServer_Transport(endpoints QueryEndpoints) *http.Server {
 	)
 }
 
-func _Query_Query_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Query_Query_HttpClient_RequestEncoder(router),
-				_Query_Query_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 // =========================== http coder ===========================
 
 func _Query_Query_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {

@@ -323,22 +323,6 @@ func _Path_BoolPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 	)
 }
 
-func _Path_BoolPath_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_BoolPath_HttpClient_RequestEncoder(router),
-				_Path_BoolPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Path_Int32Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.Int32Path(context.TODO()),
@@ -351,22 +335,6 @@ func _Path_Int32Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server 
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Path_Int32Path_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Int32Path_HttpClient_RequestEncoder(router),
-				_Path_Int32Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Path_Int64Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
@@ -383,22 +351,6 @@ func _Path_Int64Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server 
 	)
 }
 
-func _Path_Int64Path_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Int64Path_HttpClient_RequestEncoder(router),
-				_Path_Int64Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Path_Uint32Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.Uint32Path(context.TODO()),
@@ -411,22 +363,6 @@ func _Path_Uint32Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Path_Uint32Path_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Uint32Path_HttpClient_RequestEncoder(router),
-				_Path_Uint32Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Path_Uint64Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
@@ -443,22 +379,6 @@ func _Path_Uint64Path_HttpServer_Transport(endpoints PathEndpoints) *http.Server
 	)
 }
 
-func _Path_Uint64Path_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_Uint64Path_HttpClient_RequestEncoder(router),
-				_Path_Uint64Path_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Path_FloatPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.FloatPath(context.TODO()),
@@ -471,22 +391,6 @@ func _Path_FloatPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server 
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Path_FloatPath_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_FloatPath_HttpClient_RequestEncoder(router),
-				_Path_FloatPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Path_DoublePath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
@@ -503,22 +407,6 @@ func _Path_DoublePath_HttpServer_Transport(endpoints PathEndpoints) *http.Server
 	)
 }
 
-func _Path_DoublePath_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_DoublePath_HttpClient_RequestEncoder(router),
-				_Path_DoublePath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Path_StringPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.StringPath(context.TODO()),
@@ -533,22 +421,6 @@ func _Path_StringPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server
 	)
 }
 
-func _Path_StringPath_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_StringPath_HttpClient_RequestEncoder(router),
-				_Path_StringPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Path_EnumPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.EnumPath(context.TODO()),
@@ -561,22 +433,6 @@ func _Path_EnumPath_HttpServer_Transport(endpoints PathEndpoints) *http.Server {
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Path_EnumPath_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Path_EnumPath_HttpClient_RequestEncoder(router),
-				_Path_EnumPath_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 // =========================== http coder ===========================

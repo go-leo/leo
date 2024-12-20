@@ -64,13 +64,9 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 
 func (f *Generator) GenerateTransport(g *protogen.GeneratedFile) error {
 	server := ServerGenerator{}
-	client := ClientGenerator{}
 	for _, service := range f.Services {
 		for _, endpoint := range service.Endpoints {
 			if err := server.GenerateServerTransport(service, g, endpoint); err != nil {
-				return err
-			}
-			if err := client.GenerateClientTransport(service, g, endpoint); err != nil {
 				return err
 			}
 		}

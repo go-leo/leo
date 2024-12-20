@@ -272,22 +272,6 @@ func _Demo_CreateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server
 	)
 }
 
-func _Demo_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_CreateUser_HttpClient_RequestEncoder(router),
-				_Demo_CreateUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_DeleteUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.DeleteUser(context.TODO()),
@@ -300,22 +284,6 @@ func _Demo_DeleteUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Demo_DeleteUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_DeleteUser_HttpClient_RequestEncoder(router),
-				_Demo_DeleteUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Demo_UpdateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
@@ -332,22 +300,6 @@ func _Demo_UpdateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server
 	)
 }
 
-func _Demo_UpdateUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_UpdateUser_HttpClient_RequestEncoder(router),
-				_Demo_UpdateUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_GetUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.GetUser(context.TODO()),
@@ -360,22 +312,6 @@ func _Demo_GetUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Demo_GetUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_GetUser_HttpClient_RequestEncoder(router),
-				_Demo_GetUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Demo_GetUsers_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
@@ -392,22 +328,6 @@ func _Demo_GetUsers_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	)
 }
 
-func _Demo_GetUsers_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_GetUsers_HttpClient_RequestEncoder(router),
-				_Demo_GetUsers_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_UploadUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.UploadUserAvatar(context.TODO()),
@@ -422,22 +342,6 @@ func _Demo_UploadUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.
 	)
 }
 
-func _Demo_UploadUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_UploadUserAvatar_HttpClient_RequestEncoder(router),
-				_Demo_UploadUserAvatar_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_GetUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.GetUserAvatar(context.TODO()),
@@ -450,22 +354,6 @@ func _Demo_GetUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Ser
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Demo_GetUserAvatar_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Demo_GetUserAvatar_HttpClient_RequestEncoder(router),
-				_Demo_GetUserAvatar_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 // =========================== http coder ===========================

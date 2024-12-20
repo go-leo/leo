@@ -216,22 +216,6 @@ func _Workspaces_ListWorkspaces_HttpServer_Transport(endpoints WorkspacesEndpoin
 	)
 }
 
-func _Workspaces_ListWorkspaces_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router),
-				_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Workspaces_GetWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.GetWorkspace(context.TODO()),
@@ -244,22 +228,6 @@ func _Workspaces_GetWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Workspaces_GetWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_GetWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Workspaces_CreateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
@@ -276,22 +244,6 @@ func _Workspaces_CreateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoi
 	)
 }
 
-func _Workspaces_CreateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.UpdateWorkspace(context.TODO()),
@@ -306,22 +258,6 @@ func _Workspaces_UpdateWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoi
 	)
 }
 
-func _Workspaces_UpdateWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.DeleteWorkspace(context.TODO()),
@@ -334,22 +270,6 @@ func _Workspaces_DeleteWorkspace_HttpServer_Transport(endpoints WorkspacesEndpoi
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Workspaces_DeleteWorkspace_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router),
-				_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 // =========================== http coder ===========================

@@ -130,22 +130,6 @@ func _CQRS_CreateUser_HttpServer_Transport(endpoints CQRSEndpoints) *http.Server
 	)
 }
 
-func _CQRS_CreateUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_CQRS_CreateUser_HttpClient_RequestEncoder(router),
-				_CQRS_CreateUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _CQRS_FindUser_HttpServer_Transport(endpoints CQRSEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.FindUser(context.TODO()),
@@ -158,22 +142,6 @@ func _CQRS_FindUser_HttpServer_Transport(endpoints CQRSEndpoints) *http.Server {
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _CQRS_FindUser_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_CQRS_FindUser_HttpClient_RequestEncoder(router),
-				_CQRS_FindUser_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 // =========================== http coder ===========================

@@ -49,29 +49,9 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	return nil
 }
 
-func (f *ClientGenerator) GenerateClientTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
-	g.P("func ", endpoint.HttpClientTransportName(), "(target string, router *", internal.MuxPackage.Ident("Router"), ", options ...", internal.HttpxTransportxPackage.Ident("ClientTransportOption"), ")", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error)", " {")
-	g.P("return ", "func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
-	g.P("return ", internal.HttpxTransportxPackage.Ident("NewClientTransport"), "(")
-	g.P("target,")
-	g.P(internal.HttpxTransportxPackage.Ident("ClientFactory"), "(")
-	g.P(endpoint.HttpClientRequestEncoderName(), "(router),")
-	g.P(endpoint.HttpClientResponseDecoderName(), ",")
-	g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
-	g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimiter"), "),")
-	g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingStain"), "),")
-	g.P("),")
-	g.P("options...,")
-	g.P(")")
-	g.P("}")
-	g.P("}")
-	g.P()
-	return nil
-}
-
 func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpClientName(), " struct {")
-	g.P("endpoints ", service.EndpointsName())
+	g.P("balancers ", service.BalancersName())
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {

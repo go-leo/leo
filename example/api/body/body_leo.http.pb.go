@@ -212,22 +212,6 @@ func _Body_StarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	)
 }
 
-func _Body_StarBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_StarBody_HttpClient_RequestEncoder(router),
-				_Body_StarBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Body_NamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.NamedBody(context.TODO()),
@@ -240,22 +224,6 @@ func _Body_NamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server 
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Body_NamedBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_NamedBody_HttpClient_RequestEncoder(router),
-				_Body_NamedBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Body_NonBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
@@ -272,22 +240,6 @@ func _Body_NonBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	)
 }
 
-func _Body_NonBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_NonBody_HttpClient_RequestEncoder(router),
-				_Body_NonBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Body_HttpBodyStarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.HttpBodyStarBody(context.TODO()),
@@ -302,22 +254,6 @@ func _Body_HttpBodyStarBody_HttpServer_Transport(endpoints BodyEndpoints) *http.
 	)
 }
 
-func _Body_HttpBodyStarBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_HttpBodyStarBody_HttpClient_RequestEncoder(router),
-				_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Body_HttpBodyNamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http.Server {
 	return http.NewServer(
 		endpoints.HttpBodyNamedBody(context.TODO()),
@@ -330,22 +266,6 @@ func _Body_HttpBodyNamedBody_HttpServer_Transport(endpoints BodyEndpoints) *http
 		http.ServerFinalizer(httpx.CancelInvoker),
 		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
-}
-
-func _Body_HttpBodyNamedBody_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router),
-				_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 // =========================== http coder ===========================

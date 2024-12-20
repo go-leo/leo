@@ -102,22 +102,6 @@ func _Greeter_SayHello_HttpServer_Transport(endpoints GreeterEndpoints) *http.Se
 	)
 }
 
-func _Greeter_SayHello_HttpClient_Transport(target string, router *mux.Router, options ...httpx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return httpx.NewClientTransport(
-			target,
-			httpx.ClientFactory(
-				_Greeter_SayHello_HttpClient_RequestEncoder(router),
-				_Greeter_SayHello_HttpClient_ResponseDecoder,
-				http.ClientBefore(httpx.OutgoingMetadataInjector),
-				http.ClientBefore(httpx.OutgoingTimeLimiter),
-				http.ClientBefore(httpx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 // =========================== http coder ===========================
 
 func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
