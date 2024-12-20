@@ -7,6 +7,8 @@ import (
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/middleware/stain"
+	"github.com/go-leo/leo/v3/sdx/consulx"
+	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -52,14 +54,19 @@ func runApi(port int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	httpTransports, err := helloworld.NewGreeterHttpClientTransports("consul://localhost:8500/demo.http?dc=dc1")
+	httpClient, err := helloworld.NewGreeterHttpClientV2(
+		"http",
+		"consul://localhost:8500/demo.http?dc=dc1",
+		nil,
+		nil,
+		consulx.Factory{},
+		nil,
+		logx.L(),
+		lbx.RandomFactory{},
+	)
 	if err != nil {
 		panic(err)
 	}
-	httpClient := helloworld.NewGreeterHttpClient(
-		httpTransports,
-		stain.Middleware("X-Leo-Stain"),
-	)
 
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
@@ -108,7 +115,7 @@ func runHttp(port int, color string) {
 	if err != nil {
 		panic(err)
 	}
-	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports, stain.Middleware("X-Leo-Stain"))
+	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports)
 
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),

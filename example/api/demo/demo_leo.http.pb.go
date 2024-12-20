@@ -57,66 +57,13 @@ func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...en
 // =========================== http client ===========================
 
 type demoHttpClientTransports struct {
-	createUser       transportx.ClientTransport
-	deleteUser       transportx.ClientTransport
-	updateUser       transportx.ClientTransport
-	getUser          transportx.ClientTransport
-	getUsers         transportx.ClientTransport
-	uploadUserAvatar transportx.ClientTransport
-	getUserAvatar    transportx.ClientTransport
-}
-
-func (t *demoHttpClientTransports) CreateUser() transportx.ClientTransport {
-	return t.createUser
-}
-
-func (t *demoHttpClientTransports) DeleteUser() transportx.ClientTransport {
-	return t.deleteUser
-}
-
-func (t *demoHttpClientTransports) UpdateUser() transportx.ClientTransport {
-	return t.updateUser
-}
-
-func (t *demoHttpClientTransports) GetUser() transportx.ClientTransport {
-	return t.getUser
-}
-
-func (t *demoHttpClientTransports) GetUsers() transportx.ClientTransport {
-	return t.getUsers
-}
-
-func (t *demoHttpClientTransports) UploadUserAvatar() transportx.ClientTransport {
-	return t.uploadUserAvatar
-}
-
-func (t *demoHttpClientTransports) GetUserAvatar() transportx.ClientTransport {
-	return t.getUserAvatar
-}
-
-func NewDemoHttpClientTransports(target string, options ...httpx.ClientTransportOption) (DemoClientTransports, error) {
-	router := appendDemoHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &demoHttpClientTransports{}
-	var err error
-	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_CreateUser_HttpClient_Transport(target, router, options...))
-	t.deleteUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_DeleteUser_HttpClient_Transport(target, router, options...))
-	t.updateUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_UpdateUser_HttpClient_Transport(target, router, options...))
-	t.getUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUser_HttpClient_Transport(target, router, options...))
-	t.getUsers, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUsers_HttpClient_Transport(target, router, options...))
-	t.uploadUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(_Demo_UploadUserAvatar_HttpClient_Transport(target, router, options...))
-	t.getUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUserAvatar_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type demoHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *demoHttpClientTransportsV2) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -131,7 +78,7 @@ func (t *demoHttpClientTransportsV2) CreateUser(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *demoHttpClientTransportsV2) DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -146,7 +93,7 @@ func (t *demoHttpClientTransportsV2) DeleteUser(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *demoHttpClientTransportsV2) UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -161,7 +108,7 @@ func (t *demoHttpClientTransportsV2) UpdateUser(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *demoHttpClientTransportsV2) GetUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) GetUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -176,7 +123,7 @@ func (t *demoHttpClientTransportsV2) GetUser(ctx context.Context, instance strin
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *demoHttpClientTransportsV2) GetUsers(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) GetUsers(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -191,7 +138,7 @@ func (t *demoHttpClientTransportsV2) GetUsers(ctx context.Context, instance stri
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *demoHttpClientTransportsV2) UploadUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) UploadUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -206,7 +153,7 @@ func (t *demoHttpClientTransportsV2) UploadUserAvatar(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *demoHttpClientTransportsV2) GetUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *demoHttpClientTransports) GetUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -221,8 +168,8 @@ func (t *demoHttpClientTransportsV2) GetUserAvatar(ctx context.Context, instance
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewDemoHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) DemoClientTransportsV2 {
-	return &demoHttpClientTransportsV2{
+func newDemoHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) DemoClientTransportsV2 {
+	return &demoHttpClientTransports{
 		scheme:        scheme,
 		router:        appendDemoHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

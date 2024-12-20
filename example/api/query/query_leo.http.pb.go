@@ -43,30 +43,13 @@ func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...
 // =========================== http client ===========================
 
 type queryHttpClientTransports struct {
-	query transportx.ClientTransport
-}
-
-func (t *queryHttpClientTransports) Query() transportx.ClientTransport {
-	return t.query
-}
-
-func NewQueryHttpClientTransports(target string, options ...httpx.ClientTransportOption) (QueryClientTransports, error) {
-	router := appendQueryHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &queryHttpClientTransports{}
-	var err error
-	t.query, err = errorx.Break[transportx.ClientTransport](err)(_Query_Query_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type queryHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *queryHttpClientTransportsV2) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -81,8 +64,8 @@ func (t *queryHttpClientTransportsV2) Query(ctx context.Context, instance string
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewQueryHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) QueryClientTransportsV2 {
-	return &queryHttpClientTransportsV2{
+func newQueryHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) QueryClientTransportsV2 {
+	return &queryHttpClientTransports{
 		scheme:        scheme,
 		router:        appendQueryHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

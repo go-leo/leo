@@ -48,7 +48,7 @@ func NewGreeterHttpClientV2(
 	log log.Logger,
 	factory lbx.BalancerFactory,
 ) (GreeterService, error) {
-	transportsV2 := NewGreeterHttpClientTransportsV2(scheme, clientOptions, middlewares)
+	transportsV2 := newGreeterHttpClientTransports(scheme, clientOptions, middlewares)
 	factories := newGreeterFactories(transportsV2)
 	endpointers := newGreeterEndpointers(target, instancerFactory, factories, log, EndpointerOptions...)
 	balancers := newGreeterBalancers(factory, endpointers)

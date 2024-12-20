@@ -11,37 +11,6 @@ import (
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
 )
 
-func mainv1() {
-	transports, err := helloworld.NewGreeterHttpClientTransports(
-		"127.0.0.1:8080",
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	// ok
-	client := helloworld.NewGreeterHttpClient(
-		transports,
-		basicx.Middleware("soyacen", "123456", "basic auth example"),
-	)
-	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(reply)
-
-	// panic
-	client = helloworld.NewGreeterHttpClient(
-		transports,
-		basicx.Middleware("soyacen", "654321", "basic auth example"),
-	)
-	reply, err = client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "mint"})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(reply)
-}
-
 func main() {
 	// ok
 	client, err := helloworld.NewGreeterHttpClientV2(

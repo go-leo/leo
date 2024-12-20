@@ -8,7 +8,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
-	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
@@ -43,30 +42,13 @@ func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares
 // =========================== http client ===========================
 
 type mixPathHttpClientTransports struct {
-	mixPath transportx.ClientTransport
-}
-
-func (t *mixPathHttpClientTransports) MixPath() transportx.ClientTransport {
-	return t.mixPath
-}
-
-func NewMixPathHttpClientTransports(target string, options ...httpx.ClientTransportOption) (MixPathClientTransports, error) {
-	router := appendMixPathHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &mixPathHttpClientTransports{}
-	var err error
-	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(_MixPath_MixPath_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type mixPathHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *mixPathHttpClientTransportsV2) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -81,8 +63,8 @@ func (t *mixPathHttpClientTransportsV2) MixPath(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewMixPathHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransportsV2 {
-	return &mixPathHttpClientTransportsV2{
+func newMixPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransportsV2 {
+	return &mixPathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendMixPathHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

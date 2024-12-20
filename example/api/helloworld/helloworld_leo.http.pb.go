@@ -7,7 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
-	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
@@ -38,30 +37,13 @@ func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares
 // =========================== http client ===========================
 
 type greeterHttpClientTransports struct {
-	sayHello transportx.ClientTransport
-}
-
-func (t *greeterHttpClientTransports) SayHello() transportx.ClientTransport {
-	return t.sayHello
-}
-
-func NewGreeterHttpClientTransports(target string, options ...httpx.ClientTransportOption) (GreeterClientTransports, error) {
-	router := appendGreeterHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &greeterHttpClientTransports{}
-	var err error
-	t.sayHello, err = errorx.Break[transportx.ClientTransport](err)(_Greeter_SayHello_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type greeterHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *greeterHttpClientTransportsV2) SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -76,8 +58,8 @@ func (t *greeterHttpClientTransportsV2) SayHello(ctx context.Context, instance s
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewGreeterHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransportsV2 {
-	return &greeterHttpClientTransportsV2{
+func newGreeterHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransportsV2 {
+	return &greeterHttpClientTransports{
 		scheme:        scheme,
 		router:        appendGreeterHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

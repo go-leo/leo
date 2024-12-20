@@ -58,78 +58,13 @@ func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...en
 // =========================== http client ===========================
 
 type pathHttpClientTransports struct {
-	boolPath   transportx.ClientTransport
-	int32Path  transportx.ClientTransport
-	int64Path  transportx.ClientTransport
-	uint32Path transportx.ClientTransport
-	uint64Path transportx.ClientTransport
-	floatPath  transportx.ClientTransport
-	doublePath transportx.ClientTransport
-	stringPath transportx.ClientTransport
-	enumPath   transportx.ClientTransport
-}
-
-func (t *pathHttpClientTransports) BoolPath() transportx.ClientTransport {
-	return t.boolPath
-}
-
-func (t *pathHttpClientTransports) Int32Path() transportx.ClientTransport {
-	return t.int32Path
-}
-
-func (t *pathHttpClientTransports) Int64Path() transportx.ClientTransport {
-	return t.int64Path
-}
-
-func (t *pathHttpClientTransports) Uint32Path() transportx.ClientTransport {
-	return t.uint32Path
-}
-
-func (t *pathHttpClientTransports) Uint64Path() transportx.ClientTransport {
-	return t.uint64Path
-}
-
-func (t *pathHttpClientTransports) FloatPath() transportx.ClientTransport {
-	return t.floatPath
-}
-
-func (t *pathHttpClientTransports) DoublePath() transportx.ClientTransport {
-	return t.doublePath
-}
-
-func (t *pathHttpClientTransports) StringPath() transportx.ClientTransport {
-	return t.stringPath
-}
-
-func (t *pathHttpClientTransports) EnumPath() transportx.ClientTransport {
-	return t.enumPath
-}
-
-func NewPathHttpClientTransports(target string, options ...httpx.ClientTransportOption) (PathClientTransports, error) {
-	router := appendPathHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &pathHttpClientTransports{}
-	var err error
-	t.boolPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_BoolPath_HttpClient_Transport(target, router, options...))
-	t.int32Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Int32Path_HttpClient_Transport(target, router, options...))
-	t.int64Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Int64Path_HttpClient_Transport(target, router, options...))
-	t.uint32Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Uint32Path_HttpClient_Transport(target, router, options...))
-	t.uint64Path, err = errorx.Break[transportx.ClientTransport](err)(_Path_Uint64Path_HttpClient_Transport(target, router, options...))
-	t.floatPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_FloatPath_HttpClient_Transport(target, router, options...))
-	t.doublePath, err = errorx.Break[transportx.ClientTransport](err)(_Path_DoublePath_HttpClient_Transport(target, router, options...))
-	t.stringPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_StringPath_HttpClient_Transport(target, router, options...))
-	t.enumPath, err = errorx.Break[transportx.ClientTransport](err)(_Path_EnumPath_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type pathHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *pathHttpClientTransportsV2) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -144,7 +79,7 @@ func (t *pathHttpClientTransportsV2) BoolPath(ctx context.Context, instance stri
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -159,7 +94,7 @@ func (t *pathHttpClientTransportsV2) Int32Path(ctx context.Context, instance str
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -174,7 +109,7 @@ func (t *pathHttpClientTransportsV2) Int64Path(ctx context.Context, instance str
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -189,7 +124,7 @@ func (t *pathHttpClientTransportsV2) Uint32Path(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -204,7 +139,7 @@ func (t *pathHttpClientTransportsV2) Uint64Path(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -219,7 +154,7 @@ func (t *pathHttpClientTransportsV2) FloatPath(ctx context.Context, instance str
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -234,7 +169,7 @@ func (t *pathHttpClientTransportsV2) DoublePath(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -249,7 +184,7 @@ func (t *pathHttpClientTransportsV2) StringPath(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *pathHttpClientTransportsV2) EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -264,8 +199,8 @@ func (t *pathHttpClientTransportsV2) EnumPath(ctx context.Context, instance stri
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewPathHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) PathClientTransportsV2 {
-	return &pathHttpClientTransportsV2{
+func newPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) PathClientTransportsV2 {
+	return &pathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendPathHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

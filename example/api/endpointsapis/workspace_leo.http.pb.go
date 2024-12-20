@@ -51,54 +51,13 @@ func AppendWorkspacesHttpRoutes(router *mux.Router, svc WorkspacesService, middl
 // =========================== http client ===========================
 
 type workspacesHttpClientTransports struct {
-	listWorkspaces  transportx.ClientTransport
-	getWorkspace    transportx.ClientTransport
-	createWorkspace transportx.ClientTransport
-	updateWorkspace transportx.ClientTransport
-	deleteWorkspace transportx.ClientTransport
-}
-
-func (t *workspacesHttpClientTransports) ListWorkspaces() transportx.ClientTransport {
-	return t.listWorkspaces
-}
-
-func (t *workspacesHttpClientTransports) GetWorkspace() transportx.ClientTransport {
-	return t.getWorkspace
-}
-
-func (t *workspacesHttpClientTransports) CreateWorkspace() transportx.ClientTransport {
-	return t.createWorkspace
-}
-
-func (t *workspacesHttpClientTransports) UpdateWorkspace() transportx.ClientTransport {
-	return t.updateWorkspace
-}
-
-func (t *workspacesHttpClientTransports) DeleteWorkspace() transportx.ClientTransport {
-	return t.deleteWorkspace
-}
-
-func NewWorkspacesHttpClientTransports(target string, options ...httpx.ClientTransportOption) (WorkspacesClientTransports, error) {
-	router := appendWorkspacesHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &workspacesHttpClientTransports{}
-	var err error
-	t.listWorkspaces, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_ListWorkspaces_HttpClient_Transport(target, router, options...))
-	t.getWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_GetWorkspace_HttpClient_Transport(target, router, options...))
-	t.createWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_CreateWorkspace_HttpClient_Transport(target, router, options...))
-	t.updateWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_UpdateWorkspace_HttpClient_Transport(target, router, options...))
-	t.deleteWorkspace, err = errorx.Break[transportx.ClientTransport](err)(_Workspaces_DeleteWorkspace_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type workspacesHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *workspacesHttpClientTransportsV2) ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -113,7 +72,7 @@ func (t *workspacesHttpClientTransportsV2) ListWorkspaces(ctx context.Context, i
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *workspacesHttpClientTransportsV2) GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -128,7 +87,7 @@ func (t *workspacesHttpClientTransportsV2) GetWorkspace(ctx context.Context, ins
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *workspacesHttpClientTransportsV2) CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -143,7 +102,7 @@ func (t *workspacesHttpClientTransportsV2) CreateWorkspace(ctx context.Context, 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *workspacesHttpClientTransportsV2) UpdateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -158,7 +117,7 @@ func (t *workspacesHttpClientTransportsV2) UpdateWorkspace(ctx context.Context, 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *workspacesHttpClientTransportsV2) DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -173,8 +132,8 @@ func (t *workspacesHttpClientTransportsV2) DeleteWorkspace(ctx context.Context, 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewWorkspacesHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransportsV2 {
-	return &workspacesHttpClientTransportsV2{
+func newWorkspacesHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransportsV2 {
+	return &workspacesHttpClientTransports{
 		scheme:        scheme,
 		router:        appendWorkspacesHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

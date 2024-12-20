@@ -50,54 +50,13 @@ func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewar
 // =========================== http client ===========================
 
 type responseHttpClientTransports struct {
-	omittedResponse       transportx.ClientTransport
-	starResponse          transportx.ClientTransport
-	namedResponse         transportx.ClientTransport
-	httpBodyResponse      transportx.ClientTransport
-	httpBodyNamedResponse transportx.ClientTransport
-}
-
-func (t *responseHttpClientTransports) OmittedResponse() transportx.ClientTransport {
-	return t.omittedResponse
-}
-
-func (t *responseHttpClientTransports) StarResponse() transportx.ClientTransport {
-	return t.starResponse
-}
-
-func (t *responseHttpClientTransports) NamedResponse() transportx.ClientTransport {
-	return t.namedResponse
-}
-
-func (t *responseHttpClientTransports) HttpBodyResponse() transportx.ClientTransport {
-	return t.httpBodyResponse
-}
-
-func (t *responseHttpClientTransports) HttpBodyNamedResponse() transportx.ClientTransport {
-	return t.httpBodyNamedResponse
-}
-
-func NewResponseHttpClientTransports(target string, options ...httpx.ClientTransportOption) (ResponseClientTransports, error) {
-	router := appendResponseHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &responseHttpClientTransports{}
-	var err error
-	t.omittedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_OmittedResponse_HttpClient_Transport(target, router, options...))
-	t.starResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_StarResponse_HttpClient_Transport(target, router, options...))
-	t.namedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_NamedResponse_HttpClient_Transport(target, router, options...))
-	t.httpBodyResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_HttpBodyResponse_HttpClient_Transport(target, router, options...))
-	t.httpBodyNamedResponse, err = errorx.Break[transportx.ClientTransport](err)(_Response_HttpBodyNamedResponse_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type responseHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *responseHttpClientTransportsV2) OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *responseHttpClientTransports) OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -112,7 +71,7 @@ func (t *responseHttpClientTransportsV2) OmittedResponse(ctx context.Context, in
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *responseHttpClientTransportsV2) StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *responseHttpClientTransports) StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -127,7 +86,7 @@ func (t *responseHttpClientTransportsV2) StarResponse(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *responseHttpClientTransportsV2) NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *responseHttpClientTransports) NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -142,7 +101,7 @@ func (t *responseHttpClientTransportsV2) NamedResponse(ctx context.Context, inst
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *responseHttpClientTransportsV2) HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *responseHttpClientTransports) HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -157,7 +116,7 @@ func (t *responseHttpClientTransportsV2) HttpBodyResponse(ctx context.Context, i
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *responseHttpClientTransportsV2) HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -172,8 +131,8 @@ func (t *responseHttpClientTransportsV2) HttpBodyNamedResponse(ctx context.Conte
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewResponseHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransportsV2 {
-	return &responseHttpClientTransportsV2{
+func newResponseHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransportsV2 {
+	return &responseHttpClientTransports{
 		scheme:        scheme,
 		router:        appendResponseHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

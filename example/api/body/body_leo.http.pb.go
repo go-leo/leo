@@ -8,7 +8,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
-	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
@@ -48,54 +47,13 @@ func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...en
 // =========================== http client ===========================
 
 type bodyHttpClientTransports struct {
-	starBody          transportx.ClientTransport
-	namedBody         transportx.ClientTransport
-	nonBody           transportx.ClientTransport
-	httpBodyStarBody  transportx.ClientTransport
-	httpBodyNamedBody transportx.ClientTransport
-}
-
-func (t *bodyHttpClientTransports) StarBody() transportx.ClientTransport {
-	return t.starBody
-}
-
-func (t *bodyHttpClientTransports) NamedBody() transportx.ClientTransport {
-	return t.namedBody
-}
-
-func (t *bodyHttpClientTransports) NonBody() transportx.ClientTransport {
-	return t.nonBody
-}
-
-func (t *bodyHttpClientTransports) HttpBodyStarBody() transportx.ClientTransport {
-	return t.httpBodyStarBody
-}
-
-func (t *bodyHttpClientTransports) HttpBodyNamedBody() transportx.ClientTransport {
-	return t.httpBodyNamedBody
-}
-
-func NewBodyHttpClientTransports(target string, options ...httpx.ClientTransportOption) (BodyClientTransports, error) {
-	router := appendBodyHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &bodyHttpClientTransports{}
-	var err error
-	t.starBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_StarBody_HttpClient_Transport(target, router, options...))
-	t.namedBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_NamedBody_HttpClient_Transport(target, router, options...))
-	t.nonBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_NonBody_HttpClient_Transport(target, router, options...))
-	t.httpBodyStarBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_HttpBodyStarBody_HttpClient_Transport(target, router, options...))
-	t.httpBodyNamedBody, err = errorx.Break[transportx.ClientTransport](err)(_Body_HttpBodyNamedBody_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type bodyHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *bodyHttpClientTransportsV2) StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -110,7 +68,7 @@ func (t *bodyHttpClientTransportsV2) StarBody(ctx context.Context, instance stri
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *bodyHttpClientTransportsV2) NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *bodyHttpClientTransports) NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -125,7 +83,7 @@ func (t *bodyHttpClientTransportsV2) NamedBody(ctx context.Context, instance str
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *bodyHttpClientTransportsV2) NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *bodyHttpClientTransports) NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -140,7 +98,7 @@ func (t *bodyHttpClientTransportsV2) NonBody(ctx context.Context, instance strin
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *bodyHttpClientTransportsV2) HttpBodyStarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *bodyHttpClientTransports) HttpBodyStarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -155,7 +113,7 @@ func (t *bodyHttpClientTransportsV2) HttpBodyStarBody(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *bodyHttpClientTransportsV2) HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -170,8 +128,8 @@ func (t *bodyHttpClientTransportsV2) HttpBodyNamedBody(ctx context.Context, inst
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewBodyHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) BodyClientTransportsV2 {
-	return &bodyHttpClientTransportsV2{
+func newBodyHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) BodyClientTransportsV2 {
+	return &bodyHttpClientTransports{
 		scheme:        scheme,
 		router:        appendBodyHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

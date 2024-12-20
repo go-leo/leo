@@ -8,7 +8,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
-	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
@@ -53,60 +52,13 @@ func AppendNamedPathHttpRoutes(router *mux.Router, svc NamedPathService, middlew
 // =========================== http client ===========================
 
 type namedPathHttpClientTransports struct {
-	namedPathString          transportx.ClientTransport
-	namedPathOptString       transportx.ClientTransport
-	namedPathWrapString      transportx.ClientTransport
-	embedNamedPathString     transportx.ClientTransport
-	embedNamedPathOptString  transportx.ClientTransport
-	embedNamedPathWrapString transportx.ClientTransport
-}
-
-func (t *namedPathHttpClientTransports) NamedPathString() transportx.ClientTransport {
-	return t.namedPathString
-}
-
-func (t *namedPathHttpClientTransports) NamedPathOptString() transportx.ClientTransport {
-	return t.namedPathOptString
-}
-
-func (t *namedPathHttpClientTransports) NamedPathWrapString() transportx.ClientTransport {
-	return t.namedPathWrapString
-}
-
-func (t *namedPathHttpClientTransports) EmbedNamedPathString() transportx.ClientTransport {
-	return t.embedNamedPathString
-}
-
-func (t *namedPathHttpClientTransports) EmbedNamedPathOptString() transportx.ClientTransport {
-	return t.embedNamedPathOptString
-}
-
-func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString() transportx.ClientTransport {
-	return t.embedNamedPathWrapString
-}
-
-func NewNamedPathHttpClientTransports(target string, options ...httpx.ClientTransportOption) (NamedPathClientTransports, error) {
-	router := appendNamedPathHttpRoutes(mux.NewRouter())
-	_ = router
-	t := &namedPathHttpClientTransports{}
-	var err error
-	t.namedPathString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathString_HttpClient_Transport(target, router, options...))
-	t.namedPathOptString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathOptString_HttpClient_Transport(target, router, options...))
-	t.namedPathWrapString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_NamedPathWrapString_HttpClient_Transport(target, router, options...))
-	t.embedNamedPathString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_EmbedNamedPathString_HttpClient_Transport(target, router, options...))
-	t.embedNamedPathOptString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_EmbedNamedPathOptString_HttpClient_Transport(target, router, options...))
-	t.embedNamedPathWrapString, err = errorx.Break[transportx.ClientTransport](err)(_NamedPath_EmbedNamedPathWrapString_HttpClient_Transport(target, router, options...))
-	return t, err
-}
-
-type namedPathHttpClientTransportsV2 struct {
 	scheme        string
 	router        *mux.Router
 	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
-func (t *namedPathHttpClientTransportsV2) NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *namedPathHttpClientTransports) NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -121,7 +73,7 @@ func (t *namedPathHttpClientTransportsV2) NamedPathString(ctx context.Context, i
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *namedPathHttpClientTransportsV2) NamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *namedPathHttpClientTransports) NamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -136,7 +88,7 @@ func (t *namedPathHttpClientTransportsV2) NamedPathOptString(ctx context.Context
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *namedPathHttpClientTransportsV2) NamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *namedPathHttpClientTransports) NamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -151,7 +103,7 @@ func (t *namedPathHttpClientTransportsV2) NamedPathWrapString(ctx context.Contex
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *namedPathHttpClientTransportsV2) EmbedNamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *namedPathHttpClientTransports) EmbedNamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -166,7 +118,7 @@ func (t *namedPathHttpClientTransportsV2) EmbedNamedPathString(ctx context.Conte
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *namedPathHttpClientTransportsV2) EmbedNamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *namedPathHttpClientTransports) EmbedNamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -181,7 +133,7 @@ func (t *namedPathHttpClientTransportsV2) EmbedNamedPathOptString(ctx context.Co
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func (t *namedPathHttpClientTransportsV2) EmbedNamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http.ClientOption{
 		http.ClientBefore(httpx.OutgoingMetadataInjector),
 		http.ClientBefore(httpx.OutgoingTimeLimiter),
@@ -196,8 +148,8 @@ func (t *namedPathHttpClientTransportsV2) EmbedNamedPathWrapString(ctx context.C
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func NewNamedPathHttpClientTransportsV2(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) NamedPathClientTransportsV2 {
-	return &namedPathHttpClientTransportsV2{
+func newNamedPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) NamedPathClientTransportsV2 {
+	return &namedPathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendNamedPathHttpRoutes(mux.NewRouter()),
 		clientOptions: clientOptions,

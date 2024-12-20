@@ -12,38 +12,6 @@ type ClientGenerator struct{}
 
 func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpClientTransportsName(), " struct {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " ", internal.TransportxPackage.Ident("ClientTransport"))
-	}
-	g.P("}")
-	g.P()
-
-	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("ClientTransport"), "{")
-		g.P("return t.", endpoint.UnexportedName())
-		g.P("}")
-		g.P()
-	}
-
-	g.P("func New", service.HttpClientTransportsName(), "(target string, options ...", internal.HttpxTransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
-
-	g.P("router := append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "())")
-	g.P("_ = router")
-
-	g.P("t := &", service.UnexportedHttpClientTransportsName(), "{}")
-	g.P("var err error")
-
-	for _, endpoint := range service.Endpoints {
-		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(", endpoint.HttpClientTransportName(), "(target, router, options...))")
-	}
-	g.P("return t, err")
-	g.P("}")
-	g.P()
-	return nil
-}
-
-func (f *ClientGenerator) GenerateTransportsV2(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpClientTransportsNameV2(), " struct {")
 	g.P("scheme        string")
 	g.P("router        *", internal.MuxPackage.Ident("Router"))
 	g.P("clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"))
@@ -52,7 +20,7 @@ func (f *ClientGenerator) GenerateTransportsV2(service *internal.Service, g *pro
 	g.P()
 
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpClientTransportsNameV2(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
 		g.P("opts := []", internal.HttpTransportPackage.Ident("ClientOption"), "{")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimiter"), "),")
@@ -69,8 +37,8 @@ func (f *ClientGenerator) GenerateTransportsV2(service *internal.Service, g *pro
 		g.P()
 	}
 
-	g.P("func New", service.HttpClientTransportsNameV2(), "(scheme string, clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"), ", middlewares []", internal.EndpointPackage.Ident("Middleware"), ") ", service.ClientTransportsNameV2(), " {")
-	g.P("return &", service.UnexportedHttpClientTransportsNameV2(), "{")
+	g.P("func new", service.HttpClientTransportsName(), "(scheme string, clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"), ", middlewares []", internal.EndpointPackage.Ident("Middleware"), ") ", service.ClientTransportsNameV2(), " {")
+	g.P("return &", service.UnexportedHttpClientTransportsName(), "{")
 	g.P("scheme:        scheme,")
 	g.P("router:        append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "()),")
 	g.P("clientOptions: clientOptions,")
