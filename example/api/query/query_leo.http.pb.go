@@ -42,7 +42,7 @@ func (t *queryHttpServerTransports) Query() http.Handler {
 		_Query_Query_HttpServer_RequestDecoder,
 		_Query_Query_HttpServer_ResponseEncoder,
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
-		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimiter),
 		http1.ServerBefore(httpx.IncomingStain),

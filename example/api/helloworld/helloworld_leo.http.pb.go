@@ -36,7 +36,7 @@ func (t *greeterHttpServerTransports) SayHello() http.Handler {
 		_Greeter_SayHello_HttpServer_RequestDecoder,
 		_Greeter_SayHello_HttpServer_ResponseEncoder,
 		http1.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
-		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimiter),
 		http1.ServerBefore(httpx.IncomingStain),

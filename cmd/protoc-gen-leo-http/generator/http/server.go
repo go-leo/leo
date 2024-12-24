@@ -22,7 +22,7 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P(endpoint.HttpServerRequestDecoderName(), ",")
 		g.P(endpoint.HttpServerResponseEncoderName(), ",")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("ServerTransportInjector"), "),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimiter"), "),")
 		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingStain"), "),")

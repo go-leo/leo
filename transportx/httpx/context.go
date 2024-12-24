@@ -7,7 +7,6 @@ import (
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/sdx/stainx"
-	"github.com/go-leo/leo/v3/transportx"
 	"github.com/go-leo/leo/v3/transportx/httpx/internal"
 	"net/http"
 	"time"
@@ -31,10 +30,8 @@ func EndpointInjector(name string) httptransport.RequestFunc {
 	}
 }
 
-func TransportInjector(name string) httptransport.RequestFunc {
-	return func(ctx context.Context, request *http.Request) context.Context {
-		return transportx.InjectName(ctx, name)
-	}
+func ServerTransportInjector(ctx context.Context, request *http.Request) context.Context {
+	return endpointx.InjectName(ctx, HttpServer)
 }
 
 func OutgoingMetadataInjector(ctx context.Context, request *http.Request) context.Context {
