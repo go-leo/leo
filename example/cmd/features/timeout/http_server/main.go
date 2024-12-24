@@ -33,8 +33,11 @@ type GreeterService struct {
 func (g GreeterService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	select {
 	case <-ctx.Done():
+		return nil, statusx.ErrDeadlineExceeded.With(statusx.Message("ctx Done"))
+	case <-time.After(5 * time.Second):
 		return nil, statusx.ErrDeadlineExceeded.With(statusx.Message("超时"))
 	case <-time.After(2000 * time.Second):
+
 	}
 	return &helloworld.HelloReply{Message: "hi " + request.GetName()}, nil
 }

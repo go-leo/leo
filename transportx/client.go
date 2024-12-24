@@ -12,7 +12,6 @@ import (
 	"github.com/go-leo/leo/v3/sdx/consulx"
 	"github.com/go-leo/leo/v3/sdx/dnssrvx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
-	"github.com/go-leo/leo/v3/sdx/passthroughx"
 	"github.com/go-leo/leo/v3/sdx/stainx"
 	"github.com/go-leo/leo/v3/statusx"
 	"golang.org/x/sync/singleflight"
@@ -48,7 +47,6 @@ type clientTransportOptions struct {
 
 func (o *clientTransportOptions) Init() *clientTransportOptions {
 	o.InstancerBuilders = []sdx.InstancerBuilder{
-		&passthroughx.InstancerBuilder{},
 		&dnssrvx.InstancerBuilder{TTL: 30 * time.Second},
 		&consulx.InstancerBuilder{},
 	}
@@ -202,7 +200,7 @@ func (c *clientTransport) balancer(ctx context.Context) (lb.Balancer, error) {
 // each with a method Scheme() that returns a string representing the scheme it supports.
 func (c *clientTransport) getInstancerBuilder(scheme string) sdx.InstancerBuilder {
 	if scheme == "" {
-		return &passthroughx.InstancerBuilder{}
+		return nil
 	}
 	for i := len(c.options.InstancerBuilders) - 1; i >= 0; i-- {
 		if scheme == c.options.InstancerBuilders[i].Scheme() {

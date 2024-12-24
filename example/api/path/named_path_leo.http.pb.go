@@ -158,13 +158,21 @@ func newNamedPathHttpClientTransports(scheme string, clientOptions []http.Client
 }
 
 type namedPathHttpClient struct {
-	endpoints NamedPathEndpoints
+	balancers NamedPathBalancers
 }
 
 func (c *namedPathHttpClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.NamedPathString(ctx)(ctx, request)
+	balancer, err := c.balancers.NamedPathString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -174,7 +182,15 @@ func (c *namedPathHttpClient) NamedPathString(ctx context.Context, request *Name
 func (c *namedPathHttpClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.NamedPathOptString(ctx)(ctx, request)
+	balancer, err := c.balancers.NamedPathOptString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -184,7 +200,15 @@ func (c *namedPathHttpClient) NamedPathOptString(ctx context.Context, request *N
 func (c *namedPathHttpClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.NamedPathWrapString(ctx)(ctx, request)
+	balancer, err := c.balancers.NamedPathWrapString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -194,7 +218,15 @@ func (c *namedPathHttpClient) NamedPathWrapString(ctx context.Context, request *
 func (c *namedPathHttpClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.EmbedNamedPathString(ctx)(ctx, request)
+	balancer, err := c.balancers.EmbedNamedPathString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -204,7 +236,15 @@ func (c *namedPathHttpClient) EmbedNamedPathString(ctx context.Context, request 
 func (c *namedPathHttpClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.EmbedNamedPathOptString(ctx)(ctx, request)
+	balancer, err := c.balancers.EmbedNamedPathOptString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -214,16 +254,28 @@ func (c *namedPathHttpClient) EmbedNamedPathOptString(ctx context.Context, reque
 func (c *namedPathHttpClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.EmbedNamedPathWrapString(ctx)(ctx, request)
+	balancer, err := c.balancers.EmbedNamedPathWrapString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewNamedPathHttpClient(transports NamedPathClientTransports, middlewares ...endpoint.Middleware) NamedPathService {
-	endpoints := newNamedPathClientEndpoints(transports, middlewares...)
-	return &namedPathHttpClient{endpoints: endpoints}
+func NewNamedPathHttpClient(target string, opts ...httpx.ClientOption) NamedPathService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newNamedPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newNamedPathFactories(transports)
+	endpointers := newNamedPathEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newNamedPathBalancers(options.BalancerFactory(), endpointers)
+	return &namedPathHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================

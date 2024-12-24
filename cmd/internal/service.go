@@ -225,15 +225,6 @@ func (s Service) UnexportedHttpClientTransportsName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) HttpClientTransportsNameV2() string {
-	return s.HttpClientName() + "TransportsV2"
-}
-
-func (s Service) UnexportedHttpClientTransportsNameV2() string {
-	name := s.HttpClientTransportsNameV2()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) HttpRoutesName() string {
 	return s.Name() + "HttpRoutes"
 }

@@ -73,22 +73,34 @@ func newMixPathHttpClientTransports(scheme string, clientOptions []http.ClientOp
 }
 
 type mixPathHttpClient struct {
-	endpoints MixPathEndpoints
+	balancers MixPathBalancers
 }
 
 func (c *mixPathHttpClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.MixPath(ctx)(ctx, request)
+	balancer, err := c.balancers.MixPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewMixPathHttpClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
-	endpoints := newMixPathClientEndpoints(transports, middlewares...)
-	return &mixPathHttpClient{endpoints: endpoints}
+func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newMixPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newMixPathFactories(transports)
+	endpointers := newMixPathEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newMixPathBalancers(options.BalancerFactory(), endpointers)
+	return &mixPathHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================

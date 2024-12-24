@@ -141,13 +141,21 @@ func newResponseHttpClientTransports(scheme string, clientOptions []http.ClientO
 }
 
 type responseHttpClient struct {
-	endpoints ResponseEndpoints
+	balancers ResponseBalancers
 }
 
 func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.OmittedResponse(ctx)(ctx, request)
+	balancer, err := c.balancers.OmittedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -157,7 +165,15 @@ func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *empty
 func (c *responseHttpClient) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.StarResponse(ctx)(ctx, request)
+	balancer, err := c.balancers.StarResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -167,7 +183,15 @@ func (c *responseHttpClient) StarResponse(ctx context.Context, request *emptypb.
 func (c *responseHttpClient) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.NamedResponse(ctx)(ctx, request)
+	balancer, err := c.balancers.NamedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -177,7 +201,15 @@ func (c *responseHttpClient) NamedResponse(ctx context.Context, request *emptypb
 func (c *responseHttpClient) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.HttpBodyResponse(ctx)(ctx, request)
+	balancer, err := c.balancers.HttpBodyResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -187,16 +219,28 @@ func (c *responseHttpClient) HttpBodyResponse(ctx context.Context, request *empt
 func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.HttpBodyNamedResponse(ctx)(ctx, request)
+	balancer, err := c.balancers.HttpBodyNamedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*HttpBody), nil
 }
 
-func NewResponseHttpClient(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseService {
-	endpoints := newResponseClientEndpoints(transports, middlewares...)
-	return &responseHttpClient{endpoints: endpoints}
+func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newResponseHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newResponseFactories(transports)
+	endpointers := newResponseEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newResponseBalancers(options.BalancerFactory(), endpointers)
+	return &responseHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================

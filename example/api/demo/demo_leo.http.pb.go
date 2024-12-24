@@ -178,13 +178,21 @@ func newDemoHttpClientTransports(scheme string, clientOptions []http.ClientOptio
 }
 
 type demoHttpClient struct {
-	endpoints DemoEndpoints
+	balancers DemoBalancers
 }
 
 func (c *demoHttpClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.CreateUser(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -194,7 +202,15 @@ func (c *demoHttpClient) CreateUser(ctx context.Context, request *CreateUserRequ
 func (c *demoHttpClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.DeleteUser(ctx)(ctx, request)
+	balancer, err := c.balancers.DeleteUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -204,7 +220,15 @@ func (c *demoHttpClient) DeleteUser(ctx context.Context, request *DeleteUsersReq
 func (c *demoHttpClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.UpdateUser(ctx)(ctx, request)
+	balancer, err := c.balancers.UpdateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -214,7 +238,15 @@ func (c *demoHttpClient) UpdateUser(ctx context.Context, request *UpdateUserRequ
 func (c *demoHttpClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.GetUser(ctx)(ctx, request)
+	balancer, err := c.balancers.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -224,7 +256,15 @@ func (c *demoHttpClient) GetUser(ctx context.Context, request *GetUserRequest) (
 func (c *demoHttpClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.GetUsers(ctx)(ctx, request)
+	balancer, err := c.balancers.GetUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -234,7 +274,15 @@ func (c *demoHttpClient) GetUsers(ctx context.Context, request *GetUsersRequest)
 func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.UploadUserAvatar(ctx)(ctx, request)
+	balancer, err := c.balancers.UploadUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -244,16 +292,28 @@ func (c *demoHttpClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 func (c *demoHttpClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.GetUserAvatar(ctx)(ctx, request)
+	balancer, err := c.balancers.GetUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func NewDemoHttpClient(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoService {
-	endpoints := newDemoClientEndpoints(transports, middlewares...)
-	return &demoHttpClient{endpoints: endpoints}
+func NewDemoHttpClient(target string, opts ...httpx.ClientOption) DemoService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newDemoHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newDemoFactories(transports)
+	endpointers := newDemoEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newDemoBalancers(options.BalancerFactory(), endpointers)
+	return &demoHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================

@@ -86,13 +86,21 @@ func newCQRSHttpClientTransports(scheme string, clientOptions []http.ClientOptio
 }
 
 type cQRSHttpClient struct {
-	endpoints CQRSEndpoints
+	balancers CQRSBalancers
 }
 
 func (c *cQRSHttpClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.CreateUser(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -102,16 +110,28 @@ func (c *cQRSHttpClient) CreateUser(ctx context.Context, request *CreateUserRequ
 func (c *cQRSHttpClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.FindUser(ctx)(ctx, request)
+	balancer, err := c.balancers.FindUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*GetUserResponse), nil
 }
 
-func NewCQRSHttpClient(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSService {
-	endpoints := newCQRSClientEndpoints(transports, middlewares...)
-	return &cQRSHttpClient{endpoints: endpoints}
+func NewCQRSHttpClient(target string, opts ...httpx.ClientOption) CQRSService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newCQRSHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newCQRSFactories(transports)
+	endpointers := newCQRSEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newCQRSBalancers(options.BalancerFactory(), endpointers)
+	return &cQRSHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================

@@ -244,13 +244,21 @@ func newLibraryServiceHttpClientTransports(scheme string, clientOptions []http.C
 }
 
 type libraryServiceHttpClient struct {
-	endpoints LibraryServiceEndpoints
+	balancers LibraryServiceBalancers
 }
 
 func (c *libraryServiceHttpClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.CreateShelf(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -260,7 +268,15 @@ func (c *libraryServiceHttpClient) CreateShelf(ctx context.Context, request *Cre
 func (c *libraryServiceHttpClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.GetShelf(ctx)(ctx, request)
+	balancer, err := c.balancers.GetShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -270,7 +286,15 @@ func (c *libraryServiceHttpClient) GetShelf(ctx context.Context, request *GetShe
 func (c *libraryServiceHttpClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.ListShelves(ctx)(ctx, request)
+	balancer, err := c.balancers.ListShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -280,7 +304,15 @@ func (c *libraryServiceHttpClient) ListShelves(ctx context.Context, request *Lis
 func (c *libraryServiceHttpClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.DeleteShelf(ctx)(ctx, request)
+	balancer, err := c.balancers.DeleteShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -290,7 +322,15 @@ func (c *libraryServiceHttpClient) DeleteShelf(ctx context.Context, request *Del
 func (c *libraryServiceHttpClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.MergeShelves(ctx)(ctx, request)
+	balancer, err := c.balancers.MergeShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -300,7 +340,15 @@ func (c *libraryServiceHttpClient) MergeShelves(ctx context.Context, request *Me
 func (c *libraryServiceHttpClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.CreateBook(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -310,7 +358,15 @@ func (c *libraryServiceHttpClient) CreateBook(ctx context.Context, request *Crea
 func (c *libraryServiceHttpClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.GetBook(ctx)(ctx, request)
+	balancer, err := c.balancers.GetBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -320,7 +376,15 @@ func (c *libraryServiceHttpClient) GetBook(ctx context.Context, request *GetBook
 func (c *libraryServiceHttpClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.ListBooks(ctx)(ctx, request)
+	balancer, err := c.balancers.ListBooks(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -330,7 +394,15 @@ func (c *libraryServiceHttpClient) ListBooks(ctx context.Context, request *ListB
 func (c *libraryServiceHttpClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.DeleteBook(ctx)(ctx, request)
+	balancer, err := c.balancers.DeleteBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -340,7 +412,15 @@ func (c *libraryServiceHttpClient) DeleteBook(ctx context.Context, request *Dele
 func (c *libraryServiceHttpClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.UpdateBook(ctx)(ctx, request)
+	balancer, err := c.balancers.UpdateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -350,16 +430,28 @@ func (c *libraryServiceHttpClient) UpdateBook(ctx context.Context, request *Upda
 func (c *libraryServiceHttpClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.MoveBook(ctx)(ctx, request)
+	balancer, err := c.balancers.MoveBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*Book), nil
 }
 
-func NewLibraryServiceHttpClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
-	endpoints := newLibraryServiceClientEndpoints(transports, middlewares...)
-	return &libraryServiceHttpClient{endpoints: endpoints}
+func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) LibraryServiceService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newLibraryServiceHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newLibraryServiceFactories(transports)
+	endpointers := newLibraryServiceEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newLibraryServiceBalancers(options.BalancerFactory(), endpointers)
+	return &libraryServiceHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================

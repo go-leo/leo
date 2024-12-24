@@ -12,11 +12,7 @@ import (
 
 func main() {
 	flag.Parse()
-	transports, err := demo.NewDemoHttpClientTransports("127.0.0.1:8080")
-	if err != nil {
-		panic(err)
-	}
-	client := demo.NewDemoHttpClient(transports)
+	client := demo.NewDemoHttpClient("127.0.0.1:8080")
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		User: &demo.User{
 			Name:   randx.HexString(12),

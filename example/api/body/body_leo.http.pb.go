@@ -138,13 +138,21 @@ func newBodyHttpClientTransports(scheme string, clientOptions []http.ClientOptio
 }
 
 type bodyHttpClient struct {
-	endpoints BodyEndpoints
+	balancers BodyBalancers
 }
 
 func (c *bodyHttpClient) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.StarBody(ctx)(ctx, request)
+	balancer, err := c.balancers.StarBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -154,7 +162,15 @@ func (c *bodyHttpClient) StarBody(ctx context.Context, request *User) (*emptypb.
 func (c *bodyHttpClient) NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.NamedBody(ctx)(ctx, request)
+	balancer, err := c.balancers.NamedBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -164,7 +180,15 @@ func (c *bodyHttpClient) NamedBody(ctx context.Context, request *UserRequest) (*
 func (c *bodyHttpClient) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.NonBody(ctx)(ctx, request)
+	balancer, err := c.balancers.NonBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -174,7 +198,15 @@ func (c *bodyHttpClient) NonBody(ctx context.Context, request *emptypb.Empty) (*
 func (c *bodyHttpClient) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.HttpBodyStarBody(ctx)(ctx, request)
+	balancer, err := c.balancers.HttpBodyStarBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
@@ -184,16 +216,28 @@ func (c *bodyHttpClient) HttpBodyStarBody(ctx context.Context, request *httpbody
 func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
 	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	rep, err := c.endpoints.HttpBodyNamedBody(ctx)(ctx, request)
+	balancer, err := c.balancers.HttpBodyNamedBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewBodyHttpClient(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyService {
-	endpoints := newBodyClientEndpoints(transports, middlewares...)
-	return &bodyHttpClient{endpoints: endpoints}
+func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newBodyHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newBodyFactories(transports)
+	endpointers := newBodyEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newBodyBalancers(options.BalancerFactory(), endpointers)
+	return &bodyHttpClient{balancers: balancers}
 }
 
 // =========================== http transport ===========================
