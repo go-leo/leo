@@ -14,26 +14,24 @@ import (
 
 // =========================== grpc server ===========================
 
-type GreeterGrpcServerTransports interface {
-	SayHello() *grpc.Server
-}
-
 type greeterGrpcServerTransports struct {
-	sayHello *grpc.Server
+	endpoints GreeterEndpoints
 }
 
-func (t *greeterGrpcServerTransports) SayHello() *grpc.Server {
-	return t.sayHello
-}
-
-func newGreeterGrpcServerTransports(endpoints GreeterEndpoints) GreeterGrpcServerTransports {
-	return &greeterGrpcServerTransports{
-		sayHello: _Greeter_SayHello_GrpcServer_Transport(endpoints),
-	}
+func (t *greeterGrpcServerTransports) SayHello() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.SayHello(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
 type greeterGrpcServer struct {
-	sayHello *grpc.Server
+	sayHello grpc.Handler
 }
 
 func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
@@ -47,7 +45,7 @@ func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest)
 
 func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware) GreeterService {
 	endpoints := newGreeterServerEndpoints(svc, middlewares...)
-	transports := newGreeterGrpcServerTransports(endpoints)
+	transports := &greeterGrpcServerTransports{endpoints: endpoints}
 	return &greeterGrpcServer{
 		sayHello: transports.SayHello(),
 	}
@@ -99,17 +97,4 @@ func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterServ
 	transports := newGreeterGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
 	endpoints := newGreeterClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newGreeterClientService(endpoints, grpcx.GrpcClient)
-}
-
-// =========================== grpc transport ===========================
-
-func _Greeter_SayHello_GrpcServer_Transport(endpoints GreeterEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.SayHello(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
 }

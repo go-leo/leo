@@ -258,8 +258,6 @@ func NewNamedPathHttpClient(target string, opts ...httpx.ClientOption) NamedPath
 	return newNamedPathClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _NamedPath_NamedPathString_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

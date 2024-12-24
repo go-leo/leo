@@ -98,8 +98,6 @@ func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathServ
 	return newMixPathClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _MixPath_MixPath_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

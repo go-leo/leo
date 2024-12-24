@@ -126,8 +126,6 @@ func NewCQRSHttpClient(target string, opts ...httpx.ClientOption) CQRSService {
 	return newCQRSClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _CQRS_CreateUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

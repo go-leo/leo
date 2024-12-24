@@ -226,8 +226,6 @@ func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseSe
 	return newResponseClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Response_OmittedResponse_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

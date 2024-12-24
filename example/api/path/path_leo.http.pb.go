@@ -354,8 +354,6 @@ func NewPathHttpClient(target string, opts ...httpx.ClientOption) PathService {
 	return newPathClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Path_BoolPath_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

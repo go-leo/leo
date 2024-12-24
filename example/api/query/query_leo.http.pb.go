@@ -99,8 +99,6 @@ func NewQueryHttpClient(target string, opts ...httpx.ClientOption) QueryService 
 	return newQueryClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Query_Query_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

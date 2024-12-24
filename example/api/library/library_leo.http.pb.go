@@ -419,8 +419,6 @@ func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) Libr
 	return newLibraryServiceClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _LibraryService_CreateShelf_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

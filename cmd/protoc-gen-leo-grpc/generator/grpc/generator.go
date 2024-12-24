@@ -52,60 +52,34 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 }
 
 func (f *Generator) GenerateServerTransports(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.GrpcServerTransportsName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() *", internal.GrpcTransportPackage.Ident("Server"))
-	}
-	g.P("}")
-	g.P()
-
 	g.P("type ", service.UnexportedGrpcServerTransportsName(), " struct {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " *", internal.GrpcTransportPackage.Ident("Server"))
-	}
+	g.P("endpoints ", service.EndpointsName())
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedGrpcServerTransportsName(), ") ", endpoint.Name(), "() *", internal.GrpcTransportPackage.Ident("Server"), "{")
-		g.P("return t.", endpoint.UnexportedName())
+		g.P("func (t *", service.UnexportedGrpcServerTransportsName(), ") ", endpoint.Name(), "() ", internal.GrpcTransportPackage.Ident("Handler"), "{")
+		g.P("return ", internal.GrpcTransportPackage.Ident("NewServer"), "(")
+		g.P("t.endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
+		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
+		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerTransportInjector"), "),")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
+		g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingStain"), "),")
+		g.P(")")
 		g.P("}")
 		g.P()
 	}
-
-	g.P("func new", service.GrpcServerTransportsName(), "(endpoints ", service.EndpointsName(), ") ", service.GrpcServerTransportsName(), " {")
-	g.P("return &", service.UnexportedGrpcServerTransportsName(), "{")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ":", endpoint.GrpcServerTransportName(), "(endpoints),")
-	}
-	g.P("}")
-	g.P("}")
-	g.P()
-	return nil
-}
-
-func (f *Generator) GenerateServerEndpointTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
-	g.P("func ", endpoint.GrpcServerTransportName(), "(endpoints ", service.EndpointsName(), ") *", internal.GrpcTransportPackage.Ident("Server"), " {")
-	g.P("return ", internal.GrpcTransportPackage.Ident("NewServer"), "(")
-	g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
-	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
-	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil },")
-	g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerEndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-	g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("ServerTransportInjector"), "),")
-	g.P(internal.GrpcTransportPackage.Ident("ServerBefore"), "(", internal.GrpcxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
-	g.P(")")
-	g.P("}")
-	g.P()
 	return nil
 }
 
 func (f *Generator) GenerateServerService(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedGrpcServerName(), " struct {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " *", internal.GrpcTransportPackage.Ident("Server"))
+		g.P(endpoint.UnexportedName(), " ", internal.GrpcTransportPackage.Ident("Handler"))
 	}
 	g.P("}")
 	g.P()
-
 	for _, endpoint := range service.Endpoints {
 		g.P("func (s *", service.UnexportedGrpcServerName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 		g.P("ctx, rep, err := s.", endpoint.UnexportedName(), ".ServeGRPC(ctx, request)")
@@ -117,11 +91,9 @@ func (f *Generator) GenerateServerService(service *internal.Service, g *protogen
 		g.P("}")
 		g.P()
 	}
-	g.P()
-
 	g.P("func New", service.GrpcServerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
 	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
-	g.P("transports := new", service.GrpcServerTransportsName(), "(endpoints)")
+	g.P("transports := &", service.UnexportedGrpcServerTransportsName(), "{endpoints: endpoints}")
 	g.P("return &", service.UnexportedGrpcServerName(), "{")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.UnexportedName(), ": transports.", endpoint.Name(), "(),")
@@ -175,17 +147,6 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 	g.P("}")
 	g.P()
 
-	return nil
-}
-
-func (f *Generator) GenerateTransport(g *protogen.GeneratedFile) error {
-	for _, service := range f.Services {
-		for _, endpoint := range service.Endpoints {
-			if err := f.GenerateServerEndpointTransport(service, g, endpoint); err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
 

@@ -293,8 +293,6 @@ func NewDemoHttpClient(target string, opts ...httpx.ClientOption) DemoService {
 	return newDemoClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Demo_CreateUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

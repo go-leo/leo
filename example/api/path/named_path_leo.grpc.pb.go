@@ -15,66 +15,89 @@ import (
 
 // =========================== grpc server ===========================
 
-type NamedPathGrpcServerTransports interface {
-	NamedPathString() *grpc.Server
-	NamedPathOptString() *grpc.Server
-	NamedPathWrapString() *grpc.Server
-	EmbedNamedPathString() *grpc.Server
-	EmbedNamedPathOptString() *grpc.Server
-	EmbedNamedPathWrapString() *grpc.Server
-}
-
 type namedPathGrpcServerTransports struct {
-	namedPathString          *grpc.Server
-	namedPathOptString       *grpc.Server
-	namedPathWrapString      *grpc.Server
-	embedNamedPathString     *grpc.Server
-	embedNamedPathOptString  *grpc.Server
-	embedNamedPathWrapString *grpc.Server
+	endpoints NamedPathEndpoints
 }
 
-func (t *namedPathGrpcServerTransports) NamedPathString() *grpc.Server {
-	return t.namedPathString
+func (t *namedPathGrpcServerTransports) NamedPathString() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.NamedPathString(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *namedPathGrpcServerTransports) NamedPathOptString() *grpc.Server {
-	return t.namedPathOptString
+func (t *namedPathGrpcServerTransports) NamedPathOptString() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.NamedPathOptString(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *namedPathGrpcServerTransports) NamedPathWrapString() *grpc.Server {
-	return t.namedPathWrapString
+func (t *namedPathGrpcServerTransports) NamedPathWrapString() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.NamedPathWrapString(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *namedPathGrpcServerTransports) EmbedNamedPathString() *grpc.Server {
-	return t.embedNamedPathString
+func (t *namedPathGrpcServerTransports) EmbedNamedPathString() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.EmbedNamedPathString(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *namedPathGrpcServerTransports) EmbedNamedPathOptString() *grpc.Server {
-	return t.embedNamedPathOptString
+func (t *namedPathGrpcServerTransports) EmbedNamedPathOptString() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.EmbedNamedPathOptString(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *namedPathGrpcServerTransports) EmbedNamedPathWrapString() *grpc.Server {
-	return t.embedNamedPathWrapString
-}
-
-func newNamedPathGrpcServerTransports(endpoints NamedPathEndpoints) NamedPathGrpcServerTransports {
-	return &namedPathGrpcServerTransports{
-		namedPathString:          _NamedPath_NamedPathString_GrpcServer_Transport(endpoints),
-		namedPathOptString:       _NamedPath_NamedPathOptString_GrpcServer_Transport(endpoints),
-		namedPathWrapString:      _NamedPath_NamedPathWrapString_GrpcServer_Transport(endpoints),
-		embedNamedPathString:     _NamedPath_EmbedNamedPathString_GrpcServer_Transport(endpoints),
-		embedNamedPathOptString:  _NamedPath_EmbedNamedPathOptString_GrpcServer_Transport(endpoints),
-		embedNamedPathWrapString: _NamedPath_EmbedNamedPathWrapString_GrpcServer_Transport(endpoints),
-	}
+func (t *namedPathGrpcServerTransports) EmbedNamedPathWrapString() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.EmbedNamedPathWrapString(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
 type namedPathGrpcServer struct {
-	namedPathString          *grpc.Server
-	namedPathOptString       *grpc.Server
-	namedPathWrapString      *grpc.Server
-	embedNamedPathString     *grpc.Server
-	embedNamedPathOptString  *grpc.Server
-	embedNamedPathWrapString *grpc.Server
+	namedPathString          grpc.Handler
+	namedPathOptString       grpc.Handler
+	namedPathWrapString      grpc.Handler
+	embedNamedPathString     grpc.Handler
+	embedNamedPathOptString  grpc.Handler
+	embedNamedPathWrapString grpc.Handler
 }
 
 func (s *namedPathGrpcServer) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
@@ -133,7 +156,7 @@ func (s *namedPathGrpcServer) EmbedNamedPathWrapString(ctx context.Context, requ
 
 func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathService {
 	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
-	transports := newNamedPathGrpcServerTransports(endpoints)
+	transports := &namedPathGrpcServerTransports{endpoints: endpoints}
 	return &namedPathGrpcServer{
 		namedPathString:          transports.NamedPathString(),
 		namedPathOptString:       transports.NamedPathOptString(),
@@ -295,72 +318,4 @@ func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPath
 	transports := newNamedPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
 	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newNamedPathClientService(endpoints, grpcx.GrpcClient)
-}
-
-// =========================== grpc transport ===========================
-
-func _NamedPath_NamedPathString_GrpcServer_Transport(endpoints NamedPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.NamedPathString(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _NamedPath_NamedPathOptString_GrpcServer_Transport(endpoints NamedPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.NamedPathOptString(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _NamedPath_NamedPathWrapString_GrpcServer_Transport(endpoints NamedPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.NamedPathWrapString(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _NamedPath_EmbedNamedPathString_GrpcServer_Transport(endpoints NamedPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.EmbedNamedPathString(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _NamedPath_EmbedNamedPathOptString_GrpcServer_Transport(endpoints NamedPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.EmbedNamedPathOptString(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _NamedPath_EmbedNamedPathWrapString_GrpcServer_Transport(endpoints NamedPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.EmbedNamedPathWrapString(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
 }

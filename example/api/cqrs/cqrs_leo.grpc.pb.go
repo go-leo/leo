@@ -15,34 +15,37 @@ import (
 
 // =========================== grpc server ===========================
 
-type CQRSGrpcServerTransports interface {
-	CreateUser() *grpc.Server
-	FindUser() *grpc.Server
-}
-
 type cQRSGrpcServerTransports struct {
-	createUser *grpc.Server
-	findUser   *grpc.Server
+	endpoints CQRSEndpoints
 }
 
-func (t *cQRSGrpcServerTransports) CreateUser() *grpc.Server {
-	return t.createUser
+func (t *cQRSGrpcServerTransports) CreateUser() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.CreateUser(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *cQRSGrpcServerTransports) FindUser() *grpc.Server {
-	return t.findUser
-}
-
-func newCQRSGrpcServerTransports(endpoints CQRSEndpoints) CQRSGrpcServerTransports {
-	return &cQRSGrpcServerTransports{
-		createUser: _CQRS_CreateUser_GrpcServer_Transport(endpoints),
-		findUser:   _CQRS_FindUser_GrpcServer_Transport(endpoints),
-	}
+func (t *cQRSGrpcServerTransports) FindUser() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.FindUser(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
 type cQRSGrpcServer struct {
-	createUser *grpc.Server
-	findUser   *grpc.Server
+	createUser grpc.Handler
+	findUser   grpc.Handler
 }
 
 func (s *cQRSGrpcServer) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
@@ -65,7 +68,7 @@ func (s *cQRSGrpcServer) FindUser(ctx context.Context, request *FindUserRequest)
 
 func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRSService {
 	endpoints := newCQRSServerEndpoints(svc, middlewares...)
-	transports := newCQRSGrpcServerTransports(endpoints)
+	transports := &cQRSGrpcServerTransports{endpoints: endpoints}
 	return &cQRSGrpcServer{
 		createUser: transports.CreateUser(),
 		findUser:   transports.FindUser(),
@@ -139,28 +142,4 @@ func NewCQRSGrpcClient(target string, opts ...grpcx.ClientOption) CQRSService {
 	transports := newCQRSGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
 	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newCQRSClientService(endpoints, grpcx.GrpcClient)
-}
-
-// =========================== grpc transport ===========================
-
-func _CQRS_CreateUser_GrpcServer_Transport(endpoints CQRSEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.CreateUser(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _CQRS_FindUser_GrpcServer_Transport(endpoints CQRSEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.FindUser(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
 }

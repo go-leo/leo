@@ -6,10 +6,10 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/logx"
-	"github.com/go-leo/leo/v3/middleware/stain"
 	"github.com/go-leo/leo/v3/sdx/consulx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
-	"github.com/go-leo/leo/v3/transportx"
+	"github.com/go-leo/leo/v3/transportx/grpcx"
+	"github.com/go-leo/leo/v3/transportx/httpx"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	stdconsul "github.com/hashicorp/consul/api"
@@ -54,24 +54,15 @@ func runApi(port int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	httpClient, err := helloworld.NewGreeterHttpClientV2(
-		"http",
+	httpClient := helloworld.NewGreeterHttpClient(
 		"consul://localhost:8500/demo.http?dc=dc1",
-		nil,
-		nil,
-		consulx.Factory{},
-		nil,
-		logx.L(),
-		lbx.RandomFactory{},
+		httpx.InstancerFactory(consulx.Factory{}),
+		httpx.BalancerFactory(lbx.RandomFactory{}),
 	)
-	if err != nil {
-		panic(err)
-	}
 
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterApiService(httpClient, address),
-		stain.Middleware("X-Leo-Stain"),
 	)
 	server := http.Server{Handler: router}
 	go func() {
@@ -108,19 +99,16 @@ func runHttp(port int, color string) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	grpcClientTransports, err := helloworld.NewGreeterGrpcClientTransports(
+	grpcClient := helloworld.NewGreeterGrpcClient(
 		"consul://localhost:8500/demo.grpc?dc=dc1",
-		transportx.GrpcDialOption(grpc1.WithTransportCredentials(insecure.NewCredentials())),
+		grpcx.DialOptions(grpc1.WithTransportCredentials(insecure.NewCredentials())),
+		grpcx.InstancerFactory(consulx.Factory{}),
+		grpcx.BalancerFactory(lbx.RandomFactory{}),
 	)
-	if err != nil {
-		panic(err)
-	}
-	grpcClient := helloworld.NewGreeterGrpcClient(grpcClientTransports)
 
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterHttpService(grpcClient, address, color),
-		stain.Middleware("X-Leo-Stain"),
 	)
 	server := http.Server{Handler: router}
 	client, err := stdconsul.NewClient(&stdconsul.Config{
@@ -185,7 +173,6 @@ func runGrpc(port int, color string) {
 	s := grpc1.NewServer()
 	service := helloworld.NewGreeterGrpcServer(
 		NewGreeterGrpcService(address, color),
-		stain.Middleware("X-Leo-Color"),
 	)
 	helloworld.RegisterGreeterServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())

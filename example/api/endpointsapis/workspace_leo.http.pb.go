@@ -227,8 +227,6 @@ func NewWorkspacesHttpClient(target string, opts ...httpx.ClientOption) Workspac
 	return newWorkspacesClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Workspaces_ListWorkspaces_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

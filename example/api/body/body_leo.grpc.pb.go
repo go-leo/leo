@@ -16,58 +16,76 @@ import (
 
 // =========================== grpc server ===========================
 
-type BodyGrpcServerTransports interface {
-	StarBody() *grpc.Server
-	NamedBody() *grpc.Server
-	NonBody() *grpc.Server
-	HttpBodyStarBody() *grpc.Server
-	HttpBodyNamedBody() *grpc.Server
-}
-
 type bodyGrpcServerTransports struct {
-	starBody          *grpc.Server
-	namedBody         *grpc.Server
-	nonBody           *grpc.Server
-	httpBodyStarBody  *grpc.Server
-	httpBodyNamedBody *grpc.Server
+	endpoints BodyEndpoints
 }
 
-func (t *bodyGrpcServerTransports) StarBody() *grpc.Server {
-	return t.starBody
+func (t *bodyGrpcServerTransports) StarBody() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.StarBody(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/StarBody")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *bodyGrpcServerTransports) NamedBody() *grpc.Server {
-	return t.namedBody
+func (t *bodyGrpcServerTransports) NamedBody() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.NamedBody(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *bodyGrpcServerTransports) NonBody() *grpc.Server {
-	return t.nonBody
+func (t *bodyGrpcServerTransports) NonBody() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.NonBody(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NonBody")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *bodyGrpcServerTransports) HttpBodyStarBody() *grpc.Server {
-	return t.httpBodyStarBody
+func (t *bodyGrpcServerTransports) HttpBodyStarBody() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.HttpBodyStarBody(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
-func (t *bodyGrpcServerTransports) HttpBodyNamedBody() *grpc.Server {
-	return t.httpBodyNamedBody
-}
-
-func newBodyGrpcServerTransports(endpoints BodyEndpoints) BodyGrpcServerTransports {
-	return &bodyGrpcServerTransports{
-		starBody:          _Body_StarBody_GrpcServer_Transport(endpoints),
-		namedBody:         _Body_NamedBody_GrpcServer_Transport(endpoints),
-		nonBody:           _Body_NonBody_GrpcServer_Transport(endpoints),
-		httpBodyStarBody:  _Body_HttpBodyStarBody_GrpcServer_Transport(endpoints),
-		httpBodyNamedBody: _Body_HttpBodyNamedBody_GrpcServer_Transport(endpoints),
-	}
+func (t *bodyGrpcServerTransports) HttpBodyNamedBody() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.HttpBodyNamedBody(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
 type bodyGrpcServer struct {
-	starBody          *grpc.Server
-	namedBody         *grpc.Server
-	nonBody           *grpc.Server
-	httpBodyStarBody  *grpc.Server
-	httpBodyNamedBody *grpc.Server
+	starBody          grpc.Handler
+	namedBody         grpc.Handler
+	nonBody           grpc.Handler
+	httpBodyStarBody  grpc.Handler
+	httpBodyNamedBody grpc.Handler
 }
 
 func (s *bodyGrpcServer) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
@@ -117,7 +135,7 @@ func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 
 func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) BodyService {
 	endpoints := newBodyServerEndpoints(svc, middlewares...)
-	transports := newBodyGrpcServerTransports(endpoints)
+	transports := &bodyGrpcServerTransports{endpoints: endpoints}
 	return &bodyGrpcServer{
 		starBody:          transports.StarBody(),
 		namedBody:         transports.NamedBody(),
@@ -257,61 +275,4 @@ func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
 	transports := newBodyGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
 	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newBodyClientService(endpoints, grpcx.GrpcClient)
-}
-
-// =========================== grpc transport ===========================
-
-func _Body_StarBody_GrpcServer_Transport(endpoints BodyEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.StarBody(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/StarBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _Body_NamedBody_GrpcServer_Transport(endpoints BodyEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.NamedBody(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NamedBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _Body_NonBody_GrpcServer_Transport(endpoints BodyEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.NonBody(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/NonBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _Body_HttpBodyStarBody_GrpcServer_Transport(endpoints BodyEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.HttpBodyStarBody(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
-}
-
-func _Body_HttpBodyNamedBody_GrpcServer_Transport(endpoints BodyEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.HttpBodyNamedBody(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
 }

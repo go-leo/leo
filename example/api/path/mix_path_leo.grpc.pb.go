@@ -15,26 +15,24 @@ import (
 
 // =========================== grpc server ===========================
 
-type MixPathGrpcServerTransports interface {
-	MixPath() *grpc.Server
-}
-
 type mixPathGrpcServerTransports struct {
-	mixPath *grpc.Server
+	endpoints MixPathEndpoints
 }
 
-func (t *mixPathGrpcServerTransports) MixPath() *grpc.Server {
-	return t.mixPath
-}
-
-func newMixPathGrpcServerTransports(endpoints MixPathEndpoints) MixPathGrpcServerTransports {
-	return &mixPathGrpcServerTransports{
-		mixPath: _MixPath_MixPath_GrpcServer_Transport(endpoints),
-	}
+func (t *mixPathGrpcServerTransports) MixPath() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.MixPath(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
 type mixPathGrpcServer struct {
-	mixPath *grpc.Server
+	mixPath grpc.Handler
 }
 
 func (s *mixPathGrpcServer) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
@@ -48,7 +46,7 @@ func (s *mixPathGrpcServer) MixPath(ctx context.Context, request *MixPathRequest
 
 func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware) MixPathService {
 	endpoints := newMixPathServerEndpoints(svc, middlewares...)
-	transports := newMixPathGrpcServerTransports(endpoints)
+	transports := &mixPathGrpcServerTransports{endpoints: endpoints}
 	return &mixPathGrpcServer{
 		mixPath: transports.MixPath(),
 	}
@@ -100,17 +98,4 @@ func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathServ
 	transports := newMixPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
 	endpoints := newMixPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newMixPathClientService(endpoints, grpcx.GrpcClient)
-}
-
-// =========================== grpc transport ===========================
-
-func _MixPath_MixPath_GrpcServer_Transport(endpoints MixPathEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.MixPath(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
 }

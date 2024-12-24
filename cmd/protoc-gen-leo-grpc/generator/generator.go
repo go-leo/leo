@@ -50,11 +50,5 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
-	g.P("// =========================== grpc transport ===========================")
-	g.P()
-	if err := grpcGen.GenerateTransport(g); err != nil {
-		return err
-	}
-
 	return nil
 }

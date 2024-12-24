@@ -223,8 +223,6 @@ func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
 	return newBodyClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Body_StarBody_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

@@ -93,8 +93,6 @@ func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterServ
 	return newGreeterClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http transport ===========================
-
 // =========================== http coder ===========================
 
 func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {

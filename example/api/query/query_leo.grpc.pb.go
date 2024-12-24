@@ -15,26 +15,24 @@ import (
 
 // =========================== grpc server ===========================
 
-type QueryGrpcServerTransports interface {
-	Query() *grpc.Server
-}
-
 type queryGrpcServerTransports struct {
-	query *grpc.Server
+	endpoints QueryEndpoints
 }
 
-func (t *queryGrpcServerTransports) Query() *grpc.Server {
-	return t.query
-}
-
-func newQueryGrpcServerTransports(endpoints QueryEndpoints) QueryGrpcServerTransports {
-	return &queryGrpcServerTransports{
-		query: _Query_Query_GrpcServer_Transport(endpoints),
-	}
+func (t *queryGrpcServerTransports) Query() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.Query(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.query.v1.Query/Query")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStain),
+	)
 }
 
 type queryGrpcServer struct {
-	query *grpc.Server
+	query grpc.Handler
 }
 
 func (s *queryGrpcServer) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
@@ -48,7 +46,7 @@ func (s *queryGrpcServer) Query(ctx context.Context, request *QueryRequest) (*em
 
 func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) QueryService {
 	endpoints := newQueryServerEndpoints(svc, middlewares...)
-	transports := newQueryGrpcServerTransports(endpoints)
+	transports := &queryGrpcServerTransports{endpoints: endpoints}
 	return &queryGrpcServer{
 		query: transports.Query(),
 	}
@@ -100,17 +98,4 @@ func NewQueryGrpcClient(target string, opts ...grpcx.ClientOption) QueryService 
 	transports := newQueryGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
 	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newQueryClientService(endpoints, grpcx.GrpcClient)
-}
-
-// =========================== grpc transport ===========================
-
-func _Query_Query_GrpcServer_Transport(endpoints QueryEndpoints) *grpc.Server {
-	return grpc.NewServer(
-		endpoints.Query(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.query.v1.Query/Query")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-	)
 }
