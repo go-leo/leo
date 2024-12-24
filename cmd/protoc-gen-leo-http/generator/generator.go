@@ -56,12 +56,6 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
-	g.P("// =========================== http transport ===========================")
-	g.P()
-	if err := httpGen.GenerateTransport(g); err != nil {
-		return err
-	}
-
 	g.P("// =========================== http coder ===========================")
 	g.P()
 	if err := httpGen.GenerateCoder(g); err != nil {

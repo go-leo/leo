@@ -6,7 +6,7 @@ import (
 	bytes "bytes"
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http "github.com/go-kit/kit/transport/http"
+	http1 "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
@@ -21,7 +21,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	io "io"
-	http1 "net/http"
+	http "net/http"
 	url "net/url"
 )
 
@@ -40,16 +40,126 @@ func appendDemoHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
+type demoHttpServerTransports struct {
+	endpoints DemoEndpoints
+}
+
+func (t *demoHttpServerTransports) CreateUser() http.Handler {
+	return http1.NewServer(
+		t.endpoints.CreateUser(context.TODO()),
+		_Demo_CreateUser_HttpServer_RequestDecoder,
+		_Demo_CreateUser_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *demoHttpServerTransports) DeleteUser() http.Handler {
+	return http1.NewServer(
+		t.endpoints.DeleteUser(context.TODO()),
+		_Demo_DeleteUser_HttpServer_RequestDecoder,
+		_Demo_DeleteUser_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *demoHttpServerTransports) UpdateUser() http.Handler {
+	return http1.NewServer(
+		t.endpoints.UpdateUser(context.TODO()),
+		_Demo_UpdateUser_HttpServer_RequestDecoder,
+		_Demo_UpdateUser_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *demoHttpServerTransports) GetUser() http.Handler {
+	return http1.NewServer(
+		t.endpoints.GetUser(context.TODO()),
+		_Demo_GetUser_HttpServer_RequestDecoder,
+		_Demo_GetUser_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *demoHttpServerTransports) GetUsers() http.Handler {
+	return http1.NewServer(
+		t.endpoints.GetUsers(context.TODO()),
+		_Demo_GetUsers_HttpServer_RequestDecoder,
+		_Demo_GetUsers_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *demoHttpServerTransports) UploadUserAvatar() http.Handler {
+	return http1.NewServer(
+		t.endpoints.UploadUserAvatar(context.TODO()),
+		_Demo_UploadUserAvatar_HttpServer_RequestDecoder,
+		_Demo_UploadUserAvatar_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *demoHttpServerTransports) GetUserAvatar() http.Handler {
+	return http1.NewServer(
+		t.endpoints.GetUserAvatar(context.TODO()),
+		_Demo_GetUserAvatar_HttpServer_RequestDecoder,
+		_Demo_GetUserAvatar_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
 func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newDemoServerEndpoints(svc, middlewares...)
+	transports := &demoHttpServerTransports{endpoints: endpoints}
 	router = appendDemoHttpRoutes(router)
-	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(_Demo_CreateUser_HttpServer_Transport(endpoints))
-	router.Get("/leo.example.demo.v1.Demo/DeleteUser").Handler(_Demo_DeleteUser_HttpServer_Transport(endpoints))
-	router.Get("/leo.example.demo.v1.Demo/UpdateUser").Handler(_Demo_UpdateUser_HttpServer_Transport(endpoints))
-	router.Get("/leo.example.demo.v1.Demo/GetUser").Handler(_Demo_GetUser_HttpServer_Transport(endpoints))
-	router.Get("/leo.example.demo.v1.Demo/GetUsers").Handler(_Demo_GetUsers_HttpServer_Transport(endpoints))
-	router.Get("/leo.example.demo.v1.Demo/UploadUserAvatar").Handler(_Demo_UploadUserAvatar_HttpServer_Transport(endpoints))
-	router.Get("/leo.example.demo.v1.Demo/GetUserAvatar").Handler(_Demo_GetUserAvatar_HttpServer_Transport(endpoints))
+	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(transports.CreateUser())
+	router.Get("/leo.example.demo.v1.Demo/DeleteUser").Handler(transports.DeleteUser())
+	router.Get("/leo.example.demo.v1.Demo/UpdateUser").Handler(transports.UpdateUser())
+	router.Get("/leo.example.demo.v1.Demo/GetUser").Handler(transports.GetUser())
+	router.Get("/leo.example.demo.v1.Demo/GetUsers").Handler(transports.GetUsers())
+	router.Get("/leo.example.demo.v1.Demo/UploadUserAvatar").Handler(transports.UploadUserAvatar())
+	router.Get("/leo.example.demo.v1.Demo/GetUserAvatar").Handler(transports.GetUserAvatar())
 	return router
 }
 
@@ -58,18 +168,18 @@ func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...en
 type demoHttpClientTransports struct {
 	scheme        string
 	router        *mux.Router
-	clientOptions []http.ClientOption
+	clientOptions []http1.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
 func (t *demoHttpClientTransports) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_CreateUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_CreateUser_HttpClient_ResponseDecoder,
 		opts...,
@@ -78,13 +188,13 @@ func (t *demoHttpClientTransports) CreateUser(ctx context.Context, instance stri
 }
 
 func (t *demoHttpClientTransports) DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_DeleteUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_DeleteUser_HttpClient_ResponseDecoder,
 		opts...,
@@ -93,13 +203,13 @@ func (t *demoHttpClientTransports) DeleteUser(ctx context.Context, instance stri
 }
 
 func (t *demoHttpClientTransports) UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_UpdateUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_UpdateUser_HttpClient_ResponseDecoder,
 		opts...,
@@ -108,13 +218,13 @@ func (t *demoHttpClientTransports) UpdateUser(ctx context.Context, instance stri
 }
 
 func (t *demoHttpClientTransports) GetUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_GetUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_GetUser_HttpClient_ResponseDecoder,
 		opts...,
@@ -123,13 +233,13 @@ func (t *demoHttpClientTransports) GetUser(ctx context.Context, instance string)
 }
 
 func (t *demoHttpClientTransports) GetUsers(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_GetUsers_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_GetUsers_HttpClient_ResponseDecoder,
 		opts...,
@@ -138,13 +248,13 @@ func (t *demoHttpClientTransports) GetUsers(ctx context.Context, instance string
 }
 
 func (t *demoHttpClientTransports) UploadUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_UploadUserAvatar_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_UploadUserAvatar_HttpClient_ResponseDecoder,
 		opts...,
@@ -153,13 +263,13 @@ func (t *demoHttpClientTransports) UploadUserAvatar(ctx context.Context, instanc
 }
 
 func (t *demoHttpClientTransports) GetUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Demo_GetUserAvatar_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Demo_GetUserAvatar_HttpClient_ResponseDecoder,
 		opts...,
@@ -167,7 +277,7 @@ func (t *demoHttpClientTransports) GetUserAvatar(ctx context.Context, instance s
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newDemoHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) DemoClientTransports {
+func newDemoHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) DemoClientTransports {
 	return &demoHttpClientTransports{
 		scheme:        scheme,
 		router:        appendDemoHttpRoutes(mux.NewRouter()),
@@ -185,107 +295,9 @@ func NewDemoHttpClient(target string, opts ...httpx.ClientOption) DemoService {
 
 // =========================== http transport ===========================
 
-func _Demo_CreateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.CreateUser(context.TODO()),
-		_Demo_CreateUser_HttpServer_RequestDecoder,
-		_Demo_CreateUser_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/CreateUser")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func _Demo_DeleteUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.DeleteUser(context.TODO()),
-		_Demo_DeleteUser_HttpServer_RequestDecoder,
-		_Demo_DeleteUser_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/DeleteUser")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func _Demo_UpdateUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.UpdateUser(context.TODO()),
-		_Demo_UpdateUser_HttpServer_RequestDecoder,
-		_Demo_UpdateUser_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UpdateUser")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func _Demo_GetUser_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.GetUser(context.TODO()),
-		_Demo_GetUser_HttpServer_RequestDecoder,
-		_Demo_GetUser_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUser")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func _Demo_GetUsers_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.GetUsers(context.TODO()),
-		_Demo_GetUsers_HttpServer_RequestDecoder,
-		_Demo_GetUsers_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUsers")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func _Demo_UploadUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.UploadUserAvatar(context.TODO()),
-		_Demo_UploadUserAvatar_HttpServer_RequestDecoder,
-		_Demo_UploadUserAvatar_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/UploadUserAvatar")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func _Demo_GetUserAvatar_HttpServer_Transport(endpoints DemoEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.GetUserAvatar(context.TODO()),
-		_Demo_GetUserAvatar_HttpServer_RequestDecoder,
-		_Demo_GetUserAvatar_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.demo.v1.Demo/GetUserAvatar")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
 // =========================== http coder ===========================
 
-func _Demo_CreateUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_CreateUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &CreateUserRequest{}
 	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
 		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -293,9 +305,9 @@ func _Demo_CreateUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Re
 	return req, nil
 }
 
-func _Demo_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -323,7 +335,7 @@ func _Demo_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -333,17 +345,17 @@ func _Demo_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Demo_CreateUser_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_CreateUser_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*CreateUserResponse)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -354,7 +366,7 @@ func _Demo_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Demo_DeleteUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_DeleteUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &DeleteUsersRequest{}
 	vars := urlx.FormFromMap(mux.Vars(r))
 	var varErr error
@@ -365,9 +377,9 @@ func _Demo_DeleteUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Re
 	return req, nil
 }
 
-func _Demo_DeleteUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_DeleteUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -390,7 +402,7 @@ func _Demo_DeleteUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "DELETE", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -399,17 +411,17 @@ func _Demo_DeleteUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Demo_DeleteUser_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_DeleteUser_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*emptypb.Empty)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_DeleteUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_DeleteUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -420,7 +432,7 @@ func _Demo_DeleteUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Demo_UpdateUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_UpdateUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &UpdateUserRequest{}
 	if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
 		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -434,9 +446,9 @@ func _Demo_UpdateUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Re
 	return req, nil
 }
 
-func _Demo_UpdateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_UpdateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -465,7 +477,7 @@ func _Demo_UpdateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -475,17 +487,17 @@ func _Demo_UpdateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Demo_UpdateUser_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_UpdateUser_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*emptypb.Empty)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_UpdateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_UpdateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -496,7 +508,7 @@ func _Demo_UpdateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Demo_GetUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_GetUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &GetUserRequest{}
 	vars := urlx.FormFromMap(mux.Vars(r))
 	var varErr error
@@ -507,9 +519,9 @@ func _Demo_GetUser_HttpServer_RequestDecoder(ctx context.Context, r *http1.Reque
 	return req, nil
 }
 
-func _Demo_GetUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_GetUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -532,7 +544,7 @@ func _Demo_GetUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -541,17 +553,17 @@ func _Demo_GetUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 	}
 }
 
-func _Demo_GetUser_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_GetUser_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*GetUserResponse)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_GetUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_GetUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -562,7 +574,7 @@ func _Demo_GetUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Resp
 	return resp, nil
 }
 
-func _Demo_GetUsers_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_GetUsers_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &GetUsersRequest{}
 	queries := r.URL.Query()
 	var queryErr error
@@ -574,9 +586,9 @@ func _Demo_GetUsers_HttpServer_RequestDecoder(ctx context.Context, r *http1.Requ
 	return req, nil
 }
 
-func _Demo_GetUsers_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_GetUsers_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -600,7 +612,7 @@ func _Demo_GetUsers_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -609,17 +621,17 @@ func _Demo_GetUsers_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _Demo_GetUsers_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_GetUsers_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*GetUsersResponse)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_GetUsers_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_GetUsers_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -630,7 +642,7 @@ func _Demo_GetUsers_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Res
 	return resp, nil
 }
 
-func _Demo_UploadUserAvatar_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_UploadUserAvatar_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &UploadUserAvatarRequest{}
 	req.Avatar = &httpbody.HttpBody{}
 	body, err := io.ReadAll(r.Body)
@@ -648,9 +660,9 @@ func _Demo_UploadUserAvatar_HttpServer_RequestDecoder(ctx context.Context, r *ht
 	return req, nil
 }
 
-func _Demo_UploadUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_UploadUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -675,7 +687,7 @@ func _Demo_UploadUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -685,17 +697,17 @@ func _Demo_UploadUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(s
 	}
 }
 
-func _Demo_UploadUserAvatar_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_UploadUserAvatar_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*emptypb.Empty)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_UploadUserAvatar_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_UploadUserAvatar_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -706,7 +718,7 @@ func _Demo_UploadUserAvatar_HttpClient_ResponseDecoder(ctx context.Context, r *h
 	return resp, nil
 }
 
-func _Demo_GetUserAvatar_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Demo_GetUserAvatar_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &GetUserAvatarRequest{}
 	vars := urlx.FormFromMap(mux.Vars(r))
 	var varErr error
@@ -717,9 +729,9 @@ func _Demo_GetUserAvatar_HttpServer_RequestDecoder(ctx context.Context, r *http1
 	return req, nil
 }
 
-func _Demo_GetUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Demo_GetUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -742,7 +754,7 @@ func _Demo_GetUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(sche
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -751,7 +763,7 @@ func _Demo_GetUserAvatar_HttpClient_RequestEncoder(router *mux.Router) func(sche
 	}
 }
 
-func _Demo_GetUserAvatar_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Demo_GetUserAvatar_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*httpbody.HttpBody)
 	w.Header().Set("Content-Type", resp.GetContentType())
 	for _, src := range resp.GetExtensions() {
@@ -767,14 +779,14 @@ func _Demo_GetUserAvatar_HttpServer_ResponseEncoder(ctx context.Context, w http1
 			w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 		}
 	}
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(resp.GetData()); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Demo_GetUserAvatar_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Demo_GetUserAvatar_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

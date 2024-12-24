@@ -5,7 +5,7 @@ package helloworld
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http "github.com/go-kit/kit/transport/http"
+	http1 "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -13,7 +13,7 @@ import (
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	io "io"
-	http1 "net/http"
+	http "net/http"
 	url "net/url"
 )
 
@@ -26,10 +26,30 @@ func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
+type greeterHttpServerTransports struct {
+	endpoints GreeterEndpoints
+}
+
+func (t *greeterHttpServerTransports) SayHello() http.Handler {
+	return http1.NewServer(
+		t.endpoints.SayHello(context.TODO()),
+		_Greeter_SayHello_HttpServer_RequestDecoder,
+		_Greeter_SayHello_HttpServer_ResponseEncoder,
+		http1.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
+		http1.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimiter),
+		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
 func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newGreeterServerEndpoints(svc, middlewares...)
+	transports := &greeterHttpServerTransports{endpoints: endpoints}
 	router = appendGreeterHttpRoutes(router)
-	router.Get("/helloworld.Greeter/SayHello").Handler(_Greeter_SayHello_HttpServer_Transport(endpoints))
+	router.Get("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
 	return router
 }
 
@@ -38,18 +58,18 @@ func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares
 type greeterHttpClientTransports struct {
 	scheme        string
 	router        *mux.Router
-	clientOptions []http.ClientOption
+	clientOptions []http1.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
 func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimiter),
-		http.ClientBefore(httpx.OutgoingStain),
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimiter),
+		http1.ClientBefore(httpx.OutgoingStain),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
+	client := http1.NewExplicitClient(
 		_Greeter_SayHello_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Greeter_SayHello_HttpClient_ResponseDecoder,
 		opts...,
@@ -57,7 +77,7 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newGreeterHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransports {
+func newGreeterHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransports {
 	return &greeterHttpClientTransports{
 		scheme:        scheme,
 		router:        appendGreeterHttpRoutes(mux.NewRouter()),
@@ -75,23 +95,9 @@ func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterServ
 
 // =========================== http transport ===========================
 
-func _Greeter_SayHello_HttpServer_Transport(endpoints GreeterEndpoints) *http.Server {
-	return http.NewServer(
-		endpoints.SayHello(context.TODO()),
-		_Greeter_SayHello_HttpServer_RequestDecoder,
-		_Greeter_SayHello_HttpServer_ResponseEncoder,
-		http.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
-		http.ServerBefore(httpx.TransportInjector(httpx.HttpServer)),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimiter),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
 // =========================== http coder ===========================
 
-func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http1.Request) (any, error) {
+func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
 	req := &HelloRequest{}
 	vars := urlx.FormFromMap(mux.Vars(r))
 	var varErr error
@@ -102,9 +108,9 @@ func _Greeter_SayHello_HttpServer_RequestDecoder(ctx context.Context, r *http1.R
 	return req, nil
 }
 
-func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -127,7 +133,7 @@ func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -136,17 +142,17 @@ func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme
 	}
 }
 
-func _Greeter_SayHello_HttpServer_ResponseEncoder(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func _Greeter_SayHello_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
 	resp := obj.(*HelloReply)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http1.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 		return statusx.ErrInternal.With(statusx.Wrap(err))
 	}
 	return nil
 }
 
-func _Greeter_SayHello_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Greeter_SayHello_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

@@ -97,3 +97,11 @@ func OutgoingStain(ctx context.Context, request *http.Request) context.Context {
 	request.Header.Set(kStainKey, color)
 	return ctx
 }
+
+func IncomingStain(ctx context.Context, request *http.Request) context.Context {
+	values := request.Header.Values(kStainKey)
+	if values == nil || len(values) == 0 {
+		return ctx
+	}
+	return stainx.InjectColor(ctx, values[0])
+}

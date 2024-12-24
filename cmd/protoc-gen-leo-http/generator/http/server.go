@@ -10,33 +10,27 @@ import (
 
 type ServerGenerator struct{}
 
-func (f *ServerGenerator) GenerateServerTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
-	g.P("func ", endpoint.HttpServerTransportName(), "(endpoints ", service.EndpointsName(), ") *", internal.HttpTransportPackage.Ident("Server"), " {")
-	g.P("return ", internal.HttpTransportPackage.Ident("NewServer"), "(")
-	g.P("endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
-	g.P(endpoint.HttpServerRequestDecoderName(), ",")
-	g.P(endpoint.HttpServerResponseEncoderName(), ",")
-	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
-	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
-	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
-	g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimiter"), "),")
-	g.P(internal.HttpTransportPackage.Ident("ServerFinalizer"), "(", internal.HttpxTransportxPackage.Ident("CancelInvoker"), "),")
-	g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
-	g.P(")")
+func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedHttpServerTransportsName(), " struct {")
+	g.P("endpoints ", service.EndpointsName())
 	g.P("}")
 	g.P()
-	return nil
-}
-
-func (f *ServerGenerator) GenerateCoder(service *internal.Service, g *protogen.GeneratedFile) error {
 	for _, endpoint := range service.Endpoints {
-		if err := f.PrintDecodeRequestFunc(g, endpoint); err != nil {
-			return err
-		}
-
-		if err := f.PrintEncodeResponseFunc(g, endpoint); err != nil {
-			return err
-		}
+		g.P("func (t *", service.UnexportedHttpServerTransportsName(), ")", endpoint.Name(), "()", internal.HttpPackage.Ident("Handler"), " {")
+		g.P("return ", internal.HttpTransportPackage.Ident("NewServer"), "(")
+		g.P("t.endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
+		g.P(endpoint.HttpServerRequestDecoderName(), ",")
+		g.P(endpoint.HttpServerResponseEncoderName(), ",")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("TransportInjector"), "(", internal.HttpxTransportxPackage.Ident("HttpServer"), ")),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimiter"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingStain"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerFinalizer"), "(", internal.HttpxTransportxPackage.Ident("CancelInvoker"), "),")
+		g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.HttpxTransportxPackage.Ident("ErrorEncoder"), "),")
+		g.P(")")
+		g.P("}")
+		g.P()
 	}
 	return nil
 }
@@ -44,9 +38,10 @@ func (f *ServerGenerator) GenerateCoder(service *internal.Service, g *protogen.G
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
 	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
+	g.P("transports := &", service.UnexportedHttpServerTransportsName(), "{endpoints: endpoints}")
 	g.P("router = append", service.HttpRoutesName(), "(router)")
 	for _, endpoint := range service.Endpoints {
-		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(", endpoint.HttpServerTransportName(), "(endpoints))")
+		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
 	}
 	g.P("return router")
 	g.P("}")
