@@ -5,146 +5,129 @@ import (
 	"github.com/go-kit/kit/sd"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
+	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
-	"github.com/go-leo/leo/v3/sdx/consulx"
-	"github.com/go-leo/leo/v3/sdx/dnssrvx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
-	"time"
 )
 
-type ClientOptions interface {
-	Scheme() string
-	Target() string
-	ClientOptions() []httptransport.ClientOption
-	Middlewares() []endpoint.Middleware
-	InstancerFactory() sdx.InstancerFactory
-	EndpointerOptions() []sd.EndpointerOption
-	Logger() log.Logger
-	BalancerFactory() lbx.BalancerFactory
-}
+type (
+	ClientOptions interface {
+		Scheme() string
+		ClientTransportOptions() []httptransport.ClientOption
+		Middlewares() []endpoint.Middleware
+		InstancerFactory() sdx.InstancerFactory
+		EndpointerOptions() []sd.EndpointerOption
+		Logger() log.Logger
+		BalancerFactory() lbx.BalancerFactory
+	}
 
-type clientOptions struct {
-	scheme            string
-	target            string
-	clientOptions     []httptransport.ClientOption
-	middlewares       []endpoint.Middleware
-	instancerFactory  sdx.InstancerFactory
-	endpointerOptions []sd.EndpointerOption
-	logger            log.Logger
-	balancerFactory   lbx.BalancerFactory
-}
+	clientOptions struct {
+		scheme                 string
+		clientTransportOptions []httptransport.ClientOption
+		middlewares            []endpoint.Middleware
+		instancerFactory       sdx.InstancerFactory
+		endpointerOptions      []sd.EndpointerOption
+		logger                 log.Logger
+		balancerFactory        lbx.BalancerFactory
+	}
+
+	ClientOption func(o *clientOptions)
+)
 
 func (o *clientOptions) Scheme() string {
-	//TODO implement me
-	panic("implement me")
+	return o.scheme
 }
 
-func (o *clientOptions) Target() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (o *clientOptions) ClientOptions() []httptransport.ClientOption {
-	//TODO implement me
-	panic("implement me")
+func (o *clientOptions) ClientTransportOptions() []httptransport.ClientOption {
+	return o.clientTransportOptions
 }
 
 func (o *clientOptions) Middlewares() []endpoint.Middleware {
-	//TODO implement me
-	panic("implement me")
+	return o.middlewares
 }
 
 func (o *clientOptions) InstancerFactory() sdx.InstancerFactory {
-	//TODO implement me
-	panic("implement me")
+	return o.instancerFactory
 }
 
 func (o *clientOptions) EndpointerOptions() []sd.EndpointerOption {
-	//TODO implement me
-	panic("implement me")
+	return o.endpointerOptions
 }
 
 func (o *clientOptions) Logger() log.Logger {
-	//TODO implement me
-	panic("implement me")
+	return o.logger
 }
 
 func (o *clientOptions) BalancerFactory() lbx.BalancerFactory {
-	//TODO implement me
-	panic("implement me")
+	return o.balancerFactory
 }
 
-func NewClientOptions(opts ...ClientTransportOption) ClientOptions {
-	return &clientOptions{}
-}
-
-func (o *clientOptions) Init() *clientOptions {
-	o.InstancerBuilders = []sdx.InstancerBuilder{
-		&passthroughx.InstancerBuilder{},
-		&dnssrvx.InstancerBuilder{TTL: 30 * time.Second},
-		&consulx.InstancerBuilder{},
-	}
-	o.BalancerFactory = lbx.RoundRobinFactory{}
-	o.EndpointerOptions = nil
-	o.DefaultScheme = "passthrough"
-	return o
-}
-
-func (o *clientOptions) Apply(opts ...ClientTransportOption) *clientOptions {
-	for _, opt := range opts {
-		opt(o)
-	}
-	return o
-}
-
-type ClientTransportOption func(o *clientOptions)
-
-// HttpScheme is a option that sets the http scheme, http or https, default http
-func HttpScheme(scheme string) ClientTransportOption {
+// Scheme is a option that sets the http scheme, http or https, default http
+func Scheme(scheme string) ClientOption {
 	return func(o *clientOptions) {
-		if o.FactoryArgs == nil {
-			o.FactoryArgs = scheme
-			return
-		}
-		_, ok := o.FactoryArgs.(string)
-		if !ok {
-			panic("factory args have already been set")
-		}
-		o.FactoryArgs = scheme
+		o.scheme = scheme
 	}
 }
 
-// InstancerBuilder is a option that sets the instancer builder.
-func InstancerBuilder(builders ...sdx.InstancerBuilder) ClientTransportOption {
+// ClientTransportOption is a option that sets the go-kit http transport client options.
+func ClientTransportOption(options ...httptransport.ClientOption) ClientOption {
 	return func(o *clientOptions) {
-		o.InstancerBuilders = append(o.InstancerBuilders, builders...)
+		o.clientTransportOptions = append(o.clientTransportOptions, options...)
 	}
 }
 
-// BalancerFactory is a option that sets the balancer factory.
-func BalancerFactory(factory lbx.BalancerFactory) ClientTransportOption {
+// Middleware is a option that sets the go-kit endpoint middlewares.
+func Middleware(middlewares ...endpoint.Middleware) ClientOption {
 	return func(o *clientOptions) {
-		o.BalancerFactory = factory
+		o.middlewares = append(o.middlewares, middlewares...)
+	}
+}
+
+// InstancerFactory is a option that sets the sd instancer factory.
+func InstancerFactory(factory sdx.InstancerFactory) ClientOption {
+	return func(o *clientOptions) {
+		o.instancerFactory = factory
 	}
 }
 
 // EndpointerOption is a option that sets the endpointer EndpointerOptions.
-func EndpointerOption(options ...sd.EndpointerOption) ClientTransportOption {
+func EndpointerOption(options ...sd.EndpointerOption) ClientOption {
 	return func(o *clientOptions) {
-		o.EndpointerOptions = append(o.EndpointerOptions, options...)
+		o.endpointerOptions = append(o.endpointerOptions, options...)
 	}
 }
 
-// DefaultScheme is a option that sets the endpointer EndpointerOptions.
-func DefaultScheme(scheme string) ClientTransportOption {
+// Logger is a option that sets the logger.
+func Logger(logger log.Logger) ClientOption {
 	return func(o *clientOptions) {
-		o.DefaultScheme = scheme
+		o.logger = logger
 	}
 }
 
-func Middleware(middlewares ...endpoint.Middleware) ClientTransportOption {
+// BalancerFactory is a option that sets the balancer factory.
+func BalancerFactory(factory lbx.BalancerFactory) ClientOption {
 	return func(o *clientOptions) {
-		o.Middlewares = append(o.Middlewares, middlewares...)
+		o.balancerFactory = factory
 	}
+}
+
+func NewClientOptions(opts ...ClientOption) ClientOptions {
+	options := &clientOptions{
+		scheme:                 "http",
+		clientTransportOptions: nil,
+		middlewares:            nil,
+		instancerFactory:       passthroughx.Factory{},
+		endpointerOptions:      nil,
+		logger:                 logx.L(),
+		balancerFactory:        lbx.PeakFirstFactory{},
+	}
+	return options.Apply(opts...)
+}
+
+func (o *clientOptions) Apply(opts ...ClientOption) *clientOptions {
+	for _, opt := range opts {
+		opt(o)
+	}
+	return o
 }

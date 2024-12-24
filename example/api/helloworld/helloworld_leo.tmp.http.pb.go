@@ -4,13 +4,7 @@ package helloworld
 
 import (
 	context "context"
-	endpoint "github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/sd"
-	"github.com/go-kit/kit/transport/http"
-	"github.com/go-kit/log"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	"github.com/go-leo/leo/v3/sdx"
-	"github.com/go-leo/leo/v3/sdx/lbx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
@@ -38,19 +32,11 @@ func (c *greeterHttpClientV2) SayHello(ctx context.Context, request *HelloReques
 	return rep.(*HelloReply), nil
 }
 
-func NewGreeterHttpClientV2(
-	scheme string,
-	target string,
-	clientOptions []http.ClientOption,
-	middlewares []endpoint.Middleware,
-	instancerFactory sdx.InstancerFactory,
-	EndpointerOptions []sd.EndpointerOption,
-	log log.Logger,
-	factory lbx.BalancerFactory,
-) (GreeterService, error) {
-	transportsV2 := newGreeterHttpClientTransports(scheme, clientOptions, middlewares)
+func NewGreeterHttpClientV2(target string, opts ...httpx.ClientOption) (GreeterService, error) {
+	options := httpx.NewClientOptions(opts...)
+	transportsV2 := newGreeterHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
 	factories := newGreeterFactories(transportsV2)
-	endpointers := newGreeterEndpointers(target, instancerFactory, factories, log, EndpointerOptions...)
-	balancers := newGreeterBalancers(factory, endpointers)
+	endpointers := newGreeterEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newGreeterBalancers(options.BalancerFactory(), endpointers)
 	return &greeterHttpClientV2{balancers: balancers}, nil
 }

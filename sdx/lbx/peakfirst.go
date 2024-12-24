@@ -10,7 +10,7 @@ import (
 // PeakFirstFactory create a peak first balancer
 type PeakFirstFactory struct{}
 
-func (f PeakFirstFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
+func (PeakFirstFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
 	return BalancerFunc(func() (endpoint.Endpoint, error) {
 		endpoints, err := endpointer.Endpoints()
 		if err != nil {
