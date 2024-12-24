@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -34,14 +33,15 @@ type WorkspacesEndpoints interface {
 	DeleteWorkspace(ctx context.Context) endpoint.Endpoint
 }
 
-type WorkspacesClientTransports interface {
-	ListWorkspaces() transportx.ClientTransport
-	GetWorkspace() transportx.ClientTransport
-	CreateWorkspace() transportx.ClientTransport
-	UpdateWorkspace() transportx.ClientTransport
-	DeleteWorkspace() transportx.ClientTransport
+type WorkspacesClientEndpoints interface {
+	ListWorkspaces(ctx context.Context) (endpoint.Endpoint, error)
+	GetWorkspace(ctx context.Context) (endpoint.Endpoint, error)
+	CreateWorkspace(ctx context.Context) (endpoint.Endpoint, error)
+	UpdateWorkspace(ctx context.Context) (endpoint.Endpoint, error)
+	DeleteWorkspace(ctx context.Context) (endpoint.Endpoint, error)
 }
-type WorkspacesClientTransportsV2 interface {
+
+type WorkspacesClientTransports interface {
 	ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -113,31 +113,60 @@ func newWorkspacesServerEndpoints(svc WorkspacesService, middlewares ...endpoint
 }
 
 type workspacesClientEndpoints struct {
-	transports  WorkspacesClientTransports
-	middlewares []endpoint.Middleware
+	balancers WorkspacesBalancers
 }
 
-func (e *workspacesClientEndpoints) ListWorkspaces(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.ListWorkspaces().Endpoint(ctx), e.middlewares...)
+func (e *workspacesClientEndpoints) ListWorkspaces(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.ListWorkspaces(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *workspacesClientEndpoints) GetWorkspace(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetWorkspace().Endpoint(ctx), e.middlewares...)
+func (e *workspacesClientEndpoints) GetWorkspace(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.GetWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *workspacesClientEndpoints) CreateWorkspace(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateWorkspace().Endpoint(ctx), e.middlewares...)
+func (e *workspacesClientEndpoints) CreateWorkspace(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.CreateWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *workspacesClientEndpoints) UpdateWorkspace(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UpdateWorkspace().Endpoint(ctx), e.middlewares...)
+func (e *workspacesClientEndpoints) UpdateWorkspace(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.UpdateWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *workspacesClientEndpoints) DeleteWorkspace(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteWorkspace().Endpoint(ctx), e.middlewares...)
+func (e *workspacesClientEndpoints) DeleteWorkspace(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.DeleteWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newWorkspacesClientEndpoints(transports WorkspacesClientTransports, middlewares ...endpoint.Middleware) WorkspacesEndpoints {
-	return &workspacesClientEndpoints{transports: transports, middlewares: middlewares}
+func newWorkspacesClientEndpoints(
+	target string,
+	transports WorkspacesClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) WorkspacesClientEndpoints {
+	factories := newWorkspacesFactories(transports)
+	endpointers := newWorkspacesEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newWorkspacesBalancers(balancerFactory, endpointers)
+	return &workspacesClientEndpoints{balancers: balancers}
 }
 
 type workspacesFactories struct {
-	transports WorkspacesClientTransportsV2
+	transports WorkspacesClientTransports
 }
 
 func (f *workspacesFactories) ListWorkspaces(ctx context.Context) sd.Factory {
@@ -165,7 +194,7 @@ func (f *workspacesFactories) DeleteWorkspace(ctx context.Context) sd.Factory {
 		return f.transports.DeleteWorkspace(ctx, instance)
 	}
 }
-func newWorkspacesFactories(transports WorkspacesClientTransportsV2) WorkspacesFactories {
+func newWorkspacesFactories(transports WorkspacesClientTransports) WorkspacesFactories {
 	return &workspacesFactories{transports: transports}
 }
 

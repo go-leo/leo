@@ -37,7 +37,7 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P()
 	}
 
-	g.P("func new", service.HttpClientTransportsName(), "(scheme string, clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"), ", middlewares []", internal.EndpointPackage.Ident("Middleware"), ") ", service.ClientTransportsNameV2(), " {")
+	g.P("func new", service.HttpClientTransportsName(), "(scheme string, clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"), ", middlewares []", internal.EndpointPackage.Ident("Middleware"), ") ", service.ClientTransportsName(), " {")
 	g.P("return &", service.UnexportedHttpClientTransportsName(), "{")
 	g.P("scheme:        scheme,")
 	g.P("router:        append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "()),")

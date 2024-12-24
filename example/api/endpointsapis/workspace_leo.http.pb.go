@@ -132,7 +132,7 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, in
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newWorkspacesHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransportsV2 {
+func newWorkspacesHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransports {
 	return &workspacesHttpClientTransports{
 		scheme:        scheme,
 		router:        appendWorkspacesHttpRoutes(mux.NewRouter()),

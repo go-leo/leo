@@ -63,7 +63,7 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newMixPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransportsV2 {
+func newMixPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransports {
 	return &mixPathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendMixPathHttpRoutes(mux.NewRouter()),

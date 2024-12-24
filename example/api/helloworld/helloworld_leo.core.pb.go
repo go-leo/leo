@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	io "io"
 )
 
@@ -25,10 +24,11 @@ type GreeterEndpoints interface {
 	SayHello(ctx context.Context) endpoint.Endpoint
 }
 
-type GreeterClientTransports interface {
-	SayHello() transportx.ClientTransport
+type GreeterClientEndpoints interface {
+	SayHello(ctx context.Context) (endpoint.Endpoint, error)
 }
-type GreeterClientTransportsV2 interface {
+
+type GreeterClientTransports interface {
 	SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
@@ -60,19 +60,32 @@ func newGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middl
 }
 
 type greeterClientEndpoints struct {
-	transports  GreeterClientTransports
-	middlewares []endpoint.Middleware
+	balancers GreeterBalancers
 }
 
-func (e *greeterClientEndpoints) SayHello(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.SayHello().Endpoint(ctx), e.middlewares...)
+func (e *greeterClientEndpoints) SayHello(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.SayHello(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newGreeterClientEndpoints(transports GreeterClientTransports, middlewares ...endpoint.Middleware) GreeterEndpoints {
-	return &greeterClientEndpoints{transports: transports, middlewares: middlewares}
+func newGreeterClientEndpoints(
+	target string,
+	transports GreeterClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) GreeterClientEndpoints {
+	factories := newGreeterFactories(transports)
+	endpointers := newGreeterEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newGreeterBalancers(balancerFactory, endpointers)
+	return &greeterClientEndpoints{balancers: balancers}
 }
 
 type greeterFactories struct {
-	transports GreeterClientTransportsV2
+	transports GreeterClientTransports
 }
 
 func (f *greeterFactories) SayHello(ctx context.Context) sd.Factory {
@@ -80,7 +93,7 @@ func (f *greeterFactories) SayHello(ctx context.Context) sd.Factory {
 		return f.transports.SayHello(ctx, instance)
 	}
 }
-func newGreeterFactories(transports GreeterClientTransportsV2) GreeterFactories {
+func newGreeterFactories(transports GreeterClientTransports) GreeterFactories {
 	return &greeterFactories{transports: transports}
 }
 

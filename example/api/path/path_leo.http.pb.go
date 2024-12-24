@@ -199,7 +199,7 @@ func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) PathClientTransportsV2 {
+func newPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) PathClientTransports {
 	return &pathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendPathHttpRoutes(mux.NewRouter()),

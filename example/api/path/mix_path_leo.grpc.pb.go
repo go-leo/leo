@@ -6,12 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 // =========================== grpc server ===========================
@@ -58,37 +59,73 @@ func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware
 // =========================== grpc client ===========================
 
 type mixPathGrpcClientTransports struct {
-	mixPath transportx.ClientTransport
+	dialOptions   []grpc1.DialOption
+	clientOptions []grpc.ClientOption
+	middlewares   []endpoint.Middleware
 }
 
-func (t *mixPathGrpcClientTransports) MixPath() transportx.ClientTransport {
-	return t.mixPath
+func (t *mixPathGrpcClientTransports) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.path.v1.MixPath",
+		"MixPath",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewMixPathGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (MixPathClientTransports, error) {
-	t := &mixPathGrpcClientTransports{}
-	var err error
-	t.mixPath, err = errorx.Break[transportx.ClientTransport](err)(_MixPath_MixPath_GrpcClient_Transport(target, options...))
-	return t, err
+func newMixPathGrpcClientTransports(
+	dialOptions []grpc1.DialOption,
+	clientOptions []grpc.ClientOption,
+	middlewares []endpoint.Middleware,
+) MixPathClientTransports {
+	return &mixPathGrpcClientTransports{
+		dialOptions:   dialOptions,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
 }
 
 type mixPathGrpcClient struct {
-	endpoints MixPathEndpoints
+	balancers MixPathBalancers
 }
 
 func (c *mixPathGrpcClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.MixPath(ctx)(ctx, request)
+	balancer, err := c.balancers.MixPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
 	return rep.(*emptypb.Empty), nil
 }
 
-func NewMixPathGrpcClient(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathService {
-	endpoints := newMixPathClientEndpoints(transports, middlewares...)
-	return &mixPathGrpcClient{endpoints: endpoints}
+func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newMixPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newMixPathFactories(transports)
+	endpointers := newMixPathEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newMixPathBalancers(options.BalancerFactory(), endpointers)
+	return &mixPathHttpClient{balancers: balancers}
 }
 
 // =========================== grpc transport ===========================
@@ -102,22 +139,4 @@ func _MixPath_MixPath_GrpcServer_Transport(endpoints MixPathEndpoints) *grpc.Ser
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _MixPath_MixPath_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.path.v1.MixPath",
-				"MixPath",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }

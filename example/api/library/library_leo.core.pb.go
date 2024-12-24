@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -46,20 +45,21 @@ type LibraryServiceEndpoints interface {
 	MoveBook(ctx context.Context) endpoint.Endpoint
 }
 
-type LibraryServiceClientTransports interface {
-	CreateShelf() transportx.ClientTransport
-	GetShelf() transportx.ClientTransport
-	ListShelves() transportx.ClientTransport
-	DeleteShelf() transportx.ClientTransport
-	MergeShelves() transportx.ClientTransport
-	CreateBook() transportx.ClientTransport
-	GetBook() transportx.ClientTransport
-	ListBooks() transportx.ClientTransport
-	DeleteBook() transportx.ClientTransport
-	UpdateBook() transportx.ClientTransport
-	MoveBook() transportx.ClientTransport
+type LibraryServiceClientEndpoints interface {
+	CreateShelf(ctx context.Context) (endpoint.Endpoint, error)
+	GetShelf(ctx context.Context) (endpoint.Endpoint, error)
+	ListShelves(ctx context.Context) (endpoint.Endpoint, error)
+	DeleteShelf(ctx context.Context) (endpoint.Endpoint, error)
+	MergeShelves(ctx context.Context) (endpoint.Endpoint, error)
+	CreateBook(ctx context.Context) (endpoint.Endpoint, error)
+	GetBook(ctx context.Context) (endpoint.Endpoint, error)
+	ListBooks(ctx context.Context) (endpoint.Endpoint, error)
+	DeleteBook(ctx context.Context) (endpoint.Endpoint, error)
+	UpdateBook(ctx context.Context) (endpoint.Endpoint, error)
+	MoveBook(ctx context.Context) (endpoint.Endpoint, error)
 }
-type LibraryServiceClientTransportsV2 interface {
+
+type LibraryServiceClientTransports interface {
 	CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -191,49 +191,102 @@ func newLibraryServiceServerEndpoints(svc LibraryServiceService, middlewares ...
 }
 
 type libraryServiceClientEndpoints struct {
-	transports  LibraryServiceClientTransports
-	middlewares []endpoint.Middleware
+	balancers LibraryServiceBalancers
 }
 
-func (e *libraryServiceClientEndpoints) CreateShelf(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateShelf().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) CreateShelf(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.CreateShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) GetShelf(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetShelf().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) GetShelf(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.GetShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) ListShelves(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.ListShelves().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) ListShelves(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.ListShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) DeleteShelf(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteShelf().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) DeleteShelf(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.DeleteShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) MergeShelves(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.MergeShelves().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) MergeShelves(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.MergeShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) CreateBook(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateBook().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) CreateBook(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.CreateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) GetBook(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetBook().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) GetBook(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.GetBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) ListBooks(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.ListBooks().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) ListBooks(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.ListBooks(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) DeleteBook(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteBook().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) DeleteBook(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.DeleteBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) UpdateBook(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UpdateBook().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) UpdateBook(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.UpdateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *libraryServiceClientEndpoints) MoveBook(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.MoveBook().Endpoint(ctx), e.middlewares...)
+func (e *libraryServiceClientEndpoints) MoveBook(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.MoveBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newLibraryServiceClientEndpoints(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
-	return &libraryServiceClientEndpoints{transports: transports, middlewares: middlewares}
+func newLibraryServiceClientEndpoints(
+	target string,
+	transports LibraryServiceClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) LibraryServiceClientEndpoints {
+	factories := newLibraryServiceFactories(transports)
+	endpointers := newLibraryServiceEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newLibraryServiceBalancers(balancerFactory, endpointers)
+	return &libraryServiceClientEndpoints{balancers: balancers}
 }
 
 type libraryServiceFactories struct {
-	transports LibraryServiceClientTransportsV2
+	transports LibraryServiceClientTransports
 }
 
 func (f *libraryServiceFactories) CreateShelf(ctx context.Context) sd.Factory {
@@ -291,7 +344,7 @@ func (f *libraryServiceFactories) MoveBook(ctx context.Context) sd.Factory {
 		return f.transports.MoveBook(ctx, instance)
 	}
 }
-func newLibraryServiceFactories(transports LibraryServiceClientTransportsV2) LibraryServiceFactories {
+func newLibraryServiceFactories(transports LibraryServiceClientTransports) LibraryServiceFactories {
 	return &libraryServiceFactories{transports: transports}
 }
 

@@ -6,13 +6,14 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 // =========================== grpc server ===========================
@@ -167,64 +168,186 @@ func NewDemoGrpcServer(svc DemoService, middlewares ...endpoint.Middleware) Demo
 // =========================== grpc client ===========================
 
 type demoGrpcClientTransports struct {
-	createUser       transportx.ClientTransport
-	deleteUser       transportx.ClientTransport
-	updateUser       transportx.ClientTransport
-	getUser          transportx.ClientTransport
-	getUsers         transportx.ClientTransport
-	uploadUserAvatar transportx.ClientTransport
-	getUserAvatar    transportx.ClientTransport
+	dialOptions   []grpc1.DialOption
+	clientOptions []grpc.ClientOption
+	middlewares   []endpoint.Middleware
 }
 
-func (t *demoGrpcClientTransports) CreateUser() transportx.ClientTransport {
-	return t.createUser
+func (t *demoGrpcClientTransports) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"CreateUser",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		CreateUserResponse{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *demoGrpcClientTransports) DeleteUser() transportx.ClientTransport {
-	return t.deleteUser
+func (t *demoGrpcClientTransports) DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"DeleteUser",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *demoGrpcClientTransports) UpdateUser() transportx.ClientTransport {
-	return t.updateUser
+func (t *demoGrpcClientTransports) UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"UpdateUser",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *demoGrpcClientTransports) GetUser() transportx.ClientTransport {
-	return t.getUser
+func (t *demoGrpcClientTransports) GetUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"GetUser",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		GetUserResponse{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *demoGrpcClientTransports) GetUsers() transportx.ClientTransport {
-	return t.getUsers
+func (t *demoGrpcClientTransports) GetUsers(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"GetUsers",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		GetUsersResponse{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *demoGrpcClientTransports) UploadUserAvatar() transportx.ClientTransport {
-	return t.uploadUserAvatar
+func (t *demoGrpcClientTransports) UploadUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"UploadUserAvatar",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *demoGrpcClientTransports) GetUserAvatar() transportx.ClientTransport {
-	return t.getUserAvatar
+func (t *demoGrpcClientTransports) GetUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.demo.v1.Demo",
+		"GetUserAvatar",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		httpbody.HttpBody{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewDemoGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (DemoClientTransports, error) {
-	t := &demoGrpcClientTransports{}
-	var err error
-	t.createUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_CreateUser_GrpcClient_Transport(target, options...))
-	t.deleteUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_DeleteUser_GrpcClient_Transport(target, options...))
-	t.updateUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_UpdateUser_GrpcClient_Transport(target, options...))
-	t.getUser, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUser_GrpcClient_Transport(target, options...))
-	t.getUsers, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUsers_GrpcClient_Transport(target, options...))
-	t.uploadUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(_Demo_UploadUserAvatar_GrpcClient_Transport(target, options...))
-	t.getUserAvatar, err = errorx.Break[transportx.ClientTransport](err)(_Demo_GetUserAvatar_GrpcClient_Transport(target, options...))
-	return t, err
+func newDemoGrpcClientTransports(
+	dialOptions []grpc1.DialOption,
+	clientOptions []grpc.ClientOption,
+	middlewares []endpoint.Middleware,
+) DemoClientTransports {
+	return &demoGrpcClientTransports{
+		dialOptions:   dialOptions,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
 }
 
 type demoGrpcClient struct {
-	endpoints DemoEndpoints
+	balancers DemoBalancers
 }
 
 func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.CreateUser(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -234,7 +357,15 @@ func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequ
 func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.DeleteUser(ctx)(ctx, request)
+	balancer, err := c.balancers.DeleteUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -244,7 +375,15 @@ func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersReq
 func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.UpdateUser(ctx)(ctx, request)
+	balancer, err := c.balancers.UpdateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -254,7 +393,15 @@ func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequ
 func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.GetUser(ctx)(ctx, request)
+	balancer, err := c.balancers.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -264,7 +411,15 @@ func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (
 func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.GetUsers(ctx)(ctx, request)
+	balancer, err := c.balancers.GetUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -274,7 +429,15 @@ func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest)
 func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.UploadUserAvatar(ctx)(ctx, request)
+	balancer, err := c.balancers.UploadUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -284,16 +447,28 @@ func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUs
 func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.GetUserAvatar(ctx)(ctx, request)
+	balancer, err := c.balancers.GetUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
 	return rep.(*httpbody.HttpBody), nil
 }
 
-func NewDemoGrpcClient(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoService {
-	endpoints := newDemoClientEndpoints(transports, middlewares...)
-	return &demoGrpcClient{endpoints: endpoints}
+func NewDemoGrpcClient(target string, opts ...grpcx.ClientOption) DemoService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newDemoGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newDemoFactories(transports)
+	endpointers := newDemoEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newDemoBalancers(options.BalancerFactory(), endpointers)
+	return &demoHttpClient{balancers: balancers}
 }
 
 // =========================== grpc transport ===========================
@@ -309,24 +484,6 @@ func _Demo_CreateUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server
 	)
 }
 
-func _Demo_CreateUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"CreateUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				CreateUserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_DeleteUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.DeleteUser(context.TODO()),
@@ -336,24 +493,6 @@ func _Demo_DeleteUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _Demo_DeleteUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"DeleteUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Demo_UpdateUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
@@ -367,24 +506,6 @@ func _Demo_UpdateUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server
 	)
 }
 
-func _Demo_UpdateUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"UpdateUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_GetUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.GetUser(context.TODO()),
@@ -394,24 +515,6 @@ func _Demo_GetUser_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _Demo_GetUser_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"GetUser",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				GetUserResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _Demo_GetUsers_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
@@ -425,24 +528,6 @@ func _Demo_GetUsers_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 	)
 }
 
-func _Demo_GetUsers_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"GetUsers",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				GetUsersResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_UploadUserAvatar_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.UploadUserAvatar(context.TODO()),
@@ -454,24 +539,6 @@ func _Demo_UploadUserAvatar_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.
 	)
 }
 
-func _Demo_UploadUserAvatar_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"UploadUserAvatar",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _Demo_GetUserAvatar_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.GetUserAvatar(context.TODO()),
@@ -481,22 +548,4 @@ func _Demo_GetUserAvatar_GrpcServer_Transport(endpoints DemoEndpoints) *grpc.Ser
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _Demo_GetUserAvatar_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"leo.example.demo.v1.Demo",
-				"GetUserAvatar",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				httpbody.HttpBody{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }

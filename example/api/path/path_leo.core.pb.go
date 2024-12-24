@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -42,18 +41,19 @@ type PathEndpoints interface {
 	EnumPath(ctx context.Context) endpoint.Endpoint
 }
 
-type PathClientTransports interface {
-	BoolPath() transportx.ClientTransport
-	Int32Path() transportx.ClientTransport
-	Int64Path() transportx.ClientTransport
-	Uint32Path() transportx.ClientTransport
-	Uint64Path() transportx.ClientTransport
-	FloatPath() transportx.ClientTransport
-	DoublePath() transportx.ClientTransport
-	StringPath() transportx.ClientTransport
-	EnumPath() transportx.ClientTransport
+type PathClientEndpoints interface {
+	BoolPath(ctx context.Context) (endpoint.Endpoint, error)
+	Int32Path(ctx context.Context) (endpoint.Endpoint, error)
+	Int64Path(ctx context.Context) (endpoint.Endpoint, error)
+	Uint32Path(ctx context.Context) (endpoint.Endpoint, error)
+	Uint64Path(ctx context.Context) (endpoint.Endpoint, error)
+	FloatPath(ctx context.Context) (endpoint.Endpoint, error)
+	DoublePath(ctx context.Context) (endpoint.Endpoint, error)
+	StringPath(ctx context.Context) (endpoint.Endpoint, error)
+	EnumPath(ctx context.Context) (endpoint.Endpoint, error)
 }
-type PathClientTransportsV2 interface {
+
+type PathClientTransports interface {
 	BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -165,43 +165,88 @@ func newPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware)
 }
 
 type pathClientEndpoints struct {
-	transports  PathClientTransports
-	middlewares []endpoint.Middleware
+	balancers PathBalancers
 }
 
-func (e *pathClientEndpoints) BoolPath(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.BoolPath().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) BoolPath(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.BoolPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) Int32Path(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Int32Path().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) Int32Path(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.Int32Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) Int64Path(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Int64Path().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) Int64Path(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.Int64Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) Uint32Path(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Uint32Path().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) Uint32Path(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.Uint32Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) Uint64Path(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.Uint64Path().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) Uint64Path(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.Uint64Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) FloatPath(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.FloatPath().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) FloatPath(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.FloatPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) DoublePath(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DoublePath().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) DoublePath(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.DoublePath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) StringPath(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.StringPath().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) StringPath(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.StringPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *pathClientEndpoints) EnumPath(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.EnumPath().Endpoint(ctx), e.middlewares...)
+func (e *pathClientEndpoints) EnumPath(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.EnumPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newPathClientEndpoints(transports PathClientTransports, middlewares ...endpoint.Middleware) PathEndpoints {
-	return &pathClientEndpoints{transports: transports, middlewares: middlewares}
+func newPathClientEndpoints(
+	target string,
+	transports PathClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) PathClientEndpoints {
+	factories := newPathFactories(transports)
+	endpointers := newPathEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newPathBalancers(balancerFactory, endpointers)
+	return &pathClientEndpoints{balancers: balancers}
 }
 
 type pathFactories struct {
-	transports PathClientTransportsV2
+	transports PathClientTransports
 }
 
 func (f *pathFactories) BoolPath(ctx context.Context) sd.Factory {
@@ -249,7 +294,7 @@ func (f *pathFactories) EnumPath(ctx context.Context) sd.Factory {
 		return f.transports.EnumPath(ctx, instance)
 	}
 }
-func newPathFactories(transports PathClientTransportsV2) PathFactories {
+func newPathFactories(transports PathClientTransports) PathFactories {
 	return &pathFactories{transports: transports}
 }
 

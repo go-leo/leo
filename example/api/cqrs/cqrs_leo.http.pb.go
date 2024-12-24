@@ -76,7 +76,7 @@ func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newCQRSHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransportsV2 {
+func newCQRSHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransports {
 	return &cQRSHttpClientTransports{
 		scheme:        scheme,
 		router:        appendCQRSHttpRoutes(mux.NewRouter()),

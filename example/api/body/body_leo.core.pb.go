@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -35,14 +34,15 @@ type BodyEndpoints interface {
 	HttpBodyNamedBody(ctx context.Context) endpoint.Endpoint
 }
 
-type BodyClientTransports interface {
-	StarBody() transportx.ClientTransport
-	NamedBody() transportx.ClientTransport
-	NonBody() transportx.ClientTransport
-	HttpBodyStarBody() transportx.ClientTransport
-	HttpBodyNamedBody() transportx.ClientTransport
+type BodyClientEndpoints interface {
+	StarBody(ctx context.Context) (endpoint.Endpoint, error)
+	NamedBody(ctx context.Context) (endpoint.Endpoint, error)
+	NonBody(ctx context.Context) (endpoint.Endpoint, error)
+	HttpBodyStarBody(ctx context.Context) (endpoint.Endpoint, error)
+	HttpBodyNamedBody(ctx context.Context) (endpoint.Endpoint, error)
 }
-type BodyClientTransportsV2 interface {
+
+type BodyClientTransports interface {
 	StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -114,31 +114,60 @@ func newBodyServerEndpoints(svc BodyService, middlewares ...endpoint.Middleware)
 }
 
 type bodyClientEndpoints struct {
-	transports  BodyClientTransports
-	middlewares []endpoint.Middleware
+	balancers BodyBalancers
 }
 
-func (e *bodyClientEndpoints) StarBody(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.StarBody().Endpoint(ctx), e.middlewares...)
+func (e *bodyClientEndpoints) StarBody(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.StarBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *bodyClientEndpoints) NamedBody(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.NamedBody().Endpoint(ctx), e.middlewares...)
+func (e *bodyClientEndpoints) NamedBody(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.NamedBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *bodyClientEndpoints) NonBody(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.NonBody().Endpoint(ctx), e.middlewares...)
+func (e *bodyClientEndpoints) NonBody(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.NonBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *bodyClientEndpoints) HttpBodyStarBody(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.HttpBodyStarBody().Endpoint(ctx), e.middlewares...)
+func (e *bodyClientEndpoints) HttpBodyStarBody(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.HttpBodyStarBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *bodyClientEndpoints) HttpBodyNamedBody(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.HttpBodyNamedBody().Endpoint(ctx), e.middlewares...)
+func (e *bodyClientEndpoints) HttpBodyNamedBody(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.HttpBodyNamedBody(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newBodyClientEndpoints(transports BodyClientTransports, middlewares ...endpoint.Middleware) BodyEndpoints {
-	return &bodyClientEndpoints{transports: transports, middlewares: middlewares}
+func newBodyClientEndpoints(
+	target string,
+	transports BodyClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) BodyClientEndpoints {
+	factories := newBodyFactories(transports)
+	endpointers := newBodyEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newBodyBalancers(balancerFactory, endpointers)
+	return &bodyClientEndpoints{balancers: balancers}
 }
 
 type bodyFactories struct {
-	transports BodyClientTransportsV2
+	transports BodyClientTransports
 }
 
 func (f *bodyFactories) StarBody(ctx context.Context) sd.Factory {
@@ -166,7 +195,7 @@ func (f *bodyFactories) HttpBodyNamedBody(ctx context.Context) sd.Factory {
 		return f.transports.HttpBodyNamedBody(ctx, instance)
 	}
 }
-func newBodyFactories(transports BodyClientTransportsV2) BodyFactories {
+func newBodyFactories(transports BodyClientTransports) BodyFactories {
 	return &bodyFactories{transports: transports}
 }
 

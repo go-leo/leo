@@ -134,26 +134,44 @@ func (f *Generator) GenerateServerService(service *internal.Service, g *protogen
 
 func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedGrpcClientTransportsName(), " struct {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " ", internal.TransportxPackage.Ident("ClientTransport"))
-	}
+	g.P("dialOptions []", internal.GrpcPackage.Ident("DialOption"))
+	g.P("clientOptions []", internal.GrpcTransportPackage.Ident("ClientOption"))
+	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
 	g.P("}")
 	g.P()
-
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedGrpcClientTransportsName(), ") ", endpoint.Name(), "() ", internal.TransportxPackage.Ident("ClientTransport"), "{")
-		g.P("return t.", endpoint.UnexportedName())
+		g.P("func (t *", service.UnexportedGrpcClientTransportsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("conn, err := ", internal.GrpcPackage.Ident("NewClient"), "(instance, t.dialOptions...)")
+		g.P("if err != nil {")
+		g.P("return nil, nil, err")
+		g.P("}")
+		g.P("opts := []", internal.GrpcTransportPackage.Ident("ClientOption"), "{")
+		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
+		g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingStain"), "),")
+		g.P("}")
+		g.P("opts = append(opts, t.clientOptions...)")
+		g.P("client := ", internal.GrpcTransportPackage.Ident("NewClient"), "(")
+		g.P("conn,")
+		g.P(strconv.Quote(service.FullName()), ",")
+		g.P(strconv.Quote(endpoint.Name()), ", ")
+		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
+		g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
+		g.P(endpoint.OutputGoIdent(), "{},")
+		g.P("opts...)")
+		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(client.Endpoint(), t.middlewares...), conn, nil")
 		g.P("}")
 		g.P()
 	}
-
-	g.P("func New", service.GrpcClientTransportsName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") (", service.ClientTransportsName(), ", error) {")
-	g.P("t := &", service.UnexportedGrpcClientTransportsName(), "{}")
-	g.P("var err error")
-	for _, endpoint := range service.Endpoints {
-		g.P("t.", endpoint.UnexportedName(), ", err = ", internal.ErrorxPackage.Ident("Break"), "[", internal.TransportxPackage.Ident("ClientTransport"), "](err)(", endpoint.GrpcClientTransportName(), "(target, options...))")
-	}
-	g.P("return t, err")
+	g.P("func new", service.GrpcClientTransportsName(), "(")
+	g.P("dialOptions []", internal.GrpcPackage.Ident("DialOption"), ",")
+	g.P("clientOptions []", internal.GrpcTransportPackage.Ident("ClientOption"), ",")
+	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"), ",")
+	g.P(") ", service.ClientTransportsName(), " {")
+	g.P("return &", service.UnexportedGrpcClientTransportsName(), "{")
+	g.P("dialOptions: dialOptions,")
+	g.P("clientOptions: clientOptions,")
+	g.P("middlewares: middlewares,")
+	g.P("}")
 	g.P("}")
 	g.P()
 
@@ -166,46 +184,29 @@ func (f *Generator) GenerateTransport(g *protogen.GeneratedFile) error {
 			if err := f.GenerateServerEndpointTransport(service, g, endpoint); err != nil {
 				return err
 			}
-			if err := f.GenerateClientEndpointTransport(service, g, endpoint); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
 }
 
-func (f *Generator) GenerateClientEndpointTransport(service *internal.Service, g *protogen.GeneratedFile, endpoint *internal.Endpoint) error {
-	g.P("func ", endpoint.GrpcClientTransportName(), "(target string, options ...", internal.TransportxPackage.Ident("ClientTransportOption"), ") func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
-	g.P("return func() (", internal.TransportxPackage.Ident("ClientTransport"), ", error) {")
-	g.P("return ", internal.TransportxPackage.Ident("NewClientTransport"), "(")
-	g.P("target,")
-	g.P(internal.GrpcxTransportxPackage.Ident("ClientFactory"), "(")
-	g.P(strconv.Quote(service.FullName()), ",")
-	g.P(strconv.Quote(endpoint.Name()), ", ")
-	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
-	g.P("func(_ ", internal.ContextPackage.Ident("Context"), ", v any) (any, error) { return v, nil }", ", ")
-	g.P(endpoint.OutputGoIdent(), "{},")
-	g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
-	g.P(internal.GrpcTransportPackage.Ident("ClientBefore"), "(", internal.GrpcxTransportxPackage.Ident("OutgoingStain"), "),")
-	g.P("),")
-	g.P("options...,")
-	g.P(")")
-	g.P("}")
-	g.P("}")
-	g.P()
-	return nil
-}
-
 func (f *Generator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedGrpcClientName(), " struct {")
-	g.P("endpoints ", service.EndpointsName())
+	g.P("balancers ", service.BalancersName())
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (c *", service.UnexportedGrpcClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
 		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.GrpcxTransportxPackage.Ident("GrpcClient"), ")")
-		g.P("rep, err := c.endpoints.", endpoint.Name(), "(ctx)(ctx, request)")
+		g.P("balancer, err := c.balancers.", endpoint.Name(), "(ctx)")
+		g.P("if err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+		g.P("endpoint, err := balancer.Endpoint()")
+		g.P("if err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+		g.P("rep, err := endpoint(ctx, request)")
 		g.P("if err != nil {")
 		g.P("return nil, ", internal.StatusxPackage.Ident("FromGrpcError"), "(err)")
 		g.P("}")
@@ -213,10 +214,13 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 		g.P("}")
 		g.P()
 	}
-
-	g.P("func New", service.GrpcClientName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServiceName(), " {")
-	g.P("endpoints := new", service.ClientEndpointsName(), "(transports, middlewares...)")
-	g.P("return &", service.UnexportedGrpcClientName(), "{endpoints:endpoints}")
+	g.P("func New", service.GrpcClientName(), "(target string, opts ...", internal.GrpcxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
+	g.P("options := ", internal.GrpcxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
+	g.P("transports := new", service.GrpcClientTransportsName(), "(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())")
+	g.P("factories := new", service.FactoriesName(), "(transports)")
+	g.P("endpointers := new", service.EndpointersName(), "(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)")
+	g.P("balancers := new", service.BalancersName(), "(options.BalancerFactory(), endpointers)")
+	g.P("return &", service.UnexportedHttpClientName(), "{balancers: balancers}")
 	g.P("}")
 	g.P()
 	return nil

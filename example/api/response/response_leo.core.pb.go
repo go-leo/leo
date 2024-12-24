@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -35,14 +34,15 @@ type ResponseEndpoints interface {
 	HttpBodyNamedResponse(ctx context.Context) endpoint.Endpoint
 }
 
-type ResponseClientTransports interface {
-	OmittedResponse() transportx.ClientTransport
-	StarResponse() transportx.ClientTransport
-	NamedResponse() transportx.ClientTransport
-	HttpBodyResponse() transportx.ClientTransport
-	HttpBodyNamedResponse() transportx.ClientTransport
+type ResponseClientEndpoints interface {
+	OmittedResponse(ctx context.Context) (endpoint.Endpoint, error)
+	StarResponse(ctx context.Context) (endpoint.Endpoint, error)
+	NamedResponse(ctx context.Context) (endpoint.Endpoint, error)
+	HttpBodyResponse(ctx context.Context) (endpoint.Endpoint, error)
+	HttpBodyNamedResponse(ctx context.Context) (endpoint.Endpoint, error)
 }
-type ResponseClientTransportsV2 interface {
+
+type ResponseClientTransports interface {
 	OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -114,31 +114,60 @@ func newResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Mid
 }
 
 type responseClientEndpoints struct {
-	transports  ResponseClientTransports
-	middlewares []endpoint.Middleware
+	balancers ResponseBalancers
 }
 
-func (e *responseClientEndpoints) OmittedResponse(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.OmittedResponse().Endpoint(ctx), e.middlewares...)
+func (e *responseClientEndpoints) OmittedResponse(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.OmittedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *responseClientEndpoints) StarResponse(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.StarResponse().Endpoint(ctx), e.middlewares...)
+func (e *responseClientEndpoints) StarResponse(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.StarResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *responseClientEndpoints) NamedResponse(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.NamedResponse().Endpoint(ctx), e.middlewares...)
+func (e *responseClientEndpoints) NamedResponse(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.NamedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *responseClientEndpoints) HttpBodyResponse(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.HttpBodyResponse().Endpoint(ctx), e.middlewares...)
+func (e *responseClientEndpoints) HttpBodyResponse(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.HttpBodyResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *responseClientEndpoints) HttpBodyNamedResponse(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.HttpBodyNamedResponse().Endpoint(ctx), e.middlewares...)
+func (e *responseClientEndpoints) HttpBodyNamedResponse(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.HttpBodyNamedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newResponseClientEndpoints(transports ResponseClientTransports, middlewares ...endpoint.Middleware) ResponseEndpoints {
-	return &responseClientEndpoints{transports: transports, middlewares: middlewares}
+func newResponseClientEndpoints(
+	target string,
+	transports ResponseClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) ResponseClientEndpoints {
+	factories := newResponseFactories(transports)
+	endpointers := newResponseEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newResponseBalancers(balancerFactory, endpointers)
+	return &responseClientEndpoints{balancers: balancers}
 }
 
 type responseFactories struct {
-	transports ResponseClientTransportsV2
+	transports ResponseClientTransports
 }
 
 func (f *responseFactories) OmittedResponse(ctx context.Context) sd.Factory {
@@ -166,7 +195,7 @@ func (f *responseFactories) HttpBodyNamedResponse(ctx context.Context) sd.Factor
 		return f.transports.HttpBodyNamedResponse(ctx, instance)
 	}
 }
-func newResponseFactories(transports ResponseClientTransportsV2) ResponseFactories {
+func newResponseFactories(transports ResponseClientTransports) ResponseFactories {
 	return &responseFactories{transports: transports}
 }
 

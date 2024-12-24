@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -26,10 +25,11 @@ type MixPathEndpoints interface {
 	MixPath(ctx context.Context) endpoint.Endpoint
 }
 
-type MixPathClientTransports interface {
-	MixPath() transportx.ClientTransport
+type MixPathClientEndpoints interface {
+	MixPath(ctx context.Context) (endpoint.Endpoint, error)
 }
-type MixPathClientTransportsV2 interface {
+
+type MixPathClientTransports interface {
 	MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
@@ -61,19 +61,32 @@ func newMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middl
 }
 
 type mixPathClientEndpoints struct {
-	transports  MixPathClientTransports
-	middlewares []endpoint.Middleware
+	balancers MixPathBalancers
 }
 
-func (e *mixPathClientEndpoints) MixPath(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.MixPath().Endpoint(ctx), e.middlewares...)
+func (e *mixPathClientEndpoints) MixPath(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.MixPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newMixPathClientEndpoints(transports MixPathClientTransports, middlewares ...endpoint.Middleware) MixPathEndpoints {
-	return &mixPathClientEndpoints{transports: transports, middlewares: middlewares}
+func newMixPathClientEndpoints(
+	target string,
+	transports MixPathClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) MixPathClientEndpoints {
+	factories := newMixPathFactories(transports)
+	endpointers := newMixPathEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newMixPathBalancers(balancerFactory, endpointers)
+	return &mixPathClientEndpoints{balancers: balancers}
 }
 
 type mixPathFactories struct {
-	transports MixPathClientTransportsV2
+	transports MixPathClientTransports
 }
 
 func (f *mixPathFactories) MixPath(ctx context.Context) sd.Factory {
@@ -81,7 +94,7 @@ func (f *mixPathFactories) MixPath(ctx context.Context) sd.Factory {
 		return f.transports.MixPath(ctx, instance)
 	}
 }
-func newMixPathFactories(transports MixPathClientTransportsV2) MixPathFactories {
+func newMixPathFactories(transports MixPathClientTransports) MixPathFactories {
 	return &mixPathFactories{transports: transports}
 }
 

@@ -168,7 +168,7 @@ func (t *demoHttpClientTransports) GetUserAvatar(ctx context.Context, instance s
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newDemoHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) DemoClientTransportsV2 {
+func newDemoHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) DemoClientTransports {
 	return &demoHttpClientTransports{
 		scheme:        scheme,
 		router:        appendDemoHttpRoutes(mux.NewRouter()),

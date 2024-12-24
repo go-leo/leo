@@ -148,7 +148,7 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString(ctx context.Con
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newNamedPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) NamedPathClientTransportsV2 {
+func newNamedPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) NamedPathClientTransports {
 	return &namedPathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendNamedPathHttpRoutes(mux.NewRouter()),

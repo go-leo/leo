@@ -102,16 +102,17 @@ func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.Gen
 	}
 	g.P("}")
 	g.P()
+	g.P("type ", service.ClientEndpointsName(), " interface {")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.EndpointPackage.Ident("Endpoint"), ", error)")
+	}
+	g.P("}")
+	g.P()
 	return nil
 }
 
 func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.ClientTransportsName(), " interface {")
-	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.Name(), "() ", internal.TransportxPackage.Ident("ClientTransport"))
-	}
-	g.P("}")
-	g.P("type ", service.ClientTransportsNameV2(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error)")
 	}
@@ -172,17 +173,29 @@ func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protog
 
 func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedClientEndpointsName(), " struct {")
-	g.P("transports ", service.ClientTransportsName())
-	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
+	g.P("balancers ", service.BalancersName())
 	g.P("}")
-
 	for _, endpoint := range service.Endpoints {
-		g.P("func (e *", service.UnexportedClientEndpointsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"), "{")
-		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(e.transports.", endpoint.Name(), "().Endpoint(ctx), e.middlewares...)")
+		g.P("func (e *", service.UnexportedClientEndpointsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.EndpointPackage.Ident("Endpoint"), ", error) {")
+		g.P("balancer, err := e.balancers.", endpoint.Name(), "(ctx)")
+		g.P("if err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+		g.P("return balancer.Endpoint()")
 		g.P("}")
 	}
-	g.P("func new", service.ClientEndpointsName(), "(transports ", service.ClientTransportsName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), " {")
-	g.P("return &", service.UnexportedClientEndpointsName(), "{transports: transports, middlewares: middlewares}")
+	g.P("func new", service.ClientEndpointsName(), "(")
+	g.P("target string,")
+	g.P("transports ", service.ClientTransportsName(), ",")
+	g.P("instancerFactory ", internal.SdxPackage.Ident("InstancerFactory"), ",")
+	g.P("endpointerOptions []", internal.SdPackage.Ident("EndpointerOption"), ",")
+	g.P("balancerFactory ", internal.LbxPackage.Ident("BalancerFactory"), ",")
+	g.P("logger ", internal.LogPackage.Ident("Logger"), ",")
+	g.P(") ", service.ClientEndpointsName(), " {")
+	g.P("factories := new", service.FactoriesName(), "(transports)")
+	g.P("endpointers := new", service.EndpointersName(), "(target, instancerFactory, factories, logger, endpointerOptions...)")
+	g.P("balancers := new", service.BalancersName(), "(balancerFactory, endpointers)")
+	g.P("return &", service.UnexportedClientEndpointsName(), "{balancers: balancers}")
 	g.P("}")
 	g.P()
 	return nil
@@ -190,7 +203,7 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 
 func (f *Generator) GenerateClientTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedFactoriesName(), " struct {")
-	g.P("transports ", service.ClientTransportsNameV2())
+	g.P("transports ", service.ClientTransportsName())
 	g.P("}")
 	for _, endpoint := range service.Endpoints {
 		g.P("func (f *", service.UnexportedFactoriesName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.SdPackage.Ident("Factory"), "{")
@@ -199,7 +212,7 @@ func (f *Generator) GenerateClientTransportsImplements(service *internal.Service
 		g.P("}")
 		g.P("}")
 	}
-	g.P("func new", service.FactoriesName(), "(transports ", service.ClientTransportsNameV2(), ") ", service.FactoriesName(), " {")
+	g.P("func new", service.FactoriesName(), "(transports ", service.ClientTransportsName(), ") ", service.FactoriesName(), " {")
 	g.P("return &", service.UnexportedFactoriesName(), "{transports: transports}")
 	g.P("}")
 	g.P()

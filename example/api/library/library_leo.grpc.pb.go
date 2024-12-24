@@ -6,12 +6,13 @@ import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	io "io"
 )
 
 // =========================== grpc server ===========================
@@ -238,88 +239,270 @@ func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpo
 // =========================== grpc client ===========================
 
 type libraryServiceGrpcClientTransports struct {
-	createShelf  transportx.ClientTransport
-	getShelf     transportx.ClientTransport
-	listShelves  transportx.ClientTransport
-	deleteShelf  transportx.ClientTransport
-	mergeShelves transportx.ClientTransport
-	createBook   transportx.ClientTransport
-	getBook      transportx.ClientTransport
-	listBooks    transportx.ClientTransport
-	deleteBook   transportx.ClientTransport
-	updateBook   transportx.ClientTransport
-	moveBook     transportx.ClientTransport
+	dialOptions   []grpc1.DialOption
+	clientOptions []grpc.ClientOption
+	middlewares   []endpoint.Middleware
 }
 
-func (t *libraryServiceGrpcClientTransports) CreateShelf() transportx.ClientTransport {
-	return t.createShelf
+func (t *libraryServiceGrpcClientTransports) CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"CreateShelf",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Shelf{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) GetShelf() transportx.ClientTransport {
-	return t.getShelf
+func (t *libraryServiceGrpcClientTransports) GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"GetShelf",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Shelf{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) ListShelves() transportx.ClientTransport {
-	return t.listShelves
+func (t *libraryServiceGrpcClientTransports) ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"ListShelves",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		ListShelvesResponse{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) DeleteShelf() transportx.ClientTransport {
-	return t.deleteShelf
+func (t *libraryServiceGrpcClientTransports) DeleteShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"DeleteShelf",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) MergeShelves() transportx.ClientTransport {
-	return t.mergeShelves
+func (t *libraryServiceGrpcClientTransports) MergeShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"MergeShelves",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Shelf{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) CreateBook() transportx.ClientTransport {
-	return t.createBook
+func (t *libraryServiceGrpcClientTransports) CreateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"CreateBook",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Book{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) GetBook() transportx.ClientTransport {
-	return t.getBook
+func (t *libraryServiceGrpcClientTransports) GetBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"GetBook",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Book{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) ListBooks() transportx.ClientTransport {
-	return t.listBooks
+func (t *libraryServiceGrpcClientTransports) ListBooks(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"ListBooks",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		ListBooksResponse{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) DeleteBook() transportx.ClientTransport {
-	return t.deleteBook
+func (t *libraryServiceGrpcClientTransports) DeleteBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"DeleteBook",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) UpdateBook() transportx.ClientTransport {
-	return t.updateBook
+func (t *libraryServiceGrpcClientTransports) UpdateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"UpdateBook",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Book{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *libraryServiceGrpcClientTransports) MoveBook() transportx.ClientTransport {
-	return t.moveBook
+func (t *libraryServiceGrpcClientTransports) MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStain),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"google.example.library.v1.LibraryService",
+		"MoveBook",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		Book{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewLibraryServiceGrpcClientTransports(target string, options ...transportx.ClientTransportOption) (LibraryServiceClientTransports, error) {
-	t := &libraryServiceGrpcClientTransports{}
-	var err error
-	t.createShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_CreateShelf_GrpcClient_Transport(target, options...))
-	t.getShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_GetShelf_GrpcClient_Transport(target, options...))
-	t.listShelves, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_ListShelves_GrpcClient_Transport(target, options...))
-	t.deleteShelf, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_DeleteShelf_GrpcClient_Transport(target, options...))
-	t.mergeShelves, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_MergeShelves_GrpcClient_Transport(target, options...))
-	t.createBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_CreateBook_GrpcClient_Transport(target, options...))
-	t.getBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_GetBook_GrpcClient_Transport(target, options...))
-	t.listBooks, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_ListBooks_GrpcClient_Transport(target, options...))
-	t.deleteBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_DeleteBook_GrpcClient_Transport(target, options...))
-	t.updateBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_UpdateBook_GrpcClient_Transport(target, options...))
-	t.moveBook, err = errorx.Break[transportx.ClientTransport](err)(_LibraryService_MoveBook_GrpcClient_Transport(target, options...))
-	return t, err
+func newLibraryServiceGrpcClientTransports(
+	dialOptions []grpc1.DialOption,
+	clientOptions []grpc.ClientOption,
+	middlewares []endpoint.Middleware,
+) LibraryServiceClientTransports {
+	return &libraryServiceGrpcClientTransports{
+		dialOptions:   dialOptions,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
 }
 
 type libraryServiceGrpcClient struct {
-	endpoints LibraryServiceEndpoints
+	balancers LibraryServiceBalancers
 }
 
 func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.CreateShelf(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -329,7 +512,15 @@ func (c *libraryServiceGrpcClient) CreateShelf(ctx context.Context, request *Cre
 func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.GetShelf(ctx)(ctx, request)
+	balancer, err := c.balancers.GetShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -339,7 +530,15 @@ func (c *libraryServiceGrpcClient) GetShelf(ctx context.Context, request *GetShe
 func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.ListShelves(ctx)(ctx, request)
+	balancer, err := c.balancers.ListShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -349,7 +548,15 @@ func (c *libraryServiceGrpcClient) ListShelves(ctx context.Context, request *Lis
 func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.DeleteShelf(ctx)(ctx, request)
+	balancer, err := c.balancers.DeleteShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -359,7 +566,15 @@ func (c *libraryServiceGrpcClient) DeleteShelf(ctx context.Context, request *Del
 func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.MergeShelves(ctx)(ctx, request)
+	balancer, err := c.balancers.MergeShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -369,7 +584,15 @@ func (c *libraryServiceGrpcClient) MergeShelves(ctx context.Context, request *Me
 func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.CreateBook(ctx)(ctx, request)
+	balancer, err := c.balancers.CreateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -379,7 +602,15 @@ func (c *libraryServiceGrpcClient) CreateBook(ctx context.Context, request *Crea
 func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.GetBook(ctx)(ctx, request)
+	balancer, err := c.balancers.GetBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -389,7 +620,15 @@ func (c *libraryServiceGrpcClient) GetBook(ctx context.Context, request *GetBook
 func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.ListBooks(ctx)(ctx, request)
+	balancer, err := c.balancers.ListBooks(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -399,7 +638,15 @@ func (c *libraryServiceGrpcClient) ListBooks(ctx context.Context, request *ListB
 func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.DeleteBook(ctx)(ctx, request)
+	balancer, err := c.balancers.DeleteBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -409,7 +656,15 @@ func (c *libraryServiceGrpcClient) DeleteBook(ctx context.Context, request *Dele
 func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.UpdateBook(ctx)(ctx, request)
+	balancer, err := c.balancers.UpdateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
@@ -419,16 +674,28 @@ func (c *libraryServiceGrpcClient) UpdateBook(ctx context.Context, request *Upda
 func (c *libraryServiceGrpcClient) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
 	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
 	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	rep, err := c.endpoints.MoveBook(ctx)(ctx, request)
+	balancer, err := c.balancers.MoveBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	endpoint, err := balancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
 	if err != nil {
 		return nil, statusx.FromGrpcError(err)
 	}
 	return rep.(*Book), nil
 }
 
-func NewLibraryServiceGrpcClient(transports LibraryServiceClientTransports, middlewares ...endpoint.Middleware) LibraryServiceService {
-	endpoints := newLibraryServiceClientEndpoints(transports, middlewares...)
-	return &libraryServiceGrpcClient{endpoints: endpoints}
+func NewLibraryServiceGrpcClient(target string, opts ...grpcx.ClientOption) LibraryServiceService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newLibraryServiceGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	factories := newLibraryServiceFactories(transports)
+	endpointers := newLibraryServiceEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
+	balancers := newLibraryServiceBalancers(options.BalancerFactory(), endpointers)
+	return &libraryServiceHttpClient{balancers: balancers}
 }
 
 // =========================== grpc transport ===========================
@@ -444,24 +711,6 @@ func _LibraryService_CreateShelf_GrpcServer_Transport(endpoints LibraryServiceEn
 	)
 }
 
-func _LibraryService_CreateShelf_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"CreateShelf",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Shelf{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_GetShelf_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.GetShelf(context.TODO()),
@@ -471,24 +720,6 @@ func _LibraryService_GetShelf_GrpcServer_Transport(endpoints LibraryServiceEndpo
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _LibraryService_GetShelf_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"GetShelf",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Shelf{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_ListShelves_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
@@ -502,24 +733,6 @@ func _LibraryService_ListShelves_GrpcServer_Transport(endpoints LibraryServiceEn
 	)
 }
 
-func _LibraryService_ListShelves_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"ListShelves",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				ListShelvesResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_DeleteShelf_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.DeleteShelf(context.TODO()),
@@ -529,24 +742,6 @@ func _LibraryService_DeleteShelf_GrpcServer_Transport(endpoints LibraryServiceEn
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _LibraryService_DeleteShelf_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"DeleteShelf",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_MergeShelves_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
@@ -560,24 +755,6 @@ func _LibraryService_MergeShelves_GrpcServer_Transport(endpoints LibraryServiceE
 	)
 }
 
-func _LibraryService_MergeShelves_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"MergeShelves",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Shelf{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_CreateBook_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.CreateBook(context.TODO()),
@@ -587,24 +764,6 @@ func _LibraryService_CreateBook_GrpcServer_Transport(endpoints LibraryServiceEnd
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _LibraryService_CreateBook_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"CreateBook",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_GetBook_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
@@ -618,24 +777,6 @@ func _LibraryService_GetBook_GrpcServer_Transport(endpoints LibraryServiceEndpoi
 	)
 }
 
-func _LibraryService_GetBook_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"GetBook",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_ListBooks_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.ListBooks(context.TODO()),
@@ -645,24 +786,6 @@ func _LibraryService_ListBooks_GrpcServer_Transport(endpoints LibraryServiceEndp
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _LibraryService_ListBooks_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"ListBooks",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				ListBooksResponse{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }
 
 func _LibraryService_DeleteBook_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
@@ -676,24 +799,6 @@ func _LibraryService_DeleteBook_GrpcServer_Transport(endpoints LibraryServiceEnd
 	)
 }
 
-func _LibraryService_DeleteBook_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"DeleteBook",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				emptypb.Empty{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_UpdateBook_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.UpdateBook(context.TODO()),
@@ -705,24 +810,6 @@ func _LibraryService_UpdateBook_GrpcServer_Transport(endpoints LibraryServiceEnd
 	)
 }
 
-func _LibraryService_UpdateBook_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"UpdateBook",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
-}
-
 func _LibraryService_MoveBook_GrpcServer_Transport(endpoints LibraryServiceEndpoints) *grpc.Server {
 	return grpc.NewServer(
 		endpoints.MoveBook(context.TODO()),
@@ -732,22 +819,4 @@ func _LibraryService_MoveBook_GrpcServer_Transport(endpoints LibraryServiceEndpo
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
 	)
-}
-
-func _LibraryService_MoveBook_GrpcClient_Transport(target string, options ...transportx.ClientTransportOption) func() (transportx.ClientTransport, error) {
-	return func() (transportx.ClientTransport, error) {
-		return transportx.NewClientTransport(
-			target,
-			grpcx.ClientFactory(
-				"google.example.library.v1.LibraryService",
-				"MoveBook",
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				func(_ context.Context, v any) (any, error) { return v, nil },
-				Book{},
-				grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-				grpc.ClientBefore(grpcx.OutgoingStain),
-			),
-			options...,
-		)
-	}
 }

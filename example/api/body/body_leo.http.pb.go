@@ -128,7 +128,7 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instan
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newBodyHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) BodyClientTransportsV2 {
+func newBodyHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) BodyClientTransports {
 	return &bodyHttpClientTransports{
 		scheme:        scheme,
 		router:        appendBodyHttpRoutes(mux.NewRouter()),

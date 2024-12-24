@@ -1,40 +1,134 @@
 package grpcx
 
 import (
-	"context"
-	"errors"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/go-kit/log"
+	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/lbx"
+	"github.com/go-leo/leo/v3/sdx/passthroughx"
 	"google.golang.org/grpc"
-	"io"
 )
 
-func ClientFactory(
-	serviceName string,
-	method string,
-	enc grpctransport.EncodeRequestFunc,
-	dec grpctransport.DecodeResponseFunc,
-	grpcReply interface{},
-	options ...grpctransport.ClientOption,
-) sdx.Factory {
-	return func(ctx context.Context, args any) sd.Factory {
-		if args == nil {
-			args = make([]grpc.DialOption, 0)
-		}
-		return func(target string) (endpoint.Endpoint, io.Closer, error) {
-			dialOptions, ok := args.([]grpc.DialOption)
-			if !ok {
-				return nil, nil, errors.New("invalid grpc factory args")
-			}
-			conn, err := grpc.NewClient(target, dialOptions...)
-			if err != nil {
-				return nil, nil, err
-			}
-			client := grpctransport.NewClient(conn, serviceName, method, enc, dec, grpcReply, options...)
-			return sdx.WithTarget(target, client.Endpoint()), conn, nil
-		}
+type (
+	ClientOptions interface {
+		DialOptions() []grpc.DialOption
+		ClientTransportOptions() []grpctransport.ClientOption
+		Middlewares() []endpoint.Middleware
+		InstancerFactory() sdx.InstancerFactory
+		EndpointerOptions() []sd.EndpointerOption
+		Logger() log.Logger
+		BalancerFactory() lbx.BalancerFactory
 	}
 
+	clientOptions struct {
+		dialOptions            []grpc.DialOption
+		clientTransportOptions []grpctransport.ClientOption
+		middlewares            []endpoint.Middleware
+		instancerFactory       sdx.InstancerFactory
+		endpointerOptions      []sd.EndpointerOption
+		logger                 log.Logger
+		balancerFactory        lbx.BalancerFactory
+	}
+
+	ClientOption func(o *clientOptions)
+)
+
+func (o *clientOptions) DialOptions() []grpc.DialOption {
+	return o.dialOptions
+}
+
+func (o *clientOptions) ClientTransportOptions() []grpctransport.ClientOption {
+	return o.clientTransportOptions
+}
+
+func (o *clientOptions) Middlewares() []endpoint.Middleware {
+	return o.middlewares
+}
+
+func (o *clientOptions) InstancerFactory() sdx.InstancerFactory {
+	return o.instancerFactory
+}
+
+func (o *clientOptions) EndpointerOptions() []sd.EndpointerOption {
+	return o.endpointerOptions
+}
+
+func (o *clientOptions) Logger() log.Logger {
+	return o.logger
+}
+
+func (o *clientOptions) BalancerFactory() lbx.BalancerFactory {
+	return o.balancerFactory
+}
+
+// DialOptions is a option that sets the grpc dial options.
+func DialOptions(options ...grpc.DialOption) ClientOption {
+	return func(o *clientOptions) {
+		o.dialOptions = append(o.dialOptions, options...)
+	}
+}
+
+// ClientTransportOption is a option that sets the go-kit grpc transport client options.
+func ClientTransportOption(options ...grpctransport.ClientOption) ClientOption {
+	return func(o *clientOptions) {
+		o.clientTransportOptions = append(o.clientTransportOptions, options...)
+	}
+}
+
+// Middleware is a option that sets the go-kit endpoint middlewares.
+func Middleware(middlewares ...endpoint.Middleware) ClientOption {
+	return func(o *clientOptions) {
+		o.middlewares = append(o.middlewares, middlewares...)
+	}
+}
+
+// InstancerFactory is a option that sets the sd instancer factory.
+func InstancerFactory(factory sdx.InstancerFactory) ClientOption {
+	return func(o *clientOptions) {
+		o.instancerFactory = factory
+	}
+}
+
+// EndpointerOption is a option that sets the endpointer EndpointerOptions.
+func EndpointerOption(options ...sd.EndpointerOption) ClientOption {
+	return func(o *clientOptions) {
+		o.endpointerOptions = append(o.endpointerOptions, options...)
+	}
+}
+
+// Logger is a option that sets the logger.
+func Logger(logger log.Logger) ClientOption {
+	return func(o *clientOptions) {
+		o.logger = logger
+	}
+}
+
+// BalancerFactory is a option that sets the balancer factory.
+func BalancerFactory(factory lbx.BalancerFactory) ClientOption {
+	return func(o *clientOptions) {
+		o.balancerFactory = factory
+	}
+}
+
+func NewClientOptions(opts ...ClientOption) ClientOptions {
+	options := &clientOptions{
+		dialOptions:            nil,
+		clientTransportOptions: nil,
+		middlewares:            nil,
+		instancerFactory:       passthroughx.Factory{},
+		endpointerOptions:      nil,
+		logger:                 logx.L(),
+		balancerFactory:        lbx.PeakFirstFactory{},
+	}
+	return options.Apply(opts...)
+}
+
+func (o *clientOptions) Apply(opts ...ClientOption) *clientOptions {
+	for _, opt := range opts {
+		opt(o)
+	}
+	return o
 }

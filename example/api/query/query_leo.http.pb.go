@@ -64,7 +64,7 @@ func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newQueryHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) QueryClientTransportsV2 {
+func newQueryHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) QueryClientTransports {
 	return &queryHttpClientTransports{
 		scheme:        scheme,
 		router:        appendQueryHttpRoutes(mux.NewRouter()),

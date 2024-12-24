@@ -131,7 +131,7 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newResponseHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransportsV2 {
+func newResponseHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransports {
 	return &responseHttpClientTransports{
 		scheme:        scheme,
 		router:        appendResponseHttpRoutes(mux.NewRouter()),

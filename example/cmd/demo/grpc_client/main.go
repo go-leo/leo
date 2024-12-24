@@ -6,19 +6,14 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/api/demo"
-	"github.com/go-leo/leo/v3/transportx"
+	"github.com/go-leo/leo/v3/transportx/grpcx"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
-	transports, err := demo.NewDemoGrpcClientTransports(":9090", transportx.GrpcDialOption(grpc1.WithTransportCredentials(insecure.NewCredentials())))
-	if err != nil {
-		panic(err)
-	}
-	client := demo.NewDemoGrpcClient(transports)
-
+	client := demo.NewDemoGrpcClient(":9090", grpcx.DialOptions(grpc1.WithTransportCredentials(insecure.NewCredentials())))
 	createUserResp, err := client.CreateUser(context.Background(), &demo.CreateUserRequest{
 		User: &demo.User{
 			Name:   randx.HexString(12),

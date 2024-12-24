@@ -234,7 +234,7 @@ func (t *libraryServiceHttpClientTransports) MoveBook(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newLibraryServiceHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) LibraryServiceClientTransportsV2 {
+func newLibraryServiceHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) LibraryServiceClientTransports {
 	return &libraryServiceHttpClientTransports{
 		scheme:        scheme,
 		router:        appendLibraryServiceHttpRoutes(mux.NewRouter()),

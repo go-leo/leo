@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -39,16 +38,17 @@ type DemoEndpoints interface {
 	GetUserAvatar(ctx context.Context) endpoint.Endpoint
 }
 
-type DemoClientTransports interface {
-	CreateUser() transportx.ClientTransport
-	DeleteUser() transportx.ClientTransport
-	UpdateUser() transportx.ClientTransport
-	GetUser() transportx.ClientTransport
-	GetUsers() transportx.ClientTransport
-	UploadUserAvatar() transportx.ClientTransport
-	GetUserAvatar() transportx.ClientTransport
+type DemoClientEndpoints interface {
+	CreateUser(ctx context.Context) (endpoint.Endpoint, error)
+	DeleteUser(ctx context.Context) (endpoint.Endpoint, error)
+	UpdateUser(ctx context.Context) (endpoint.Endpoint, error)
+	GetUser(ctx context.Context) (endpoint.Endpoint, error)
+	GetUsers(ctx context.Context) (endpoint.Endpoint, error)
+	UploadUserAvatar(ctx context.Context) (endpoint.Endpoint, error)
+	GetUserAvatar(ctx context.Context) (endpoint.Endpoint, error)
 }
-type DemoClientTransportsV2 interface {
+
+type DemoClientTransports interface {
 	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -140,37 +140,74 @@ func newDemoServerEndpoints(svc DemoService, middlewares ...endpoint.Middleware)
 }
 
 type demoClientEndpoints struct {
-	transports  DemoClientTransports
-	middlewares []endpoint.Middleware
+	balancers DemoBalancers
 }
 
-func (e *demoClientEndpoints) CreateUser(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateUser().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) CreateUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *demoClientEndpoints) DeleteUser(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.DeleteUser().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) DeleteUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.DeleteUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *demoClientEndpoints) UpdateUser(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UpdateUser().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) UpdateUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.UpdateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *demoClientEndpoints) GetUser(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUser().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) GetUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *demoClientEndpoints) GetUsers(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUsers().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) GetUsers(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.GetUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *demoClientEndpoints) UploadUserAvatar(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.UploadUserAvatar().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) UploadUserAvatar(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.UploadUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *demoClientEndpoints) GetUserAvatar(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.GetUserAvatar().Endpoint(ctx), e.middlewares...)
+func (e *demoClientEndpoints) GetUserAvatar(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.GetUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newDemoClientEndpoints(transports DemoClientTransports, middlewares ...endpoint.Middleware) DemoEndpoints {
-	return &demoClientEndpoints{transports: transports, middlewares: middlewares}
+func newDemoClientEndpoints(
+	target string,
+	transports DemoClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) DemoClientEndpoints {
+	factories := newDemoFactories(transports)
+	endpointers := newDemoEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newDemoBalancers(balancerFactory, endpointers)
+	return &demoClientEndpoints{balancers: balancers}
 }
 
 type demoFactories struct {
-	transports DemoClientTransportsV2
+	transports DemoClientTransports
 }
 
 func (f *demoFactories) CreateUser(ctx context.Context) sd.Factory {
@@ -208,7 +245,7 @@ func (f *demoFactories) GetUserAvatar(ctx context.Context) sd.Factory {
 		return f.transports.GetUserAvatar(ctx, instance)
 	}
 }
-func newDemoFactories(transports DemoClientTransportsV2) DemoFactories {
+func newDemoFactories(transports DemoClientTransports) DemoFactories {
 	return &demoFactories{transports: transports}
 }
 

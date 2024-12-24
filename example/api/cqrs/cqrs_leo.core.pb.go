@@ -13,7 +13,6 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -28,11 +27,12 @@ type CQRSEndpoints interface {
 	FindUser(ctx context.Context) endpoint.Endpoint
 }
 
-type CQRSClientTransports interface {
-	CreateUser() transportx.ClientTransport
-	FindUser() transportx.ClientTransport
+type CQRSClientEndpoints interface {
+	CreateUser(ctx context.Context) (endpoint.Endpoint, error)
+	FindUser(ctx context.Context) (endpoint.Endpoint, error)
 }
-type CQRSClientTransportsV2 interface {
+
+type CQRSClientTransports interface {
 	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
@@ -74,22 +74,39 @@ func newCQRSServerEndpoints(svc CQRSService, middlewares ...endpoint.Middleware)
 }
 
 type cQRSClientEndpoints struct {
-	transports  CQRSClientTransports
-	middlewares []endpoint.Middleware
+	balancers CQRSBalancers
 }
 
-func (e *cQRSClientEndpoints) CreateUser(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.CreateUser().Endpoint(ctx), e.middlewares...)
+func (e *cQRSClientEndpoints) CreateUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func (e *cQRSClientEndpoints) FindUser(ctx context.Context) endpoint.Endpoint {
-	return endpointx.Chain(e.transports.FindUser().Endpoint(ctx), e.middlewares...)
+func (e *cQRSClientEndpoints) FindUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.FindUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
 }
-func newCQRSClientEndpoints(transports CQRSClientTransports, middlewares ...endpoint.Middleware) CQRSEndpoints {
-	return &cQRSClientEndpoints{transports: transports, middlewares: middlewares}
+func newCQRSClientEndpoints(
+	target string,
+	transports CQRSClientTransports,
+	instancerFactory sdx.InstancerFactory,
+	endpointerOptions []sd.EndpointerOption,
+	balancerFactory lbx.BalancerFactory,
+	logger log.Logger,
+) CQRSClientEndpoints {
+	factories := newCQRSFactories(transports)
+	endpointers := newCQRSEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	balancers := newCQRSBalancers(balancerFactory, endpointers)
+	return &cQRSClientEndpoints{balancers: balancers}
 }
 
 type cQRSFactories struct {
-	transports CQRSClientTransportsV2
+	transports CQRSClientTransports
 }
 
 func (f *cQRSFactories) CreateUser(ctx context.Context) sd.Factory {
@@ -102,7 +119,7 @@ func (f *cQRSFactories) FindUser(ctx context.Context) sd.Factory {
 		return f.transports.FindUser(ctx, instance)
 	}
 }
-func newCQRSFactories(transports CQRSClientTransportsV2) CQRSFactories {
+func newCQRSFactories(transports CQRSClientTransports) CQRSFactories {
 	return &cQRSFactories{transports: transports}
 }
 

@@ -76,15 +76,6 @@ func (s Service) ClientTransportsName() string {
 	return s.Name() + "ClientTransports"
 }
 
-func (s Service) ClientTransportsNameV2() string {
-	return s.Name() + "ClientTransportsV2"
-}
-
-func (s Service) UnexportedClientTransportsNameV2() string {
-	name := s.ClientTransportsNameV2()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) UnexportedClientTransportsName() string {
 	name := s.ClientTransportsName()
 	return strings.ToLower(name[:1]) + name[1:]

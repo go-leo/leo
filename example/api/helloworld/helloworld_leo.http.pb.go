@@ -58,7 +58,7 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newGreeterHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransportsV2 {
+func newGreeterHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransports {
 	return &greeterHttpClientTransports{
 		scheme:        scheme,
 		router:        appendGreeterHttpRoutes(mux.NewRouter()),
