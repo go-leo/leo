@@ -27,7 +27,7 @@ func (t *cQRSGrpcServerTransports) CreateUser() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/CreateUser")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -39,7 +39,7 @@ func (t *cQRSGrpcServerTransports) FindUser() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/FindUser")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -90,7 +90,7 @@ func (t *cQRSGrpcClientTransports) CreateUser(ctx context.Context, instance stri
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -111,7 +111,7 @@ func (t *cQRSGrpcClientTransports) FindUser(ctx context.Context, instance string
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

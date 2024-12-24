@@ -48,8 +48,8 @@ func (t *workspacesHttpServerTransports) ListWorkspaces() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -63,8 +63,8 @@ func (t *workspacesHttpServerTransports) GetWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -78,8 +78,8 @@ func (t *workspacesHttpServerTransports) CreateWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -93,8 +93,8 @@ func (t *workspacesHttpServerTransports) UpdateWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -108,8 +108,8 @@ func (t *workspacesHttpServerTransports) DeleteWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -139,8 +139,8 @@ type workspacesHttpClientTransports struct {
 func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -154,8 +154,8 @@ func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, ins
 func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -169,8 +169,8 @@ func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, insta
 func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -184,8 +184,8 @@ func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, in
 func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -199,8 +199,8 @@ func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, in
 func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(

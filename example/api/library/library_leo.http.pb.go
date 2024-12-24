@@ -54,8 +54,8 @@ func (t *libraryServiceHttpServerTransports) CreateShelf() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -69,8 +69,8 @@ func (t *libraryServiceHttpServerTransports) GetShelf() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -84,8 +84,8 @@ func (t *libraryServiceHttpServerTransports) ListShelves() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -99,8 +99,8 @@ func (t *libraryServiceHttpServerTransports) DeleteShelf() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -114,8 +114,8 @@ func (t *libraryServiceHttpServerTransports) MergeShelves() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -129,8 +129,8 @@ func (t *libraryServiceHttpServerTransports) CreateBook() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -144,8 +144,8 @@ func (t *libraryServiceHttpServerTransports) GetBook() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -159,8 +159,8 @@ func (t *libraryServiceHttpServerTransports) ListBooks() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -174,8 +174,8 @@ func (t *libraryServiceHttpServerTransports) DeleteBook() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -189,8 +189,8 @@ func (t *libraryServiceHttpServerTransports) UpdateBook() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -204,8 +204,8 @@ func (t *libraryServiceHttpServerTransports) MoveBook() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -241,8 +241,8 @@ type libraryServiceHttpClientTransports struct {
 func (t *libraryServiceHttpClientTransports) CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -256,8 +256,8 @@ func (t *libraryServiceHttpClientTransports) CreateShelf(ctx context.Context, in
 func (t *libraryServiceHttpClientTransports) GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -271,8 +271,8 @@ func (t *libraryServiceHttpClientTransports) GetShelf(ctx context.Context, insta
 func (t *libraryServiceHttpClientTransports) ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -286,8 +286,8 @@ func (t *libraryServiceHttpClientTransports) ListShelves(ctx context.Context, in
 func (t *libraryServiceHttpClientTransports) DeleteShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -301,8 +301,8 @@ func (t *libraryServiceHttpClientTransports) DeleteShelf(ctx context.Context, in
 func (t *libraryServiceHttpClientTransports) MergeShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -316,8 +316,8 @@ func (t *libraryServiceHttpClientTransports) MergeShelves(ctx context.Context, i
 func (t *libraryServiceHttpClientTransports) CreateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -331,8 +331,8 @@ func (t *libraryServiceHttpClientTransports) CreateBook(ctx context.Context, ins
 func (t *libraryServiceHttpClientTransports) GetBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -346,8 +346,8 @@ func (t *libraryServiceHttpClientTransports) GetBook(ctx context.Context, instan
 func (t *libraryServiceHttpClientTransports) ListBooks(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -361,8 +361,8 @@ func (t *libraryServiceHttpClientTransports) ListBooks(ctx context.Context, inst
 func (t *libraryServiceHttpClientTransports) DeleteBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -376,8 +376,8 @@ func (t *libraryServiceHttpClientTransports) DeleteBook(ctx context.Context, ins
 func (t *libraryServiceHttpClientTransports) UpdateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -391,8 +391,8 @@ func (t *libraryServiceHttpClientTransports) UpdateBook(ctx context.Context, ins
 func (t *libraryServiceHttpClientTransports) MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(

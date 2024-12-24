@@ -27,7 +27,7 @@ func (t *namedPathGrpcServerTransports) NamedPathString() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathString")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -39,7 +39,7 @@ func (t *namedPathGrpcServerTransports) NamedPathOptString() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathOptString")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -51,7 +51,7 @@ func (t *namedPathGrpcServerTransports) NamedPathWrapString() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/NamedPathWrapString")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -63,7 +63,7 @@ func (t *namedPathGrpcServerTransports) EmbedNamedPathString() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathString")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -75,7 +75,7 @@ func (t *namedPathGrpcServerTransports) EmbedNamedPathOptString() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -87,7 +87,7 @@ func (t *namedPathGrpcServerTransports) EmbedNamedPathWrapString() grpc.Handler 
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -182,7 +182,7 @@ func (t *namedPathGrpcClientTransports) NamedPathString(ctx context.Context, ins
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -203,7 +203,7 @@ func (t *namedPathGrpcClientTransports) NamedPathOptString(ctx context.Context, 
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -224,7 +224,7 @@ func (t *namedPathGrpcClientTransports) NamedPathWrapString(ctx context.Context,
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -245,7 +245,7 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathString(ctx context.Context
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -266,7 +266,7 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathOptString(ctx context.Cont
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -287,7 +287,7 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString(ctx context.Con
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

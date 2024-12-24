@@ -51,8 +51,8 @@ func (t *pathHttpServerTransports) BoolPath() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -66,8 +66,8 @@ func (t *pathHttpServerTransports) Int32Path() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -81,8 +81,8 @@ func (t *pathHttpServerTransports) Int64Path() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -96,8 +96,8 @@ func (t *pathHttpServerTransports) Uint32Path() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -111,8 +111,8 @@ func (t *pathHttpServerTransports) Uint64Path() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -126,8 +126,8 @@ func (t *pathHttpServerTransports) FloatPath() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -141,8 +141,8 @@ func (t *pathHttpServerTransports) DoublePath() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -156,8 +156,8 @@ func (t *pathHttpServerTransports) StringPath() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -171,8 +171,8 @@ func (t *pathHttpServerTransports) EnumPath() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -206,8 +206,8 @@ type pathHttpClientTransports struct {
 func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -221,8 +221,8 @@ func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string
 func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -236,8 +236,8 @@ func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance strin
 func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -251,8 +251,8 @@ func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance strin
 func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -266,8 +266,8 @@ func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance stri
 func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -281,8 +281,8 @@ func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance stri
 func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -296,8 +296,8 @@ func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance strin
 func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -311,8 +311,8 @@ func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance stri
 func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -326,8 +326,8 @@ func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance stri
 func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(

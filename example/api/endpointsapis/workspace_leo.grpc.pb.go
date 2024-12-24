@@ -27,7 +27,7 @@ func (t *workspacesGrpcServerTransports) ListWorkspaces() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -39,7 +39,7 @@ func (t *workspacesGrpcServerTransports) GetWorkspace() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -51,7 +51,7 @@ func (t *workspacesGrpcServerTransports) CreateWorkspace() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -63,7 +63,7 @@ func (t *workspacesGrpcServerTransports) UpdateWorkspace() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -75,7 +75,7 @@ func (t *workspacesGrpcServerTransports) DeleteWorkspace() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -159,7 +159,7 @@ func (t *workspacesGrpcClientTransports) ListWorkspaces(ctx context.Context, ins
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -180,7 +180,7 @@ func (t *workspacesGrpcClientTransports) GetWorkspace(ctx context.Context, insta
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -201,7 +201,7 @@ func (t *workspacesGrpcClientTransports) CreateWorkspace(ctx context.Context, in
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -222,7 +222,7 @@ func (t *workspacesGrpcClientTransports) UpdateWorkspace(ctx context.Context, in
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -243,7 +243,7 @@ func (t *workspacesGrpcClientTransports) DeleteWorkspace(ctx context.Context, in
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

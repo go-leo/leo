@@ -53,14 +53,14 @@ func IncomingMetadataInjector(ctx context.Context, request *http.Request) contex
 
 type timeLimiterKey struct{}
 
-func OutgoingTimeLimiter(ctx context.Context, request *http.Request) context.Context {
+func OutgoingTimeLimitInjector(ctx context.Context, request *http.Request) context.Context {
 	if deadline, ok := ctx.Deadline(); ok {
 		request.Header.Set(kTimeoutKey, internal.EncodeDuration(time.Until(deadline)))
 	}
 	return ctx
 }
 
-func IncomingTimeLimiter(ctx context.Context, request *http.Request) context.Context {
+func IncomingTimeLimitInjector(ctx context.Context, request *http.Request) context.Context {
 	if value := request.Header.Get(kTimeoutKey); value != "" {
 		timeout, err := internal.DecodeTimeout(value)
 		if err != nil {
@@ -86,7 +86,7 @@ func InjectTarget(ctx context.Context, target string) context.Context {
 	return context.WithValue(ctx, targetKey{}, target)
 }
 
-func OutgoingStain(ctx context.Context, request *http.Request) context.Context {
+func OutgoingStainInjector(ctx context.Context, request *http.Request) context.Context {
 	color, ok := stainx.ExtractColor(ctx)
 	if !ok {
 		return ctx
@@ -95,7 +95,7 @@ func OutgoingStain(ctx context.Context, request *http.Request) context.Context {
 	return ctx
 }
 
-func IncomingStain(ctx context.Context, request *http.Request) context.Context {
+func IncomingStainInjector(ctx context.Context, request *http.Request) context.Context {
 	values := request.Header.Values(kStainKey)
 	if values == nil || len(values) == 0 {
 		return ctx

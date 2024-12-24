@@ -56,7 +56,7 @@ func IncomingMetadataInjector(ctx context.Context, md metadata.MD) context.Conte
 	return metadatax.NewIncomingContext(ctx, metadatax.FromGrpcMetadata(md))
 }
 
-func OutgoingStain(ctx context.Context, grpcMD *metadata.MD) context.Context {
+func OutgoingStainInjector(ctx context.Context, grpcMD *metadata.MD) context.Context {
 	color, ok := stainx.ExtractColor(ctx)
 	if !ok {
 		return ctx
@@ -65,7 +65,7 @@ func OutgoingStain(ctx context.Context, grpcMD *metadata.MD) context.Context {
 	return ctx
 }
 
-func IncomingStain(ctx context.Context, md metadata.MD) context.Context {
+func IncomingStainInjector(ctx context.Context, md metadata.MD) context.Context {
 	values := md.Get(kStainKey)
 	if values == nil || len(values) == 0 {
 		return ctx

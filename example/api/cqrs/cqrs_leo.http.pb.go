@@ -40,8 +40,8 @@ func (t *cQRSHttpServerTransports) CreateUser() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -55,8 +55,8 @@ func (t *cQRSHttpServerTransports) FindUser() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimiter),
-		http1.ServerBefore(httpx.IncomingStain),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
@@ -83,8 +83,8 @@ type cQRSHttpClientTransports struct {
 func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -98,8 +98,8 @@ func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance stri
 func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimiter),
-		http1.ClientBefore(httpx.OutgoingStain),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(

@@ -27,7 +27,7 @@ func (t *libraryServiceGrpcServerTransports) CreateShelf() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -39,7 +39,7 @@ func (t *libraryServiceGrpcServerTransports) GetShelf() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -51,7 +51,7 @@ func (t *libraryServiceGrpcServerTransports) ListShelves() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -63,7 +63,7 @@ func (t *libraryServiceGrpcServerTransports) DeleteShelf() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -75,7 +75,7 @@ func (t *libraryServiceGrpcServerTransports) MergeShelves() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -87,7 +87,7 @@ func (t *libraryServiceGrpcServerTransports) CreateBook() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -99,7 +99,7 @@ func (t *libraryServiceGrpcServerTransports) GetBook() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -111,7 +111,7 @@ func (t *libraryServiceGrpcServerTransports) ListBooks() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -123,7 +123,7 @@ func (t *libraryServiceGrpcServerTransports) DeleteBook() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -135,7 +135,7 @@ func (t *libraryServiceGrpcServerTransports) UpdateBook() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -147,7 +147,7 @@ func (t *libraryServiceGrpcServerTransports) MoveBook() grpc.Handler {
 		grpc.ServerBefore(grpcx.ServerEndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
 		grpc.ServerBefore(grpcx.ServerTransportInjector),
 		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStain),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
 	)
 }
 
@@ -297,7 +297,7 @@ func (t *libraryServiceGrpcClientTransports) CreateShelf(ctx context.Context, in
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -318,7 +318,7 @@ func (t *libraryServiceGrpcClientTransports) GetShelf(ctx context.Context, insta
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -339,7 +339,7 @@ func (t *libraryServiceGrpcClientTransports) ListShelves(ctx context.Context, in
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -360,7 +360,7 @@ func (t *libraryServiceGrpcClientTransports) DeleteShelf(ctx context.Context, in
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -381,7 +381,7 @@ func (t *libraryServiceGrpcClientTransports) MergeShelves(ctx context.Context, i
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -402,7 +402,7 @@ func (t *libraryServiceGrpcClientTransports) CreateBook(ctx context.Context, ins
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -423,7 +423,7 @@ func (t *libraryServiceGrpcClientTransports) GetBook(ctx context.Context, instan
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -444,7 +444,7 @@ func (t *libraryServiceGrpcClientTransports) ListBooks(ctx context.Context, inst
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -465,7 +465,7 @@ func (t *libraryServiceGrpcClientTransports) DeleteBook(ctx context.Context, ins
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -486,7 +486,7 @@ func (t *libraryServiceGrpcClientTransports) UpdateBook(ctx context.Context, ins
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -507,7 +507,7 @@ func (t *libraryServiceGrpcClientTransports) MoveBook(ctx context.Context, insta
 	}
 	opts := []grpc.ClientOption{
 		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStain),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
