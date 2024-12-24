@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type mixPathGrpcServerTransports struct {
-	endpoints MixPathEndpoints
+	endpoints MixPathServerEndpoints
 }
 
 func (t *mixPathGrpcServerTransports) MixPath() grpc.Handler {

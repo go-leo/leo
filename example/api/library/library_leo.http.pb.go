@@ -43,7 +43,7 @@ func appendLibraryServiceHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type libraryServiceHttpServerTransports struct {
-	endpoints LibraryServiceEndpoints
+	endpoints LibraryServiceServerEndpoints
 }
 
 func (t *libraryServiceHttpServerTransports) CreateShelf() http.Handler {

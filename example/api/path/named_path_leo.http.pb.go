@@ -37,7 +37,7 @@ func appendNamedPathHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type namedPathHttpServerTransports struct {
-	endpoints NamedPathEndpoints
+	endpoints NamedPathServerEndpoints
 }
 
 func (t *namedPathHttpServerTransports) NamedPathString() http.Handler {

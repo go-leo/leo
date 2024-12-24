@@ -17,7 +17,7 @@ import (
 // =========================== grpc server ===========================
 
 type responseGrpcServerTransports struct {
-	endpoints ResponseEndpoints
+	endpoints ResponseServerEndpoints
 }
 
 func (t *responseGrpcServerTransports) OmittedResponse() grpc.Handler {

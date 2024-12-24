@@ -33,7 +33,7 @@ type LibraryServiceService interface {
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 }
 
-type LibraryServiceEndpoints interface {
+type LibraryServiceServerEndpoints interface {
 	CreateShelf(ctx context.Context) endpoint.Endpoint
 	GetShelf(ctx context.Context) endpoint.Endpoint
 	ListShelves(ctx context.Context) endpoint.Endpoint
@@ -188,7 +188,7 @@ func (e *libraryServiceServerEndpoints) MoveBook(context.Context) endpoint.Endpo
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newLibraryServiceServerEndpoints(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceEndpoints {
+func newLibraryServiceServerEndpoints(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceServerEndpoints {
 	return &libraryServiceServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

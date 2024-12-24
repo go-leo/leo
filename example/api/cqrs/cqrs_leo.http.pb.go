@@ -29,7 +29,7 @@ func appendCQRSHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type cQRSHttpServerTransports struct {
-	endpoints CQRSEndpoints
+	endpoints CQRSServerEndpoints
 }
 
 func (t *cQRSHttpServerTransports) CreateUser() http.Handler {

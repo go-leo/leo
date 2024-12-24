@@ -31,7 +31,7 @@ type PathService interface {
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 }
 
-type PathEndpoints interface {
+type PathServerEndpoints interface {
 	BoolPath(ctx context.Context) endpoint.Endpoint
 	Int32Path(ctx context.Context) endpoint.Endpoint
 	Int64Path(ctx context.Context) endpoint.Endpoint
@@ -162,7 +162,7 @@ func (e *pathServerEndpoints) EnumPath(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware) PathEndpoints {
+func newPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware) PathServerEndpoints {
 	return &pathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

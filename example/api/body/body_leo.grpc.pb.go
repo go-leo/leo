@@ -17,7 +17,7 @@ import (
 // =========================== grpc server ===========================
 
 type bodyGrpcServerTransports struct {
-	endpoints BodyEndpoints
+	endpoints BodyServerEndpoints
 }
 
 func (t *bodyGrpcServerTransports) StarBody() grpc.Handler {

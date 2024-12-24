@@ -22,7 +22,7 @@ type GreeterService interface {
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 }
 
-type GreeterEndpoints interface {
+type GreeterServerEndpoints interface {
 	SayHello(ctx context.Context) endpoint.Endpoint
 }
 
@@ -57,7 +57,7 @@ func (e *greeterServerEndpoints) SayHello(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterEndpoints {
+func newGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middleware) GreeterServerEndpoints {
 	return &greeterServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

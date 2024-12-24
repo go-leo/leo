@@ -17,7 +17,7 @@ import (
 // =========================== grpc server ===========================
 
 type demoGrpcServerTransports struct {
-	endpoints DemoEndpoints
+	endpoints DemoServerEndpoints
 }
 
 func (t *demoGrpcServerTransports) CreateUser() grpc.Handler {

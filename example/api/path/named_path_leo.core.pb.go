@@ -28,7 +28,7 @@ type NamedPathService interface {
 	EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 }
 
-type NamedPathEndpoints interface {
+type NamedPathServerEndpoints interface {
 	NamedPathString(ctx context.Context) endpoint.Endpoint
 	NamedPathOptString(ctx context.Context) endpoint.Endpoint
 	NamedPathWrapString(ctx context.Context) endpoint.Endpoint
@@ -123,7 +123,7 @@ func (e *namedPathServerEndpoints) EmbedNamedPathWrapString(context.Context) end
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newNamedPathServerEndpoints(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathEndpoints {
+func newNamedPathServerEndpoints(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathServerEndpoints {
 	return &namedPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

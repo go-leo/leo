@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type workspacesGrpcServerTransports struct {
-	endpoints WorkspacesEndpoints
+	endpoints WorkspacesServerEndpoints
 }
 
 func (t *workspacesGrpcServerTransports) ListWorkspaces() grpc.Handler {

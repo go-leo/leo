@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type pathGrpcServerTransports struct {
-	endpoints PathEndpoints
+	endpoints PathServerEndpoints
 }
 
 func (t *pathGrpcServerTransports) BoolPath() grpc.Handler {

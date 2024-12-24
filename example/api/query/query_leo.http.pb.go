@@ -33,7 +33,7 @@ func appendQueryHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type queryHttpServerTransports struct {
-	endpoints QueryEndpoints
+	endpoints QueryServerEndpoints
 }
 
 func (t *queryHttpServerTransports) Query() http.Handler {

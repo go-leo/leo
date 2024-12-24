@@ -23,7 +23,7 @@ type QueryService interface {
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 }
 
-type QueryEndpoints interface {
+type QueryServerEndpoints interface {
 	Query(ctx context.Context) endpoint.Endpoint
 }
 
@@ -58,7 +58,7 @@ func (e *queryServerEndpoints) Query(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newQueryServerEndpoints(svc QueryService, middlewares ...endpoint.Middleware) QueryEndpoints {
+func newQueryServerEndpoints(svc QueryService, middlewares ...endpoint.Middleware) QueryServerEndpoints {
 	return &queryServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

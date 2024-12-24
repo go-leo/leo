@@ -36,7 +36,7 @@ func appendResponseHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type responseHttpServerTransports struct {
-	endpoints ResponseEndpoints
+	endpoints ResponseServerEndpoints
 }
 
 func (t *responseHttpServerTransports) OmittedResponse() http.Handler {

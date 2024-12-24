@@ -27,7 +27,7 @@ func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type greeterHttpServerTransports struct {
-	endpoints GreeterEndpoints
+	endpoints GreeterServerEndpoints
 }
 
 func (t *greeterHttpServerTransports) SayHello() http.Handler {

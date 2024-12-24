@@ -32,7 +32,7 @@ func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type mixPathHttpServerTransports struct {
-	endpoints MixPathEndpoints
+	endpoints MixPathServerEndpoints
 }
 
 func (t *mixPathHttpServerTransports) MixPath() http.Handler {

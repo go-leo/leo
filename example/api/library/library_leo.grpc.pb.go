@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type libraryServiceGrpcServerTransports struct {
-	endpoints LibraryServiceEndpoints
+	endpoints LibraryServiceServerEndpoints
 }
 
 func (t *libraryServiceGrpcServerTransports) CreateShelf() grpc.Handler {

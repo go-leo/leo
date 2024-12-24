@@ -23,7 +23,7 @@ type MixPathService interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 }
 
-type MixPathEndpoints interface {
+type MixPathServerEndpoints interface {
 	MixPath(ctx context.Context) endpoint.Endpoint
 }
 
@@ -58,7 +58,7 @@ func (e *mixPathServerEndpoints) MixPath(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathEndpoints {
+func newMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middleware) MixPathServerEndpoints {
 	return &mixPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

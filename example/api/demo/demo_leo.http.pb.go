@@ -41,7 +41,7 @@ func appendDemoHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type demoHttpServerTransports struct {
-	endpoints DemoEndpoints
+	endpoints DemoServerEndpoints
 }
 
 func (t *demoHttpServerTransports) CreateUser() http.Handler {

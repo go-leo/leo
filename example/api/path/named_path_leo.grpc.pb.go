@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type namedPathGrpcServerTransports struct {
-	endpoints NamedPathEndpoints
+	endpoints NamedPathServerEndpoints
 }
 
 func (t *namedPathGrpcServerTransports) NamedPathString() grpc.Handler {

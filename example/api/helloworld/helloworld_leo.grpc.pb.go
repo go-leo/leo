@@ -15,7 +15,7 @@ import (
 // =========================== grpc server ===========================
 
 type greeterGrpcServerTransports struct {
-	endpoints GreeterEndpoints
+	endpoints GreeterServerEndpoints
 }
 
 func (t *greeterGrpcServerTransports) SayHello() grpc.Handler {

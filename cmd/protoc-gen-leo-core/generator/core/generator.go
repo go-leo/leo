@@ -103,7 +103,7 @@ func (f *Generator) GenerateServices(service *internal.Service, g *protogen.Gene
 }
 
 func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.EndpointsName(), " interface {")
+	g.P("type ", service.ServerEndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"))
 	}
@@ -171,7 +171,7 @@ func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protog
 		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(component, e.middlewares...)")
 		g.P("}")
 	}
-	g.P("func new", service.ServerEndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.EndpointsName(), "{")
+	g.P("func new", service.ServerEndpointsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServerEndpointsName(), "{")
 	g.P("return &", service.UnexportedServerEndpointsName(), "{svc: svc, middlewares: middlewares}")
 	g.P("}")
 	g.P()

@@ -33,7 +33,7 @@ func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type bodyHttpServerTransports struct {
-	endpoints BodyEndpoints
+	endpoints BodyServerEndpoints
 }
 
 func (t *bodyHttpServerTransports) StarBody() http.Handler {

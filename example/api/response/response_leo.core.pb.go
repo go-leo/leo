@@ -28,7 +28,7 @@ type ResponseService interface {
 	HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error)
 }
 
-type ResponseEndpoints interface {
+type ResponseServerEndpoints interface {
 	OmittedResponse(ctx context.Context) endpoint.Endpoint
 	StarResponse(ctx context.Context) endpoint.Endpoint
 	NamedResponse(ctx context.Context) endpoint.Endpoint
@@ -111,7 +111,7 @@ func (e *responseServerEndpoints) HttpBodyNamedResponse(context.Context) endpoin
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseEndpoints {
+func newResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Middleware) ResponseServerEndpoints {
 	return &responseServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

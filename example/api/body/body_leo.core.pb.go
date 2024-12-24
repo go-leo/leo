@@ -28,7 +28,7 @@ type BodyService interface {
 	HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
 }
 
-type BodyEndpoints interface {
+type BodyServerEndpoints interface {
 	StarBody(ctx context.Context) endpoint.Endpoint
 	NamedBody(ctx context.Context) endpoint.Endpoint
 	NonBody(ctx context.Context) endpoint.Endpoint
@@ -111,7 +111,7 @@ func (e *bodyServerEndpoints) HttpBodyNamedBody(context.Context) endpoint.Endpoi
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newBodyServerEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyEndpoints {
+func newBodyServerEndpoints(svc BodyService, middlewares ...endpoint.Middleware) BodyServerEndpoints {
 	return &bodyServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

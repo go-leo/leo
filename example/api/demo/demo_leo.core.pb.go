@@ -30,7 +30,7 @@ type DemoService interface {
 	GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
 }
 
-type DemoEndpoints interface {
+type DemoServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint
 	DeleteUser(ctx context.Context) endpoint.Endpoint
 	UpdateUser(ctx context.Context) endpoint.Endpoint
@@ -137,7 +137,7 @@ func (e *demoServerEndpoints) GetUserAvatar(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newDemoServerEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoEndpoints {
+func newDemoServerEndpoints(svc DemoService, middlewares ...endpoint.Middleware) DemoServerEndpoints {
 	return &demoServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

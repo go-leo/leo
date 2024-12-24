@@ -24,7 +24,7 @@ type CQRSService interface {
 	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 }
 
-type CQRSEndpoints interface {
+type CQRSServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint
 	FindUser(ctx context.Context) endpoint.Endpoint
 }
@@ -71,7 +71,7 @@ func (e *cQRSServerEndpoints) FindUser(context.Context) endpoint.Endpoint {
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newCQRSServerEndpoints(svc CQRSService, middlewares ...endpoint.Middleware) CQRSEndpoints {
+func newCQRSServerEndpoints(svc CQRSService, middlewares ...endpoint.Middleware) CQRSServerEndpoints {
 	return &cQRSServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

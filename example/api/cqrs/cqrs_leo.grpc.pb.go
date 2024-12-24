@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type cQRSGrpcServerTransports struct {
-	endpoints CQRSEndpoints
+	endpoints CQRSServerEndpoints
 }
 
 func (t *cQRSGrpcServerTransports) CreateUser() grpc.Handler {

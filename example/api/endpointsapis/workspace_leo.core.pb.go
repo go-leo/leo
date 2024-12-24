@@ -27,7 +27,7 @@ type WorkspacesService interface {
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 }
 
-type WorkspacesEndpoints interface {
+type WorkspacesServerEndpoints interface {
 	ListWorkspaces(ctx context.Context) endpoint.Endpoint
 	GetWorkspace(ctx context.Context) endpoint.Endpoint
 	CreateWorkspace(ctx context.Context) endpoint.Endpoint
@@ -110,7 +110,7 @@ func (e *workspacesServerEndpoints) DeleteWorkspace(context.Context) endpoint.En
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
-func newWorkspacesServerEndpoints(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesEndpoints {
+func newWorkspacesServerEndpoints(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesServerEndpoints {
 	return &workspacesServerEndpoints{svc: svc, middlewares: middlewares}
 }
 

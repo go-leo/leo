@@ -37,7 +37,7 @@ func appendWorkspacesHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type workspacesHttpServerTransports struct {
-	endpoints WorkspacesEndpoints
+	endpoints WorkspacesServerEndpoints
 }
 
 func (t *workspacesHttpServerTransports) ListWorkspaces() http.Handler {

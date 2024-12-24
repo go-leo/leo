@@ -40,7 +40,7 @@ func appendPathHttpRoutes(router *mux.Router) *mux.Router {
 // =========================== http server ===========================
 
 type pathHttpServerTransports struct {
-	endpoints PathEndpoints
+	endpoints PathServerEndpoints
 }
 
 func (t *pathHttpServerTransports) BoolPath() http.Handler {

@@ -16,7 +16,7 @@ import (
 // =========================== grpc server ===========================
 
 type queryGrpcServerTransports struct {
-	endpoints QueryEndpoints
+	endpoints QueryServerEndpoints
 }
 
 func (t *queryGrpcServerTransports) Query() grpc.Handler {

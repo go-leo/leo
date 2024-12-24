@@ -53,7 +53,7 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 
 func (f *Generator) GenerateServerTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedGrpcServerTransportsName(), " struct {")
-	g.P("endpoints ", service.EndpointsName())
+	g.P("endpoints ", service.ServerEndpointsName())
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
