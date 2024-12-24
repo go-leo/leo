@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	grpc1 "google.golang.org/grpc"
@@ -254,107 +252,11 @@ func newBodyGrpcClientTransports(
 	}
 }
 
-type bodyGrpcClient struct {
-	balancers BodyBalancers
-}
-
-func (c *bodyGrpcClient) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.StarBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyGrpcClient) NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.NamedBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyGrpcClient) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.NonBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyGrpcClient) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.HttpBodyStarBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyGrpcClient) HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.HttpBodyNamedBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newBodyGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newBodyFactories(transports)
-	endpointers := newBodyEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newBodyBalancers(options.BalancerFactory(), endpointers)
-	return &bodyHttpClient{balancers: balancers}
+	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newBodyClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

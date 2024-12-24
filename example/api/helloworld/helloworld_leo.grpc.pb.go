@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
 	io "io"
@@ -96,35 +94,11 @@ func newGreeterGrpcClientTransports(
 	}
 }
 
-type greeterGrpcClient struct {
-	balancers GreeterBalancers
-}
-
-func (c *greeterGrpcClient) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.SayHello(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*HelloReply), nil
-}
-
 func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newGreeterGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newGreeterFactories(transports)
-	endpointers := newGreeterEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newGreeterBalancers(options.BalancerFactory(), endpointers)
-	return &greeterHttpClient{balancers: balancers}
+	endpoints := newGreeterClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newGreeterClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

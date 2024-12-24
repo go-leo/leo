@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -142,4 +144,26 @@ func newMixPathBalancers(factory lbx.BalancerFactory, endpointer MixPathEndpoint
 		endpointer: endpointer,
 		mixPath:    lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type mixPathClientService struct {
+	endpoints     MixPathClientEndpoints
+	transportName string
+}
+
+func (c *mixPathClientService) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.MixPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func newMixPathClientService(endpoints MixPathClientEndpoints, transportName string) MixPathService {
+	return &mixPathClientService{endpoints: endpoints, transportName: transportName}
 }

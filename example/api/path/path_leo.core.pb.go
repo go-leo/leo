@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -422,4 +424,130 @@ func newPathBalancers(factory lbx.BalancerFactory, endpointer PathEndpointers) P
 		stringPath: lazyloadx.Group[lb.Balancer]{},
 		enumPath:   lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type pathClientService struct {
+	endpoints     PathClientEndpoints
+	transportName string
+}
+
+func (c *pathClientService) BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/BoolPath")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.BoolPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int32Path")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.Int32Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Int64Path")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.Int64Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint32Path")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.Uint32Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/Uint64Path")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.Uint64Path(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/FloatPath")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.FloatPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/DoublePath")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.DoublePath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/StringPath")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.StringPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *pathClientService) EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.Path/EnumPath")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.EnumPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func newPathClientService(endpoints PathClientEndpoints, transportName string) PathService {
+	return &pathClientService{endpoints: endpoints, transportName: transportName}
 }

@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -177,4 +179,39 @@ func newCQRSBalancers(factory lbx.BalancerFactory, endpointer CQRSEndpointers) C
 		createUser: lazyloadx.Group[lb.Balancer]{},
 		findUser:   lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type cQRSClientService struct {
+	endpoints     CQRSClientEndpoints
+	transportName string
+}
+
+func (c *cQRSClientService) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *cQRSClientService) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.FindUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*GetUserResponse), nil
+}
+func newCQRSClientService(endpoints CQRSClientEndpoints, transportName string) CQRSService {
+	return &cQRSClientService{endpoints: endpoints, transportName: transportName}
 }

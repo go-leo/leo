@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -492,4 +494,156 @@ func newLibraryServiceBalancers(factory lbx.BalancerFactory, endpointer LibraryS
 		updateBook:   lazyloadx.Group[lb.Balancer]{},
 		moveBook:     lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type libraryServiceClientService struct {
+	endpoints     LibraryServiceClientEndpoints
+	transportName string
+}
+
+func (c *libraryServiceClientService) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.CreateShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Shelf), nil
+}
+func (c *libraryServiceClientService) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.GetShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Shelf), nil
+}
+func (c *libraryServiceClientService) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.ListShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*ListShelvesResponse), nil
+}
+func (c *libraryServiceClientService) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.DeleteShelf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *libraryServiceClientService) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.MergeShelves(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Shelf), nil
+}
+func (c *libraryServiceClientService) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.CreateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Book), nil
+}
+func (c *libraryServiceClientService) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.GetBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Book), nil
+}
+func (c *libraryServiceClientService) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.ListBooks(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*ListBooksResponse), nil
+}
+func (c *libraryServiceClientService) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.DeleteBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *libraryServiceClientService) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.UpdateBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Book), nil
+}
+func (c *libraryServiceClientService) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.MoveBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Book), nil
+}
+func newLibraryServiceClientService(endpoints LibraryServiceClientEndpoints, transportName string) LibraryServiceService {
+	return &libraryServiceClientService{endpoints: endpoints, transportName: transportName}
 }

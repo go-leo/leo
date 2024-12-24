@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	grpc1 "google.golang.org/grpc"
@@ -332,143 +330,11 @@ func newDemoGrpcClientTransports(
 	}
 }
 
-type demoGrpcClient struct {
-	balancers DemoBalancers
-}
-
-func (c *demoGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.CreateUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*CreateUserResponse), nil
-}
-
-func (c *demoGrpcClient) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.DeleteUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *demoGrpcClient) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.UpdateUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *demoGrpcClient) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.GetUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*GetUserResponse), nil
-}
-
-func (c *demoGrpcClient) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.GetUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*GetUsersResponse), nil
-}
-
-func (c *demoGrpcClient) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.UploadUserAvatar(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *demoGrpcClient) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.GetUserAvatar(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*httpbody.HttpBody), nil
-}
-
 func NewDemoGrpcClient(target string, opts ...grpcx.ClientOption) DemoService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newDemoGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newDemoFactories(transports)
-	endpointers := newDemoEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newDemoBalancers(options.BalancerFactory(), endpointers)
-	return &demoHttpClient{balancers: balancers}
+	endpoints := newDemoClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newDemoClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

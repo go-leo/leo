@@ -11,7 +11,6 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	proto "google.golang.org/protobuf/proto"
@@ -157,125 +156,11 @@ func newNamedPathHttpClientTransports(scheme string, clientOptions []http.Client
 	}
 }
 
-type namedPathHttpClient struct {
-	balancers NamedPathBalancers
-}
-
-func (c *namedPathHttpClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.NamedPathString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathHttpClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.NamedPathOptString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathHttpClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.NamedPathWrapString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathHttpClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.EmbedNamedPathString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathHttpClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.EmbedNamedPathOptString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathHttpClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.EmbedNamedPathWrapString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewNamedPathHttpClient(target string, opts ...httpx.ClientOption) NamedPathService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newNamedPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newNamedPathFactories(transports)
-	endpointers := newNamedPathEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newNamedPathBalancers(options.BalancerFactory(), endpointers)
-	return &namedPathHttpClient{balancers: balancers}
+	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newNamedPathClientService(endpoints, httpx.HttpClient)
 }
 
 // =========================== http transport ===========================

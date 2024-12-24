@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -292,125 +290,11 @@ func newNamedPathGrpcClientTransports(
 	}
 }
 
-type namedPathGrpcClient struct {
-	balancers NamedPathBalancers
-}
-
-func (c *namedPathGrpcClient) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.NamedPathString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathGrpcClient) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.NamedPathOptString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathGrpcClient) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.NamedPathWrapString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathGrpcClient) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.EmbedNamedPathString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathGrpcClient) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.EmbedNamedPathOptString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *namedPathGrpcClient) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.EmbedNamedPathWrapString(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPathService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newNamedPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newNamedPathFactories(transports)
-	endpointers := newNamedPathEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newNamedPathBalancers(options.BalancerFactory(), endpointers)
-	return &namedPathHttpClient{balancers: balancers}
+	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newNamedPathClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

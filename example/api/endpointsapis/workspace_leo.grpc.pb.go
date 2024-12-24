@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -253,107 +251,11 @@ func newWorkspacesGrpcClientTransports(
 	}
 }
 
-type workspacesGrpcClient struct {
-	balancers WorkspacesBalancers
-}
-
-func (c *workspacesGrpcClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.ListWorkspaces(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*ListWorkspacesResponse), nil
-}
-
-func (c *workspacesGrpcClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.GetWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*Workspace), nil
-}
-
-func (c *workspacesGrpcClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.CreateWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*Workspace), nil
-}
-
-func (c *workspacesGrpcClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.UpdateWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*Workspace), nil
-}
-
-func (c *workspacesGrpcClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.DeleteWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewWorkspacesGrpcClient(target string, opts ...grpcx.ClientOption) WorkspacesService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newWorkspacesGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newWorkspacesFactories(transports)
-	endpointers := newWorkspacesEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newWorkspacesBalancers(options.BalancerFactory(), endpointers)
-	return &workspacesHttpClient{balancers: balancers}
+	endpoints := newWorkspacesClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newWorkspacesClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

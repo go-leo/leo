@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -353,4 +355,104 @@ func newDemoBalancers(factory lbx.BalancerFactory, endpointer DemoEndpointers) D
 		uploadUserAvatar: lazyloadx.Group[lb.Balancer]{},
 		getUserAvatar:    lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type demoClientService struct {
+	endpoints     DemoClientEndpoints
+	transportName string
+}
+
+func (c *demoClientService) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*CreateUserResponse), nil
+}
+func (c *demoClientService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.DeleteUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *demoClientService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.UpdateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *demoClientService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*GetUserResponse), nil
+}
+func (c *demoClientService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.GetUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*GetUsersResponse), nil
+}
+func (c *demoClientService) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.UploadUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *demoClientService) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.GetUserAvatar(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*httpbody.HttpBody), nil
+}
+func newDemoClientService(endpoints DemoClientEndpoints, transportName string) DemoService {
+	return &demoClientService{endpoints: endpoints, transportName: transportName}
 }

@@ -13,7 +13,6 @@ import (
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	proto "google.golang.org/protobuf/proto"
@@ -73,35 +72,11 @@ func newQueryHttpClientTransports(scheme string, clientOptions []http.ClientOpti
 	}
 }
 
-type queryHttpClient struct {
-	balancers QueryBalancers
-}
-
-func (c *queryHttpClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.Query(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewQueryHttpClient(target string, opts ...httpx.ClientOption) QueryService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newQueryHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newQueryFactories(transports)
-	endpointers := newQueryEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newQueryBalancers(options.BalancerFactory(), endpointers)
-	return &queryHttpClient{balancers: balancers}
+	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newQueryClientService(endpoints, httpx.HttpClient)
 }
 
 // =========================== http transport ===========================

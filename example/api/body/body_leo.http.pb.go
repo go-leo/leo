@@ -10,7 +10,6 @@ import (
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
@@ -137,107 +136,11 @@ func newBodyHttpClientTransports(scheme string, clientOptions []http.ClientOptio
 	}
 }
 
-type bodyHttpClient struct {
-	balancers BodyBalancers
-}
-
-func (c *bodyHttpClient) StarBody(ctx context.Context, request *User) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/StarBody")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.StarBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyHttpClient) NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NamedBody")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.NamedBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyHttpClient) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/NonBody")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.NonBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyHttpClient) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyStarBody")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.HttpBodyStarBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *bodyHttpClient) HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.body.v1.Body/HttpBodyNamedBody")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.HttpBodyNamedBody(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newBodyHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newBodyFactories(transports)
-	endpointers := newBodyEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newBodyBalancers(options.BalancerFactory(), endpointers)
-	return &bodyHttpClient{balancers: balancers}
+	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newBodyClientService(endpoints, httpx.HttpClient)
 }
 
 // =========================== http transport ===========================

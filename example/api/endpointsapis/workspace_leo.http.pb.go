@@ -14,7 +14,6 @@ import (
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -141,107 +140,11 @@ func newWorkspacesHttpClientTransports(scheme string, clientOptions []http.Clien
 	}
 }
 
-type workspacesHttpClient struct {
-	balancers WorkspacesBalancers
-}
-
-func (c *workspacesHttpClient) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.ListWorkspaces(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*ListWorkspacesResponse), nil
-}
-
-func (c *workspacesHttpClient) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.GetWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*Workspace), nil
-}
-
-func (c *workspacesHttpClient) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.CreateWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*Workspace), nil
-}
-
-func (c *workspacesHttpClient) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.UpdateWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*Workspace), nil
-}
-
-func (c *workspacesHttpClient) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.DeleteWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewWorkspacesHttpClient(target string, opts ...httpx.ClientOption) WorkspacesService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newWorkspacesHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newWorkspacesFactories(transports)
-	endpointers := newWorkspacesEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newWorkspacesBalancers(options.BalancerFactory(), endpointers)
-	return &workspacesHttpClient{balancers: balancers}
+	endpoints := newWorkspacesClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newWorkspacesClientService(endpoints, httpx.HttpClient)
 }
 
 // =========================== http transport ===========================

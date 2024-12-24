@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -282,4 +284,78 @@ func newWorkspacesBalancers(factory lbx.BalancerFactory, endpointer WorkspacesEn
 		updateWorkspace: lazyloadx.Group[lb.Balancer]{},
 		deleteWorkspace: lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type workspacesClientService struct {
+	endpoints     WorkspacesClientEndpoints
+	transportName string
+}
+
+func (c *workspacesClientService) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.ListWorkspaces(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*ListWorkspacesResponse), nil
+}
+func (c *workspacesClientService) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.GetWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Workspace), nil
+}
+func (c *workspacesClientService) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.CreateWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Workspace), nil
+}
+func (c *workspacesClientService) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.UpdateWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*Workspace), nil
+}
+func (c *workspacesClientService) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.DeleteWorkspace(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func newWorkspacesClientService(endpoints WorkspacesClientEndpoints, transportName string) WorkspacesService {
+	return &workspacesClientService{endpoints: endpoints, transportName: transportName}
 }

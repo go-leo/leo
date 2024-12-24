@@ -10,7 +10,6 @@ import (
 	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
@@ -140,107 +139,11 @@ func newResponseHttpClientTransports(scheme string, clientOptions []http.ClientO
 	}
 }
 
-type responseHttpClient struct {
-	balancers ResponseBalancers
-}
-
-func (c *responseHttpClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.OmittedResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*UserResponse), nil
-}
-
-func (c *responseHttpClient) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.StarResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*UserResponse), nil
-}
-
-func (c *responseHttpClient) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.NamedResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*UserResponse), nil
-}
-
-func (c *responseHttpClient) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.HttpBodyResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*httpbody.HttpBody), nil
-}
-
-func (c *responseHttpClient) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.HttpBodyNamedResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*HttpBody), nil
-}
-
 func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newResponseHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newResponseFactories(transports)
-	endpointers := newResponseEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newResponseBalancers(options.BalancerFactory(), endpointers)
-	return &responseHttpClient{balancers: balancers}
+	endpoints := newResponseClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newResponseClientService(endpoints, httpx.HttpClient)
 }
 
 // =========================== http transport ===========================

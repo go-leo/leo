@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -97,35 +95,11 @@ func newMixPathGrpcClientTransports(
 	}
 }
 
-type mixPathGrpcClient struct {
-	balancers MixPathBalancers
-}
-
-func (c *mixPathGrpcClient) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.MixPath/MixPath")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.MixPath(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newMixPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newMixPathFactories(transports)
-	endpointers := newMixPathEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newMixPathBalancers(options.BalancerFactory(), endpointers)
-	return &mixPathHttpClient{balancers: balancers}
+	endpoints := newMixPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newMixPathClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

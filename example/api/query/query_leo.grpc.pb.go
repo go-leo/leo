@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -97,35 +95,11 @@ func newQueryGrpcClientTransports(
 	}
 }
 
-type queryGrpcClient struct {
-	balancers QueryBalancers
-}
-
-func (c *queryGrpcClient) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.Query(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
 func NewQueryGrpcClient(target string, opts ...grpcx.ClientOption) QueryService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newQueryGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newQueryFactories(transports)
-	endpointers := newQueryEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newQueryBalancers(options.BalancerFactory(), endpointers)
-	return &queryHttpClient{balancers: balancers}
+	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newQueryClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

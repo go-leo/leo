@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
@@ -283,4 +285,78 @@ func newResponseBalancers(factory lbx.BalancerFactory, endpointer ResponseEndpoi
 		httpBodyResponse:      lazyloadx.Group[lb.Balancer]{},
 		httpBodyNamedResponse: lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type responseClientService struct {
+	endpoints     ResponseClientEndpoints
+	transportName string
+}
+
+func (c *responseClientService) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.OmittedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*UserResponse), nil
+}
+func (c *responseClientService) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.StarResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*UserResponse), nil
+}
+func (c *responseClientService) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.NamedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*UserResponse), nil
+}
+func (c *responseClientService) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.HttpBodyResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*httpbody.HttpBody), nil
+}
+func (c *responseClientService) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.HttpBodyNamedResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*HttpBody), nil
+}
+func newResponseClientService(endpoints ResponseClientEndpoints, transportName string) ResponseService {
+	return &responseClientService{endpoints: endpoints, transportName: transportName}
 }

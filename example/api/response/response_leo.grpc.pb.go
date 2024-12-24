@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	grpc1 "google.golang.org/grpc"
@@ -254,107 +252,11 @@ func newResponseGrpcClientTransports(
 	}
 }
 
-type responseGrpcClient struct {
-	balancers ResponseBalancers
-}
-
-func (c *responseGrpcClient) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/OmittedResponse")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.OmittedResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*UserResponse), nil
-}
-
-func (c *responseGrpcClient) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/StarResponse")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.StarResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*UserResponse), nil
-}
-
-func (c *responseGrpcClient) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/NamedResponse")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.NamedResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*UserResponse), nil
-}
-
-func (c *responseGrpcClient) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyResponse")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.HttpBodyResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*httpbody.HttpBody), nil
-}
-
-func (c *responseGrpcClient) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.response.v1.Response/HttpBodyNamedResponse")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.HttpBodyNamedResponse(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*HttpBody), nil
-}
-
 func NewResponseGrpcClient(target string, opts ...grpcx.ClientOption) ResponseService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newResponseGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newResponseFactories(transports)
-	endpointers := newResponseEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newResponseBalancers(options.BalancerFactory(), endpointers)
-	return &responseHttpClient{balancers: balancers}
+	endpoints := newResponseClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newResponseClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

@@ -49,38 +49,12 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	return nil
 }
 
-func (f *ClientGenerator) GenerateClient(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpClientName(), " struct {")
-	g.P("balancers ", service.BalancersName())
-	g.P("}")
-	g.P()
-	for _, endpoint := range service.Endpoints {
-		g.P("func (c *", service.UnexportedHttpClientName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
-		g.P("balancer, err := c.balancers.", endpoint.Name(), "(ctx)")
-		g.P("if err != nil {")
-		g.P("return nil, err")
-		g.P("}")
-		g.P("endpoint, err := balancer.Endpoint()")
-		g.P("if err != nil {")
-		g.P("return nil, err")
-		g.P("}")
-		g.P("rep, err := endpoint(ctx, request)")
-		g.P("if err != nil {")
-		g.P("return nil, ", internal.StatusxPackage.Ident("From"), "(err)")
-		g.P("}")
-		g.P("return rep.(*", endpoint.OutputGoIdent(), "), nil")
-		g.P("}")
-		g.P()
-	}
+func (f *ClientGenerator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func New", service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
 	g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
 	g.P("transports := new", service.HttpClientTransportsName(), "(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())")
-	g.P("factories := new", service.FactoriesName(), "(transports)")
-	g.P("endpointers := new", service.EndpointersName(), "(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)")
-	g.P("balancers := new", service.BalancersName(), "(options.BalancerFactory(), endpointers)")
-	g.P("return &", service.UnexportedHttpClientName(), "{balancers: balancers}")
+	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
+	g.P("return new", service.ClientServiceName(), "(endpoints, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
 	g.P("}")
 	g.P()
 	return nil

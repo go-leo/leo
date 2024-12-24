@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	io "io"
 )
 
@@ -141,4 +143,26 @@ func newGreeterBalancers(factory lbx.BalancerFactory, endpointer GreeterEndpoint
 		endpointer: endpointer,
 		sayHello:   lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type greeterClientService struct {
+	endpoints     GreeterClientEndpoints
+	transportName string
+}
+
+func (c *greeterClientService) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
+	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.SayHello(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*HelloReply), nil
+}
+func newGreeterClientService(endpoints GreeterClientEndpoints, transportName string) GreeterService {
+	return &greeterClientService{endpoints: endpoints, transportName: transportName}
 }

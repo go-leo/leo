@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -142,4 +144,26 @@ func newQueryBalancers(factory lbx.BalancerFactory, endpointer QueryEndpointers)
 		endpointer: endpointer,
 		query:      lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type queryClientService struct {
+	endpoints     QueryClientEndpoints
+	transportName string
+}
+
+func (c *queryClientService) Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.query.v1.Query/Query")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.Query(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func newQueryClientService(endpoints QueryClientEndpoints, transportName string) QueryService {
+	return &queryClientService{endpoints: endpoints, transportName: transportName}
 }

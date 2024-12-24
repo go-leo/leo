@@ -13,6 +13,8 @@ import (
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
 	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	statusx "github.com/go-leo/leo/v3/statusx"
+	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
@@ -317,4 +319,91 @@ func newNamedPathBalancers(factory lbx.BalancerFactory, endpointer NamedPathEndp
 		embedNamedPathOptString:  lazyloadx.Group[lb.Balancer]{},
 		embedNamedPathWrapString: lazyloadx.Group[lb.Balancer]{},
 	}
+}
+
+type namedPathClientService struct {
+	endpoints     NamedPathClientEndpoints
+	transportName string
+}
+
+func (c *namedPathClientService) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathString")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.NamedPathString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *namedPathClientService) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathOptString")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.NamedPathOptString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *namedPathClientService) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/NamedPathWrapString")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.NamedPathWrapString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *namedPathClientService) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathString")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.EmbedNamedPathString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *namedPathClientService) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathOptString")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.EmbedNamedPathOptString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func (c *namedPathClientService) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.EmbedNamedPathWrapString(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*emptypb.Empty), nil
+}
+func newNamedPathClientService(endpoints NamedPathClientEndpoints, transportName string) NamedPathService {
+	return &namedPathClientService{endpoints: endpoints, transportName: transportName}
 }

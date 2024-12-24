@@ -54,7 +54,7 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 	}
 
 	for _, service := range f.Services {
-		if err := client.GenerateClient(service, g); err != nil {
+		if err := client.GenerateClientService(service, g); err != nil {
 			return err
 		}
 

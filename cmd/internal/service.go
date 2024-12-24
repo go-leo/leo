@@ -180,6 +180,15 @@ func (s Service) UnexportedHttpServerName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) ClientServiceName() string {
+	return s.Name() + "ClientService"
+}
+
+func (s Service) UnexportedClientServiceName() string {
+	name := s.ClientServiceName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func (s Service) HttpClientName() string {
 	return s.Name() + "HttpClient"
 }

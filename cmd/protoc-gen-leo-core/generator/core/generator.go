@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/go-leo/leo/v3/cmd/internal"
 	"google.golang.org/protobuf/compiler/protogen"
+	"strconv"
 )
 
 type Generator struct {
@@ -79,6 +80,12 @@ func (f *Generator) Generate(g *protogen.GeneratedFile) error {
 	}
 	for _, service := range f.Services {
 		if err := f.GenerateBalancersImplements(service, g); err != nil {
+			return err
+		}
+	}
+
+	for _, service := range f.Services {
+		if err := f.GenerateClientService(service, g); err != nil {
 			return err
 		}
 	}
@@ -274,6 +281,32 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 		g.P(endpoint.UnexportedName(), ": ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]{},")
 	}
 	g.P("}")
+	g.P("}")
+	return nil
+}
+
+func (f *Generator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.UnexportedClientServiceName(), " struct {")
+	g.P("endpoints ", service.ClientEndpointsName())
+	g.P("transportName string")
+	g.P("}")
+	for _, endpoint := range service.Endpoints {
+		g.P("func (c *", service.UnexportedClientServiceName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, c.transportName)")
+		g.P("endpoint, err := c.endpoints.", endpoint.Name(), "(ctx)")
+		g.P("if err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+		g.P("rep, err := endpoint(ctx, request)")
+		g.P("if err != nil {")
+		g.P("return nil, ", internal.StatusxPackage.Ident("From"), "(err)")
+		g.P("}")
+		g.P("return rep.(*", endpoint.OutputGoIdent(), "), nil")
+		g.P("}")
+	}
+	g.P("func new", service.ClientServiceName(), "(endpoints ", service.ClientEndpointsName(), ", transportName string) ", service.ServiceName(), " {")
+	g.P("return &", service.UnexportedClientServiceName(), "{endpoints: endpoints, transportName: transportName}")
 	g.P("}")
 	return nil
 }

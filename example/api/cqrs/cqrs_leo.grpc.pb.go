@@ -7,8 +7,6 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -136,53 +134,11 @@ func newCQRSGrpcClientTransports(
 	}
 }
 
-type cQRSGrpcClient struct {
-	balancers CQRSBalancers
-}
-
-func (c *cQRSGrpcClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.CreateUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *cQRSGrpcClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-	ctx = transportx.InjectName(ctx, grpcx.GrpcClient)
-	balancer, err := c.balancers.FindUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.FromGrpcError(err)
-	}
-	return rep.(*GetUserResponse), nil
-}
-
 func NewCQRSGrpcClient(target string, opts ...grpcx.ClientOption) CQRSService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newCQRSGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newCQRSFactories(transports)
-	endpointers := newCQRSEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newCQRSBalancers(options.BalancerFactory(), endpointers)
-	return &cQRSHttpClient{balancers: balancers}
+	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newCQRSClientService(endpoints, grpcx.GrpcClient)
 }
 
 // =========================== grpc transport ===========================

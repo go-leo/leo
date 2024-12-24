@@ -10,7 +10,6 @@ import (
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
-	transportx "github.com/go-leo/leo/v3/transportx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -85,53 +84,11 @@ func newCQRSHttpClientTransports(scheme string, clientOptions []http.ClientOptio
 	}
 }
 
-type cQRSHttpClient struct {
-	balancers CQRSBalancers
-}
-
-func (c *cQRSHttpClient) CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/pb.CQRS/CreateUser")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.CreateUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*emptypb.Empty), nil
-}
-
-func (c *cQRSHttpClient) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")
-	ctx = transportx.InjectName(ctx, httpx.HttpClient)
-	balancer, err := c.balancers.FindUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	endpoint, err := balancer.Endpoint()
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, statusx.From(err)
-	}
-	return rep.(*GetUserResponse), nil
-}
-
 func NewCQRSHttpClient(target string, opts ...httpx.ClientOption) CQRSService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newCQRSHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	factories := newCQRSFactories(transports)
-	endpointers := newCQRSEndpointers(target, options.InstancerFactory(), factories, options.Logger(), options.EndpointerOptions()...)
-	balancers := newCQRSBalancers(options.BalancerFactory(), endpointers)
-	return &cQRSHttpClient{balancers: balancers}
+	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newCQRSClientService(endpoints, httpx.HttpClient)
 }
 
 // =========================== http transport ===========================
