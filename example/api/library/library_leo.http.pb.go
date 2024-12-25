@@ -37,7 +37,7 @@ func appendLibraryServiceHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move")
 	return router
 }
-func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendLibraryServiceHttpServerRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newLibraryServiceHttpServerTransports(svc, middlewares...)
 	router = appendLibraryServiceHttpRoutes(router)
 	router.Get("/google.example.library.v1.LibraryService/CreateShelf").Handler(transports.CreateShelf())

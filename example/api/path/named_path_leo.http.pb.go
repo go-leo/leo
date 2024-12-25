@@ -31,7 +31,7 @@ func appendNamedPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.path.v1.NamedPath/EmbedNamedPathWrapString").Methods("GET").Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
 }
-func AppendNamedPathHttpRoutes(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendNamedPathHttpServerRoutes(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newNamedPathHttpServerTransports(svc, middlewares...)
 	router = appendNamedPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.NamedPath/NamedPathString").Handler(transports.NamedPathString())

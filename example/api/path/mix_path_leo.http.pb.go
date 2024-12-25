@@ -26,7 +26,7 @@ func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
 }
-func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendMixPathHttpServerRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newMixPathHttpServerTransports(svc, middlewares...)
 	router = appendMixPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.MixPath/MixPath").Handler(transports.MixPath())

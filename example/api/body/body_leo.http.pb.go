@@ -27,7 +27,7 @@ func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.body.v1.Body/HttpBodyNamedBody").Methods("PUT").Path("/v1/http/body/named/body")
 	return router
 }
-func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendBodyHttpServerRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newBodyHttpServerTransports(svc, middlewares...)
 	router = appendBodyHttpRoutes(router)
 	router.Get("/leo.example.body.v1.Body/StarBody").Handler(transports.StarBody())

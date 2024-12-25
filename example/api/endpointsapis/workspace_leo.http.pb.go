@@ -31,7 +31,7 @@ func appendWorkspacesHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").Methods("DELETE").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
 	return router
 }
-func AppendWorkspacesHttpRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendWorkspacesHttpServerRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newWorkspacesHttpServerTransports(svc, middlewares...)
 	router = appendWorkspacesHttpRoutes(router)
 	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(transports.ListWorkspaces())

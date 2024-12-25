@@ -60,7 +60,7 @@ func runApi(port int) {
 		httpx.BalancerFactory(lbx.RandomFactory{}),
 	)
 
-	router := helloworld.AppendGreeterHttpRoutes(
+	router := helloworld.AppendGreeterHttpServerRoutes(
 		mux.NewRouter(),
 		NewGreeterApiService(httpClient, address),
 	)
@@ -106,7 +106,7 @@ func runHttp(port int, color string) {
 		grpcx.BalancerFactory(lbx.RandomFactory{}),
 	)
 
-	router := helloworld.AppendGreeterHttpRoutes(
+	router := helloworld.AppendGreeterHttpServerRoutes(
 		mux.NewRouter(),
 		NewGreeterHttpService(grpcClient, address, color),
 	)

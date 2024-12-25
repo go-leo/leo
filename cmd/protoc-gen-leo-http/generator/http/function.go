@@ -6,9 +6,9 @@ import (
 	"strconv"
 )
 
-type ExportedFunctionGenerator struct{}
+type FunctionGenerator struct{}
 
-func (f *ExportedFunctionGenerator) GenerateAppendRoutesFunc(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *FunctionGenerator) GenerateAppendRoutesFunc(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
 	for _, endpoint := range service.Endpoints {
 		httpRule := endpoint.HttpRule()
@@ -21,8 +21,8 @@ func (f *ExportedFunctionGenerator) GenerateAppendRoutesFunc(service *internal.S
 	return nil
 }
 
-func (f *ExportedFunctionGenerator) GenerateAppendServerFunc(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
+func (f *FunctionGenerator) GenerateAppendServerFunc(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("func Append", service.HttpServerRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
 	g.P("transports := new", service.HttpServerTransportsName(), "(svc, middlewares...)")
 	g.P("router = append", service.HttpRoutesName(), "(router)")
 	for _, endpoint := range service.Endpoints {
@@ -34,7 +34,7 @@ func (f *ExportedFunctionGenerator) GenerateAppendServerFunc(service *internal.S
 	return nil
 }
 
-func (f *ExportedFunctionGenerator) GenerateNewClientFunc(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *FunctionGenerator) GenerateNewClientFunc(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func New", service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
 	g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
 	g.P("transports := new", service.HttpClientTransportsName(), "(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())")

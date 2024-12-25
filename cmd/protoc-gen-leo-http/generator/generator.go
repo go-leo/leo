@@ -38,15 +38,15 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
-	exportedFunctionGenerator := http.ExportedFunctionGenerator{}
+	functionGenerator := http.FunctionGenerator{}
 	for _, service := range services {
-		if err := exportedFunctionGenerator.GenerateAppendRoutesFunc(service, g); err != nil {
+		if err := functionGenerator.GenerateAppendRoutesFunc(service, g); err != nil {
 			return err
 		}
-		if err := exportedFunctionGenerator.GenerateAppendServerFunc(service, g); err != nil {
+		if err := functionGenerator.GenerateAppendServerFunc(service, g); err != nil {
 			return err
 		}
-		if err := exportedFunctionGenerator.GenerateNewClientFunc(service, g); err != nil {
+		if err := functionGenerator.GenerateNewClientFunc(service, g); err != nil {
 			return err
 		}
 	}

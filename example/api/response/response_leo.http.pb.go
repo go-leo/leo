@@ -30,7 +30,7 @@ func appendResponseHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response")
 	return router
 }
-func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendResponseHttpServerRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newResponseHttpServerTransports(svc, middlewares...)
 	router = appendResponseHttpRoutes(router)
 	router.Get("/leo.example.response.v1.Response/OmittedResponse").Handler(transports.OmittedResponse())

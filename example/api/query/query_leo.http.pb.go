@@ -27,7 +27,7 @@ func appendQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
 	return router
 }
-func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendQueryHttpServerRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newQueryHttpServerTransports(svc, middlewares...)
 	router = appendQueryHttpRoutes(router)
 	router.Get("/leo.example.query.v1.Query/Query").Handler(transports.Query())

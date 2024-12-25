@@ -35,7 +35,7 @@ func appendDemoHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.demo.v1.Demo/GetUserAvatar").Methods("GET").Path("/v1/users/{user_id}")
 	return router
 }
-func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendDemoHttpServerRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newDemoHttpServerTransports(svc, middlewares...)
 	router = appendDemoHttpRoutes(router)
 	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(transports.CreateUser())

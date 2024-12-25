@@ -34,7 +34,7 @@ func appendPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}")
 	return router
 }
-func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendPathHttpServerRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newPathHttpServerTransports(svc, middlewares...)
 	router = appendPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.Path/BoolPath").Handler(transports.BoolPath())

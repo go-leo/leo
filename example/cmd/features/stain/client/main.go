@@ -37,7 +37,7 @@ func mainStd() {
 	var callApi = func(color string) {
 		receiver, err := outgoing.Sender().Get().
 			URLString("http://localhost:8000/helloworld/"+color+"-color").
-			Header("X-Color", color).Send(context.Background())
+			Header("X-Stain-Color", color).Send(context.Background())
 		if err != nil {
 			panic(err)
 		}

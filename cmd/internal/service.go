@@ -220,6 +220,10 @@ func (s Service) HttpRoutesName() string {
 	return s.Name() + "HttpRoutes"
 }
 
+func (s Service) HttpServerRoutesName() string {
+	return s.Name() + "HttpServerRoutes"
+}
+
 func (s Service) UnimplementedServerName() string {
 	return "Unimplemented" + s.Service.GoName + "Server"
 }
