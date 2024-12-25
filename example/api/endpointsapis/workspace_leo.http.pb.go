@@ -52,6 +52,14 @@ type WorkspacesHttpServerResponseEncoder interface {
 	DeleteWorkspace() http.EncodeResponseFunc
 }
 
+type WorkspacesHttpServerTransports interface {
+	ListWorkspaces() http1.Handler
+	GetWorkspace() http1.Handler
+	CreateWorkspace() http1.Handler
+	UpdateWorkspace() http1.Handler
+	DeleteWorkspace() http1.Handler
+}
+
 type workspacesHttpServerTransports struct {
 	endpoints       WorkspacesServerEndpoints
 	requestDecoder  WorkspacesHttpServerRequestDecoder
@@ -133,13 +141,16 @@ func (t *workspacesHttpServerTransports) DeleteWorkspace() http1.Handler {
 	)
 }
 
-func AppendWorkspacesHttpRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
+func newWorkspacesHttpServerTransports(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesHttpServerTransports {
 	endpoints := newWorkspacesServerEndpoints(svc, middlewares...)
-	transports := &workspacesHttpServerTransports{
+	return &workspacesHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  workspacesHttpServerRequestDecoder{},
 		responseEncoder: workspacesHttpServerResponseEncoder{},
 	}
+}
+func AppendWorkspacesHttpRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newWorkspacesHttpServerTransports(svc, middlewares...)
 	router = appendWorkspacesHttpRoutes(router)
 	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(transports.ListWorkspaces())
 	router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Handler(transports.GetWorkspace())

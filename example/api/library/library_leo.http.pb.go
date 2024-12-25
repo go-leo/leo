@@ -70,6 +70,20 @@ type LibraryServiceHttpServerResponseEncoder interface {
 	MoveBook() http.EncodeResponseFunc
 }
 
+type LibraryServiceHttpServerTransports interface {
+	CreateShelf() http1.Handler
+	GetShelf() http1.Handler
+	ListShelves() http1.Handler
+	DeleteShelf() http1.Handler
+	MergeShelves() http1.Handler
+	CreateBook() http1.Handler
+	GetBook() http1.Handler
+	ListBooks() http1.Handler
+	DeleteBook() http1.Handler
+	UpdateBook() http1.Handler
+	MoveBook() http1.Handler
+}
+
 type libraryServiceHttpServerTransports struct {
 	endpoints       LibraryServiceServerEndpoints
 	requestDecoder  LibraryServiceHttpServerRequestDecoder
@@ -241,13 +255,16 @@ func (t *libraryServiceHttpServerTransports) MoveBook() http1.Handler {
 	)
 }
 
-func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
+func newLibraryServiceHttpServerTransports(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceHttpServerTransports {
 	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
-	transports := &libraryServiceHttpServerTransports{
+	return &libraryServiceHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  libraryServiceHttpServerRequestDecoder{},
 		responseEncoder: libraryServiceHttpServerResponseEncoder{},
 	}
+}
+func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newLibraryServiceHttpServerTransports(svc, middlewares...)
 	router = appendLibraryServiceHttpRoutes(router)
 	router.Get("/google.example.library.v1.LibraryService/CreateShelf").Handler(transports.CreateShelf())
 	router.Get("/google.example.library.v1.LibraryService/GetShelf").Handler(transports.GetShelf())

@@ -38,6 +38,11 @@ type CQRSHttpServerResponseEncoder interface {
 	FindUser() http.EncodeResponseFunc
 }
 
+type CQRSHttpServerTransports interface {
+	CreateUser() http1.Handler
+	FindUser() http1.Handler
+}
+
 type cQRSHttpServerTransports struct {
 	endpoints       CQRSServerEndpoints
 	requestDecoder  CQRSHttpServerRequestDecoder
@@ -74,13 +79,16 @@ func (t *cQRSHttpServerTransports) FindUser() http1.Handler {
 	)
 }
 
-func AppendCQRSHttpRoutes(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
+func newCQRSHttpServerTransports(svc CQRSService, middlewares ...endpoint.Middleware) CQRSHttpServerTransports {
 	endpoints := newCQRSServerEndpoints(svc, middlewares...)
-	transports := &cQRSHttpServerTransports{
+	return &cQRSHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  cQRSHttpServerRequestDecoder{},
 		responseEncoder: cQRSHttpServerResponseEncoder{},
 	}
+}
+func AppendCQRSHttpRoutes(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newCQRSHttpServerTransports(svc, middlewares...)
 	router = appendCQRSHttpRoutes(router)
 	router.Get("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
 	router.Get("/pb.CQRS/FindUser").Handler(transports.FindUser())

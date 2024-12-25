@@ -60,6 +60,16 @@ type DemoHttpServerResponseEncoder interface {
 	GetUserAvatar() http.EncodeResponseFunc
 }
 
+type DemoHttpServerTransports interface {
+	CreateUser() http1.Handler
+	DeleteUser() http1.Handler
+	UpdateUser() http1.Handler
+	GetUser() http1.Handler
+	GetUsers() http1.Handler
+	UploadUserAvatar() http1.Handler
+	GetUserAvatar() http1.Handler
+}
+
 type demoHttpServerTransports struct {
 	endpoints       DemoServerEndpoints
 	requestDecoder  DemoHttpServerRequestDecoder
@@ -171,13 +181,16 @@ func (t *demoHttpServerTransports) GetUserAvatar() http1.Handler {
 	)
 }
 
-func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
+func newDemoHttpServerTransports(svc DemoService, middlewares ...endpoint.Middleware) DemoHttpServerTransports {
 	endpoints := newDemoServerEndpoints(svc, middlewares...)
-	transports := &demoHttpServerTransports{
+	return &demoHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  demoHttpServerRequestDecoder{},
 		responseEncoder: demoHttpServerResponseEncoder{},
 	}
+}
+func AppendDemoHttpRoutes(router *mux.Router, svc DemoService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newDemoHttpServerTransports(svc, middlewares...)
 	router = appendDemoHttpRoutes(router)
 	router.Get("/leo.example.demo.v1.Demo/CreateUser").Handler(transports.CreateUser())
 	router.Get("/leo.example.demo.v1.Demo/DeleteUser").Handler(transports.DeleteUser())

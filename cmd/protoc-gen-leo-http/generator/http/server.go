@@ -9,6 +9,16 @@ import (
 type ServerGenerator struct{}
 
 func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("type ", service.HttpServerTransportsName(), " interface {")
+	for _, endpoint := range service.Endpoints {
+		g.P(endpoint.Name(), "()", internal.HttpPackage.Ident("Handler"))
+	}
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *ServerGenerator) GenerateTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpServerTransportsName(), " struct {")
 	g.P("endpoints ", service.ServerEndpointsName())
 	g.P("requestDecoder ", service.HttpServerRequestDecoderName())
@@ -32,17 +42,20 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 		g.P("}")
 		g.P()
 	}
+	g.P("func new", service.HttpServerTransportsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.HttpServerTransportsName(), " {")
+	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
+	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
+	g.P("endpoints:       endpoints,")
+	g.P("requestDecoder:  ", service.UnexportedHttpServerRequestDecoderName(), "{},")
+	g.P("responseEncoder: ", service.UnexportedHttpServerResponseEncoderName(), "{},")
+	g.P("}")
+	g.P("}")
 	return nil
 }
 
 func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
-	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
-	g.P("transports := &", service.UnexportedHttpServerTransportsName(), "{")
-	g.P("endpoints: endpoints,")
-	g.P("requestDecoder: ", service.UnexportedHttpServerRequestDecoderName(), "{},")
-	g.P("responseEncoder: ", service.UnexportedHttpServerResponseEncoderName(), "{},")
-	g.P("}")
+	g.P("transports := new", service.HttpServerTransportsName(), "(svc, middlewares...)")
 	g.P("router = append", service.HttpRoutesName(), "(router)")
 	for _, endpoint := range service.Endpoints {
 		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")

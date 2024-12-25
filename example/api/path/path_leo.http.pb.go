@@ -63,6 +63,18 @@ type PathHttpServerResponseEncoder interface {
 	EnumPath() http.EncodeResponseFunc
 }
 
+type PathHttpServerTransports interface {
+	BoolPath() http1.Handler
+	Int32Path() http1.Handler
+	Int64Path() http1.Handler
+	Uint32Path() http1.Handler
+	Uint64Path() http1.Handler
+	FloatPath() http1.Handler
+	DoublePath() http1.Handler
+	StringPath() http1.Handler
+	EnumPath() http1.Handler
+}
+
 type pathHttpServerTransports struct {
 	endpoints       PathServerEndpoints
 	requestDecoder  PathHttpServerRequestDecoder
@@ -204,13 +216,16 @@ func (t *pathHttpServerTransports) EnumPath() http1.Handler {
 	)
 }
 
-func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
+func newPathHttpServerTransports(svc PathService, middlewares ...endpoint.Middleware) PathHttpServerTransports {
 	endpoints := newPathServerEndpoints(svc, middlewares...)
-	transports := &pathHttpServerTransports{
+	return &pathHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  pathHttpServerRequestDecoder{},
 		responseEncoder: pathHttpServerResponseEncoder{},
 	}
+}
+func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newPathHttpServerTransports(svc, middlewares...)
 	router = appendPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.Path/BoolPath").Handler(transports.BoolPath())
 	router.Get("/leo.example.path.v1.Path/Int32Path").Handler(transports.Int32Path())

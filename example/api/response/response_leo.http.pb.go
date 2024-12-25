@@ -51,6 +51,14 @@ type ResponseHttpServerResponseEncoder interface {
 	HttpBodyNamedResponse() http.EncodeResponseFunc
 }
 
+type ResponseHttpServerTransports interface {
+	OmittedResponse() http1.Handler
+	StarResponse() http1.Handler
+	NamedResponse() http1.Handler
+	HttpBodyResponse() http1.Handler
+	HttpBodyNamedResponse() http1.Handler
+}
+
 type responseHttpServerTransports struct {
 	endpoints       ResponseServerEndpoints
 	requestDecoder  ResponseHttpServerRequestDecoder
@@ -132,13 +140,16 @@ func (t *responseHttpServerTransports) HttpBodyNamedResponse() http1.Handler {
 	)
 }
 
-func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
+func newResponseHttpServerTransports(svc ResponseService, middlewares ...endpoint.Middleware) ResponseHttpServerTransports {
 	endpoints := newResponseServerEndpoints(svc, middlewares...)
-	transports := &responseHttpServerTransports{
+	return &responseHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  responseHttpServerRequestDecoder{},
 		responseEncoder: responseHttpServerResponseEncoder{},
 	}
+}
+func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newResponseHttpServerTransports(svc, middlewares...)
 	router = appendResponseHttpRoutes(router)
 	router.Get("/leo.example.response.v1.Response/OmittedResponse").Handler(transports.OmittedResponse())
 	router.Get("/leo.example.response.v1.Response/StarResponse").Handler(transports.StarResponse())

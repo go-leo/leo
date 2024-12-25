@@ -34,6 +34,10 @@ type GreeterHttpServerResponseEncoder interface {
 	SayHello() http.EncodeResponseFunc
 }
 
+type GreeterHttpServerTransports interface {
+	SayHello() http1.Handler
+}
+
 type greeterHttpServerTransports struct {
 	endpoints       GreeterServerEndpoints
 	requestDecoder  GreeterHttpServerRequestDecoder
@@ -55,13 +59,16 @@ func (t *greeterHttpServerTransports) SayHello() http1.Handler {
 	)
 }
 
-func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
+func newGreeterHttpServerTransports(svc GreeterService, middlewares ...endpoint.Middleware) GreeterHttpServerTransports {
 	endpoints := newGreeterServerEndpoints(svc, middlewares...)
-	transports := &greeterHttpServerTransports{
+	return &greeterHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  greeterHttpServerRequestDecoder{},
 		responseEncoder: greeterHttpServerResponseEncoder{},
 	}
+}
+func AppendGreeterHttpRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newGreeterHttpServerTransports(svc, middlewares...)
 	router = appendGreeterHttpRoutes(router)
 	router.Get("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
 	return router

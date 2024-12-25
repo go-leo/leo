@@ -40,6 +40,10 @@ type QueryHttpServerResponseEncoder interface {
 	Query() http.EncodeResponseFunc
 }
 
+type QueryHttpServerTransports interface {
+	Query() http1.Handler
+}
+
 type queryHttpServerTransports struct {
 	endpoints       QueryServerEndpoints
 	requestDecoder  QueryHttpServerRequestDecoder
@@ -61,13 +65,16 @@ func (t *queryHttpServerTransports) Query() http1.Handler {
 	)
 }
 
-func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
+func newQueryHttpServerTransports(svc QueryService, middlewares ...endpoint.Middleware) QueryHttpServerTransports {
 	endpoints := newQueryServerEndpoints(svc, middlewares...)
-	transports := &queryHttpServerTransports{
+	return &queryHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  queryHttpServerRequestDecoder{},
 		responseEncoder: queryHttpServerResponseEncoder{},
 	}
+}
+func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newQueryHttpServerTransports(svc, middlewares...)
 	router = appendQueryHttpRoutes(router)
 	router.Get("/leo.example.query.v1.Query/Query").Handler(transports.Query())
 	return router

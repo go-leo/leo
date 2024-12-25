@@ -39,6 +39,10 @@ type MixPathHttpServerResponseEncoder interface {
 	MixPath() http.EncodeResponseFunc
 }
 
+type MixPathHttpServerTransports interface {
+	MixPath() http1.Handler
+}
+
 type mixPathHttpServerTransports struct {
 	endpoints       MixPathServerEndpoints
 	requestDecoder  MixPathHttpServerRequestDecoder
@@ -60,13 +64,16 @@ func (t *mixPathHttpServerTransports) MixPath() http1.Handler {
 	)
 }
 
-func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
+func newMixPathHttpServerTransports(svc MixPathService, middlewares ...endpoint.Middleware) MixPathHttpServerTransports {
 	endpoints := newMixPathServerEndpoints(svc, middlewares...)
-	transports := &mixPathHttpServerTransports{
+	return &mixPathHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  mixPathHttpServerRequestDecoder{},
 		responseEncoder: mixPathHttpServerResponseEncoder{},
 	}
+}
+func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newMixPathHttpServerTransports(svc, middlewares...)
 	router = appendMixPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.MixPath/MixPath").Handler(transports.MixPath())
 	return router

@@ -48,6 +48,14 @@ type BodyHttpServerResponseEncoder interface {
 	HttpBodyNamedBody() http.EncodeResponseFunc
 }
 
+type BodyHttpServerTransports interface {
+	StarBody() http1.Handler
+	NamedBody() http1.Handler
+	NonBody() http1.Handler
+	HttpBodyStarBody() http1.Handler
+	HttpBodyNamedBody() http1.Handler
+}
+
 type bodyHttpServerTransports struct {
 	endpoints       BodyServerEndpoints
 	requestDecoder  BodyHttpServerRequestDecoder
@@ -129,13 +137,16 @@ func (t *bodyHttpServerTransports) HttpBodyNamedBody() http1.Handler {
 	)
 }
 
-func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
+func newBodyHttpServerTransports(svc BodyService, middlewares ...endpoint.Middleware) BodyHttpServerTransports {
 	endpoints := newBodyServerEndpoints(svc, middlewares...)
-	transports := &bodyHttpServerTransports{
+	return &bodyHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  bodyHttpServerRequestDecoder{},
 		responseEncoder: bodyHttpServerResponseEncoder{},
 	}
+}
+func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newBodyHttpServerTransports(svc, middlewares...)
 	router = appendBodyHttpRoutes(router)
 	router.Get("/leo.example.body.v1.Body/StarBody").Handler(transports.StarBody())
 	router.Get("/leo.example.body.v1.Body/NamedBody").Handler(transports.NamedBody())

@@ -54,6 +54,15 @@ type NamedPathHttpServerResponseEncoder interface {
 	EmbedNamedPathWrapString() http.EncodeResponseFunc
 }
 
+type NamedPathHttpServerTransports interface {
+	NamedPathString() http1.Handler
+	NamedPathOptString() http1.Handler
+	NamedPathWrapString() http1.Handler
+	EmbedNamedPathString() http1.Handler
+	EmbedNamedPathOptString() http1.Handler
+	EmbedNamedPathWrapString() http1.Handler
+}
+
 type namedPathHttpServerTransports struct {
 	endpoints       NamedPathServerEndpoints
 	requestDecoder  NamedPathHttpServerRequestDecoder
@@ -150,13 +159,16 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathWrapString() http1.Handler
 	)
 }
 
-func AppendNamedPathHttpRoutes(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
+func newNamedPathHttpServerTransports(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathHttpServerTransports {
 	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
-	transports := &namedPathHttpServerTransports{
+	return &namedPathHttpServerTransports{
 		endpoints:       endpoints,
 		requestDecoder:  namedPathHttpServerRequestDecoder{},
 		responseEncoder: namedPathHttpServerResponseEncoder{},
 	}
+}
+func AppendNamedPathHttpRoutes(router *mux.Router, svc NamedPathService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newNamedPathHttpServerTransports(svc, middlewares...)
 	router = appendNamedPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.NamedPath/NamedPathString").Handler(transports.NamedPathString())
 	router.Get("/leo.example.path.v1.NamedPath/NamedPathOptString").Handler(transports.NamedPathOptString())
