@@ -5,7 +5,7 @@ package path
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http "github.com/go-kit/kit/transport/http"
+	http1 "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
@@ -18,7 +18,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
-	http1 "net/http"
+	http "net/http"
 	url "net/url"
 )
 
@@ -36,194 +36,6 @@ func appendPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.path.v1.Path/EnumPath").Methods("GET").Path("/v1/{status}/{opt_status}")
 	return router
 }
-
-// =========================== http server ===========================
-
-type PathHttpServerRequestDecoder interface {
-	BoolPath() http.DecodeRequestFunc
-	Int32Path() http.DecodeRequestFunc
-	Int64Path() http.DecodeRequestFunc
-	Uint32Path() http.DecodeRequestFunc
-	Uint64Path() http.DecodeRequestFunc
-	FloatPath() http.DecodeRequestFunc
-	DoublePath() http.DecodeRequestFunc
-	StringPath() http.DecodeRequestFunc
-	EnumPath() http.DecodeRequestFunc
-}
-
-type PathHttpServerResponseEncoder interface {
-	BoolPath() http.EncodeResponseFunc
-	Int32Path() http.EncodeResponseFunc
-	Int64Path() http.EncodeResponseFunc
-	Uint32Path() http.EncodeResponseFunc
-	Uint64Path() http.EncodeResponseFunc
-	FloatPath() http.EncodeResponseFunc
-	DoublePath() http.EncodeResponseFunc
-	StringPath() http.EncodeResponseFunc
-	EnumPath() http.EncodeResponseFunc
-}
-
-type PathHttpServerTransports interface {
-	BoolPath() http1.Handler
-	Int32Path() http1.Handler
-	Int64Path() http1.Handler
-	Uint32Path() http1.Handler
-	Uint64Path() http1.Handler
-	FloatPath() http1.Handler
-	DoublePath() http1.Handler
-	StringPath() http1.Handler
-	EnumPath() http1.Handler
-}
-
-type pathHttpServerTransports struct {
-	endpoints       PathServerEndpoints
-	requestDecoder  PathHttpServerRequestDecoder
-	responseEncoder PathHttpServerResponseEncoder
-}
-
-func (t *pathHttpServerTransports) BoolPath() http1.Handler {
-	return http.NewServer(
-		t.endpoints.BoolPath(context.TODO()),
-		t.requestDecoder.BoolPath(),
-		t.responseEncoder.BoolPath(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) Int32Path() http1.Handler {
-	return http.NewServer(
-		t.endpoints.Int32Path(context.TODO()),
-		t.requestDecoder.Int32Path(),
-		t.responseEncoder.Int32Path(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) Int64Path() http1.Handler {
-	return http.NewServer(
-		t.endpoints.Int64Path(context.TODO()),
-		t.requestDecoder.Int64Path(),
-		t.responseEncoder.Int64Path(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) Uint32Path() http1.Handler {
-	return http.NewServer(
-		t.endpoints.Uint32Path(context.TODO()),
-		t.requestDecoder.Uint32Path(),
-		t.responseEncoder.Uint32Path(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) Uint64Path() http1.Handler {
-	return http.NewServer(
-		t.endpoints.Uint64Path(context.TODO()),
-		t.requestDecoder.Uint64Path(),
-		t.responseEncoder.Uint64Path(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) FloatPath() http1.Handler {
-	return http.NewServer(
-		t.endpoints.FloatPath(context.TODO()),
-		t.requestDecoder.FloatPath(),
-		t.responseEncoder.FloatPath(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) DoublePath() http1.Handler {
-	return http.NewServer(
-		t.endpoints.DoublePath(context.TODO()),
-		t.requestDecoder.DoublePath(),
-		t.responseEncoder.DoublePath(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) StringPath() http1.Handler {
-	return http.NewServer(
-		t.endpoints.StringPath(context.TODO()),
-		t.requestDecoder.StringPath(),
-		t.responseEncoder.StringPath(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *pathHttpServerTransports) EnumPath() http1.Handler {
-	return http.NewServer(
-		t.endpoints.EnumPath(context.TODO()),
-		t.requestDecoder.EnumPath(),
-		t.responseEncoder.EnumPath(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func newPathHttpServerTransports(svc PathService, middlewares ...endpoint.Middleware) PathHttpServerTransports {
-	endpoints := newPathServerEndpoints(svc, middlewares...)
-	return &pathHttpServerTransports{
-		endpoints:       endpoints,
-		requestDecoder:  pathHttpServerRequestDecoder{},
-		responseEncoder: pathHttpServerResponseEncoder{},
-	}
-}
 func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newPathHttpServerTransports(svc, middlewares...)
 	router = appendPathHttpRoutes(router)
@@ -239,159 +51,6 @@ func AppendPathHttpRoutes(router *mux.Router, svc PathService, middlewares ...en
 	return router
 }
 
-// =========================== http client ===========================
-
-type pathHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http.ClientOption
-	middlewares   []endpoint.Middleware
-}
-
-func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_BoolPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_BoolPath_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_Int32Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Int32Path_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_Int64Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Int64Path_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_Uint32Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Uint32Path_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_Uint64Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Uint64Path_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_FloatPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_FloatPath_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_DoublePath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_DoublePath_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_StringPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_StringPath_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Path_EnumPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_EnumPath_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func newPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) PathClientTransports {
-	return &pathHttpClientTransports{
-		scheme:        scheme,
-		router:        appendPathHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
-	}
-}
-
 func NewPathHttpClient(target string, opts ...httpx.ClientOption) PathService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
@@ -399,12 +58,198 @@ func NewPathHttpClient(target string, opts ...httpx.ClientOption) PathService {
 	return newPathClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http coder ===========================
+// =========================== http server ===========================
+
+type PathHttpServerTransports interface {
+	BoolPath() http.Handler
+	Int32Path() http.Handler
+	Int64Path() http.Handler
+	Uint32Path() http.Handler
+	Uint64Path() http.Handler
+	FloatPath() http.Handler
+	DoublePath() http.Handler
+	StringPath() http.Handler
+	EnumPath() http.Handler
+}
+
+type PathHttpServerRequestDecoder interface {
+	BoolPath() http1.DecodeRequestFunc
+	Int32Path() http1.DecodeRequestFunc
+	Int64Path() http1.DecodeRequestFunc
+	Uint32Path() http1.DecodeRequestFunc
+	Uint64Path() http1.DecodeRequestFunc
+	FloatPath() http1.DecodeRequestFunc
+	DoublePath() http1.DecodeRequestFunc
+	StringPath() http1.DecodeRequestFunc
+	EnumPath() http1.DecodeRequestFunc
+}
+
+type PathHttpServerResponseEncoder interface {
+	BoolPath() http1.EncodeResponseFunc
+	Int32Path() http1.EncodeResponseFunc
+	Int64Path() http1.EncodeResponseFunc
+	Uint32Path() http1.EncodeResponseFunc
+	Uint64Path() http1.EncodeResponseFunc
+	FloatPath() http1.EncodeResponseFunc
+	DoublePath() http1.EncodeResponseFunc
+	StringPath() http1.EncodeResponseFunc
+	EnumPath() http1.EncodeResponseFunc
+}
+
+type pathHttpServerTransports struct {
+	endpoints       PathServerEndpoints
+	requestDecoder  PathHttpServerRequestDecoder
+	responseEncoder PathHttpServerResponseEncoder
+}
+
+func (t *pathHttpServerTransports) BoolPath() http.Handler {
+	return http1.NewServer(
+		t.endpoints.BoolPath(context.TODO()),
+		t.requestDecoder.BoolPath(),
+		t.responseEncoder.BoolPath(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/BoolPath")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) Int32Path() http.Handler {
+	return http1.NewServer(
+		t.endpoints.Int32Path(context.TODO()),
+		t.requestDecoder.Int32Path(),
+		t.responseEncoder.Int32Path(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int32Path")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) Int64Path() http.Handler {
+	return http1.NewServer(
+		t.endpoints.Int64Path(context.TODO()),
+		t.requestDecoder.Int64Path(),
+		t.responseEncoder.Int64Path(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Int64Path")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) Uint32Path() http.Handler {
+	return http1.NewServer(
+		t.endpoints.Uint32Path(context.TODO()),
+		t.requestDecoder.Uint32Path(),
+		t.responseEncoder.Uint32Path(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint32Path")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) Uint64Path() http.Handler {
+	return http1.NewServer(
+		t.endpoints.Uint64Path(context.TODO()),
+		t.requestDecoder.Uint64Path(),
+		t.responseEncoder.Uint64Path(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/Uint64Path")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) FloatPath() http.Handler {
+	return http1.NewServer(
+		t.endpoints.FloatPath(context.TODO()),
+		t.requestDecoder.FloatPath(),
+		t.responseEncoder.FloatPath(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/FloatPath")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) DoublePath() http.Handler {
+	return http1.NewServer(
+		t.endpoints.DoublePath(context.TODO()),
+		t.requestDecoder.DoublePath(),
+		t.responseEncoder.DoublePath(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/DoublePath")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) StringPath() http.Handler {
+	return http1.NewServer(
+		t.endpoints.StringPath(context.TODO()),
+		t.requestDecoder.StringPath(),
+		t.responseEncoder.StringPath(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/StringPath")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *pathHttpServerTransports) EnumPath() http.Handler {
+	return http1.NewServer(
+		t.endpoints.EnumPath(context.TODO()),
+		t.requestDecoder.EnumPath(),
+		t.responseEncoder.EnumPath(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.Path/EnumPath")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func newPathHttpServerTransports(svc PathService, middlewares ...endpoint.Middleware) PathHttpServerTransports {
+	endpoints := newPathServerEndpoints(svc, middlewares...)
+	return &pathHttpServerTransports{
+		endpoints:       endpoints,
+		requestDecoder:  pathHttpServerRequestDecoder{},
+		responseEncoder: pathHttpServerResponseEncoder{},
+	}
+}
 
 type pathHttpServerRequestDecoder struct{}
 
-func (pathHttpServerRequestDecoder) BoolPath() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) BoolPath() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -457,8 +302,8 @@ func (pathHttpServerRequestDecoder) BoolPath() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) Int32Path() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) Int32Path() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -511,8 +356,8 @@ func (pathHttpServerRequestDecoder) Int32Path() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) Int64Path() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) Int64Path() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -565,8 +410,8 @@ func (pathHttpServerRequestDecoder) Int64Path() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) Uint32Path() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) Uint32Path() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -619,8 +464,8 @@ func (pathHttpServerRequestDecoder) Uint32Path() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) Uint64Path() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) Uint64Path() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -673,8 +518,8 @@ func (pathHttpServerRequestDecoder) Uint64Path() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) FloatPath() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) FloatPath() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -727,8 +572,8 @@ func (pathHttpServerRequestDecoder) FloatPath() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) DoublePath() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) DoublePath() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -781,8 +626,8 @@ func (pathHttpServerRequestDecoder) DoublePath() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) StringPath() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) StringPath() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -835,8 +680,8 @@ func (pathHttpServerRequestDecoder) StringPath() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (pathHttpServerRequestDecoder) EnumPath() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (pathHttpServerRequestDecoder) EnumPath() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -892,11 +737,11 @@ func (pathHttpServerRequestDecoder) EnumPath() http.DecodeRequestFunc {
 
 type pathHttpServerResponseEncoder struct{}
 
-func (pathHttpServerResponseEncoder) BoolPath() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) BoolPath() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -904,11 +749,11 @@ func (pathHttpServerResponseEncoder) BoolPath() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) Int32Path() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) Int32Path() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -916,11 +761,11 @@ func (pathHttpServerResponseEncoder) Int32Path() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) Int64Path() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) Int64Path() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -928,11 +773,11 @@ func (pathHttpServerResponseEncoder) Int64Path() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) Uint32Path() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) Uint32Path() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -940,11 +785,11 @@ func (pathHttpServerResponseEncoder) Uint32Path() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) Uint64Path() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) Uint64Path() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -952,11 +797,11 @@ func (pathHttpServerResponseEncoder) Uint64Path() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) FloatPath() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) FloatPath() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -964,11 +809,11 @@ func (pathHttpServerResponseEncoder) FloatPath() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) DoublePath() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) DoublePath() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -976,11 +821,11 @@ func (pathHttpServerResponseEncoder) DoublePath() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) StringPath() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) StringPath() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -988,11 +833,11 @@ func (pathHttpServerResponseEncoder) StringPath() http.EncodeResponseFunc {
 	}
 
 }
-func (pathHttpServerResponseEncoder) EnumPath() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (pathHttpServerResponseEncoder) EnumPath() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -1001,9 +846,164 @@ func (pathHttpServerResponseEncoder) EnumPath() http.EncodeResponseFunc {
 
 }
 
-func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+// =========================== http client ===========================
+
+type pathHttpClientTransports struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http1.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_BoolPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_BoolPath_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_Int32Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_Int32Path_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_Int64Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_Int64Path_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_Uint32Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_Uint32Path_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_Uint64Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_Uint64Path_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_FloatPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_FloatPath_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_DoublePath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_DoublePath_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_StringPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_StringPath_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Path_EnumPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Path_EnumPath_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func newPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) PathClientTransports {
+	return &pathHttpClientTransports{
+		scheme:        scheme,
+		router:        appendPathHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
+// =========================== http coder ===========================
+
+func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1061,7 +1061,7 @@ func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1070,7 +1070,7 @@ func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _Path_BoolPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_BoolPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1081,9 +1081,9 @@ func _Path_BoolPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Res
 	return resp, nil
 }
 
-func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1137,7 +1137,7 @@ func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1146,7 +1146,7 @@ func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Path_Int32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_Int32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1157,9 +1157,9 @@ func _Path_Int32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Re
 	return resp, nil
 }
 
-func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1213,7 +1213,7 @@ func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1222,7 +1222,7 @@ func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Path_Int64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_Int64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1233,9 +1233,9 @@ func _Path_Int64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Re
 	return resp, nil
 }
 
-func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1291,7 +1291,7 @@ func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1300,7 +1300,7 @@ func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Path_Uint32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_Uint32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1311,9 +1311,9 @@ func _Path_Uint32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1369,7 +1369,7 @@ func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1378,7 +1378,7 @@ func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Path_Uint64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_Uint64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1389,9 +1389,9 @@ func _Path_Uint64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1449,7 +1449,7 @@ func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1458,7 +1458,7 @@ func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Path_FloatPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_FloatPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1469,9 +1469,9 @@ func _Path_FloatPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Re
 	return resp, nil
 }
 
-func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1529,7 +1529,7 @@ func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1538,7 +1538,7 @@ func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Path_DoublePath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_DoublePath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1549,9 +1549,9 @@ func _Path_DoublePath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1609,7 +1609,7 @@ func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1618,7 +1618,7 @@ func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Path_StringPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_StringPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1629,9 +1629,9 @@ func _Path_StringPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.R
 	return resp, nil
 }
 
-func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1690,7 +1690,7 @@ func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1699,7 +1699,7 @@ func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _Path_EnumPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Path_EnumPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

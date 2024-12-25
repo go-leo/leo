@@ -40,7 +40,7 @@ func (f *Generator) GenerateFile() error {
 
 	g.P("// =========================== http router ===========================")
 	g.P()
-	if err := httpGen.GenerateRoutes(g); err != nil {
+	if err := httpGen.GenerateFunc(g); err != nil {
 		return err
 	}
 

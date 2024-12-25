@@ -6,9 +6,9 @@ import (
 	"strconv"
 )
 
-type ServerGenerator struct{}
+type ServerTransportsGenerator struct{}
 
-func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *ServerTransportsGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.HttpServerTransportsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "()", internal.HttpPackage.Ident("Handler"))
@@ -18,7 +18,7 @@ func (f *ServerGenerator) GenerateTransports(service *internal.Service, g *proto
 	return nil
 }
 
-func (f *ServerGenerator) GenerateTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *ServerTransportsGenerator) GenerateTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.UnexportedHttpServerTransportsName(), " struct {")
 	g.P("endpoints ", service.ServerEndpointsName())
 	g.P("requestDecoder ", service.HttpServerRequestDecoderName())
@@ -50,18 +50,5 @@ func (f *ServerGenerator) GenerateTransportsImplements(service *internal.Service
 	g.P("responseEncoder: ", service.UnexportedHttpServerResponseEncoderName(), "{},")
 	g.P("}")
 	g.P("}")
-	return nil
-}
-
-func (f *ServerGenerator) GenerateServer(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
-	g.P("transports := new", service.HttpServerTransportsName(), "(svc, middlewares...)")
-	g.P("router = append", service.HttpRoutesName(), "(router)")
-	for _, endpoint := range service.Endpoints {
-		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
-	}
-	g.P("return router")
-	g.P("}")
-	g.P()
 	return nil
 }

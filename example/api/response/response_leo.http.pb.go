@@ -5,7 +5,7 @@ package response
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http "github.com/go-kit/kit/transport/http"
+	http1 "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -18,7 +18,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	io "io"
-	http1 "net/http"
+	http "net/http"
 	url "net/url"
 )
 
@@ -32,122 +32,6 @@ func appendResponseHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.response.v1.Response/HttpBodyNamedResponse").Methods("PUT").Path("/v1/http/body/named/response")
 	return router
 }
-
-// =========================== http server ===========================
-
-type ResponseHttpServerRequestDecoder interface {
-	OmittedResponse() http.DecodeRequestFunc
-	StarResponse() http.DecodeRequestFunc
-	NamedResponse() http.DecodeRequestFunc
-	HttpBodyResponse() http.DecodeRequestFunc
-	HttpBodyNamedResponse() http.DecodeRequestFunc
-}
-
-type ResponseHttpServerResponseEncoder interface {
-	OmittedResponse() http.EncodeResponseFunc
-	StarResponse() http.EncodeResponseFunc
-	NamedResponse() http.EncodeResponseFunc
-	HttpBodyResponse() http.EncodeResponseFunc
-	HttpBodyNamedResponse() http.EncodeResponseFunc
-}
-
-type ResponseHttpServerTransports interface {
-	OmittedResponse() http1.Handler
-	StarResponse() http1.Handler
-	NamedResponse() http1.Handler
-	HttpBodyResponse() http1.Handler
-	HttpBodyNamedResponse() http1.Handler
-}
-
-type responseHttpServerTransports struct {
-	endpoints       ResponseServerEndpoints
-	requestDecoder  ResponseHttpServerRequestDecoder
-	responseEncoder ResponseHttpServerResponseEncoder
-}
-
-func (t *responseHttpServerTransports) OmittedResponse() http1.Handler {
-	return http.NewServer(
-		t.endpoints.OmittedResponse(context.TODO()),
-		t.requestDecoder.OmittedResponse(),
-		t.responseEncoder.OmittedResponse(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *responseHttpServerTransports) StarResponse() http1.Handler {
-	return http.NewServer(
-		t.endpoints.StarResponse(context.TODO()),
-		t.requestDecoder.StarResponse(),
-		t.responseEncoder.StarResponse(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *responseHttpServerTransports) NamedResponse() http1.Handler {
-	return http.NewServer(
-		t.endpoints.NamedResponse(context.TODO()),
-		t.requestDecoder.NamedResponse(),
-		t.responseEncoder.NamedResponse(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *responseHttpServerTransports) HttpBodyResponse() http1.Handler {
-	return http.NewServer(
-		t.endpoints.HttpBodyResponse(context.TODO()),
-		t.requestDecoder.HttpBodyResponse(),
-		t.responseEncoder.HttpBodyResponse(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *responseHttpServerTransports) HttpBodyNamedResponse() http1.Handler {
-	return http.NewServer(
-		t.endpoints.HttpBodyNamedResponse(context.TODO()),
-		t.requestDecoder.HttpBodyNamedResponse(),
-		t.responseEncoder.HttpBodyNamedResponse(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func newResponseHttpServerTransports(svc ResponseService, middlewares ...endpoint.Middleware) ResponseHttpServerTransports {
-	endpoints := newResponseServerEndpoints(svc, middlewares...)
-	return &responseHttpServerTransports{
-		endpoints:       endpoints,
-		requestDecoder:  responseHttpServerRequestDecoder{},
-		responseEncoder: responseHttpServerResponseEncoder{},
-	}
-}
 func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newResponseHttpServerTransports(svc, middlewares...)
 	router = appendResponseHttpRoutes(router)
@@ -159,99 +43,6 @@ func AppendResponseHttpRoutes(router *mux.Router, svc ResponseService, middlewar
 	return router
 }
 
-// =========================== http client ===========================
-
-type responseHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http.ClientOption
-	middlewares   []endpoint.Middleware
-}
-
-func (t *responseHttpClientTransports) OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Response_OmittedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Response_OmittedResponse_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *responseHttpClientTransports) StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Response_StarResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Response_StarResponse_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *responseHttpClientTransports) NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Response_NamedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Response_NamedResponse_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *responseHttpClientTransports) HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Response_HttpBodyResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func newResponseHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransports {
-	return &responseHttpClientTransports{
-		scheme:        scheme,
-		router:        appendResponseHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
-	}
-}
-
 func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newResponseHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
@@ -259,36 +50,150 @@ func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseSe
 	return newResponseClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http coder ===========================
+// =========================== http server ===========================
+
+type ResponseHttpServerTransports interface {
+	OmittedResponse() http.Handler
+	StarResponse() http.Handler
+	NamedResponse() http.Handler
+	HttpBodyResponse() http.Handler
+	HttpBodyNamedResponse() http.Handler
+}
+
+type ResponseHttpServerRequestDecoder interface {
+	OmittedResponse() http1.DecodeRequestFunc
+	StarResponse() http1.DecodeRequestFunc
+	NamedResponse() http1.DecodeRequestFunc
+	HttpBodyResponse() http1.DecodeRequestFunc
+	HttpBodyNamedResponse() http1.DecodeRequestFunc
+}
+
+type ResponseHttpServerResponseEncoder interface {
+	OmittedResponse() http1.EncodeResponseFunc
+	StarResponse() http1.EncodeResponseFunc
+	NamedResponse() http1.EncodeResponseFunc
+	HttpBodyResponse() http1.EncodeResponseFunc
+	HttpBodyNamedResponse() http1.EncodeResponseFunc
+}
+
+type responseHttpServerTransports struct {
+	endpoints       ResponseServerEndpoints
+	requestDecoder  ResponseHttpServerRequestDecoder
+	responseEncoder ResponseHttpServerResponseEncoder
+}
+
+func (t *responseHttpServerTransports) OmittedResponse() http.Handler {
+	return http1.NewServer(
+		t.endpoints.OmittedResponse(context.TODO()),
+		t.requestDecoder.OmittedResponse(),
+		t.responseEncoder.OmittedResponse(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/OmittedResponse")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *responseHttpServerTransports) StarResponse() http.Handler {
+	return http1.NewServer(
+		t.endpoints.StarResponse(context.TODO()),
+		t.requestDecoder.StarResponse(),
+		t.responseEncoder.StarResponse(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/StarResponse")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *responseHttpServerTransports) NamedResponse() http.Handler {
+	return http1.NewServer(
+		t.endpoints.NamedResponse(context.TODO()),
+		t.requestDecoder.NamedResponse(),
+		t.responseEncoder.NamedResponse(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/NamedResponse")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *responseHttpServerTransports) HttpBodyResponse() http.Handler {
+	return http1.NewServer(
+		t.endpoints.HttpBodyResponse(context.TODO()),
+		t.requestDecoder.HttpBodyResponse(),
+		t.responseEncoder.HttpBodyResponse(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyResponse")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *responseHttpServerTransports) HttpBodyNamedResponse() http.Handler {
+	return http1.NewServer(
+		t.endpoints.HttpBodyNamedResponse(context.TODO()),
+		t.requestDecoder.HttpBodyNamedResponse(),
+		t.responseEncoder.HttpBodyNamedResponse(),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.response.v1.Response/HttpBodyNamedResponse")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func newResponseHttpServerTransports(svc ResponseService, middlewares ...endpoint.Middleware) ResponseHttpServerTransports {
+	endpoints := newResponseServerEndpoints(svc, middlewares...)
+	return &responseHttpServerTransports{
+		endpoints:       endpoints,
+		requestDecoder:  responseHttpServerRequestDecoder{},
+		responseEncoder: responseHttpServerResponseEncoder{},
+	}
+}
 
 type responseHttpServerRequestDecoder struct{}
 
-func (responseHttpServerRequestDecoder) OmittedResponse() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (responseHttpServerRequestDecoder) OmittedResponse() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &emptypb.Empty{}
 		return req, nil
 	}
 }
-func (responseHttpServerRequestDecoder) StarResponse() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (responseHttpServerRequestDecoder) StarResponse() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &emptypb.Empty{}
 		return req, nil
 	}
 }
-func (responseHttpServerRequestDecoder) NamedResponse() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (responseHttpServerRequestDecoder) NamedResponse() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &emptypb.Empty{}
 		return req, nil
 	}
 }
-func (responseHttpServerRequestDecoder) HttpBodyResponse() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (responseHttpServerRequestDecoder) HttpBodyResponse() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &emptypb.Empty{}
 		return req, nil
 	}
 }
-func (responseHttpServerRequestDecoder) HttpBodyNamedResponse() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (responseHttpServerRequestDecoder) HttpBodyNamedResponse() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &emptypb.Empty{}
 		return req, nil
 	}
@@ -296,11 +201,11 @@ func (responseHttpServerRequestDecoder) HttpBodyNamedResponse() http.DecodeReque
 
 type responseHttpServerResponseEncoder struct{}
 
-func (responseHttpServerResponseEncoder) OmittedResponse() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (responseHttpServerResponseEncoder) OmittedResponse() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*UserResponse)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -308,11 +213,11 @@ func (responseHttpServerResponseEncoder) OmittedResponse() http.EncodeResponseFu
 	}
 
 }
-func (responseHttpServerResponseEncoder) StarResponse() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (responseHttpServerResponseEncoder) StarResponse() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*UserResponse)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -320,11 +225,11 @@ func (responseHttpServerResponseEncoder) StarResponse() http.EncodeResponseFunc 
 	}
 
 }
-func (responseHttpServerResponseEncoder) NamedResponse() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (responseHttpServerResponseEncoder) NamedResponse() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*UserResponse)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp.GetUser()); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -332,8 +237,8 @@ func (responseHttpServerResponseEncoder) NamedResponse() http.EncodeResponseFunc
 	}
 
 }
-func (responseHttpServerResponseEncoder) HttpBodyResponse() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (responseHttpServerResponseEncoder) HttpBodyResponse() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*httpbody.HttpBody)
 		w.Header().Set("Content-Type", resp.GetContentType())
 		for _, src := range resp.GetExtensions() {
@@ -349,7 +254,7 @@ func (responseHttpServerResponseEncoder) HttpBodyResponse() http.EncodeResponseF
 				w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 			}
 		}
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write(resp.GetData()); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -357,8 +262,8 @@ func (responseHttpServerResponseEncoder) HttpBodyResponse() http.EncodeResponseF
 	}
 
 }
-func (responseHttpServerResponseEncoder) HttpBodyNamedResponse() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (responseHttpServerResponseEncoder) HttpBodyNamedResponse() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*HttpBody)
 		w.Header().Set("Content-Type", resp.GetBody().GetContentType())
 		for _, src := range resp.GetBody().GetExtensions() {
@@ -374,7 +279,7 @@ func (responseHttpServerResponseEncoder) HttpBodyNamedResponse() http.EncodeResp
 				w.Header().Add(key, string(errorx.Ignore(jsonx.Marshal(value))))
 			}
 		}
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write(resp.GetBody().GetData()); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -383,9 +288,104 @@ func (responseHttpServerResponseEncoder) HttpBodyNamedResponse() http.EncodeResp
 
 }
 
-func _Response_OmittedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+// =========================== http client ===========================
+
+type responseHttpClientTransports struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http1.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *responseHttpClientTransports) OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Response_OmittedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_OmittedResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransports) StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Response_StarResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_StarResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransports) NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Response_NamedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_NamedResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransports) HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Response_HttpBodyResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_HttpBodyResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func newResponseHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransports {
+	return &responseHttpClientTransports{
+		scheme:        scheme,
+		router:        appendResponseHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
+// =========================== http coder ===========================
+
+func _Response_OmittedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -407,7 +407,7 @@ func _Response_OmittedResponse_HttpClient_RequestEncoder(router *mux.Router) fun
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -416,7 +416,7 @@ func _Response_OmittedResponse_HttpClient_RequestEncoder(router *mux.Router) fun
 	}
 }
 
-func _Response_OmittedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Response_OmittedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -427,9 +427,9 @@ func _Response_OmittedResponse_HttpClient_ResponseDecoder(ctx context.Context, r
 	return resp, nil
 }
 
-func _Response_StarResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Response_StarResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -451,7 +451,7 @@ func _Response_StarResponse_HttpClient_RequestEncoder(router *mux.Router) func(s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -460,7 +460,7 @@ func _Response_StarResponse_HttpClient_RequestEncoder(router *mux.Router) func(s
 	}
 }
 
-func _Response_StarResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Response_StarResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -471,9 +471,9 @@ func _Response_StarResponse_HttpClient_ResponseDecoder(ctx context.Context, r *h
 	return resp, nil
 }
 
-func _Response_NamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Response_NamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -495,7 +495,7 @@ func _Response_NamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -504,7 +504,7 @@ func _Response_NamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(
 	}
 }
 
-func _Response_NamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Response_NamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -515,9 +515,9 @@ func _Response_NamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *
 	return resp, nil
 }
 
-func _Response_HttpBodyResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Response_HttpBodyResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -539,7 +539,7 @@ func _Response_HttpBodyResponse_HttpClient_RequestEncoder(router *mux.Router) fu
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -548,7 +548,7 @@ func _Response_HttpBodyResponse_HttpClient_RequestEncoder(router *mux.Router) fu
 	}
 }
 
-func _Response_HttpBodyResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Response_HttpBodyResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -562,9 +562,9 @@ func _Response_HttpBodyResponse_HttpClient_ResponseDecoder(ctx context.Context, 
 	return resp, nil
 }
 
-func _Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -586,7 +586,7 @@ func _Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router *mux.Route
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -595,7 +595,7 @@ func _Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router *mux.Route
 	}
 }
 
-func _Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Response_HttpBodyNamedResponse_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

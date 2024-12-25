@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http "github.com/go-kit/kit/transport/http"
+	http1 "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
@@ -18,7 +18,7 @@ import (
 	mux "github.com/gorilla/mux"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
-	http1 "net/http"
+	http "net/http"
 	url "net/url"
 	strings "strings"
 )
@@ -39,230 +39,6 @@ func appendLibraryServiceHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/MoveBook").Methods("POST").Path("/v1/shelves/{shelf}/books/{book}:move")
 	return router
 }
-
-// =========================== http server ===========================
-
-type LibraryServiceHttpServerRequestDecoder interface {
-	CreateShelf() http.DecodeRequestFunc
-	GetShelf() http.DecodeRequestFunc
-	ListShelves() http.DecodeRequestFunc
-	DeleteShelf() http.DecodeRequestFunc
-	MergeShelves() http.DecodeRequestFunc
-	CreateBook() http.DecodeRequestFunc
-	GetBook() http.DecodeRequestFunc
-	ListBooks() http.DecodeRequestFunc
-	DeleteBook() http.DecodeRequestFunc
-	UpdateBook() http.DecodeRequestFunc
-	MoveBook() http.DecodeRequestFunc
-}
-
-type LibraryServiceHttpServerResponseEncoder interface {
-	CreateShelf() http.EncodeResponseFunc
-	GetShelf() http.EncodeResponseFunc
-	ListShelves() http.EncodeResponseFunc
-	DeleteShelf() http.EncodeResponseFunc
-	MergeShelves() http.EncodeResponseFunc
-	CreateBook() http.EncodeResponseFunc
-	GetBook() http.EncodeResponseFunc
-	ListBooks() http.EncodeResponseFunc
-	DeleteBook() http.EncodeResponseFunc
-	UpdateBook() http.EncodeResponseFunc
-	MoveBook() http.EncodeResponseFunc
-}
-
-type LibraryServiceHttpServerTransports interface {
-	CreateShelf() http1.Handler
-	GetShelf() http1.Handler
-	ListShelves() http1.Handler
-	DeleteShelf() http1.Handler
-	MergeShelves() http1.Handler
-	CreateBook() http1.Handler
-	GetBook() http1.Handler
-	ListBooks() http1.Handler
-	DeleteBook() http1.Handler
-	UpdateBook() http1.Handler
-	MoveBook() http1.Handler
-}
-
-type libraryServiceHttpServerTransports struct {
-	endpoints       LibraryServiceServerEndpoints
-	requestDecoder  LibraryServiceHttpServerRequestDecoder
-	responseEncoder LibraryServiceHttpServerResponseEncoder
-}
-
-func (t *libraryServiceHttpServerTransports) CreateShelf() http1.Handler {
-	return http.NewServer(
-		t.endpoints.CreateShelf(context.TODO()),
-		t.requestDecoder.CreateShelf(),
-		t.responseEncoder.CreateShelf(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) GetShelf() http1.Handler {
-	return http.NewServer(
-		t.endpoints.GetShelf(context.TODO()),
-		t.requestDecoder.GetShelf(),
-		t.responseEncoder.GetShelf(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) ListShelves() http1.Handler {
-	return http.NewServer(
-		t.endpoints.ListShelves(context.TODO()),
-		t.requestDecoder.ListShelves(),
-		t.responseEncoder.ListShelves(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) DeleteShelf() http1.Handler {
-	return http.NewServer(
-		t.endpoints.DeleteShelf(context.TODO()),
-		t.requestDecoder.DeleteShelf(),
-		t.responseEncoder.DeleteShelf(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) MergeShelves() http1.Handler {
-	return http.NewServer(
-		t.endpoints.MergeShelves(context.TODO()),
-		t.requestDecoder.MergeShelves(),
-		t.responseEncoder.MergeShelves(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) CreateBook() http1.Handler {
-	return http.NewServer(
-		t.endpoints.CreateBook(context.TODO()),
-		t.requestDecoder.CreateBook(),
-		t.responseEncoder.CreateBook(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) GetBook() http1.Handler {
-	return http.NewServer(
-		t.endpoints.GetBook(context.TODO()),
-		t.requestDecoder.GetBook(),
-		t.responseEncoder.GetBook(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) ListBooks() http1.Handler {
-	return http.NewServer(
-		t.endpoints.ListBooks(context.TODO()),
-		t.requestDecoder.ListBooks(),
-		t.responseEncoder.ListBooks(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) DeleteBook() http1.Handler {
-	return http.NewServer(
-		t.endpoints.DeleteBook(context.TODO()),
-		t.requestDecoder.DeleteBook(),
-		t.responseEncoder.DeleteBook(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) UpdateBook() http1.Handler {
-	return http.NewServer(
-		t.endpoints.UpdateBook(context.TODO()),
-		t.requestDecoder.UpdateBook(),
-		t.responseEncoder.UpdateBook(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func (t *libraryServiceHttpServerTransports) MoveBook() http1.Handler {
-	return http.NewServer(
-		t.endpoints.MoveBook(context.TODO()),
-		t.requestDecoder.MoveBook(),
-		t.responseEncoder.MoveBook(),
-		http.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
-	)
-}
-
-func newLibraryServiceHttpServerTransports(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceHttpServerTransports {
-	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
-	return &libraryServiceHttpServerTransports{
-		endpoints:       endpoints,
-		requestDecoder:  libraryServiceHttpServerRequestDecoder{},
-		responseEncoder: libraryServiceHttpServerResponseEncoder{},
-	}
-}
 func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceService, middlewares ...endpoint.Middleware) *mux.Router {
 	transports := newLibraryServiceHttpServerTransports(svc, middlewares...)
 	router = appendLibraryServiceHttpRoutes(router)
@@ -280,189 +56,6 @@ func AppendLibraryServiceHttpRoutes(router *mux.Router, svc LibraryServiceServic
 	return router
 }
 
-// =========================== http client ===========================
-
-type libraryServiceHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http.ClientOption
-	middlewares   []endpoint.Middleware
-}
-
-func (t *libraryServiceHttpClientTransports) CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_CreateShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_GetShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_GetShelf_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_ListShelves_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_ListShelves_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) DeleteShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_DeleteShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) MergeShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_MergeShelves_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) CreateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_CreateBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_CreateBook_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) GetBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_GetBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_GetBook_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) ListBooks(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_ListBooks_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_ListBooks_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) DeleteBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_DeleteBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) UpdateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_UpdateBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *libraryServiceHttpClientTransports) MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_LibraryService_MoveBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_LibraryService_MoveBook_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func newLibraryServiceHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) LibraryServiceClientTransports {
-	return &libraryServiceHttpClientTransports{
-		scheme:        scheme,
-		router:        appendLibraryServiceHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
-	}
-}
-
 func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) LibraryServiceService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newLibraryServiceHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
@@ -470,12 +63,234 @@ func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) Libr
 	return newLibraryServiceClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http coder ===========================
+// =========================== http server ===========================
+
+type LibraryServiceHttpServerTransports interface {
+	CreateShelf() http.Handler
+	GetShelf() http.Handler
+	ListShelves() http.Handler
+	DeleteShelf() http.Handler
+	MergeShelves() http.Handler
+	CreateBook() http.Handler
+	GetBook() http.Handler
+	ListBooks() http.Handler
+	DeleteBook() http.Handler
+	UpdateBook() http.Handler
+	MoveBook() http.Handler
+}
+
+type LibraryServiceHttpServerRequestDecoder interface {
+	CreateShelf() http1.DecodeRequestFunc
+	GetShelf() http1.DecodeRequestFunc
+	ListShelves() http1.DecodeRequestFunc
+	DeleteShelf() http1.DecodeRequestFunc
+	MergeShelves() http1.DecodeRequestFunc
+	CreateBook() http1.DecodeRequestFunc
+	GetBook() http1.DecodeRequestFunc
+	ListBooks() http1.DecodeRequestFunc
+	DeleteBook() http1.DecodeRequestFunc
+	UpdateBook() http1.DecodeRequestFunc
+	MoveBook() http1.DecodeRequestFunc
+}
+
+type LibraryServiceHttpServerResponseEncoder interface {
+	CreateShelf() http1.EncodeResponseFunc
+	GetShelf() http1.EncodeResponseFunc
+	ListShelves() http1.EncodeResponseFunc
+	DeleteShelf() http1.EncodeResponseFunc
+	MergeShelves() http1.EncodeResponseFunc
+	CreateBook() http1.EncodeResponseFunc
+	GetBook() http1.EncodeResponseFunc
+	ListBooks() http1.EncodeResponseFunc
+	DeleteBook() http1.EncodeResponseFunc
+	UpdateBook() http1.EncodeResponseFunc
+	MoveBook() http1.EncodeResponseFunc
+}
+
+type libraryServiceHttpServerTransports struct {
+	endpoints       LibraryServiceServerEndpoints
+	requestDecoder  LibraryServiceHttpServerRequestDecoder
+	responseEncoder LibraryServiceHttpServerResponseEncoder
+}
+
+func (t *libraryServiceHttpServerTransports) CreateShelf() http.Handler {
+	return http1.NewServer(
+		t.endpoints.CreateShelf(context.TODO()),
+		t.requestDecoder.CreateShelf(),
+		t.responseEncoder.CreateShelf(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateShelf")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) GetShelf() http.Handler {
+	return http1.NewServer(
+		t.endpoints.GetShelf(context.TODO()),
+		t.requestDecoder.GetShelf(),
+		t.responseEncoder.GetShelf(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetShelf")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) ListShelves() http.Handler {
+	return http1.NewServer(
+		t.endpoints.ListShelves(context.TODO()),
+		t.requestDecoder.ListShelves(),
+		t.responseEncoder.ListShelves(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListShelves")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) DeleteShelf() http.Handler {
+	return http1.NewServer(
+		t.endpoints.DeleteShelf(context.TODO()),
+		t.requestDecoder.DeleteShelf(),
+		t.responseEncoder.DeleteShelf(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteShelf")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) MergeShelves() http.Handler {
+	return http1.NewServer(
+		t.endpoints.MergeShelves(context.TODO()),
+		t.requestDecoder.MergeShelves(),
+		t.responseEncoder.MergeShelves(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MergeShelves")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) CreateBook() http.Handler {
+	return http1.NewServer(
+		t.endpoints.CreateBook(context.TODO()),
+		t.requestDecoder.CreateBook(),
+		t.responseEncoder.CreateBook(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/CreateBook")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) GetBook() http.Handler {
+	return http1.NewServer(
+		t.endpoints.GetBook(context.TODO()),
+		t.requestDecoder.GetBook(),
+		t.responseEncoder.GetBook(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/GetBook")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) ListBooks() http.Handler {
+	return http1.NewServer(
+		t.endpoints.ListBooks(context.TODO()),
+		t.requestDecoder.ListBooks(),
+		t.responseEncoder.ListBooks(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/ListBooks")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) DeleteBook() http.Handler {
+	return http1.NewServer(
+		t.endpoints.DeleteBook(context.TODO()),
+		t.requestDecoder.DeleteBook(),
+		t.responseEncoder.DeleteBook(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/DeleteBook")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) UpdateBook() http.Handler {
+	return http1.NewServer(
+		t.endpoints.UpdateBook(context.TODO()),
+		t.requestDecoder.UpdateBook(),
+		t.responseEncoder.UpdateBook(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/UpdateBook")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func (t *libraryServiceHttpServerTransports) MoveBook() http.Handler {
+	return http1.NewServer(
+		t.endpoints.MoveBook(context.TODO()),
+		t.requestDecoder.MoveBook(),
+		t.responseEncoder.MoveBook(),
+		http1.ServerBefore(httpx.EndpointInjector("/google.example.library.v1.LibraryService/MoveBook")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+	)
+}
+
+func newLibraryServiceHttpServerTransports(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceHttpServerTransports {
+	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
+	return &libraryServiceHttpServerTransports{
+		endpoints:       endpoints,
+		requestDecoder:  libraryServiceHttpServerRequestDecoder{},
+		responseEncoder: libraryServiceHttpServerResponseEncoder{},
+	}
+}
 
 type libraryServiceHttpServerRequestDecoder struct{}
 
-func (libraryServiceHttpServerRequestDecoder) CreateShelf() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) CreateShelf() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &CreateShelfRequest{}
 		if err := jsonx.NewDecoder(r.Body).Decode(&req.Shelf); err != nil {
 			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -483,8 +298,8 @@ func (libraryServiceHttpServerRequestDecoder) CreateShelf() http.DecodeRequestFu
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) GetShelf() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) GetShelf() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &GetShelfRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -495,8 +310,8 @@ func (libraryServiceHttpServerRequestDecoder) GetShelf() http.DecodeRequestFunc 
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) ListShelves() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) ListShelves() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &ListShelvesRequest{}
 		queries := r.URL.Query()
 		var queryErr error
@@ -508,8 +323,8 @@ func (libraryServiceHttpServerRequestDecoder) ListShelves() http.DecodeRequestFu
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) DeleteShelf() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) DeleteShelf() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &DeleteShelfRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -520,8 +335,8 @@ func (libraryServiceHttpServerRequestDecoder) DeleteShelf() http.DecodeRequestFu
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) MergeShelves() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) MergeShelves() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &MergeShelvesRequest{}
 		if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
 			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -535,8 +350,8 @@ func (libraryServiceHttpServerRequestDecoder) MergeShelves() http.DecodeRequestF
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) CreateBook() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) CreateBook() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &CreateBookRequest{}
 		if err := jsonx.NewDecoder(r.Body).Decode(&req.Book); err != nil {
 			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -550,8 +365,8 @@ func (libraryServiceHttpServerRequestDecoder) CreateBook() http.DecodeRequestFun
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) GetBook() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) GetBook() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &GetBookRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -562,8 +377,8 @@ func (libraryServiceHttpServerRequestDecoder) GetBook() http.DecodeRequestFunc {
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) ListBooks() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) ListBooks() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &ListBooksRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -581,8 +396,8 @@ func (libraryServiceHttpServerRequestDecoder) ListBooks() http.DecodeRequestFunc
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) DeleteBook() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) DeleteBook() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &DeleteBookRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
@@ -593,8 +408,8 @@ func (libraryServiceHttpServerRequestDecoder) DeleteBook() http.DecodeRequestFun
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) UpdateBook() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) UpdateBook() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &UpdateBookRequest{}
 		if err := jsonx.NewDecoder(r.Body).Decode(&req.Book); err != nil {
 			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -611,8 +426,8 @@ func (libraryServiceHttpServerRequestDecoder) UpdateBook() http.DecodeRequestFun
 		return req, nil
 	}
 }
-func (libraryServiceHttpServerRequestDecoder) MoveBook() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (libraryServiceHttpServerRequestDecoder) MoveBook() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &MoveBookRequest{}
 		if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
 			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
@@ -629,11 +444,11 @@ func (libraryServiceHttpServerRequestDecoder) MoveBook() http.DecodeRequestFunc 
 
 type libraryServiceHttpServerResponseEncoder struct{}
 
-func (libraryServiceHttpServerResponseEncoder) CreateShelf() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) CreateShelf() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Shelf)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -641,11 +456,11 @@ func (libraryServiceHttpServerResponseEncoder) CreateShelf() http.EncodeResponse
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) GetShelf() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) GetShelf() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Shelf)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -653,11 +468,11 @@ func (libraryServiceHttpServerResponseEncoder) GetShelf() http.EncodeResponseFun
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) ListShelves() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) ListShelves() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*ListShelvesResponse)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -665,11 +480,11 @@ func (libraryServiceHttpServerResponseEncoder) ListShelves() http.EncodeResponse
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) DeleteShelf() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) DeleteShelf() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -677,11 +492,11 @@ func (libraryServiceHttpServerResponseEncoder) DeleteShelf() http.EncodeResponse
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) MergeShelves() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) MergeShelves() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Shelf)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -689,11 +504,11 @@ func (libraryServiceHttpServerResponseEncoder) MergeShelves() http.EncodeRespons
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) CreateBook() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) CreateBook() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Book)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -701,11 +516,11 @@ func (libraryServiceHttpServerResponseEncoder) CreateBook() http.EncodeResponseF
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) GetBook() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) GetBook() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Book)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -713,11 +528,11 @@ func (libraryServiceHttpServerResponseEncoder) GetBook() http.EncodeResponseFunc
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) ListBooks() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) ListBooks() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*ListBooksResponse)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -725,11 +540,11 @@ func (libraryServiceHttpServerResponseEncoder) ListBooks() http.EncodeResponseFu
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) DeleteBook() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) DeleteBook() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -737,11 +552,11 @@ func (libraryServiceHttpServerResponseEncoder) DeleteBook() http.EncodeResponseF
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) UpdateBook() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) UpdateBook() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Book)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -749,11 +564,11 @@ func (libraryServiceHttpServerResponseEncoder) UpdateBook() http.EncodeResponseF
 	}
 
 }
-func (libraryServiceHttpServerResponseEncoder) MoveBook() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (libraryServiceHttpServerResponseEncoder) MoveBook() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*Book)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -762,9 +577,194 @@ func (libraryServiceHttpServerResponseEncoder) MoveBook() http.EncodeResponseFun
 
 }
 
-func _LibraryService_CreateShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+// =========================== http client ===========================
+
+type libraryServiceHttpClientTransports struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http1.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *libraryServiceHttpClientTransports) CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_CreateShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_CreateShelf_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_GetShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_GetShelf_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) ListShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_ListShelves_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_ListShelves_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) DeleteShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_DeleteShelf_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_DeleteShelf_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) MergeShelves(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_MergeShelves_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_MergeShelves_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) CreateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_CreateBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_CreateBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) GetBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_GetBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_GetBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) ListBooks(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_ListBooks_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_ListBooks_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) DeleteBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_DeleteBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_DeleteBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) UpdateBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_UpdateBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_UpdateBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *libraryServiceHttpClientTransports) MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_LibraryService_MoveBook_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_LibraryService_MoveBook_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func newLibraryServiceHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) LibraryServiceClientTransports {
+	return &libraryServiceHttpClientTransports{
+		scheme:        scheme,
+		router:        appendLibraryServiceHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
+// =========================== http coder ===========================
+
+func _LibraryService_CreateShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -792,7 +792,7 @@ func _LibraryService_CreateShelf_HttpClient_RequestEncoder(router *mux.Router) f
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -802,7 +802,7 @@ func _LibraryService_CreateShelf_HttpClient_RequestEncoder(router *mux.Router) f
 	}
 }
 
-func _LibraryService_CreateShelf_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_CreateShelf_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -813,9 +813,9 @@ func _LibraryService_CreateShelf_HttpClient_ResponseDecoder(ctx context.Context,
 	return resp, nil
 }
 
-func _LibraryService_GetShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_GetShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -843,7 +843,7 @@ func _LibraryService_GetShelf_HttpClient_RequestEncoder(router *mux.Router) func
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -852,7 +852,7 @@ func _LibraryService_GetShelf_HttpClient_RequestEncoder(router *mux.Router) func
 	}
 }
 
-func _LibraryService_GetShelf_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_GetShelf_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -863,9 +863,9 @@ func _LibraryService_GetShelf_HttpClient_ResponseDecoder(ctx context.Context, r 
 	return resp, nil
 }
 
-func _LibraryService_ListShelves_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_ListShelves_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -889,7 +889,7 @@ func _LibraryService_ListShelves_HttpClient_RequestEncoder(router *mux.Router) f
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -898,7 +898,7 @@ func _LibraryService_ListShelves_HttpClient_RequestEncoder(router *mux.Router) f
 	}
 }
 
-func _LibraryService_ListShelves_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_ListShelves_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -909,9 +909,9 @@ func _LibraryService_ListShelves_HttpClient_ResponseDecoder(ctx context.Context,
 	return resp, nil
 }
 
-func _LibraryService_DeleteShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_DeleteShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -939,7 +939,7 @@ func _LibraryService_DeleteShelf_HttpClient_RequestEncoder(router *mux.Router) f
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "DELETE", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -948,7 +948,7 @@ func _LibraryService_DeleteShelf_HttpClient_RequestEncoder(router *mux.Router) f
 	}
 }
 
-func _LibraryService_DeleteShelf_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_DeleteShelf_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -959,9 +959,9 @@ func _LibraryService_DeleteShelf_HttpClient_ResponseDecoder(ctx context.Context,
 	return resp, nil
 }
 
-func _LibraryService_MergeShelves_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_MergeShelves_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -995,7 +995,7 @@ func _LibraryService_MergeShelves_HttpClient_RequestEncoder(router *mux.Router) 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1005,7 +1005,7 @@ func _LibraryService_MergeShelves_HttpClient_RequestEncoder(router *mux.Router) 
 	}
 }
 
-func _LibraryService_MergeShelves_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_MergeShelves_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1016,9 +1016,9 @@ func _LibraryService_MergeShelves_HttpClient_ResponseDecoder(ctx context.Context
 	return resp, nil
 }
 
-func _LibraryService_CreateBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_CreateBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1052,7 +1052,7 @@ func _LibraryService_CreateBook_HttpClient_RequestEncoder(router *mux.Router) fu
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1062,7 +1062,7 @@ func _LibraryService_CreateBook_HttpClient_RequestEncoder(router *mux.Router) fu
 	}
 }
 
-func _LibraryService_CreateBook_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_CreateBook_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1073,9 +1073,9 @@ func _LibraryService_CreateBook_HttpClient_ResponseDecoder(ctx context.Context, 
 	return resp, nil
 }
 
-func _LibraryService_GetBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_GetBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1103,7 +1103,7 @@ func _LibraryService_GetBook_HttpClient_RequestEncoder(router *mux.Router) func(
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1112,7 +1112,7 @@ func _LibraryService_GetBook_HttpClient_RequestEncoder(router *mux.Router) func(
 	}
 }
 
-func _LibraryService_GetBook_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_GetBook_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1123,9 +1123,9 @@ func _LibraryService_GetBook_HttpClient_ResponseDecoder(ctx context.Context, r *
 	return resp, nil
 }
 
-func _LibraryService_ListBooks_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_ListBooks_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1155,7 +1155,7 @@ func _LibraryService_ListBooks_HttpClient_RequestEncoder(router *mux.Router) fun
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1164,7 +1164,7 @@ func _LibraryService_ListBooks_HttpClient_RequestEncoder(router *mux.Router) fun
 	}
 }
 
-func _LibraryService_ListBooks_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_ListBooks_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1175,9 +1175,9 @@ func _LibraryService_ListBooks_HttpClient_ResponseDecoder(ctx context.Context, r
 	return resp, nil
 }
 
-func _LibraryService_DeleteBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_DeleteBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1205,7 +1205,7 @@ func _LibraryService_DeleteBook_HttpClient_RequestEncoder(router *mux.Router) fu
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "DELETE", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1214,7 +1214,7 @@ func _LibraryService_DeleteBook_HttpClient_RequestEncoder(router *mux.Router) fu
 	}
 }
 
-func _LibraryService_DeleteBook_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_DeleteBook_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1225,9 +1225,9 @@ func _LibraryService_DeleteBook_HttpClient_ResponseDecoder(ctx context.Context, 
 	return resp, nil
 }
 
-func _LibraryService_UpdateBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_UpdateBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1261,7 +1261,7 @@ func _LibraryService_UpdateBook_HttpClient_RequestEncoder(router *mux.Router) fu
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "PATCH", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "PATCH", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1271,7 +1271,7 @@ func _LibraryService_UpdateBook_HttpClient_RequestEncoder(router *mux.Router) fu
 	}
 }
 
-func _LibraryService_UpdateBook_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_UpdateBook_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -1282,9 +1282,9 @@ func _LibraryService_UpdateBook_HttpClient_ResponseDecoder(ctx context.Context, 
 	return resp, nil
 }
 
-func _LibraryService_MoveBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+func _LibraryService_MoveBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -1318,7 +1318,7 @@ func _LibraryService_MoveBook_HttpClient_RequestEncoder(router *mux.Router) func
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -1328,7 +1328,7 @@ func _LibraryService_MoveBook_HttpClient_RequestEncoder(router *mux.Router) func
 	}
 }
 
-func _LibraryService_MoveBook_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _LibraryService_MoveBook_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

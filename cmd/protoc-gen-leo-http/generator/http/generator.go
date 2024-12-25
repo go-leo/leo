@@ -20,44 +20,79 @@ func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, err
 	return &Generator{Plugin: plugin, File: file, Services: services}, nil
 }
 
-func (f *Generator) GenerateRoutes(g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateFunc(g *protogen.GeneratedFile) error {
 	for _, service := range f.Services {
-		g.P("func append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
-		for _, endpoint := range service.Endpoints {
-			httpRule := endpoint.HttpRule()
-			// 调整路径，来适应 github.com/gorilla/mux 路由规则
-			path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-			g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ")")
+		if err := f.GenerateAppendRoutesFunc(service, g); err != nil {
+			return err
 		}
-		g.P("return router")
-		g.P("}")
+		if err := f.GenerateAppendServerFunc(service, g); err != nil {
+			return err
+		}
+		if err := f.GenerateNewClientFunc(service, g); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
+func (f *Generator) GenerateAppendRoutesFunc(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("func append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
+	for _, endpoint := range service.Endpoints {
+		httpRule := endpoint.HttpRule()
+		// 调整路径，来适应 github.com/gorilla/mux 路由规则
+		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
+		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ")")
+	}
+	g.P("return router")
+	g.P("}")
+	return nil
+}
+
+func (f *Generator) GenerateAppendServerFunc(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("func Append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
+	g.P("transports := new", service.HttpServerTransportsName(), "(svc, middlewares...)")
+	g.P("router = append", service.HttpRoutesName(), "(router)")
+	for _, endpoint := range service.Endpoints {
+		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
+	}
+	g.P("return router")
+	g.P("}")
+	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateNewClientFunc(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P("func New", service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
+	g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
+	g.P("transports := new", service.HttpClientTransportsName(), "(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())")
+	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
+	g.P("return new", service.ClientServiceName(), "(endpoints, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
+	g.P("}")
+	g.P()
+	return nil
+}
+
 func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
-	server := ServerGenerator{}
+	serverTransportsGenerator := ServerTransportsGenerator{}
 	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
 	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
 	for _, service := range f.Services {
+		if err := serverTransportsGenerator.GenerateTransports(service, g); err != nil {
+			return err
+		}
 		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoder(service, g); err != nil {
 			return err
 		}
 		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoder(service, g); err != nil {
 			return err
 		}
-
-	}
-	for _, service := range f.Services {
-		if err := server.GenerateTransports(service, g); err != nil {
+		if err := serverTransportsGenerator.GenerateTransportsImplements(service, g); err != nil {
 			return err
 		}
-		if err := server.GenerateTransportsImplements(service, g); err != nil {
+		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(service, g); err != nil {
 			return err
 		}
-	}
-	for _, service := range f.Services {
-		if err := server.GenerateServer(service, g); err != nil {
+		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoderImplements(service, g); err != nil {
 			return err
 		}
 	}
@@ -71,30 +106,11 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 			return err
 		}
 	}
-
-	for _, service := range f.Services {
-		if err := client.GenerateClientService(service, g); err != nil {
-			return err
-		}
-
-	}
 	return nil
 }
 
 func (f *Generator) GenerateCoder(g *protogen.GeneratedFile) error {
 	client := ClientGenerator{}
-	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
-	for _, service := range f.Services {
-		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(service, g); err != nil {
-			return err
-		}
-	}
-	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
-	for _, service := range f.Services {
-		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoderImplements(service, g); err != nil {
-			return err
-		}
-	}
 	for _, service := range f.Services {
 		for _, endpoint := range service.Endpoints {
 			if err := client.PrintEncodeRequestFunc(g, endpoint); err != nil {

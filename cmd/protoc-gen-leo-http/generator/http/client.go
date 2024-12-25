@@ -49,17 +49,6 @@ func (f *ClientGenerator) GenerateTransports(service *internal.Service, g *proto
 	return nil
 }
 
-func (f *ClientGenerator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
-	g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
-	g.P("transports := new", service.HttpClientTransportsName(), "(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())")
-	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
-	g.P("return new", service.ClientServiceName(), "(endpoints, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
-	g.P("}")
-	g.P()
-	return nil
-}
-
 func (f *ClientGenerator) GenerateCoder(service *internal.Service, g *protogen.GeneratedFile) error {
 	for _, endpoint := range service.Endpoints {
 		if err := f.PrintEncodeRequestFunc(g, endpoint); err != nil {

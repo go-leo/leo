@@ -5,7 +5,7 @@ package query
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http "github.com/go-kit/kit/transport/http"
+	http1 "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	errorx "github.com/go-leo/gox/errorx"
 	urlx "github.com/go-leo/gox/netx/urlx"
@@ -19,7 +19,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
-	http1 "net/http"
+	http "net/http"
 	url "net/url"
 )
 
@@ -29,19 +29,32 @@ func appendQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.query.v1.Query/Query").Methods("GET").Path("/v1/query")
 	return router
 }
+func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
+	transports := newQueryHttpServerTransports(svc, middlewares...)
+	router = appendQueryHttpRoutes(router)
+	router.Get("/leo.example.query.v1.Query/Query").Handler(transports.Query())
+	return router
+}
+
+func NewQueryHttpClient(target string, opts ...httpx.ClientOption) QueryService {
+	options := httpx.NewClientOptions(opts...)
+	transports := newQueryHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newQueryClientService(endpoints, httpx.HttpClient)
+}
 
 // =========================== http server ===========================
 
+type QueryHttpServerTransports interface {
+	Query() http.Handler
+}
+
 type QueryHttpServerRequestDecoder interface {
-	Query() http.DecodeRequestFunc
+	Query() http1.DecodeRequestFunc
 }
 
 type QueryHttpServerResponseEncoder interface {
-	Query() http.EncodeResponseFunc
-}
-
-type QueryHttpServerTransports interface {
-	Query() http1.Handler
+	Query() http1.EncodeResponseFunc
 }
 
 type queryHttpServerTransports struct {
@@ -50,18 +63,18 @@ type queryHttpServerTransports struct {
 	responseEncoder QueryHttpServerResponseEncoder
 }
 
-func (t *queryHttpServerTransports) Query() http1.Handler {
-	return http.NewServer(
+func (t *queryHttpServerTransports) Query() http.Handler {
+	return http1.NewServer(
 		t.endpoints.Query(context.TODO()),
 		t.requestDecoder.Query(),
 		t.responseEncoder.Query(),
-		http.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
-		http.ServerBefore(httpx.ServerTransportInjector),
-		http.ServerBefore(httpx.IncomingMetadataInjector),
-		http.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http.ServerBefore(httpx.IncomingStainInjector),
-		http.ServerFinalizer(httpx.CancelInvoker),
-		http.ServerErrorEncoder(httpx.ErrorEncoder),
+		http1.ServerBefore(httpx.EndpointInjector("/leo.example.query.v1.Query/Query")),
+		http1.ServerBefore(httpx.ServerTransportInjector),
+		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
@@ -73,59 +86,11 @@ func newQueryHttpServerTransports(svc QueryService, middlewares ...endpoint.Midd
 		responseEncoder: queryHttpServerResponseEncoder{},
 	}
 }
-func AppendQueryHttpRoutes(router *mux.Router, svc QueryService, middlewares ...endpoint.Middleware) *mux.Router {
-	transports := newQueryHttpServerTransports(svc, middlewares...)
-	router = appendQueryHttpRoutes(router)
-	router.Get("/leo.example.query.v1.Query/Query").Handler(transports.Query())
-	return router
-}
-
-// =========================== http client ===========================
-
-type queryHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http.ClientOption
-	middlewares   []endpoint.Middleware
-}
-
-func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http.ClientOption{
-		http.ClientBefore(httpx.OutgoingMetadataInjector),
-		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http.ClientBefore(httpx.OutgoingStainInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http.NewExplicitClient(
-		_Query_Query_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Query_Query_HttpClient_ResponseDecoder,
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func newQueryHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) QueryClientTransports {
-	return &queryHttpClientTransports{
-		scheme:        scheme,
-		router:        appendQueryHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
-	}
-}
-
-func NewQueryHttpClient(target string, opts ...httpx.ClientOption) QueryService {
-	options := httpx.NewClientOptions(opts...)
-	transports := newQueryHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newQueryClientService(endpoints, httpx.HttpClient)
-}
-
-// =========================== http coder ===========================
 
 type queryHttpServerRequestDecoder struct{}
 
-func (queryHttpServerRequestDecoder) Query() http.DecodeRequestFunc {
-	return func(ctx context.Context, r *http1.Request) (any, error) {
+func (queryHttpServerRequestDecoder) Query() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &QueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
@@ -207,11 +172,11 @@ func (queryHttpServerRequestDecoder) Query() http.DecodeRequestFunc {
 
 type queryHttpServerResponseEncoder struct{}
 
-func (queryHttpServerResponseEncoder) Query() http.EncodeResponseFunc {
-	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+func (queryHttpServerResponseEncoder) Query() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http1.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
 			return statusx.ErrInternal.With(statusx.Wrap(err))
 		}
@@ -220,9 +185,44 @@ func (queryHttpServerResponseEncoder) Query() http.EncodeResponseFunc {
 
 }
 
-func _Query_Query_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
-	return func(scheme string, instance string) http.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http1.Request, error) {
+// =========================== http client ===========================
+
+type queryHttpClientTransports struct {
+	scheme        string
+	router        *mux.Router
+	clientOptions []http1.ClientOption
+	middlewares   []endpoint.Middleware
+}
+
+func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(httpx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		_Query_Query_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
+		_Query_Query_HttpClient_ResponseDecoder,
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func newQueryHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) QueryClientTransports {
+	return &queryHttpClientTransports{
+		scheme:        scheme,
+		router:        appendQueryHttpRoutes(mux.NewRouter()),
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+	}
+}
+
+// =========================== http coder ===========================
+
+func _Query_Query_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
+	return func(scheme string, instance string) http1.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -313,7 +313,7 @@ func _Query_Query_HttpClient_RequestEncoder(router *mux.Router) func(scheme stri
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -322,7 +322,7 @@ func _Query_Query_HttpClient_RequestEncoder(router *mux.Router) func(scheme stri
 	}
 }
 
-func _Query_Query_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
+func _Query_Query_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
