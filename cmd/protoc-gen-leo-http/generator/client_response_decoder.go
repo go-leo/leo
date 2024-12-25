@@ -1,4 +1,4 @@
-package http
+package generator
 
 import (
 	"fmt"

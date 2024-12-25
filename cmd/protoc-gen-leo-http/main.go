@@ -10,7 +10,6 @@ import (
 var flags flag.FlagSet
 
 func main() {
-	//generator.Conf.RequireUnimplemented = flags.Bool("require_unimplemented_servers", true, "set to false to match legacy behavior")
 	options := &protogen.Options{ParamFunc: flags.Set}
 	options.Run(func(plugin *protogen.Plugin) error {
 		plugin.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
@@ -26,7 +25,6 @@ func generate(plugin *protogen.Plugin) error {
 		if len(file.Services) <= 0 {
 			continue
 		}
-
 		gen, err := generator.NewGenerator(plugin, file)
 		if err != nil {
 			return err

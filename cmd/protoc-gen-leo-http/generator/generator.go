@@ -2,7 +2,6 @@ package generator
 
 import (
 	"github.com/go-leo/leo/v3/cmd/internal"
-	"github.com/go-leo/leo/v3/cmd/protoc-gen-leo-http/generator/http"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
@@ -38,7 +37,7 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
-	functionGenerator := http.FunctionGenerator{}
+	functionGenerator := FunctionGenerator{}
 	for _, service := range services {
 		if err := functionGenerator.GenerateAppendRoutesFunc(service, g); err != nil {
 			return err
@@ -51,12 +50,12 @@ func (f *Generator) GenerateFile() error {
 		}
 	}
 
-	serverTransportsGenerator := http.ServerTransportsGenerator{}
-	serverRequestDecoderGenerator := http.ServerRequestDecoderGenerator{}
-	serverResponseEncoderGenerator := http.ServerResponseEncoderGenerator{}
-	clientTransportsGenerator := http.ClientTransportsGenerator{}
-	clientRequestEncoderGenerator := http.ClientRequestEncoderGenerator{}
-	clientResponseDecoderGenerator := http.ClientResponseDecoderGenerator{}
+	serverTransportsGenerator := ServerTransportsGenerator{}
+	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
+	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
+	clientTransportsGenerator := ClientTransportsGenerator{}
+	clientRequestEncoderGenerator := ClientRequestEncoderGenerator{}
+	clientResponseDecoderGenerator := ClientResponseDecoderGenerator{}
 	for _, service := range services {
 		if err := serverTransportsGenerator.GenerateTransports(service, g); err != nil {
 			return err

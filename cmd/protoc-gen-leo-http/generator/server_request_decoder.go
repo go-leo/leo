@@ -1,4 +1,4 @@
-package http
+package generator
 
 import (
 	"github.com/go-leo/leo/v3/cmd/internal"
