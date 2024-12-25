@@ -259,6 +259,24 @@ func (s Service) UnexportedHttpServerResponseEncoderName() string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
+func (s Service) HttpClientRequestEncoderName() string {
+	return s.HttpClientName() + "RequestEncoder"
+}
+
+func (s Service) UnexportedHttpClientRequestEncoderName() string {
+	name := s.HttpClientRequestEncoderName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) HttpClientResponseDecoderName() string {
+	return s.HttpClientName() + "ResponseDecoder"
+}
+
+func (s Service) UnexportedHttpClientResponseDecoderName() string {
+	name := s.HttpClientResponseDecoderName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func NewServices(file *protogen.File) ([]*Service, error) {
 	var services []*Service
 	for _, service := range file.Services {

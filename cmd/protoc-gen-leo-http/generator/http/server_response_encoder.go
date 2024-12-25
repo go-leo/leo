@@ -52,7 +52,6 @@ func (f *ServerResponseEncoderGenerator) GenerateServerResponseEncoderImplements
 		}
 		g.P("return nil")
 		g.P("}")
-		g.P()
 		g.P("}")
 	}
 	g.P()

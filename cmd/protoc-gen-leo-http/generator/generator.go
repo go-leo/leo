@@ -50,12 +50,6 @@ func (f *Generator) GenerateFile() error {
 		return err
 	}
 
-	g.P("// =========================== http client ===========================")
-	g.P()
-	if err := httpGen.GenerateClient(g); err != nil {
-		return err
-	}
-
 	g.P("// =========================== http coder ===========================")
 	g.P()
 	if err := httpGen.GenerateCoder(g); err != nil {

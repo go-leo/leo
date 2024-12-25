@@ -57,6 +57,14 @@ type QueryHttpServerResponseEncoder interface {
 	Query() http1.EncodeResponseFunc
 }
 
+type QueryHttpClientRequestEncoder interface {
+	Query() http1.CreateRequestFunc
+}
+
+type QueryHttpClientResponseDecoder interface {
+	Query() http1.DecodeResponseFunc
+}
+
 type queryHttpServerTransports struct {
 	endpoints       QueryServerEndpoints
 	requestDecoder  QueryHttpServerRequestDecoder
@@ -182,16 +190,15 @@ func (queryHttpServerResponseEncoder) Query() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type queryHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  QueryHttpClientRequestEncoder
+	responseDecoder QueryHttpClientResponseDecoder
 }
 
 func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -202,8 +209,8 @@ func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) 
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Query_Query_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Query_Query_HttpClient_ResponseDecoder,
+		t.requestEncoder.Query(),
+		t.responseDecoder.Query(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -211,10 +218,27 @@ func (t *queryHttpClientTransports) Query(ctx context.Context, instance string) 
 
 func newQueryHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) QueryClientTransports {
 	return &queryHttpClientTransports{
-		scheme:        scheme,
-		router:        appendQueryHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendQueryHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: queryHttpClientResponseDecoder{},
+	}
+}
+
+type queryHttpClientResponseDecoder struct{}
+
+func (queryHttpClientResponseDecoder) Query() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -320,15 +344,4 @@ func _Query_Query_HttpClient_RequestEncoder(router *mux.Router) func(scheme stri
 			return r, nil
 		}
 	}
-}
-
-func _Query_Query_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

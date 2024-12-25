@@ -76,6 +76,9 @@ func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 	serverTransportsGenerator := ServerTransportsGenerator{}
 	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
 	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
+	client := ClientGenerator{}
+	clientRequestEncoderGenerator := ClientRequestEncoderGenerator{}
+	clientResponseDecoderGenerator := ClientResponseDecoderGenerator{}
 	for _, service := range f.Services {
 		if err := serverTransportsGenerator.GenerateTransports(service, g); err != nil {
 			return err
@@ -84,6 +87,12 @@ func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 			return err
 		}
 		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoder(service, g); err != nil {
+			return err
+		}
+		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoder(service, g); err != nil {
+			return err
+		}
+		if err := clientResponseDecoderGenerator.GenerateClientResponseDecoder(service, g); err != nil {
 			return err
 		}
 		if err := serverTransportsGenerator.GenerateTransportsImplements(service, g); err != nil {
@@ -95,14 +104,10 @@ func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoderImplements(service, g); err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
-	client := ClientGenerator{}
-	for _, service := range f.Services {
 		if err := client.GenerateTransports(service, g); err != nil {
+			return err
+		}
+		if err := clientResponseDecoderGenerator.GenerateClientResponseDecoderImplements(service, g); err != nil {
 			return err
 		}
 	}
@@ -114,9 +119,6 @@ func (f *Generator) GenerateCoder(g *protogen.GeneratedFile) error {
 	for _, service := range f.Services {
 		for _, endpoint := range service.Endpoints {
 			if err := client.PrintEncodeRequestFunc(g, endpoint); err != nil {
-				return err
-			}
-			if err := client.PrintDecodeResponseFunc(g, endpoint); err != nil {
 				return err
 			}
 		}

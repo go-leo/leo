@@ -96,6 +96,30 @@ type PathHttpServerResponseEncoder interface {
 	EnumPath() http1.EncodeResponseFunc
 }
 
+type PathHttpClientRequestEncoder interface {
+	BoolPath() http1.CreateRequestFunc
+	Int32Path() http1.CreateRequestFunc
+	Int64Path() http1.CreateRequestFunc
+	Uint32Path() http1.CreateRequestFunc
+	Uint64Path() http1.CreateRequestFunc
+	FloatPath() http1.CreateRequestFunc
+	DoublePath() http1.CreateRequestFunc
+	StringPath() http1.CreateRequestFunc
+	EnumPath() http1.CreateRequestFunc
+}
+
+type PathHttpClientResponseDecoder interface {
+	BoolPath() http1.DecodeResponseFunc
+	Int32Path() http1.DecodeResponseFunc
+	Int64Path() http1.DecodeResponseFunc
+	Uint32Path() http1.DecodeResponseFunc
+	Uint64Path() http1.DecodeResponseFunc
+	FloatPath() http1.DecodeResponseFunc
+	DoublePath() http1.DecodeResponseFunc
+	StringPath() http1.DecodeResponseFunc
+	EnumPath() http1.DecodeResponseFunc
+}
+
 type pathHttpServerTransports struct {
 	endpoints       PathServerEndpoints
 	requestDecoder  PathHttpServerRequestDecoder
@@ -747,7 +771,6 @@ func (pathHttpServerResponseEncoder) BoolPath() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) Int32Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -759,7 +782,6 @@ func (pathHttpServerResponseEncoder) Int32Path() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) Int64Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -771,7 +793,6 @@ func (pathHttpServerResponseEncoder) Int64Path() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) Uint32Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -783,7 +804,6 @@ func (pathHttpServerResponseEncoder) Uint32Path() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) Uint64Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -795,7 +815,6 @@ func (pathHttpServerResponseEncoder) Uint64Path() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) FloatPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -807,7 +826,6 @@ func (pathHttpServerResponseEncoder) FloatPath() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) DoublePath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -819,7 +837,6 @@ func (pathHttpServerResponseEncoder) DoublePath() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) StringPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -831,7 +848,6 @@ func (pathHttpServerResponseEncoder) StringPath() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (pathHttpServerResponseEncoder) EnumPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -843,16 +859,15 @@ func (pathHttpServerResponseEncoder) EnumPath() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type pathHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  PathHttpClientRequestEncoder
+	responseDecoder PathHttpClientResponseDecoder
 }
 
 func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -863,8 +878,8 @@ func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_BoolPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_BoolPath_HttpClient_ResponseDecoder,
+		t.requestEncoder.BoolPath(),
+		t.responseDecoder.BoolPath(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -878,8 +893,8 @@ func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_Int32Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Int32Path_HttpClient_ResponseDecoder,
+		t.requestEncoder.Int32Path(),
+		t.responseDecoder.Int32Path(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -893,8 +908,8 @@ func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_Int64Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Int64Path_HttpClient_ResponseDecoder,
+		t.requestEncoder.Int64Path(),
+		t.responseDecoder.Int64Path(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -908,8 +923,8 @@ func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_Uint32Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Uint32Path_HttpClient_ResponseDecoder,
+		t.requestEncoder.Uint32Path(),
+		t.responseDecoder.Uint32Path(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -923,8 +938,8 @@ func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_Uint64Path_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_Uint64Path_HttpClient_ResponseDecoder,
+		t.requestEncoder.Uint64Path(),
+		t.responseDecoder.Uint64Path(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -938,8 +953,8 @@ func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_FloatPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_FloatPath_HttpClient_ResponseDecoder,
+		t.requestEncoder.FloatPath(),
+		t.responseDecoder.FloatPath(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -953,8 +968,8 @@ func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_DoublePath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_DoublePath_HttpClient_ResponseDecoder,
+		t.requestEncoder.DoublePath(),
+		t.responseDecoder.DoublePath(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -968,8 +983,8 @@ func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_StringPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_StringPath_HttpClient_ResponseDecoder,
+		t.requestEncoder.StringPath(),
+		t.responseDecoder.StringPath(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -983,8 +998,8 @@ func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Path_EnumPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Path_EnumPath_HttpClient_ResponseDecoder,
+		t.requestEncoder.EnumPath(),
+		t.responseDecoder.EnumPath(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -992,10 +1007,123 @@ func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string
 
 func newPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) PathClientTransports {
 	return &pathHttpClientTransports{
-		scheme:        scheme,
-		router:        appendPathHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendPathHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: pathHttpClientResponseDecoder{},
+	}
+}
+
+type pathHttpClientResponseDecoder struct{}
+
+func (pathHttpClientResponseDecoder) BoolPath() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) Int32Path() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) Int64Path() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) Uint32Path() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) Uint64Path() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) FloatPath() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) DoublePath() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) StringPath() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (pathHttpClientResponseDecoder) EnumPath() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -1070,17 +1198,6 @@ func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _Path_BoolPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -1146,17 +1263,6 @@ func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Path_Int32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -1220,17 +1326,6 @@ func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 			return r, nil
 		}
 	}
-}
-
-func _Path_Int64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -1300,17 +1395,6 @@ func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Path_Uint32Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -1376,17 +1460,6 @@ func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			return r, nil
 		}
 	}
-}
-
-func _Path_Uint64Path_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -1458,17 +1531,6 @@ func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Path_FloatPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -1536,17 +1598,6 @@ func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			return r, nil
 		}
 	}
-}
-
-func _Path_DoublePath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -1618,17 +1669,6 @@ func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _Path_StringPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -1697,15 +1737,4 @@ func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			return r, nil
 		}
 	}
-}
-
-func _Path_EnumPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

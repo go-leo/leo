@@ -56,6 +56,14 @@ type MixPathHttpServerResponseEncoder interface {
 	MixPath() http1.EncodeResponseFunc
 }
 
+type MixPathHttpClientRequestEncoder interface {
+	MixPath() http1.CreateRequestFunc
+}
+
+type MixPathHttpClientResponseDecoder interface {
+	MixPath() http1.DecodeResponseFunc
+}
+
 type mixPathHttpServerTransports struct {
 	endpoints       MixPathServerEndpoints
 	requestDecoder  MixPathHttpServerRequestDecoder
@@ -119,16 +127,15 @@ func (mixPathHttpServerResponseEncoder) MixPath() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type mixPathHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  MixPathHttpClientRequestEncoder
+	responseDecoder MixPathHttpClientResponseDecoder
 }
 
 func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -139,8 +146,8 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_MixPath_MixPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_MixPath_MixPath_HttpClient_ResponseDecoder,
+		t.requestEncoder.MixPath(),
+		t.responseDecoder.MixPath(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -148,10 +155,27 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 
 func newMixPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransports {
 	return &mixPathHttpClientTransports{
-		scheme:        scheme,
-		router:        appendMixPathHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendMixPathHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: mixPathHttpClientResponseDecoder{},
+	}
+}
+
+type mixPathHttpClientResponseDecoder struct{}
+
+func (mixPathHttpClientResponseDecoder) MixPath() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -195,15 +219,4 @@ func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 			return r, nil
 		}
 	}
-}
-
-func _MixPath_MixPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

@@ -73,6 +73,22 @@ type BodyHttpServerResponseEncoder interface {
 	HttpBodyNamedBody() http1.EncodeResponseFunc
 }
 
+type BodyHttpClientRequestEncoder interface {
+	StarBody() http1.CreateRequestFunc
+	NamedBody() http1.CreateRequestFunc
+	NonBody() http1.CreateRequestFunc
+	HttpBodyStarBody() http1.CreateRequestFunc
+	HttpBodyNamedBody() http1.CreateRequestFunc
+}
+
+type BodyHttpClientResponseDecoder interface {
+	StarBody() http1.DecodeResponseFunc
+	NamedBody() http1.DecodeResponseFunc
+	NonBody() http1.DecodeResponseFunc
+	HttpBodyStarBody() http1.DecodeResponseFunc
+	HttpBodyNamedBody() http1.DecodeResponseFunc
+}
+
 type bodyHttpServerTransports struct {
 	endpoints       BodyServerEndpoints
 	requestDecoder  BodyHttpServerRequestDecoder
@@ -227,7 +243,6 @@ func (bodyHttpServerResponseEncoder) StarBody() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (bodyHttpServerResponseEncoder) NamedBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -239,7 +254,6 @@ func (bodyHttpServerResponseEncoder) NamedBody() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (bodyHttpServerResponseEncoder) NonBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -251,7 +265,6 @@ func (bodyHttpServerResponseEncoder) NonBody() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (bodyHttpServerResponseEncoder) HttpBodyStarBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -263,7 +276,6 @@ func (bodyHttpServerResponseEncoder) HttpBodyStarBody() http1.EncodeResponseFunc
 		}
 		return nil
 	}
-
 }
 func (bodyHttpServerResponseEncoder) HttpBodyNamedBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -275,16 +287,15 @@ func (bodyHttpServerResponseEncoder) HttpBodyNamedBody() http1.EncodeResponseFun
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type bodyHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  BodyHttpClientRequestEncoder
+	responseDecoder BodyHttpClientResponseDecoder
 }
 
 func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -295,8 +306,8 @@ func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Body_StarBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Body_StarBody_HttpClient_ResponseDecoder,
+		t.requestEncoder.StarBody(),
+		t.responseDecoder.StarBody(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -310,8 +321,8 @@ func (t *bodyHttpClientTransports) NamedBody(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Body_NamedBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Body_NamedBody_HttpClient_ResponseDecoder,
+		t.requestEncoder.NamedBody(),
+		t.responseDecoder.NamedBody(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -325,8 +336,8 @@ func (t *bodyHttpClientTransports) NonBody(ctx context.Context, instance string)
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Body_NonBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Body_NonBody_HttpClient_ResponseDecoder,
+		t.requestEncoder.NonBody(),
+		t.responseDecoder.NonBody(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -340,8 +351,8 @@ func (t *bodyHttpClientTransports) HttpBodyStarBody(ctx context.Context, instanc
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Body_HttpBodyStarBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
+		t.requestEncoder.HttpBodyStarBody(),
+		t.responseDecoder.HttpBodyStarBody(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -355,8 +366,8 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instan
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
+		t.requestEncoder.HttpBodyNamedBody(),
+		t.responseDecoder.HttpBodyNamedBody(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -364,10 +375,75 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instan
 
 func newBodyHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) BodyClientTransports {
 	return &bodyHttpClientTransports{
-		scheme:        scheme,
-		router:        appendBodyHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendBodyHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: bodyHttpClientResponseDecoder{},
+	}
+}
+
+type bodyHttpClientResponseDecoder struct{}
+
+func (bodyHttpClientResponseDecoder) StarBody() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (bodyHttpClientResponseDecoder) NamedBody() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (bodyHttpClientResponseDecoder) NonBody() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (bodyHttpClientResponseDecoder) HttpBodyStarBody() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (bodyHttpClientResponseDecoder) HttpBodyNamedBody() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -413,17 +489,6 @@ func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _Body_StarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -464,17 +529,6 @@ func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Body_NamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -506,17 +560,6 @@ func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 			return r, nil
 		}
 	}
-}
-
-func _Body_NonBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -555,17 +598,6 @@ func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(s
 	}
 }
 
-func _Body_HttpBodyStarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -600,15 +632,4 @@ func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(
 			return r, nil
 		}
 	}
-}
-
-func _Body_HttpBodyNamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

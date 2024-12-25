@@ -51,6 +51,14 @@ type GreeterHttpServerResponseEncoder interface {
 	SayHello() http1.EncodeResponseFunc
 }
 
+type GreeterHttpClientRequestEncoder interface {
+	SayHello() http1.CreateRequestFunc
+}
+
+type GreeterHttpClientResponseDecoder interface {
+	SayHello() http1.DecodeResponseFunc
+}
+
 type greeterHttpServerTransports struct {
 	endpoints       GreeterServerEndpoints
 	requestDecoder  GreeterHttpServerRequestDecoder
@@ -108,16 +116,15 @@ func (greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type greeterHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  GreeterHttpClientRequestEncoder
+	responseDecoder GreeterHttpClientResponseDecoder
 }
 
 func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -128,8 +135,8 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Greeter_SayHello_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Greeter_SayHello_HttpClient_ResponseDecoder,
+		t.requestEncoder.SayHello(),
+		t.responseDecoder.SayHello(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -137,10 +144,27 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 
 func newGreeterHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransports {
 	return &greeterHttpClientTransports{
-		scheme:        scheme,
-		router:        appendGreeterHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendGreeterHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: greeterHttpClientResponseDecoder{},
+	}
+}
+
+type greeterHttpClientResponseDecoder struct{}
+
+func (greeterHttpClientResponseDecoder) SayHello() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &HelloReply{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -178,15 +202,4 @@ func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme
 			return r, nil
 		}
 	}
-}
-
-func _Greeter_SayHello_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &HelloReply{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

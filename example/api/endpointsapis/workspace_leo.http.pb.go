@@ -77,6 +77,22 @@ type WorkspacesHttpServerResponseEncoder interface {
 	DeleteWorkspace() http1.EncodeResponseFunc
 }
 
+type WorkspacesHttpClientRequestEncoder interface {
+	ListWorkspaces() http1.CreateRequestFunc
+	GetWorkspace() http1.CreateRequestFunc
+	CreateWorkspace() http1.CreateRequestFunc
+	UpdateWorkspace() http1.CreateRequestFunc
+	DeleteWorkspace() http1.CreateRequestFunc
+}
+
+type WorkspacesHttpClientResponseDecoder interface {
+	ListWorkspaces() http1.DecodeResponseFunc
+	GetWorkspace() http1.DecodeResponseFunc
+	CreateWorkspace() http1.DecodeResponseFunc
+	UpdateWorkspace() http1.DecodeResponseFunc
+	DeleteWorkspace() http1.DecodeResponseFunc
+}
+
 type workspacesHttpServerTransports struct {
 	endpoints       WorkspacesServerEndpoints
 	requestDecoder  WorkspacesHttpServerRequestDecoder
@@ -255,7 +271,6 @@ func (workspacesHttpServerResponseEncoder) ListWorkspaces() http1.EncodeResponse
 		}
 		return nil
 	}
-
 }
 func (workspacesHttpServerResponseEncoder) GetWorkspace() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -267,7 +282,6 @@ func (workspacesHttpServerResponseEncoder) GetWorkspace() http1.EncodeResponseFu
 		}
 		return nil
 	}
-
 }
 func (workspacesHttpServerResponseEncoder) CreateWorkspace() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -279,7 +293,6 @@ func (workspacesHttpServerResponseEncoder) CreateWorkspace() http1.EncodeRespons
 		}
 		return nil
 	}
-
 }
 func (workspacesHttpServerResponseEncoder) UpdateWorkspace() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -291,7 +304,6 @@ func (workspacesHttpServerResponseEncoder) UpdateWorkspace() http1.EncodeRespons
 		}
 		return nil
 	}
-
 }
 func (workspacesHttpServerResponseEncoder) DeleteWorkspace() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -303,16 +315,15 @@ func (workspacesHttpServerResponseEncoder) DeleteWorkspace() http1.EncodeRespons
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type workspacesHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  WorkspacesHttpClientRequestEncoder
+	responseDecoder WorkspacesHttpClientResponseDecoder
 }
 
 func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -323,8 +334,8 @@ func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Workspaces_ListWorkspaces_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Workspaces_ListWorkspaces_HttpClient_ResponseDecoder,
+		t.requestEncoder.ListWorkspaces(),
+		t.responseDecoder.ListWorkspaces(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -338,8 +349,8 @@ func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, insta
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Workspaces_GetWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Workspaces_GetWorkspace_HttpClient_ResponseDecoder,
+		t.requestEncoder.GetWorkspace(),
+		t.responseDecoder.GetWorkspace(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -353,8 +364,8 @@ func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Workspaces_CreateWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Workspaces_CreateWorkspace_HttpClient_ResponseDecoder,
+		t.requestEncoder.CreateWorkspace(),
+		t.responseDecoder.CreateWorkspace(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -368,8 +379,8 @@ func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder,
+		t.requestEncoder.UpdateWorkspace(),
+		t.responseDecoder.UpdateWorkspace(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -383,8 +394,8 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder,
+		t.requestEncoder.DeleteWorkspace(),
+		t.responseDecoder.DeleteWorkspace(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -392,10 +403,75 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, in
 
 func newWorkspacesHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransports {
 	return &workspacesHttpClientTransports{
-		scheme:        scheme,
-		router:        appendWorkspacesHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendWorkspacesHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: workspacesHttpClientResponseDecoder{},
+	}
+}
+
+type workspacesHttpClientResponseDecoder struct{}
+
+func (workspacesHttpClientResponseDecoder) ListWorkspaces() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &ListWorkspacesResponse{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (workspacesHttpClientResponseDecoder) GetWorkspace() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &Workspace{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (workspacesHttpClientResponseDecoder) CreateWorkspace() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &Workspace{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (workspacesHttpClientResponseDecoder) UpdateWorkspace() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &Workspace{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (workspacesHttpClientResponseDecoder) DeleteWorkspace() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -442,17 +518,6 @@ func _Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router *mux.Router) fu
 	}
 }
 
-func _Workspaces_ListWorkspaces_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &ListWorkspacesResponse{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Workspaces_GetWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -490,17 +555,6 @@ func _Workspaces_GetWorkspace_HttpClient_RequestEncoder(router *mux.Router) func
 			return r, nil
 		}
 	}
-}
-
-func _Workspaces_GetWorkspace_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &Workspace{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -549,17 +603,6 @@ func _Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router *mux.Router) f
 	}
 }
 
-func _Workspaces_CreateWorkspace_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &Workspace{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -606,17 +649,6 @@ func _Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router *mux.Router) f
 	}
 }
 
-func _Workspaces_UpdateWorkspace_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &Workspace{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -654,15 +686,4 @@ func _Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router *mux.Router) f
 			return r, nil
 		}
 	}
-}
-
-func _Workspaces_DeleteWorkspace_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

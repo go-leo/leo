@@ -81,6 +81,24 @@ type NamedPathHttpServerResponseEncoder interface {
 	EmbedNamedPathWrapString() http1.EncodeResponseFunc
 }
 
+type NamedPathHttpClientRequestEncoder interface {
+	NamedPathString() http1.CreateRequestFunc
+	NamedPathOptString() http1.CreateRequestFunc
+	NamedPathWrapString() http1.CreateRequestFunc
+	EmbedNamedPathString() http1.CreateRequestFunc
+	EmbedNamedPathOptString() http1.CreateRequestFunc
+	EmbedNamedPathWrapString() http1.CreateRequestFunc
+}
+
+type NamedPathHttpClientResponseDecoder interface {
+	NamedPathString() http1.DecodeResponseFunc
+	NamedPathOptString() http1.DecodeResponseFunc
+	NamedPathWrapString() http1.DecodeResponseFunc
+	EmbedNamedPathString() http1.DecodeResponseFunc
+	EmbedNamedPathOptString() http1.DecodeResponseFunc
+	EmbedNamedPathWrapString() http1.DecodeResponseFunc
+}
+
 type namedPathHttpServerTransports struct {
 	endpoints       NamedPathServerEndpoints
 	requestDecoder  NamedPathHttpServerRequestDecoder
@@ -303,7 +321,6 @@ func (namedPathHttpServerResponseEncoder) NamedPathString() http1.EncodeResponse
 		}
 		return nil
 	}
-
 }
 func (namedPathHttpServerResponseEncoder) NamedPathOptString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -315,7 +332,6 @@ func (namedPathHttpServerResponseEncoder) NamedPathOptString() http1.EncodeRespo
 		}
 		return nil
 	}
-
 }
 func (namedPathHttpServerResponseEncoder) NamedPathWrapString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -327,7 +343,6 @@ func (namedPathHttpServerResponseEncoder) NamedPathWrapString() http1.EncodeResp
 		}
 		return nil
 	}
-
 }
 func (namedPathHttpServerResponseEncoder) EmbedNamedPathString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -339,7 +354,6 @@ func (namedPathHttpServerResponseEncoder) EmbedNamedPathString() http1.EncodeRes
 		}
 		return nil
 	}
-
 }
 func (namedPathHttpServerResponseEncoder) EmbedNamedPathOptString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -351,7 +365,6 @@ func (namedPathHttpServerResponseEncoder) EmbedNamedPathOptString() http1.Encode
 		}
 		return nil
 	}
-
 }
 func (namedPathHttpServerResponseEncoder) EmbedNamedPathWrapString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -363,16 +376,15 @@ func (namedPathHttpServerResponseEncoder) EmbedNamedPathWrapString() http1.Encod
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type namedPathHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  NamedPathHttpClientRequestEncoder
+	responseDecoder NamedPathHttpClientResponseDecoder
 }
 
 func (t *namedPathHttpClientTransports) NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -383,8 +395,8 @@ func (t *namedPathHttpClientTransports) NamedPathString(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_NamedPath_NamedPathString_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_NamedPath_NamedPathString_HttpClient_ResponseDecoder,
+		t.requestEncoder.NamedPathString(),
+		t.responseDecoder.NamedPathString(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -398,8 +410,8 @@ func (t *namedPathHttpClientTransports) NamedPathOptString(ctx context.Context, 
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_NamedPath_NamedPathOptString_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_NamedPath_NamedPathOptString_HttpClient_ResponseDecoder,
+		t.requestEncoder.NamedPathOptString(),
+		t.responseDecoder.NamedPathOptString(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -413,8 +425,8 @@ func (t *namedPathHttpClientTransports) NamedPathWrapString(ctx context.Context,
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_NamedPath_NamedPathWrapString_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_NamedPath_NamedPathWrapString_HttpClient_ResponseDecoder,
+		t.requestEncoder.NamedPathWrapString(),
+		t.responseDecoder.NamedPathWrapString(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -428,8 +440,8 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathString(ctx context.Context
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_NamedPath_EmbedNamedPathString_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_NamedPath_EmbedNamedPathString_HttpClient_ResponseDecoder,
+		t.requestEncoder.EmbedNamedPathString(),
+		t.responseDecoder.EmbedNamedPathString(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -443,8 +455,8 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathOptString(ctx context.Cont
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_NamedPath_EmbedNamedPathOptString_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_NamedPath_EmbedNamedPathOptString_HttpClient_ResponseDecoder,
+		t.requestEncoder.EmbedNamedPathOptString(),
+		t.responseDecoder.EmbedNamedPathOptString(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -458,8 +470,8 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString(ctx context.Con
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_NamedPath_EmbedNamedPathWrapString_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_NamedPath_EmbedNamedPathWrapString_HttpClient_ResponseDecoder,
+		t.requestEncoder.EmbedNamedPathWrapString(),
+		t.responseDecoder.EmbedNamedPathWrapString(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -467,10 +479,87 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString(ctx context.Con
 
 func newNamedPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) NamedPathClientTransports {
 	return &namedPathHttpClientTransports{
-		scheme:        scheme,
-		router:        appendNamedPathHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendNamedPathHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: namedPathHttpClientResponseDecoder{},
+	}
+}
+
+type namedPathHttpClientResponseDecoder struct{}
+
+func (namedPathHttpClientResponseDecoder) NamedPathString() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (namedPathHttpClientResponseDecoder) NamedPathOptString() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (namedPathHttpClientResponseDecoder) EmbedNamedPathWrapString() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -517,17 +606,6 @@ func _NamedPath_NamedPathString_HttpClient_RequestEncoder(router *mux.Router) fu
 	}
 }
 
-func _NamedPath_NamedPathString_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _NamedPath_NamedPathOptString_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -567,17 +645,6 @@ func _NamedPath_NamedPathOptString_HttpClient_RequestEncoder(router *mux.Router)
 			return r, nil
 		}
 	}
-}
-
-func _NamedPath_NamedPathOptString_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _NamedPath_NamedPathWrapString_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -621,17 +688,6 @@ func _NamedPath_NamedPathWrapString_HttpClient_RequestEncoder(router *mux.Router
 	}
 }
 
-func _NamedPath_NamedPathWrapString_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _NamedPath_EmbedNamedPathString_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -669,17 +725,6 @@ func _NamedPath_EmbedNamedPathString_HttpClient_RequestEncoder(router *mux.Route
 			return r, nil
 		}
 	}
-}
-
-func _NamedPath_EmbedNamedPathString_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 func _NamedPath_EmbedNamedPathOptString_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
@@ -721,17 +766,6 @@ func _NamedPath_EmbedNamedPathOptString_HttpClient_RequestEncoder(router *mux.Ro
 	}
 }
 
-func _NamedPath_EmbedNamedPathOptString_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _NamedPath_EmbedNamedPathWrapString_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -769,15 +803,4 @@ func _NamedPath_EmbedNamedPathWrapString_HttpClient_RequestEncoder(router *mux.R
 			return r, nil
 		}
 	}
-}
-
-func _NamedPath_EmbedNamedPathWrapString_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }

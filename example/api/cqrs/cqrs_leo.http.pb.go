@@ -57,6 +57,16 @@ type CQRSHttpServerResponseEncoder interface {
 	FindUser() http1.EncodeResponseFunc
 }
 
+type CQRSHttpClientRequestEncoder interface {
+	CreateUser() http1.CreateRequestFunc
+	FindUser() http1.CreateRequestFunc
+}
+
+type CQRSHttpClientResponseDecoder interface {
+	CreateUser() http1.DecodeResponseFunc
+	FindUser() http1.DecodeResponseFunc
+}
+
 type cQRSHttpServerTransports struct {
 	endpoints       CQRSServerEndpoints
 	requestDecoder  CQRSHttpServerRequestDecoder
@@ -135,7 +145,6 @@ func (cQRSHttpServerResponseEncoder) CreateUser() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 func (cQRSHttpServerResponseEncoder) FindUser() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
@@ -147,16 +156,15 @@ func (cQRSHttpServerResponseEncoder) FindUser() http1.EncodeResponseFunc {
 		}
 		return nil
 	}
-
 }
 
-// =========================== http client ===========================
-
 type cQRSHttpClientTransports struct {
-	scheme        string
-	router        *mux.Router
-	clientOptions []http1.ClientOption
-	middlewares   []endpoint.Middleware
+	scheme          string
+	router          *mux.Router
+	clientOptions   []http1.ClientOption
+	middlewares     []endpoint.Middleware
+	requestEncoder  CQRSHttpClientRequestEncoder
+	responseDecoder CQRSHttpClientResponseDecoder
 }
 
 func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -167,8 +175,8 @@ func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_CQRS_CreateUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_CQRS_CreateUser_HttpClient_ResponseDecoder,
+		t.requestEncoder.CreateUser(),
+		t.responseDecoder.CreateUser(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -182,8 +190,8 @@ func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		_CQRS_FindUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
-		_CQRS_FindUser_HttpClient_ResponseDecoder,
+		t.requestEncoder.FindUser(),
+		t.responseDecoder.FindUser(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -191,10 +199,39 @@ func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string
 
 func newCQRSHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransports {
 	return &cQRSHttpClientTransports{
-		scheme:        scheme,
-		router:        appendCQRSHttpRoutes(mux.NewRouter()),
-		clientOptions: clientOptions,
-		middlewares:   middlewares,
+		scheme:          scheme,
+		router:          appendCQRSHttpRoutes(mux.NewRouter()),
+		clientOptions:   clientOptions,
+		middlewares:     middlewares,
+		requestEncoder:  nil,
+		responseDecoder: cQRSHttpClientResponseDecoder{},
+	}
+}
+
+type cQRSHttpClientResponseDecoder struct{}
+
+func (cQRSHttpClientResponseDecoder) CreateUser() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &emptypb.Empty{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (cQRSHttpClientResponseDecoder) FindUser() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if httpx.IsErrorResponse(r) {
+			return nil, httpx.ErrorDecoder(ctx, r)
+		}
+		resp := &GetUserResponse{}
+		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
 }
 
@@ -240,17 +277,6 @@ func _CQRS_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _CQRS_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &emptypb.Empty{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
 	return func(scheme string, instance string) http1.CreateRequestFunc {
 		return func(ctx context.Context, obj any) (*http.Request, error) {
@@ -289,15 +315,4 @@ func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 			return r, nil
 		}
 	}
-}
-
-func _CQRS_FindUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
-	if httpx.IsErrorResponse(r) {
-		return nil, httpx.ErrorDecoder(ctx, r)
-	}
-	resp := &GetUserResponse{}
-	if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
