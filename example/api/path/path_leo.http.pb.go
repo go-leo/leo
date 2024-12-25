@@ -22,8 +22,6 @@ import (
 	url "net/url"
 )
 
-// =========================== http router ===========================
-
 func appendPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.path.v1.Path/BoolPath").Methods("GET").Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
 	router.NewRoute().Name("/leo.example.path.v1.Path/Int32Path").Methods("GET").Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
@@ -57,8 +55,6 @@ func NewPathHttpClient(target string, opts ...httpx.ClientOption) PathService {
 	endpoints := newPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newPathClientService(endpoints, httpx.HttpClient)
 }
-
-// =========================== http server ===========================
 
 type PathHttpServerTransports interface {
 	BoolPath() http.Handler
@@ -97,15 +93,15 @@ type PathHttpServerResponseEncoder interface {
 }
 
 type PathHttpClientRequestEncoder interface {
-	BoolPath() http1.CreateRequestFunc
-	Int32Path() http1.CreateRequestFunc
-	Int64Path() http1.CreateRequestFunc
-	Uint32Path() http1.CreateRequestFunc
-	Uint64Path() http1.CreateRequestFunc
-	FloatPath() http1.CreateRequestFunc
-	DoublePath() http1.CreateRequestFunc
-	StringPath() http1.CreateRequestFunc
-	EnumPath() http1.CreateRequestFunc
+	BoolPath(instance string) http1.CreateRequestFunc
+	Int32Path(instance string) http1.CreateRequestFunc
+	Int64Path(instance string) http1.CreateRequestFunc
+	Uint32Path(instance string) http1.CreateRequestFunc
+	Uint64Path(instance string) http1.CreateRequestFunc
+	FloatPath(instance string) http1.CreateRequestFunc
+	DoublePath(instance string) http1.CreateRequestFunc
+	StringPath(instance string) http1.CreateRequestFunc
+	EnumPath(instance string) http1.CreateRequestFunc
 }
 
 type PathHttpClientResponseDecoder interface {
@@ -862,8 +858,6 @@ func (pathHttpServerResponseEncoder) EnumPath() http1.EncodeResponseFunc {
 }
 
 type pathHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  PathHttpClientRequestEncoder
@@ -878,7 +872,7 @@ func (t *pathHttpClientTransports) BoolPath(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.BoolPath(),
+		t.requestEncoder.BoolPath(instance),
 		t.responseDecoder.BoolPath(),
 		opts...,
 	)
@@ -893,7 +887,7 @@ func (t *pathHttpClientTransports) Int32Path(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.Int32Path(),
+		t.requestEncoder.Int32Path(instance),
 		t.responseDecoder.Int32Path(),
 		opts...,
 	)
@@ -908,7 +902,7 @@ func (t *pathHttpClientTransports) Int64Path(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.Int64Path(),
+		t.requestEncoder.Int64Path(instance),
 		t.responseDecoder.Int64Path(),
 		opts...,
 	)
@@ -923,7 +917,7 @@ func (t *pathHttpClientTransports) Uint32Path(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.Uint32Path(),
+		t.requestEncoder.Uint32Path(instance),
 		t.responseDecoder.Uint32Path(),
 		opts...,
 	)
@@ -938,7 +932,7 @@ func (t *pathHttpClientTransports) Uint64Path(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.Uint64Path(),
+		t.requestEncoder.Uint64Path(instance),
 		t.responseDecoder.Uint64Path(),
 		opts...,
 	)
@@ -953,7 +947,7 @@ func (t *pathHttpClientTransports) FloatPath(ctx context.Context, instance strin
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.FloatPath(),
+		t.requestEncoder.FloatPath(instance),
 		t.responseDecoder.FloatPath(),
 		opts...,
 	)
@@ -968,7 +962,7 @@ func (t *pathHttpClientTransports) DoublePath(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.DoublePath(),
+		t.requestEncoder.DoublePath(instance),
 		t.responseDecoder.DoublePath(),
 		opts...,
 	)
@@ -983,7 +977,7 @@ func (t *pathHttpClientTransports) StringPath(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.StringPath(),
+		t.requestEncoder.StringPath(instance),
 		t.responseDecoder.StringPath(),
 		opts...,
 	)
@@ -998,7 +992,7 @@ func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.EnumPath(),
+		t.requestEncoder.EnumPath(instance),
 		t.responseDecoder.EnumPath(),
 		opts...,
 	)
@@ -1007,12 +1001,602 @@ func (t *pathHttpClientTransports) EnumPath(ctx context.Context, instance string
 
 func newPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) PathClientTransports {
 	return &pathHttpClientTransports{
-		scheme:          scheme,
-		router:          appendPathHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: pathHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendPathHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: pathHttpClientResponseDecoder{},
+	}
+}
+
+type pathHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e pathHttpClientRequestEncoder) BoolPath(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "bool", strconvx.FormatBool(req.GetBool()), "opt_bool", strconvx.FormatBool(req.GetOptBool()), "wrap_bool", strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		path, err := e.router.Get("/leo.example.path.v1.Path/BoolPath").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) Int32Path(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "int32", strconvx.FormatInt(req.GetInt32(), 10), "sint32", strconvx.FormatInt(req.GetSint32(), 10), "sfixed32", strconvx.FormatInt(req.GetSfixed32(), 10), "opt_int32", strconvx.FormatInt(req.GetOptInt32(), 10), "opt_sint32", strconvx.FormatInt(req.GetOptSint32(), 10), "opt_sfixed32", strconvx.FormatInt(req.GetOptSfixed32(), 10), "wrap_int32", strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		path, err := e.router.Get("/leo.example.path.v1.Path/Int32Path").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) Int64Path(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "int64", strconvx.FormatInt(req.GetInt64(), 10), "sint64", strconvx.FormatInt(req.GetSint64(), 10), "sfixed64", strconvx.FormatInt(req.GetSfixed64(), 10), "opt_int64", strconvx.FormatInt(req.GetOptInt64(), 10), "opt_sint64", strconvx.FormatInt(req.GetOptSint64(), 10), "opt_sfixed64", strconvx.FormatInt(req.GetOptSfixed64(), 10), "wrap_int64", strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		path, err := e.router.Get("/leo.example.path.v1.Path/Int64Path").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) Uint32Path(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "uint32", strconvx.FormatUint(req.GetUint32(), 10), "fixed32", strconvx.FormatUint(req.GetFixed32(), 10), "opt_uint32", strconvx.FormatUint(req.GetOptUint32(), 10), "opt_fixed32", strconvx.FormatUint(req.GetOptFixed32(), 10), "wrap_uint32", strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		path, err := e.router.Get("/leo.example.path.v1.Path/Uint32Path").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) Uint64Path(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "uint64", strconvx.FormatUint(req.GetUint64(), 10), "fixed64", strconvx.FormatUint(req.GetFixed64(), 10), "opt_uint64", strconvx.FormatUint(req.GetOptUint64(), 10), "opt_fixed64", strconvx.FormatUint(req.GetOptFixed64(), 10), "wrap_uint64", strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		path, err := e.router.Get("/leo.example.path.v1.Path/Uint64Path").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) FloatPath(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "float", strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32), "opt_float", strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32), "wrap_float", strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		path, err := e.router.Get("/leo.example.path.v1.Path/FloatPath").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) DoublePath(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "double", strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64), "opt_double", strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64), "wrap_double", strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		path, err := e.router.Get("/leo.example.path.v1.Path/DoublePath").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) StringPath(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
+		path, err := e.router.Get("/leo.example.path.v1.Path/StringPath").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
+		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e pathHttpClientRequestEncoder) EnumPath(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*PathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "status", strconvx.FormatInt(req.GetStatus(), 10), "opt_status", strconvx.FormatInt(req.GetOptStatus(), 10))
+		path, err := e.router.Get("/leo.example.path.v1.Path/EnumPath").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
+		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
+		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
+		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
+		queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
+		queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
+		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
+		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
+		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
+		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
+		queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
+		queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
+		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
+		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
+		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
+		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
+		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
+		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
+		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
+		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
+		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
+		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
+		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
+		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
+		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
+		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
+		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		queries["string"] = append(queries["string"], req.GetString_())
+		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
+		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
 	}
 }
 
@@ -1124,617 +1708,5 @@ func (pathHttpClientResponseDecoder) EnumPath() http1.DecodeResponseFunc {
 			return nil, err
 		}
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _Path_BoolPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "bool", strconvx.FormatBool(req.GetBool()), "opt_bool", strconvx.FormatBool(req.GetOptBool()), "wrap_bool", strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			path, err := router.Get("/leo.example.path.v1.Path/BoolPath").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_Int32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "int32", strconvx.FormatInt(req.GetInt32(), 10), "sint32", strconvx.FormatInt(req.GetSint32(), 10), "sfixed32", strconvx.FormatInt(req.GetSfixed32(), 10), "opt_int32", strconvx.FormatInt(req.GetOptInt32(), 10), "opt_sint32", strconvx.FormatInt(req.GetOptSint32(), 10), "opt_sfixed32", strconvx.FormatInt(req.GetOptSfixed32(), 10), "wrap_int32", strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			path, err := router.Get("/leo.example.path.v1.Path/Int32Path").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_Int64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "int64", strconvx.FormatInt(req.GetInt64(), 10), "sint64", strconvx.FormatInt(req.GetSint64(), 10), "sfixed64", strconvx.FormatInt(req.GetSfixed64(), 10), "opt_int64", strconvx.FormatInt(req.GetOptInt64(), 10), "opt_sint64", strconvx.FormatInt(req.GetOptSint64(), 10), "opt_sfixed64", strconvx.FormatInt(req.GetOptSfixed64(), 10), "wrap_int64", strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			path, err := router.Get("/leo.example.path.v1.Path/Int64Path").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_Uint32Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "uint32", strconvx.FormatUint(req.GetUint32(), 10), "fixed32", strconvx.FormatUint(req.GetFixed32(), 10), "opt_uint32", strconvx.FormatUint(req.GetOptUint32(), 10), "opt_fixed32", strconvx.FormatUint(req.GetOptFixed32(), 10), "wrap_uint32", strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			path, err := router.Get("/leo.example.path.v1.Path/Uint32Path").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_Uint64Path_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "uint64", strconvx.FormatUint(req.GetUint64(), 10), "fixed64", strconvx.FormatUint(req.GetFixed64(), 10), "opt_uint64", strconvx.FormatUint(req.GetOptUint64(), 10), "opt_fixed64", strconvx.FormatUint(req.GetOptFixed64(), 10), "wrap_uint64", strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			path, err := router.Get("/leo.example.path.v1.Path/Uint64Path").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_FloatPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "float", strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32), "opt_float", strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32), "wrap_float", strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			path, err := router.Get("/leo.example.path.v1.Path/FloatPath").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_DoublePath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "double", strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64), "opt_double", strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64), "wrap_double", strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			path, err := router.Get("/leo.example.path.v1.Path/DoublePath").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_StringPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
-			path, err := router.Get("/leo.example.path.v1.Path/StringPath").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
-			queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Path_EnumPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*PathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "status", strconvx.FormatInt(req.GetStatus(), 10), "opt_status", strconvx.FormatInt(req.GetOptStatus(), 10))
-			path, err := router.Get("/leo.example.path.v1.Path/EnumPath").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
-			queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
-			queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-			queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
-			queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
-			queries["sfixed32"] = append(queries["sfixed32"], strconvx.FormatInt(req.GetSfixed32(), 10))
-			queries["opt_int32"] = append(queries["opt_int32"], strconvx.FormatInt(req.GetOptInt32(), 10))
-			queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
-			queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
-			queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-			queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
-			queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
-			queries["sfixed64"] = append(queries["sfixed64"], strconvx.FormatInt(req.GetSfixed64(), 10))
-			queries["opt_int64"] = append(queries["opt_int64"], strconvx.FormatInt(req.GetOptInt64(), 10))
-			queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
-			queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
-			queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-			queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
-			queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
-			queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
-			queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
-			queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-			queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
-			queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
-			queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
-			queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
-			queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-			queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
-			queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
-			queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-			queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
-			queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
-			queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-			queries["string"] = append(queries["string"], req.GetString_())
-			queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-			queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
 	}
 }

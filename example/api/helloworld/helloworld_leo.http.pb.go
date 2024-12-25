@@ -17,8 +17,6 @@ import (
 	url "net/url"
 )
 
-// =========================== http router ===========================
-
 func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("GET").Path("/helloworld/{name}")
 	return router
@@ -37,8 +35,6 @@ func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterServ
 	return newGreeterClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http server ===========================
-
 type GreeterHttpServerTransports interface {
 	SayHello() http.Handler
 }
@@ -52,7 +48,7 @@ type GreeterHttpServerResponseEncoder interface {
 }
 
 type GreeterHttpClientRequestEncoder interface {
-	SayHello() http1.CreateRequestFunc
+	SayHello(instance string) http1.CreateRequestFunc
 }
 
 type GreeterHttpClientResponseDecoder interface {
@@ -119,8 +115,6 @@ func (greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
 }
 
 type greeterHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  GreeterHttpClientRequestEncoder
@@ -135,7 +129,7 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.SayHello(),
+		t.requestEncoder.SayHello(instance),
 		t.responseDecoder.SayHello(),
 		opts...,
 	)
@@ -144,12 +138,50 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 
 func newGreeterHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) GreeterClientTransports {
 	return &greeterHttpClientTransports{
-		scheme:          scheme,
-		router:          appendGreeterHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: greeterHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendGreeterHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: greeterHttpClientResponseDecoder{},
+	}
+}
+
+type greeterHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e greeterHttpClientRequestEncoder) SayHello(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*HelloRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		pairs = append(pairs, "name", req.GetName())
+		path, err := e.router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
 	}
 }
 
@@ -165,41 +197,5 @@ func (greeterHttpClientResponseDecoder) SayHello() http1.DecodeResponseFunc {
 			return nil, err
 		}
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _Greeter_SayHello_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*HelloRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			pairs = append(pairs, "name", req.GetName())
-			path, err := router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
 	}
 }

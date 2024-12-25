@@ -33,27 +33,64 @@ func (f *Generator) GenerateFile() error {
 	g.P("package ", file.GoPackageName)
 	g.P()
 
-	httpGen, err := http.NewGenerator(f.Plugin, file)
+	services, err := internal.NewHttpServices(file)
 	if err != nil {
 		return err
 	}
 
-	g.P("// =========================== http router ===========================")
-	g.P()
-	if err := httpGen.GenerateFunc(g); err != nil {
-		return err
+	exportedFunctionGenerator := http.ExportedFunctionGenerator{}
+	for _, service := range services {
+		if err := exportedFunctionGenerator.GenerateAppendRoutesFunc(service, g); err != nil {
+			return err
+		}
+		if err := exportedFunctionGenerator.GenerateAppendServerFunc(service, g); err != nil {
+			return err
+		}
+		if err := exportedFunctionGenerator.GenerateNewClientFunc(service, g); err != nil {
+			return err
+		}
 	}
 
-	g.P("// =========================== http server ===========================")
-	g.P()
-	if err := httpGen.GenerateServer(g); err != nil {
-		return err
-	}
-
-	g.P("// =========================== http coder ===========================")
-	g.P()
-	if err := httpGen.GenerateCoder(g); err != nil {
-		return err
+	serverTransportsGenerator := http.ServerTransportsGenerator{}
+	serverRequestDecoderGenerator := http.ServerRequestDecoderGenerator{}
+	serverResponseEncoderGenerator := http.ServerResponseEncoderGenerator{}
+	clientTransportsGenerator := http.ClientTransportsGenerator{}
+	clientRequestEncoderGenerator := http.ClientRequestEncoderGenerator{}
+	clientResponseDecoderGenerator := http.ClientResponseDecoderGenerator{}
+	for _, service := range services {
+		if err := serverTransportsGenerator.GenerateTransports(service, g); err != nil {
+			return err
+		}
+		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoder(service, g); err != nil {
+			return err
+		}
+		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoder(service, g); err != nil {
+			return err
+		}
+		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoder(service, g); err != nil {
+			return err
+		}
+		if err := clientResponseDecoderGenerator.GenerateClientResponseDecoder(service, g); err != nil {
+			return err
+		}
+		if err := serverTransportsGenerator.GenerateTransportsImplements(service, g); err != nil {
+			return err
+		}
+		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(service, g); err != nil {
+			return err
+		}
+		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoderImplements(service, g); err != nil {
+			return err
+		}
+		if err := clientTransportsGenerator.GenerateTransports(service, g); err != nil {
+			return err
+		}
+		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoderImplements(service, g); err != nil {
+			return err
+		}
+		if err := clientResponseDecoderGenerator.GenerateClientResponseDecoderImplements(service, g); err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -18,8 +18,6 @@ import (
 	url "net/url"
 )
 
-// =========================== http router ===========================
-
 func appendCQRSHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/pb.CQRS/CreateUser").Methods("POST").Path("/pb.CQRS/CreateUser")
 	router.NewRoute().Name("/pb.CQRS/FindUser").Methods("POST").Path("/pb.CQRS/FindUser")
@@ -40,8 +38,6 @@ func NewCQRSHttpClient(target string, opts ...httpx.ClientOption) CQRSService {
 	return newCQRSClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http server ===========================
-
 type CQRSHttpServerTransports interface {
 	CreateUser() http.Handler
 	FindUser() http.Handler
@@ -58,8 +54,8 @@ type CQRSHttpServerResponseEncoder interface {
 }
 
 type CQRSHttpClientRequestEncoder interface {
-	CreateUser() http1.CreateRequestFunc
-	FindUser() http1.CreateRequestFunc
+	CreateUser(instance string) http1.CreateRequestFunc
+	FindUser(instance string) http1.CreateRequestFunc
 }
 
 type CQRSHttpClientResponseDecoder interface {
@@ -159,8 +155,6 @@ func (cQRSHttpServerResponseEncoder) FindUser() http1.EncodeResponseFunc {
 }
 
 type cQRSHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  CQRSHttpClientRequestEncoder
@@ -175,7 +169,7 @@ func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.CreateUser(),
+		t.requestEncoder.CreateUser(instance),
 		t.responseDecoder.CreateUser(),
 		opts...,
 	)
@@ -190,7 +184,7 @@ func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.FindUser(),
+		t.requestEncoder.FindUser(instance),
 		t.responseDecoder.FindUser(),
 		opts...,
 	)
@@ -199,12 +193,93 @@ func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string
 
 func newCQRSHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransports {
 	return &cQRSHttpClientTransports{
-		scheme:          scheme,
-		router:          appendCQRSHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: cQRSHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendCQRSHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: cQRSHttpClientResponseDecoder{},
+	}
+}
+
+type cQRSHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e cQRSHttpClientRequestEncoder) CreateUser(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*CreateUserRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		path, err := e.router.Get("/pb.CQRS/CreateUser").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e cQRSHttpClientRequestEncoder) FindUser(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*FindUserRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		path, err := e.router.Get("/pb.CQRS/FindUser").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
 	}
 }
 
@@ -232,87 +307,5 @@ func (cQRSHttpClientResponseDecoder) FindUser() http1.DecodeResponseFunc {
 			return nil, err
 		}
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _CQRS_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*CreateUserRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			path, err := router.Get("/pb.CQRS/CreateUser").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*FindUserRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			path, err := router.Get("/pb.CQRS/FindUser").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
 	}
 }

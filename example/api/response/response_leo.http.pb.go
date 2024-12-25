@@ -22,8 +22,6 @@ import (
 	url "net/url"
 )
 
-// =========================== http router ===========================
-
 func appendResponseHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.response.v1.Response/OmittedResponse").Methods("POST").Path("/v1/omitted/response")
 	router.NewRoute().Name("/leo.example.response.v1.Response/StarResponse").Methods("POST").Path("/v1/star/response")
@@ -50,8 +48,6 @@ func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseSe
 	return newResponseClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http server ===========================
-
 type ResponseHttpServerTransports interface {
 	OmittedResponse() http.Handler
 	StarResponse() http.Handler
@@ -77,11 +73,11 @@ type ResponseHttpServerResponseEncoder interface {
 }
 
 type ResponseHttpClientRequestEncoder interface {
-	OmittedResponse() http1.CreateRequestFunc
-	StarResponse() http1.CreateRequestFunc
-	NamedResponse() http1.CreateRequestFunc
-	HttpBodyResponse() http1.CreateRequestFunc
-	HttpBodyNamedResponse() http1.CreateRequestFunc
+	OmittedResponse(instance string) http1.CreateRequestFunc
+	StarResponse(instance string) http1.CreateRequestFunc
+	NamedResponse(instance string) http1.CreateRequestFunc
+	HttpBodyResponse(instance string) http1.CreateRequestFunc
+	HttpBodyNamedResponse(instance string) http1.CreateRequestFunc
 }
 
 type ResponseHttpClientResponseDecoder interface {
@@ -300,8 +296,6 @@ func (responseHttpServerResponseEncoder) HttpBodyNamedResponse() http1.EncodeRes
 }
 
 type responseHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  ResponseHttpClientRequestEncoder
@@ -316,7 +310,7 @@ func (t *responseHttpClientTransports) OmittedResponse(ctx context.Context, inst
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.OmittedResponse(),
+		t.requestEncoder.OmittedResponse(instance),
 		t.responseDecoder.OmittedResponse(),
 		opts...,
 	)
@@ -331,7 +325,7 @@ func (t *responseHttpClientTransports) StarResponse(ctx context.Context, instanc
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.StarResponse(),
+		t.requestEncoder.StarResponse(instance),
 		t.responseDecoder.StarResponse(),
 		opts...,
 	)
@@ -346,7 +340,7 @@ func (t *responseHttpClientTransports) NamedResponse(ctx context.Context, instan
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.NamedResponse(),
+		t.requestEncoder.NamedResponse(instance),
 		t.responseDecoder.NamedResponse(),
 		opts...,
 	)
@@ -361,7 +355,7 @@ func (t *responseHttpClientTransports) HttpBodyResponse(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.HttpBodyResponse(),
+		t.requestEncoder.HttpBodyResponse(instance),
 		t.responseDecoder.HttpBodyResponse(),
 		opts...,
 	)
@@ -376,7 +370,7 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.HttpBodyNamedResponse(),
+		t.requestEncoder.HttpBodyNamedResponse(instance),
 		t.responseDecoder.HttpBodyNamedResponse(),
 		opts...,
 	)
@@ -385,12 +379,169 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context
 
 func newResponseHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) ResponseClientTransports {
 	return &responseHttpClientTransports{
-		scheme:          scheme,
-		router:          appendResponseHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: responseHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendResponseHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: responseHttpClientResponseDecoder{},
+	}
+}
+
+type responseHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e responseHttpClientRequestEncoder) OmittedResponse(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*emptypb.Empty)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		path, err := e.router.Get("/leo.example.response.v1.Response/OmittedResponse").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e responseHttpClientRequestEncoder) StarResponse(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*emptypb.Empty)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		path, err := e.router.Get("/leo.example.response.v1.Response/StarResponse").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e responseHttpClientRequestEncoder) NamedResponse(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*emptypb.Empty)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		path, err := e.router.Get("/leo.example.response.v1.Response/NamedResponse").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e responseHttpClientRequestEncoder) HttpBodyResponse(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*emptypb.Empty)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		path, err := e.router.Get("/leo.example.response.v1.Response/HttpBodyResponse").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e responseHttpClientRequestEncoder) HttpBodyNamedResponse(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*emptypb.Empty)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		path, err := e.router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
 	}
 }
 
@@ -461,172 +612,5 @@ func (responseHttpClientResponseDecoder) HttpBodyNamedResponse() http1.DecodeRes
 		}
 		resp.Body.Data = body
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _Response_OmittedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*emptypb.Empty)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			path, err := router.Get("/leo.example.response.v1.Response/OmittedResponse").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Response_StarResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*emptypb.Empty)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			path, err := router.Get("/leo.example.response.v1.Response/StarResponse").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Response_NamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*emptypb.Empty)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			path, err := router.Get("/leo.example.response.v1.Response/NamedResponse").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Response_HttpBodyResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*emptypb.Empty)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			path, err := router.Get("/leo.example.response.v1.Response/HttpBodyResponse").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Response_HttpBodyNamedResponse_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*emptypb.Empty)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			path, err := router.Get("/leo.example.response.v1.Response/HttpBodyNamedResponse").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
 	}
 }

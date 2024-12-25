@@ -23,8 +23,6 @@ import (
 	strings "strings"
 )
 
-// =========================== http router ===========================
-
 func appendLibraryServiceHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/CreateShelf").Methods("POST").Path("/v1/shelves")
 	router.NewRoute().Name("/google.example.library.v1.LibraryService/GetShelf").Methods("GET").Path("/v1/shelves/{shelf}")
@@ -62,8 +60,6 @@ func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) Libr
 	endpoints := newLibraryServiceClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newLibraryServiceClientService(endpoints, httpx.HttpClient)
 }
-
-// =========================== http server ===========================
 
 type LibraryServiceHttpServerTransports interface {
 	CreateShelf() http.Handler
@@ -108,17 +104,17 @@ type LibraryServiceHttpServerResponseEncoder interface {
 }
 
 type LibraryServiceHttpClientRequestEncoder interface {
-	CreateShelf() http1.CreateRequestFunc
-	GetShelf() http1.CreateRequestFunc
-	ListShelves() http1.CreateRequestFunc
-	DeleteShelf() http1.CreateRequestFunc
-	MergeShelves() http1.CreateRequestFunc
-	CreateBook() http1.CreateRequestFunc
-	GetBook() http1.CreateRequestFunc
-	ListBooks() http1.CreateRequestFunc
-	DeleteBook() http1.CreateRequestFunc
-	UpdateBook() http1.CreateRequestFunc
-	MoveBook() http1.CreateRequestFunc
+	CreateShelf(instance string) http1.CreateRequestFunc
+	GetShelf(instance string) http1.CreateRequestFunc
+	ListShelves(instance string) http1.CreateRequestFunc
+	DeleteShelf(instance string) http1.CreateRequestFunc
+	MergeShelves(instance string) http1.CreateRequestFunc
+	CreateBook(instance string) http1.CreateRequestFunc
+	GetBook(instance string) http1.CreateRequestFunc
+	ListBooks(instance string) http1.CreateRequestFunc
+	DeleteBook(instance string) http1.CreateRequestFunc
+	UpdateBook(instance string) http1.CreateRequestFunc
+	MoveBook(instance string) http1.CreateRequestFunc
 }
 
 type LibraryServiceHttpClientResponseDecoder interface {
@@ -595,8 +591,6 @@ func (libraryServiceHttpServerResponseEncoder) MoveBook() http1.EncodeResponseFu
 }
 
 type libraryServiceHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  LibraryServiceHttpClientRequestEncoder
@@ -611,7 +605,7 @@ func (t *libraryServiceHttpClientTransports) CreateShelf(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.CreateShelf(),
+		t.requestEncoder.CreateShelf(instance),
 		t.responseDecoder.CreateShelf(),
 		opts...,
 	)
@@ -626,7 +620,7 @@ func (t *libraryServiceHttpClientTransports) GetShelf(ctx context.Context, insta
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.GetShelf(),
+		t.requestEncoder.GetShelf(instance),
 		t.responseDecoder.GetShelf(),
 		opts...,
 	)
@@ -641,7 +635,7 @@ func (t *libraryServiceHttpClientTransports) ListShelves(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.ListShelves(),
+		t.requestEncoder.ListShelves(instance),
 		t.responseDecoder.ListShelves(),
 		opts...,
 	)
@@ -656,7 +650,7 @@ func (t *libraryServiceHttpClientTransports) DeleteShelf(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.DeleteShelf(),
+		t.requestEncoder.DeleteShelf(instance),
 		t.responseDecoder.DeleteShelf(),
 		opts...,
 	)
@@ -671,7 +665,7 @@ func (t *libraryServiceHttpClientTransports) MergeShelves(ctx context.Context, i
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.MergeShelves(),
+		t.requestEncoder.MergeShelves(instance),
 		t.responseDecoder.MergeShelves(),
 		opts...,
 	)
@@ -686,7 +680,7 @@ func (t *libraryServiceHttpClientTransports) CreateBook(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.CreateBook(),
+		t.requestEncoder.CreateBook(instance),
 		t.responseDecoder.CreateBook(),
 		opts...,
 	)
@@ -701,7 +695,7 @@ func (t *libraryServiceHttpClientTransports) GetBook(ctx context.Context, instan
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.GetBook(),
+		t.requestEncoder.GetBook(instance),
 		t.responseDecoder.GetBook(),
 		opts...,
 	)
@@ -716,7 +710,7 @@ func (t *libraryServiceHttpClientTransports) ListBooks(ctx context.Context, inst
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.ListBooks(),
+		t.requestEncoder.ListBooks(instance),
 		t.responseDecoder.ListBooks(),
 		opts...,
 	)
@@ -731,7 +725,7 @@ func (t *libraryServiceHttpClientTransports) DeleteBook(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.DeleteBook(),
+		t.requestEncoder.DeleteBook(instance),
 		t.responseDecoder.DeleteBook(),
 		opts...,
 	)
@@ -746,7 +740,7 @@ func (t *libraryServiceHttpClientTransports) UpdateBook(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.UpdateBook(),
+		t.requestEncoder.UpdateBook(instance),
 		t.responseDecoder.UpdateBook(),
 		opts...,
 	)
@@ -761,7 +755,7 @@ func (t *libraryServiceHttpClientTransports) MoveBook(ctx context.Context, insta
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.MoveBook(),
+		t.requestEncoder.MoveBook(instance),
 		t.responseDecoder.MoveBook(),
 		opts...,
 	)
@@ -770,12 +764,442 @@ func (t *libraryServiceHttpClientTransports) MoveBook(ctx context.Context, insta
 
 func newLibraryServiceHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) LibraryServiceClientTransports {
 	return &libraryServiceHttpClientTransports{
-		scheme:          scheme,
-		router:          appendLibraryServiceHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: libraryServiceHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendLibraryServiceHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: libraryServiceHttpClientResponseDecoder{},
+	}
+}
+
+type libraryServiceHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e libraryServiceHttpClientRequestEncoder) CreateShelf(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*CreateShelfRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetShelf()); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/CreateShelf").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) GetShelf(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*GetShelfRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 2 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/GetShelf").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) ListShelves(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*ListShelvesRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/ListShelves").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
+		queries["page_token"] = append(queries["page_token"], req.GetPageToken())
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) DeleteShelf(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*DeleteShelfRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 2 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/DeleteShelf").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) MergeShelves(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*MergeShelvesRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 2 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/MergeShelves").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) CreateBook(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*CreateBookRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetBook()); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		namedPathParameter := req.GetParent()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 2 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/CreateBook").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) GetBook(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*GetBookRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 4 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/GetBook").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) ListBooks(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*ListBooksRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetParent()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 2 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/ListBooks").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
+		queries["page_token"] = append(queries["page_token"], req.GetPageToken())
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) DeleteBook(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*DeleteBookRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 4 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/DeleteBook").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) UpdateBook(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*UpdateBookRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetBook()); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		namedPathParameter := req.GetBook().GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 4 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/UpdateBook").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "PATCH", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e libraryServiceHttpClientRequestEncoder) MoveBook(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*MoveBookRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 4 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
+		path, err := e.router.Get("/google.example.library.v1.LibraryService/MoveBook").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
 	}
 }
 
@@ -911,463 +1335,5 @@ func (libraryServiceHttpClientResponseDecoder) MoveBook() http1.DecodeResponseFu
 			return nil, err
 		}
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _LibraryService_CreateShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*CreateShelfRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetShelf()); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			path, err := router.Get("/google.example.library.v1.LibraryService/CreateShelf").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_GetShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*GetShelfRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 2 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1])
-			path, err := router.Get("/google.example.library.v1.LibraryService/GetShelf").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_ListShelves_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*ListShelvesRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			path, err := router.Get("/google.example.library.v1.LibraryService/ListShelves").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
-			queries["page_token"] = append(queries["page_token"], req.GetPageToken())
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_DeleteShelf_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*DeleteShelfRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 2 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1])
-			path, err := router.Get("/google.example.library.v1.LibraryService/DeleteShelf").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_MergeShelves_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*MergeShelvesRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 2 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1])
-			path, err := router.Get("/google.example.library.v1.LibraryService/MergeShelves").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_CreateBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*CreateBookRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetBook()); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			namedPathParameter := req.GetParent()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 2 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1])
-			path, err := router.Get("/google.example.library.v1.LibraryService/CreateBook").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_GetBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*GetBookRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 4 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-			path, err := router.Get("/google.example.library.v1.LibraryService/GetBook").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_ListBooks_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*ListBooksRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetParent()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 2 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1])
-			path, err := router.Get("/google.example.library.v1.LibraryService/ListBooks").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
-			queries["page_token"] = append(queries["page_token"], req.GetPageToken())
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_DeleteBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*DeleteBookRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 4 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-			path, err := router.Get("/google.example.library.v1.LibraryService/DeleteBook").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_UpdateBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*UpdateBookRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetBook()); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			namedPathParameter := req.GetBook().GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 4 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-			path, err := router.Get("/google.example.library.v1.LibraryService/UpdateBook").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "PATCH", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _LibraryService_MoveBook_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*MoveBookRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 4 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "shelf", namedPathValues[1], "book", namedPathValues[3])
-			path, err := router.Get("/google.example.library.v1.LibraryService/MoveBook").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
 	}
 }

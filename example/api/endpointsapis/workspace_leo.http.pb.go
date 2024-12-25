@@ -23,8 +23,6 @@ import (
 	strings "strings"
 )
 
-// =========================== http router ===========================
-
 func appendWorkspacesHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces")
 	router.NewRoute().Name("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").Methods("GET").Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
@@ -51,8 +49,6 @@ func NewWorkspacesHttpClient(target string, opts ...httpx.ClientOption) Workspac
 	return newWorkspacesClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http server ===========================
-
 type WorkspacesHttpServerTransports interface {
 	ListWorkspaces() http.Handler
 	GetWorkspace() http.Handler
@@ -78,11 +74,11 @@ type WorkspacesHttpServerResponseEncoder interface {
 }
 
 type WorkspacesHttpClientRequestEncoder interface {
-	ListWorkspaces() http1.CreateRequestFunc
-	GetWorkspace() http1.CreateRequestFunc
-	CreateWorkspace() http1.CreateRequestFunc
-	UpdateWorkspace() http1.CreateRequestFunc
-	DeleteWorkspace() http1.CreateRequestFunc
+	ListWorkspaces(instance string) http1.CreateRequestFunc
+	GetWorkspace(instance string) http1.CreateRequestFunc
+	CreateWorkspace(instance string) http1.CreateRequestFunc
+	UpdateWorkspace(instance string) http1.CreateRequestFunc
+	DeleteWorkspace(instance string) http1.CreateRequestFunc
 }
 
 type WorkspacesHttpClientResponseDecoder interface {
@@ -318,8 +314,6 @@ func (workspacesHttpServerResponseEncoder) DeleteWorkspace() http1.EncodeRespons
 }
 
 type workspacesHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  WorkspacesHttpClientRequestEncoder
@@ -334,7 +328,7 @@ func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, ins
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.ListWorkspaces(),
+		t.requestEncoder.ListWorkspaces(instance),
 		t.responseDecoder.ListWorkspaces(),
 		opts...,
 	)
@@ -349,7 +343,7 @@ func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, insta
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.GetWorkspace(),
+		t.requestEncoder.GetWorkspace(instance),
 		t.responseDecoder.GetWorkspace(),
 		opts...,
 	)
@@ -364,7 +358,7 @@ func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.CreateWorkspace(),
+		t.requestEncoder.CreateWorkspace(instance),
 		t.responseDecoder.CreateWorkspace(),
 		opts...,
 	)
@@ -379,7 +373,7 @@ func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.UpdateWorkspace(),
+		t.requestEncoder.UpdateWorkspace(instance),
 		t.responseDecoder.UpdateWorkspace(),
 		opts...,
 	)
@@ -394,7 +388,7 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, in
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.DeleteWorkspace(),
+		t.requestEncoder.DeleteWorkspace(instance),
 		t.responseDecoder.DeleteWorkspace(),
 		opts...,
 	)
@@ -403,12 +397,215 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, in
 
 func newWorkspacesHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) WorkspacesClientTransports {
 	return &workspacesHttpClientTransports{
-		scheme:          scheme,
-		router:          appendWorkspacesHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: workspacesHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendWorkspacesHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: workspacesHttpClientResponseDecoder{},
+	}
+}
+
+type workspacesHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e workspacesHttpClientRequestEncoder) ListWorkspaces(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*ListWorkspacesRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetParent()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 4 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3])
+		path, err := e.router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
+		queries["page_token"] = append(queries["page_token"], req.GetPageToken())
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e workspacesHttpClientRequestEncoder) GetWorkspace(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*GetWorkspaceRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 6 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "workspac", namedPathValues[5])
+		path, err := e.router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
+	}
+}
+func (e workspacesHttpClientRequestEncoder) CreateWorkspace(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*CreateWorkspaceRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetWorkspace()); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		namedPathParameter := req.GetParent()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 4 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3])
+		path, err := e.router.Get("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e workspacesHttpClientRequestEncoder) UpdateWorkspace(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*UpdateWorkspaceRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var bodyBuf bytes.Buffer
+		if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetWorkspace()); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		body = &bodyBuf
+		contentType := "application/json; charset=utf-8"
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 6 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "Workspac", namedPathValues[5])
+		path, err := e.router.Get("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "PATCH", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		r.Header.Set("Content-Type", contentType)
+		return r, nil
+	}
+}
+func (e workspacesHttpClientRequestEncoder) DeleteWorkspace(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*DeleteWorkspaceRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetName()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 6 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "workspac", namedPathValues[5])
+		path, err := e.router.Get("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
 	}
 }
 
@@ -472,218 +669,5 @@ func (workspacesHttpClientResponseDecoder) DeleteWorkspace() http1.DecodeRespons
 			return nil, err
 		}
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _Workspaces_ListWorkspaces_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*ListWorkspacesRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetParent()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 4 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3])
-			path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			queries["page_size"] = append(queries["page_size"], strconvx.FormatInt(req.GetPageSize(), 10))
-			queries["page_token"] = append(queries["page_token"], req.GetPageToken())
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Workspaces_GetWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*GetWorkspaceRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 6 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "workspac", namedPathValues[5])
-			path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/GetWorkspace").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
-	}
-}
-
-func _Workspaces_CreateWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*CreateWorkspaceRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetWorkspace()); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			namedPathParameter := req.GetParent()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 4 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3])
-			path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _Workspaces_UpdateWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*UpdateWorkspaceRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var bodyBuf bytes.Buffer
-			if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetWorkspace()); err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			body = &bodyBuf
-			contentType := "application/json; charset=utf-8"
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 6 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "Workspac", namedPathValues[5])
-			path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "PATCH", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			r.Header.Set("Content-Type", contentType)
-			return r, nil
-		}
-	}
-}
-
-func _Workspaces_DeleteWorkspace_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*DeleteWorkspaceRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetName()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 6 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "project", namedPathValues[1], "location", namedPathValues[3], "workspac", namedPathValues[5])
-			path, err := router.Get("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "DELETE", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
 	}
 }

@@ -22,8 +22,6 @@ import (
 	strings "strings"
 )
 
-// =========================== http router ===========================
-
 func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().Name("/leo.example.path.v1.MixPath/MixPath").Methods("GET").Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
@@ -42,8 +40,6 @@ func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathServ
 	return newMixPathClientService(endpoints, httpx.HttpClient)
 }
 
-// =========================== http server ===========================
-
 type MixPathHttpServerTransports interface {
 	MixPath() http.Handler
 }
@@ -57,7 +53,7 @@ type MixPathHttpServerResponseEncoder interface {
 }
 
 type MixPathHttpClientRequestEncoder interface {
-	MixPath() http1.CreateRequestFunc
+	MixPath(instance string) http1.CreateRequestFunc
 }
 
 type MixPathHttpClientResponseDecoder interface {
@@ -130,8 +126,6 @@ func (mixPathHttpServerResponseEncoder) MixPath() http1.EncodeResponseFunc {
 }
 
 type mixPathHttpClientTransports struct {
-	scheme          string
-	router          *mux.Router
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  MixPathHttpClientRequestEncoder
@@ -146,7 +140,7 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
-		t.requestEncoder.MixPath(),
+		t.requestEncoder.MixPath(instance),
 		t.responseDecoder.MixPath(),
 		opts...,
 	)
@@ -155,12 +149,56 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 
 func newMixPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransports {
 	return &mixPathHttpClientTransports{
-		scheme:          scheme,
-		router:          appendMixPathHttpRoutes(mux.NewRouter()),
-		clientOptions:   clientOptions,
-		middlewares:     middlewares,
-		requestEncoder:  nil,
+		clientOptions: clientOptions,
+		middlewares:   middlewares,
+		requestEncoder: mixPathHttpClientRequestEncoder{
+			scheme: scheme,
+			router: appendMixPathHttpRoutes(mux.NewRouter()),
+		},
 		responseDecoder: mixPathHttpClientResponseDecoder{},
+	}
+}
+
+type mixPathHttpClientRequestEncoder struct {
+	router *mux.Router
+	scheme string
+}
+
+func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
+		}
+		req, ok := obj.(*MixPathRequest)
+		if !ok {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
+		}
+		_ = req
+		var body io.Reader
+		var pairs []string
+		namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
+		namedPathValues := strings.Split(namedPathParameter, "/")
+		if len(namedPathValues) != 8 {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
+		}
+		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
+		path, err := e.router.Get("/leo.example.path.v1.MixPath/MixPath").URLPath(pairs...)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		queries := url.Values{}
+		target := &url.URL{
+			Scheme:   e.scheme,
+			Host:     instance,
+			Path:     path.Path,
+			RawQuery: queries.Encode(),
+		}
+		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return r, nil
 	}
 }
 
@@ -176,47 +214,5 @@ func (mixPathHttpClientResponseDecoder) MixPath() http1.DecodeResponseFunc {
 			return nil, err
 		}
 		return resp, nil
-	}
-}
-
-// =========================== http coder ===========================
-
-func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
-			if obj == nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
-			}
-			req, ok := obj.(*MixPathRequest)
-			if !ok {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid request type, %T", obj))
-			}
-			_ = req
-			var body io.Reader
-			var pairs []string
-			namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
-			namedPathValues := strings.Split(namedPathParameter, "/")
-			if len(namedPathValues) != 8 {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Message("invalid named path parameter, %s", namedPathParameter))
-			}
-			pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-			pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
-			path, err := router.Get("/leo.example.path.v1.MixPath/MixPath").URLPath(pairs...)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			queries := url.Values{}
-			target := &url.URL{
-				Scheme:   scheme,
-				Host:     instance,
-				Path:     path.Path,
-				RawQuery: queries.Encode(),
-			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
-			if err != nil {
-				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-			}
-			return r, nil
-		}
 	}
 }
