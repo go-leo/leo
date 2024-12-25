@@ -6,7 +6,7 @@ import (
 	bytes "bytes"
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
@@ -14,7 +14,7 @@ import (
 	mux "github.com/gorilla/mux"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
-	http "net/http"
+	http1 "net/http"
 	url "net/url"
 )
 
@@ -28,43 +28,59 @@ func appendCQRSHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type cQRSHttpServerTransports struct {
-	endpoints CQRSServerEndpoints
+type CQRSHttpServerRequestDecoder interface {
+	CreateUser() http.DecodeRequestFunc
+	FindUser() http.DecodeRequestFunc
 }
 
-func (t *cQRSHttpServerTransports) CreateUser() http.Handler {
-	return http1.NewServer(
+type CQRSHttpServerResponseEncoder interface {
+	CreateUser() http.EncodeResponseFunc
+	FindUser() http.EncodeResponseFunc
+}
+
+type cQRSHttpServerTransports struct {
+	endpoints       CQRSServerEndpoints
+	requestDecoder  CQRSHttpServerRequestDecoder
+	responseEncoder CQRSHttpServerResponseEncoder
+}
+
+func (t *cQRSHttpServerTransports) CreateUser() http1.Handler {
+	return http.NewServer(
 		t.endpoints.CreateUser(context.TODO()),
-		_CQRS_CreateUser_HttpServer_RequestDecoder,
-		_CQRS_CreateUser_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.CreateUser(),
+		t.responseEncoder.CreateUser(),
+		http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/CreateUser")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
-func (t *cQRSHttpServerTransports) FindUser() http.Handler {
-	return http1.NewServer(
+func (t *cQRSHttpServerTransports) FindUser() http1.Handler {
+	return http.NewServer(
 		t.endpoints.FindUser(context.TODO()),
-		_CQRS_FindUser_HttpServer_RequestDecoder,
-		_CQRS_FindUser_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.FindUser(),
+		t.responseEncoder.FindUser(),
+		http.ServerBefore(httpx.EndpointInjector("/pb.CQRS/FindUser")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
 func AppendCQRSHttpRoutes(router *mux.Router, svc CQRSService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newCQRSServerEndpoints(svc, middlewares...)
-	transports := &cQRSHttpServerTransports{endpoints: endpoints}
+	transports := &cQRSHttpServerTransports{
+		endpoints:       endpoints,
+		requestDecoder:  cQRSHttpServerRequestDecoder{},
+		responseEncoder: cQRSHttpServerResponseEncoder{},
+	}
 	router = appendCQRSHttpRoutes(router)
 	router.Get("/pb.CQRS/CreateUser").Handler(transports.CreateUser())
 	router.Get("/pb.CQRS/FindUser").Handler(transports.FindUser())
@@ -76,18 +92,18 @@ func AppendCQRSHttpRoutes(router *mux.Router, svc CQRSService, middlewares ...en
 type cQRSHttpClientTransports struct {
 	scheme        string
 	router        *mux.Router
-	clientOptions []http1.ClientOption
+	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
 func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_CQRS_CreateUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_CQRS_CreateUser_HttpClient_ResponseDecoder,
 		opts...,
@@ -96,13 +112,13 @@ func (t *cQRSHttpClientTransports) CreateUser(ctx context.Context, instance stri
 }
 
 func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_CQRS_FindUser_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_CQRS_FindUser_HttpClient_ResponseDecoder,
 		opts...,
@@ -110,7 +126,7 @@ func (t *cQRSHttpClientTransports) FindUser(ctx context.Context, instance string
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newCQRSHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransports {
+func newCQRSHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) CQRSClientTransports {
 	return &cQRSHttpClientTransports{
 		scheme:        scheme,
 		router:        appendCQRSHttpRoutes(mux.NewRouter()),
@@ -128,17 +144,57 @@ func NewCQRSHttpClient(target string, opts ...httpx.ClientOption) CQRSService {
 
 // =========================== http coder ===========================
 
-func _CQRS_CreateUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &CreateUserRequest{}
-	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+type cQRSHttpServerRequestDecoder struct{}
+
+func (cQRSHttpServerRequestDecoder) CreateUser() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &CreateUserRequest{}
+		if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return req, nil
 	}
-	return req, nil
+}
+func (cQRSHttpServerRequestDecoder) FindUser() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &FindUserRequest{}
+		if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return req, nil
+	}
 }
 
-func _CQRS_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+type cQRSHttpServerResponseEncoder struct{}
+
+func (cQRSHttpServerResponseEncoder) CreateUser() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+func (cQRSHttpServerResponseEncoder) FindUser() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*GetUserResponse)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+
+func _CQRS_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -166,7 +222,7 @@ func _CQRS_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -176,17 +232,7 @@ func _CQRS_CreateUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _CQRS_CreateUser_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _CQRS_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _CQRS_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -197,17 +243,9 @@ func _CQRS_CreateUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Re
 	return resp, nil
 }
 
-func _CQRS_FindUser_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &FindUserRequest{}
-	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-	}
-	return req, nil
-}
-
-func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -235,7 +273,7 @@ func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -245,17 +283,7 @@ func _CQRS_FindUser_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _CQRS_FindUser_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*GetUserResponse)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _CQRS_FindUser_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _CQRS_FindUser_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

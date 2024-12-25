@@ -37,6 +37,18 @@ func (f *Generator) GenerateRoutes(g *protogen.GeneratedFile) error {
 
 func (f *Generator) GenerateServer(g *protogen.GeneratedFile) error {
 	server := ServerGenerator{}
+	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
+	for _, service := range f.Services {
+		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoder(service, g); err != nil {
+			return err
+		}
+	}
+	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
+	for _, service := range f.Services {
+		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoder(service, g); err != nil {
+			return err
+		}
+	}
 	for _, service := range f.Services {
 		if err := server.GenerateTransports(service, g); err != nil {
 			return err
@@ -68,17 +80,22 @@ func (f *Generator) GenerateClient(g *protogen.GeneratedFile) error {
 }
 
 func (f *Generator) GenerateCoder(g *protogen.GeneratedFile) error {
-	server := ServerGenerator{}
 	client := ClientGenerator{}
+	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
+	for _, service := range f.Services {
+		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(service, g); err != nil {
+			return err
+		}
+	}
+	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
+	for _, service := range f.Services {
+		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoderImplements(service, g); err != nil {
+			return err
+		}
+	}
 	for _, service := range f.Services {
 		for _, endpoint := range service.Endpoints {
-			if err := server.PrintDecodeRequestFunc(g, endpoint); err != nil {
-				return err
-			}
 			if err := client.PrintEncodeRequestFunc(g, endpoint); err != nil {
-				return err
-			}
-			if err := server.PrintEncodeResponseFunc(g, endpoint); err != nil {
 				return err
 			}
 			if err := client.PrintDecodeResponseFunc(g, endpoint); err != nil {

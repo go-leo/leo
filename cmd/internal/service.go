@@ -241,6 +241,24 @@ func (s Service) BusName() string {
 	return s.Service.GoName + "Bus"
 }
 
+func (s Service) HttpServerRequestDecoderName() string {
+	return s.HttpServerName() + "RequestDecoder"
+}
+
+func (s Service) UnexportedHttpServerRequestDecoderName() string {
+	name := s.HttpServerRequestDecoderName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) HttpServerResponseEncoderName() string {
+	return s.HttpServerName() + "ResponseEncoder"
+}
+
+func (s Service) UnexportedHttpServerResponseEncoderName() string {
+	name := s.HttpServerResponseEncoderName()
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func NewServices(file *protogen.File) ([]*Service, error) {
 	var services []*Service
 	for _, service := range file.Services {

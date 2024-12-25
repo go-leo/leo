@@ -6,7 +6,7 @@ import (
 	context "context"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -17,7 +17,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
-	http "net/http"
+	http1 "net/http"
 	url "net/url"
 	strings "strings"
 )
@@ -31,28 +31,42 @@ func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
-type mixPathHttpServerTransports struct {
-	endpoints MixPathServerEndpoints
+type MixPathHttpServerRequestDecoder interface {
+	MixPath() http.DecodeRequestFunc
 }
 
-func (t *mixPathHttpServerTransports) MixPath() http.Handler {
-	return http1.NewServer(
+type MixPathHttpServerResponseEncoder interface {
+	MixPath() http.EncodeResponseFunc
+}
+
+type mixPathHttpServerTransports struct {
+	endpoints       MixPathServerEndpoints
+	requestDecoder  MixPathHttpServerRequestDecoder
+	responseEncoder MixPathHttpServerResponseEncoder
+}
+
+func (t *mixPathHttpServerTransports) MixPath() http1.Handler {
+	return http.NewServer(
 		t.endpoints.MixPath(context.TODO()),
-		_MixPath_MixPath_HttpServer_RequestDecoder,
-		_MixPath_MixPath_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.MixPath(),
+		t.responseEncoder.MixPath(),
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.path.v1.MixPath/MixPath")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
 func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newMixPathServerEndpoints(svc, middlewares...)
-	transports := &mixPathHttpServerTransports{endpoints: endpoints}
+	transports := &mixPathHttpServerTransports{
+		endpoints:       endpoints,
+		requestDecoder:  mixPathHttpServerRequestDecoder{},
+		responseEncoder: mixPathHttpServerResponseEncoder{},
+	}
 	router = appendMixPathHttpRoutes(router)
 	router.Get("/leo.example.path.v1.MixPath/MixPath").Handler(transports.MixPath())
 	return router
@@ -63,18 +77,18 @@ func AppendMixPathHttpRoutes(router *mux.Router, svc MixPathService, middlewares
 type mixPathHttpClientTransports struct {
 	scheme        string
 	router        *mux.Router
-	clientOptions []http1.ClientOption
+	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
 func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_MixPath_MixPath_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_MixPath_MixPath_HttpClient_ResponseDecoder,
 		opts...,
@@ -82,7 +96,7 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newMixPathHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransports {
+func newMixPathHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) MixPathClientTransports {
 	return &mixPathHttpClientTransports{
 		scheme:        scheme,
 		router:        appendMixPathHttpRoutes(mux.NewRouter()),
@@ -100,26 +114,45 @@ func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathServ
 
 // =========================== http coder ===========================
 
-func _MixPath_MixPath_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &MixPathRequest{}
-	vars := urlx.FormFromMap(mux.Vars(r))
-	var varErr error
-	if req.Embed == nil {
-		req.Embed = &NamedPathRequest{}
+type mixPathHttpServerRequestDecoder struct{}
+
+func (mixPathHttpServerRequestDecoder) MixPath() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &MixPathRequest{}
+		vars := urlx.FormFromMap(mux.Vars(r))
+		var varErr error
+		if req.Embed == nil {
+			req.Embed = &NamedPathRequest{}
+		}
+		req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
+		req.String_ = vars.Get("string")
+		req.OptString = proto.String(vars.Get("opt_string"))
+		req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
+		if varErr != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
+		}
+		return req, nil
 	}
-	req.Embed.WrapString = wrapperspb.String(fmt.Sprintf("classes/%s/shelves/%s/books/%s/families/%s", vars.Get("class"), vars.Get("shelf"), vars.Get("book"), vars.Get("family")))
-	req.String_ = vars.Get("string")
-	req.OptString = proto.String(vars.Get("opt_string"))
-	req.WrapString = wrapperspb.String(vars.Get("wrap_string"))
-	if varErr != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(varErr))
-	}
-	return req, nil
 }
 
-func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+type mixPathHttpServerResponseEncoder struct{}
+
+func (mixPathHttpServerResponseEncoder) MixPath() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+
+func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -148,7 +181,7 @@ func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -157,17 +190,7 @@ func _MixPath_MixPath_HttpClient_RequestEncoder(router *mux.Router) func(scheme 
 	}
 }
 
-func _MixPath_MixPath_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _MixPath_MixPath_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _MixPath_MixPath_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}

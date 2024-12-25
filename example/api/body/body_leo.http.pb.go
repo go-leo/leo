@@ -6,7 +6,7 @@ import (
 	bytes "bytes"
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	http1 "github.com/go-kit/kit/transport/http"
+	http "github.com/go-kit/kit/transport/http"
 	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	statusx "github.com/go-leo/leo/v3/statusx"
@@ -15,7 +15,7 @@ import (
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
-	http "net/http"
+	http1 "net/http"
 	url "net/url"
 )
 
@@ -32,88 +32,110 @@ func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 
 // =========================== http server ===========================
 
+type BodyHttpServerRequestDecoder interface {
+	StarBody() http.DecodeRequestFunc
+	NamedBody() http.DecodeRequestFunc
+	NonBody() http.DecodeRequestFunc
+	HttpBodyStarBody() http.DecodeRequestFunc
+	HttpBodyNamedBody() http.DecodeRequestFunc
+}
+
+type BodyHttpServerResponseEncoder interface {
+	StarBody() http.EncodeResponseFunc
+	NamedBody() http.EncodeResponseFunc
+	NonBody() http.EncodeResponseFunc
+	HttpBodyStarBody() http.EncodeResponseFunc
+	HttpBodyNamedBody() http.EncodeResponseFunc
+}
+
 type bodyHttpServerTransports struct {
-	endpoints BodyServerEndpoints
+	endpoints       BodyServerEndpoints
+	requestDecoder  BodyHttpServerRequestDecoder
+	responseEncoder BodyHttpServerResponseEncoder
 }
 
-func (t *bodyHttpServerTransports) StarBody() http.Handler {
-	return http1.NewServer(
+func (t *bodyHttpServerTransports) StarBody() http1.Handler {
+	return http.NewServer(
 		t.endpoints.StarBody(context.TODO()),
-		_Body_StarBody_HttpServer_RequestDecoder,
-		_Body_StarBody_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.StarBody(),
+		t.responseEncoder.StarBody(),
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/StarBody")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
-func (t *bodyHttpServerTransports) NamedBody() http.Handler {
-	return http1.NewServer(
+func (t *bodyHttpServerTransports) NamedBody() http1.Handler {
+	return http.NewServer(
 		t.endpoints.NamedBody(context.TODO()),
-		_Body_NamedBody_HttpServer_RequestDecoder,
-		_Body_NamedBody_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.NamedBody(),
+		t.responseEncoder.NamedBody(),
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NamedBody")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
-func (t *bodyHttpServerTransports) NonBody() http.Handler {
-	return http1.NewServer(
+func (t *bodyHttpServerTransports) NonBody() http1.Handler {
+	return http.NewServer(
 		t.endpoints.NonBody(context.TODO()),
-		_Body_NonBody_HttpServer_RequestDecoder,
-		_Body_NonBody_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.NonBody(),
+		t.responseEncoder.NonBody(),
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/NonBody")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
-func (t *bodyHttpServerTransports) HttpBodyStarBody() http.Handler {
-	return http1.NewServer(
+func (t *bodyHttpServerTransports) HttpBodyStarBody() http1.Handler {
+	return http.NewServer(
 		t.endpoints.HttpBodyStarBody(context.TODO()),
-		_Body_HttpBodyStarBody_HttpServer_RequestDecoder,
-		_Body_HttpBodyStarBody_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.HttpBodyStarBody(),
+		t.responseEncoder.HttpBodyStarBody(),
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyStarBody")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
-func (t *bodyHttpServerTransports) HttpBodyNamedBody() http.Handler {
-	return http1.NewServer(
+func (t *bodyHttpServerTransports) HttpBodyNamedBody() http1.Handler {
+	return http.NewServer(
 		t.endpoints.HttpBodyNamedBody(context.TODO()),
-		_Body_HttpBodyNamedBody_HttpServer_RequestDecoder,
-		_Body_HttpBodyNamedBody_HttpServer_ResponseEncoder,
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
+		t.requestDecoder.HttpBodyNamedBody(),
+		t.responseEncoder.HttpBodyNamedBody(),
+		http.ServerBefore(httpx.EndpointInjector("/leo.example.body.v1.Body/HttpBodyNamedBody")),
+		http.ServerBefore(httpx.ServerTransportInjector),
+		http.ServerBefore(httpx.IncomingMetadataInjector),
+		http.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http.ServerBefore(httpx.IncomingStainInjector),
+		http.ServerFinalizer(httpx.CancelInvoker),
+		http.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
 func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...endpoint.Middleware) *mux.Router {
 	endpoints := newBodyServerEndpoints(svc, middlewares...)
-	transports := &bodyHttpServerTransports{endpoints: endpoints}
+	transports := &bodyHttpServerTransports{
+		endpoints:       endpoints,
+		requestDecoder:  bodyHttpServerRequestDecoder{},
+		responseEncoder: bodyHttpServerResponseEncoder{},
+	}
 	router = appendBodyHttpRoutes(router)
 	router.Get("/leo.example.body.v1.Body/StarBody").Handler(transports.StarBody())
 	router.Get("/leo.example.body.v1.Body/NamedBody").Handler(transports.NamedBody())
@@ -128,18 +150,18 @@ func AppendBodyHttpRoutes(router *mux.Router, svc BodyService, middlewares ...en
 type bodyHttpClientTransports struct {
 	scheme        string
 	router        *mux.Router
-	clientOptions []http1.ClientOption
+	clientOptions []http.ClientOption
 	middlewares   []endpoint.Middleware
 }
 
 func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_Body_StarBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Body_StarBody_HttpClient_ResponseDecoder,
 		opts...,
@@ -148,13 +170,13 @@ func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string
 }
 
 func (t *bodyHttpClientTransports) NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_Body_NamedBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Body_NamedBody_HttpClient_ResponseDecoder,
 		opts...,
@@ -163,13 +185,13 @@ func (t *bodyHttpClientTransports) NamedBody(ctx context.Context, instance strin
 }
 
 func (t *bodyHttpClientTransports) NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_Body_NonBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Body_NonBody_HttpClient_ResponseDecoder,
 		opts...,
@@ -178,13 +200,13 @@ func (t *bodyHttpClientTransports) NonBody(ctx context.Context, instance string)
 }
 
 func (t *bodyHttpClientTransports) HttpBodyStarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_Body_HttpBodyStarBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Body_HttpBodyStarBody_HttpClient_ResponseDecoder,
 		opts...,
@@ -193,13 +215,13 @@ func (t *bodyHttpClientTransports) HttpBodyStarBody(ctx context.Context, instanc
 }
 
 func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+	opts := []http.ClientOption{
+		http.ClientBefore(httpx.OutgoingMetadataInjector),
+		http.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
+	client := http.NewExplicitClient(
 		_Body_HttpBodyNamedBody_HttpClient_RequestEncoder(t.router)(t.scheme, instance),
 		_Body_HttpBodyNamedBody_HttpClient_ResponseDecoder,
 		opts...,
@@ -207,7 +229,7 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instan
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
-func newBodyHttpClientTransports(scheme string, clientOptions []http1.ClientOption, middlewares []endpoint.Middleware) BodyClientTransports {
+func newBodyHttpClientTransports(scheme string, clientOptions []http.ClientOption, middlewares []endpoint.Middleware) BodyClientTransports {
 	return &bodyHttpClientTransports{
 		scheme:        scheme,
 		router:        appendBodyHttpRoutes(mux.NewRouter()),
@@ -225,17 +247,124 @@ func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
 
 // =========================== http coder ===========================
 
-func _Body_StarBody_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &User{}
-	if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+type bodyHttpServerRequestDecoder struct{}
+
+func (bodyHttpServerRequestDecoder) StarBody() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &User{}
+		if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return req, nil
 	}
-	return req, nil
+}
+func (bodyHttpServerRequestDecoder) NamedBody() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &UserRequest{}
+		if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		return req, nil
+	}
+}
+func (bodyHttpServerRequestDecoder) NonBody() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &emptypb.Empty{}
+		return req, nil
+	}
+}
+func (bodyHttpServerRequestDecoder) HttpBodyStarBody() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &httpbody.HttpBody{}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		req.Data = body
+		req.ContentType = r.Header.Get("Content-Type")
+		return req, nil
+	}
+}
+func (bodyHttpServerRequestDecoder) HttpBodyNamedBody() http.DecodeRequestFunc {
+	return func(ctx context.Context, r *http1.Request) (any, error) {
+		req := &HttpBody{}
+		req.Body = &httpbody.HttpBody{}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
+		}
+		req.Body.Data = body
+		req.Body.ContentType = r.Header.Get("Content-Type")
+		return req, nil
+	}
 }
 
-func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+type bodyHttpServerResponseEncoder struct{}
+
+func (bodyHttpServerResponseEncoder) StarBody() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+func (bodyHttpServerResponseEncoder) NamedBody() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+func (bodyHttpServerResponseEncoder) NonBody() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+func (bodyHttpServerResponseEncoder) HttpBodyStarBody() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+func (bodyHttpServerResponseEncoder) HttpBodyNamedBody() http.EncodeResponseFunc {
+	return func(ctx context.Context, w http1.ResponseWriter, obj any) error {
+		resp := obj.(*emptypb.Empty)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http1.StatusOK)
+		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
+			return statusx.ErrInternal.With(statusx.Wrap(err))
+		}
+		return nil
+	}
+
+}
+
+func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -263,7 +392,7 @@ func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -273,17 +402,7 @@ func _Body_StarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme st
 	}
 }
 
-func _Body_StarBody_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Body_StarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _Body_StarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -294,17 +413,9 @@ func _Body_StarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Resp
 	return resp, nil
 }
 
-func _Body_NamedBody_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &UserRequest{}
-	if err := jsonx.NewDecoder(r.Body).Decode(&req.User); err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-	}
-	return req, nil
-}
-
-func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -332,7 +443,7 @@ func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "POST", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -342,17 +453,7 @@ func _Body_NamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme s
 	}
 }
 
-func _Body_NamedBody_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Body_NamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _Body_NamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -363,14 +464,9 @@ func _Body_NamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Res
 	return resp, nil
 }
 
-func _Body_NonBody_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &emptypb.Empty{}
-	return req, nil
-}
-
-func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -392,7 +488,7 @@ func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "GET", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -401,17 +497,7 @@ func _Body_NonBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme str
 	}
 }
 
-func _Body_NonBody_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Body_NonBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _Body_NonBody_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -422,20 +508,9 @@ func _Body_NonBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Respo
 	return resp, nil
 }
 
-func _Body_HttpBodyStarBody_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &httpbody.HttpBody{}
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-	}
-	req.Data = body
-	req.ContentType = r.Header.Get("Content-Type")
-	return req, nil
-}
-
-func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -459,7 +534,7 @@ func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(s
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -469,17 +544,7 @@ func _Body_HttpBodyStarBody_HttpClient_RequestEncoder(router *mux.Router) func(s
 	}
 }
 
-func _Body_HttpBodyStarBody_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Body_HttpBodyStarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _Body_HttpBodyStarBody_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
@@ -490,21 +555,9 @@ func _Body_HttpBodyStarBody_HttpClient_ResponseDecoder(ctx context.Context, r *h
 	return resp, nil
 }
 
-func _Body_HttpBodyNamedBody_HttpServer_RequestDecoder(ctx context.Context, r *http.Request) (any, error) {
-	req := &HttpBody{}
-	req.Body = &httpbody.HttpBody{}
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
-	}
-	req.Body.Data = body
-	req.Body.ContentType = r.Header.Get("Content-Type")
-	return req, nil
-}
-
-func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http1.CreateRequestFunc {
-	return func(scheme string, instance string) http1.CreateRequestFunc {
-		return func(ctx context.Context, obj any) (*http.Request, error) {
+func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(scheme string, instance string) http.CreateRequestFunc {
+	return func(scheme string, instance string) http.CreateRequestFunc {
+		return func(ctx context.Context, obj any) (*http1.Request, error) {
 			if obj == nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Message("request is nil"))
 			}
@@ -528,7 +581,7 @@ func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(
 				Path:     path.Path,
 				RawQuery: queries.Encode(),
 			}
-			r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+			r, err := http1.NewRequestWithContext(ctx, "PUT", target.String(), body)
 			if err != nil {
 				return nil, statusx.ErrInvalidArgument.With(statusx.Wrap(err))
 			}
@@ -538,17 +591,7 @@ func _Body_HttpBodyNamedBody_HttpClient_RequestEncoder(router *mux.Router) func(
 	}
 }
 
-func _Body_HttpBodyNamedBody_HttpServer_ResponseEncoder(ctx context.Context, w http.ResponseWriter, obj any) error {
-	resp := obj.(*emptypb.Empty)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-		return statusx.ErrInternal.With(statusx.Wrap(err))
-	}
-	return nil
-}
-
-func _Body_HttpBodyNamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http.Response) (any, error) {
+func _Body_HttpBodyNamedBody_HttpClient_ResponseDecoder(ctx context.Context, r *http1.Response) (any, error) {
 	if httpx.IsErrorResponse(r) {
 		return nil, httpx.ErrorDecoder(ctx, r)
 	}
