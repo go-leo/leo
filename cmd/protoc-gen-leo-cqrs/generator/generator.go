@@ -16,7 +16,7 @@ type Generator struct {
 }
 
 func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, error) {
-	services, err := internal.NewCQRSServices(file)
+	services, err := internal.NewServices(file)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +37,9 @@ func (f *Generator) GenerateFile() error {
 	g.P()
 
 	for _, service := range f.Services {
+		if service.Command == nil && service.Query == nil {
+			continue
+		}
 		if err := f.GenerateBus(service, g); err != nil {
 			return err
 		}

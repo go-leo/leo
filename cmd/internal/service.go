@@ -12,241 +12,217 @@ import (
 )
 
 type Service struct {
-	Service   *protogen.Service
-	Endpoints []*Endpoint
+	ProtoService *protogen.Service
+	Endpoints    []*Endpoint
 
 	Command *Package
 	Query   *Package
 }
 
-func (s Service) FullName() string {
-	return string(s.Service.Desc.FullName())
+func (s *Service) FullName() string {
+	return string(s.ProtoService.Desc.FullName())
 }
 
-func (s Service) Name() string {
-	return s.Service.GoName
+func (s *Service) Name() string {
+	return s.ProtoService.GoName
 }
 
-func (s Service) Unexported(name string) string {
+func (s *Service) Unexported(name string) string {
 	return strings.ToLower(name[:1]) + name[1:]
 }
 
-func (s Service) ServiceName() string {
+func (s *Service) ServiceName() string {
 	return s.Name() + "Service"
 }
 
-func (s Service) ServerEndpointsName() string {
+func (s *Service) ServerEndpointsName() string {
 	return s.Name() + "ServerEndpoints"
 }
 
-func (s Service) ClientEndpointsName() string {
+func (s *Service) ClientEndpointsName() string {
 	return s.Name() + "ClientEndpoints"
 }
 
-func (s Service) TransportsName() string {
+func (s *Service) TransportsName() string {
 	return s.Name() + "Transports"
 }
 
-func (s Service) ClientTransportsName() string {
+func (s *Service) ClientTransportsName() string {
 	return s.Name() + "ClientTransports"
 }
 
-func (s Service) FactoriesName() string {
+func (s *Service) FactoriesName() string {
 	return s.Name() + "Factories"
 }
 
-func (s Service) EndpointersName() string {
+func (s *Service) EndpointersName() string {
 	return s.Name() + "Endpointers"
 }
 
-func (s Service) BalancersName() string {
+func (s *Service) BalancersName() string {
 	return s.Name() + "Balancers"
 }
 
-func (s Service) ServerName() string {
+func (s *Service) ServerName() string {
 	return s.Name() + "Server"
 }
 
-func (s Service) ClientName() string {
+func (s *Service) ClientName() string {
 	return s.Name() + "Client"
 }
 
-func (s Service) GrpcServerName() string {
+func (s *Service) GrpcServerName() string {
 	return s.Name() + "GrpcServer"
 }
 
-func (s Service) GrpcClientName() string {
+func (s *Service) GrpcClientName() string {
 	return s.Name() + "GrpcClient"
 }
 
-func (s Service) GrpcServerTransportsName() string {
+func (s *Service) GrpcServerTransportsName() string {
 	return s.GrpcServerName() + "Transports"
 }
 
-func (s Service) GrpcClientEndpointsName() string {
+func (s *Service) GrpcClientEndpointsName() string {
 	return s.GrpcClientName() + "Endpoints"
 }
 
-func (s Service) GrpcFactoriesName() string {
+func (s *Service) GrpcFactoriesName() string {
 	return s.GrpcClientName() + "Factories"
 }
 
-func (s Service) HttpServerName() string {
+func (s *Service) HttpServerName() string {
 	return s.Name() + "HttpServer"
 }
 
-func (s Service) ClientServiceName() string {
+func (s *Service) ClientServiceName() string {
 	return s.Name() + "ClientService"
 }
 
-func (s Service) HttpClientName() string {
+func (s *Service) HttpClientName() string {
 	return s.Name() + "HttpClient"
 }
 
-func (s Service) HttpServerTransportsName() string {
+func (s *Service) HttpServerTransportsName() string {
 	return s.HttpServerName() + "Transports"
 }
 
-func (s Service) GrpcClientTransportsName() string {
+func (s *Service) GrpcClientTransportsName() string {
 	return s.GrpcClientName() + "Transports"
 }
 
-func (s Service) HttpClientTransportsName() string {
+func (s *Service) HttpClientTransportsName() string {
 	return s.HttpClientName() + "Transports"
 }
 
-func (s Service) HttpRoutesName() string {
+func (s *Service) HttpRoutesName() string {
 	return s.Name() + "HttpRoutes"
 }
 
-func (s Service) HttpServerRoutesName() string {
+func (s *Service) HttpServerRoutesName() string {
 	return s.Name() + "HttpServerRoutes"
 }
 
-func (s Service) UnimplementedServerName() string {
-	return "Unimplemented" + s.Service.GoName + "Server"
+func (s *Service) UnimplementedServerName() string {
+	return "Unimplemented" + s.ProtoService.GoName + "Server"
 }
 
-func (s Service) CQRSName() string {
-	return s.Service.GoName + "CqrsService"
+func (s *Service) CQRSName() string {
+	return s.ProtoService.GoName + "CqrsService"
 }
 
-func (s Service) AssemblerName() string {
-	return s.Service.GoName + "Assembler"
+func (s *Service) AssemblerName() string {
+	return s.ProtoService.GoName + "Assembler"
 }
 
-func (s Service) BusName() string {
-	return s.Service.GoName + "Bus"
+func (s *Service) BusName() string {
+	return s.ProtoService.GoName + "Bus"
 }
 
-func (s Service) HttpServerRequestDecoderName() string {
+func (s *Service) HttpServerRequestDecoderName() string {
 	return s.HttpServerName() + "RequestDecoder"
 }
 
-func (s Service) HttpServerResponseEncoderName() string {
+func (s *Service) HttpServerResponseEncoderName() string {
 	return s.HttpServerName() + "ResponseEncoder"
 }
 
-func (s Service) HttpClientRequestEncoderName() string {
+func (s *Service) HttpClientRequestEncoderName() string {
 	return s.HttpClientName() + "RequestEncoder"
 }
 
-func (s Service) HttpClientResponseDecoderName() string {
+func (s *Service) HttpClientResponseDecoderName() string {
 	return s.HttpClientName() + "ResponseDecoder"
+}
+
+func (s *Service) SetCommandPackage(file *protogen.File) error {
+	commandPkg := proto.GetExtension(s.ProtoService.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
+	if commandPkg == nil {
+		return nil
+	}
+	commandPkgAbs, commandPkgRel, err := resolvePkgPath(file.Desc.Path(), commandPkg.Relative)
+	if err != nil {
+		return fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", s.FullName(), "command", err)
+	}
+	s.Command = NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package)
+	return nil
+}
+
+func (s *Service) SetQueryPackage(file *protogen.File) error {
+	queryPkg := proto.GetExtension(s.ProtoService.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
+	if queryPkg == nil {
+		return nil
+	}
+	queryPkgAbs, queryPkgRel, err := resolvePkgPath(file.Desc.Path(), queryPkg.Relative)
+	if err != nil {
+		return fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", s.FullName(), "query", err)
+	}
+	s.Query = NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package)
+	return nil
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {
 	var services []*Service
-	for _, service := range file.Services {
-		var endpoints []*Endpoint
-		for _, method := range service.Methods {
-			fmName := fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
-			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
-				return nil, fmt.Errorf("leo: %s, unsupport stream method", fmName)
-			}
-			endpoints = append(endpoints, &Endpoint{method: method})
+	for _, pbService := range file.Services {
+		service := &Service{
+			ProtoService: pbService,
 		}
-		services = append(services, &Service{Service: service, Endpoints: endpoints})
+		if err := service.SetQueryPackage(file); err != nil {
+			return nil, err
+		}
+		if err := service.SetCommandPackage(file); err != nil {
+			return nil, err
+		}
+
+		var endpoints []*Endpoint
+		for _, pbMethod := range pbService.Methods {
+			endpoint := &Endpoint{
+				protoMethod: pbMethod,
+			}
+			if endpoint.IsStreaming() {
+				return nil, fmt.Errorf("leo: unsupport stream method, %s", endpoint.FullName())
+			}
+			endpoint.httpRule = &HttpRule{rule: extractHttpRule(pbMethod, endpoint.FullName())}
+			endpoint.responsibility = proto.GetExtension(pbMethod.Desc.Options(), cqrs.E_Responsibility).(cqrs.Responsibility)
+			endpoints = append(endpoints, endpoint)
+		}
+		service.Endpoints = endpoints
+		services = append(services, service)
 	}
 	return services, nil
 }
 
-func NewHttpServices(file *protogen.File) ([]*Service, error) {
-	services, err := NewServices(file)
-	if err != nil {
-		return nil, err
+func extractHttpRule(pbMethod *protogen.Method, defaultPath string) *annotations.HttpRule {
+	httpRule := proto.GetExtension(pbMethod.Desc.Options(), annotations.E_Http)
+	if httpRule == nil || httpRule == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
+		httpRule = &annotations.HttpRule{
+			Pattern: &annotations.HttpRule_Post{
+				Post: defaultPath,
+			},
+			Body: "*",
+		}
 	}
-	var httpServices []*Service
-	for _, service := range services {
-		var endpoints []*Endpoint
-		for _, endpoint := range service.Endpoints {
-			method := endpoint.method
-			extHTTP := proto.GetExtension(method.Desc.Options(), annotations.E_Http)
-			if extHTTP == nil || extHTTP == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
-				extHTTP = &annotations.HttpRule{
-					Pattern: &annotations.HttpRule_Post{Post: endpoint.FullName()},
-					Body:    "*",
-				}
-			}
-			endpoint.httpRule = &HttpRule{rule: extHTTP.(*annotations.HttpRule)}
-			endpoints = append(endpoints, endpoint)
-		}
-		httpServices = append(httpServices, &Service{Service: service.Service, Endpoints: endpoints})
-	}
-	return httpServices, nil
-}
-
-func NewCQRSServices(file *protogen.File) ([]*Service, error) {
-	services, err := NewServices(file)
-	if err != nil {
-		return nil, err
-	}
-
-	var cqrsServices []*Service
-	for _, service := range services {
-		commandPkg := proto.GetExtension(service.Service.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
-		if commandPkg == nil {
-			continue
-		}
-		queryPkg := proto.GetExtension(service.Service.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
-		if queryPkg == nil {
-			continue
-		}
-
-		commandPkgAbs, commandPkgRel, err := resolvePkgPath(file.Desc.Path(), commandPkg.Relative)
-		if err != nil {
-			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", service.FullName(), "command", err)
-		}
-		queryPkgAbs, queryPkgRel, err := resolvePkgPath(file.Desc.Path(), queryPkg.Relative)
-		if err != nil {
-			return nil, fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", service.FullName(), "query", err)
-		}
-
-		var endpoints []*Endpoint
-		for _, endpoint := range service.Endpoints {
-			method := endpoint.method
-			responsibility := proto.GetExtension(method.Desc.Options(), cqrs.E_Responsibility).(cqrs.Responsibility)
-			switch responsibility {
-			case cqrs.Responsibility_Unknown:
-				return nil, fmt.Errorf("cqrs: %s, cqrs unknown", endpoint.FullName())
-			case cqrs.Responsibility_Command:
-				endpoints = append(endpoints, &Endpoint{method: method, responsibility: responsibility})
-				continue
-			case cqrs.Responsibility_Query:
-				endpoints = append(endpoints, &Endpoint{method: method, responsibility: responsibility})
-				continue
-			default:
-				return nil, fmt.Errorf("cqrs: %s, %s responsibility unsupported", endpoint.FullName(), responsibility)
-			}
-		}
-		cqrsServices = append(cqrsServices, &Service{
-			Service:   service.Service,
-			Command:   NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package),
-			Query:     NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package),
-			Endpoints: endpoints,
-		})
-	}
-	return cqrsServices, nil
+	return httpRule.(*annotations.HttpRule)
 }
 
 func resolvePkgPath(filePath string, rel string) (string, string, error) {

@@ -32,7 +32,7 @@ func (f *Generator) GenerateFile() error {
 	g.P("package ", file.GoPackageName)
 	g.P()
 
-	services, err := internal.NewHttpServices(file)
+	services, err := internal.NewServices(file)
 	if err != nil {
 		return err
 	}

@@ -13,13 +13,13 @@ import (
 )
 
 type Endpoint struct {
-	method         *protogen.Method
+	protoMethod    *protogen.Method
 	httpRule       *HttpRule
 	responsibility cqrs.Responsibility
 }
 
 func (e Endpoint) Name() string {
-	return e.method.GoName
+	return e.protoMethod.GoName
 }
 
 func (e Endpoint) Unexported(s string) string {
@@ -27,71 +27,71 @@ func (e Endpoint) Unexported(s string) string {
 }
 
 func (e Endpoint) FullName() string {
-	return fmt.Sprintf("/%s/%s", e.method.Parent.Desc.FullName(), e.method.Desc.Name())
+	return fmt.Sprintf("/%s/%s", e.protoMethod.Parent.Desc.FullName(), e.protoMethod.Desc.Name())
 }
 
 func (e Endpoint) HttpClientRequestEncoderName() string {
-	return fmt.Sprintf("_%s_%s_HttpClient_RequestEncoder", e.method.Parent.GoName, e.method.GoName)
+	return fmt.Sprintf("_%s_%s_HttpClient_RequestEncoder", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
 func (e Endpoint) HttpClientResponseDecoderName() string {
-	return fmt.Sprintf("_%s_%s_HttpClient_ResponseDecoder", e.method.Parent.GoName, e.method.GoName)
+	return fmt.Sprintf("_%s_%s_HttpClient_ResponseDecoder", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
 func (e Endpoint) GrpcServerTransportName() string {
-	return fmt.Sprintf("_%s_%s_GrpcServer_Transport", e.method.Parent.GoName, e.method.GoName)
+	return fmt.Sprintf("_%s_%s_GrpcServer_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
 func (e Endpoint) GrpcClientTransportName() string {
-	return fmt.Sprintf("_%s_%s_GrpcClient_Transport", e.method.Parent.GoName, e.method.GoName)
+	return fmt.Sprintf("_%s_%s_GrpcClient_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
 func (e Endpoint) HttpServerTransportName() any {
-	return fmt.Sprintf("_%s_%s_HttpServer_Transport", e.method.Parent.GoName, e.method.GoName)
+	return fmt.Sprintf("_%s_%s_HttpServer_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
 func (e Endpoint) HttpClientTransportName() any {
-	return fmt.Sprintf("_%s_%s_HttpClient_Transport", e.method.Parent.GoName, e.method.GoName)
+	return fmt.Sprintf("_%s_%s_HttpClient_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
 func (e Endpoint) ArgsName() string {
-	return e.method.GoName + "Args"
+	return e.protoMethod.GoName + "Args"
 }
 
 func (e Endpoint) ResName() string {
-	return e.method.GoName + "Res"
+	return e.protoMethod.GoName + "Res"
 }
 
 func (e Endpoint) RequestName() string {
-	return e.method.GoName + "Request"
+	return e.protoMethod.GoName + "Request"
 }
 
 func (e Endpoint) ResponseName() string {
-	return e.method.GoName + "Response"
+	return e.protoMethod.GoName + "Response"
 }
 
 func (e Endpoint) IsStreaming() bool {
-	return e.method.Desc.IsStreamingServer() || e.method.Desc.IsStreamingClient()
+	return e.protoMethod.Desc.IsStreamingServer() || e.protoMethod.Desc.IsStreamingClient()
 }
 
 func (e Endpoint) Input() *protogen.Message {
-	return e.method.Input
+	return e.protoMethod.Input
 }
 
 func (e Endpoint) Output() *protogen.Message {
-	return e.method.Output
+	return e.protoMethod.Output
 }
 
 func (e Endpoint) InputGoIdent() protogen.GoIdent {
-	return e.method.Input.GoIdent
+	return e.protoMethod.Input.GoIdent
 }
 
 func (e Endpoint) OutputGoIdent() protogen.GoIdent {
-	return e.method.Output.GoIdent
+	return e.protoMethod.Output.GoIdent
 }
 
 func (e Endpoint) ServerStreamName() string {
-	method := e.method
+	method := e.protoMethod
 	return method.Parent.GoName + "_" + method.GoName + "Server"
 }
 

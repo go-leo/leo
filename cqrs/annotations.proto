@@ -23,7 +23,6 @@ extend google.protobuf.MethodOptions {
 }
 
 enum Responsibility  {
-  Unknown = 0;
+  Query = 0;
   Command = 1;
-  Query = 2;
 }
