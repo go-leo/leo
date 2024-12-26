@@ -13,8 +13,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type pathGrpcServerTransports struct {
 	endpoints PathServerEndpoints
 }
@@ -235,8 +233,6 @@ func NewPathGrpcServer(svc PathService, middlewares ...endpoint.Middleware) Path
 		enumPath:   transports.EnumPath(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type pathGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

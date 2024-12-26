@@ -13,8 +13,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type libraryServiceGrpcServerTransports struct {
 	endpoints LibraryServiceServerEndpoints
 }
@@ -281,8 +279,6 @@ func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpo
 		moveBook:     transports.MoveBook(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type libraryServiceGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

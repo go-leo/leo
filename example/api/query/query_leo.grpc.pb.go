@@ -13,8 +13,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type queryGrpcServerTransports struct {
 	endpoints QueryServerEndpoints
 }
@@ -51,8 +49,6 @@ func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) Qu
 		query: transports.Query(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type queryGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

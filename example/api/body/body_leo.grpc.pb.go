@@ -14,8 +14,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type bodyGrpcServerTransports struct {
 	endpoints BodyServerEndpoints
 }
@@ -144,8 +142,6 @@ func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) Body
 		httpBodyNamedBody: transports.HttpBodyNamedBody(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type bodyGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

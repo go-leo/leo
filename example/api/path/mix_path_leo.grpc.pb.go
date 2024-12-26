@@ -13,8 +13,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type mixPathGrpcServerTransports struct {
 	endpoints MixPathServerEndpoints
 }
@@ -51,8 +49,6 @@ func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware
 		mixPath: transports.MixPath(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type mixPathGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

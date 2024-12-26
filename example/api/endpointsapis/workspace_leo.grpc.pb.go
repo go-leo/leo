@@ -13,8 +13,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type workspacesGrpcServerTransports struct {
 	endpoints WorkspacesServerEndpoints
 }
@@ -143,8 +141,6 @@ func NewWorkspacesGrpcServer(svc WorkspacesService, middlewares ...endpoint.Midd
 		deleteWorkspace: transports.DeleteWorkspace(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type workspacesGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

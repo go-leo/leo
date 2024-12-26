@@ -13,8 +13,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type cQRSGrpcServerTransports struct {
 	endpoints CQRSServerEndpoints
 }
@@ -74,8 +72,6 @@ func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRS
 		findUser:   transports.FindUser(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type cQRSGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

@@ -14,8 +14,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type responseGrpcServerTransports struct {
 	endpoints ResponseServerEndpoints
 }
@@ -144,8 +142,6 @@ func NewResponseGrpcServer(svc ResponseService, middlewares ...endpoint.Middlewa
 		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type responseGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

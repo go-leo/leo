@@ -12,8 +12,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type greeterGrpcServerTransports struct {
 	endpoints GreeterServerEndpoints
 }
@@ -50,8 +48,6 @@ func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware
 		sayHello: transports.SayHello(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type greeterGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption

@@ -14,8 +14,6 @@ import (
 	io "io"
 )
 
-// =========================== grpc server ===========================
-
 type demoGrpcServerTransports struct {
 	endpoints DemoServerEndpoints
 }
@@ -190,8 +188,6 @@ func NewDemoGrpcServer(svc DemoService, middlewares ...endpoint.Middleware) Demo
 		getUserAvatar:    transports.GetUserAvatar(),
 	}
 }
-
-// =========================== grpc client ===========================
 
 type demoGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption
