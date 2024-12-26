@@ -20,9 +20,9 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoder(service *in
 }
 
 func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpServerRequestDecoderName(), " struct {}")
+	g.P("type ", service.Unexported(service.HttpServerRequestDecoderName()), " struct {}")
 	for _, endpoint := range service.Endpoints {
-		g.P("func (", service.UnexportedHttpServerRequestDecoderName(), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeRequestFunc"), "{")
+		g.P("func (", service.Unexported(service.HttpServerRequestDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeRequestFunc"), "{")
 		g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.HttpPackage.Ident("Request"), ") (any, error) {")
 		g.P("req := &", endpoint.InputGoIdent(), "{}")
 

@@ -161,8 +161,8 @@ func (f *Generator) GenerateAssembler(service *internal.Service, g *protogen.Gen
 }
 
 func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P(internal.Comments(service.UnexportedCQRSName() + " implement the " + service.ServiceName() + " with CQRS pattern"))
-	g.P("type ", service.UnexportedCQRSName(), " struct {")
+	g.P(internal.Comments(service.Unexported(service.CQRSName()) + " implement the " + service.ServiceName() + " with CQRS pattern"))
+	g.P("type ", service.Unexported(service.CQRSName()), " struct {")
 	g.P("bus       ", internal.CqrsPackage.Ident("Bus"))
 	g.P("assembler ", service.AssemblerName())
 	g.P("}")
@@ -171,7 +171,7 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.G
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
-			g.P("func (svc *", service.UnexportedCQRSName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+			g.P("func (svc *", service.Unexported(service.CQRSName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 			g.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
 			g.P("if err != nil {")
 			g.P("return nil, err")
@@ -184,7 +184,7 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.G
 			g.P("}")
 			g.P()
 		case endpoint.IsQuery():
-			g.P("func (svc *", service.UnexportedCQRSName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+			g.P("func (svc *", service.Unexported(service.CQRSName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
 			g.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
 			g.P("if err != nil {")
 			g.P("return nil, err")
@@ -200,7 +200,7 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.G
 	}
 
 	g.P("func New", service.CQRSName(), "(bus ", internal.CqrsPackage.Ident("Bus"), ", assembler ", service.AssemblerName(), ") ", service.ServiceName(), " {")
-	g.P("return &", service.UnexportedCQRSName(), "{bus: bus, assembler: assembler}")
+	g.P("return &", service.Unexported(service.CQRSName()), "{bus: bus, assembler: assembler}")
 	g.P("}")
 	g.P()
 	return nil

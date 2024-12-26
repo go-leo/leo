@@ -19,6 +19,10 @@ type Service struct {
 	Query   *Package
 }
 
+func (s Service) Unexported(name string) string {
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
 func (s Service) ServiceName() string {
 	return s.Name() + "Service"
 }
@@ -31,189 +35,84 @@ func (s Service) Name() string {
 	return s.Service.GoName
 }
 
-func (s Service) UnexportedName() string {
-	name := s.Name()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) ServerEndpointsName() string {
 	return s.Name() + "ServerEndpoints"
-}
-
-func (s Service) UnexportedServerEndpointsName() string {
-	name := s.ServerEndpointsName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) ClientEndpointsName() string {
 	return s.Name() + "ClientEndpoints"
 }
 
-func (s Service) UnexportedClientEndpointsName() string {
-	name := s.ClientEndpointsName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) TransportsName() string {
 	return s.Name() + "Transports"
-}
-
-func (s Service) UnexportedTransportsName() string {
-	name := s.TransportsName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) ClientTransportsName() string {
 	return s.Name() + "ClientTransports"
 }
 
-func (s Service) UnexportedClientTransportsName() string {
-	name := s.ClientTransportsName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) FactoriesName() string {
 	return s.Name() + "Factories"
-}
-
-func (s Service) UnexportedFactoriesName() string {
-	name := s.FactoriesName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) EndpointersName() string {
 	return s.Name() + "Endpointers"
 }
 
-func (s Service) UnexportedEndpointersName() string {
-	name := s.EndpointersName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) BalancersName() string {
 	return s.Name() + "Balancers"
-}
-
-func (s Service) UnexportedBalancersName() string {
-	name := s.BalancersName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) ServerName() string {
 	return s.Name() + "Server"
 }
 
-func (s Service) UnexportedServerName() string {
-	name := s.ServerName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) ClientName() string {
 	return s.Name() + "Client"
-}
-
-func (s Service) UnexportedClientName() string {
-	name := s.ClientName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) GrpcServerName() string {
 	return s.Name() + "GrpcServer"
 }
 
-func (s Service) UnexportedGrpcServerName() string {
-	name := s.GrpcServerName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) GrpcClientName() string {
 	return s.Name() + "GrpcClient"
-}
-
-func (s Service) UnexportedGrpcClientName() string {
-	name := s.GrpcClientName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) GrpcServerTransportsName() string {
 	return s.GrpcServerName() + "Transports"
 }
 
-func (s Service) UnexportedGrpcServerTransportsName() string {
-	name := s.GrpcServerTransportsName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) GrpcClientEndpointsName() string {
 	return s.GrpcClientName() + "Endpoints"
-}
-
-func (s Service) UnexportedGrpcClientEndpointsName() string {
-	name := s.GrpcClientEndpointsName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) GrpcFactoriesName() string {
 	return s.GrpcClientName() + "Factories"
 }
 
-func (s Service) UnexportedGrpcFactoriesName() string {
-	name := s.GrpcFactoriesName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) HttpServerName() string {
 	return s.Name() + "HttpServer"
-}
-
-func (s Service) UnexportedHttpServerName() string {
-	name := s.HttpServerName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) ClientServiceName() string {
 	return s.Name() + "ClientService"
 }
 
-func (s Service) UnexportedClientServiceName() string {
-	name := s.ClientServiceName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) HttpClientName() string {
 	return s.Name() + "HttpClient"
-}
-
-func (s Service) UnexportedHttpClientName() string {
-	name := s.HttpClientName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) HttpServerTransportsName() string {
 	return s.HttpServerName() + "Transports"
 }
 
-func (s Service) UnexportedHttpServerTransportsName() string {
-	name := s.HttpServerTransportsName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) GrpcClientTransportsName() string {
 	return s.GrpcClientName() + "Transports"
 }
 
-func (s Service) UnexportedGrpcClientTransportsName() string {
-	name := s.GrpcClientTransportsName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) HttpClientTransportsName() string {
 	return s.HttpClientName() + "Transports"
-}
-
-func (s Service) UnexportedHttpClientTransportsName() string {
-	name := s.HttpClientTransportsName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) HttpRoutesName() string {
@@ -232,11 +131,6 @@ func (s Service) CQRSName() string {
 	return s.Service.GoName + "CqrsService"
 }
 
-func (s Service) UnexportedCQRSName() string {
-	name := s.CQRSName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) AssemblerName() string {
 	return s.Service.GoName + "Assembler"
 }
@@ -249,36 +143,16 @@ func (s Service) HttpServerRequestDecoderName() string {
 	return s.HttpServerName() + "RequestDecoder"
 }
 
-func (s Service) UnexportedHttpServerRequestDecoderName() string {
-	name := s.HttpServerRequestDecoderName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) HttpServerResponseEncoderName() string {
 	return s.HttpServerName() + "ResponseEncoder"
-}
-
-func (s Service) UnexportedHttpServerResponseEncoderName() string {
-	name := s.HttpServerResponseEncoderName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func (s Service) HttpClientRequestEncoderName() string {
 	return s.HttpClientName() + "RequestEncoder"
 }
 
-func (s Service) UnexportedHttpClientRequestEncoderName() string {
-	name := s.HttpClientRequestEncoderName()
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
 func (s Service) HttpClientResponseDecoderName() string {
 	return s.HttpClientName() + "ResponseDecoder"
-}
-
-func (s Service) UnexportedHttpClientResponseDecoderName() string {
-	name := s.HttpClientResponseDecoderName()
-	return strings.ToLower(name[:1]) + name[1:]
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {

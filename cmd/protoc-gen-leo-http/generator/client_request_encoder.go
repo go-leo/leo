@@ -21,12 +21,12 @@ func (f *ClientRequestEncoderGenerator) GenerateClientRequestEncoder(service *in
 }
 
 func (f *ClientRequestEncoderGenerator) GenerateClientRequestEncoderImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpClientRequestEncoderName(), " struct {")
+	g.P("type ", service.Unexported(service.HttpClientRequestEncoderName()), " struct {")
 	g.P("router *", internal.MuxPackage.Ident("Router"))
 	g.P("scheme string")
 	g.P("}")
 	for _, endpoint := range service.Endpoints {
-		g.P("func (e ", service.UnexportedHttpClientRequestEncoderName(), ")", endpoint.Name(), "(instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
+		g.P("func (e ", service.Unexported(service.HttpClientRequestEncoderName()), ")", endpoint.Name(), "(instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
 		httpRule := endpoint.HttpRule()
 		g.P("return func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
 		g.P("if obj == nil {")

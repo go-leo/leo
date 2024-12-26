@@ -19,14 +19,14 @@ func (f *ServerTransportsGenerator) GenerateTransports(service *internal.Service
 }
 
 func (f *ServerTransportsGenerator) GenerateTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpServerTransportsName(), " struct {")
+	g.P("type ", service.Unexported(service.HttpServerTransportsName()), " struct {")
 	g.P("endpoints ", service.ServerEndpointsName())
 	g.P("requestDecoder ", service.HttpServerRequestDecoderName())
 	g.P("responseEncoder ", service.HttpServerResponseEncoderName())
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpServerTransportsName(), ")", endpoint.Name(), "()", internal.HttpPackage.Ident("Handler"), " {")
+		g.P("func (t *", service.Unexported(service.HttpServerTransportsName()), ")", endpoint.Name(), "()", internal.HttpPackage.Ident("Handler"), " {")
 		g.P("return ", internal.HttpTransportPackage.Ident("NewServer"), "(")
 		g.P("t.endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
 		g.P("t.requestDecoder.", endpoint.Name(), "(),")
@@ -44,10 +44,10 @@ func (f *ServerTransportsGenerator) GenerateTransportsImplements(service *intern
 	}
 	g.P("func new", service.HttpServerTransportsName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.HttpServerTransportsName(), " {")
 	g.P("endpoints := new", service.ServerEndpointsName(), "(svc, middlewares...)")
-	g.P("return &", service.UnexportedHttpServerTransportsName(), "{")
+	g.P("return &", service.Unexported(service.HttpServerTransportsName()), "{")
 	g.P("endpoints:       endpoints,")
-	g.P("requestDecoder:  ", service.UnexportedHttpServerRequestDecoderName(), "{},")
-	g.P("responseEncoder: ", service.UnexportedHttpServerResponseEncoderName(), "{},")
+	g.P("requestDecoder:  ", service.Unexported(service.HttpServerRequestDecoderName()), "{},")
+	g.P("responseEncoder: ", service.Unexported(service.HttpServerResponseEncoderName()), "{},")
 	g.P("}")
 	g.P("}")
 	return nil

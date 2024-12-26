@@ -8,7 +8,7 @@ import (
 type ClientTransportsGenerator struct{}
 
 func (f *ClientTransportsGenerator) GenerateTransports(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpClientTransportsName(), " struct {")
+	g.P("type ", service.Unexported(service.HttpClientTransportsName()), " struct {")
 	g.P("clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"))
 	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
 	g.P("requestEncoder ", service.HttpClientRequestEncoderName())
@@ -17,7 +17,7 @@ func (f *ClientTransportsGenerator) GenerateTransports(service *internal.Service
 	g.P()
 
 	for _, endpoint := range service.Endpoints {
-		g.P("func (t *", service.UnexportedHttpClientTransportsName(), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		g.P("func (t *", service.Unexported(service.HttpClientTransportsName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
 		g.P("opts := []", internal.HttpTransportPackage.Ident("ClientOption"), "{")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
 		g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimitInjector"), "),")
@@ -35,14 +35,14 @@ func (f *ClientTransportsGenerator) GenerateTransports(service *internal.Service
 	}
 
 	g.P("func new", service.HttpClientTransportsName(), "(scheme string, clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"), ", middlewares []", internal.EndpointPackage.Ident("Middleware"), ") ", service.ClientTransportsName(), " {")
-	g.P("return &", service.UnexportedHttpClientTransportsName(), "{")
+	g.P("return &", service.Unexported(service.HttpClientTransportsName()), "{")
 	g.P("clientOptions: clientOptions,")
 	g.P("middlewares:   middlewares,")
-	g.P("requestEncoder:  ", service.UnexportedHttpClientRequestEncoderName(), "{")
+	g.P("requestEncoder:  ", service.Unexported(service.HttpClientRequestEncoderName()), "{")
 	g.P("scheme:        scheme,")
 	g.P("router:        append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "()),")
 	g.P("},")
-	g.P("responseDecoder: ", service.UnexportedHttpClientResponseDecoderName(), "{},")
+	g.P("responseDecoder: ", service.Unexported(service.HttpClientResponseDecoderName()), "{},")
 	g.P("}")
 	g.P("}")
 	g.P()

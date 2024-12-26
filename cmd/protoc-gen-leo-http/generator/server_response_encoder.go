@@ -21,9 +21,9 @@ func (f *ServerResponseEncoderGenerator) GenerateServerResponseEncoder(service *
 }
 
 func (f *ServerResponseEncoderGenerator) GenerateServerResponseEncoderImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpServerResponseEncoderName(), " struct {}")
+	g.P("type ", service.Unexported(service.HttpServerResponseEncoderName()), " struct {}")
 	for _, endpoint := range service.Endpoints {
-		g.P("func (", service.UnexportedHttpServerResponseEncoderName(), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
+		g.P("func (", service.Unexported(service.HttpServerResponseEncoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
 		httpRule := endpoint.HttpRule()
 		g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
 		g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")

@@ -21,9 +21,9 @@ func (f *ClientResponseDecoderGenerator) GenerateClientResponseDecoder(service *
 }
 
 func (f *ClientResponseDecoderGenerator) GenerateClientResponseDecoderImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.UnexportedHttpClientResponseDecoderName(), " struct {}")
+	g.P("type ", service.Unexported(service.HttpClientResponseDecoderName()), " struct {}")
 	for _, endpoint := range service.Endpoints {
-		g.P("func (", service.UnexportedHttpClientResponseDecoderName(), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeResponseFunc"), " {")
+		g.P("func (", service.Unexported(service.HttpClientResponseDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeResponseFunc"), " {")
 		httpRule := endpoint.HttpRule()
 		g.P("return func ", "(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (any, error) {")
 		g.P("if ", internal.HttpxTransportxPackage.Ident("IsErrorResponse"), "(r) {")
