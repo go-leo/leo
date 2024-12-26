@@ -89,13 +89,13 @@ func (f *Generator) GenerateCommand(service *internal.Service, endpoint *interna
 	g.P("type ", endpoint.Name(), " ", internal.CqrsPackage.Ident("CommandHandler"), "[*", endpoint.ArgsName(), "]")
 	g.P()
 	g.P("func New", endpoint.Name(), "() ", endpoint.Name(), " {")
-	g.P("return &", endpoint.UnexportedName(), "{}")
+	g.P("return &", endpoint.Unexported(endpoint.Name()), "{}")
 	g.P("}")
 	g.P()
-	g.P("type ", endpoint.UnexportedName(), " struct {")
+	g.P("type ", endpoint.Unexported(endpoint.Name()), " struct {")
 	g.P("}")
 	g.P()
-	g.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxPackage.Ident("Metadata"), ", error) {")
+	g.P("func (h *", endpoint.Unexported(endpoint.Name()), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxPackage.Ident("Metadata"), ", error) {")
 	g.P(internal.Comments("TODO implement me"))
 	g.P("panic(", strconv.Quote("implement me"), ")")
 	g.P("}")
@@ -122,13 +122,13 @@ func (f *Generator) GenerateQuery(service *internal.Service, endpoint *internal.
 	g.P("type ", endpoint.Name(), " ", internal.CqrsPackage.Ident("QueryHandler"), "[*", endpoint.ArgsName(), ", *", endpoint.ResName(), "]")
 	g.P()
 	g.P("func New", endpoint.Name(), "() ", endpoint.Name(), " {")
-	g.P("return &", endpoint.UnexportedName(), "{}")
+	g.P("return &", endpoint.Unexported(endpoint.Name()), "{}")
 	g.P("}")
 	g.P()
-	g.P("type ", endpoint.UnexportedName(), " struct {")
+	g.P("type ", endpoint.Unexported(endpoint.Name()), " struct {")
 	g.P("}")
 	g.P()
-	g.P("func (h *", endpoint.UnexportedName(), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (*", endpoint.ResName(), ", error) {")
+	g.P("func (h *", endpoint.Unexported(endpoint.Name()), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (*", endpoint.ResName(), ", error) {")
 	g.P(internal.Comments("TODO implement me"))
 	g.P("panic(", strconv.Quote("implement me"), ")")
 	g.P("}")
@@ -212,10 +212,10 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 		switch {
 		case endpoint.IsCommand():
 			importPath := protogen.GoImportPath(service.Command.FullName())
-			g.P(endpoint.UnexportedName(), " ", importPath.Ident(endpoint.Name()), ",")
+			g.P(endpoint.Unexported(endpoint.Name()), " ", importPath.Ident(endpoint.Name()), ",")
 		case endpoint.IsQuery():
 			importPath := protogen.GoImportPath(service.Query.FullName())
-			g.P(endpoint.UnexportedName(), " ", importPath.Ident(endpoint.Name()), ",")
+			g.P(endpoint.Unexported(endpoint.Name()), " ", importPath.Ident(endpoint.Name()), ",")
 		}
 	}
 	g.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
@@ -223,11 +223,11 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
-			g.P("if err := bus.RegisterCommand(", endpoint.UnexportedName(), "); err != nil {")
+			g.P("if err := bus.RegisterCommand(", endpoint.Unexported(endpoint.Name()), "); err != nil {")
 			g.P("return nil, err")
 			g.P("}")
 		case endpoint.IsQuery():
-			g.P("if err := bus.RegisterQuery(", endpoint.UnexportedName(), "); err != nil {")
+			g.P("if err := bus.RegisterQuery(", endpoint.Unexported(endpoint.Name()), "); err != nil {")
 			g.P("return nil, err")
 			g.P("}")
 		}

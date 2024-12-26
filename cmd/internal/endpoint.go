@@ -22,8 +22,7 @@ func (e Endpoint) Name() string {
 	return e.method.GoName
 }
 
-func (e Endpoint) UnexportedName() string {
-	s := e.Name()
+func (e Endpoint) Unexported(s string) string {
 	return strings.ToLower(s[:1]) + s[1:]
 }
 

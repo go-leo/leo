@@ -60,7 +60,7 @@ func (f *Generator) GenerateServiceService(service *internal.Service, g *protoge
 	g.P("transports := &", service.Unexported(service.GrpcServerTransportsName()), "{endpoints: endpoints}")
 	g.P("return &", service.Unexported(service.GrpcServerName()), "{")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ": transports.", endpoint.Name(), "(),")
+		g.P(endpoint.Unexported(endpoint.Name()), ": transports.", endpoint.Name(), "(),")
 	}
 	g.P("}")
 	g.P("}")
@@ -104,13 +104,13 @@ func (f *Generator) GenerateServerTransports(service *internal.Service, g *proto
 func (f *Generator) GenerateServerService(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.Unexported(service.GrpcServerName()), " struct {")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " ", internal.GrpcTransportPackage.Ident("Handler"))
+		g.P(endpoint.Unexported(endpoint.Name()), " ", internal.GrpcTransportPackage.Ident("Handler"))
 	}
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (s *", service.Unexported(service.GrpcServerName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-		g.P("ctx, rep, err := s.", endpoint.UnexportedName(), ".ServeGRPC(ctx, request)")
+		g.P("ctx, rep, err := s.", endpoint.Unexported(endpoint.Name()), ".ServeGRPC(ctx, request)")
 		g.P("if err != nil {")
 		g.P("return nil, err")
 		g.P("}")

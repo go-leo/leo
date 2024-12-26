@@ -250,13 +250,13 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 	g.P("factory ", internal.LbxPackage.Ident("BalancerFactory"))
 	g.P("endpointer ", service.EndpointersName())
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), " ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]")
+		g.P(endpoint.Unexported(endpoint.Name()), " ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]")
 	}
 	g.P("}")
 	for _, endpoint := range service.Endpoints {
 		g.P("func (b *", service.Unexported(service.BalancersName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.LbPackage.Ident("Balancer"), ", error) {")
 		g.P("color, _ := ", internal.StainxPackage.Ident("ExtractColor"), "(ctx)")
-		g.P("balancer, err, _ := b.", endpoint.UnexportedName(), ".LoadOrNew(color, ", internal.LbxPackage.Ident("NewBalancer"), "(ctx, b.factory, b.endpointer.", endpoint.Name(), "))")
+		g.P("balancer, err, _ := b.", endpoint.Unexported(endpoint.Name()), ".LoadOrNew(color, ", internal.LbxPackage.Ident("NewBalancer"), "(ctx, b.factory, b.endpointer.", endpoint.Name(), "))")
 		g.P("return balancer, err")
 		g.P("}")
 	}
@@ -265,7 +265,7 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 	g.P("factory: factory,")
 	g.P("endpointer: endpointer,")
 	for _, endpoint := range service.Endpoints {
-		g.P(endpoint.UnexportedName(), ": ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]{},")
+		g.P(endpoint.Unexported(endpoint.Name()), ": ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]{},")
 	}
 	g.P("}")
 	g.P("}")

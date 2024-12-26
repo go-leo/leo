@@ -19,20 +19,20 @@ type Service struct {
 	Query   *Package
 }
 
-func (s Service) Unexported(name string) string {
-	return strings.ToLower(name[:1]) + name[1:]
-}
-
-func (s Service) ServiceName() string {
-	return s.Name() + "Service"
-}
-
 func (s Service) FullName() string {
 	return string(s.Service.Desc.FullName())
 }
 
 func (s Service) Name() string {
 	return s.Service.GoName
+}
+
+func (s Service) Unexported(name string) string {
+	return strings.ToLower(name[:1]) + name[1:]
+}
+
+func (s Service) ServiceName() string {
+	return s.Name() + "Service"
 }
 
 func (s Service) ServerEndpointsName() string {
