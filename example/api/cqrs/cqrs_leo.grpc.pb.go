@@ -13,6 +13,22 @@ import (
 	io "io"
 )
 
+func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRSService {
+	endpoints := newCQRSServerEndpoints(svc, middlewares...)
+	transports := &cQRSGrpcServerTransports{endpoints: endpoints}
+	return &cQRSGrpcServer{
+		createUser: transports.CreateUser(),
+		findUser:   transports.FindUser(),
+	}
+}
+
+func NewCQRSGrpcClient(target string, opts ...grpcx.ClientOption) CQRSService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newCQRSGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newCQRSClientService(endpoints, grpcx.GrpcClient)
+}
+
 type cQRSGrpcServerTransports struct {
 	endpoints CQRSServerEndpoints
 }
@@ -62,15 +78,6 @@ func (s *cQRSGrpcServer) FindUser(ctx context.Context, request *FindUserRequest)
 	}
 	_ = ctx
 	return rep.(*GetUserResponse), nil
-}
-
-func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRSService {
-	endpoints := newCQRSServerEndpoints(svc, middlewares...)
-	transports := &cQRSGrpcServerTransports{endpoints: endpoints}
-	return &cQRSGrpcServer{
-		createUser: transports.CreateUser(),
-		findUser:   transports.FindUser(),
-	}
 }
 
 type cQRSGrpcClientTransports struct {
@@ -131,11 +138,4 @@ func newCQRSGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewCQRSGrpcClient(target string, opts ...grpcx.ClientOption) CQRSService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newCQRSGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newCQRSClientService(endpoints, grpcx.GrpcClient)
 }

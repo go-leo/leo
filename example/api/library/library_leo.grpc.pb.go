@@ -13,6 +13,31 @@ import (
 	io "io"
 )
 
+func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceService {
+	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
+	transports := &libraryServiceGrpcServerTransports{endpoints: endpoints}
+	return &libraryServiceGrpcServer{
+		createShelf:  transports.CreateShelf(),
+		getShelf:     transports.GetShelf(),
+		listShelves:  transports.ListShelves(),
+		deleteShelf:  transports.DeleteShelf(),
+		mergeShelves: transports.MergeShelves(),
+		createBook:   transports.CreateBook(),
+		getBook:      transports.GetBook(),
+		listBooks:    transports.ListBooks(),
+		deleteBook:   transports.DeleteBook(),
+		updateBook:   transports.UpdateBook(),
+		moveBook:     transports.MoveBook(),
+	}
+}
+
+func NewLibraryServiceGrpcClient(target string, opts ...grpcx.ClientOption) LibraryServiceService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newLibraryServiceGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newLibraryServiceClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newLibraryServiceClientService(endpoints, grpcx.GrpcClient)
+}
+
 type libraryServiceGrpcServerTransports struct {
 	endpoints LibraryServiceServerEndpoints
 }
@@ -262,24 +287,6 @@ func (s *libraryServiceGrpcServer) MoveBook(ctx context.Context, request *MoveBo
 	return rep.(*Book), nil
 }
 
-func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpoint.Middleware) LibraryServiceService {
-	endpoints := newLibraryServiceServerEndpoints(svc, middlewares...)
-	transports := &libraryServiceGrpcServerTransports{endpoints: endpoints}
-	return &libraryServiceGrpcServer{
-		createShelf:  transports.CreateShelf(),
-		getShelf:     transports.GetShelf(),
-		listShelves:  transports.ListShelves(),
-		deleteShelf:  transports.DeleteShelf(),
-		mergeShelves: transports.MergeShelves(),
-		createBook:   transports.CreateBook(),
-		getBook:      transports.GetBook(),
-		listBooks:    transports.ListBooks(),
-		deleteBook:   transports.DeleteBook(),
-		updateBook:   transports.UpdateBook(),
-		moveBook:     transports.MoveBook(),
-	}
-}
-
 type libraryServiceGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption
 	clientOptions []grpc.ClientOption
@@ -527,11 +534,4 @@ func newLibraryServiceGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewLibraryServiceGrpcClient(target string, opts ...grpcx.ClientOption) LibraryServiceService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newLibraryServiceGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newLibraryServiceClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newLibraryServiceClientService(endpoints, grpcx.GrpcClient)
 }

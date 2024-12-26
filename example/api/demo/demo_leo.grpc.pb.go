@@ -14,6 +14,27 @@ import (
 	io "io"
 )
 
+func NewDemoGrpcServer(svc DemoService, middlewares ...endpoint.Middleware) DemoService {
+	endpoints := newDemoServerEndpoints(svc, middlewares...)
+	transports := &demoGrpcServerTransports{endpoints: endpoints}
+	return &demoGrpcServer{
+		createUser:       transports.CreateUser(),
+		deleteUser:       transports.DeleteUser(),
+		updateUser:       transports.UpdateUser(),
+		getUser:          transports.GetUser(),
+		getUsers:         transports.GetUsers(),
+		uploadUserAvatar: transports.UploadUserAvatar(),
+		getUserAvatar:    transports.GetUserAvatar(),
+	}
+}
+
+func NewDemoGrpcClient(target string, opts ...grpcx.ClientOption) DemoService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newDemoGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newDemoClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newDemoClientService(endpoints, grpcx.GrpcClient)
+}
+
 type demoGrpcServerTransports struct {
 	endpoints DemoServerEndpoints
 }
@@ -173,20 +194,6 @@ func (s *demoGrpcServer) GetUserAvatar(ctx context.Context, request *GetUserAvat
 	}
 	_ = ctx
 	return rep.(*httpbody.HttpBody), nil
-}
-
-func NewDemoGrpcServer(svc DemoService, middlewares ...endpoint.Middleware) DemoService {
-	endpoints := newDemoServerEndpoints(svc, middlewares...)
-	transports := &demoGrpcServerTransports{endpoints: endpoints}
-	return &demoGrpcServer{
-		createUser:       transports.CreateUser(),
-		deleteUser:       transports.DeleteUser(),
-		updateUser:       transports.UpdateUser(),
-		getUser:          transports.GetUser(),
-		getUsers:         transports.GetUsers(),
-		uploadUserAvatar: transports.UploadUserAvatar(),
-		getUserAvatar:    transports.GetUserAvatar(),
-	}
 }
 
 type demoGrpcClientTransports struct {
@@ -352,11 +359,4 @@ func newDemoGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewDemoGrpcClient(target string, opts ...grpcx.ClientOption) DemoService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newDemoGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newDemoClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newDemoClientService(endpoints, grpcx.GrpcClient)
 }

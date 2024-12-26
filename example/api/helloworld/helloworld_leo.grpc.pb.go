@@ -12,6 +12,21 @@ import (
 	io "io"
 )
 
+func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware) GreeterService {
+	endpoints := newGreeterServerEndpoints(svc, middlewares...)
+	transports := &greeterGrpcServerTransports{endpoints: endpoints}
+	return &greeterGrpcServer{
+		sayHello: transports.SayHello(),
+	}
+}
+
+func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newGreeterGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newGreeterClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newGreeterClientService(endpoints, grpcx.GrpcClient)
+}
+
 type greeterGrpcServerTransports struct {
 	endpoints GreeterServerEndpoints
 }
@@ -39,14 +54,6 @@ func (s *greeterGrpcServer) SayHello(ctx context.Context, request *HelloRequest)
 	}
 	_ = ctx
 	return rep.(*HelloReply), nil
-}
-
-func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware) GreeterService {
-	endpoints := newGreeterServerEndpoints(svc, middlewares...)
-	transports := &greeterGrpcServerTransports{endpoints: endpoints}
-	return &greeterGrpcServer{
-		sayHello: transports.SayHello(),
-	}
 }
 
 type greeterGrpcClientTransports struct {
@@ -86,11 +93,4 @@ func newGreeterGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newGreeterGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newGreeterClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newGreeterClientService(endpoints, grpcx.GrpcClient)
 }

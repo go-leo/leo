@@ -13,6 +13,29 @@ import (
 	io "io"
 )
 
+func NewPathGrpcServer(svc PathService, middlewares ...endpoint.Middleware) PathService {
+	endpoints := newPathServerEndpoints(svc, middlewares...)
+	transports := &pathGrpcServerTransports{endpoints: endpoints}
+	return &pathGrpcServer{
+		boolPath:   transports.BoolPath(),
+		int32Path:  transports.Int32Path(),
+		int64Path:  transports.Int64Path(),
+		uint32Path: transports.Uint32Path(),
+		uint64Path: transports.Uint64Path(),
+		floatPath:  transports.FloatPath(),
+		doublePath: transports.DoublePath(),
+		stringPath: transports.StringPath(),
+		enumPath:   transports.EnumPath(),
+	}
+}
+
+func NewPathGrpcClient(target string, opts ...grpcx.ClientOption) PathService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newPathClientService(endpoints, grpcx.GrpcClient)
+}
+
 type pathGrpcServerTransports struct {
 	endpoints PathServerEndpoints
 }
@@ -216,22 +239,6 @@ func (s *pathGrpcServer) EnumPath(ctx context.Context, request *PathRequest) (*e
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
-}
-
-func NewPathGrpcServer(svc PathService, middlewares ...endpoint.Middleware) PathService {
-	endpoints := newPathServerEndpoints(svc, middlewares...)
-	transports := &pathGrpcServerTransports{endpoints: endpoints}
-	return &pathGrpcServer{
-		boolPath:   transports.BoolPath(),
-		int32Path:  transports.Int32Path(),
-		int64Path:  transports.Int64Path(),
-		uint32Path: transports.Uint32Path(),
-		uint64Path: transports.Uint64Path(),
-		floatPath:  transports.FloatPath(),
-		doublePath: transports.DoublePath(),
-		stringPath: transports.StringPath(),
-		enumPath:   transports.EnumPath(),
-	}
 }
 
 type pathGrpcClientTransports struct {
@@ -439,11 +446,4 @@ func newPathGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewPathGrpcClient(target string, opts ...grpcx.ClientOption) PathService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newPathClientService(endpoints, grpcx.GrpcClient)
 }

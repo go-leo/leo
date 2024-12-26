@@ -13,6 +13,21 @@ import (
 	io "io"
 )
 
+func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware) MixPathService {
+	endpoints := newMixPathServerEndpoints(svc, middlewares...)
+	transports := &mixPathGrpcServerTransports{endpoints: endpoints}
+	return &mixPathGrpcServer{
+		mixPath: transports.MixPath(),
+	}
+}
+
+func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newMixPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newMixPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newMixPathClientService(endpoints, grpcx.GrpcClient)
+}
+
 type mixPathGrpcServerTransports struct {
 	endpoints MixPathServerEndpoints
 }
@@ -40,14 +55,6 @@ func (s *mixPathGrpcServer) MixPath(ctx context.Context, request *MixPathRequest
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
-}
-
-func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware) MixPathService {
-	endpoints := newMixPathServerEndpoints(svc, middlewares...)
-	transports := &mixPathGrpcServerTransports{endpoints: endpoints}
-	return &mixPathGrpcServer{
-		mixPath: transports.MixPath(),
-	}
 }
 
 type mixPathGrpcClientTransports struct {
@@ -87,11 +94,4 @@ func newMixPathGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newMixPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newMixPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newMixPathClientService(endpoints, grpcx.GrpcClient)
 }

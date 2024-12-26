@@ -14,6 +14,25 @@ import (
 	io "io"
 )
 
+func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) BodyService {
+	endpoints := newBodyServerEndpoints(svc, middlewares...)
+	transports := &bodyGrpcServerTransports{endpoints: endpoints}
+	return &bodyGrpcServer{
+		starBody:          transports.StarBody(),
+		namedBody:         transports.NamedBody(),
+		nonBody:           transports.NonBody(),
+		httpBodyStarBody:  transports.HttpBodyStarBody(),
+		httpBodyNamedBody: transports.HttpBodyNamedBody(),
+	}
+}
+
+func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newBodyGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newBodyClientService(endpoints, grpcx.GrpcClient)
+}
+
 type bodyGrpcServerTransports struct {
 	endpoints BodyServerEndpoints
 }
@@ -129,18 +148,6 @@ func (s *bodyGrpcServer) HttpBodyNamedBody(ctx context.Context, request *HttpBod
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
-}
-
-func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) BodyService {
-	endpoints := newBodyServerEndpoints(svc, middlewares...)
-	transports := &bodyGrpcServerTransports{endpoints: endpoints}
-	return &bodyGrpcServer{
-		starBody:          transports.StarBody(),
-		namedBody:         transports.NamedBody(),
-		nonBody:           transports.NonBody(),
-		httpBodyStarBody:  transports.HttpBodyStarBody(),
-		httpBodyNamedBody: transports.HttpBodyNamedBody(),
-	}
 }
 
 type bodyGrpcClientTransports struct {
@@ -264,11 +271,4 @@ func newBodyGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newBodyGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newBodyClientService(endpoints, grpcx.GrpcClient)
 }

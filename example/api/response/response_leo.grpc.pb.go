@@ -14,6 +14,25 @@ import (
 	io "io"
 )
 
+func NewResponseGrpcServer(svc ResponseService, middlewares ...endpoint.Middleware) ResponseService {
+	endpoints := newResponseServerEndpoints(svc, middlewares...)
+	transports := &responseGrpcServerTransports{endpoints: endpoints}
+	return &responseGrpcServer{
+		omittedResponse:       transports.OmittedResponse(),
+		starResponse:          transports.StarResponse(),
+		namedResponse:         transports.NamedResponse(),
+		httpBodyResponse:      transports.HttpBodyResponse(),
+		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
+	}
+}
+
+func NewResponseGrpcClient(target string, opts ...grpcx.ClientOption) ResponseService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newResponseGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newResponseClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newResponseClientService(endpoints, grpcx.GrpcClient)
+}
+
 type responseGrpcServerTransports struct {
 	endpoints ResponseServerEndpoints
 }
@@ -129,18 +148,6 @@ func (s *responseGrpcServer) HttpBodyNamedResponse(ctx context.Context, request 
 	}
 	_ = ctx
 	return rep.(*HttpBody), nil
-}
-
-func NewResponseGrpcServer(svc ResponseService, middlewares ...endpoint.Middleware) ResponseService {
-	endpoints := newResponseServerEndpoints(svc, middlewares...)
-	transports := &responseGrpcServerTransports{endpoints: endpoints}
-	return &responseGrpcServer{
-		omittedResponse:       transports.OmittedResponse(),
-		starResponse:          transports.StarResponse(),
-		namedResponse:         transports.NamedResponse(),
-		httpBodyResponse:      transports.HttpBodyResponse(),
-		httpBodyNamedResponse: transports.HttpBodyNamedResponse(),
-	}
 }
 
 type responseGrpcClientTransports struct {
@@ -264,11 +271,4 @@ func newResponseGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewResponseGrpcClient(target string, opts ...grpcx.ClientOption) ResponseService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newResponseGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newResponseClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newResponseClientService(endpoints, grpcx.GrpcClient)
 }

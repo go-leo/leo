@@ -13,6 +13,25 @@ import (
 	io "io"
 )
 
+func NewWorkspacesGrpcServer(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesService {
+	endpoints := newWorkspacesServerEndpoints(svc, middlewares...)
+	transports := &workspacesGrpcServerTransports{endpoints: endpoints}
+	return &workspacesGrpcServer{
+		listWorkspaces:  transports.ListWorkspaces(),
+		getWorkspace:    transports.GetWorkspace(),
+		createWorkspace: transports.CreateWorkspace(),
+		updateWorkspace: transports.UpdateWorkspace(),
+		deleteWorkspace: transports.DeleteWorkspace(),
+	}
+}
+
+func NewWorkspacesGrpcClient(target string, opts ...grpcx.ClientOption) WorkspacesService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newWorkspacesGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newWorkspacesClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newWorkspacesClientService(endpoints, grpcx.GrpcClient)
+}
+
 type workspacesGrpcServerTransports struct {
 	endpoints WorkspacesServerEndpoints
 }
@@ -128,18 +147,6 @@ func (s *workspacesGrpcServer) DeleteWorkspace(ctx context.Context, request *Del
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
-}
-
-func NewWorkspacesGrpcServer(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesService {
-	endpoints := newWorkspacesServerEndpoints(svc, middlewares...)
-	transports := &workspacesGrpcServerTransports{endpoints: endpoints}
-	return &workspacesGrpcServer{
-		listWorkspaces:  transports.ListWorkspaces(),
-		getWorkspace:    transports.GetWorkspace(),
-		createWorkspace: transports.CreateWorkspace(),
-		updateWorkspace: transports.UpdateWorkspace(),
-		deleteWorkspace: transports.DeleteWorkspace(),
-	}
 }
 
 type workspacesGrpcClientTransports struct {
@@ -263,11 +270,4 @@ func newWorkspacesGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewWorkspacesGrpcClient(target string, opts ...grpcx.ClientOption) WorkspacesService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newWorkspacesGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newWorkspacesClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newWorkspacesClientService(endpoints, grpcx.GrpcClient)
 }

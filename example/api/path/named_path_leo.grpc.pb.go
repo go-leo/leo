@@ -13,6 +13,26 @@ import (
 	io "io"
 )
 
+func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathService {
+	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
+	transports := &namedPathGrpcServerTransports{endpoints: endpoints}
+	return &namedPathGrpcServer{
+		namedPathString:          transports.NamedPathString(),
+		namedPathOptString:       transports.NamedPathOptString(),
+		namedPathWrapString:      transports.NamedPathWrapString(),
+		embedNamedPathString:     transports.EmbedNamedPathString(),
+		embedNamedPathOptString:  transports.EmbedNamedPathOptString(),
+		embedNamedPathWrapString: transports.EmbedNamedPathWrapString(),
+	}
+}
+
+func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPathService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newNamedPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newNamedPathClientService(endpoints, grpcx.GrpcClient)
+}
+
 type namedPathGrpcServerTransports struct {
 	endpoints NamedPathServerEndpoints
 }
@@ -150,19 +170,6 @@ func (s *namedPathGrpcServer) EmbedNamedPathWrapString(ctx context.Context, requ
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
-}
-
-func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathService {
-	endpoints := newNamedPathServerEndpoints(svc, middlewares...)
-	transports := &namedPathGrpcServerTransports{endpoints: endpoints}
-	return &namedPathGrpcServer{
-		namedPathString:          transports.NamedPathString(),
-		namedPathOptString:       transports.NamedPathOptString(),
-		namedPathWrapString:      transports.NamedPathWrapString(),
-		embedNamedPathString:     transports.EmbedNamedPathString(),
-		embedNamedPathOptString:  transports.EmbedNamedPathOptString(),
-		embedNamedPathWrapString: transports.EmbedNamedPathWrapString(),
-	}
 }
 
 type namedPathGrpcClientTransports struct {
@@ -307,11 +314,4 @@ func newNamedPathGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPathService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newNamedPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newNamedPathClientService(endpoints, grpcx.GrpcClient)
 }

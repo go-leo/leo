@@ -13,6 +13,21 @@ import (
 	io "io"
 )
 
+func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) QueryService {
+	endpoints := newQueryServerEndpoints(svc, middlewares...)
+	transports := &queryGrpcServerTransports{endpoints: endpoints}
+	return &queryGrpcServer{
+		query: transports.Query(),
+	}
+}
+
+func NewQueryGrpcClient(target string, opts ...grpcx.ClientOption) QueryService {
+	options := grpcx.NewClientOptions(opts...)
+	transports := newQueryGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
+	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	return newQueryClientService(endpoints, grpcx.GrpcClient)
+}
+
 type queryGrpcServerTransports struct {
 	endpoints QueryServerEndpoints
 }
@@ -40,14 +55,6 @@ func (s *queryGrpcServer) Query(ctx context.Context, request *QueryRequest) (*em
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
-}
-
-func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) QueryService {
-	endpoints := newQueryServerEndpoints(svc, middlewares...)
-	transports := &queryGrpcServerTransports{endpoints: endpoints}
-	return &queryGrpcServer{
-		query: transports.Query(),
-	}
 }
 
 type queryGrpcClientTransports struct {
@@ -87,11 +94,4 @@ func newQueryGrpcClientTransports(
 		clientOptions: clientOptions,
 		middlewares:   middlewares,
 	}
-}
-
-func NewQueryGrpcClient(target string, opts ...grpcx.ClientOption) QueryService {
-	options := grpcx.NewClientOptions(opts...)
-	transports := newQueryGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
-	return newQueryClientService(endpoints, grpcx.GrpcClient)
 }
