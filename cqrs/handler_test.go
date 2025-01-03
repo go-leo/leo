@@ -121,6 +121,38 @@ func TestNewReflectedQueryHandler(t *testing.T) {
 	}
 }
 
+type MockCommand struct{}
+
+type MockMockCommandHandler CommandHandler[*MockCommand]
+
+type mockMockCommandHandler struct{}
+
+func (m mockMockCommandHandler) Handle(ctx context.Context, c *MockCommand) error {
+	return nil
+}
+
+func TestExec(t *testing.T) {
+	handler, err := newReflectedCommandHandler(mockMockCommandHandler{})
+	assert.NoError(t, err)
+	err = handler.Exec(context.Background(), &MockCommand{})
+	assert.NoError(t, err)
+
+	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
+	assert.NoError(t, err)
+	err = handler.Exec(context.Background(), MockCommand{})
+	assert.ErrorIs(t, err, ErrInvalidParam)
+
+	handler, err = newReflectedQueryHandler(mockQueryHandler{})
+	assert.NoError(t, err)
+	err = handler.Exec(context.Background(), MockCommand{})
+	assert.ErrorIs(t, err, ErrInvalidParam)
+
+	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
+	assert.NoError(t, err)
+	err = handler.Exec(context.Background(), MockCommand{})
+	assert.ErrorIs(t, err, ErrInvalidParam)
+}
+
 type MockQuery struct {
 	Text string
 }
@@ -129,26 +161,38 @@ type MockQueryResult struct {
 	Hash string
 }
 
-type MockQueryHandler QueryHandler[MockQuery, MockQueryResult]
+type MockQueryHandler QueryHandler[*MockQuery, *MockQueryResult]
 
 type mockQueryHandler struct{}
 
-func (m mockQueryHandler) Handle(ctx context.Context, q MockQuery) (MockQueryResult, error) {
-	return MockQueryResult{Hash: md5x.TextMD5Hex(q.Text)}, nil
+func (m mockQueryHandler) Handle(ctx context.Context, q *MockQuery) (*MockQueryResult, error) {
+	return &MockQueryResult{Hash: md5x.TextMD5Hex(q.Text)}, nil
 }
 
 func TestQuery(t *testing.T) {
 	handler, err := newReflectedQueryHandler(mockQueryHandler{})
 	assert.NoError(t, err)
 	text := "hello"
-	result, err := handler.Query(context.Background(), MockQuery{Text: text})
+	result, err := handler.Query(context.Background(), &MockQuery{Text: text})
 	assert.NoError(t, err)
-	assert.Equal(t, md5x.TextMD5Hex(text), result.(MockQueryResult).Hash)
+	assert.Equal(t, md5x.TextMD5Hex(text), result.(*MockQueryResult).Hash)
+
+	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
+	assert.NoError(t, err)
+	text = "hello"
+	result, err = handler.Query(context.Background(), &MockQuery{Text: text})
+	assert.NoError(t, err)
+	assert.Equal(t, md5x.TextMD5Hex(text), result.(*MockQueryResult).Hash)
+
+	handler, err = newReflectedQueryHandler(mockQueryHandler{})
+	assert.NoError(t, err)
+	text = "world"
+	result, err = handler.Query(context.Background(), MockQuery{Text: text})
+	assert.ErrorIs(t, err, ErrInvalidParam)
 
 	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
 	assert.NoError(t, err)
 	text = "world"
 	result, err = handler.Query(context.Background(), MockQuery{Text: text})
-	assert.NoError(t, err)
-	assert.Equal(t, md5x.TextMD5Hex(text), result.(MockQueryResult).Hash)
+	assert.ErrorIs(t, err, ErrInvalidParam)
 }

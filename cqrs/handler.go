@@ -14,13 +14,17 @@ type reflectedHandler struct {
 }
 
 func (handler *reflectedHandler) Exec(ctx context.Context, command any) error {
+	if reflect.TypeOf(command) != handler.inType {
+		return ErrInvalidParam
+	}
 	resultValues := handler.method.Func.Call(
 		[]reflect.Value{
 			handler.receiver,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(command),
-		})
-	err := resultValues[1].Interface()
+		},
+	)
+	err := resultValues[0].Interface()
 	if err != nil {
 		return err.(error)
 	}
@@ -28,12 +32,16 @@ func (handler *reflectedHandler) Exec(ctx context.Context, command any) error {
 }
 
 func (handler *reflectedHandler) Query(ctx context.Context, query any) (any, error) {
+	if reflect.TypeOf(query) != handler.inType {
+		return nil, ErrInvalidParam
+	}
 	resultValues := handler.method.Func.Call(
 		[]reflect.Value{
 			handler.receiver,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(query),
-		})
+		},
+	)
 	err := resultValues[1].Interface()
 	if err != nil {
 		return nil, err.(error)

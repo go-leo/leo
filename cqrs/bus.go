@@ -15,6 +15,7 @@ var (
 	ErrHandlerNil        = errors.New("cqrs: handler is nil")
 	ErrArgNil            = errors.New("cqrs: argument is nil")
 	ErrUnimplemented     = errors.New("cqrs: handler is not implement CommandHandler or QueryHandler")
+	ErrInvalidParam      = errors.New("cqrs: invalid param")
 )
 
 var _ Bus = (*defaultBus)(nil)

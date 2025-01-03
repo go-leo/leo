@@ -6,18 +6,18 @@ import (
 
 // CommandHandler is a command handler that to update data.
 type CommandHandler[C any] interface {
+	// Handle handles a command.
 	Handle(ctx context.Context, command C) error
 }
 
 // QueryHandler is a query handler that to handlers to read data.
 type QueryHandler[Q any, R any] interface {
+	// Handle handles a query.
 	Handle(ctx context.Context, query Q) (R, error)
-	QueryName() string
 }
 
 // Bus is a bus, register CommandHandler and QueryHandler, execute Command and query Query
 type Bus interface {
-
 	// RegisterCommand register CommandHandler.
 	RegisterCommand(handler any) error
 
