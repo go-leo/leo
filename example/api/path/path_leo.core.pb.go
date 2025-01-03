@@ -20,14 +20,23 @@ import (
 )
 
 type PathService interface {
+	// Command
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
+	// Command
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 }
 

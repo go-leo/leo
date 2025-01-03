@@ -19,6 +19,7 @@ import (
 )
 
 type GreeterService interface {
+	// Query
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 }
 

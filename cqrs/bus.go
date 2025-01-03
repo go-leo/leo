@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/go-leo/gox/syncx"
-	"github.com/go-leo/leo/v3/metadatax"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -48,13 +47,13 @@ func (b *defaultBus) RegisterQuery(handler any) error {
 	return b.registerHandler(handlerRef)
 }
 
-func (b *defaultBus) Exec(ctx context.Context, args any) (metadatax.Metadata, error) {
+func (b *defaultBus) Exec(ctx context.Context, args any) error {
 	if err := b.invokeCheck(args); err != nil {
-		return nil, err
+		return err
 	}
 	info, err := b.loadHandler(args)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	return info.Exec(ctx, args)
 }

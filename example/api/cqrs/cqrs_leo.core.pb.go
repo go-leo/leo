@@ -20,37 +20,55 @@ import (
 )
 
 type CQRSService interface {
+	// Command
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
+	// Command
+	DeleteUser(ctx context.Context, request *DeleteUserRequest) (*DeleteUserResponse, error)
+	// Query
+	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*UpdateUserResponse, error)
+	// Query
 	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 }
 
 type CQRSServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint
+	DeleteUser(ctx context.Context) endpoint.Endpoint
+	UpdateUser(ctx context.Context) endpoint.Endpoint
 	FindUser(ctx context.Context) endpoint.Endpoint
 }
 
 type CQRSClientEndpoints interface {
 	CreateUser(ctx context.Context) (endpoint.Endpoint, error)
+	DeleteUser(ctx context.Context) (endpoint.Endpoint, error)
+	UpdateUser(ctx context.Context) (endpoint.Endpoint, error)
 	FindUser(ctx context.Context) (endpoint.Endpoint, error)
 }
 
 type CQRSClientTransports interface {
 	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
 type CQRSFactories interface {
 	CreateUser(ctx context.Context) sd.Factory
+	DeleteUser(ctx context.Context) sd.Factory
+	UpdateUser(ctx context.Context) sd.Factory
 	FindUser(ctx context.Context) sd.Factory
 }
 
 type CQRSEndpointers interface {
 	CreateUser(ctx context.Context, color string) (sd.Endpointer, error)
+	DeleteUser(ctx context.Context, color string) (sd.Endpointer, error)
+	UpdateUser(ctx context.Context, color string) (sd.Endpointer, error)
 	FindUser(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
 type CQRSBalancers interface {
 	CreateUser(ctx context.Context) (lb.Balancer, error)
+	DeleteUser(ctx context.Context) (lb.Balancer, error)
+	UpdateUser(ctx context.Context) (lb.Balancer, error)
 	FindUser(ctx context.Context) (lb.Balancer, error)
 }
 
@@ -62,6 +80,18 @@ type cQRSServerEndpoints struct {
 func (e *cQRSServerEndpoints) CreateUser(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.CreateUser(ctx, request.(*CreateUserRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+func (e *cQRSServerEndpoints) DeleteUser(context.Context) endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.DeleteUser(ctx, request.(*DeleteUserRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+func (e *cQRSServerEndpoints) UpdateUser(context.Context) endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.UpdateUser(ctx, request.(*UpdateUserRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
@@ -81,6 +111,20 @@ type cQRSClientEndpoints struct {
 
 func (e *cQRSClientEndpoints) CreateUser(ctx context.Context) (endpoint.Endpoint, error) {
 	balancer, err := e.balancers.CreateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
+}
+func (e *cQRSClientEndpoints) DeleteUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.DeleteUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
+}
+func (e *cQRSClientEndpoints) UpdateUser(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.UpdateUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -116,6 +160,16 @@ func (f *cQRSFactories) CreateUser(ctx context.Context) sd.Factory {
 		return f.transports.CreateUser(ctx, instance)
 	}
 }
+func (f *cQRSFactories) DeleteUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.DeleteUser(ctx, instance)
+	}
+}
+func (f *cQRSFactories) UpdateUser(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.UpdateUser(ctx, instance)
+	}
+}
 func (f *cQRSFactories) FindUser(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.FindUser(ctx, instance)
@@ -135,6 +189,12 @@ type cQRSEndpointers struct {
 
 func (e *cQRSEndpointers) CreateUser(ctx context.Context, color string) (sd.Endpointer, error) {
 	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateUser(ctx), e.logger, e.options...)
+}
+func (e *cQRSEndpointers) DeleteUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteUser(ctx), e.logger, e.options...)
+}
+func (e *cQRSEndpointers) UpdateUser(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateUser(ctx), e.logger, e.options...)
 }
 func (e *cQRSEndpointers) FindUser(ctx context.Context, color string) (sd.Endpointer, error) {
 	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.FindUser(ctx), e.logger, e.options...)
@@ -159,12 +219,24 @@ type cQRSBalancers struct {
 	factory    lbx.BalancerFactory
 	endpointer CQRSEndpointers
 	createUser lazyloadx.Group[lb.Balancer]
+	deleteUser lazyloadx.Group[lb.Balancer]
+	updateUser lazyloadx.Group[lb.Balancer]
 	findUser   lazyloadx.Group[lb.Balancer]
 }
 
 func (b *cQRSBalancers) CreateUser(ctx context.Context) (lb.Balancer, error) {
 	color, _ := stainx.ExtractColor(ctx)
 	balancer, err, _ := b.createUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateUser))
+	return balancer, err
+}
+func (b *cQRSBalancers) DeleteUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.deleteUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteUser))
+	return balancer, err
+}
+func (b *cQRSBalancers) UpdateUser(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.updateUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateUser))
 	return balancer, err
 }
 func (b *cQRSBalancers) FindUser(ctx context.Context) (lb.Balancer, error) {
@@ -177,6 +249,8 @@ func newCQRSBalancers(factory lbx.BalancerFactory, endpointer CQRSEndpointers) C
 		factory:    factory,
 		endpointer: endpointer,
 		createUser: lazyloadx.Group[lb.Balancer]{},
+		deleteUser: lazyloadx.Group[lb.Balancer]{},
+		updateUser: lazyloadx.Group[lb.Balancer]{},
 		findUser:   lazyloadx.Group[lb.Balancer]{},
 	}
 }
@@ -198,6 +272,32 @@ func (c *cQRSClientService) CreateUser(ctx context.Context, request *CreateUserR
 		return nil, statusx.From(err)
 	}
 	return rep.(*emptypb.Empty), nil
+}
+func (c *cQRSClientService) DeleteUser(ctx context.Context, request *DeleteUserRequest) (*DeleteUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/DeleteUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.DeleteUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*DeleteUserResponse), nil
+}
+func (c *cQRSClientService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*UpdateUserResponse, error) {
+	ctx = endpointx.InjectName(ctx, "/pb.CQRS/UpdateUser")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.UpdateUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, statusx.From(err)
+	}
+	return rep.(*UpdateUserResponse), nil
 }
 func (c *cQRSClientService) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
 	ctx = endpointx.InjectName(ctx, "/pb.CQRS/FindUser")

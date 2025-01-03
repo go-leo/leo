@@ -3,7 +3,6 @@ package internal
 import (
 	"fmt"
 	"github.com/go-leo/leo/v3/cqrs"
-	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"os"
@@ -156,29 +155,54 @@ func (s *Service) HttpClientResponseDecoderName() string {
 }
 
 func (s *Service) SetCommandPackage(file *protogen.File) error {
-	commandPkg := proto.GetExtension(s.ProtoService.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
-	if commandPkg == nil {
+	pkg := proto.GetExtension(s.ProtoService.Desc.Options(), cqrs.E_Command).(*cqrs.Package)
+	if pkg == nil {
 		return nil
 	}
-	commandPkgAbs, commandPkgRel, err := resolvePkgPath(file.Desc.Path(), commandPkg.Relative)
+	pkgAbs, pkgRel, err := s.resolvePkgPath(file.Desc.Path(), pkg.Relative)
 	if err != nil {
 		return fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", s.FullName(), "command", err)
 	}
-	s.Command = NewPackage(commandPkgAbs, commandPkgRel, commandPkg.Package)
+	s.Command = NewPackage(pkgAbs, pkgRel, pkg.Package)
 	return nil
 }
 
 func (s *Service) SetQueryPackage(file *protogen.File) error {
-	queryPkg := proto.GetExtension(s.ProtoService.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
-	if queryPkg == nil {
+	pkg := proto.GetExtension(s.ProtoService.Desc.Options(), cqrs.E_Query).(*cqrs.Package)
+	if pkg == nil {
 		return nil
 	}
-	queryPkgAbs, queryPkgRel, err := resolvePkgPath(file.Desc.Path(), queryPkg.Relative)
+	pkgAbs, pkgRel, err := s.resolvePkgPath(file.Desc.Path(), pkg.Relative)
 	if err != nil {
 		return fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", s.FullName(), "query", err)
 	}
-	s.Query = NewPackage(queryPkgAbs, queryPkgRel, queryPkg.Package)
+	s.Query = NewPackage(pkgAbs, pkgRel, pkg.Package)
 	return nil
+}
+
+func (s *Service) resolvePkgPath(filePath string, rel string) (string, string, error) {
+	// 算出query或者command包的绝对路径
+	pkgAbs, err := filepath.Abs(filepath.Join(filePath, rel))
+	if err != nil {
+		return "", "", err
+	}
+	//
+	_, err = os.Stat(pkgAbs)
+	if err != nil {
+		return "", "", err
+	}
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", "", err
+	}
+	// 算出query或者command包的相对路径
+	pkgRel, err := filepath.Rel(wd, pkgAbs)
+	if err != nil {
+		return "", "", err
+	}
+	pkgRel = filepath.Clean(pkgRel)
+	return pkgAbs, pkgRel, nil
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {
@@ -202,50 +226,12 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			if endpoint.IsStreaming() {
 				return nil, fmt.Errorf("leo: unsupport stream method, %s", endpoint.FullName())
 			}
-			endpoint.httpRule = &HttpRule{rule: extractHttpRule(pbMethod, endpoint.FullName())}
-			endpoint.responsibility = proto.GetExtension(pbMethod.Desc.Options(), cqrs.E_Responsibility).(cqrs.Responsibility)
+			endpoint.SetHttpRule()
+			endpoint.SetResponsibility()
 			endpoints = append(endpoints, endpoint)
 		}
 		service.Endpoints = endpoints
 		services = append(services, service)
 	}
 	return services, nil
-}
-
-func extractHttpRule(pbMethod *protogen.Method, defaultPath string) *annotations.HttpRule {
-	httpRule := proto.GetExtension(pbMethod.Desc.Options(), annotations.E_Http)
-	if httpRule == nil || httpRule == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
-		httpRule = &annotations.HttpRule{
-			Pattern: &annotations.HttpRule_Post{
-				Post: defaultPath,
-			},
-			Body: "*",
-		}
-	}
-	return httpRule.(*annotations.HttpRule)
-}
-
-func resolvePkgPath(filePath string, rel string) (string, string, error) {
-	// 算出query或者command包的绝对路径
-	pkgAbs, err := filepath.Abs(filepath.Join(filePath, rel))
-	if err != nil {
-		return "", "", err
-	}
-	//
-	_, err = os.Stat(pkgAbs)
-	if err != nil {
-		return "", "", err
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", "", err
-	}
-	// 算出query或者command包的相对路径
-	pkgRel, err := filepath.Rel(wd, pkgAbs)
-	if err != nil {
-		return "", "", err
-	}
-	pkgRel = filepath.Clean(pkgRel)
-	return pkgAbs, pkgRel, nil
 }

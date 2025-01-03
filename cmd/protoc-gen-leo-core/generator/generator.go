@@ -82,6 +82,11 @@ func (f *Generator) GenerateFile() error {
 func (f *Generator) GenerateServices(service *internal.Service, g *protogen.GeneratedFile) error {
 	g.P("type ", service.ServiceName(), " interface {")
 	for _, endpoint := range service.Endpoints {
+		if endpoint.IsCommand() {
+			g.P("// Command")
+		} else if endpoint.IsQuery() {
+			g.P("// Query")
+		}
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	g.P("}")

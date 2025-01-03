@@ -20,6 +20,7 @@ import (
 )
 
 type MixPathService interface {
+	// Command
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 }
 

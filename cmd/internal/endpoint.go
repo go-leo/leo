@@ -3,115 +3,131 @@ package internal
 import (
 	"fmt"
 	"github.com/go-leo/gox/slicex"
-	"github.com/go-leo/leo/v3/cqrs"
 	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"net/http"
 	"strings"
 )
 
+type Responsibility int32
+
+const (
+	ResponsibilityQuery   Responsibility = 0
+	ResponsibilityCommand Responsibility = 1
+)
+
 type Endpoint struct {
 	protoMethod    *protogen.Method
 	httpRule       *HttpRule
-	responsibility cqrs.Responsibility
+	responsibility Responsibility
 }
 
-func (e Endpoint) Name() string {
+func (e *Endpoint) Name() string {
 	return e.protoMethod.GoName
 }
 
-func (e Endpoint) Unexported(s string) string {
+func (e *Endpoint) Unexported(s string) string {
 	return strings.ToLower(s[:1]) + s[1:]
 }
 
-func (e Endpoint) FullName() string {
+func (e *Endpoint) FullName() string {
 	return fmt.Sprintf("/%s/%s", e.protoMethod.Parent.Desc.FullName(), e.protoMethod.Desc.Name())
 }
 
-func (e Endpoint) HttpClientRequestEncoderName() string {
+func (e *Endpoint) HttpClientRequestEncoderName() string {
 	return fmt.Sprintf("_%s_%s_HttpClient_RequestEncoder", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
-func (e Endpoint) HttpClientResponseDecoderName() string {
+func (e *Endpoint) HttpClientResponseDecoderName() string {
 	return fmt.Sprintf("_%s_%s_HttpClient_ResponseDecoder", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
-func (e Endpoint) GrpcServerTransportName() string {
+func (e *Endpoint) GrpcServerTransportName() string {
 	return fmt.Sprintf("_%s_%s_GrpcServer_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
-func (e Endpoint) GrpcClientTransportName() string {
+func (e *Endpoint) GrpcClientTransportName() string {
 	return fmt.Sprintf("_%s_%s_GrpcClient_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
-func (e Endpoint) HttpServerTransportName() any {
+func (e *Endpoint) HttpServerTransportName() any {
 	return fmt.Sprintf("_%s_%s_HttpServer_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
-func (e Endpoint) HttpClientTransportName() any {
+func (e *Endpoint) HttpClientTransportName() any {
 	return fmt.Sprintf("_%s_%s_HttpClient_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
 }
 
-func (e Endpoint) ArgsName() string {
+func (e *Endpoint) ArgsName() string {
 	return e.protoMethod.GoName + "Args"
 }
 
-func (e Endpoint) ResName() string {
+func (e *Endpoint) ResName() string {
 	return e.protoMethod.GoName + "Res"
 }
 
-func (e Endpoint) RequestName() string {
+func (e *Endpoint) RequestName() string {
 	return e.protoMethod.GoName + "Request"
 }
 
-func (e Endpoint) ResponseName() string {
+func (e *Endpoint) ResponseName() string {
 	return e.protoMethod.GoName + "Response"
 }
 
-func (e Endpoint) IsStreaming() bool {
+func (e *Endpoint) IsStreaming() bool {
 	return e.protoMethod.Desc.IsStreamingServer() || e.protoMethod.Desc.IsStreamingClient()
 }
 
-func (e Endpoint) Input() *protogen.Message {
+func (e *Endpoint) Input() *protogen.Message {
 	return e.protoMethod.Input
 }
 
-func (e Endpoint) Output() *protogen.Message {
+func (e *Endpoint) Output() *protogen.Message {
 	return e.protoMethod.Output
 }
 
-func (e Endpoint) InputGoIdent() protogen.GoIdent {
+func (e *Endpoint) InputGoIdent() protogen.GoIdent {
 	return e.protoMethod.Input.GoIdent
 }
 
-func (e Endpoint) OutputGoIdent() protogen.GoIdent {
+func (e *Endpoint) OutputGoIdent() protogen.GoIdent {
 	return e.protoMethod.Output.GoIdent
 }
 
-func (e Endpoint) ServerStreamName() string {
+func (e *Endpoint) ServerStreamName() string {
 	method := e.protoMethod
 	return method.Parent.GoName + "_" + method.GoName + "Server"
 }
 
-func (e Endpoint) Responsibility() cqrs.Responsibility {
+func (e *Endpoint) SetResponsibility() {
+	output := e.Output()
+	if len(output.Fields)+len(output.Oneofs) > 0 {
+		e.responsibility = ResponsibilityQuery
+		return
+	}
+	e.responsibility = ResponsibilityCommand
+}
+
+func (e *Endpoint) Responsibility() Responsibility {
 	return e.responsibility
 }
 
-func (e Endpoint) IsCommand() bool {
-	return e.responsibility == cqrs.Responsibility_Command
+func (e *Endpoint) IsCommand() bool {
+	return e.responsibility == ResponsibilityCommand
 }
 
-func (e Endpoint) IsQuery() bool {
-	return e.responsibility == cqrs.Responsibility_Query
+func (e *Endpoint) IsQuery() bool {
+	return e.responsibility == ResponsibilityQuery
 }
 
-func (e Endpoint) HttpRule() *HttpRule {
+func (e *Endpoint) HttpRule() *HttpRule {
 	return e.httpRule
 }
 
-func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*protogen.Field, []*protogen.Field, []*protogen.Field, error) {
+func (e *Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*protogen.Field, []*protogen.Field, []*protogen.Field, error) {
 	httpRule := e.httpRule
 	bodyParameter := httpRule.Body()
 	path, namedPathName, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
@@ -255,6 +271,19 @@ func (e Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*prot
 		queryFields = append(queryFields, field)
 	}
 	return bodyMessage, bodyField, namedPathFields, pathFields, queryFields, nil
+}
+
+func (e *Endpoint) SetHttpRule() {
+	httpRule := proto.GetExtension(e.protoMethod.Desc.Options(), annotations.E_Http)
+	if httpRule == nil || httpRule == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
+		httpRule = &annotations.HttpRule{
+			Pattern: &annotations.HttpRule_Post{
+				Post: e.FullName(),
+			},
+			Body: "*",
+		}
+	}
+	e.httpRule = &HttpRule{rule: httpRule.(*annotations.HttpRule)}
 }
 
 type HttpRule struct {

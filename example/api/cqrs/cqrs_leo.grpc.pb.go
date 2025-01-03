@@ -18,6 +18,8 @@ func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRS
 	transports := &cQRSGrpcServerTransports{endpoints: endpoints}
 	return &cQRSGrpcServer{
 		createUser: transports.CreateUser(),
+		deleteUser: transports.DeleteUser(),
+		updateUser: transports.UpdateUser(),
 		findUser:   transports.FindUser(),
 	}
 }
@@ -45,6 +47,30 @@ func (t *cQRSGrpcServerTransports) CreateUser() grpc.Handler {
 	)
 }
 
+func (t *cQRSGrpcServerTransports) DeleteUser() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.DeleteUser(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/DeleteUser")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
+	)
+}
+
+func (t *cQRSGrpcServerTransports) UpdateUser() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.UpdateUser(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpcx.ServerEndpointInjector("/pb.CQRS/UpdateUser")),
+		grpc.ServerBefore(grpcx.ServerTransportInjector),
+		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpcx.IncomingStainInjector),
+	)
+}
+
 func (t *cQRSGrpcServerTransports) FindUser() grpc.Handler {
 	return grpc.NewServer(
 		t.endpoints.FindUser(context.TODO()),
@@ -59,6 +85,8 @@ func (t *cQRSGrpcServerTransports) FindUser() grpc.Handler {
 
 type cQRSGrpcServer struct {
 	createUser grpc.Handler
+	deleteUser grpc.Handler
+	updateUser grpc.Handler
 	findUser   grpc.Handler
 }
 
@@ -69,6 +97,24 @@ func (s *cQRSGrpcServer) CreateUser(ctx context.Context, request *CreateUserRequ
 	}
 	_ = ctx
 	return rep.(*emptypb.Empty), nil
+}
+
+func (s *cQRSGrpcServer) DeleteUser(ctx context.Context, request *DeleteUserRequest) (*DeleteUserResponse, error) {
+	ctx, rep, err := s.deleteUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*DeleteUserResponse), nil
+}
+
+func (s *cQRSGrpcServer) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*UpdateUserResponse, error) {
+	ctx, rep, err := s.updateUser.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*UpdateUserResponse), nil
 }
 
 func (s *cQRSGrpcServer) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {
@@ -103,6 +149,48 @@ func (t *cQRSGrpcClientTransports) CreateUser(ctx context.Context, instance stri
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
+}
+
+func (t *cQRSGrpcClientTransports) DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"pb.CQRS",
+		"DeleteUser",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		DeleteUserResponse{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
+}
+
+func (t *cQRSGrpcClientTransports) UpdateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"pb.CQRS",
+		"UpdateUser",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		UpdateUserResponse{},
 		opts...)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }

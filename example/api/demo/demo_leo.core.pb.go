@@ -21,12 +21,19 @@ import (
 )
 
 type DemoService interface {
+	// Query
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
+	// Command
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
+	// Command
 	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
+	// Query
 	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
+	// Query
 	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
+	// Command
 	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
+	// Query
 	GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
 }
 

@@ -20,9 +20,14 @@ service CQRS {
     option(leo.cqrs.responsibility) = Command;
   }
 
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+
   rpc FindUser (FindUserRequest) returns (GetUserResponse) {
     option(leo.cqrs.responsibility) = Query;
   }
+
 }
 
 message CreateUserRequest {
@@ -41,4 +46,26 @@ message GetUserResponse {
   int32 age = 2;
   double salary = 3;
   string Token = 4;
+}
+
+message DeleteUserRequest {
+  string name = 1;
+}
+
+message DeleteUserResponse {
+
+}
+
+message UpdateUserRequest {
+  string name = 1;
+  int32 age = 2;
+  double salary = 3;
+  string Token = 4;
+}
+
+message UpdateUserResponse {
+  oneof result {
+    int32 code = 1;
+    string message = 2;
+  }
 }

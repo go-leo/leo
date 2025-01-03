@@ -21,10 +21,15 @@ import (
 )
 
 type ResponseService interface {
+	// Query
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
+	// Query
 	StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
+	// Query
 	NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
+	// Query
 	HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error)
+	// Query
 	HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error)
 }
 

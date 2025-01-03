@@ -13,7 +13,7 @@ import (
 )
 
 func NewDemoBus(
-	createUser command.CreateUser,
+	createUser query.CreateUser,
 	deleteUser command.DeleteUser,
 	updateUser command.UpdateUser,
 	getUser query.GetUser,
@@ -22,7 +22,7 @@ func NewDemoBus(
 	getUserAvatar query.GetUserAvatar,
 ) (cqrs.Bus, error) {
 	bus := cqrs.NewBus()
-	if err := bus.RegisterCommand(createUser); err != nil {
+	if err := bus.RegisterQuery(createUser); err != nil {
 		return nil, err
 	}
 	if err := bus.RegisterCommand(deleteUser); err != nil {
@@ -49,11 +49,11 @@ func NewDemoBus(
 // DemoAssembler responsible for completing the transformation between domain model objects and DTOs
 type DemoAssembler interface {
 
-	// FromCreateUserRequest convert request to command arguments
-	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*command.CreateUserArgs, context.Context, error)
+	// FromCreateUserRequest convert request to query arguments
+	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*query.CreateUserArgs, context.Context, error)
 
 	// ToCreateUserResponse convert query result to response
-	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata metadatax.Metadata) (*CreateUserResponse, error)
+	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, res *query.CreateUserRes) (*CreateUserResponse, error)
 
 	// FromDeleteUserRequest convert request to command arguments
 	FromDeleteUserRequest(ctx context.Context, request *DeleteUsersRequest) (*command.DeleteUserArgs, context.Context, error)
@@ -103,11 +103,11 @@ func (svc *demoCqrsService) CreateUser(ctx context.Context, request *CreateUserR
 	if err != nil {
 		return nil, err
 	}
-	metadata, err := svc.bus.Exec(ctx, args)
+	res, err := svc.bus.Query(ctx, args)
 	if err != nil {
 		return nil, err
 	}
-	return svc.assembler.ToCreateUserResponse(ctx, request, metadata)
+	return svc.assembler.ToCreateUserResponse(ctx, request, res.(*query.CreateUserRes))
 }
 
 func (svc *demoCqrsService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {

@@ -21,10 +21,15 @@ import (
 )
 
 type BodyService interface {
+	// Command
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
+	// Command
 	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
+	// Command
 	NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
+	// Command
 	HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
+	// Command
 	HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
 }
 

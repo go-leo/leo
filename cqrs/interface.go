@@ -2,19 +2,16 @@ package cqrs
 
 import (
 	"context"
-	"github.com/go-leo/leo/v3/endpointx"
-	"github.com/go-leo/leo/v3/metadatax"
 )
 
 // CommandHandler is a command handler that to update data.
-type CommandHandler[Command any, Result any] interface {
-	endpointx.Handler[Command, Result]
-	CommandName() string
+type CommandHandler[C any] interface {
+	Handle(ctx context.Context, command C) error
 }
 
 // QueryHandler is a query handler that to handlers to read data.
-type QueryHandler[Query any, Result any] interface {
-	endpointx.Handler[Query, Result]
+type QueryHandler[Q any, R any] interface {
+	Handle(ctx context.Context, query Q) (R, error)
 	QueryName() string
 }
 
@@ -28,10 +25,10 @@ type Bus interface {
 	RegisterQuery(handler any) error
 
 	// Exec executes a command.
-	Exec(ctx context.Context, args any) (metadatax.Metadata, error)
+	Exec(ctx context.Context, command any) error
 
 	// Query executes a query.
-	Query(ctx context.Context, args any) (any, error)
+	Query(ctx context.Context, query any) (any, error)
 
 	// Close bus gracefully.
 	Close(ctx context.Context) error

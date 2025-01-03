@@ -20,11 +20,17 @@ import (
 )
 
 type NamedPathService interface {
+	// Command
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+	// Command
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+	// Command
 	NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
+	// Command
 	EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+	// Command
 	EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
+	// Command
 	EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 }
 

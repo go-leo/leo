@@ -20,6 +20,7 @@ import (
 )
 
 type QueryService interface {
+	// Command
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 }
 

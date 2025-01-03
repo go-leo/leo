@@ -20,10 +20,15 @@ import (
 )
 
 type WorkspacesService interface {
+	// Query
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
+	// Query
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
+	// Query
 	CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
+	// Query
 	UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
+	// Command
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 }
 

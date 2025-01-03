@@ -13,10 +13,18 @@ import (
 
 func NewCQRSBus(
 	createUser command.CreateUser,
+	deleteUser command.DeleteUser,
+	updateUser query.UpdateUser,
 	findUser query.FindUser,
 ) (cqrs.Bus, error) {
 	bus := cqrs.NewBus()
 	if err := bus.RegisterCommand(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(deleteUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(updateUser); err != nil {
 		return nil, err
 	}
 	if err := bus.RegisterQuery(findUser); err != nil {
@@ -33,6 +41,18 @@ type CQRSAssembler interface {
 
 	// ToCreateUserResponse convert query result to response
 	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
+
+	// FromDeleteUserRequest convert request to command arguments
+	FromDeleteUserRequest(ctx context.Context, request *DeleteUserRequest) (*command.DeleteUserArgs, context.Context, error)
+
+	// ToDeleteUserResponse convert query result to response
+	ToDeleteUserResponse(ctx context.Context, request *DeleteUserRequest, metadata metadatax.Metadata) (*DeleteUserResponse, error)
+
+	// FromUpdateUserRequest convert request to query arguments
+	FromUpdateUserRequest(ctx context.Context, request *UpdateUserRequest) (*query.UpdateUserArgs, context.Context, error)
+
+	// ToUpdateUserResponse convert query result to response
+	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest, res *query.UpdateUserRes) (*UpdateUserResponse, error)
 
 	// FromFindUserRequest convert request to query arguments
 	FromFindUserRequest(ctx context.Context, request *FindUserRequest) (*query.FindUserArgs, context.Context, error)
@@ -57,6 +77,30 @@ func (svc *cQRSCqrsService) CreateUser(ctx context.Context, request *CreateUserR
 		return nil, err
 	}
 	return svc.assembler.ToCreateUserResponse(ctx, request, metadata)
+}
+
+func (svc *cQRSCqrsService) DeleteUser(ctx context.Context, request *DeleteUserRequest) (*DeleteUserResponse, error) {
+	args, ctx, err := svc.assembler.FromDeleteUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := svc.bus.Exec(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToDeleteUserResponse(ctx, request, metadata)
+}
+
+func (svc *cQRSCqrsService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*UpdateUserResponse, error) {
+	args, ctx, err := svc.assembler.FromUpdateUserRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	res, err := svc.bus.Query(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	return svc.assembler.ToUpdateUserResponse(ctx, request, res.(*query.UpdateUserRes))
 }
 
 func (svc *cQRSCqrsService) FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error) {

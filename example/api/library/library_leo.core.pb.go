@@ -20,16 +20,27 @@ import (
 )
 
 type LibraryServiceService interface {
+	// Query
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
+	// Query
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
+	// Query
 	ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
+	// Command
 	DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
+	// Query
 	MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
+	// Query
 	CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error)
+	// Query
 	GetBook(ctx context.Context, request *GetBookRequest) (*Book, error)
+	// Query
 	ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
+	// Command
 	DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
+	// Query
 	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
+	// Query
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 }
 
