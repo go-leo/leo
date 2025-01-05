@@ -27,8 +27,14 @@ type Bus interface {
 	// Exec executes a command.
 	Exec(ctx context.Context, command any) error
 
+	// AsyncExec executes a command asynchronously.
+	AsyncExec(ctx context.Context, command any, errC chan<- error) error
+
 	// Query executes a query.
 	Query(ctx context.Context, query any) (any, error)
+
+	// AsyncQuery executes a query asynchronously.
+	AsyncQuery(ctx context.Context, query any, resultC chan<- any, errC chan<- error) error
 
 	// Close bus gracefully.
 	Close(ctx context.Context) error

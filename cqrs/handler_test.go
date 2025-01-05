@@ -45,11 +45,11 @@ func TestNewReflectedCommandHandler(t *testing.T) {
 		handler any
 		wantErr error
 	}{
-		{commandHandlerWithoutHandle{}, ErrUnimplemented},
-		{commandHandlerWithInvalidParamsCount{}, ErrUnimplemented},
-		{commandHandlerWithoutContentParams{}, ErrUnimplemented},
-		{commandHandlerWithInvalidReturnCount{}, ErrUnimplemented},
-		{commandHandlerWithoutErrorReturn{}, ErrUnimplemented},
+		{commandHandlerWithoutHandle{}, ErrUnimplementedCommandHandler},
+		{commandHandlerWithInvalidParamsCount{}, ErrUnimplementedCommandHandler},
+		{commandHandlerWithoutContentParams{}, ErrUnimplementedCommandHandler},
+		{commandHandlerWithInvalidReturnCount{}, ErrUnimplementedCommandHandler},
+		{commandHandlerWithoutErrorReturn{}, ErrUnimplementedCommandHandler},
 		{commandHandlerWithValidSignature{}, nil},
 	}
 
@@ -102,11 +102,11 @@ func TestNewReflectedQueryHandler(t *testing.T) {
 		handler any
 		wantErr error
 	}{
-		{queryHandlerWithoutHandle{}, ErrUnimplemented},
-		{queryHandlerWithInvalidParamsCount{}, ErrUnimplemented},
-		{queryHandlerWithoutContentParams{}, ErrUnimplemented},
-		{queryHandlerWithInvalidReturn{}, ErrUnimplemented},
-		{queryHandlerWithInvalidSecondReturn{}, ErrUnimplemented},
+		{queryHandlerWithoutHandle{}, ErrUnimplementedQueryHandler},
+		{queryHandlerWithInvalidParamsCount{}, ErrUnimplementedQueryHandler},
+		{queryHandlerWithoutContentParams{}, ErrUnimplementedQueryHandler},
+		{queryHandlerWithInvalidReturn{}, ErrUnimplementedQueryHandler},
+		{queryHandlerWithInvalidSecondReturn{}, ErrUnimplementedQueryHandler},
 		{queryHandlerWithValidSignature{}, nil},
 	}
 
@@ -140,17 +140,17 @@ func TestExec(t *testing.T) {
 	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
 	assert.NoError(t, err)
 	err = handler.Exec(context.Background(), MockCommand{})
-	assert.ErrorIs(t, err, ErrInvalidParam)
+	assert.ErrorIs(t, err, ErrInvalidCommand)
 
 	handler, err = newReflectedQueryHandler(mockQueryHandler{})
 	assert.NoError(t, err)
 	err = handler.Exec(context.Background(), MockCommand{})
-	assert.ErrorIs(t, err, ErrInvalidParam)
+	assert.ErrorIs(t, err, ErrInvalidCommand)
 
 	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
 	assert.NoError(t, err)
 	err = handler.Exec(context.Background(), MockCommand{})
-	assert.ErrorIs(t, err, ErrInvalidParam)
+	assert.ErrorIs(t, err, ErrInvalidCommand)
 }
 
 type MockQuery struct {
@@ -188,11 +188,21 @@ func TestQuery(t *testing.T) {
 	assert.NoError(t, err)
 	text = "world"
 	result, err = handler.Query(context.Background(), MockQuery{Text: text})
-	assert.ErrorIs(t, err, ErrInvalidParam)
+	assert.ErrorIs(t, err, ErrInvalidQuery)
 
 	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
 	assert.NoError(t, err)
 	text = "world"
 	result, err = handler.Query(context.Background(), MockQuery{Text: text})
-	assert.ErrorIs(t, err, ErrInvalidParam)
+	assert.ErrorIs(t, err, ErrInvalidQuery)
+
+	handler, err = newReflectedQueryHandler(mockQueryHandler{})
+	assert.NoError(t, err)
+	result, err = handler.Query(context.Background(), &MockCommand{})
+	assert.ErrorIs(t, err, ErrInvalidQuery)
+
+	handler, err = newReflectedQueryHandler(&mockQueryHandler{})
+	assert.NoError(t, err)
+	result, err = handler.Query(context.Background(), MockCommand{})
+	assert.ErrorIs(t, err, ErrInvalidQuery)
 }
