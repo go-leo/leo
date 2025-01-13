@@ -17,7 +17,7 @@ type (
 		DialOptions() []grpc.DialOption
 		ClientTransportOptions() []grpctransport.ClientOption
 		Middlewares() []endpoint.Middleware
-		InstancerFactory() sdx.InstancerFactory
+		Builder() sdx.Builder
 		EndpointerOptions() []sd.EndpointerOption
 		Logger() log.Logger
 		BalancerFactory() lbx.BalancerFactory
@@ -27,7 +27,7 @@ type (
 		dialOptions            []grpc.DialOption
 		clientTransportOptions []grpctransport.ClientOption
 		middlewares            []endpoint.Middleware
-		instancerFactory       sdx.InstancerFactory
+		builder                sdx.Builder
 		endpointerOptions      []sd.EndpointerOption
 		logger                 log.Logger
 		balancerFactory        lbx.BalancerFactory
@@ -48,8 +48,8 @@ func (o *clientOptions) Middlewares() []endpoint.Middleware {
 	return o.middlewares
 }
 
-func (o *clientOptions) InstancerFactory() sdx.InstancerFactory {
-	return o.instancerFactory
+func (o *clientOptions) Builder() sdx.Builder {
+	return o.builder
 }
 
 func (o *clientOptions) EndpointerOptions() []sd.EndpointerOption {
@@ -85,10 +85,10 @@ func Middleware(middlewares ...endpoint.Middleware) ClientOption {
 	}
 }
 
-// InstancerFactory is a option that sets the sd instancer factory.
-func InstancerFactory(factory sdx.InstancerFactory) ClientOption {
+// InstancerBuilder is a option that sets the sd instancer factory.
+func InstancerBuilder(factory sdx.Builder) ClientOption {
 	return func(o *clientOptions) {
-		o.instancerFactory = factory
+		o.builder = factory
 	}
 }
 
@@ -118,7 +118,7 @@ func NewClientOptions(opts ...ClientOption) ClientOptions {
 		dialOptions:            nil,
 		clientTransportOptions: nil,
 		middlewares:            nil,
-		instancerFactory:       passthroughx.Factory{},
+		builder:                passthroughx.Builder{},
 		endpointerOptions:      nil,
 		logger:                 logx.L(),
 		balancerFactory:        lbx.PeakFirstFactory{},

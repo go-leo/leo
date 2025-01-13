@@ -56,7 +56,7 @@ func runApi(port int) {
 
 	httpClient := helloworld.NewGreeterHttpClient(
 		"consul://localhost:8500/demo.http?dc=dc1",
-		httpx.InstancerFactory(consulx.Factory{}),
+		httpx.InstancerBuilder(consulx.Builder{}),
 		httpx.BalancerFactory(lbx.RandomFactory{}),
 	)
 
@@ -102,7 +102,7 @@ func runHttp(port int, color string) {
 	grpcClient := helloworld.NewGreeterGrpcClient(
 		"consul://localhost:8500/demo.grpc?dc=dc1",
 		grpcx.DialOptions(grpc1.WithTransportCredentials(insecure.NewCredentials())),
-		grpcx.InstancerFactory(consulx.Factory{}),
+		grpcx.InstancerBuilder(consulx.Builder{}),
 		grpcx.BalancerFactory(lbx.RandomFactory{}),
 	)
 

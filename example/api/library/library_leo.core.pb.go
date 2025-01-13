@@ -285,13 +285,13 @@ func (e *libraryServiceClientEndpoints) MoveBook(ctx context.Context) (endpoint.
 func newLibraryServiceClientEndpoints(
 	target string,
 	transports LibraryServiceClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) LibraryServiceClientEndpoints {
 	factories := newLibraryServiceFactories(transports)
-	endpointers := newLibraryServiceEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newLibraryServiceEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newLibraryServiceBalancers(balancerFactory, endpointers)
 	return &libraryServiceClientEndpoints{balancers: balancers}
 }
@@ -362,59 +362,59 @@ func newLibraryServiceFactories(transports LibraryServiceClientTransports) Libra
 
 // libraryServiceEndpointers implements LibraryServiceEndpointers
 type libraryServiceEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        LibraryServiceFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories LibraryServiceFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *libraryServiceEndpointers) CreateShelf(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateShelf(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.CreateShelf(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) GetShelf(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetShelf(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.GetShelf(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) ListShelves(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.ListShelves(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.ListShelves(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) DeleteShelf(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteShelf(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.DeleteShelf(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) MergeShelves(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.MergeShelves(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.MergeShelves(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) CreateBook(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateBook(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.CreateBook(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) GetBook(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetBook(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.GetBook(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) ListBooks(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.ListBooks(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.ListBooks(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) DeleteBook(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteBook(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.DeleteBook(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) UpdateBook(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateBook(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.UpdateBook(ctx), e.logger, e.options...)
 }
 func (e *libraryServiceEndpointers) MoveBook(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.MoveBook(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.MoveBook(ctx), e.logger, e.options...)
 }
 func newLibraryServiceEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories LibraryServiceFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) LibraryServiceEndpointers {
 	return &libraryServiceEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

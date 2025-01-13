@@ -41,7 +41,7 @@ func AppendBodyHttpServerRoutes(router *mux.Router, svc BodyService, middlewares
 func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newBodyHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newBodyClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newBodyClientService(endpoints, httpx.HttpClient)
 }
 

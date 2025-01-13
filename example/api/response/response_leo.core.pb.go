@@ -166,13 +166,13 @@ func (e *responseClientEndpoints) HttpBodyNamedResponse(ctx context.Context) (en
 func newResponseClientEndpoints(
 	target string,
 	transports ResponseClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) ResponseClientEndpoints {
 	factories := newResponseFactories(transports)
-	endpointers := newResponseEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newResponseEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newResponseBalancers(balancerFactory, endpointers)
 	return &responseClientEndpoints{balancers: balancers}
 }
@@ -213,41 +213,41 @@ func newResponseFactories(transports ResponseClientTransports) ResponseFactories
 
 // responseEndpointers implements ResponseEndpointers
 type responseEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        ResponseFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories ResponseFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *responseEndpointers) OmittedResponse(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.OmittedResponse(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.OmittedResponse(ctx), e.logger, e.options...)
 }
 func (e *responseEndpointers) StarResponse(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.StarResponse(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.StarResponse(ctx), e.logger, e.options...)
 }
 func (e *responseEndpointers) NamedResponse(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedResponse(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.NamedResponse(ctx), e.logger, e.options...)
 }
 func (e *responseEndpointers) HttpBodyResponse(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyResponse(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.HttpBodyResponse(ctx), e.logger, e.options...)
 }
 func (e *responseEndpointers) HttpBodyNamedResponse(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyNamedResponse(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.HttpBodyNamedResponse(ctx), e.logger, e.options...)
 }
 func newResponseEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories ResponseFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) ResponseEndpointers {
 	return &responseEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

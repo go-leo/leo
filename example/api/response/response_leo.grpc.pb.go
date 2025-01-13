@@ -29,7 +29,7 @@ func NewResponseGrpcServer(svc ResponseService, middlewares ...endpoint.Middlewa
 func NewResponseGrpcClient(target string, opts ...grpcx.ClientOption) ResponseService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newResponseGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newResponseClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newResponseClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newResponseClientService(endpoints, grpcx.GrpcClient)
 }
 

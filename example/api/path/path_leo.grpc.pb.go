@@ -32,7 +32,7 @@ func NewPathGrpcServer(svc PathService, middlewares ...endpoint.Middleware) Path
 func NewPathGrpcClient(target string, opts ...grpcx.ClientOption) PathService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newPathClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newPathClientService(endpoints, grpcx.GrpcClient)
 }
 

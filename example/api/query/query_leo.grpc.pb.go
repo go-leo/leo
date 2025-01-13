@@ -24,7 +24,7 @@ func NewQueryGrpcServer(svc QueryService, middlewares ...endpoint.Middleware) Qu
 func NewQueryGrpcClient(target string, opts ...grpcx.ClientOption) QueryService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newQueryGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newQueryClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newQueryClientService(endpoints, grpcx.GrpcClient)
 }
 

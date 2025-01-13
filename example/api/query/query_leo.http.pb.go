@@ -37,7 +37,7 @@ func AppendQueryHttpServerRoutes(router *mux.Router, svc QueryService, middlewar
 func NewQueryHttpClient(target string, opts ...httpx.ClientOption) QueryService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newQueryHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newQueryClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newQueryClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newQueryClientService(endpoints, httpx.HttpClient)
 }
 

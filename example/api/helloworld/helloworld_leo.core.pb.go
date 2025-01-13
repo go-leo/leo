@@ -84,13 +84,13 @@ func (e *greeterClientEndpoints) SayHello(ctx context.Context) (endpoint.Endpoin
 func newGreeterClientEndpoints(
 	target string,
 	transports GreeterClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) GreeterClientEndpoints {
 	factories := newGreeterFactories(transports)
-	endpointers := newGreeterEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newGreeterEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newGreeterBalancers(balancerFactory, endpointers)
 	return &greeterClientEndpoints{balancers: balancers}
 }
@@ -111,29 +111,29 @@ func newGreeterFactories(transports GreeterClientTransports) GreeterFactories {
 
 // greeterEndpointers implements GreeterEndpointers
 type greeterEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        GreeterFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories GreeterFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *greeterEndpointers) SayHello(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.SayHello(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.SayHello(ctx), e.logger, e.options...)
 }
 func newGreeterEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories GreeterFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) GreeterEndpointers {
 	return &greeterEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

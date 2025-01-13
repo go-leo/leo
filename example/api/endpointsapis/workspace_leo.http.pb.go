@@ -45,7 +45,7 @@ func AppendWorkspacesHttpServerRoutes(router *mux.Router, svc WorkspacesService,
 func NewWorkspacesHttpClient(target string, opts ...httpx.ClientOption) WorkspacesService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newWorkspacesHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newWorkspacesClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newWorkspacesClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newWorkspacesClientService(endpoints, httpx.HttpClient)
 }
 

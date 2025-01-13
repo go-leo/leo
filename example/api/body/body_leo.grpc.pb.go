@@ -29,7 +29,7 @@ func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) Body
 func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newBodyGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newBodyClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newBodyClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newBodyClientService(endpoints, grpcx.GrpcClient)
 }
 

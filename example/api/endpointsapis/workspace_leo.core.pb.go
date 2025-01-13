@@ -165,13 +165,13 @@ func (e *workspacesClientEndpoints) DeleteWorkspace(ctx context.Context) (endpoi
 func newWorkspacesClientEndpoints(
 	target string,
 	transports WorkspacesClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) WorkspacesClientEndpoints {
 	factories := newWorkspacesFactories(transports)
-	endpointers := newWorkspacesEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newWorkspacesEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newWorkspacesBalancers(balancerFactory, endpointers)
 	return &workspacesClientEndpoints{balancers: balancers}
 }
@@ -212,41 +212,41 @@ func newWorkspacesFactories(transports WorkspacesClientTransports) WorkspacesFac
 
 // workspacesEndpointers implements WorkspacesEndpointers
 type workspacesEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        WorkspacesFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories WorkspacesFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *workspacesEndpointers) ListWorkspaces(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.ListWorkspaces(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.ListWorkspaces(ctx), e.logger, e.options...)
 }
 func (e *workspacesEndpointers) GetWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetWorkspace(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.GetWorkspace(ctx), e.logger, e.options...)
 }
 func (e *workspacesEndpointers) CreateWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateWorkspace(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.CreateWorkspace(ctx), e.logger, e.options...)
 }
 func (e *workspacesEndpointers) UpdateWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateWorkspace(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.UpdateWorkspace(ctx), e.logger, e.options...)
 }
 func (e *workspacesEndpointers) DeleteWorkspace(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteWorkspace(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.DeleteWorkspace(ctx), e.logger, e.options...)
 }
 func newWorkspacesEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories WorkspacesFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) WorkspacesEndpointers {
 	return &workspacesEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

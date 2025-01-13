@@ -24,7 +24,7 @@ func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware
 func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newMixPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newMixPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newMixPathClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newMixPathClientService(endpoints, grpcx.GrpcClient)
 }
 

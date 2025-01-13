@@ -36,7 +36,7 @@ func AppendMixPathHttpServerRoutes(router *mux.Router, svc MixPathService, middl
 func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newMixPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newMixPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newMixPathClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newMixPathClientService(endpoints, httpx.HttpClient)
 }
 

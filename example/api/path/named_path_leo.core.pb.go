@@ -185,13 +185,13 @@ func (e *namedPathClientEndpoints) EmbedNamedPathWrapString(ctx context.Context)
 func newNamedPathClientEndpoints(
 	target string,
 	transports NamedPathClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) NamedPathClientEndpoints {
 	factories := newNamedPathFactories(transports)
-	endpointers := newNamedPathEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newNamedPathEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newNamedPathBalancers(balancerFactory, endpointers)
 	return &namedPathClientEndpoints{balancers: balancers}
 }
@@ -237,44 +237,44 @@ func newNamedPathFactories(transports NamedPathClientTransports) NamedPathFactor
 
 // namedPathEndpointers implements NamedPathEndpointers
 type namedPathEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        NamedPathFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories NamedPathFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *namedPathEndpointers) NamedPathString(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedPathString(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.NamedPathString(ctx), e.logger, e.options...)
 }
 func (e *namedPathEndpointers) NamedPathOptString(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedPathOptString(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.NamedPathOptString(ctx), e.logger, e.options...)
 }
 func (e *namedPathEndpointers) NamedPathWrapString(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedPathWrapString(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.NamedPathWrapString(ctx), e.logger, e.options...)
 }
 func (e *namedPathEndpointers) EmbedNamedPathString(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.EmbedNamedPathString(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.EmbedNamedPathString(ctx), e.logger, e.options...)
 }
 func (e *namedPathEndpointers) EmbedNamedPathOptString(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.EmbedNamedPathOptString(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.EmbedNamedPathOptString(ctx), e.logger, e.options...)
 }
 func (e *namedPathEndpointers) EmbedNamedPathWrapString(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.EmbedNamedPathWrapString(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.EmbedNamedPathWrapString(ctx), e.logger, e.options...)
 }
 func newNamedPathEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories NamedPathFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) NamedPathEndpointers {
 	return &namedPathEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

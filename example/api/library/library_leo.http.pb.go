@@ -57,7 +57,7 @@ func AppendLibraryServiceHttpServerRoutes(router *mux.Router, svc LibraryService
 func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) LibraryServiceService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newLibraryServiceHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newLibraryServiceClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newLibraryServiceClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newLibraryServiceClientService(endpoints, httpx.HttpClient)
 }
 

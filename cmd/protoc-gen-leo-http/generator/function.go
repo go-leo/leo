@@ -38,7 +38,7 @@ func (f *FunctionGenerator) GenerateNewClientFunc(service *internal.Service, g *
 	g.P("func New", service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
 	g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
 	g.P("transports := new", service.HttpClientTransportsName(), "(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())")
-	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
+	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
 	g.P("return new", service.ClientServiceName(), "(endpoints, ", internal.HttpxTransportxPackage.Ident("HttpClient"), ")")
 	g.P("}")
 	g.P()

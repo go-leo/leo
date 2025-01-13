@@ -46,7 +46,7 @@ func AppendNamedPathHttpServerRoutes(router *mux.Router, svc NamedPathService, m
 func NewNamedPathHttpClient(target string, opts ...httpx.ClientOption) NamedPathService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newNamedPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newNamedPathClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newNamedPathClientService(endpoints, httpx.HttpClient)
 }
 

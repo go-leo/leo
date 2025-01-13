@@ -23,7 +23,7 @@ func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware
 func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newGreeterGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newGreeterClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newGreeterClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newGreeterClientService(endpoints, grpcx.GrpcClient)
 }
 

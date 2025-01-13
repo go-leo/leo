@@ -145,13 +145,13 @@ func (e *cQRSClientEndpoints) FindUser(ctx context.Context) (endpoint.Endpoint, 
 func newCQRSClientEndpoints(
 	target string,
 	transports CQRSClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) CQRSClientEndpoints {
 	factories := newCQRSFactories(transports)
-	endpointers := newCQRSEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newCQRSEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newCQRSBalancers(balancerFactory, endpointers)
 	return &cQRSClientEndpoints{balancers: balancers}
 }
@@ -187,38 +187,38 @@ func newCQRSFactories(transports CQRSClientTransports) CQRSFactories {
 
 // cQRSEndpointers implements CQRSEndpointers
 type cQRSEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        CQRSFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories CQRSFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *cQRSEndpointers) CreateUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.CreateUser(ctx), e.logger, e.options...)
 }
 func (e *cQRSEndpointers) DeleteUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.DeleteUser(ctx), e.logger, e.options...)
 }
 func (e *cQRSEndpointers) UpdateUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.UpdateUser(ctx), e.logger, e.options...)
 }
 func (e *cQRSEndpointers) FindUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.FindUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.FindUser(ctx), e.logger, e.options...)
 }
 func newCQRSEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories CQRSFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) CQRSEndpointers {
 	return &cQRSEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

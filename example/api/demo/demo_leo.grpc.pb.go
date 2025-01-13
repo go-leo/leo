@@ -31,7 +31,7 @@ func NewDemoGrpcServer(svc DemoService, middlewares ...endpoint.Middleware) Demo
 func NewDemoGrpcClient(target string, opts ...grpcx.ClientOption) DemoService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newDemoGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newDemoClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newDemoClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newDemoClientService(endpoints, grpcx.GrpcClient)
 }
 

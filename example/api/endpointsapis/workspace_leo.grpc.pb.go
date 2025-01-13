@@ -28,7 +28,7 @@ func NewWorkspacesGrpcServer(svc WorkspacesService, middlewares ...endpoint.Midd
 func NewWorkspacesGrpcClient(target string, opts ...grpcx.ClientOption) WorkspacesService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newWorkspacesGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newWorkspacesClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newWorkspacesClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newWorkspacesClientService(endpoints, grpcx.GrpcClient)
 }
 

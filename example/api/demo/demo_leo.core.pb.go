@@ -206,13 +206,13 @@ func (e *demoClientEndpoints) GetUserAvatar(ctx context.Context) (endpoint.Endpo
 func newDemoClientEndpoints(
 	target string,
 	transports DemoClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) DemoClientEndpoints {
 	factories := newDemoFactories(transports)
-	endpointers := newDemoEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newDemoEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newDemoBalancers(balancerFactory, endpointers)
 	return &demoClientEndpoints{balancers: balancers}
 }
@@ -263,47 +263,47 @@ func newDemoFactories(transports DemoClientTransports) DemoFactories {
 
 // demoEndpointers implements DemoEndpointers
 type demoEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        DemoFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories DemoFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *demoEndpointers) CreateUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.CreateUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.CreateUser(ctx), e.logger, e.options...)
 }
 func (e *demoEndpointers) DeleteUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DeleteUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.DeleteUser(ctx), e.logger, e.options...)
 }
 func (e *demoEndpointers) UpdateUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UpdateUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.UpdateUser(ctx), e.logger, e.options...)
 }
 func (e *demoEndpointers) GetUser(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetUser(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.GetUser(ctx), e.logger, e.options...)
 }
 func (e *demoEndpointers) GetUsers(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetUsers(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.GetUsers(ctx), e.logger, e.options...)
 }
 func (e *demoEndpointers) UploadUserAvatar(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.UploadUserAvatar(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.UploadUserAvatar(ctx), e.logger, e.options...)
 }
 func (e *demoEndpointers) GetUserAvatar(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.GetUserAvatar(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.GetUserAvatar(ctx), e.logger, e.options...)
 }
 func newDemoEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories DemoFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) DemoEndpointers {
 	return &demoEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

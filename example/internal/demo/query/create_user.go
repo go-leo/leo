@@ -9,6 +9,7 @@ type CreateUserArgs struct {
 }
 
 type CreateUserRes struct {
+	UserId uint64
 }
 
 type CreateUser cqrs.QueryHandler[*CreateUserArgs, *CreateUserRes]

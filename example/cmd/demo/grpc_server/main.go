@@ -16,20 +16,19 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc1.NewServer()
-	bus, err := demo.NewDemoBus(
-		command.NewCreateUser(),
+	cqrsService, err := demo.NewDemoCqrsService(
+		query.NewCreateUser(),
 		command.NewDeleteUser(),
 		command.NewUpdateUser(),
 		query.NewGetUser(),
 		query.NewGetUsers(),
 		command.NewUploadUserAvatar(),
 		query.NewGetUserAvatar(),
+		assembler.NewDemoAssembler(),
 	)
 	if err != nil {
-		log.Fatalf("failed to new bus: %v", err)
+		log.Fatal(err)
 	}
-	demoAssembler := assembler.NewDemoAssembler()
-	cqrsService := demo.NewDemoCqrsService(bus, demoAssembler)
 	service := demo.NewDemoGrpcServer(cqrsService)
 	demo.RegisterDemoServer(s, service)
 	log.Printf("server listening at %v", lis.Addr())

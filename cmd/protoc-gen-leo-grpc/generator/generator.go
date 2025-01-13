@@ -72,7 +72,7 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 	g.P("func New", service.GrpcClientName(), "(target string, opts ...", internal.GrpcxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
 	g.P("options := ", internal.GrpcxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
 	g.P("transports := new", service.GrpcClientTransportsName(), "(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())")
-	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
+	g.P("endpoints := new", service.ClientEndpointsName(), "(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())")
 	g.P("return new", service.ClientServiceName(), "(endpoints, ", internal.GrpcxTransportxPackage.Ident("GrpcClient"), ")")
 	g.P("}")
 	g.P()

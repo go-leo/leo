@@ -85,13 +85,13 @@ func (e *queryClientEndpoints) Query(ctx context.Context) (endpoint.Endpoint, er
 func newQueryClientEndpoints(
 	target string,
 	transports QueryClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) QueryClientEndpoints {
 	factories := newQueryFactories(transports)
-	endpointers := newQueryEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newQueryEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newQueryBalancers(balancerFactory, endpointers)
 	return &queryClientEndpoints{balancers: balancers}
 }
@@ -112,29 +112,29 @@ func newQueryFactories(transports QueryClientTransports) QueryFactories {
 
 // queryEndpointers implements QueryEndpointers
 type queryEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        QueryFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories QueryFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *queryEndpointers) Query(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Query(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Query(ctx), e.logger, e.options...)
 }
 func newQueryEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories QueryFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) QueryEndpointers {
 	return &queryEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

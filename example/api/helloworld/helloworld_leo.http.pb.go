@@ -31,7 +31,7 @@ func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, middl
 func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newGreeterHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newGreeterClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newGreeterClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newGreeterClientService(endpoints, httpx.HttpClient)
 }
 

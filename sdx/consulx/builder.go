@@ -13,21 +13,21 @@ import (
 	"strings"
 )
 
-var _ sdx.InstancerFactory = (*Factory)(nil)
+var _ sdx.Builder = (*Builder)(nil)
 
 // schemeName for the urls
 // All target URLs like 'consul://.../...' will be resolved by this builder
 const schemeName = "consul"
 
-type Factory struct {
+type Builder struct {
 	ConfigParser func(rawURL *url.URL) (*api.Config, error)
 }
 
-func (Factory) Scheme() string {
+func (Builder) Scheme() string {
 	return schemeName
 }
 
-func (f Factory) New(ctx context.Context, target *url.URL, color string) (sd.Instancer, error) {
+func (b Builder) BuildInstancer(ctx context.Context, target *url.URL, color string) (sd.Instancer, error) {
 	dsn := strings.Join([]string{schemeName + ":/", target.Host, target.Path + "?" + target.RawQuery}, "/")
 	rawURL, err := url.Parse(dsn)
 	if err != nil {
@@ -37,10 +37,10 @@ func (f Factory) New(ctx context.Context, target *url.URL, color string) (sd.Ins
 		return nil, fmt.Errorf("malformed url('%s'). must be in the next format: 'consul://[username:password]@host/service?param=value'", dsn)
 	}
 	service := strings.TrimLeft(rawURL.Path, "/")
-	if f.ConfigParser == nil {
-		f.ConfigParser = DefaultConfigParser
+	if b.ConfigParser == nil {
+		b.ConfigParser = DefaultConfigParser
 	}
-	config, err := f.ConfigParser(rawURL)
+	config, err := b.ConfigParser(rawURL)
 	if err != nil {
 		return nil, err
 	}
@@ -53,4 +53,9 @@ func (f Factory) New(ctx context.Context, target *url.URL, color string) (sd.Ins
 		return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, nil, true), nil
 	}
 	return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, []string{color}, true), nil
+}
+
+func (b Builder) BuildRegistrar(ctx context.Context, target *url.URL, address sdx.Address, color string) (sd.Registrar, error) {
+	//TODO implement me
+	panic("implement me")
 }

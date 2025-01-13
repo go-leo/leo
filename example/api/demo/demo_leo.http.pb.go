@@ -51,7 +51,7 @@ func AppendDemoHttpServerRoutes(router *mux.Router, svc DemoService, middlewares
 func NewDemoHttpClient(target string, opts ...httpx.ClientOption) DemoService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newDemoHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newDemoClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newDemoClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newDemoClientService(endpoints, httpx.HttpClient)
 }
 

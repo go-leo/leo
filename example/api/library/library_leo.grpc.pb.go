@@ -34,7 +34,7 @@ func NewLibraryServiceGrpcServer(svc LibraryServiceService, middlewares ...endpo
 func NewLibraryServiceGrpcClient(target string, opts ...grpcx.ClientOption) LibraryServiceService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newLibraryServiceGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newLibraryServiceClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newLibraryServiceClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newLibraryServiceClientService(endpoints, grpcx.GrpcClient)
 }
 

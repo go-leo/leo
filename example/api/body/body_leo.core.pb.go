@@ -166,13 +166,13 @@ func (e *bodyClientEndpoints) HttpBodyNamedBody(ctx context.Context) (endpoint.E
 func newBodyClientEndpoints(
 	target string,
 	transports BodyClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) BodyClientEndpoints {
 	factories := newBodyFactories(transports)
-	endpointers := newBodyEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newBodyEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newBodyBalancers(balancerFactory, endpointers)
 	return &bodyClientEndpoints{balancers: balancers}
 }
@@ -213,41 +213,41 @@ func newBodyFactories(transports BodyClientTransports) BodyFactories {
 
 // bodyEndpointers implements BodyEndpointers
 type bodyEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        BodyFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories BodyFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *bodyEndpointers) StarBody(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.StarBody(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.StarBody(ctx), e.logger, e.options...)
 }
 func (e *bodyEndpointers) NamedBody(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NamedBody(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.NamedBody(ctx), e.logger, e.options...)
 }
 func (e *bodyEndpointers) NonBody(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.NonBody(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.NonBody(ctx), e.logger, e.options...)
 }
 func (e *bodyEndpointers) HttpBodyStarBody(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyStarBody(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.HttpBodyStarBody(ctx), e.logger, e.options...)
 }
 func (e *bodyEndpointers) HttpBodyNamedBody(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.HttpBodyNamedBody(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.HttpBodyNamedBody(ctx), e.logger, e.options...)
 }
 func newBodyEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories BodyFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) BodyEndpointers {
 	return &bodyEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

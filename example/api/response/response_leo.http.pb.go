@@ -44,7 +44,7 @@ func AppendResponseHttpServerRoutes(router *mux.Router, svc ResponseService, mid
 func NewResponseHttpClient(target string, opts ...httpx.ClientOption) ResponseService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newResponseHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newResponseClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newResponseClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newResponseClientService(endpoints, httpx.HttpClient)
 }
 

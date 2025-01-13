@@ -38,7 +38,7 @@ func AppendCQRSHttpServerRoutes(router *mux.Router, svc CQRSService, middlewares
 func NewCQRSHttpClient(target string, opts ...httpx.ClientOption) CQRSService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newCQRSHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newCQRSClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newCQRSClientService(endpoints, httpx.HttpClient)
 }
 

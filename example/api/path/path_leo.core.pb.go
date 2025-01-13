@@ -245,13 +245,13 @@ func (e *pathClientEndpoints) EnumPath(ctx context.Context) (endpoint.Endpoint, 
 func newPathClientEndpoints(
 	target string,
 	transports PathClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) PathClientEndpoints {
 	factories := newPathFactories(transports)
-	endpointers := newPathEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newPathEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newPathBalancers(balancerFactory, endpointers)
 	return &pathClientEndpoints{balancers: balancers}
 }
@@ -312,53 +312,53 @@ func newPathFactories(transports PathClientTransports) PathFactories {
 
 // pathEndpointers implements PathEndpointers
 type pathEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        PathFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories PathFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *pathEndpointers) BoolPath(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.BoolPath(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.BoolPath(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) Int32Path(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Int32Path(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Int32Path(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) Int64Path(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Int64Path(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Int64Path(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) Uint32Path(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Uint32Path(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Uint32Path(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) Uint64Path(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.Uint64Path(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Uint64Path(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) FloatPath(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.FloatPath(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.FloatPath(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) DoublePath(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.DoublePath(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.DoublePath(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) StringPath(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.StringPath(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.StringPath(ctx), e.logger, e.options...)
 }
 func (e *pathEndpointers) EnumPath(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.EnumPath(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.EnumPath(ctx), e.logger, e.options...)
 }
 func newPathEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories PathFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) PathEndpointers {
 	return &pathEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

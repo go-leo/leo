@@ -29,7 +29,7 @@ func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middle
 func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPathService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newNamedPathGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newNamedPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newNamedPathClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newNamedPathClientService(endpoints, grpcx.GrpcClient)
 }
 

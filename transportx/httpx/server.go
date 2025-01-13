@@ -4,54 +4,29 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"github.com/go-kit/kit/sd"
+	"github.com/go-kit/kit/sd/consul"
 	kitlog "github.com/go-kit/log"
+	"github.com/go-leo/gox/netx/addrx"
 	"github.com/go-leo/leo/v3/logx"
-	"github.com/go-leo/leo/v3/runner"
-	"github.com/go-leo/leo/v3/transportx"
+	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/noop"
+	"github.com/google/uuid"
+	stdconsul "github.com/hashicorp/consul/api"
 	"log"
 	"net"
 	"net/http"
 	"time"
 )
 
-var _ runner.StartStopper = (*server)(nil)
-
-type server struct {
-	*http.Server
-	lis net.Listener
-	o   *serverOptions
-}
-
-func (s *server) Start(ctx context.Context) error {
-	s.Server.BaseContext = func(listener net.Listener) context.Context {
-		return ctx
-	}
-	s.Server.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
-		return ctx
-	}
-	var err error
-	if s.Server.TLSConfig != nil {
-		err = s.Server.ServeTLS(s.lis, "", "")
-	} else {
-		err = s.Server.Serve(s.lis)
-	}
-	if errors.Is(err, http.ErrServerClosed) {
-		return nil
-	}
-	return err
-}
-
-func (s *server) Stop(ctx context.Context) error {
-	ctx = context.WithoutCancel(ctx)
-	if s.o.ShutdownTimeout == nil {
-		return s.Server.Shutdown(ctx)
-	}
-	ctx, cancelFunc := context.WithTimeout(ctx, *s.o.ShutdownTimeout)
-	defer cancelFunc()
-	return s.Server.Shutdown(ctx)
+type Server struct {
+	o       *serverOptions
+	handler http.Handler
 }
 
 type serverOptions struct {
+	Addr string
+
 	DisableGeneralOptionsHandler bool
 	TLSConfig                    *tls.Config
 	ReadTimeout                  time.Duration
@@ -59,7 +34,12 @@ type serverOptions struct {
 	WriteTimeout                 time.Duration
 	IdleTimeout                  time.Duration
 	MaxHeaderBytes               int
-	ShutdownTimeout              *time.Duration
+	TLSNextProto                 map[string]func(*http.Server, *tls.Conn, http.Handler)
+	ConnState                    func(net.Conn, http.ConnState)
+
+	ShutdownTimeout *time.Duration
+
+	RegistrarFactory sdx.Builder
 }
 
 type ServerOption func(o *serverOptions)
@@ -72,6 +52,9 @@ func (o *serverOptions) apply(opts ...ServerOption) *serverOptions {
 }
 
 func (o *serverOptions) init() *serverOptions {
+	if o.RegistrarFactory == nil {
+		o.RegistrarFactory = noop.Builder{}
+	}
 	return o
 }
 
@@ -123,20 +106,106 @@ func ShutdownTimeout(timeout time.Duration) ServerOption {
 	}
 }
 
-func ServerFactory(handler http.Handler, opts ...ServerOption) transportx.ServerFactory {
-	o := new(serverOptions).apply(opts...).init()
+func NewServer(handler http.Handler, opts ...ServerOption) *Server {
+	return &Server{
+		handler: handler,
+		o:       new(serverOptions).apply(opts...).init(),
+	}
+}
+
+func (s *Server) Run(ctx context.Context) error {
+	var err error
+	var lis net.Listener
+	lis, err = net.Listen("tcp", s.o.Addr)
+	if err != nil {
+		return err
+	}
+	host, port, err := net.SplitHostPort(lis.Addr().String())
+	if err != nil {
+		return err
+	}
+	var ip string
+	if !addrx.IsGlobalUnicastIP(net.ParseIP(host)) {
+		ip, err = addrx.GlobalUnicastIPString()
+		if err != nil {
+			return err
+		}
+	}
+
+	var color string
+	var registrar sd.Registrar
+
+	client, err := stdconsul.NewClient(&stdconsul.Config{
+		Address:    "localhost:8500",
+		Datacenter: "dc1",
+	})
+	if err != nil {
+		return err
+	}
+	_ = port
+	registration := &stdconsul.AgentServiceRegistration{
+		ID:      uuid.NewString(),
+		Name:    "demo.http",
+		Tags:    []string{color},
+		Port:    0,
+		Address: ip,
+	}
+	registrar = consul.NewRegistrar(consul.NewClient(client), registration, logx.L())
+
 	httpSrv := &http.Server{
-		Handler:                      handler,
-		DisableGeneralOptionsHandler: o.DisableGeneralOptionsHandler,
-		TLSConfig:                    o.TLSConfig,
-		ReadTimeout:                  o.ReadTimeout,
-		ReadHeaderTimeout:            o.ReadHeaderTimeout,
-		WriteTimeout:                 o.WriteTimeout,
-		IdleTimeout:                  o.IdleTimeout,
-		MaxHeaderBytes:               o.MaxHeaderBytes,
+		Handler:                      s.handler,
+		DisableGeneralOptionsHandler: s.o.DisableGeneralOptionsHandler,
+		TLSConfig:                    s.o.TLSConfig,
+		ReadTimeout:                  s.o.ReadTimeout,
+		ReadHeaderTimeout:            s.o.ReadHeaderTimeout,
+		WriteTimeout:                 s.o.WriteTimeout,
+		IdleTimeout:                  s.o.IdleTimeout,
+		MaxHeaderBytes:               s.o.MaxHeaderBytes,
+		TLSNextProto:                 s.o.TLSNextProto,
+		ConnState:                    s.o.ConnState,
 		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(logx.L()), "", 0),
+		BaseContext:                  func(listener net.Listener) context.Context { return ctx },
+		ConnContext:                  func(ctx context.Context, c net.Conn) context.Context { return ctx },
 	}
-	return func(lis net.Listener, args any) transportx.Server {
-		return &server{Server: httpSrv, lis: lis}
+
+	var errC = make(chan error, 1)
+	go func() {
+		defer close(errC)
+		if httpSrv.TLSConfig != nil {
+			err = httpSrv.ServeTLS(lis, "", "")
+		} else {
+			err = httpSrv.Serve(lis)
+		}
+		if err == nil {
+			return
+		}
+		if errors.Is(err, http.ErrServerClosed) {
+			return
+		}
+		errC <- err
+	}()
+
+	go func() {
+		registrar.Register()
+	}()
+
+	select {
+	case err := <-errC:
+		if err != nil {
+			if registrar != nil {
+				registrar.Deregister()
+			}
+			return err
+		}
+	case <-ctx.Done():
+		registrar.Deregister()
+		ctx = context.WithoutCancel(ctx)
+		if s.o.ShutdownTimeout != nil {
+			var cancelFunc context.CancelFunc
+			ctx, cancelFunc = context.WithTimeout(ctx, *s.o.ShutdownTimeout)
+			defer cancelFunc()
+		}
+		return errors.Join(ctx.Err(), httpSrv.Shutdown(ctx))
 	}
+	return nil
 }

@@ -52,7 +52,7 @@ func AppendPathHttpServerRoutes(router *mux.Router, svc PathService, middlewares
 func NewPathHttpClient(target string, opts ...httpx.ClientOption) PathService {
 	options := httpx.NewClientOptions(opts...)
 	transports := newPathHttpClientTransports(options.Scheme(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newPathClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newPathClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newPathClientService(endpoints, httpx.HttpClient)
 }
 

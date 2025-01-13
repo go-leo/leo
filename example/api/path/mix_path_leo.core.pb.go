@@ -85,13 +85,13 @@ func (e *mixPathClientEndpoints) MixPath(ctx context.Context) (endpoint.Endpoint
 func newMixPathClientEndpoints(
 	target string,
 	transports MixPathClientTransports,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	endpointerOptions []sd.EndpointerOption,
 	balancerFactory lbx.BalancerFactory,
 	logger log.Logger,
 ) MixPathClientEndpoints {
 	factories := newMixPathFactories(transports)
-	endpointers := newMixPathEndpointers(target, instancerFactory, factories, logger, endpointerOptions...)
+	endpointers := newMixPathEndpointers(target, builder, factories, logger, endpointerOptions...)
 	balancers := newMixPathBalancers(balancerFactory, endpointers)
 	return &mixPathClientEndpoints{balancers: balancers}
 }
@@ -112,29 +112,29 @@ func newMixPathFactories(transports MixPathClientTransports) MixPathFactories {
 
 // mixPathEndpointers implements MixPathEndpointers
 type mixPathEndpointers struct {
-	target           string
-	instancerFactory sdx.InstancerFactory
-	factories        MixPathFactories
-	logger           log.Logger
-	options          []sd.EndpointerOption
+	target    string
+	builder   sdx.Builder
+	factories MixPathFactories
+	logger    log.Logger
+	options   []sd.EndpointerOption
 }
 
 func (e *mixPathEndpointers) MixPath(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.instancerFactory, e.factories.MixPath(ctx), e.logger, e.options...)
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.MixPath(ctx), e.logger, e.options...)
 }
 func newMixPathEndpointers(
 	target string,
-	instancerFactory sdx.InstancerFactory,
+	builder sdx.Builder,
 	factories MixPathFactories,
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) MixPathEndpointers {
 	return &mixPathEndpointers{
-		target:           target,
-		instancerFactory: instancerFactory,
-		factories:        factories,
-		logger:           logger,
-		options:          options,
+		target:    target,
+		builder:   builder,
+		factories: factories,
+		logger:    logger,
+		options:   options,
 	}
 }
 

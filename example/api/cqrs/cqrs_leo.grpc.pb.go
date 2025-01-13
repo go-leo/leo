@@ -27,7 +27,7 @@ func NewCQRSGrpcServer(svc CQRSService, middlewares ...endpoint.Middleware) CQRS
 func NewCQRSGrpcClient(target string, opts ...grpcx.ClientOption) CQRSService {
 	options := grpcx.NewClientOptions(opts...)
 	transports := newCQRSGrpcClientTransports(options.DialOptions(), options.ClientTransportOptions(), options.Middlewares())
-	endpoints := newCQRSClientEndpoints(target, transports, options.InstancerFactory(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
+	endpoints := newCQRSClientEndpoints(target, transports, options.Builder(), options.EndpointerOptions(), options.BalancerFactory(), options.Logger())
 	return newCQRSClientService(endpoints, grpcx.GrpcClient)
 }
 
