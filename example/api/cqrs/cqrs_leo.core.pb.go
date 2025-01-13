@@ -19,17 +19,15 @@ import (
 	io "io"
 )
 
+// CQRSService is a service
 type CQRSService interface {
-	// Command
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*emptypb.Empty, error)
-	// Command
 	DeleteUser(ctx context.Context, request *DeleteUserRequest) (*DeleteUserResponse, error)
-	// Query
 	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*UpdateUserResponse, error)
-	// Query
 	FindUser(ctx context.Context, request *FindUserRequest) (*GetUserResponse, error)
 }
 
+// CQRSServerEndpoints is server endpoints
 type CQRSServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint
 	DeleteUser(ctx context.Context) endpoint.Endpoint
@@ -37,6 +35,7 @@ type CQRSServerEndpoints interface {
 	FindUser(ctx context.Context) endpoint.Endpoint
 }
 
+// CQRSClientEndpoints is client endpoints
 type CQRSClientEndpoints interface {
 	CreateUser(ctx context.Context) (endpoint.Endpoint, error)
 	DeleteUser(ctx context.Context) (endpoint.Endpoint, error)
@@ -44,6 +43,7 @@ type CQRSClientEndpoints interface {
 	FindUser(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// CQRSClientTransports is client transports
 type CQRSClientTransports interface {
 	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -51,6 +51,7 @@ type CQRSClientTransports interface {
 	FindUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// CQRSFactories is client factories
 type CQRSFactories interface {
 	CreateUser(ctx context.Context) sd.Factory
 	DeleteUser(ctx context.Context) sd.Factory
@@ -58,6 +59,7 @@ type CQRSFactories interface {
 	FindUser(ctx context.Context) sd.Factory
 }
 
+// CQRSEndpointers is client endpointers
 type CQRSEndpointers interface {
 	CreateUser(ctx context.Context, color string) (sd.Endpointer, error)
 	DeleteUser(ctx context.Context, color string) (sd.Endpointer, error)
@@ -65,6 +67,7 @@ type CQRSEndpointers interface {
 	FindUser(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// CQRSBalancers is client balancers
 type CQRSBalancers interface {
 	CreateUser(ctx context.Context) (lb.Balancer, error)
 	DeleteUser(ctx context.Context) (lb.Balancer, error)
@@ -72,6 +75,7 @@ type CQRSBalancers interface {
 	FindUser(ctx context.Context) (lb.Balancer, error)
 }
 
+// cQRSServerEndpoints implements CQRSServerEndpoints
 type cQRSServerEndpoints struct {
 	svc         CQRSService
 	middlewares []endpoint.Middleware
@@ -105,6 +109,7 @@ func newCQRSServerEndpoints(svc CQRSService, middlewares ...endpoint.Middleware)
 	return &cQRSServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// cQRSClientEndpoints implements CQRSClientEndpoints
 type cQRSClientEndpoints struct {
 	balancers CQRSBalancers
 }
@@ -151,6 +156,7 @@ func newCQRSClientEndpoints(
 	return &cQRSClientEndpoints{balancers: balancers}
 }
 
+// cQRSFactories implements CQRSFactories
 type cQRSFactories struct {
 	transports CQRSClientTransports
 }
@@ -179,6 +185,7 @@ func newCQRSFactories(transports CQRSClientTransports) CQRSFactories {
 	return &cQRSFactories{transports: transports}
 }
 
+// cQRSEndpointers implements CQRSEndpointers
 type cQRSEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -215,6 +222,7 @@ func newCQRSEndpointers(
 	}
 }
 
+// cQRSBalancers implements CQRSBalancers
 type cQRSBalancers struct {
 	factory    lbx.BalancerFactory
 	endpointer CQRSEndpointers
@@ -255,6 +263,7 @@ func newCQRSBalancers(factory lbx.BalancerFactory, endpointer CQRSEndpointers) C
 	}
 }
 
+// cQRSClientService implements CQRSClientService
 type cQRSClientService struct {
 	endpoints     CQRSClientEndpoints
 	transportName string

@@ -19,21 +19,17 @@ import (
 	io "io"
 )
 
+// NamedPathService is a service
 type NamedPathService interface {
-	// Command
 	NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	// Command
 	NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	// Command
 	NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	// Command
 	EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	// Command
 	EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	// Command
 	EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 }
 
+// NamedPathServerEndpoints is server endpoints
 type NamedPathServerEndpoints interface {
 	NamedPathString(ctx context.Context) endpoint.Endpoint
 	NamedPathOptString(ctx context.Context) endpoint.Endpoint
@@ -43,6 +39,7 @@ type NamedPathServerEndpoints interface {
 	EmbedNamedPathWrapString(ctx context.Context) endpoint.Endpoint
 }
 
+// NamedPathClientEndpoints is client endpoints
 type NamedPathClientEndpoints interface {
 	NamedPathString(ctx context.Context) (endpoint.Endpoint, error)
 	NamedPathOptString(ctx context.Context) (endpoint.Endpoint, error)
@@ -52,6 +49,7 @@ type NamedPathClientEndpoints interface {
 	EmbedNamedPathWrapString(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// NamedPathClientTransports is client transports
 type NamedPathClientTransports interface {
 	NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	NamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -61,6 +59,7 @@ type NamedPathClientTransports interface {
 	EmbedNamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// NamedPathFactories is client factories
 type NamedPathFactories interface {
 	NamedPathString(ctx context.Context) sd.Factory
 	NamedPathOptString(ctx context.Context) sd.Factory
@@ -70,6 +69,7 @@ type NamedPathFactories interface {
 	EmbedNamedPathWrapString(ctx context.Context) sd.Factory
 }
 
+// NamedPathEndpointers is client endpointers
 type NamedPathEndpointers interface {
 	NamedPathString(ctx context.Context, color string) (sd.Endpointer, error)
 	NamedPathOptString(ctx context.Context, color string) (sd.Endpointer, error)
@@ -79,6 +79,7 @@ type NamedPathEndpointers interface {
 	EmbedNamedPathWrapString(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// NamedPathBalancers is client balancers
 type NamedPathBalancers interface {
 	NamedPathString(ctx context.Context) (lb.Balancer, error)
 	NamedPathOptString(ctx context.Context) (lb.Balancer, error)
@@ -88,6 +89,7 @@ type NamedPathBalancers interface {
 	EmbedNamedPathWrapString(ctx context.Context) (lb.Balancer, error)
 }
 
+// namedPathServerEndpoints implements NamedPathServerEndpoints
 type namedPathServerEndpoints struct {
 	svc         NamedPathService
 	middlewares []endpoint.Middleware
@@ -133,6 +135,7 @@ func newNamedPathServerEndpoints(svc NamedPathService, middlewares ...endpoint.M
 	return &namedPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// namedPathClientEndpoints implements NamedPathClientEndpoints
 type namedPathClientEndpoints struct {
 	balancers NamedPathBalancers
 }
@@ -193,6 +196,7 @@ func newNamedPathClientEndpoints(
 	return &namedPathClientEndpoints{balancers: balancers}
 }
 
+// namedPathFactories implements NamedPathFactories
 type namedPathFactories struct {
 	transports NamedPathClientTransports
 }
@@ -231,6 +235,7 @@ func newNamedPathFactories(transports NamedPathClientTransports) NamedPathFactor
 	return &namedPathFactories{transports: transports}
 }
 
+// namedPathEndpointers implements NamedPathEndpointers
 type namedPathEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -273,6 +278,7 @@ func newNamedPathEndpointers(
 	}
 }
 
+// namedPathBalancers implements NamedPathBalancers
 type namedPathBalancers struct {
 	factory                  lbx.BalancerFactory
 	endpointer               NamedPathEndpointers
@@ -327,6 +333,7 @@ func newNamedPathBalancers(factory lbx.BalancerFactory, endpointer NamedPathEndp
 	}
 }
 
+// namedPathClientService implements NamedPathClientService
 type namedPathClientService struct {
 	endpoints     NamedPathClientEndpoints
 	transportName string

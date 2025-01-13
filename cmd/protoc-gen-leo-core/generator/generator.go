@@ -42,7 +42,10 @@ func (f *Generator) GenerateFile() error {
 		if err := f.GenerateServices(service, g); err != nil {
 			return err
 		}
-		if err := f.GenerateEndpoints(service, g); err != nil {
+		if err := f.GenerateServerEndpoints(service, g); err != nil {
+			return err
+		}
+		if err := f.GenerateClientEndpoints(service, g); err != nil {
 			return err
 		}
 		if err := f.GenerateClientTransports(service, g); err != nil {
@@ -57,10 +60,10 @@ func (f *Generator) GenerateFile() error {
 		if err := f.GenerateBalancers(service, g); err != nil {
 			return err
 		}
-		if err := f.GenerateServerEndpoints(service, g); err != nil {
+		if err := f.GenerateServerEndpointsImplements(service, g); err != nil {
 			return err
 		}
-		if err := f.GenerateClientEndpoints(service, g); err != nil {
+		if err := f.GenerateClientEndpointsImplements(service, g); err != nil {
 			return err
 		}
 		if err := f.GenerateClientTransportsImplements(service, g); err != nil {
@@ -80,13 +83,9 @@ func (f *Generator) GenerateFile() error {
 }
 
 func (f *Generator) GenerateServices(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.ServiceName() + " is a service"))
 	g.P("type ", service.ServiceName(), " interface {")
 	for _, endpoint := range service.Endpoints {
-		if endpoint.IsCommand() {
-			g.P("// Command")
-		} else if endpoint.IsQuery() {
-			g.P("// Query")
-		}
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
 	}
 	g.P("}")
@@ -94,13 +93,19 @@ func (f *Generator) GenerateServices(service *internal.Service, g *protogen.Gene
 	return nil
 }
 
-func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.ServerEndpointsName() + " is server endpoints"))
 	g.P("type ", service.ServerEndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.EndpointPackage.Ident("Endpoint"))
 	}
 	g.P("}")
 	g.P()
+	return nil
+}
+
+func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.ClientEndpointsName() + " is client endpoints"))
 	g.P("type ", service.ClientEndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.EndpointPackage.Ident("Endpoint"), ", error)")
@@ -111,6 +116,7 @@ func (f *Generator) GenerateEndpoints(service *internal.Service, g *protogen.Gen
 }
 
 func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.ClientTransportsName() + " is client transports"))
 	g.P("type ", service.ClientTransportsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error)")
@@ -121,6 +127,7 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 }
 
 func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.FactoriesName() + " is client factories"))
 	g.P("type ", service.FactoriesName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") ", internal.SdPackage.Ident("Factory"))
@@ -131,6 +138,7 @@ func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.Gen
 }
 
 func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.EndpointersName() + " is client endpointers"))
 	g.P("type ", service.EndpointersName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", color string) (", internal.SdPackage.Ident("Endpointer"), ", error)")
@@ -141,6 +149,7 @@ func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.G
 }
 
 func (f *Generator) GenerateBalancers(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.BalancersName() + " is client balancers"))
 	g.P("type ", service.BalancersName(), " interface {")
 	for _, endpoint := range service.Endpoints {
 		g.P(endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.LbPackage.Ident("Balancer"), ", error)")
@@ -150,7 +159,8 @@ func (f *Generator) GenerateBalancers(service *internal.Service, g *protogen.Gen
 	return nil
 }
 
-func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateServerEndpointsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.Unexported(service.ServerEndpointsName())+" implements "), service.ServerEndpointsName())
 	g.P("type ", service.Unexported(service.ServerEndpointsName()), " struct {")
 	g.P("svc ", service.ServiceName())
 	g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
@@ -170,7 +180,8 @@ func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protog
 	return nil
 }
 
-func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateClientEndpointsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.Unexported(service.ClientEndpointsName())+" implements "), service.ClientEndpointsName())
 	g.P("type ", service.Unexported(service.ClientEndpointsName()), " struct {")
 	g.P("balancers ", service.BalancersName())
 	g.P("}")
@@ -201,6 +212,7 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 }
 
 func (f *Generator) GenerateClientTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.Unexported(service.FactoriesName())+" implements "), service.FactoriesName())
 	g.P("type ", service.Unexported(service.FactoriesName()), " struct {")
 	g.P("transports ", service.ClientTransportsName())
 	g.P("}")
@@ -219,6 +231,7 @@ func (f *Generator) GenerateClientTransportsImplements(service *internal.Service
 }
 
 func (f *Generator) GenerateEndpointersImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.Unexported(service.EndpointersName())+" implements "), service.EndpointersName())
 	g.P("type ", service.Unexported(service.EndpointersName()), " struct {")
 	g.P("target string")
 	g.P("instancerFactory ", internal.SdxPackage.Ident("InstancerFactory"))
@@ -251,6 +264,7 @@ func (f *Generator) GenerateEndpointersImplements(service *internal.Service, g *
 }
 
 func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.Unexported(service.BalancersName())+" implements "), service.BalancersName())
 	g.P("type ", service.Unexported(service.BalancersName()), " struct {")
 	g.P("factory ", internal.LbxPackage.Ident("BalancerFactory"))
 	g.P("endpointer ", service.EndpointersName())
@@ -278,6 +292,7 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 }
 
 func (f *Generator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) error {
+	g.P(internal.Comments(service.Unexported(service.ClientServiceName())+" implements "), service.ClientServiceName())
 	g.P("type ", service.Unexported(service.ClientServiceName()), " struct {")
 	g.P("endpoints ", service.ClientEndpointsName())
 	g.P("transportName string")

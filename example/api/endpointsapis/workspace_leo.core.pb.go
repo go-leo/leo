@@ -19,19 +19,16 @@ import (
 	io "io"
 )
 
+// WorkspacesService is a service
 type WorkspacesService interface {
-	// Query
 	ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
-	// Query
 	GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
-	// Query
 	CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
-	// Query
 	UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
-	// Command
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 }
 
+// WorkspacesServerEndpoints is server endpoints
 type WorkspacesServerEndpoints interface {
 	ListWorkspaces(ctx context.Context) endpoint.Endpoint
 	GetWorkspace(ctx context.Context) endpoint.Endpoint
@@ -40,6 +37,7 @@ type WorkspacesServerEndpoints interface {
 	DeleteWorkspace(ctx context.Context) endpoint.Endpoint
 }
 
+// WorkspacesClientEndpoints is client endpoints
 type WorkspacesClientEndpoints interface {
 	ListWorkspaces(ctx context.Context) (endpoint.Endpoint, error)
 	GetWorkspace(ctx context.Context) (endpoint.Endpoint, error)
@@ -48,6 +46,7 @@ type WorkspacesClientEndpoints interface {
 	DeleteWorkspace(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// WorkspacesClientTransports is client transports
 type WorkspacesClientTransports interface {
 	ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -56,6 +55,7 @@ type WorkspacesClientTransports interface {
 	DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// WorkspacesFactories is client factories
 type WorkspacesFactories interface {
 	ListWorkspaces(ctx context.Context) sd.Factory
 	GetWorkspace(ctx context.Context) sd.Factory
@@ -64,6 +64,7 @@ type WorkspacesFactories interface {
 	DeleteWorkspace(ctx context.Context) sd.Factory
 }
 
+// WorkspacesEndpointers is client endpointers
 type WorkspacesEndpointers interface {
 	ListWorkspaces(ctx context.Context, color string) (sd.Endpointer, error)
 	GetWorkspace(ctx context.Context, color string) (sd.Endpointer, error)
@@ -72,6 +73,7 @@ type WorkspacesEndpointers interface {
 	DeleteWorkspace(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// WorkspacesBalancers is client balancers
 type WorkspacesBalancers interface {
 	ListWorkspaces(ctx context.Context) (lb.Balancer, error)
 	GetWorkspace(ctx context.Context) (lb.Balancer, error)
@@ -80,6 +82,7 @@ type WorkspacesBalancers interface {
 	DeleteWorkspace(ctx context.Context) (lb.Balancer, error)
 }
 
+// workspacesServerEndpoints implements WorkspacesServerEndpoints
 type workspacesServerEndpoints struct {
 	svc         WorkspacesService
 	middlewares []endpoint.Middleware
@@ -119,6 +122,7 @@ func newWorkspacesServerEndpoints(svc WorkspacesService, middlewares ...endpoint
 	return &workspacesServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// workspacesClientEndpoints implements WorkspacesClientEndpoints
 type workspacesClientEndpoints struct {
 	balancers WorkspacesBalancers
 }
@@ -172,6 +176,7 @@ func newWorkspacesClientEndpoints(
 	return &workspacesClientEndpoints{balancers: balancers}
 }
 
+// workspacesFactories implements WorkspacesFactories
 type workspacesFactories struct {
 	transports WorkspacesClientTransports
 }
@@ -205,6 +210,7 @@ func newWorkspacesFactories(transports WorkspacesClientTransports) WorkspacesFac
 	return &workspacesFactories{transports: transports}
 }
 
+// workspacesEndpointers implements WorkspacesEndpointers
 type workspacesEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -244,6 +250,7 @@ func newWorkspacesEndpointers(
 	}
 }
 
+// workspacesBalancers implements WorkspacesBalancers
 type workspacesBalancers struct {
 	factory         lbx.BalancerFactory
 	endpointer      WorkspacesEndpointers
@@ -291,6 +298,7 @@ func newWorkspacesBalancers(factory lbx.BalancerFactory, endpointer WorkspacesEn
 	}
 }
 
+// workspacesClientService implements WorkspacesClientService
 type workspacesClientService struct {
 	endpoints     WorkspacesClientEndpoints
 	transportName string

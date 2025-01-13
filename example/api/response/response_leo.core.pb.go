@@ -20,19 +20,16 @@ import (
 	io "io"
 )
 
+// ResponseService is a service
 type ResponseService interface {
-	// Query
 	OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
-	// Query
 	StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
-	// Query
 	NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
-	// Query
 	HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error)
-	// Query
 	HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error)
 }
 
+// ResponseServerEndpoints is server endpoints
 type ResponseServerEndpoints interface {
 	OmittedResponse(ctx context.Context) endpoint.Endpoint
 	StarResponse(ctx context.Context) endpoint.Endpoint
@@ -41,6 +38,7 @@ type ResponseServerEndpoints interface {
 	HttpBodyNamedResponse(ctx context.Context) endpoint.Endpoint
 }
 
+// ResponseClientEndpoints is client endpoints
 type ResponseClientEndpoints interface {
 	OmittedResponse(ctx context.Context) (endpoint.Endpoint, error)
 	StarResponse(ctx context.Context) (endpoint.Endpoint, error)
@@ -49,6 +47,7 @@ type ResponseClientEndpoints interface {
 	HttpBodyNamedResponse(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// ResponseClientTransports is client transports
 type ResponseClientTransports interface {
 	OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -57,6 +56,7 @@ type ResponseClientTransports interface {
 	HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// ResponseFactories is client factories
 type ResponseFactories interface {
 	OmittedResponse(ctx context.Context) sd.Factory
 	StarResponse(ctx context.Context) sd.Factory
@@ -65,6 +65,7 @@ type ResponseFactories interface {
 	HttpBodyNamedResponse(ctx context.Context) sd.Factory
 }
 
+// ResponseEndpointers is client endpointers
 type ResponseEndpointers interface {
 	OmittedResponse(ctx context.Context, color string) (sd.Endpointer, error)
 	StarResponse(ctx context.Context, color string) (sd.Endpointer, error)
@@ -73,6 +74,7 @@ type ResponseEndpointers interface {
 	HttpBodyNamedResponse(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// ResponseBalancers is client balancers
 type ResponseBalancers interface {
 	OmittedResponse(ctx context.Context) (lb.Balancer, error)
 	StarResponse(ctx context.Context) (lb.Balancer, error)
@@ -81,6 +83,7 @@ type ResponseBalancers interface {
 	HttpBodyNamedResponse(ctx context.Context) (lb.Balancer, error)
 }
 
+// responseServerEndpoints implements ResponseServerEndpoints
 type responseServerEndpoints struct {
 	svc         ResponseService
 	middlewares []endpoint.Middleware
@@ -120,6 +123,7 @@ func newResponseServerEndpoints(svc ResponseService, middlewares ...endpoint.Mid
 	return &responseServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// responseClientEndpoints implements ResponseClientEndpoints
 type responseClientEndpoints struct {
 	balancers ResponseBalancers
 }
@@ -173,6 +177,7 @@ func newResponseClientEndpoints(
 	return &responseClientEndpoints{balancers: balancers}
 }
 
+// responseFactories implements ResponseFactories
 type responseFactories struct {
 	transports ResponseClientTransports
 }
@@ -206,6 +211,7 @@ func newResponseFactories(transports ResponseClientTransports) ResponseFactories
 	return &responseFactories{transports: transports}
 }
 
+// responseEndpointers implements ResponseEndpointers
 type responseEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -245,6 +251,7 @@ func newResponseEndpointers(
 	}
 }
 
+// responseBalancers implements ResponseBalancers
 type responseBalancers struct {
 	factory               lbx.BalancerFactory
 	endpointer            ResponseEndpointers
@@ -292,6 +299,7 @@ func newResponseBalancers(factory lbx.BalancerFactory, endpointer ResponseEndpoi
 	}
 }
 
+// responseClientService implements ResponseClientService
 type responseClientService struct {
 	endpoints     ResponseClientEndpoints
 	transportName string

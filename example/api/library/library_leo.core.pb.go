@@ -19,31 +19,22 @@ import (
 	io "io"
 )
 
+// LibraryServiceService is a service
 type LibraryServiceService interface {
-	// Query
 	CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
-	// Query
 	GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
-	// Query
 	ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
-	// Command
 	DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
-	// Query
 	MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
-	// Query
 	CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error)
-	// Query
 	GetBook(ctx context.Context, request *GetBookRequest) (*Book, error)
-	// Query
 	ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
-	// Command
 	DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
-	// Query
 	UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error)
-	// Query
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 }
 
+// LibraryServiceServerEndpoints is server endpoints
 type LibraryServiceServerEndpoints interface {
 	CreateShelf(ctx context.Context) endpoint.Endpoint
 	GetShelf(ctx context.Context) endpoint.Endpoint
@@ -58,6 +49,7 @@ type LibraryServiceServerEndpoints interface {
 	MoveBook(ctx context.Context) endpoint.Endpoint
 }
 
+// LibraryServiceClientEndpoints is client endpoints
 type LibraryServiceClientEndpoints interface {
 	CreateShelf(ctx context.Context) (endpoint.Endpoint, error)
 	GetShelf(ctx context.Context) (endpoint.Endpoint, error)
@@ -72,6 +64,7 @@ type LibraryServiceClientEndpoints interface {
 	MoveBook(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// LibraryServiceClientTransports is client transports
 type LibraryServiceClientTransports interface {
 	CreateShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	GetShelf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -86,6 +79,7 @@ type LibraryServiceClientTransports interface {
 	MoveBook(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// LibraryServiceFactories is client factories
 type LibraryServiceFactories interface {
 	CreateShelf(ctx context.Context) sd.Factory
 	GetShelf(ctx context.Context) sd.Factory
@@ -100,6 +94,7 @@ type LibraryServiceFactories interface {
 	MoveBook(ctx context.Context) sd.Factory
 }
 
+// LibraryServiceEndpointers is client endpointers
 type LibraryServiceEndpointers interface {
 	CreateShelf(ctx context.Context, color string) (sd.Endpointer, error)
 	GetShelf(ctx context.Context, color string) (sd.Endpointer, error)
@@ -114,6 +109,7 @@ type LibraryServiceEndpointers interface {
 	MoveBook(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// LibraryServiceBalancers is client balancers
 type LibraryServiceBalancers interface {
 	CreateShelf(ctx context.Context) (lb.Balancer, error)
 	GetShelf(ctx context.Context) (lb.Balancer, error)
@@ -128,6 +124,7 @@ type LibraryServiceBalancers interface {
 	MoveBook(ctx context.Context) (lb.Balancer, error)
 }
 
+// libraryServiceServerEndpoints implements LibraryServiceServerEndpoints
 type libraryServiceServerEndpoints struct {
 	svc         LibraryServiceService
 	middlewares []endpoint.Middleware
@@ -203,6 +200,7 @@ func newLibraryServiceServerEndpoints(svc LibraryServiceService, middlewares ...
 	return &libraryServiceServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// libraryServiceClientEndpoints implements LibraryServiceClientEndpoints
 type libraryServiceClientEndpoints struct {
 	balancers LibraryServiceBalancers
 }
@@ -298,6 +296,7 @@ func newLibraryServiceClientEndpoints(
 	return &libraryServiceClientEndpoints{balancers: balancers}
 }
 
+// libraryServiceFactories implements LibraryServiceFactories
 type libraryServiceFactories struct {
 	transports LibraryServiceClientTransports
 }
@@ -361,6 +360,7 @@ func newLibraryServiceFactories(transports LibraryServiceClientTransports) Libra
 	return &libraryServiceFactories{transports: transports}
 }
 
+// libraryServiceEndpointers implements LibraryServiceEndpointers
 type libraryServiceEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -418,6 +418,7 @@ func newLibraryServiceEndpointers(
 	}
 }
 
+// libraryServiceBalancers implements LibraryServiceBalancers
 type libraryServiceBalancers struct {
 	factory      lbx.BalancerFactory
 	endpointer   LibraryServiceEndpointers
@@ -507,6 +508,7 @@ func newLibraryServiceBalancers(factory lbx.BalancerFactory, endpointer LibraryS
 	}
 }
 
+// libraryServiceClientService implements LibraryServiceClientService
 type libraryServiceClientService struct {
 	endpoints     LibraryServiceClientEndpoints
 	transportName string

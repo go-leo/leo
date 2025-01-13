@@ -18,35 +18,42 @@ import (
 	io "io"
 )
 
+// GreeterService is a service
 type GreeterService interface {
-	// Query
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 }
 
+// GreeterServerEndpoints is server endpoints
 type GreeterServerEndpoints interface {
 	SayHello(ctx context.Context) endpoint.Endpoint
 }
 
+// GreeterClientEndpoints is client endpoints
 type GreeterClientEndpoints interface {
 	SayHello(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// GreeterClientTransports is client transports
 type GreeterClientTransports interface {
 	SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// GreeterFactories is client factories
 type GreeterFactories interface {
 	SayHello(ctx context.Context) sd.Factory
 }
 
+// GreeterEndpointers is client endpointers
 type GreeterEndpointers interface {
 	SayHello(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// GreeterBalancers is client balancers
 type GreeterBalancers interface {
 	SayHello(ctx context.Context) (lb.Balancer, error)
 }
 
+// greeterServerEndpoints implements GreeterServerEndpoints
 type greeterServerEndpoints struct {
 	svc         GreeterService
 	middlewares []endpoint.Middleware
@@ -62,6 +69,7 @@ func newGreeterServerEndpoints(svc GreeterService, middlewares ...endpoint.Middl
 	return &greeterServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// greeterClientEndpoints implements GreeterClientEndpoints
 type greeterClientEndpoints struct {
 	balancers GreeterBalancers
 }
@@ -87,6 +95,7 @@ func newGreeterClientEndpoints(
 	return &greeterClientEndpoints{balancers: balancers}
 }
 
+// greeterFactories implements GreeterFactories
 type greeterFactories struct {
 	transports GreeterClientTransports
 }
@@ -100,6 +109,7 @@ func newGreeterFactories(transports GreeterClientTransports) GreeterFactories {
 	return &greeterFactories{transports: transports}
 }
 
+// greeterEndpointers implements GreeterEndpointers
 type greeterEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -127,6 +137,7 @@ func newGreeterEndpointers(
 	}
 }
 
+// greeterBalancers implements GreeterBalancers
 type greeterBalancers struct {
 	factory    lbx.BalancerFactory
 	endpointer GreeterEndpointers
@@ -146,6 +157,7 @@ func newGreeterBalancers(factory lbx.BalancerFactory, endpointer GreeterEndpoint
 	}
 }
 
+// greeterClientService implements GreeterClientService
 type greeterClientService struct {
 	endpoints     GreeterClientEndpoints
 	transportName string

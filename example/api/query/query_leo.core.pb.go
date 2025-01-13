@@ -19,35 +19,42 @@ import (
 	io "io"
 )
 
+// QueryService is a service
 type QueryService interface {
-	// Command
 	Query(ctx context.Context, request *QueryRequest) (*emptypb.Empty, error)
 }
 
+// QueryServerEndpoints is server endpoints
 type QueryServerEndpoints interface {
 	Query(ctx context.Context) endpoint.Endpoint
 }
 
+// QueryClientEndpoints is client endpoints
 type QueryClientEndpoints interface {
 	Query(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// QueryClientTransports is client transports
 type QueryClientTransports interface {
 	Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// QueryFactories is client factories
 type QueryFactories interface {
 	Query(ctx context.Context) sd.Factory
 }
 
+// QueryEndpointers is client endpointers
 type QueryEndpointers interface {
 	Query(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// QueryBalancers is client balancers
 type QueryBalancers interface {
 	Query(ctx context.Context) (lb.Balancer, error)
 }
 
+// queryServerEndpoints implements QueryServerEndpoints
 type queryServerEndpoints struct {
 	svc         QueryService
 	middlewares []endpoint.Middleware
@@ -63,6 +70,7 @@ func newQueryServerEndpoints(svc QueryService, middlewares ...endpoint.Middlewar
 	return &queryServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// queryClientEndpoints implements QueryClientEndpoints
 type queryClientEndpoints struct {
 	balancers QueryBalancers
 }
@@ -88,6 +96,7 @@ func newQueryClientEndpoints(
 	return &queryClientEndpoints{balancers: balancers}
 }
 
+// queryFactories implements QueryFactories
 type queryFactories struct {
 	transports QueryClientTransports
 }
@@ -101,6 +110,7 @@ func newQueryFactories(transports QueryClientTransports) QueryFactories {
 	return &queryFactories{transports: transports}
 }
 
+// queryEndpointers implements QueryEndpointers
 type queryEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -128,6 +138,7 @@ func newQueryEndpointers(
 	}
 }
 
+// queryBalancers implements QueryBalancers
 type queryBalancers struct {
 	factory    lbx.BalancerFactory
 	endpointer QueryEndpointers
@@ -147,6 +158,7 @@ func newQueryBalancers(factory lbx.BalancerFactory, endpointer QueryEndpointers)
 	}
 }
 
+// queryClientService implements QueryClientService
 type queryClientService struct {
 	endpoints     QueryClientEndpoints
 	transportName string

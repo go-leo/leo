@@ -20,19 +20,16 @@ import (
 	io "io"
 )
 
+// BodyService is a service
 type BodyService interface {
-	// Command
 	StarBody(ctx context.Context, request *User) (*emptypb.Empty, error)
-	// Command
 	NamedBody(ctx context.Context, request *UserRequest) (*emptypb.Empty, error)
-	// Command
 	NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
-	// Command
 	HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-	// Command
 	HttpBodyNamedBody(ctx context.Context, request *HttpBody) (*emptypb.Empty, error)
 }
 
+// BodyServerEndpoints is server endpoints
 type BodyServerEndpoints interface {
 	StarBody(ctx context.Context) endpoint.Endpoint
 	NamedBody(ctx context.Context) endpoint.Endpoint
@@ -41,6 +38,7 @@ type BodyServerEndpoints interface {
 	HttpBodyNamedBody(ctx context.Context) endpoint.Endpoint
 }
 
+// BodyClientEndpoints is client endpoints
 type BodyClientEndpoints interface {
 	StarBody(ctx context.Context) (endpoint.Endpoint, error)
 	NamedBody(ctx context.Context) (endpoint.Endpoint, error)
@@ -49,6 +47,7 @@ type BodyClientEndpoints interface {
 	HttpBodyNamedBody(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// BodyClientTransports is client transports
 type BodyClientTransports interface {
 	StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -57,6 +56,7 @@ type BodyClientTransports interface {
 	HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// BodyFactories is client factories
 type BodyFactories interface {
 	StarBody(ctx context.Context) sd.Factory
 	NamedBody(ctx context.Context) sd.Factory
@@ -65,6 +65,7 @@ type BodyFactories interface {
 	HttpBodyNamedBody(ctx context.Context) sd.Factory
 }
 
+// BodyEndpointers is client endpointers
 type BodyEndpointers interface {
 	StarBody(ctx context.Context, color string) (sd.Endpointer, error)
 	NamedBody(ctx context.Context, color string) (sd.Endpointer, error)
@@ -73,6 +74,7 @@ type BodyEndpointers interface {
 	HttpBodyNamedBody(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// BodyBalancers is client balancers
 type BodyBalancers interface {
 	StarBody(ctx context.Context) (lb.Balancer, error)
 	NamedBody(ctx context.Context) (lb.Balancer, error)
@@ -81,6 +83,7 @@ type BodyBalancers interface {
 	HttpBodyNamedBody(ctx context.Context) (lb.Balancer, error)
 }
 
+// bodyServerEndpoints implements BodyServerEndpoints
 type bodyServerEndpoints struct {
 	svc         BodyService
 	middlewares []endpoint.Middleware
@@ -120,6 +123,7 @@ func newBodyServerEndpoints(svc BodyService, middlewares ...endpoint.Middleware)
 	return &bodyServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// bodyClientEndpoints implements BodyClientEndpoints
 type bodyClientEndpoints struct {
 	balancers BodyBalancers
 }
@@ -173,6 +177,7 @@ func newBodyClientEndpoints(
 	return &bodyClientEndpoints{balancers: balancers}
 }
 
+// bodyFactories implements BodyFactories
 type bodyFactories struct {
 	transports BodyClientTransports
 }
@@ -206,6 +211,7 @@ func newBodyFactories(transports BodyClientTransports) BodyFactories {
 	return &bodyFactories{transports: transports}
 }
 
+// bodyEndpointers implements BodyEndpointers
 type bodyEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -245,6 +251,7 @@ func newBodyEndpointers(
 	}
 }
 
+// bodyBalancers implements BodyBalancers
 type bodyBalancers struct {
 	factory           lbx.BalancerFactory
 	endpointer        BodyEndpointers
@@ -292,6 +299,7 @@ func newBodyBalancers(factory lbx.BalancerFactory, endpointer BodyEndpointers) B
 	}
 }
 
+// bodyClientService implements BodyClientService
 type bodyClientService struct {
 	endpoints     BodyClientEndpoints
 	transportName string

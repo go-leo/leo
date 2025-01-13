@@ -19,35 +19,42 @@ import (
 	io "io"
 )
 
+// MixPathService is a service
 type MixPathService interface {
-	// Command
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 }
 
+// MixPathServerEndpoints is server endpoints
 type MixPathServerEndpoints interface {
 	MixPath(ctx context.Context) endpoint.Endpoint
 }
 
+// MixPathClientEndpoints is client endpoints
 type MixPathClientEndpoints interface {
 	MixPath(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// MixPathClientTransports is client transports
 type MixPathClientTransports interface {
 	MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// MixPathFactories is client factories
 type MixPathFactories interface {
 	MixPath(ctx context.Context) sd.Factory
 }
 
+// MixPathEndpointers is client endpointers
 type MixPathEndpointers interface {
 	MixPath(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// MixPathBalancers is client balancers
 type MixPathBalancers interface {
 	MixPath(ctx context.Context) (lb.Balancer, error)
 }
 
+// mixPathServerEndpoints implements MixPathServerEndpoints
 type mixPathServerEndpoints struct {
 	svc         MixPathService
 	middlewares []endpoint.Middleware
@@ -63,6 +70,7 @@ func newMixPathServerEndpoints(svc MixPathService, middlewares ...endpoint.Middl
 	return &mixPathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// mixPathClientEndpoints implements MixPathClientEndpoints
 type mixPathClientEndpoints struct {
 	balancers MixPathBalancers
 }
@@ -88,6 +96,7 @@ func newMixPathClientEndpoints(
 	return &mixPathClientEndpoints{balancers: balancers}
 }
 
+// mixPathFactories implements MixPathFactories
 type mixPathFactories struct {
 	transports MixPathClientTransports
 }
@@ -101,6 +110,7 @@ func newMixPathFactories(transports MixPathClientTransports) MixPathFactories {
 	return &mixPathFactories{transports: transports}
 }
 
+// mixPathEndpointers implements MixPathEndpointers
 type mixPathEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -128,6 +138,7 @@ func newMixPathEndpointers(
 	}
 }
 
+// mixPathBalancers implements MixPathBalancers
 type mixPathBalancers struct {
 	factory    lbx.BalancerFactory
 	endpointer MixPathEndpointers
@@ -147,6 +158,7 @@ func newMixPathBalancers(factory lbx.BalancerFactory, endpointer MixPathEndpoint
 	}
 }
 
+// mixPathClientService implements MixPathClientService
 type mixPathClientService struct {
 	endpoints     MixPathClientEndpoints
 	transportName string

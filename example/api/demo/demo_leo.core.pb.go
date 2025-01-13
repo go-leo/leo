@@ -20,23 +20,18 @@ import (
 	io "io"
 )
 
+// DemoService is a service
 type DemoService interface {
-	// Query
 	CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
-	// Command
 	DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-	// Command
 	UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-	// Query
 	GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-	// Query
 	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	// Command
 	UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-	// Query
 	GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
 }
 
+// DemoServerEndpoints is server endpoints
 type DemoServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint
 	DeleteUser(ctx context.Context) endpoint.Endpoint
@@ -47,6 +42,7 @@ type DemoServerEndpoints interface {
 	GetUserAvatar(ctx context.Context) endpoint.Endpoint
 }
 
+// DemoClientEndpoints is client endpoints
 type DemoClientEndpoints interface {
 	CreateUser(ctx context.Context) (endpoint.Endpoint, error)
 	DeleteUser(ctx context.Context) (endpoint.Endpoint, error)
@@ -57,6 +53,7 @@ type DemoClientEndpoints interface {
 	GetUserAvatar(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// DemoClientTransports is client transports
 type DemoClientTransports interface {
 	CreateUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	DeleteUser(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -67,6 +64,7 @@ type DemoClientTransports interface {
 	GetUserAvatar(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// DemoFactories is client factories
 type DemoFactories interface {
 	CreateUser(ctx context.Context) sd.Factory
 	DeleteUser(ctx context.Context) sd.Factory
@@ -77,6 +75,7 @@ type DemoFactories interface {
 	GetUserAvatar(ctx context.Context) sd.Factory
 }
 
+// DemoEndpointers is client endpointers
 type DemoEndpointers interface {
 	CreateUser(ctx context.Context, color string) (sd.Endpointer, error)
 	DeleteUser(ctx context.Context, color string) (sd.Endpointer, error)
@@ -87,6 +86,7 @@ type DemoEndpointers interface {
 	GetUserAvatar(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// DemoBalancers is client balancers
 type DemoBalancers interface {
 	CreateUser(ctx context.Context) (lb.Balancer, error)
 	DeleteUser(ctx context.Context) (lb.Balancer, error)
@@ -97,6 +97,7 @@ type DemoBalancers interface {
 	GetUserAvatar(ctx context.Context) (lb.Balancer, error)
 }
 
+// demoServerEndpoints implements DemoServerEndpoints
 type demoServerEndpoints struct {
 	svc         DemoService
 	middlewares []endpoint.Middleware
@@ -148,6 +149,7 @@ func newDemoServerEndpoints(svc DemoService, middlewares ...endpoint.Middleware)
 	return &demoServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// demoClientEndpoints implements DemoClientEndpoints
 type demoClientEndpoints struct {
 	balancers DemoBalancers
 }
@@ -215,6 +217,7 @@ func newDemoClientEndpoints(
 	return &demoClientEndpoints{balancers: balancers}
 }
 
+// demoFactories implements DemoFactories
 type demoFactories struct {
 	transports DemoClientTransports
 }
@@ -258,6 +261,7 @@ func newDemoFactories(transports DemoClientTransports) DemoFactories {
 	return &demoFactories{transports: transports}
 }
 
+// demoEndpointers implements DemoEndpointers
 type demoEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -303,6 +307,7 @@ func newDemoEndpointers(
 	}
 }
 
+// demoBalancers implements DemoBalancers
 type demoBalancers struct {
 	factory          lbx.BalancerFactory
 	endpointer       DemoEndpointers
@@ -364,6 +369,7 @@ func newDemoBalancers(factory lbx.BalancerFactory, endpointer DemoEndpointers) D
 	}
 }
 
+// demoClientService implements DemoClientService
 type demoClientService struct {
 	endpoints     DemoClientEndpoints
 	transportName string

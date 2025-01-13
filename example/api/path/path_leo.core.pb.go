@@ -19,27 +19,20 @@ import (
 	io "io"
 )
 
+// PathService is a service
 type PathService interface {
-	// Command
 	BoolPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	Int32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	Int64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	Uint32Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	Uint64Path(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	FloatPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	DoublePath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	StringPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
-	// Command
 	EnumPath(ctx context.Context, request *PathRequest) (*emptypb.Empty, error)
 }
 
+// PathServerEndpoints is server endpoints
 type PathServerEndpoints interface {
 	BoolPath(ctx context.Context) endpoint.Endpoint
 	Int32Path(ctx context.Context) endpoint.Endpoint
@@ -52,6 +45,7 @@ type PathServerEndpoints interface {
 	EnumPath(ctx context.Context) endpoint.Endpoint
 }
 
+// PathClientEndpoints is client endpoints
 type PathClientEndpoints interface {
 	BoolPath(ctx context.Context) (endpoint.Endpoint, error)
 	Int32Path(ctx context.Context) (endpoint.Endpoint, error)
@@ -64,6 +58,7 @@ type PathClientEndpoints interface {
 	EnumPath(ctx context.Context) (endpoint.Endpoint, error)
 }
 
+// PathClientTransports is client transports
 type PathClientTransports interface {
 	BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
@@ -76,6 +71,7 @@ type PathClientTransports interface {
 	EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
+// PathFactories is client factories
 type PathFactories interface {
 	BoolPath(ctx context.Context) sd.Factory
 	Int32Path(ctx context.Context) sd.Factory
@@ -88,6 +84,7 @@ type PathFactories interface {
 	EnumPath(ctx context.Context) sd.Factory
 }
 
+// PathEndpointers is client endpointers
 type PathEndpointers interface {
 	BoolPath(ctx context.Context, color string) (sd.Endpointer, error)
 	Int32Path(ctx context.Context, color string) (sd.Endpointer, error)
@@ -100,6 +97,7 @@ type PathEndpointers interface {
 	EnumPath(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
+// PathBalancers is client balancers
 type PathBalancers interface {
 	BoolPath(ctx context.Context) (lb.Balancer, error)
 	Int32Path(ctx context.Context) (lb.Balancer, error)
@@ -112,6 +110,7 @@ type PathBalancers interface {
 	EnumPath(ctx context.Context) (lb.Balancer, error)
 }
 
+// pathServerEndpoints implements PathServerEndpoints
 type pathServerEndpoints struct {
 	svc         PathService
 	middlewares []endpoint.Middleware
@@ -175,6 +174,7 @@ func newPathServerEndpoints(svc PathService, middlewares ...endpoint.Middleware)
 	return &pathServerEndpoints{svc: svc, middlewares: middlewares}
 }
 
+// pathClientEndpoints implements PathClientEndpoints
 type pathClientEndpoints struct {
 	balancers PathBalancers
 }
@@ -256,6 +256,7 @@ func newPathClientEndpoints(
 	return &pathClientEndpoints{balancers: balancers}
 }
 
+// pathFactories implements PathFactories
 type pathFactories struct {
 	transports PathClientTransports
 }
@@ -309,6 +310,7 @@ func newPathFactories(transports PathClientTransports) PathFactories {
 	return &pathFactories{transports: transports}
 }
 
+// pathEndpointers implements PathEndpointers
 type pathEndpointers struct {
 	target           string
 	instancerFactory sdx.InstancerFactory
@@ -360,6 +362,7 @@ func newPathEndpointers(
 	}
 }
 
+// pathBalancers implements PathBalancers
 type pathBalancers struct {
 	factory    lbx.BalancerFactory
 	endpointer PathEndpointers
@@ -435,6 +438,7 @@ func newPathBalancers(factory lbx.BalancerFactory, endpointer PathEndpointers) P
 	}
 }
 
+// pathClientService implements PathClientService
 type pathClientService struct {
 	endpoints     PathClientEndpoints
 	transportName string
