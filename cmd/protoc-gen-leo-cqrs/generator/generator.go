@@ -40,9 +40,6 @@ func (f *Generator) GenerateFile() error {
 		if service.Command == nil && service.Query == nil {
 			continue
 		}
-		if err := f.GenerateBus(service, g); err != nil {
-			return err
-		}
 		if err := f.GenerateEndpoints(service); err != nil {
 			return err
 		}
@@ -195,15 +192,7 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.G
 		}
 	}
 
-	g.P("func New", service.CQRSName(), "(bus ", internal.CqrsPackage.Ident("Bus"), ", assembler ", service.AssemblerName(), ") ", service.ServiceName(), " {")
-	g.P("return &", service.Unexported(service.CQRSName()), "{bus: bus, assembler: assembler}")
-	g.P("}")
-	g.P()
-	return nil
-}
-
-func (f *Generator) GenerateBus(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.BusName(), "(")
+	g.P("func New", service.CQRSName(), "(")
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
@@ -214,7 +203,8 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 			g.P(endpoint.Unexported(endpoint.Name()), " ", importPath.Ident(endpoint.Name()), ",")
 		}
 	}
-	g.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
+	g.P("assembler ", service.AssemblerName(), ",")
+	g.P(") (", service.ServiceName(), ", error) {")
 	g.P("var bus ", internal.CqrsPackage.Ident("SampleBus"))
 	for _, endpoint := range service.Endpoints {
 		switch {
@@ -228,7 +218,11 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 			g.P("}")
 		}
 	}
-	g.P("return &bus, nil")
+	g.P("return &", service.Unexported(service.CQRSName()), "{")
+	g.P("bus: &bus, ")
+	g.P("assembler: assembler,")
+	g.P("}, nil")
 	g.P("}")
+	g.P()
 	return nil
 }

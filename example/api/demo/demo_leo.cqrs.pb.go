@@ -11,40 +11,6 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-func NewDemoBus(
-	createUser query.CreateUser,
-	deleteUser command.DeleteUser,
-	updateUser command.UpdateUser,
-	getUser query.GetUser,
-	getUsers query.GetUsers,
-	uploadUserAvatar command.UploadUserAvatar,
-	getUserAvatar query.GetUserAvatar,
-) (cqrs.Bus, error) {
-	var bus cqrs.SampleBus
-	if err := bus.RegisterQuery(createUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(deleteUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(updateUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUsers); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(uploadUserAvatar); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(getUserAvatar); err != nil {
-		return nil, err
-	}
-	return &bus, nil
-}
-
 // DemoAssembler responsible for completing the transformation between domain model objects and DTOs
 type DemoAssembler interface {
 	// FromCreateUserRequest convert request to query arguments
@@ -158,6 +124,40 @@ func (svc *demoCqrsService) GetUserAvatar(ctx context.Context, request *GetUserA
 	return svc.assembler.ToGetUserAvatarResponse(ctx, request, res.(*query.GetUserAvatarRes))
 }
 
-func NewDemoCqrsService(bus cqrs.Bus, assembler DemoAssembler) DemoService {
-	return &demoCqrsService{bus: bus, assembler: assembler}
+func NewDemoCqrsService(
+	createUser query.CreateUser,
+	deleteUser command.DeleteUser,
+	updateUser command.UpdateUser,
+	getUser query.GetUser,
+	getUsers query.GetUsers,
+	uploadUserAvatar command.UploadUserAvatar,
+	getUserAvatar query.GetUserAvatar,
+	assembler DemoAssembler,
+) (DemoService, error) {
+	var bus cqrs.SampleBus
+	if err := bus.RegisterQuery(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(deleteUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(updateUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUsers); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(uploadUserAvatar); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(getUserAvatar); err != nil {
+		return nil, err
+	}
+	return &demoCqrsService{
+		bus:       &bus,
+		assembler: assembler,
+	}, nil
 }

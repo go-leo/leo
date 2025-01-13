@@ -10,28 +10,6 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-func NewCQRSBus(
-	createUser command.CreateUser,
-	deleteUser command.DeleteUser,
-	updateUser query.UpdateUser,
-	findUser query.FindUser,
-) (cqrs.Bus, error) {
-	var bus cqrs.SampleBus
-	if err := bus.RegisterCommand(createUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterCommand(deleteUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(updateUser); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(findUser); err != nil {
-		return nil, err
-	}
-	return &bus, nil
-}
-
 // CQRSAssembler responsible for completing the transformation between domain model objects and DTOs
 type CQRSAssembler interface {
 	// FromCreateUserRequest convert request to command arguments
@@ -100,6 +78,28 @@ func (svc *cQRSCqrsService) FindUser(ctx context.Context, request *FindUserReque
 	return svc.assembler.ToFindUserResponse(ctx, request, res.(*query.FindUserRes))
 }
 
-func NewCQRSCqrsService(bus cqrs.Bus, assembler CQRSAssembler) CQRSService {
-	return &cQRSCqrsService{bus: bus, assembler: assembler}
+func NewCQRSCqrsService(
+	createUser command.CreateUser,
+	deleteUser command.DeleteUser,
+	updateUser query.UpdateUser,
+	findUser query.FindUser,
+	assembler CQRSAssembler,
+) (CQRSService, error) {
+	var bus cqrs.SampleBus
+	if err := bus.RegisterCommand(createUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterCommand(deleteUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(updateUser); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(findUser); err != nil {
+		return nil, err
+	}
+	return &cQRSCqrsService{
+		bus:       &bus,
+		assembler: assembler,
+	}, nil
 }
