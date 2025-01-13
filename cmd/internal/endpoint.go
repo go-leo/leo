@@ -286,6 +286,18 @@ func (e *Endpoint) SetHttpRule() {
 	e.httpRule = &HttpRule{rule: httpRule.(*annotations.HttpRule)}
 }
 
+func (e *Endpoint) CommandName() string {
+	return e.Name() + "Command"
+}
+
+func (e *Endpoint) QueryName() string {
+	return e.Name() + "Query"
+}
+
+func (e *Endpoint) ResultName() string {
+	return e.Name() + "Result"
+}
+
 type HttpRule struct {
 	rule *annotations.HttpRule
 }

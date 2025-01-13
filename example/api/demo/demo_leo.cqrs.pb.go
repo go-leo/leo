@@ -7,7 +7,6 @@ import (
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	command "github.com/go-leo/leo/v3/example/internal/demo/command"
 	query "github.com/go-leo/leo/v3/example/internal/demo/query"
-	metadatax "github.com/go-leo/leo/v3/metadatax"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -21,7 +20,7 @@ func NewDemoBus(
 	uploadUserAvatar command.UploadUserAvatar,
 	getUserAvatar query.GetUserAvatar,
 ) (cqrs.Bus, error) {
-	bus := cqrs.NewBus()
+	var bus cqrs.SampleBus
 	if err := bus.RegisterQuery(createUser); err != nil {
 		return nil, err
 	}
@@ -43,51 +42,31 @@ func NewDemoBus(
 	if err := bus.RegisterQuery(getUserAvatar); err != nil {
 		return nil, err
 	}
-	return bus, nil
+	return &bus, nil
 }
 
 // DemoAssembler responsible for completing the transformation between domain model objects and DTOs
 type DemoAssembler interface {
-
 	// FromCreateUserRequest convert request to query arguments
 	FromCreateUserRequest(ctx context.Context, request *CreateUserRequest) (*query.CreateUserArgs, context.Context, error)
-
 	// ToCreateUserResponse convert query result to response
 	ToCreateUserResponse(ctx context.Context, request *CreateUserRequest, res *query.CreateUserRes) (*CreateUserResponse, error)
-
 	// FromDeleteUserRequest convert request to command arguments
 	FromDeleteUserRequest(ctx context.Context, request *DeleteUsersRequest) (*command.DeleteUserArgs, context.Context, error)
-
-	// ToDeleteUserResponse convert query result to response
-	ToDeleteUserResponse(ctx context.Context, request *DeleteUsersRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
-
 	// FromUpdateUserRequest convert request to command arguments
 	FromUpdateUserRequest(ctx context.Context, request *UpdateUserRequest) (*command.UpdateUserArgs, context.Context, error)
-
-	// ToUpdateUserResponse convert query result to response
-	ToUpdateUserResponse(ctx context.Context, request *UpdateUserRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
-
 	// FromGetUserRequest convert request to query arguments
 	FromGetUserRequest(ctx context.Context, request *GetUserRequest) (*query.GetUserArgs, context.Context, error)
-
 	// ToGetUserResponse convert query result to response
 	ToGetUserResponse(ctx context.Context, request *GetUserRequest, res *query.GetUserRes) (*GetUserResponse, error)
-
 	// FromGetUsersRequest convert request to query arguments
 	FromGetUsersRequest(ctx context.Context, request *GetUsersRequest) (*query.GetUsersArgs, context.Context, error)
-
 	// ToGetUsersResponse convert query result to response
 	ToGetUsersResponse(ctx context.Context, request *GetUsersRequest, res *query.GetUsersRes) (*GetUsersResponse, error)
-
 	// FromUploadUserAvatarRequest convert request to command arguments
 	FromUploadUserAvatarRequest(ctx context.Context, request *UploadUserAvatarRequest) (*command.UploadUserAvatarArgs, context.Context, error)
-
-	// ToUploadUserAvatarResponse convert query result to response
-	ToUploadUserAvatarResponse(ctx context.Context, request *UploadUserAvatarRequest, metadata metadatax.Metadata) (*emptypb.Empty, error)
-
 	// FromGetUserAvatarRequest convert request to query arguments
 	FromGetUserAvatarRequest(ctx context.Context, request *GetUserAvatarRequest) (*query.GetUserAvatarArgs, context.Context, error)
-
 	// ToGetUserAvatarResponse convert query result to response
 	ToGetUserAvatarResponse(ctx context.Context, request *GetUserAvatarRequest, res *query.GetUserAvatarRes) (*httpbody.HttpBody, error)
 }
@@ -111,27 +90,25 @@ func (svc *demoCqrsService) CreateUser(ctx context.Context, request *CreateUserR
 }
 
 func (svc *demoCqrsService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromDeleteUserRequest(ctx, request)
+	command, ctx, err := svc.assembler.FromDeleteUserRequest(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	metadata, err := svc.bus.Exec(ctx, args)
-	if err != nil {
+	if err := svc.bus.Exec(ctx, command); err != nil {
 		return nil, err
 	}
-	return svc.assembler.ToDeleteUserResponse(ctx, request, metadata)
+	return new(emptypb.Empty), nil
 }
 
 func (svc *demoCqrsService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromUpdateUserRequest(ctx, request)
+	command, ctx, err := svc.assembler.FromUpdateUserRequest(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	metadata, err := svc.bus.Exec(ctx, args)
-	if err != nil {
+	if err := svc.bus.Exec(ctx, command); err != nil {
 		return nil, err
 	}
-	return svc.assembler.ToUpdateUserResponse(ctx, request, metadata)
+	return new(emptypb.Empty), nil
 }
 
 func (svc *demoCqrsService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
@@ -159,15 +136,14 @@ func (svc *demoCqrsService) GetUsers(ctx context.Context, request *GetUsersReque
 }
 
 func (svc *demoCqrsService) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
-	args, ctx, err := svc.assembler.FromUploadUserAvatarRequest(ctx, request)
+	command, ctx, err := svc.assembler.FromUploadUserAvatarRequest(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	metadata, err := svc.bus.Exec(ctx, args)
-	if err != nil {
+	if err := svc.bus.Exec(ctx, command); err != nil {
 		return nil, err
 	}
-	return svc.assembler.ToUploadUserAvatarResponse(ctx, request, metadata)
+	return new(emptypb.Empty), nil
 }
 
 func (svc *demoCqrsService) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {

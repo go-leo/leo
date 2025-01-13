@@ -70,26 +70,9 @@ func (b *SampleBus) Exec(ctx context.Context, command any) error {
 	if err != nil {
 		return err
 	}
-	return handler.Exec(ctx, command)
-}
-
-// AsyncExec executes a command asynchronously.
-func (b *SampleBus) AsyncExec(ctx context.Context, command any, errC chan<- error) error {
-	if err := b.checkClosed(); err != nil {
-		return err
-	}
-	handler, err := b.loadCommandHandler(command)
-	if err != nil {
-		return err
-	}
 	b.wg.Add(1)
-	go func() {
-		defer b.wg.Done()
-		if err := handler.Exec(ctx, command); err != nil {
-			errC <- err
-		}
-	}()
-	return nil
+	defer b.wg.Done()
+	return handler.Exec(ctx, command)
 }
 
 func (b *SampleBus) Query(ctx context.Context, query any) (any, error) {
@@ -100,28 +83,9 @@ func (b *SampleBus) Query(ctx context.Context, query any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	return handler.Query(ctx, query)
-}
-
-func (b *SampleBus) AsyncQuery(ctx context.Context, query any, resultC chan<- any, errC chan<- error) error {
-	if err := b.checkClosed(); err != nil {
-		return err
-	}
-	handler, err := b.loadQueryHandler(query)
-	if err != nil {
-		return err
-	}
 	b.wg.Add(1)
-	go func() {
-		defer b.wg.Done()
-		result, err := handler.Query(ctx, query)
-		if err != nil {
-			errC <- err
-			return
-		}
-		resultC <- result
-	}()
-	return nil
+	defer b.wg.Done()
+	return handler.Query(ctx, query)
 }
 
 func (b *SampleBus) Close(ctx context.Context) error {

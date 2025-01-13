@@ -16,13 +16,3 @@ message Package {
   // relative the package path of the the command or query, relative to the current proto file.
   string relative = 2;
 }
-
-extend google.protobuf.MethodOptions {
-  // responsibility define command or query api
-  Responsibility responsibility = 3171819;
-}
-
-enum Responsibility  {
-  Query = 0;
-  Command = 1;
-}

@@ -1,9 +1,8 @@
 package command
 
 import (
-	context "context"
-	cqrs "github.com/go-leo/leo/v3/cqrs"
-	metadatax "github.com/go-leo/leo/v3/metadatax"
+	"context"
+	"github.com/go-leo/leo/v3/cqrs"
 )
 
 type CreateUserArgs struct {
@@ -18,7 +17,7 @@ func NewCreateUser() CreateUser {
 type createUser struct {
 }
 
-func (h *createUser) Handle(ctx context.Context, args *CreateUserArgs) (metadatax.Metadata, error) {
+func (h *createUser) Handle(ctx context.Context, args *CreateUserArgs) error {
 	// TODO implement me
 	panic("implement me")
 }

@@ -144,17 +144,11 @@ func (f *Generator) GenerateAssembler(service *internal.Service, g *protogen.Gen
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
-			g.P()
 			g.P(internal.Comments("From" + endpoint.RequestName() + " convert request to command arguments"))
 			g.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Command.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
-			g.P()
-			g.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
-			g.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", metadata ", internal.MetadataxPackage.Ident("Metadata"), ") (*", endpoint.OutputGoIdent(), ", error)")
 		case endpoint.IsQuery():
-			g.P()
 			g.P(internal.Comments("From" + endpoint.RequestName() + " convert request to query arguments"))
 			g.P("From", endpoint.RequestName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.ArgsName()), ", ", internal.ContextPackage.Ident("Context"), ", error)")
-			g.P()
 			g.P(internal.Comments("To" + endpoint.ResponseName() + " convert query result to response"))
 			g.P("To", endpoint.ResponseName(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ", res *", protogen.GoImportPath(service.Query.FullName()).Ident(endpoint.ResName()), ") (*", endpoint.OutputGoIdent(), ", error)")
 		}
@@ -175,15 +169,14 @@ func (f *Generator) GenerateCQRSService(service *internal.Service, g *protogen.G
 		switch {
 		case endpoint.IsCommand():
 			g.P("func (svc *", service.Unexported(service.CQRSName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-			g.P("args, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
+			g.P("command, ctx, err := svc.assembler.From", endpoint.Name(), "Request(ctx, request)")
 			g.P("if err != nil {")
 			g.P("return nil, err")
 			g.P("}")
-			g.P("metadata, err := svc.bus.Exec(ctx, args)")
-			g.P("if err != nil {")
+			g.P("if err := svc.bus.Exec(ctx, command);err != nil {")
 			g.P("return nil, err")
 			g.P("}")
-			g.P("return svc.assembler.To", endpoint.Name(), "Response(ctx, request, metadata)")
+			g.P("return new(", endpoint.OutputGoIdent(), "), nil")
 			g.P("}")
 			g.P()
 		case endpoint.IsQuery():
@@ -222,7 +215,7 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 		}
 	}
 	g.P(") (", internal.CqrsPackage.Ident("Bus"), ", error) {")
-	g.P("bus := ", internal.CqrsPackage.Ident("NewBus"), "()")
+	g.P("var bus ", internal.CqrsPackage.Ident("SampleBus"))
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
@@ -235,7 +228,7 @@ func (f *Generator) GenerateBus(service *internal.Service, g *protogen.Generated
 			g.P("}")
 		}
 	}
-	g.P("return bus, nil")
+	g.P("return &bus, nil")
 	g.P("}")
 	return nil
 }

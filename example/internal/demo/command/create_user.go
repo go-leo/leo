@@ -23,9 +23,9 @@ func NewCreateUser() CreateUser {
 type createUser struct {
 }
 
-func (h *createUser) Handle(ctx context.Context, args *CreateUserArgs) (metadatax.Metadata, error) {
+func (h *createUser) Handle(ctx context.Context, args *CreateUserArgs) error {
 	fmt.Println("create user", args)
 	metadata := metadatax.New()
 	metadata.Set("id", convx.ToString(randx.Uint64()))
-	return metadata, nil
+	return nil
 }

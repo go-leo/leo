@@ -26,7 +26,6 @@ service Demo {
       post : "/v1/user"
       body : "*"
     };
-    option(leo.cqrs.responsibility) = Command;
   }
 
   // DeleteUser delete user
@@ -34,7 +33,6 @@ service Demo {
     option (google.api.http) = {
       delete : "/v1/user/{user_id}"
     };
-    option(leo.cqrs.responsibility) = Command;
   }
 
   // UpdateUser update user
@@ -43,7 +41,6 @@ service Demo {
       put : "/v1/user/{user_id}"
       body : "user"
     };
-    option(leo.cqrs.responsibility) = Command;
   }
 
   // GetUser get user
@@ -51,7 +48,6 @@ service Demo {
     option (google.api.http) = {
       get : "/v1/user/{user_id}"
     };
-    option(leo.cqrs.responsibility) = Query;
   }
 
   // GetUsers get users
@@ -59,7 +55,6 @@ service Demo {
     option (google.api.http) = {
       get : "/v1/users"
     };
-    option(leo.cqrs.responsibility) = Query;
   }
 
   // UploadUserAvatar upload user avatar
@@ -68,7 +63,6 @@ service Demo {
       post : "/v1/user/{user_id}"
       body : "avatar"
     };
-    option(leo.cqrs.responsibility) = Command;
   }
 
   // GetUserAvatar get user avatar
@@ -76,7 +70,6 @@ service Demo {
     option (google.api.http) = {
       get : "/v1/users/{user_id}"
     };
-    option(leo.cqrs.responsibility) = Query;
   }
 }
 

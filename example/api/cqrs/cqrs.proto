@@ -16,17 +16,13 @@ service CQRS {
     relative:  "../../../internal/cqrs/query"
   };
 
-  rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {
-    option(leo.cqrs.responsibility) = Command;
-  }
+  rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {}
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
 
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
 
-  rpc FindUser (FindUserRequest) returns (GetUserResponse) {
-    option(leo.cqrs.responsibility) = Query;
-  }
+  rpc FindUser (FindUserRequest) returns (GetUserResponse) {}
 
 }
 

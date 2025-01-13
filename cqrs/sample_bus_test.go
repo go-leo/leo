@@ -172,4 +172,5 @@ func TestBus(t *testing.T) {
 	r, err = bus.Query(context.Background(), teacherQuery{Id: 1})
 	assert.ErrorIs(t, err, errNotFoundTeacher)
 
+	_ = bus.Close(context.Background())
 }

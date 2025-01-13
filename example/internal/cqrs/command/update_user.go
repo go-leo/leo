@@ -1,9 +1,8 @@
 package command
 
 import (
-	context "context"
-	cqrs "github.com/go-leo/leo/v3/cqrs"
-	metadatax "github.com/go-leo/leo/v3/metadatax"
+	"context"
+	"github.com/go-leo/leo/v3/cqrs"
 )
 
 type UpdateUserArgs struct {
@@ -18,7 +17,7 @@ func NewUpdateUser() UpdateUser {
 type updateUser struct {
 }
 
-func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) (metadatax.Metadata, error) {
+func (h *updateUser) Handle(ctx context.Context, args *UpdateUserArgs) error {
 	// TODO implement me
 	panic("implement me")
 }

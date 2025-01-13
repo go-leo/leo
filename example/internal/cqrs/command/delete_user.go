@@ -1,9 +1,8 @@
 package command
 
 import (
-	context "context"
-	cqrs "github.com/go-leo/leo/v3/cqrs"
-	metadatax "github.com/go-leo/leo/v3/metadatax"
+	"context"
+	"github.com/go-leo/leo/v3/cqrs"
 )
 
 type DeleteUserArgs struct {
@@ -18,7 +17,7 @@ func NewDeleteUser() DeleteUser {
 type deleteUser struct {
 }
 
-func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) (metadatax.Metadata, error) {
+func (h *deleteUser) Handle(ctx context.Context, args *DeleteUserArgs) error {
 	// TODO implement me
 	panic("implement me")
 }
