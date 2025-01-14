@@ -2,25 +2,18 @@ package global
 
 import (
 	"context"
-	"sync"
 
-	otelprometheus "go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
-)
-
-var (
-	prometheusExporter *otelprometheus.Exporter
-	meterLocker        sync.RWMutex
 )
 
 func GetMeterProvider() metric.MeterProvider {
-	return global.MeterProvider()
+	return otel.GetMeterProvider()
 }
 
 func SetMeterProvider(mp metric.MeterProvider) func() {
-	prev := global.MeterProvider()
-	global.SetMeterProvider(mp)
+	prev := otel.GetMeterProvider()
+	otel.SetMeterProvider(mp)
 	return func() { SetMeterProvider(prev) }
 }
 

@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-leo/otelx/metricx"
-	"github.com/go-leo/otelx/tracex"
+	"github.com/go-leo/leo/internal/otelx/metricx"
+	"github.com/go-leo/leo/internal/otelx/tracex"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
@@ -244,8 +244,6 @@ type (
 		Enabled bool `mapstructure:"enabled" json:"enabled" yaml:"enabled"`
 		// Jaeger 配置
 		Jaeger JaegerExporter `mapstructure:"jaeger" json:"jaeger" yaml:"jaeger"`
-		// Zipkin 配置
-		Zipkin ZipkinExporter `mapstructure:"zipkin" json:"zipkin" yaml:"zipkin"`
 		// Writer 标准输入或者文件
 		Writer WriterExporter `mapstructure:"writer" json:"writer" yaml:"writer"`
 		// HTTP
@@ -254,6 +252,8 @@ type (
 		GRPC GRPCExporter `mapstructure:"grpc" json:"grpc" yaml:"grpc"`
 		// Sampler 采样策略
 		Sampler Sampler `mapstructure:"sampler" json:"sampler" yaml:"sampler"`
+		// CustomIDGenerator 是否使用leo自定义ID生成器
+		CustomIDGenerator bool `mapstructure:"custom_id_generator" json:"custom_id_generator" yaml:"custom_id_generator"`
 		// ServiceName 链路追踪服务名
 		ServiceName string `mapstructure:"service_name" json:"service_name" yaml:"service_name"`
 	}
@@ -284,10 +284,6 @@ type (
 		URL      string `mapstructure:"url" json:"url" yaml:"url"`
 		Username string `mapstructure:"username" json:"username" yaml:"username"`
 		Password string `mapstructure:"password" json:"password" yaml:"password"`
-	}
-	ZipkinExporter struct {
-		Enabled bool   `mapstructure:"enabled" json:"enabled" yaml:"enabled"`
-		URL     string `mapstructure:"url" json:"url" yaml:"url"`
 	}
 	Sampler struct {
 		// Rate 采样概率，如果大于等于0，则全部采样，如果小于等于0，不采样
@@ -355,13 +351,16 @@ func (logConf LoggerConfig) NewLogger() log.Logger {
 
 func (metricConf Metrics) NewMetric(ctx context.Context) (*metricx.Metric, error) {
 	// 注册prometheus官方的GoCollector和ProcessCollector
-	return metricx.NewMetric(ctx, metricx.Prometheus(&metricx.PrometheusOptions{}))
+	return metricx.NewMetric(ctx, metricx.Prometheus(&metricx.PrometheusOptions{
+		WithoutUnits:      true,
+		WithoutTargetInfo: true,
+		WithoutScopeInfo:  true,
+	}))
 }
 
 func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 	writerConf := traceConf.Writer
 	jaegerConf := traceConf.Jaeger
-	zipkinConf := traceConf.Zipkin
 	httpConf := traceConf.HTTP
 	gRPCConf := traceConf.GRPC
 	Attributes := []attribute.KeyValue{
@@ -386,7 +385,8 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 		return tracex.NewTrace(
 			ctx,
 			tracex.Writer(&tracex.WriterOptions{Writer: writer, PrettyPrint: writerConf.PrettyPrint}),
-			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
+			tracex.Sampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate))),
+			tracex.IDGenerator(traceConf.CustomIDGenerator, tracex.NewIDGenerator()),
 			tracex.Attributes(Attributes...),
 		)
 	case jaegerConf.Enabled:
@@ -397,16 +397,8 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 				Username: jaegerConf.Username,
 				Password: jaegerConf.Password,
 			}),
-			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
-			tracex.Attributes(Attributes...),
-		)
-	case zipkinConf.Enabled:
-		return tracex.NewTrace(
-			ctx,
-			tracex.Zipkin(&tracex.ZipkinOptions{
-				URL: zipkinConf.URL,
-			}),
-			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
+			tracex.Sampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate))),
+			tracex.IDGenerator(traceConf.CustomIDGenerator, tracex.NewIDGenerator()),
 			tracex.Attributes(Attributes...),
 		)
 	case httpConf.Enabled:
@@ -422,7 +414,8 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 				Timeout: httpConf.Timeout,
 				URLPath: httpConf.URLPath,
 			}),
-			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
+			tracex.Sampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate))),
+			tracex.IDGenerator(traceConf.CustomIDGenerator, tracex.NewIDGenerator()),
 			tracex.Attributes(Attributes...),
 		)
 	case gRPCConf.Enabled:
@@ -441,7 +434,8 @@ func (traceConf Trace) NewTrace(ctx context.Context) (*tracex.Trace, error) {
 				Timeout: gRPCConf.Timeout,
 				// ServiceConfig:      "",
 			}),
-			tracex.Sampler(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate)),
+			tracex.Sampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(traceConf.Sampler.Rate))),
+			tracex.IDGenerator(traceConf.CustomIDGenerator, tracex.NewIDGenerator()),
 			tracex.Attributes(Attributes...),
 		)
 	}

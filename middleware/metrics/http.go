@@ -7,9 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
-	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
+	"go.opentelemetry.io/otel/metric"
+	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 
 	"github.com/go-leo/leo/middleware/internal"
 	"github.com/go-leo/leo/middleware/noop"
@@ -24,42 +23,42 @@ func GinMiddleware(opts ...Option) gin.HandlerFunc {
 		skipMap[skip] = struct{}{}
 	}
 	// 请求延迟直方图
-	latencyHistogram, e := global.MeterProvider().
+	latencyHistogram, e := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Float64Histogram(
 			"http.server.latency",
-			instrument.WithDescription("The HTTP request latencies in seconds."),
+			metric.WithDescription("The HTTP request latencies in seconds."),
 		)
 	if e != nil {
 		otel.Handle(e)
 		return noop.GinMiddleware()
 	}
 	// 请求计数器
-	requestCounter, err := global.MeterProvider().
+	requestCounter, err := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64Counter(
 			"http.server.requests",
-			instrument.WithDescription("How many HTTP requests processed, partitioned by status code and HTTP method."),
+			metric.WithDescription("How many HTTP requests processed, partitioned by status code and HTTP method."),
 		)
 	if err != nil {
 		otel.Handle(err)
 		return noop.GinMiddleware()
 	}
 	// 请求大小
-	requestSizeCounter, err := global.MeterProvider().
+	requestSizeCounter, err := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64UpDownCounter("http.server.request.size.bytes",
-			instrument.WithDescription("The HTTP request sizes in bytes."),
+			metric.WithDescription("The HTTP request sizes in bytes."),
 		)
 	if err != nil {
 		otel.Handle(err)
 		return noop.GinMiddleware()
 	}
 	// 响应大小
-	responseSizeCounter, err := global.MeterProvider().
+	responseSizeCounter, err := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64UpDownCounter("http.server.response.size.bytes",
-			instrument.WithDescription("The HTTP response sizes in bytes."),
+			metric.WithDescription("The HTTP response sizes in bytes."),
 		)
 	if err != nil {
 		otel.Handle(err)
@@ -86,16 +85,16 @@ func GinMiddleware(opts ...Option) gin.HandlerFunc {
 		// 包含接口信息的属性
 		attrs := []attribute.KeyValue{
 			internal.RPCSystemHTTPServer,
-			semconv.HTTPTargetKey.String(c.FullPath()),
-			semconv.HTTPMethodKey.String(c.Request.Method),
-			semconv.HTTPStatusCodeKey.Int(c.Writer.Status()),
+			semconv.HTTPRouteKey.String(c.FullPath()),
+			semconv.HTTPRequestMethodKey.String(c.Request.Method),
+			semconv.HTTPResponseStatusCodeKey.Int(c.Writer.Status()),
 		}
 
 		// 请求延迟直方图记录延迟
-		latencyHistogram.Record(c.Request.Context(), time.Since(startTime).Seconds(), attrs...)
+		latencyHistogram.Record(c.Request.Context(), time.Since(startTime).Seconds(), metric.WithAttributeSet(attribute.NewSet(attrs...)))
 
 		// 请求计数器加1
-		requestCounter.Add(c.Request.Context(), 1, attrs...)
+		requestCounter.Add(c.Request.Context(), 1, metric.WithAttributeSet(attribute.NewSet(attrs...)))
 	}
 }
 
