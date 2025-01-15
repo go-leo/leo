@@ -5,7 +5,7 @@ import (
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/metadatax"
-	"github.com/go-leo/leo/v3/sdx/stainx"
+	"github.com/go-leo/leo/v3/sdx/stain"
 	"github.com/go-leo/leo/v3/transportx"
 	"google.golang.org/grpc/metadata"
 )
@@ -57,7 +57,7 @@ func IncomingMetadataInjector(ctx context.Context, md metadata.MD) context.Conte
 }
 
 func OutgoingStainInjector(ctx context.Context, grpcMD *metadata.MD) context.Context {
-	color, ok := stainx.ExtractColor(ctx)
+	color, ok := stain.ExtractColor(ctx)
 	if !ok {
 		return ctx
 	}
@@ -70,5 +70,5 @@ func IncomingStainInjector(ctx context.Context, md metadata.MD) context.Context 
 	if values == nil || len(values) == 0 {
 		return ctx
 	}
-	return stainx.InjectColor(ctx, values[0])
+	return stain.InjectColor(ctx, values[0])
 }

@@ -79,16 +79,9 @@ func NewServer(factory ServerFactory, opts ...Option) (Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	host, p, err := net.SplitHostPort(lis.Addr().String())
-	if err != nil {
-		return nil, err
-	}
-	if !addrx.IsGlobalUnicastIP(net.ParseIP(host)) {
-		ip, err := addrx.GlobalUnicastIPString()
-		if err != nil {
-			return nil, err
-		}
-		host = ip
+	host, p, err2 := funcName(lis.Addr())
+	if err2 != nil {
+		return nil, err2
 	}
 	port, err := strconv.Atoi(p)
 	if err != nil {
@@ -96,6 +89,21 @@ func NewServer(factory ServerFactory, opts ...Option) (Server, error) {
 	}
 	srv := factory(lis, nil)
 	return newServer(srv, o, host, port), nil
+}
+
+func funcName(address net.Addr) (string, string, error) {
+	host, port, err := net.SplitHostPort(address.String())
+	if err != nil {
+		return "", "", err
+	}
+	if addrx.IsGlobalUnicastIP(net.ParseIP(host)) {
+		return host, port, nil
+	}
+	ip, err := addrx.GlobalUnicastIPString()
+	if err != nil {
+		return "", "", err
+	}
+	return ip, port, nil
 }
 
 func newServer(srv Server, o *options, host string, port int) *server {

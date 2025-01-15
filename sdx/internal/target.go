@@ -5,10 +5,10 @@ import (
 	"strings"
 )
 
-func ExtractEndpoint(uri *url.URL) string {
-	endpoint := uri.Path
+func ExtractEndpoint(instance *url.URL) string {
+	endpoint := instance.Path
 	if endpoint == "" {
-		endpoint = uri.Opaque
+		endpoint = instance.Opaque
 	}
 	// For targets of the form "[scheme]://[authority]/endpoint, the endpoint
 	// value returned from url.Parse() contains a leading "/". Although this is

@@ -1,4 +1,4 @@
-package stainx
+package stain
 
 import (
 	"context"

@@ -274,7 +274,7 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 	g.P("}")
 	for _, endpoint := range service.Endpoints {
 		g.P("func (b *", service.Unexported(service.BalancersName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ") (", internal.LbPackage.Ident("Balancer"), ", error) {")
-		g.P("color, _ := ", internal.StainxPackage.Ident("ExtractColor"), "(ctx)")
+		g.P("color, _ := ", internal.StainPackage.Ident("ExtractColor"), "(ctx)")
 		g.P("balancer, err, _ := b.", endpoint.Unexported(endpoint.Name()), ".LoadOrNew(color, ", internal.LbxPackage.Ident("NewBalancer"), "(ctx, b.factory, b.endpointer.", endpoint.Name(), "))")
 		g.P("return balancer, err")
 		g.P("}")

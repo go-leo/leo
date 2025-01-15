@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	io "io"
@@ -145,7 +145,7 @@ type greeterBalancers struct {
 }
 
 func (b *greeterBalancers) SayHello(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.sayHello.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.SayHello))
 	return balancer, err
 }

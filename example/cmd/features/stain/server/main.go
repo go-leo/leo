@@ -2,25 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/go-kit/kit/sd/consul"
+	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
-	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx/consulx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/transportx/grpcx"
 	"github.com/go-leo/leo/v3/transportx/httpx"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	stdconsul "github.com/hashicorp/consul/api"
 	grpc1 "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"strconv"
 	"time"
 )
 
@@ -48,12 +38,6 @@ func main() {
 }
 
 func runApi(port int) {
-	address := ":" + strconv.FormatInt(int64(port), 10)
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
 	httpClient := helloworld.NewGreeterHttpClient(
 		"consul://localhost:8500/demo.http?dc=dc1",
 		httpx.InstancerBuilder(consulx.Builder{}),
@@ -62,21 +46,16 @@ func runApi(port int) {
 
 	router := helloworld.AppendGreeterHttpServerRoutes(
 		mux.NewRouter(),
-		NewGreeterApiService(httpClient, address),
+		NewGreeterApiService(httpClient),
 	)
-	server := http.Server{Handler: router}
-	go func() {
-		log.Printf("server listening at %v", lis.Addr())
-		if err := server.Serve(lis); err != nil {
-			fmt.Printf("failed to serve: %v\n", err)
-		}
-	}()
-	select {}
+	app := leo.NewApp(leo.Runner(httpx.NewServer(router, httpx.Port(port))))
+	if err := app.Run(context.Background()); err != nil {
+		panic(err)
+	}
 }
 
 type GreeterApiService struct {
-	client  helloworld.GreeterService
-	address string
+	client helloworld.GreeterService
 }
 
 func (g GreeterApiService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
@@ -84,71 +63,41 @@ func (g GreeterApiService) SayHello(ctx context.Context, request *helloworld.Hel
 	if err != nil {
 		return nil, err
 	}
-	hello.Message = "[client," + request.GetName() + "]" + "[api," + g.address + "]" + hello.GetMessage()
+	hello.Message = "[client," + request.GetName() + "]" + "[api]" + hello.GetMessage()
 	return hello, nil
 }
 
-func NewGreeterApiService(client helloworld.GreeterService, address string) helloworld.GreeterService {
-	return &GreeterApiService{client: client, address: address}
+func NewGreeterApiService(client helloworld.GreeterService) helloworld.GreeterService {
+	return &GreeterApiService{client: client}
 }
 
 func runHttp(port int, color string) {
-	address := ":" + strconv.FormatInt(int64(port), 10)
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
 	grpcClient := helloworld.NewGreeterGrpcClient(
 		"consul://localhost:8500/demo.grpc?dc=dc1",
 		grpcx.DialOptions(grpc1.WithTransportCredentials(insecure.NewCredentials())),
 		grpcx.InstancerBuilder(consulx.Builder{}),
 		grpcx.BalancerFactory(lbx.RandomFactory{}),
 	)
-
 	router := helloworld.AppendGreeterHttpServerRoutes(
 		mux.NewRouter(),
-		NewGreeterHttpService(grpcClient, address, color),
+		NewGreeterHttpService(grpcClient, color),
 	)
-	server := http.Server{Handler: router}
-	client, err := stdconsul.NewClient(&stdconsul.Config{
-		Address:    "localhost:8500",
-		Datacenter: "dc1",
-	})
-	if err != nil {
+	server := httpx.NewServer(
+		router,
+		httpx.Port(port),
+		httpx.Instance("consul://localhost:8500/demo.http?dc=dc1"),
+		httpx.RegistrarBuilder(consulx.Builder{}),
+		httpx.Color(color),
+	)
+	app := leo.NewApp(leo.Runner(server))
+	if err := app.Run(context.Background()); err != nil {
 		panic(err)
 	}
-	registrar := consul.NewRegistrar(consul.NewClient(client), &stdconsul.AgentServiceRegistration{
-		ID:      uuid.NewString(),
-		Name:    "demo.http",
-		Tags:    []string{color},
-		Port:    port,
-		Address: "127.0.0.1",
-	}, logx.L())
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		registrar.Deregister()
-		if err := server.Shutdown(context.Background()); err != nil {
-			fmt.Printf("failed to shutdown: %v\n", err)
-		}
-	}()
-
-	go func() {
-		log.Printf("server listening at %v", lis.Addr())
-		registrar.Register()
-		if err := server.Serve(lis); err != nil {
-			fmt.Printf("failed to serve: %v\n", err)
-		}
-	}()
-	select {}
 }
 
 type GreeterHttpService struct {
-	client  helloworld.GreeterService
-	address string
-	color   string
+	client helloworld.GreeterService
+	color  string
 }
 
 func (g GreeterHttpService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
@@ -156,70 +105,38 @@ func (g GreeterHttpService) SayHello(ctx context.Context, request *helloworld.He
 	if err != nil {
 		return nil, err
 	}
-	hello.Message = "[http," + g.color + "," + g.address + "]" + hello.GetMessage()
+	hello.Message = "[http," + g.color + "]" + hello.GetMessage()
 	return hello, nil
 }
 
-func NewGreeterHttpService(client helloworld.GreeterService, address string, color string) helloworld.GreeterService {
-	return &GreeterHttpService{client: client, address: address, color: color}
+func NewGreeterHttpService(client helloworld.GreeterService, color string) helloworld.GreeterService {
+	return &GreeterHttpService{client: client, color: color}
 }
 
 func runGrpc(port int, color string) {
-	address := ":" + strconv.FormatInt(int64(port), 10)
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc1.NewServer()
-	service := helloworld.NewGreeterGrpcServer(
-		NewGreeterGrpcService(address, color),
+	server := grpcx.NewServer(
+		grpcx.Port(port),
+		grpcx.Instance("consul://localhost:8500/demo.grpc?dc=dc1"),
+		grpcx.RegistrarBuilder(consulx.Builder{}),
+		grpcx.Color(color),
 	)
-	helloworld.RegisterGreeterServer(s, service)
-	log.Printf("server listening at %v", lis.Addr())
-	client, err := stdconsul.NewClient(&stdconsul.Config{
-		Address:    "localhost:8500",
-		Datacenter: "dc1",
-	})
-	if err != nil {
+	service := helloworld.NewGreeterGrpcServer(NewGreeterGrpcService(color))
+	helloworld.RegisterGreeterServer(server, service)
+	app := leo.NewApp(leo.Runner(server))
+	if err := app.Run(context.Background()); err != nil {
 		panic(err)
 	}
-	registrar := consul.NewRegistrar(consul.NewClient(client), &stdconsul.AgentServiceRegistration{
-		ID:      uuid.NewString(),
-		Name:    "demo.grpc",
-		Tags:    []string{color},
-		Port:    port,
-		Address: "127.0.0.1",
-	}, logx.L())
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		registrar.Deregister()
-		s.GracefulStop()
-	}()
-
-	go func() {
-		registrar.Register()
-		if err := s.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v\n", err)
-		}
-	}()
-	select {}
 }
 
 type GreeterGrpcService struct {
-	color   string
-	address string
+	color string
 }
 
 func (g GreeterGrpcService) SayHello(ctx context.Context, request *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	time.Sleep(time.Second)
-	return &helloworld.HelloReply{
-		Message: "[http," + g.color + "," + g.address + "]",
-	}, nil
+	return &helloworld.HelloReply{Message: "[grpc," + g.color + "]"}, nil
 }
 
-func NewGreeterGrpcService(address, color string) helloworld.GreeterService {
-	return &GreeterGrpcService{address: address, color: color}
+func NewGreeterGrpcService(color string) helloworld.GreeterService {
+	return &GreeterGrpcService{color: color}
 }

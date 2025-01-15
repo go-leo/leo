@@ -6,18 +6,19 @@ import (
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/gox/netx/httpx/outgoing"
 	"github.com/go-leo/leo/v3/example/api/helloworld"
-	"github.com/go-leo/leo/v3/sdx/stainx"
+	"github.com/go-leo/leo/v3/sdx/stain"
 )
 
 func main() {
 	client := helloworld.NewGreeterHttpClient("127.0.0.1:8000")
 	var callApi = func(color string) {
-		ctx := stainx.InjectColor(context.Background(), color)
-		resp, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: color + "-color"})
+		ctx := stain.InjectColor(context.Background(), color)
+		resp, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: color})
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+		} else {
+			fmt.Println(resp.GetMessage())
 		}
-		fmt.Println(resp.GetMessage())
 	}
 	for i := 0; i < 900; i++ {
 		r := randx.Int()
@@ -28,7 +29,7 @@ func main() {
 		} else if r%4 == 2 {
 			callApi("yellow")
 		} else {
-			callApi("")
+			callApi("purple")
 		}
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func DefaultConfigParser(rawURL *url.URL) (*api.Config, error) {
+func DefaultClientCreator(rawURL *url.URL, color string) (*api.Client, error) {
 	q := args{}
 	decoder := form.NewDecoder()
 	decoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) { return time.ParseDuration(vals[0]) }, time.Duration(0))
@@ -45,7 +45,7 @@ func DefaultConfigParser(rawURL *url.URL) (*api.Config, error) {
 		},
 		Token: q.Token,
 	}
-	return config, nil
+	return api.NewClient(config)
 }
 
 type args struct {

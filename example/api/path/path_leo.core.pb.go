@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -378,47 +378,47 @@ type pathBalancers struct {
 }
 
 func (b *pathBalancers) BoolPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.boolPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.BoolPath))
 	return balancer, err
 }
 func (b *pathBalancers) Int32Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.int32Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int32Path))
 	return balancer, err
 }
 func (b *pathBalancers) Int64Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.int64Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int64Path))
 	return balancer, err
 }
 func (b *pathBalancers) Uint32Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.uint32Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint32Path))
 	return balancer, err
 }
 func (b *pathBalancers) Uint64Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.uint64Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint64Path))
 	return balancer, err
 }
 func (b *pathBalancers) FloatPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.floatPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.FloatPath))
 	return balancer, err
 }
 func (b *pathBalancers) DoublePath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.doublePath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DoublePath))
 	return balancer, err
 }
 func (b *pathBalancers) StringPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.stringPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StringPath))
 	return balancer, err
 }
 func (b *pathBalancers) EnumPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.enumPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EnumPath))
 	return balancer, err
 }

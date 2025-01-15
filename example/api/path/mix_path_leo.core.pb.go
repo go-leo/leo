@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -146,7 +146,7 @@ type mixPathBalancers struct {
 }
 
 func (b *mixPathBalancers) MixPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.mixPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MixPath))
 	return balancer, err
 }

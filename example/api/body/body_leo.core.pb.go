@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
@@ -263,27 +263,27 @@ type bodyBalancers struct {
 }
 
 func (b *bodyBalancers) StarBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.starBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StarBody))
 	return balancer, err
 }
 func (b *bodyBalancers) NamedBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.namedBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedBody))
 	return balancer, err
 }
 func (b *bodyBalancers) NonBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.nonBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NonBody))
 	return balancer, err
 }
 func (b *bodyBalancers) HttpBodyStarBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.httpBodyStarBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyStarBody))
 	return balancer, err
 }
 func (b *bodyBalancers) HttpBodyNamedBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.httpBodyNamedBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyNamedBody))
 	return balancer, err
 }

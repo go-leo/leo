@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -233,22 +233,22 @@ type cQRSBalancers struct {
 }
 
 func (b *cQRSBalancers) CreateUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.createUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateUser))
 	return balancer, err
 }
 func (b *cQRSBalancers) DeleteUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.deleteUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteUser))
 	return balancer, err
 }
 func (b *cQRSBalancers) UpdateUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.updateUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateUser))
 	return balancer, err
 }
 func (b *cQRSBalancers) FindUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.findUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.FindUser))
 	return balancer, err
 }

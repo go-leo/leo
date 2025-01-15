@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -262,27 +262,27 @@ type workspacesBalancers struct {
 }
 
 func (b *workspacesBalancers) ListWorkspaces(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.listWorkspaces.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListWorkspaces))
 	return balancer, err
 }
 func (b *workspacesBalancers) GetWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.getWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetWorkspace))
 	return balancer, err
 }
 func (b *workspacesBalancers) CreateWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.createWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateWorkspace))
 	return balancer, err
 }
 func (b *workspacesBalancers) UpdateWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.updateWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateWorkspace))
 	return balancer, err
 }
 func (b *workspacesBalancers) DeleteWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.deleteWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteWorkspace))
 	return balancer, err
 }

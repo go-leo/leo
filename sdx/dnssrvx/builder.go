@@ -7,6 +7,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-leo/leo/v3/sdx"
 	"github.com/go-leo/leo/v3/sdx/internal"
+	"net"
 	"net/url"
 	"time"
 )
@@ -26,11 +27,11 @@ func (Builder) Scheme() string {
 	return schemeName
 }
 
-func (b Builder) BuildInstancer(ctx context.Context, target *url.URL, color string) (sd.Instancer, error) {
-	return dnssrv.NewInstancer(internal.ExtractEndpoint(target), b.TTL, b.Logger), nil
+func (b Builder) BuildInstancer(ctx context.Context, instance *url.URL, color string) (sd.Instancer, error) {
+	return dnssrv.NewInstancer(internal.ExtractEndpoint(instance), b.TTL, b.Logger), nil
 }
 
-func (b Builder) BuildRegistrar(ctx context.Context, target *url.URL, address sdx.Address, color string) (sd.Registrar, error) {
+func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.IP, port int, color string) (sd.Registrar, error) {
 	//TODO implement me
 	panic("implement me")
 }

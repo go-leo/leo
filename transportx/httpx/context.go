@@ -6,8 +6,8 @@ import (
 	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/metadatax"
-	"github.com/go-leo/leo/v3/sdx/stainx"
-	"github.com/go-leo/leo/v3/transportx/httpx/internal"
+	"github.com/go-leo/leo/v3/sdx/stain"
+	"github.com/go-leo/leo/v3/transportx/internal"
 	"net/http"
 	"time"
 )
@@ -87,7 +87,7 @@ func InjectTarget(ctx context.Context, target string) context.Context {
 }
 
 func OutgoingStainInjector(ctx context.Context, request *http.Request) context.Context {
-	color, ok := stainx.ExtractColor(ctx)
+	color, ok := stain.ExtractColor(ctx)
 	if !ok {
 		return ctx
 	}
@@ -100,5 +100,5 @@ func IncomingStainInjector(ctx context.Context, request *http.Request) context.C
 	if values == nil || len(values) == 0 {
 		return ctx
 	}
-	return stainx.InjectColor(ctx, values[0])
+	return stain.InjectColor(ctx, values[0])
 }

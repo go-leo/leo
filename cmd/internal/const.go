@@ -36,7 +36,7 @@ var (
 	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
 	SdxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx")
 	LbxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/lbx")
-	StainxPackage          = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/stainx")
+	StainPackage           = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/stain")
 
 	ErrorxPackage    = protogen.GoImportPath("github.com/go-leo/gox/errorx")
 	ConvxPackage     = protogen.GoImportPath("github.com/go-leo/gox/convx")

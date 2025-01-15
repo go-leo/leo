@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -291,32 +291,32 @@ type namedPathBalancers struct {
 }
 
 func (b *namedPathBalancers) NamedPathString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.namedPathString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedPathString))
 	return balancer, err
 }
 func (b *namedPathBalancers) NamedPathOptString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.namedPathOptString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedPathOptString))
 	return balancer, err
 }
 func (b *namedPathBalancers) NamedPathWrapString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.namedPathWrapString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedPathWrapString))
 	return balancer, err
 }
 func (b *namedPathBalancers) EmbedNamedPathString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.embedNamedPathString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EmbedNamedPathString))
 	return balancer, err
 }
 func (b *namedPathBalancers) EmbedNamedPathOptString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.embedNamedPathOptString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EmbedNamedPathOptString))
 	return balancer, err
 }
 func (b *namedPathBalancers) EmbedNamedPathWrapString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.embedNamedPathWrapString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EmbedNamedPathWrapString))
 	return balancer, err
 }

@@ -17,17 +17,17 @@ func NewEndpointer(
 	logger log.Logger,
 	options ...sd.EndpointerOption,
 ) (sd.Endpointer, error) {
-	targetUrl, err := url.Parse(target)
+	instanceUrl, err := url.Parse(target)
 	if err != nil {
 		canonicalTarget := builder.Scheme() + ":///" + target
-		targetUrl, err = url.Parse(canonicalTarget)
+		instanceUrl, err = url.Parse(canonicalTarget)
 		if err != nil {
-			return nil, fmt.Errorf("sdx: failed to parse canonical target: %q", canonicalTarget)
+			return nil, fmt.Errorf("sdx: failed to parse canonical target instance: %q", canonicalTarget)
 		}
 	}
-	instancer, err := builder.BuildInstancer(ctx, targetUrl, color)
+	instancer, err := builder.BuildInstancer(ctx, instanceUrl, color)
 	if err != nil {
-		return nil, fmt.Errorf("sdx: failed to new instancer, target url: %q, color: %q", targetUrl.String(), color)
+		return nil, fmt.Errorf("sdx: failed to new instancer, target url: %q, color: %q", instanceUrl.String(), color)
 	}
 	return sd.NewEndpointer(instancer, factory, logger, options...), nil
 }

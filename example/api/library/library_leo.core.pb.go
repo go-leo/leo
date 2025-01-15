@@ -12,7 +12,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	sdx "github.com/go-leo/leo/v3/sdx"
 	lbx "github.com/go-leo/leo/v3/sdx/lbx"
-	stainx "github.com/go-leo/leo/v3/sdx/stainx"
+	stain "github.com/go-leo/leo/v3/sdx/stain"
 	statusx "github.com/go-leo/leo/v3/statusx"
 	transportx "github.com/go-leo/leo/v3/transportx"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -436,57 +436,57 @@ type libraryServiceBalancers struct {
 }
 
 func (b *libraryServiceBalancers) CreateShelf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.createShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateShelf))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) GetShelf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.getShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetShelf))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) ListShelves(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.listShelves.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListShelves))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) DeleteShelf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.deleteShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteShelf))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) MergeShelves(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.mergeShelves.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MergeShelves))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) CreateBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.createBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) GetBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.getBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) ListBooks(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.listBooks.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListBooks))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) DeleteBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.deleteBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) UpdateBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.updateBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) MoveBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stain.ExtractColor(ctx)
 	balancer, err, _ := b.moveBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MoveBook))
 	return balancer, err
 }

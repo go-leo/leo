@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/metadatax"
-	"github.com/go-leo/leo/v3/sdx/stainx"
+	"github.com/go-leo/leo/v3/sdx/stain"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
 	"github.com/go-leo/leo/v3/transportx/grpcx"
@@ -47,12 +47,12 @@ func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, ke
 	if len(value) == 0 {
 		return next(ctx, request)
 	}
-	ctx = stainx.InjectColor(ctx, value)
+	ctx = stain.InjectColor(ctx, value)
 	return next(ctx, request)
 }
 
 func handleOutgoing(ctx context.Context, request any, next endpoint.Endpoint, key string) (any, error) {
-	color, ok := stainx.ExtractColor(ctx)
+	color, ok := stain.ExtractColor(ctx)
 	if !ok {
 		return next(ctx, request)
 	}
