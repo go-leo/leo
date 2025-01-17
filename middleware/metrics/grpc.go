@@ -6,8 +6,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
+	"go.opentelemetry.io/otel/metric"
 	"google.golang.org/grpc"
 
 	"github.com/go-leo/leo/middleware/internal"
@@ -24,49 +23,49 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 		skipMap[skip] = struct{}{}
 	}
 	// 请求延迟直方图
-	serverHandledHistogram, e := global.MeterProvider().
+	serverHandledHistogram, e := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64Histogram(
 			"grpc.server.handling",
-			instrument.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
-			instrument.WithUnit("ms"),
+			metric.WithDescription("Histogram of response latency (milliseconds) of gRPC that had been application-level handled by the server."),
+			metric.WithUnit("ms"),
 		)
 	if e != nil {
 		otel.Handle(e)
 		return noop.GRPCServerMiddleware()
 	}
 	// 请求计数器
-	serverStartedCounter, e := global.MeterProvider().
+	serverStartedCounter, e := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64Counter("grpc.server.started",
-			instrument.WithDescription("Total number of RPCs started on the server."),
+			metric.WithDescription("Total number of RPCs started on the server."),
 		)
 	if e != nil {
 		otel.Handle(e)
 		return noop.GRPCServerMiddleware()
 	}
-	serverHandledCounter, e := global.MeterProvider().
+	serverHandledCounter, e := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64Counter("grpc.server.handled",
-			instrument.WithDescription("Total number of RPCs completed on the server, regardless of success or failure."),
+			metric.WithDescription("Total number of RPCs completed on the server, regardless of success or failure."),
 		)
 	if e != nil {
 		otel.Handle(e)
 		return noop.GRPCServerMiddleware()
 	}
-	serverStreamMsgReceived, e := global.MeterProvider().
+	serverStreamMsgReceived, e := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64Counter("grpc.server.msg.received",
-			instrument.WithDescription("Total number of RPC stream messages received on the server."),
+			metric.WithDescription("Total number of RPC stream messages received on the server."),
 		)
 	if e != nil {
 		otel.Handle(e)
 		return noop.GRPCServerMiddleware()
 	}
-	serverStreamMsgSent, e := global.MeterProvider().
+	serverStreamMsgSent, e := otel.GetMeterProvider().
 		Meter(internal.InstrumentationName).
 		Int64Counter("grpc.server.msg.sent",
-			instrument.WithDescription("Total number of gRPC stream messages sent by the server."),
+			metric.WithDescription("Total number of gRPC stream messages sent by the server."),
 		)
 	if e != nil {
 		otel.Handle(e)
@@ -83,19 +82,19 @@ func GRPCServerMiddleware(opts ...Option) grpc.UnaryServerInterceptor {
 		attrs := []attribute.KeyValue{internal.GRPCType()}
 		attrs = append(attrs, internal.ParseFullMethod(info.FullMethod)...)
 		// 开始计数器加1
-		serverStartedCounter.Add(ctx, 1, attrs...)
+		serverStartedCounter.Add(ctx, 1, metric.WithAttributeSet(attribute.NewSet(attrs...)))
 		// 接收到Msg计数器加1
-		serverStreamMsgReceived.Add(ctx, 1, attrs...)
+		serverStreamMsgReceived.Add(ctx, 1, metric.WithAttributeSet(attribute.NewSet(attrs...)))
 		// 处理一个中间件、业务逻辑
 		resp, err := handler(ctx, req)
 		if err == nil {
 			// 发送Msg计数器加1
-			serverStreamMsgSent.Add(ctx, 1, attrs...)
+			serverStreamMsgSent.Add(ctx, 1, metric.WithAttributeSet(attribute.NewSet(attrs...)))
 		}
 		// 请求延迟直方图记录延迟
-		serverHandledHistogram.Record(ctx, time.Since(startTime).Milliseconds(), attrs...)
+		serverHandledHistogram.Record(ctx, time.Since(startTime).Milliseconds(), metric.WithAttributeSet(attribute.NewSet(attrs...)))
 		// 请求计数器加1
-		serverHandledCounter.Add(ctx, 1, append(attrs, internal.ParseError(err))...)
+		serverHandledCounter.Add(ctx, 1, metric.WithAttributeSet(attribute.NewSet(append(attrs, internal.ParseError(err))...)))
 		return resp, err
 	}
 }
