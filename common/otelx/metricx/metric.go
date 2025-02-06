@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-leo/leo/internal/otelx/resourcex"
+	"github.com/go-leo/leo/common/otelx/resourcex"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/sdk/instrumentation"

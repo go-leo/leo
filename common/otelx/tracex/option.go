@@ -1,11 +1,10 @@
 package tracex
 
 import (
+	"github.com/go-leo/leo/common/otelx/resourcex"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-
-	"github.com/go-leo/leo/internal/otelx/resourcex"
 )
 
 type options struct {

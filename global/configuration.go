@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-leo/leo/internal/otelx/metricx"
-	"github.com/go-leo/leo/internal/otelx/tracex"
+	"github.com/go-leo/leo/common/otelx/metricx"
+	"github.com/go-leo/leo/common/otelx/tracex"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 

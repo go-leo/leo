@@ -1,10 +1,9 @@
 package metricx
 
 import (
+	"github.com/go-leo/leo/common/otelx/resourcex"
 	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-
-	"github.com/go-leo/leo/internal/otelx/resourcex"
 )
 
 type ViewOption struct {
