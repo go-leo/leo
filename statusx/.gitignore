@@ -1,0 +1,5 @@
+.idea
+/example/cmd/grpc/greeter_client/main
+/example/cmd/grpc/greeter_server/main
+/example/cmd/gors/greeter_client/main
+/example/cmd/gors/greeter_server/main

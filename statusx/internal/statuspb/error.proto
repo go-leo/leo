@@ -1,0 +1,63 @@
+syntax = "proto3";
+package leo.status;
+option go_package = "github.com/go-leo/leo/v3/statusx/internal/statuspb;statuspb";
+
+import "google/protobuf/any.proto";
+import "google/rpc/status.proto";
+import "google/rpc/error_details.proto";
+import "google/rpc/http.proto";
+
+// Error is the error.
+message Error {
+  // detail is the details.
+  DetailInfo detail_info = 1;
+
+  // http_status is the http status.
+  google.rpc.HttpResponse http_status = 2;
+
+  // grpc_status is the grpc status.
+  google.rpc.Status grpc_status = 3;
+}
+
+message DetailInfo {
+  // This distinguish between two Status objects as being the same when
+  // both code and status are identical.
+  Identifier identifier = 1;
+
+  // error_info is the error info.
+  google.rpc.ErrorInfo error_info = 2;
+
+  // retry_info is the retry info.
+  google.rpc.RetryInfo retry_info = 3;
+
+  // debug_info is the debug info.
+  google.rpc.DebugInfo debug_info = 4;
+
+  // quota_failure is the quota failure.
+  google.rpc.QuotaFailure quota_failure = 5;
+
+  // precondition_failure is the precondition failure.
+  google.rpc.PreconditionFailure precondition_failure = 6;
+
+  // bad_request is the bad request.
+  google.rpc.BadRequest bad_request = 7;
+
+  // request_info is the request info.
+  google.rpc.RequestInfo request_info = 8;
+
+  // resource_info is the resource info.
+  google.rpc.ResourceInfo resource_info = 9;
+
+  // help is the help.
+  google.rpc.Help help = 10;
+
+  // localized_message is the localized message.
+  google.rpc.LocalizedMessage localized_message = 11;
+
+  // details are the other detail.
+  repeated google.protobuf.Any details = 12;
+}
+
+message Identifier {
+  string value = 1;
+}

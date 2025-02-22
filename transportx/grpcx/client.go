@@ -114,7 +114,7 @@ func BalancerFactory(factory lbx.BalancerFactory) ClientOption {
 }
 
 func NewClientOptions(opts ...ClientOption) ClientOptions {
-	options := &clientOptions{
+	var options = &clientOptions{
 		dialOptions:            nil,
 		clientTransportOptions: nil,
 		middlewares:            nil,

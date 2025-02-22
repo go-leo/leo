@@ -17,10 +17,10 @@ import (
 )
 
 var parsers = []Parser{
-	&Env{},
-	&Json{},
-	&Toml{},
-	&Yaml{},
+	Env{},
+	Json{},
+	Toml{},
+	Yaml{},
 }
 
 var parsersMutex sync.RWMutex

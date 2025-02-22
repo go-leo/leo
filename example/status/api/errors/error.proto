@@ -1,0 +1,15 @@
+syntax = "proto3";
+package status.example.errors;
+option go_package = "github.com/go-leo/example/api/errors;errors";
+
+import "leo/status/annotations.proto";
+
+enum Errors {
+  option (leo.status.default_rpc_code) = INTERNAL;
+
+  InvalidName = 0 [(leo.status.rpc_code) = INVALID_ARGUMENT, (leo.status.message) = "名称为空"];
+
+  FileDownloadFailed = 1 [(leo.status.message) = "文件下载失败"];
+
+  FileUploadFailed = 2;
+}

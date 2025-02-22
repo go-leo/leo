@@ -5,7 +5,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/lb"
-	"github.com/go-leo/leo/v3/statusx"
 )
 
 // BalancerFactory create a balancer
@@ -35,7 +34,7 @@ func NewBalancer(ctx context.Context, factory BalancerFactory, newEndpointer fun
 		wrappedErr := BalancerFunc(func() (endpoint.Endpoint, error) {
 			ep, err := balancer.Endpoint()
 			if err != nil {
-				return nil, statusx.ErrUnavailable.With(statusx.Wrap(err))
+				return nil, err
 			}
 			return ep, nil
 		})

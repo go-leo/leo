@@ -10,6 +10,8 @@ type options struct {
 
 func newOptions() *options {
 	return &options{
+		Resources:  nil,
+		Parsers:    []Parser{},
 		Merger:     &merger{},
 		BufferSize: 16,
 	}
