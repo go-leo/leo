@@ -18,8 +18,6 @@ var (
 	StringsPackage = protogen.GoImportPath("strings")
 	JsonPackage    = protogen.GoImportPath("encoding/json")
 
-	MuxPackage = protogen.GoImportPath("github.com/gorilla/mux")
-
 	GrpcTransportPackage = protogen.GoImportPath("github.com/go-kit/kit/transport/grpc")
 	HttpTransportPackage = protogen.GoImportPath("github.com/go-kit/kit/transport/http")
 	EndpointPackage      = protogen.GoImportPath("github.com/go-kit/kit/endpoint")
@@ -30,7 +28,6 @@ var (
 	EndpointxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
 	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpcx")
-	HttpxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx")
 	CqrsPackage            = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
 	MetadataxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
 	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
@@ -52,7 +49,6 @@ var (
 
 	RpcHttpPackage = protogen.GoImportPath("google.golang.org/genproto/googleapis/rpc/http")
 
-	ProtoJsonPackage   = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	ProtoPackage       = protogen.GoImportPath("google.golang.org/protobuf/proto")
 	WrapperspbPackage  = protogen.GoImportPath("google.golang.org/protobuf/types/known/wrapperspb")
 	FieldmaskpbPackage = protogen.GoImportPath("google.golang.org/protobuf/types/known/fieldmaskpb")
@@ -68,4 +64,32 @@ var (
 var (
 	ContentTypeKey  = "Content-Type"
 	JsonContentType = "application/json; charset=utf-8"
+)
+
+var (
+	ProtoJsonPackage               = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
+	ProtoJsonMarshalOptionsIdent   = ProtoJsonPackage.Ident("MarshalOptions")
+	ProtoJsonUnmarshalOptionsIdent = ProtoJsonPackage.Ident("UnmarshalOptions")
+)
+
+var (
+	HttpxTransportxPackage   = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx")
+	ErrorEncoderIdent        = HttpxTransportxPackage.Ident("ErrorEncoder")
+	ResponseTransformerIdent = HttpxTransportxPackage.Ident("ResponseTransformer")
+	DefaultErrorEncoderIdent = HttpxTransportxPackage.Ident("DefaultErrorEncoder")
+	ResponseEncoderIdent     = HttpxTransportxPackage.Ident("ResponseEncoder")
+	HttpBodyEncoderIdent     = HttpxTransportxPackage.Ident("HttpBodyEncoder")
+	HttpResponseEncoderIdent = HttpxTransportxPackage.Ident("HttpResponseEncoder")
+	RequestDecoderIdent      = HttpxTransportxPackage.Ident("RequestDecoder")
+	HttpBodyDecoderIdent     = HttpxTransportxPackage.Ident("HttpBodyDecoder")
+	HttpRequestDecoderIdent  = HttpxTransportxPackage.Ident("HttpRequestDecoder")
+	FormDecoderIdent         = HttpxTransportxPackage.Ident("FormDecoder")
+	OptionIdent              = HttpxTransportxPackage.Ident("Option")
+	NewOptionsIdent          = HttpxTransportxPackage.Ident("NewOptions")
+)
+
+var (
+	MuxPackage  = protogen.GoImportPath("github.com/gorilla/mux")
+	RouterIdent = MuxPackage.Ident("Router")
+	VarsIdent   = MuxPackage.Ident("Vars")
 )

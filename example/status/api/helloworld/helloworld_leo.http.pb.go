@@ -15,6 +15,7 @@ import (
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
+	protojson "google.golang.org/protobuf/encoding/protojson"
 	io "io"
 	http "net/http"
 	url "net/url"
@@ -113,7 +114,6 @@ func (t *greeterHttpServerTransports) SayHello() http.Handler {
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerFinalizer(httpx.CancelInvoker),
-		http1.ServerErrorEncoder(httpx.ErrorEncoder),
 	)
 }
 
@@ -129,17 +129,16 @@ func (greeterHttpServerRequestDecoder) SayHello() http1.DecodeRequestFunc {
 	}
 }
 
-type greeterHttpServerResponseEncoder struct{}
+type greeterHttpServerResponseEncoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
+func (encoder greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*HelloReply)
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		if err := jsonx.NewEncoder(w).Encode(resp); err != nil {
-			return err
-		}
-		return nil
+		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 

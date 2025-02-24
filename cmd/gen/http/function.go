@@ -14,7 +14,10 @@ func (f *FunctionGenerator) GenerateAppendRoutesFunc(service *internal.Service, 
 		httpRule := endpoint.HttpRule()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则
 		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-		g.P("router.NewRoute().Name(", strconv.Quote(endpoint.FullName()), ").Methods(", strconv.Quote(httpRule.Method()), ").Path(", strconv.Quote(path), ")")
+		g.P("router.NewRoute().")
+		g.P("Name(", strconv.Quote(endpoint.FullName()), ").")
+		g.P("Methods(", strconv.Quote(httpRule.Method()), ").")
+		g.P("Path(", strconv.Quote(path), ")")
 	}
 	g.P("return router")
 	g.P("}")
@@ -70,7 +73,6 @@ func (f *FunctionGenerator) GenerateNewClientFunc(service *internal.Service, g *
 	g.P("balancers := &", service.Unexported(service.BalancersName()), "{")
 	g.P("factory:    options.BalancerFactory(),")
 	g.P("endpointer: endpointer,")
-	g.P("sayHello:   ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]{},")
 	g.P("}")
 	g.P("endpoints := &", service.Unexported(service.ClientEndpointsName()), "{")
 	g.P("balancers: balancers,")

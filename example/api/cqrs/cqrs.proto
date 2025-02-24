@@ -2,20 +2,9 @@ syntax = "proto3";
 package pb;
 option go_package = "github.com/go-leo/leo/v3/example/api/cqrs/v1;cqrs";
 
-import "leo/cqrs/annotations.proto";
 import "google/protobuf/empty.proto";
 
 service CQRS {
-  option(leo.cqrs.command) = {
-    package: "github.com/go-leo/leo/v3/example/internal/cqrs/command"
-    relative: "../../../internal/cqrs/command"
-  };
-
-  option(leo.cqrs.query) = {
-    package: "github.com/go-leo/leo/v3/example/internal/cqrs/query"
-    relative:  "../../../internal/cqrs/query"
-  };
-
   rpc CreateUser (CreateUserRequest) returns (google.protobuf.Empty) {}
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}

@@ -92,7 +92,6 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 	g.P("balancers := &", service.Unexported(service.BalancersName()), "{")
 	g.P("factory:    options.BalancerFactory(),")
 	g.P("endpointer: endpointer,")
-	g.P("sayHello:   ", internal.LazyLoadxPackage.Ident("Group"), "[", internal.LbPackage.Ident("Balancer"), "]{},")
 	g.P("}")
 	g.P("endpoints := &", service.Unexported(service.ClientEndpointsName()), "{")
 	g.P("balancers: balancers,")

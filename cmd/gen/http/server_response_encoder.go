@@ -21,22 +21,31 @@ func (f *ServerResponseEncoderGenerator) GenerateServerResponseEncoder(service *
 }
 
 func (f *ServerResponseEncoderGenerator) GenerateServerResponseEncoderImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.Unexported(service.HttpServerResponseEncoderName()), " struct {}")
+	g.P("type ", service.Unexported(service.HttpServerResponseEncoderName()), " struct {")
+	g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
+	g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
+	g.P("responseTransformer ", internal.ResponseTransformerIdent)
+	g.P("}")
+	g.P()
 	for _, endpoint := range service.Endpoints {
-		g.P("func (", service.Unexported(service.HttpServerResponseEncoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
+		g.P("func (encoder ", service.Unexported(service.HttpServerResponseEncoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
 		httpRule := endpoint.HttpRule()
 		g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
 		g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
 		bodyParameter := httpRule.ResponseBody()
 		switch bodyParameter {
 		case "", "*":
-			srcValue := []any{"resp"}
 			message := endpoint.Output()
 			switch message.Desc.FullName() {
 			case "google.api.HttpBody":
-				f.PrintGoogleApiHttpBodyEncodeBlock(g, srcValue)
+				srcValue := []any{"resp"}
+				f.PrintHttpBodyEncodeBlock(g, srcValue)
+			case "google.rpc.HttpResponse":
+				srcValue := []any{"resp"}
+				f.PrintHttpResponseEncodeBlock(g, srcValue)
 			default:
-				f.PrintJsonEncodeBlock(g, srcValue)
+				srcValue := []any{"encoder.responseTransformer(ctx, resp)"}
+				f.PrintResponseEncodeBlock(g, srcValue)
 			}
 		default:
 			bodyField := internal.FindField(bodyParameter, endpoint.Output())
@@ -44,13 +53,16 @@ func (f *ServerResponseEncoderGenerator) GenerateServerResponseEncoderImplements
 				return fmt.Errorf("%s, failed to find body response field %s", endpoint.FullName(), bodyParameter)
 			}
 			srcValue := []any{"resp.Get", bodyField.GoName, "()"}
-			if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
-				f.PrintGoogleApiHttpBodyEncodeBlock(g, srcValue)
-			} else {
-				f.PrintJsonEncodeBlock(g, srcValue)
+			switch bodyField.Desc.Kind() {
+			case protoreflect.MessageKind:
+				switch bodyField.Message.Desc.FullName() {
+				case "google.api.HttpBody":
+					f.PrintHttpBodyEncodeBlock(g, srcValue)
+				default:
+					f.PrintResponseEncodeBlock(g, srcValue)
+				}
 			}
 		}
-		g.P("return nil")
 		g.P("}")
 		g.P("}")
 	}
@@ -79,10 +91,22 @@ func (f *ServerResponseEncoderGenerator) PrintGoogleApiHttpBodyEncodeBlock(g *pr
 	g.P("}")
 }
 
-func (f *ServerResponseEncoderGenerator) PrintJsonEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {
-	g.P("w.Header().Set(", strconv.Quote("Content-Type"), ", ", strconv.Quote(internal.JsonContentType), ")")
-	g.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
-	g.P(append(append([]any{"if err := ", internal.JsonxPackage.Ident("NewEncoder"), "(w).Encode("}, srcValue...), "); err != nil {")...)
-	g.P("return err")
-	g.P("}")
+//func (f *ServerResponseEncoderGenerator) PrintJsonEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {
+//	g.P("w.Header().Set(", strconv.Quote("Content-Type"), ", ", strconv.Quote(internal.JsonContentType), ")")
+//	g.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
+//	g.P(append(append([]any{"if err := ", internal.JsonxPackage.Ident("NewEncoder"), "(w).Encode("}, srcValue...), "); err != nil {")...)
+//	g.P("return err")
+//	g.P("}")
+//}
+
+func (f *ServerResponseEncoderGenerator) PrintHttpBodyEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {
+	g.P(append(append([]any{"return ", internal.HttpBodyEncoderIdent, "(ctx, w, "}, srcValue...), ")")...)
+}
+
+func (f *ServerResponseEncoderGenerator) PrintHttpResponseEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {
+	g.P(append(append([]any{"return ", internal.HttpResponseEncoderIdent, "(ctx, w, "}, srcValue...), ")")...)
+}
+
+func (f *ServerResponseEncoderGenerator) PrintResponseEncodeBlock(g *protogen.GeneratedFile, srcValue []any) {
+	g.P(append(append([]any{"return ", internal.ResponseEncoderIdent, "(ctx, w, "}, srcValue...), ", encoder.marshalOptions)")...)
 }

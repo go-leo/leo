@@ -5,20 +5,9 @@ option go_package = "github.com/go-leo/leo/v3/example/api/demo/v1;demo";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
-import "leo/cqrs/annotations.proto";
 
 
 service Demo {
-
-  option(leo.cqrs.command) = {
-    package: "github.com/go-leo/leo/v3/example/internal/demo/command"
-    relative: "../../../internal/demo/command"
-  };
-
-  option(leo.cqrs.query) = {
-    package: "github.com/go-leo/leo/v3/example/internal/demo/query"
-    relative:  "../../../internal/demo/query"
-  };
 
   // CreateUser create user
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {

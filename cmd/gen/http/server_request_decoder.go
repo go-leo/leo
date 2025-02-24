@@ -20,9 +20,11 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoder(service *in
 }
 
 func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("type ", service.Unexported(service.HttpServerRequestDecoderName()), " struct {}")
+	g.P("type ", service.Unexported(service.HttpServerRequestDecoderName()), " struct {")
+	g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
+	g.P("}")
 	for _, endpoint := range service.Endpoints {
-		g.P("func (", service.Unexported(service.HttpServerRequestDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeRequestFunc"), "{")
+		g.P("func (decoder ", service.Unexported(service.HttpServerRequestDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeRequestFunc"), "{")
 		g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.HttpPackage.Ident("Request"), ") (any, error) {")
 		g.P("req := &", endpoint.InputGoIdent(), "{}")
 
@@ -34,33 +36,32 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(s
 		if bodyMessage != nil {
 			switch bodyMessage.Desc.FullName() {
 			case "google.api.HttpBody":
-				f.PrintGoogleApiHttpBodyDecodeBlock(g, []any{"req"}, []any{"r.Body"})
+				f.PrintHttpBodyDecodeBlock(g, []any{"req"})
+			case "google.rpc.HttpRequest":
+				f.PrintHttpRequestEncodeBlock(g, []any{"req"})
 			default:
-				f.PrintDecodeBlock(g, internal.JsonxPackage.Ident("NewDecoder"), []any{"req"}, []any{"r.Body"})
+				f.PrintRequestDecodeBlock(g, []any{"req"})
 			}
 		} else if bodyField != nil {
-			if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
-				g.P("req.", bodyField.GoName, " = &", bodyField.Message.GoIdent, "{}")
-				tgtValue := []any{"req.", bodyField.GoName}
-				srcValue := []any{"r.Body"}
-				f.PrintGoogleApiHttpBodyDecodeBlock(g, tgtValue, srcValue)
-			} else {
-				tgtValue := []any{"&req.", bodyField.GoName}
-				srcValue := []any{"r.Body"}
-				f.PrintDecodeBlock(g, internal.JsonxPackage.Ident("NewDecoder"), tgtValue, srcValue)
+			tgtValue := []any{"req.", bodyField.GoName}
+			g.P(append(append(append([]any{"if "}, tgtValue...), " == nil {"))...)
+			g.P(append(tgtValue, " = &", bodyField.Message.GoIdent, "{}")...)
+			g.P("}")
+			switch bodyField.Desc.Kind() {
+			case protoreflect.MessageKind:
+				switch bodyField.Message.Desc.FullName() {
+				case "google.api.HttpBody":
+					f.PrintHttpBodyDecodeBlock(g, tgtValue)
+				default:
+					f.PrintRequestDecodeBlock(g, []any{"req.", bodyField.GoName})
+				}
 			}
 		}
 
 		if len(namedPathFields)+len(pathFields) > 0 {
-			g.P("vars := ", internal.UrlxPackage.Ident("FormFromMap"), "(", internal.MuxPackage.Ident("Vars"), "(r)", ")")
-			g.P("var varErr error")
-			if err := f.PrintNamedPathField(g, namedPathFields, endpoint.HttpRule()); err != nil {
-				return err
-			}
+			g.P("vars := ", internal.UrlxPackage.Ident("FormFromMap"), "(", internal.VarsIdent, "(r)", ")")
+			f.PrintNamedPathField(g, namedPathFields, endpoint.HttpRule())
 			f.PrintPathField(g, pathFields)
-			g.P("if varErr != nil {")
-			g.P("return nil, varErr")
-			g.P("}")
 		}
 
 		if len(queryFields) > 0 {
@@ -80,6 +81,24 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(s
 	return nil
 }
 
+func (f *ServerRequestDecoderGenerator) PrintHttpBodyDecodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
+	g.P(append(append([]any{"if err := ", internal.HttpBodyDecoderIdent, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
+	g.P("return nil, err")
+	g.P("}")
+}
+
+func (f *ServerRequestDecoderGenerator) PrintHttpRequestEncodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
+	g.P(append(append([]any{"if err := ", internal.HttpRequestDecoderIdent, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
+	g.P("return nil, err")
+	g.P("}")
+}
+
+func (f *ServerRequestDecoderGenerator) PrintRequestDecodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
+	g.P(append(append([]any{"if err := ", internal.RequestDecoderIdent, "(ctx, r, "}, tgtValue...), ", decoder.unmarshalOptions); err != nil {")...)
+	g.P("return nil, err")
+	g.P("}")
+}
+
 func (f *ServerRequestDecoderGenerator) PrintGoogleApiHttpBodyDecodeBlock(g *protogen.GeneratedFile, tgtValue []any, srcValue []any) {
 	g.P(append(append([]any{"body, err := ", internal.IOPackage.Ident("ReadAll"), "("}, srcValue...), []any{")"}...)...)
 	g.P("if err != nil {")
@@ -95,7 +114,7 @@ func (f *ServerRequestDecoderGenerator) PrintDecodeBlock(g *protogen.GeneratedFi
 	g.P("}")
 }
 
-func (f *ServerRequestDecoderGenerator) PrintNamedPathField(g *protogen.GeneratedFile, namedPathFields []*protogen.Field, httpRule *internal.HttpRule) error {
+func (f *ServerRequestDecoderGenerator) PrintNamedPathField(g *protogen.GeneratedFile, namedPathFields []*protogen.Field, httpRule *internal.HttpRule) {
 	for i, namedPathField := range namedPathFields {
 		fullFieldName := internal.FullFieldName(namedPathFields[:i+1])
 		if i < len(namedPathFields)-1 {
@@ -119,18 +138,20 @@ func (f *ServerRequestDecoderGenerator) PrintNamedPathField(g *protogen.Generate
 			}
 		}
 	}
-	return nil
 }
 
 func (f *ServerRequestDecoderGenerator) PrintPathField(g *protogen.GeneratedFile, pathFields []*protogen.Field) {
+	if len(pathFields) <= 0 {
+		return
+	}
+	form := "vars"
+	errName := "varErr"
+	g.P("var ", errName, " error")
 	for _, field := range pathFields {
 		fieldName := string(field.Desc.Name())
-		form := "vars"
-		errName := "varErr"
 
 		tgtValue := []any{"req.", field.GoName, " = "}
 		tgtErrValue := []any{"req.", field.GoName, ", ", errName, " = "}
-
 		srcValue := []any{"vars.Get(", strconv.Quote(fieldName), ")"}
 
 		goType, pointer := internal.FieldGoType(g, field)
@@ -147,39 +168,39 @@ func (f *ServerRequestDecoderGenerator) PrintPathField(g *protogen.GeneratedFile
 			}
 		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
 			if pointer {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int32]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr"), fieldName, form, errName)
 			} else {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int32]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt"), fieldName, form, errName)
 			}
 		case protoreflect.Uint32Kind, protoreflect.Fixed32Kind: // uint32
 			if pointer {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint32]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr"), fieldName, form, errName)
 			} else {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint32]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint"), fieldName, form, errName)
 			}
 		case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind: // int64
 			if pointer {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr[int64]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetIntPtr"), fieldName, form, errName)
 			} else {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt[int64]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetInt"), fieldName, form, errName)
 			}
 		case protoreflect.Uint64Kind, protoreflect.Fixed64Kind: // uint64
 			if pointer {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr[uint64]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUintPtr"), fieldName, form, errName)
 			} else {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint[uint64]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetUint"), fieldName, form, errName)
 			}
 		case protoreflect.FloatKind: // float32
 			if pointer {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float32]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr"), fieldName, form, errName)
 			} else {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float32]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat"), fieldName, form, errName)
 			}
 		case protoreflect.DoubleKind: // float64
 			if pointer {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr[float64]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloatPtr"), fieldName, form, errName)
 			} else {
-				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat[float64]"), fieldName, form, errName)
+				f.PrintFieldAssign(g, tgtErrValue, goType, internal.UrlxPackage.Ident("GetFloat"), fieldName, form, errName)
 			}
 		case protoreflect.StringKind: // string
 			f.PrintStringValueAssign(g, tgtValue, srcValue, pointer)
@@ -210,6 +231,9 @@ func (f *ServerRequestDecoderGenerator) PrintPathField(g *protogen.GeneratedFile
 			}
 		}
 	}
+	g.P("if ", errName, " != nil {")
+	g.P("return nil, ", errName)
+	g.P("}")
 }
 
 func (f *ServerRequestDecoderGenerator) PrintQueryField(g *protogen.GeneratedFile, queryFields []*protogen.Field) {
@@ -375,7 +399,7 @@ func (f *ServerRequestDecoderGenerator) PrintQueryField(g *protogen.GeneratedFil
 }
 
 func (f *ServerRequestDecoderGenerator) PrintFieldAssign(g *protogen.GeneratedFile, tgtValue []any, goType []any, getter protogen.GoIdent, key string, form string, errName string) {
-	g.P(append(append([]any{}, tgtValue...), append(append([]any{internal.ErrorxPackage.Ident("Break"), "["}, goType...), append(append([]any{"](", errName, ")("}, getter), "(", form, ", ", strconv.Quote(key), "))")...)...)...)
+	g.P(append(append([]any{}, tgtValue...), append(append([]any{internal.FormDecoderIdent, "["}, goType...), append([]any{"](", errName, ", ", form, ", ", strconv.Quote(key), ", ", getter}, ")")...)...)...)
 }
 
 func (f *ServerRequestDecoderGenerator) PrintStringValueAssign(g *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
