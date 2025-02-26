@@ -1,12 +1,13 @@
 package coder
 
 import (
+	"bytes"
 	"context"
-	"github.com/go-leo/leo/v3/transportx/httpx/internal/common"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	rpchttp "google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+	"io"
 	"net/http"
 )
 
@@ -16,9 +17,9 @@ func DefaultResponseTransformer(ctx context.Context, resp proto.Message) proto.M
 
 // ===== server response encoder =====
 
-// EncodeResponseToResponse encodes the proto.Message to the http.ResponseWriter.
-func EncodeResponseToResponse(ctx context.Context, w http.ResponseWriter, resp proto.Message, marshalOptions protojson.MarshalOptions) error {
-	w.Header().Set(common.ContentTypeKey, common.JsonContentType)
+// EncodeMessageToResponse encodes the proto.Message to the http.ResponseWriter.
+func EncodeMessageToResponse(ctx context.Context, w http.ResponseWriter, resp proto.Message, marshalOptions protojson.MarshalOptions) error {
+	w.Header().Set(ContentTypeKey, JsonContentType)
 	w.WriteHeader(http.StatusOK)
 	data, err := marshalOptions.Marshal(resp)
 	if err != nil {
@@ -32,7 +33,7 @@ func EncodeResponseToResponse(ctx context.Context, w http.ResponseWriter, resp p
 
 // EncodeHttpBodyToResponse encodes the httpbody.HttpBody to the http.ResponseWriter.
 func EncodeHttpBodyToResponse(ctx context.Context, w http.ResponseWriter, resp *httpbody.HttpBody) error {
-	w.Header().Set(common.ContentTypeKey, resp.GetContentType())
+	w.Header().Set(ContentTypeKey, resp.GetContentType())
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(resp.GetData()); err != nil {
 		return err
@@ -50,4 +51,23 @@ func EncodeHttpResponseToResponse(ctx context.Context, w http.ResponseWriter, re
 		return err
 	}
 	return nil
+}
+
+// ===== client request encoder =====
+
+// EncodeMessageToRequest encodes the proto.Message to the io.Reader.
+func EncodeMessageToRequest(ctx context.Context, req proto.Message, marshalOptions protojson.MarshalOptions) (io.Reader, string, error) {
+	var bodyBuf bytes.Buffer
+	data, err := marshalOptions.Marshal(req)
+	if err != nil {
+		return nil, "", err
+	}
+	if _, err = bodyBuf.Write(data); err != nil {
+		return nil, "", err
+	}
+	return &bodyBuf, JsonContentType, nil
+}
+
+func EncodeHttpBodyToRequest(ctx context.Context, req *httpbody.HttpBody) (io.Reader, string) {
+	return bytes.NewReader(req.GetData()), req.GetContentType()
 }

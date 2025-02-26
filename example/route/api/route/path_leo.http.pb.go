@@ -150,7 +150,7 @@ type boolPathHttpServerResponseEncoder struct {
 func (encoder boolPathHttpServerResponseEncoder) BoolPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -177,11 +177,13 @@ func (t *boolPathHttpClientTransports) BoolPath(ctx context.Context, instance st
 }
 
 type boolPathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.CreateRequestFunc {
+func (encoder boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -192,15 +194,16 @@ func (e boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.Create
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "bool", strconvx.FormatBool(req.GetBool()), "opt_bool", strconvx.FormatBool(req.GetOptBool()), "wrap_bool", strconvx.FormatBool(req.GetWrapBool().GetValue()))
-		path, err := e.router.Get("/leo.example.route.path.BoolPath/BoolPath").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.BoolPath/BoolPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -209,6 +212,7 @@ func (e boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.Create
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -222,7 +226,7 @@ type boolPathHttpClientResponseDecoder struct {
 func (decoder boolPathHttpClientResponseDecoder) BoolPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -359,7 +363,7 @@ type int32PathHttpServerResponseEncoder struct {
 func (encoder int32PathHttpServerResponseEncoder) Int32Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -386,11 +390,13 @@ func (t *int32PathHttpClientTransports) Int32Path(ctx context.Context, instance 
 }
 
 type int32PathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e int32PathHttpClientRequestEncoder) Int32Path(instance string) http1.CreateRequestFunc {
+func (encoder int32PathHttpClientRequestEncoder) Int32Path(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -401,15 +407,16 @@ func (e int32PathHttpClientRequestEncoder) Int32Path(instance string) http1.Crea
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "int32", strconvx.FormatInt(req.GetInt32(), 10), "sint32", strconvx.FormatInt(req.GetSint32(), 10), "sfixed32", strconvx.FormatInt(req.GetSfixed32(), 10), "opt_int32", strconvx.FormatInt(req.GetOptInt32(), 10), "opt_sint32", strconvx.FormatInt(req.GetOptSint32(), 10), "opt_sfixed32", strconvx.FormatInt(req.GetOptSfixed32(), 10), "wrap_int32", strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-		path, err := e.router.Get("/leo.example.route.path.Int32Path/Int32Path").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.Int32Path/Int32Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -418,6 +425,7 @@ func (e int32PathHttpClientRequestEncoder) Int32Path(instance string) http1.Crea
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -431,7 +439,7 @@ type int32PathHttpClientResponseDecoder struct {
 func (decoder int32PathHttpClientResponseDecoder) Int32Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -568,7 +576,7 @@ type int64PathHttpServerResponseEncoder struct {
 func (encoder int64PathHttpServerResponseEncoder) Int64Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -595,11 +603,13 @@ func (t *int64PathHttpClientTransports) Int64Path(ctx context.Context, instance 
 }
 
 type int64PathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e int64PathHttpClientRequestEncoder) Int64Path(instance string) http1.CreateRequestFunc {
+func (encoder int64PathHttpClientRequestEncoder) Int64Path(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -610,15 +620,16 @@ func (e int64PathHttpClientRequestEncoder) Int64Path(instance string) http1.Crea
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "int64", strconvx.FormatInt(req.GetInt64(), 10), "sint64", strconvx.FormatInt(req.GetSint64(), 10), "sfixed64", strconvx.FormatInt(req.GetSfixed64(), 10), "opt_int64", strconvx.FormatInt(req.GetOptInt64(), 10), "opt_sint64", strconvx.FormatInt(req.GetOptSint64(), 10), "opt_sfixed64", strconvx.FormatInt(req.GetOptSfixed64(), 10), "wrap_int64", strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-		path, err := e.router.Get("/leo.example.route.path.Int64Path/Int64Path").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.Int64Path/Int64Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -627,6 +638,7 @@ func (e int64PathHttpClientRequestEncoder) Int64Path(instance string) http1.Crea
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -640,7 +652,7 @@ type int64PathHttpClientResponseDecoder struct {
 func (decoder int64PathHttpClientResponseDecoder) Int64Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -775,7 +787,7 @@ type uint32PathHttpServerResponseEncoder struct {
 func (encoder uint32PathHttpServerResponseEncoder) Uint32Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -802,11 +814,13 @@ func (t *uint32PathHttpClientTransports) Uint32Path(ctx context.Context, instanc
 }
 
 type uint32PathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e uint32PathHttpClientRequestEncoder) Uint32Path(instance string) http1.CreateRequestFunc {
+func (encoder uint32PathHttpClientRequestEncoder) Uint32Path(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -817,15 +831,16 @@ func (e uint32PathHttpClientRequestEncoder) Uint32Path(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "uint32", strconvx.FormatUint(req.GetUint32(), 10), "fixed32", strconvx.FormatUint(req.GetFixed32(), 10), "opt_uint32", strconvx.FormatUint(req.GetOptUint32(), 10), "opt_fixed32", strconvx.FormatUint(req.GetOptFixed32(), 10), "wrap_uint32", strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-		path, err := e.router.Get("/leo.example.route.path.Uint32Path/Uint32Path").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.Uint32Path/Uint32Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -834,6 +849,7 @@ func (e uint32PathHttpClientRequestEncoder) Uint32Path(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -847,7 +863,7 @@ type uint32PathHttpClientResponseDecoder struct {
 func (decoder uint32PathHttpClientResponseDecoder) Uint32Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -982,7 +998,7 @@ type uint64PathHttpServerResponseEncoder struct {
 func (encoder uint64PathHttpServerResponseEncoder) Uint64Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1009,11 +1025,13 @@ func (t *uint64PathHttpClientTransports) Uint64Path(ctx context.Context, instanc
 }
 
 type uint64PathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e uint64PathHttpClientRequestEncoder) Uint64Path(instance string) http1.CreateRequestFunc {
+func (encoder uint64PathHttpClientRequestEncoder) Uint64Path(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1024,15 +1042,16 @@ func (e uint64PathHttpClientRequestEncoder) Uint64Path(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "uint64", strconvx.FormatUint(req.GetUint64(), 10), "fixed64", strconvx.FormatUint(req.GetFixed64(), 10), "opt_uint64", strconvx.FormatUint(req.GetOptUint64(), 10), "opt_fixed64", strconvx.FormatUint(req.GetOptFixed64(), 10), "wrap_uint64", strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-		path, err := e.router.Get("/leo.example.route.path.Uint64Path/Uint64Path").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.Uint64Path/Uint64Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1041,6 +1060,7 @@ func (e uint64PathHttpClientRequestEncoder) Uint64Path(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1054,7 +1074,7 @@ type uint64PathHttpClientResponseDecoder struct {
 func (decoder uint64PathHttpClientResponseDecoder) Uint64Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1187,7 +1207,7 @@ type floatPathHttpServerResponseEncoder struct {
 func (encoder floatPathHttpServerResponseEncoder) FloatPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1214,11 +1234,13 @@ func (t *floatPathHttpClientTransports) FloatPath(ctx context.Context, instance 
 }
 
 type floatPathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e floatPathHttpClientRequestEncoder) FloatPath(instance string) http1.CreateRequestFunc {
+func (encoder floatPathHttpClientRequestEncoder) FloatPath(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1229,15 +1251,16 @@ func (e floatPathHttpClientRequestEncoder) FloatPath(instance string) http1.Crea
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "float", strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32), "opt_float", strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32), "wrap_float", strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-		path, err := e.router.Get("/leo.example.route.path.FloatPath/FloatPath").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.FloatPath/FloatPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1246,6 +1269,7 @@ func (e floatPathHttpClientRequestEncoder) FloatPath(instance string) http1.Crea
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1259,7 +1283,7 @@ type floatPathHttpClientResponseDecoder struct {
 func (decoder floatPathHttpClientResponseDecoder) FloatPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1392,7 +1416,7 @@ type doublePathHttpServerResponseEncoder struct {
 func (encoder doublePathHttpServerResponseEncoder) DoublePath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1419,11 +1443,13 @@ func (t *doublePathHttpClientTransports) DoublePath(ctx context.Context, instanc
 }
 
 type doublePathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e doublePathHttpClientRequestEncoder) DoublePath(instance string) http1.CreateRequestFunc {
+func (encoder doublePathHttpClientRequestEncoder) DoublePath(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1434,15 +1460,16 @@ func (e doublePathHttpClientRequestEncoder) DoublePath(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "double", strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64), "opt_double", strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64), "wrap_double", strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-		path, err := e.router.Get("/leo.example.route.path.DoublePath/DoublePath").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.DoublePath/DoublePath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1451,6 +1478,7 @@ func (e doublePathHttpClientRequestEncoder) DoublePath(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1464,7 +1492,7 @@ type doublePathHttpClientResponseDecoder struct {
 func (decoder doublePathHttpClientResponseDecoder) DoublePath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1597,7 +1625,7 @@ type stringPathHttpServerResponseEncoder struct {
 func (encoder stringPathHttpServerResponseEncoder) StringPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1624,11 +1652,13 @@ func (t *stringPathHttpClientTransports) StringPath(ctx context.Context, instanc
 }
 
 type stringPathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e stringPathHttpClientRequestEncoder) StringPath(instance string) http1.CreateRequestFunc {
+func (encoder stringPathHttpClientRequestEncoder) StringPath(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1639,15 +1669,16 @@ func (e stringPathHttpClientRequestEncoder) StringPath(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
-		path, err := e.router.Get("/leo.example.route.path.StringPath/StringPath").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.StringPath/StringPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1656,6 +1687,7 @@ func (e stringPathHttpClientRequestEncoder) StringPath(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1669,7 +1701,7 @@ type stringPathHttpClientResponseDecoder struct {
 func (decoder stringPathHttpClientResponseDecoder) StringPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1801,7 +1833,7 @@ type enumPathHttpServerResponseEncoder struct {
 func (encoder enumPathHttpServerResponseEncoder) EnumPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1828,11 +1860,13 @@ func (t *enumPathHttpClientTransports) EnumPath(ctx context.Context, instance st
 }
 
 type enumPathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.CreateRequestFunc {
+func (encoder enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1843,15 +1877,16 @@ func (e enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.Create
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		pairs = append(pairs, "status", strconvx.FormatInt(req.GetStatus(), 10), "opt_status", strconvx.FormatInt(req.GetOptStatus(), 10))
-		path, err := e.router.Get("/leo.example.route.path.EnumPath/EnumPath").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.EnumPath/EnumPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1860,6 +1895,7 @@ func (e enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.Create
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1873,7 +1909,7 @@ type enumPathHttpClientResponseDecoder struct {
 func (decoder enumPathHttpClientResponseDecoder) EnumPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2190,37 +2226,37 @@ type namedPathHttpServerResponseEncoder struct {
 func (encoder namedPathHttpServerResponseEncoder) NamedPathString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) NamedPathOptString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) NamedPathWrapString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) EmbedNamedPathString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) EmbedNamedPathOptString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) EmbedNamedPathWrapString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -2322,11 +2358,13 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString(ctx context.Con
 }
 
 type namedPathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e namedPathHttpClientRequestEncoder) NamedPathString(instance string) http1.CreateRequestFunc {
+func (encoder namedPathHttpClientRequestEncoder) NamedPathString(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2337,6 +2375,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathString(instance string) http
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetString_()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2344,7 +2383,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathString(instance string) http
 			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		path, err := e.router.Get("/leo.example.route.path.NamedPath/NamedPathString").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/NamedPathString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -2352,7 +2391,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathString(instance string) http
 		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
 		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2361,10 +2400,11 @@ func (e namedPathHttpClientRequestEncoder) NamedPathString(instance string) http
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e namedPathHttpClientRequestEncoder) NamedPathOptString(instance string) http1.CreateRequestFunc {
+func (encoder namedPathHttpClientRequestEncoder) NamedPathOptString(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2375,6 +2415,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathOptString(instance string) h
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetOptString()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2382,7 +2423,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathOptString(instance string) h
 			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		path, err := e.router.Get("/leo.example.route.path.NamedPath/NamedPathOptString").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/NamedPathOptString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -2390,7 +2431,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathOptString(instance string) h
 		queries["string"] = append(queries["string"], req.GetString_())
 		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2399,10 +2440,11 @@ func (e namedPathHttpClientRequestEncoder) NamedPathOptString(instance string) h
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e namedPathHttpClientRequestEncoder) NamedPathWrapString(instance string) http1.CreateRequestFunc {
+func (encoder namedPathHttpClientRequestEncoder) NamedPathWrapString(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2413,6 +2455,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathWrapString(instance string) 
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetWrapString().GetValue()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2420,7 +2463,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathWrapString(instance string) 
 			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		path, err := e.router.Get("/leo.example.route.path.NamedPath/NamedPathWrapString").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/NamedPathWrapString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -2428,7 +2471,7 @@ func (e namedPathHttpClientRequestEncoder) NamedPathWrapString(instance string) 
 		queries["string"] = append(queries["string"], req.GetString_())
 		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2437,10 +2480,11 @@ func (e namedPathHttpClientRequestEncoder) NamedPathWrapString(instance string) 
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance string) http1.CreateRequestFunc {
+func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2451,6 +2495,7 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance string)
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetString_()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2458,13 +2503,13 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance string)
 			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		path, err := e.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathString").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2473,10 +2518,11 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance string)
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instance string) http1.CreateRequestFunc {
+func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2487,6 +2533,7 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instance stri
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetOptString()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2494,13 +2541,13 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instance stri
 			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		path, err := e.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathOptString").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathOptString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2509,10 +2556,11 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instance stri
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance string) http1.CreateRequestFunc {
+func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2523,6 +2571,7 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance str
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2530,13 +2579,13 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance str
 			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		path, err := e.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2545,6 +2594,7 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance str
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -2558,7 +2608,7 @@ type namedPathHttpClientResponseDecoder struct {
 func (decoder namedPathHttpClientResponseDecoder) NamedPathString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2567,7 +2617,7 @@ func (decoder namedPathHttpClientResponseDecoder) NamedPathString() http1.Decode
 func (decoder namedPathHttpClientResponseDecoder) NamedPathOptString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2576,7 +2626,7 @@ func (decoder namedPathHttpClientResponseDecoder) NamedPathOptString() http1.Dec
 func (decoder namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2585,7 +2635,7 @@ func (decoder namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.De
 func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2594,7 +2644,7 @@ func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.D
 func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2603,7 +2653,7 @@ func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http
 func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathWrapString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2740,7 +2790,7 @@ type mixPathHttpServerResponseEncoder struct {
 func (encoder mixPathHttpServerResponseEncoder) MixPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -2767,11 +2817,13 @@ func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance stri
 }
 
 type mixPathHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRequestFunc {
+func (encoder mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -2782,6 +2834,7 @@ func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRe
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
 		namedPathValues := strings.Split(namedPathParameter, "/")
@@ -2790,13 +2843,13 @@ func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRe
 		}
 		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
 		pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
-		path, err := e.router.Get("/leo.example.route.path.MixPath/MixPath").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.path.MixPath/MixPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -2805,6 +2858,7 @@ func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRe
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -2818,7 +2872,7 @@ type mixPathHttpClientResponseDecoder struct {
 func (decoder mixPathHttpClientResponseDecoder) MixPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

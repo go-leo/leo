@@ -46,7 +46,7 @@ func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() err
 				f.DecodeHttpResponseFromResponse(srcValue)
 			default:
 				srcValue := []any{"resp"}
-				f.PrintDecodeResponseFromResponse(srcValue)
+				f.PrintDecodeMessageFromResponse(srcValue)
 			}
 		default:
 			bodyField := internal.FindField(bodyParameter, endpoint.Output())
@@ -63,7 +63,7 @@ func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() err
 				case "google.api.HttpBody":
 					f.DecodeHttpBodyFromResponse(srcValue)
 				default:
-					f.PrintDecodeResponseFromResponse(srcValue)
+					f.PrintDecodeMessageFromResponse(srcValue)
 				}
 			}
 		}
@@ -75,8 +75,8 @@ func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() err
 	return nil
 }
 
-func (f *ResponseDecoderGenerator) PrintDecodeResponseFromResponse(srcValue []any) {
-	f.g.P(append(append([]any{"if err := ", internal.DecodeResponseFromResponse, "(ctx, r, "}, srcValue...), " ,decoder.unmarshalOptions); err != nil {")...)
+func (f *ResponseDecoderGenerator) PrintDecodeMessageFromResponse(srcValue []any) {
+	f.g.P(append(append([]any{"if err := ", internal.DecodeMessageFromResponse, "(ctx, r, "}, srcValue...), " ,decoder.unmarshalOptions); err != nil {")...)
 	f.g.P("return nil, err")
 	f.g.P("}")
 }

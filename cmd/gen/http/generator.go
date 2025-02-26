@@ -40,7 +40,6 @@ func (f *Generator) Generate() error {
 	serverTransportsGenerator := ServerTransportsGenerator{}
 	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
 
-	clientRequestEncoderGenerator := ClientRequestEncoderGenerator{}
 	for _, service := range services {
 
 		if err := functionGenerator.GenerateAppendRoutesFunc(service, g); err != nil {
@@ -65,7 +64,11 @@ func (f *Generator) Generate() error {
 		if err := responseEncoderGenerator.GenerateResponseEncoder(); err != nil {
 			return err
 		}
-		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoder(service, g); err != nil {
+		requestEncoderGenerator := RequestEncoderGenerator{
+			service: service,
+			g:       g,
+		}
+		if err := requestEncoderGenerator.GenerateRequestEncoder(); err != nil {
 			return err
 		}
 		responseDecoderGenerator := ResponseDecoderGenerator{
@@ -91,7 +94,7 @@ func (f *Generator) Generate() error {
 		if err := clientTransportsGenerator.GenerateTransports(); err != nil {
 			return err
 		}
-		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoderImplements(service, g); err != nil {
+		if err := requestEncoderGenerator.GenerateClientRequestEncoderImplements(); err != nil {
 			return err
 		}
 		if err := responseDecoderGenerator.GenerateClientResponseDecoderImplements(); err != nil {

@@ -149,7 +149,7 @@ type boolQueryHttpServerResponseEncoder struct {
 func (encoder boolQueryHttpServerResponseEncoder) BoolQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -176,11 +176,13 @@ func (t *boolQueryHttpClientTransports) BoolQuery(ctx context.Context, instance 
 }
 
 type boolQueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.CreateRequestFunc {
+func (encoder boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -191,8 +193,9 @@ func (e boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.Crea
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.BoolQuery/BoolQuery").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.BoolQuery/BoolQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -201,7 +204,7 @@ func (e boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.Crea
 		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
 		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -210,6 +213,7 @@ func (e boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.Crea
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -223,7 +227,7 @@ type boolQueryHttpClientResponseDecoder struct {
 func (decoder boolQueryHttpClientResponseDecoder) BoolQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -360,7 +364,7 @@ type int32QueryHttpServerResponseEncoder struct {
 func (encoder int32QueryHttpServerResponseEncoder) Int32Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -387,11 +391,13 @@ func (t *int32QueryHttpClientTransports) Int32Query(ctx context.Context, instanc
 }
 
 type int32QueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.CreateRequestFunc {
+func (encoder int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -402,8 +408,9 @@ func (e int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.Int32Query/Int32Query").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.Int32Query/Int32Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -416,7 +423,7 @@ func (e int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.Cr
 		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
 		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -425,6 +432,7 @@ func (e int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -438,7 +446,7 @@ type int32QueryHttpClientResponseDecoder struct {
 func (decoder int32QueryHttpClientResponseDecoder) Int32Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -575,7 +583,7 @@ type int64QueryHttpServerResponseEncoder struct {
 func (encoder int64QueryHttpServerResponseEncoder) Int64Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -602,11 +610,13 @@ func (t *int64QueryHttpClientTransports) Int64Query(ctx context.Context, instanc
 }
 
 type int64QueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.CreateRequestFunc {
+func (encoder int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -617,8 +627,9 @@ func (e int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.Int64Query/Int64Query").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.Int64Query/Int64Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -631,7 +642,7 @@ func (e int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.Cr
 		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
 		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -640,6 +651,7 @@ func (e int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -653,7 +665,7 @@ type int64QueryHttpClientResponseDecoder struct {
 func (decoder int64QueryHttpClientResponseDecoder) Int64Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -788,7 +800,7 @@ type uint32QueryHttpServerResponseEncoder struct {
 func (encoder uint32QueryHttpServerResponseEncoder) Uint32Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -815,11 +827,13 @@ func (t *uint32QueryHttpClientTransports) Uint32Query(ctx context.Context, insta
 }
 
 type uint32QueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.CreateRequestFunc {
+func (encoder uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -830,8 +844,9 @@ func (e uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.Uint32Query/Uint32Query").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.Uint32Query/Uint32Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -842,7 +857,7 @@ func (e uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.
 		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
 		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -851,6 +866,7 @@ func (e uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -864,7 +880,7 @@ type uint32QueryHttpClientResponseDecoder struct {
 func (decoder uint32QueryHttpClientResponseDecoder) Uint32Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -999,7 +1015,7 @@ type uint64QueryHttpServerResponseEncoder struct {
 func (encoder uint64QueryHttpServerResponseEncoder) Uint64Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1026,11 +1042,13 @@ func (t *uint64QueryHttpClientTransports) Uint64Query(ctx context.Context, insta
 }
 
 type uint64QueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.CreateRequestFunc {
+func (encoder uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1041,8 +1059,9 @@ func (e uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.Uint64Query/Uint64Query").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.Uint64Query/Uint64Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -1053,7 +1072,7 @@ func (e uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.
 		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
 		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1062,6 +1081,7 @@ func (e uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1075,7 +1095,7 @@ type uint64QueryHttpClientResponseDecoder struct {
 func (decoder uint64QueryHttpClientResponseDecoder) Uint64Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1208,7 +1228,7 @@ type floatQueryHttpServerResponseEncoder struct {
 func (encoder floatQueryHttpServerResponseEncoder) FloatQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1235,11 +1255,13 @@ func (t *floatQueryHttpClientTransports) FloatQuery(ctx context.Context, instanc
 }
 
 type floatQueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.CreateRequestFunc {
+func (encoder floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1250,8 +1272,9 @@ func (e floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.FloatQuery/FloatQuery").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.FloatQuery/FloatQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -1260,7 +1283,7 @@ func (e floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.Cr
 		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
 		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1269,6 +1292,7 @@ func (e floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1282,7 +1306,7 @@ type floatQueryHttpClientResponseDecoder struct {
 func (decoder floatQueryHttpClientResponseDecoder) FloatQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1415,7 +1439,7 @@ type doubleQueryHttpServerResponseEncoder struct {
 func (encoder doubleQueryHttpServerResponseEncoder) DoubleQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1442,11 +1466,13 @@ func (t *doubleQueryHttpClientTransports) DoubleQuery(ctx context.Context, insta
 }
 
 type doubleQueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.CreateRequestFunc {
+func (encoder doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1457,8 +1483,9 @@ func (e doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.DoubleQuery/DoubleQuery").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.DoubleQuery/DoubleQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -1467,7 +1494,7 @@ func (e doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.
 		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
 		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1476,6 +1503,7 @@ func (e doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1489,7 +1517,7 @@ type doubleQueryHttpClientResponseDecoder struct {
 func (decoder doubleQueryHttpClientResponseDecoder) DoubleQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1622,7 +1650,7 @@ type stringQueryHttpServerResponseEncoder struct {
 func (encoder stringQueryHttpServerResponseEncoder) StringQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1649,11 +1677,13 @@ func (t *stringQueryHttpClientTransports) StringQuery(ctx context.Context, insta
 }
 
 type stringQueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.CreateRequestFunc {
+func (encoder stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1664,8 +1694,9 @@ func (e stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.StringQuery/StringQuery").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.StringQuery/StringQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -1674,7 +1705,7 @@ func (e stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.
 		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
 		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1683,6 +1714,7 @@ func (e stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1696,7 +1728,7 @@ type stringQueryHttpClientResponseDecoder struct {
 func (decoder stringQueryHttpClientResponseDecoder) StringQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1828,7 +1860,7 @@ type enumQueryHttpServerResponseEncoder struct {
 func (encoder enumQueryHttpServerResponseEncoder) EnumQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1855,11 +1887,13 @@ func (t *enumQueryHttpClientTransports) EnumQuery(ctx context.Context, instance 
 }
 
 type enumQueryHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.CreateRequestFunc {
+func (encoder enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -1870,8 +1904,9 @@ func (e enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.Crea
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.query.EnumQuery/EnumQuery").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.query.EnumQuery/EnumQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -1879,7 +1914,7 @@ func (e enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.Crea
 		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
 		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -1888,6 +1923,7 @@ func (e enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.Crea
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -1901,7 +1937,7 @@ type enumQueryHttpClientResponseDecoder struct {
 func (decoder enumQueryHttpClientResponseDecoder) EnumQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

@@ -1,4 +1,4 @@
-package common
+package coder
 
 const (
 	ContentTypeKey  = "Content-Type"

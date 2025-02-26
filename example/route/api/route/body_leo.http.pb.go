@@ -3,13 +3,11 @@
 package route
 
 import (
-	bytes "bytes"
 	context "context"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
@@ -248,7 +246,7 @@ type bodyHttpServerRequestDecoder struct {
 func (decoder bodyHttpServerRequestDecoder) StarBody() http1.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &BodyRequest{}
-		if err := coder.DecodeRequestFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -260,7 +258,7 @@ func (decoder bodyHttpServerRequestDecoder) NamedBody() http1.DecodeRequestFunc 
 		if req.User == nil {
 			req.User = &BodyRequest_User{}
 		}
-		if err := coder.DecodeRequestFromRequest(ctx, r, req.User, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromRequest(ctx, r, req.User, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -312,37 +310,37 @@ type bodyHttpServerResponseEncoder struct {
 func (encoder bodyHttpServerResponseEncoder) StarBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder bodyHttpServerResponseEncoder) NamedBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder bodyHttpServerResponseEncoder) NonBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder bodyHttpServerResponseEncoder) HttpBodyStarBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder bodyHttpServerResponseEncoder) HttpBodyNamedBody() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder bodyHttpServerResponseEncoder) HttpRequest() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -444,11 +442,13 @@ func (t *bodyHttpClientTransports) HttpRequest(ctx context.Context, instance str
 }
 
 type bodyHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e bodyHttpClientRequestEncoder) StarBody(instance string) http1.CreateRequestFunc {
+func (encoder bodyHttpClientRequestEncoder) StarBody(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -459,20 +459,16 @@ func (e bodyHttpClientRequestEncoder) StarBody(instance string) http1.CreateRequ
 		}
 		_ = req
 		var body io.Reader
-		var bodyBuf bytes.Buffer
-		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-			return nil, err
-		}
-		body = &bodyBuf
-		contentType := "application/json; charset=utf-8"
+		var contentType string
+		body, contentType, err = coder.EncodeMessageToRequest(ctx, req, encoder.marshalOptions)
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.body.Body/StarBody").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.body.Body/StarBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -485,7 +481,7 @@ func (e bodyHttpClientRequestEncoder) StarBody(instance string) http1.CreateRequ
 		return r, nil
 	}
 }
-func (e bodyHttpClientRequestEncoder) NamedBody(instance string) http1.CreateRequestFunc {
+func (encoder bodyHttpClientRequestEncoder) NamedBody(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -496,20 +492,16 @@ func (e bodyHttpClientRequestEncoder) NamedBody(instance string) http1.CreateReq
 		}
 		_ = req
 		var body io.Reader
-		var bodyBuf bytes.Buffer
-		if err := jsonx.NewEncoder(&bodyBuf).Encode(req.GetUser()); err != nil {
-			return nil, err
-		}
-		body = &bodyBuf
-		contentType := "application/json; charset=utf-8"
+		var contentType string
+		body, contentType, err := coder.EncodeMessageToRequest(ctx, req.GetUser(), encoder.marshalOptions)
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.body.Body/NamedBody").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.body.Body/NamedBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -522,7 +514,7 @@ func (e bodyHttpClientRequestEncoder) NamedBody(instance string) http1.CreateReq
 		return r, nil
 	}
 }
-func (e bodyHttpClientRequestEncoder) NonBody(instance string) http1.CreateRequestFunc {
+func (encoder bodyHttpClientRequestEncoder) NonBody(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -533,14 +525,15 @@ func (e bodyHttpClientRequestEncoder) NonBody(instance string) http1.CreateReque
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.body.Body/NonBody").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.body.Body/NonBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -549,10 +542,11 @@ func (e bodyHttpClientRequestEncoder) NonBody(instance string) http1.CreateReque
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e bodyHttpClientRequestEncoder) HttpBodyStarBody(instance string) http1.CreateRequestFunc {
+func (encoder bodyHttpClientRequestEncoder) HttpBodyStarBody(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -563,16 +557,16 @@ func (e bodyHttpClientRequestEncoder) HttpBodyStarBody(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
-		body = bytes.NewReader(req.GetData())
-		contentType := req.GetContentType()
+		var contentType string
+		body, contentType = coder.EncodeHttpBodyToRequest(ctx, req)
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.body.Body/HttpBodyStarBody").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.body.Body/HttpBodyStarBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -585,7 +579,7 @@ func (e bodyHttpClientRequestEncoder) HttpBodyStarBody(instance string) http1.Cr
 		return r, nil
 	}
 }
-func (e bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) http1.CreateRequestFunc {
+func (encoder bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -596,16 +590,16 @@ func (e bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) http1.C
 		}
 		_ = req
 		var body io.Reader
-		body = bytes.NewReader(req.GetBody().GetData())
-		contentType := req.GetBody().GetContentType()
+		var contentType string
+		body, contentType = coder.EncodeHttpBodyToRequest(ctx, req.GetBody())
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.body.Body/HttpBodyNamedBody").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.body.Body/HttpBodyNamedBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -618,7 +612,7 @@ func (e bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) http1.C
 		return r, nil
 	}
 }
-func (e bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.CreateRequestFunc {
+func (encoder bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -629,20 +623,15 @@ func (e bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.CreateR
 		}
 		_ = req
 		var body io.Reader
-		var bodyBuf bytes.Buffer
-		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-			return nil, err
-		}
-		body = &bodyBuf
-		contentType := "application/json; charset=utf-8"
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.body.Body/HttpRequest").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.body.Body/HttpRequest").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -665,7 +654,7 @@ type bodyHttpClientResponseDecoder struct {
 func (decoder bodyHttpClientResponseDecoder) StarBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -674,7 +663,7 @@ func (decoder bodyHttpClientResponseDecoder) StarBody() http1.DecodeResponseFunc
 func (decoder bodyHttpClientResponseDecoder) NamedBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -683,7 +672,7 @@ func (decoder bodyHttpClientResponseDecoder) NamedBody() http1.DecodeResponseFun
 func (decoder bodyHttpClientResponseDecoder) NonBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -692,7 +681,7 @@ func (decoder bodyHttpClientResponseDecoder) NonBody() http1.DecodeResponseFunc 
 func (decoder bodyHttpClientResponseDecoder) HttpBodyStarBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -701,7 +690,7 @@ func (decoder bodyHttpClientResponseDecoder) HttpBodyStarBody() http1.DecodeResp
 func (decoder bodyHttpClientResponseDecoder) HttpBodyNamedBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -710,7 +699,7 @@ func (decoder bodyHttpClientResponseDecoder) HttpBodyNamedBody() http1.DecodeRes
 func (decoder bodyHttpClientResponseDecoder) HttpRequest() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

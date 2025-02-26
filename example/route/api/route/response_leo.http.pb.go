@@ -289,19 +289,19 @@ type responseHttpServerResponseEncoder struct {
 func (encoder responseHttpServerResponseEncoder) OmittedResponse() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*UserResponse)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder responseHttpServerResponseEncoder) StarResponse() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*UserResponse)
-		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder responseHttpServerResponseEncoder) NamedResponse() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*UserResponse)
-		return coder.EncodeResponseToResponse(ctx, w, resp.GetUser(), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, resp.GetUser(), encoder.marshalOptions)
 	}
 }
 func (encoder responseHttpServerResponseEncoder) HttpBodyResponse() http1.EncodeResponseFunc {
@@ -421,11 +421,13 @@ func (t *responseHttpClientTransports) HttpResponse(ctx context.Context, instanc
 }
 
 type responseHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e responseHttpClientRequestEncoder) OmittedResponse(instance string) http1.CreateRequestFunc {
+func (encoder responseHttpClientRequestEncoder) OmittedResponse(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -436,14 +438,15 @@ func (e responseHttpClientRequestEncoder) OmittedResponse(instance string) http1
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.response.Response/OmittedResponse").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.response.Response/OmittedResponse").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -452,10 +455,11 @@ func (e responseHttpClientRequestEncoder) OmittedResponse(instance string) http1
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e responseHttpClientRequestEncoder) StarResponse(instance string) http1.CreateRequestFunc {
+func (encoder responseHttpClientRequestEncoder) StarResponse(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -466,14 +470,15 @@ func (e responseHttpClientRequestEncoder) StarResponse(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.response.Response/StarResponse").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.response.Response/StarResponse").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -482,10 +487,11 @@ func (e responseHttpClientRequestEncoder) StarResponse(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e responseHttpClientRequestEncoder) NamedResponse(instance string) http1.CreateRequestFunc {
+func (encoder responseHttpClientRequestEncoder) NamedResponse(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -496,14 +502,15 @@ func (e responseHttpClientRequestEncoder) NamedResponse(instance string) http1.C
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.response.Response/NamedResponse").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.response.Response/NamedResponse").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -512,10 +519,11 @@ func (e responseHttpClientRequestEncoder) NamedResponse(instance string) http1.C
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e responseHttpClientRequestEncoder) HttpBodyResponse(instance string) http1.CreateRequestFunc {
+func (encoder responseHttpClientRequestEncoder) HttpBodyResponse(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -526,14 +534,15 @@ func (e responseHttpClientRequestEncoder) HttpBodyResponse(instance string) http
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.response.Response/HttpBodyResponse").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.response.Response/HttpBodyResponse").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -542,10 +551,11 @@ func (e responseHttpClientRequestEncoder) HttpBodyResponse(instance string) http
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e responseHttpClientRequestEncoder) HttpBodyNamedResponse(instance string) http1.CreateRequestFunc {
+func (encoder responseHttpClientRequestEncoder) HttpBodyNamedResponse(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -556,14 +566,15 @@ func (e responseHttpClientRequestEncoder) HttpBodyNamedResponse(instance string)
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.response.Response/HttpBodyNamedResponse").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.response.Response/HttpBodyNamedResponse").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -572,10 +583,11 @@ func (e responseHttpClientRequestEncoder) HttpBodyNamedResponse(instance string)
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
-func (e responseHttpClientRequestEncoder) HttpResponse(instance string) http1.CreateRequestFunc {
+func (encoder responseHttpClientRequestEncoder) HttpResponse(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -586,14 +598,15 @@ func (e responseHttpClientRequestEncoder) HttpResponse(instance string) http1.Cr
 		}
 		_ = req
 		var body io.Reader
+		var contentType string
 		var pairs []string
-		path, err := e.router.Get("/leo.example.route.response.Response/HttpResponse").URLPath(pairs...)
+		path, err := encoder.router.Get("/leo.example.route.response.Response/HttpResponse").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		queries := url.Values{}
 		target := &url.URL{
-			Scheme:   e.scheme,
+			Scheme:   encoder.scheme,
 			Host:     instance,
 			Path:     path.Path,
 			RawQuery: queries.Encode(),
@@ -602,6 +615,7 @@ func (e responseHttpClientRequestEncoder) HttpResponse(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
+		r.Header.Set("Content-Type", contentType)
 		return r, nil
 	}
 }
@@ -615,7 +629,7 @@ type responseHttpClientResponseDecoder struct {
 func (decoder responseHttpClientResponseDecoder) OmittedResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &UserResponse{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -624,7 +638,7 @@ func (decoder responseHttpClientResponseDecoder) OmittedResponse() http1.DecodeR
 func (decoder responseHttpClientResponseDecoder) StarResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &UserResponse{}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -636,7 +650,7 @@ func (decoder responseHttpClientResponseDecoder) NamedResponse() http1.DecodeRes
 		if resp.User == nil {
 			resp.User = &User{}
 		}
-		if err := coder.DecodeResponseFromResponse(ctx, r, resp.User, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp.User, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

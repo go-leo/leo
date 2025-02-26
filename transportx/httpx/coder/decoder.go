@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/go-leo/gox/errorx"
-	"github.com/go-leo/leo/v3/transportx/httpx/internal/common"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	rpchttp "google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -16,7 +15,7 @@ import (
 
 // ===== server request decoder =====
 
-func DecodeRequestFromRequest(ctx context.Context, r *http.Request, req proto.Message, unmarshalOptions protojson.UnmarshalOptions) error {
+func DecodeMessageFromRequest(ctx context.Context, r *http.Request, req proto.Message, unmarshalOptions protojson.UnmarshalOptions) error {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
@@ -33,7 +32,7 @@ func DecodeHttpBodyFromRequest(ctx context.Context, r *http.Request, body *httpb
 		return err
 	}
 	body.Data = data
-	body.ContentType = r.Header.Get(common.ContentTypeKey)
+	body.ContentType = r.Header.Get(ContentTypeKey)
 	return nil
 }
 
@@ -61,8 +60,8 @@ func DecodeForm[T any](pre error, form url.Values, key string, f FormGetter[T]) 
 
 // ===== client response decoder =====
 
-// DecodeResponseFromResponse decodes the proto.Message from the http.Response.
-func DecodeResponseFromResponse(ctx context.Context, r *http.Response, resp proto.Message, unmarshalOptions protojson.UnmarshalOptions) (err error) {
+// DecodeMessageFromResponse decodes the proto.Message from the http.Response.
+func DecodeMessageFromResponse(ctx context.Context, r *http.Response, resp proto.Message, unmarshalOptions protojson.UnmarshalOptions) (err error) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return errors.Join(err, r.Body.Close())

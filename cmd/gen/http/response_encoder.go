@@ -48,7 +48,7 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 				f.PrintEncodeHttpResponseToResponse(srcValue)
 			default:
 				srcValue := []any{"encoder.responseTransformer(ctx, resp)"}
-				f.PrintEncodeResponseToResponse(srcValue)
+				f.PrintEncodeMessageToResponse(srcValue)
 			}
 		default:
 			bodyField := internal.FindField(bodyParameter, endpoint.Output())
@@ -62,7 +62,7 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 				case "google.api.HttpBody":
 					f.PrintEncodeHttpBodyToResponse(srcValue)
 				default:
-					f.PrintEncodeResponseToResponse(srcValue)
+					f.PrintEncodeMessageToResponse(srcValue)
 				}
 			}
 		}
@@ -94,8 +94,8 @@ func (f *ResponseEncoderGenerator) PrintGoogleApiHttpBodyEncodeBlock(srcValue []
 	f.g.P("}")
 }
 
-func (f *ResponseEncoderGenerator) PrintEncodeResponseToResponse(srcValue []any) {
-	f.g.P(append(append([]any{"return ", internal.EncodeResponseToResponse, "(ctx, w, "}, srcValue...), ", encoder.marshalOptions)")...)
+func (f *ResponseEncoderGenerator) PrintEncodeMessageToResponse(srcValue []any) {
+	f.g.P(append(append([]any{"return ", internal.EncodeMessageToResponse, "(ctx, w, "}, srcValue...), ", encoder.marshalOptions)")...)
 }
 
 func (f *ResponseEncoderGenerator) PrintEncodeHttpBodyToResponse(srcValue []any) {

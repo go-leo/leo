@@ -87,19 +87,22 @@ var (
 	DecodeHttpBodyFromRequest    = HttpxCoderPackage.Ident("DecodeHttpBodyFromRequest")
 	DecodeHttpRequestFromRequest = HttpxCoderPackage.Ident("DecodeHttpRequestFromRequest")
 
-	EncodeResponseToResponse     = HttpxCoderPackage.Ident("EncodeResponseToResponse")
+	EncodeMessageToRequest  = HttpxCoderPackage.Ident("EncodeMessageToRequest")
+	EncodeHttpBodyToRequest = HttpxCoderPackage.Ident("EncodeHttpBodyToRequest")
+
+	EncodeMessageToResponse      = HttpxCoderPackage.Ident("EncodeMessageToResponse")
 	EncodeHttpBodyToResponse     = HttpxCoderPackage.Ident("EncodeHttpBodyToResponse")
 	EncodeHttpResponseToResponse = HttpxCoderPackage.Ident("EncodeHttpResponseToResponse")
 
-	DecodeRequestFromRequest = HttpxCoderPackage.Ident("DecodeRequestFromRequest")
+	DecodeMessageFromRequest = HttpxCoderPackage.Ident("DecodeMessageFromRequest")
 
-	DecodeResponseFromResponse     = HttpxCoderPackage.Ident("DecodeResponseFromResponse")
+	DecodeMessageFromResponse      = HttpxCoderPackage.Ident("DecodeMessageFromResponse")
 	DecodeHttpBodyFromResponse     = HttpxCoderPackage.Ident("DecodeHttpBodyFromResponse")
 	DecodeHttpResponseFromResponse = HttpxCoderPackage.Ident("DecodeHttpResponseFromResponse")
 )
 
 var (
-	MuxPackage  = protogen.GoImportPath("github.com/gorilla/mux")
-	RouterIdent = MuxPackage.Ident("Router")
-	VarsIdent   = MuxPackage.Ident("Vars")
+	MuxPackage = protogen.GoImportPath("github.com/gorilla/mux")
+	Router     = MuxPackage.Ident("Router")
+	VarsIdent  = MuxPackage.Ident("Vars")
 )
