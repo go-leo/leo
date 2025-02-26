@@ -12,6 +12,7 @@ import (
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
+	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
@@ -130,9 +131,9 @@ func (decoder boolPathHttpServerRequestDecoder) BoolPath() http1.DecodeRequestFu
 		req := &BoolPathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Bool, varErr = httpx.FormDecoder[bool](varErr, vars, "bool", urlx.GetBool)
-		req.OptBool, varErr = httpx.FormDecoder[*bool](varErr, vars, "opt_bool", urlx.GetBoolPtr)
-		req.WrapBool, varErr = httpx.FormDecoder[*wrapperspb.BoolValue](varErr, vars, "wrap_bool", urlx.GetBoolValue)
+		req.Bool, varErr = coder.DecodeForm[bool](varErr, vars, "bool", urlx.GetBool)
+		req.OptBool, varErr = coder.DecodeForm[*bool](varErr, vars, "opt_bool", urlx.GetBoolPtr)
+		req.WrapBool, varErr = coder.DecodeForm[*wrapperspb.BoolValue](varErr, vars, "wrap_bool", urlx.GetBoolValue)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -143,13 +144,13 @@ func (decoder boolPathHttpServerRequestDecoder) BoolPath() http1.DecodeRequestFu
 type boolPathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder boolPathHttpServerResponseEncoder) BoolPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -215,13 +216,13 @@ func (e boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.Create
 type boolPathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder boolPathHttpClientResponseDecoder) BoolPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -335,13 +336,13 @@ func (decoder int32PathHttpServerRequestDecoder) Int32Path() http1.DecodeRequest
 		req := &Int32PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Int32, varErr = httpx.FormDecoder[int32](varErr, vars, "int32", urlx.GetInt)
-		req.Sint32, varErr = httpx.FormDecoder[int32](varErr, vars, "sint32", urlx.GetInt)
-		req.Sfixed32, varErr = httpx.FormDecoder[int32](varErr, vars, "sfixed32", urlx.GetInt)
-		req.OptInt32, varErr = httpx.FormDecoder[*int32](varErr, vars, "opt_int32", urlx.GetIntPtr)
-		req.OptSint32, varErr = httpx.FormDecoder[*int32](varErr, vars, "opt_sint32", urlx.GetIntPtr)
-		req.OptSfixed32, varErr = httpx.FormDecoder[*int32](varErr, vars, "opt_sfixed32", urlx.GetIntPtr)
-		req.WrapInt32, varErr = httpx.FormDecoder[*wrapperspb.Int32Value](varErr, vars, "wrap_int32", urlx.GetInt32Value)
+		req.Int32, varErr = coder.DecodeForm[int32](varErr, vars, "int32", urlx.GetInt)
+		req.Sint32, varErr = coder.DecodeForm[int32](varErr, vars, "sint32", urlx.GetInt)
+		req.Sfixed32, varErr = coder.DecodeForm[int32](varErr, vars, "sfixed32", urlx.GetInt)
+		req.OptInt32, varErr = coder.DecodeForm[*int32](varErr, vars, "opt_int32", urlx.GetIntPtr)
+		req.OptSint32, varErr = coder.DecodeForm[*int32](varErr, vars, "opt_sint32", urlx.GetIntPtr)
+		req.OptSfixed32, varErr = coder.DecodeForm[*int32](varErr, vars, "opt_sfixed32", urlx.GetIntPtr)
+		req.WrapInt32, varErr = coder.DecodeForm[*wrapperspb.Int32Value](varErr, vars, "wrap_int32", urlx.GetInt32Value)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -352,13 +353,13 @@ func (decoder int32PathHttpServerRequestDecoder) Int32Path() http1.DecodeRequest
 type int32PathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder int32PathHttpServerResponseEncoder) Int32Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -424,13 +425,13 @@ func (e int32PathHttpClientRequestEncoder) Int32Path(instance string) http1.Crea
 type int32PathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder int32PathHttpClientResponseDecoder) Int32Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -544,13 +545,13 @@ func (decoder int64PathHttpServerRequestDecoder) Int64Path() http1.DecodeRequest
 		req := &Int64PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Int64, varErr = httpx.FormDecoder[int64](varErr, vars, "int64", urlx.GetInt)
-		req.Sint64, varErr = httpx.FormDecoder[int64](varErr, vars, "sint64", urlx.GetInt)
-		req.Sfixed64, varErr = httpx.FormDecoder[int64](varErr, vars, "sfixed64", urlx.GetInt)
-		req.OptInt64, varErr = httpx.FormDecoder[*int64](varErr, vars, "opt_int64", urlx.GetIntPtr)
-		req.OptSint64, varErr = httpx.FormDecoder[*int64](varErr, vars, "opt_sint64", urlx.GetIntPtr)
-		req.OptSfixed64, varErr = httpx.FormDecoder[*int64](varErr, vars, "opt_sfixed64", urlx.GetIntPtr)
-		req.WrapInt64, varErr = httpx.FormDecoder[*wrapperspb.Int64Value](varErr, vars, "wrap_int64", urlx.GetInt64Value)
+		req.Int64, varErr = coder.DecodeForm[int64](varErr, vars, "int64", urlx.GetInt)
+		req.Sint64, varErr = coder.DecodeForm[int64](varErr, vars, "sint64", urlx.GetInt)
+		req.Sfixed64, varErr = coder.DecodeForm[int64](varErr, vars, "sfixed64", urlx.GetInt)
+		req.OptInt64, varErr = coder.DecodeForm[*int64](varErr, vars, "opt_int64", urlx.GetIntPtr)
+		req.OptSint64, varErr = coder.DecodeForm[*int64](varErr, vars, "opt_sint64", urlx.GetIntPtr)
+		req.OptSfixed64, varErr = coder.DecodeForm[*int64](varErr, vars, "opt_sfixed64", urlx.GetIntPtr)
+		req.WrapInt64, varErr = coder.DecodeForm[*wrapperspb.Int64Value](varErr, vars, "wrap_int64", urlx.GetInt64Value)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -561,13 +562,13 @@ func (decoder int64PathHttpServerRequestDecoder) Int64Path() http1.DecodeRequest
 type int64PathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder int64PathHttpServerResponseEncoder) Int64Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -633,13 +634,13 @@ func (e int64PathHttpClientRequestEncoder) Int64Path(instance string) http1.Crea
 type int64PathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder int64PathHttpClientResponseDecoder) Int64Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -753,11 +754,11 @@ func (decoder uint32PathHttpServerRequestDecoder) Uint32Path() http1.DecodeReque
 		req := &Uint32PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Uint32, varErr = httpx.FormDecoder[uint32](varErr, vars, "uint32", urlx.GetUint)
-		req.Fixed32, varErr = httpx.FormDecoder[uint32](varErr, vars, "fixed32", urlx.GetUint)
-		req.OptUint32, varErr = httpx.FormDecoder[*uint32](varErr, vars, "opt_uint32", urlx.GetUintPtr)
-		req.OptFixed32, varErr = httpx.FormDecoder[*uint32](varErr, vars, "opt_fixed32", urlx.GetUintPtr)
-		req.WrapUint32, varErr = httpx.FormDecoder[*wrapperspb.UInt32Value](varErr, vars, "wrap_uint32", urlx.GetUint32Value)
+		req.Uint32, varErr = coder.DecodeForm[uint32](varErr, vars, "uint32", urlx.GetUint)
+		req.Fixed32, varErr = coder.DecodeForm[uint32](varErr, vars, "fixed32", urlx.GetUint)
+		req.OptUint32, varErr = coder.DecodeForm[*uint32](varErr, vars, "opt_uint32", urlx.GetUintPtr)
+		req.OptFixed32, varErr = coder.DecodeForm[*uint32](varErr, vars, "opt_fixed32", urlx.GetUintPtr)
+		req.WrapUint32, varErr = coder.DecodeForm[*wrapperspb.UInt32Value](varErr, vars, "wrap_uint32", urlx.GetUint32Value)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -768,13 +769,13 @@ func (decoder uint32PathHttpServerRequestDecoder) Uint32Path() http1.DecodeReque
 type uint32PathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder uint32PathHttpServerResponseEncoder) Uint32Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -840,13 +841,13 @@ func (e uint32PathHttpClientRequestEncoder) Uint32Path(instance string) http1.Cr
 type uint32PathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder uint32PathHttpClientResponseDecoder) Uint32Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -960,11 +961,11 @@ func (decoder uint64PathHttpServerRequestDecoder) Uint64Path() http1.DecodeReque
 		req := &Uint64PathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Uint64, varErr = httpx.FormDecoder[uint64](varErr, vars, "uint64", urlx.GetUint)
-		req.Fixed64, varErr = httpx.FormDecoder[uint64](varErr, vars, "fixed64", urlx.GetUint)
-		req.OptUint64, varErr = httpx.FormDecoder[*uint64](varErr, vars, "opt_uint64", urlx.GetUintPtr)
-		req.OptFixed64, varErr = httpx.FormDecoder[*uint64](varErr, vars, "opt_fixed64", urlx.GetUintPtr)
-		req.WrapUint64, varErr = httpx.FormDecoder[*wrapperspb.UInt64Value](varErr, vars, "wrap_uint64", urlx.GetUint64Value)
+		req.Uint64, varErr = coder.DecodeForm[uint64](varErr, vars, "uint64", urlx.GetUint)
+		req.Fixed64, varErr = coder.DecodeForm[uint64](varErr, vars, "fixed64", urlx.GetUint)
+		req.OptUint64, varErr = coder.DecodeForm[*uint64](varErr, vars, "opt_uint64", urlx.GetUintPtr)
+		req.OptFixed64, varErr = coder.DecodeForm[*uint64](varErr, vars, "opt_fixed64", urlx.GetUintPtr)
+		req.WrapUint64, varErr = coder.DecodeForm[*wrapperspb.UInt64Value](varErr, vars, "wrap_uint64", urlx.GetUint64Value)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -975,13 +976,13 @@ func (decoder uint64PathHttpServerRequestDecoder) Uint64Path() http1.DecodeReque
 type uint64PathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder uint64PathHttpServerResponseEncoder) Uint64Path() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1047,13 +1048,13 @@ func (e uint64PathHttpClientRequestEncoder) Uint64Path(instance string) http1.Cr
 type uint64PathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder uint64PathHttpClientResponseDecoder) Uint64Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1167,9 +1168,9 @@ func (decoder floatPathHttpServerRequestDecoder) FloatPath() http1.DecodeRequest
 		req := &FloatPathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Float, varErr = httpx.FormDecoder[float32](varErr, vars, "float", urlx.GetFloat)
-		req.OptFloat, varErr = httpx.FormDecoder[*float32](varErr, vars, "opt_float", urlx.GetFloatPtr)
-		req.WrapFloat, varErr = httpx.FormDecoder[*wrapperspb.FloatValue](varErr, vars, "wrap_float", urlx.GetFloat32Value)
+		req.Float, varErr = coder.DecodeForm[float32](varErr, vars, "float", urlx.GetFloat)
+		req.OptFloat, varErr = coder.DecodeForm[*float32](varErr, vars, "opt_float", urlx.GetFloatPtr)
+		req.WrapFloat, varErr = coder.DecodeForm[*wrapperspb.FloatValue](varErr, vars, "wrap_float", urlx.GetFloat32Value)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -1180,13 +1181,13 @@ func (decoder floatPathHttpServerRequestDecoder) FloatPath() http1.DecodeRequest
 type floatPathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder floatPathHttpServerResponseEncoder) FloatPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1252,13 +1253,13 @@ func (e floatPathHttpClientRequestEncoder) FloatPath(instance string) http1.Crea
 type floatPathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder floatPathHttpClientResponseDecoder) FloatPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1372,9 +1373,9 @@ func (decoder doublePathHttpServerRequestDecoder) DoublePath() http1.DecodeReque
 		req := &DoublePathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Double, varErr = httpx.FormDecoder[float64](varErr, vars, "double", urlx.GetFloat)
-		req.OptDouble, varErr = httpx.FormDecoder[*float64](varErr, vars, "opt_double", urlx.GetFloatPtr)
-		req.WrapDouble, varErr = httpx.FormDecoder[*wrapperspb.DoubleValue](varErr, vars, "wrap_double", urlx.GetFloat64Value)
+		req.Double, varErr = coder.DecodeForm[float64](varErr, vars, "double", urlx.GetFloat)
+		req.OptDouble, varErr = coder.DecodeForm[*float64](varErr, vars, "opt_double", urlx.GetFloatPtr)
+		req.WrapDouble, varErr = coder.DecodeForm[*wrapperspb.DoubleValue](varErr, vars, "wrap_double", urlx.GetFloat64Value)
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -1385,13 +1386,13 @@ func (decoder doublePathHttpServerRequestDecoder) DoublePath() http1.DecodeReque
 type doublePathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder doublePathHttpServerResponseEncoder) DoublePath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1457,13 +1458,13 @@ func (e doublePathHttpClientRequestEncoder) DoublePath(instance string) http1.Cr
 type doublePathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder doublePathHttpClientResponseDecoder) DoublePath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1590,13 +1591,13 @@ func (decoder stringPathHttpServerRequestDecoder) StringPath() http1.DecodeReque
 type stringPathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder stringPathHttpServerResponseEncoder) StringPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1662,13 +1663,13 @@ func (e stringPathHttpClientRequestEncoder) StringPath(instance string) http1.Cr
 type stringPathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder stringPathHttpClientResponseDecoder) StringPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1782,8 +1783,8 @@ func (decoder enumPathHttpServerRequestDecoder) EnumPath() http1.DecodeRequestFu
 		req := &EnumPathRequest{}
 		vars := urlx.FormFromMap(mux.Vars(r))
 		var varErr error
-		req.Status, varErr = httpx.FormDecoder[EnumPathRequest_Status](varErr, vars, "status", urlx.GetInt[EnumPathRequest_Status])
-		req.OptStatus, varErr = httpx.FormDecoder[*EnumPathRequest_Status](varErr, vars, "opt_status", urlx.GetIntPtr[EnumPathRequest_Status])
+		req.Status, varErr = coder.DecodeForm[EnumPathRequest_Status](varErr, vars, "status", urlx.GetInt[EnumPathRequest_Status])
+		req.OptStatus, varErr = coder.DecodeForm[*EnumPathRequest_Status](varErr, vars, "opt_status", urlx.GetIntPtr[EnumPathRequest_Status])
 		if varErr != nil {
 			return nil, varErr
 		}
@@ -1794,13 +1795,13 @@ func (decoder enumPathHttpServerRequestDecoder) EnumPath() http1.DecodeRequestFu
 type enumPathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder enumPathHttpServerResponseEncoder) EnumPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1866,13 +1867,13 @@ func (e enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.Create
 type enumPathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder enumPathHttpClientResponseDecoder) EnumPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2183,43 +2184,43 @@ func (decoder namedPathHttpServerRequestDecoder) EmbedNamedPathWrapString() http
 type namedPathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder namedPathHttpServerResponseEncoder) NamedPathString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) NamedPathOptString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) NamedPathWrapString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) EmbedNamedPathString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) EmbedNamedPathOptString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 func (encoder namedPathHttpServerResponseEncoder) EmbedNamedPathWrapString() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -2551,13 +2552,13 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance str
 type namedPathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder namedPathHttpClientResponseDecoder) NamedPathString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2566,7 +2567,7 @@ func (decoder namedPathHttpClientResponseDecoder) NamedPathString() http1.Decode
 func (decoder namedPathHttpClientResponseDecoder) NamedPathOptString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2575,7 +2576,7 @@ func (decoder namedPathHttpClientResponseDecoder) NamedPathOptString() http1.Dec
 func (decoder namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2584,7 +2585,7 @@ func (decoder namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.De
 func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2593,7 +2594,7 @@ func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.D
 func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2602,7 +2603,7 @@ func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http
 func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathWrapString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2733,13 +2734,13 @@ func (decoder mixPathHttpServerRequestDecoder) MixPath() http1.DecodeRequestFunc
 type mixPathHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder mixPathHttpServerResponseEncoder) MixPath() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -2811,13 +2812,13 @@ func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRe
 type mixPathHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder mixPathHttpClientResponseDecoder) MixPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

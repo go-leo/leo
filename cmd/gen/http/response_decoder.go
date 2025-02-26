@@ -26,7 +26,7 @@ func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() err
 	f.g.P("type ", f.service.Unexported(f.service.HttpClientResponseDecoderName()), " struct {")
 	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
 	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
-	f.g.P("responseTransformer ", internal.ResponseTransformerIdent)
+	f.g.P("responseTransformer ", internal.ResponseTransformer)
 	f.g.P("}")
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (decoder ", f.service.Unexported(f.service.HttpClientResponseDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeResponseFunc"), " {")

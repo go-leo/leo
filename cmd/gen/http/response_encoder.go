@@ -27,7 +27,7 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 	f.g.P("type ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), " struct {")
 	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
 	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
-	f.g.P("responseTransformer ", internal.ResponseTransformerIdent)
+	f.g.P("responseTransformer ", internal.ResponseTransformer)
 	f.g.P("}")
 	f.g.P()
 	for _, endpoint := range f.service.Endpoints {
@@ -42,13 +42,13 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 			switch message.Desc.FullName() {
 			case "google.api.HttpBody":
 				srcValue := []any{"resp"}
-				f.PrintHttpBodyEncode(srcValue)
+				f.PrintEncodeHttpBodyToResponse(srcValue)
 			case "google.rpc.HttpResponse":
 				srcValue := []any{"resp"}
-				f.PrintHttpResponseEncode(srcValue)
+				f.PrintEncodeHttpResponseToResponse(srcValue)
 			default:
 				srcValue := []any{"encoder.responseTransformer(ctx, resp)"}
-				f.PrintResponseEncode(srcValue)
+				f.PrintEncodeResponseToResponse(srcValue)
 			}
 		default:
 			bodyField := internal.FindField(bodyParameter, endpoint.Output())
@@ -60,9 +60,9 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 			case protoreflect.MessageKind:
 				switch bodyField.Message.Desc.FullName() {
 				case "google.api.HttpBody":
-					f.PrintHttpBodyEncode(srcValue)
+					f.PrintEncodeHttpBodyToResponse(srcValue)
 				default:
-					f.PrintResponseEncode(srcValue)
+					f.PrintEncodeResponseToResponse(srcValue)
 				}
 			}
 		}
@@ -94,14 +94,14 @@ func (f *ResponseEncoderGenerator) PrintGoogleApiHttpBodyEncodeBlock(srcValue []
 	f.g.P("}")
 }
 
-func (f *ResponseEncoderGenerator) PrintHttpBodyEncode(srcValue []any) {
-	f.g.P(append(append([]any{"return ", internal.HttpBodyEncoderIdent, "(ctx, w, "}, srcValue...), ")")...)
+func (f *ResponseEncoderGenerator) PrintEncodeResponseToResponse(srcValue []any) {
+	f.g.P(append(append([]any{"return ", internal.EncodeResponseToResponse, "(ctx, w, "}, srcValue...), ", encoder.marshalOptions)")...)
 }
 
-func (f *ResponseEncoderGenerator) PrintHttpResponseEncode(srcValue []any) {
-	f.g.P(append(append([]any{"return ", internal.HttpResponseEncoderIdent, "(ctx, w, "}, srcValue...), ")")...)
+func (f *ResponseEncoderGenerator) PrintEncodeHttpBodyToResponse(srcValue []any) {
+	f.g.P(append(append([]any{"return ", internal.EncodeHttpBodyToResponse, "(ctx, w, "}, srcValue...), ")")...)
 }
 
-func (f *ResponseEncoderGenerator) PrintResponseEncode(srcValue []any) {
-	f.g.P(append(append([]any{"return ", internal.ResponseEncoderIdent, "(ctx, w, "}, srcValue...), ", encoder.marshalOptions)")...)
+func (f *ResponseEncoderGenerator) PrintEncodeHttpResponseToResponse(srcValue []any) {
+	f.g.P(append(append([]any{"return ", internal.EncodeHttpResponseToResponse, "(ctx, w, "}, srcValue...), ")")...)
 }

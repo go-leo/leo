@@ -12,6 +12,7 @@ import (
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
+	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
@@ -129,9 +130,9 @@ func (decoder boolQueryHttpServerRequestDecoder) BoolQuery() http1.DecodeRequest
 		req := &BoolQueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Bool, queryErr = httpx.FormDecoder[bool](queryErr, queries, "bool", urlx.GetBool)
-		req.OptBool, queryErr = httpx.FormDecoder[*bool](queryErr, queries, "opt_bool", urlx.GetBoolPtr)
-		req.WrapBool, queryErr = httpx.FormDecoder[*wrapperspb.BoolValue](queryErr, queries, "wrap_bool", urlx.GetBoolValue)
+		req.Bool, queryErr = coder.DecodeForm[bool](queryErr, queries, "bool", urlx.GetBool)
+		req.OptBool, queryErr = coder.DecodeForm[*bool](queryErr, queries, "opt_bool", urlx.GetBoolPtr)
+		req.WrapBool, queryErr = coder.DecodeForm[*wrapperspb.BoolValue](queryErr, queries, "wrap_bool", urlx.GetBoolValue)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -142,13 +143,13 @@ func (decoder boolQueryHttpServerRequestDecoder) BoolQuery() http1.DecodeRequest
 type boolQueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder boolQueryHttpServerResponseEncoder) BoolQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -216,13 +217,13 @@ func (e boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.Crea
 type boolQueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder boolQueryHttpClientResponseDecoder) BoolQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -336,13 +337,13 @@ func (decoder int32QueryHttpServerRequestDecoder) Int32Query() http1.DecodeReque
 		req := &Int32QueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Int32, queryErr = httpx.FormDecoder[int32](queryErr, queries, "int32", urlx.GetInt[int32])
-		req.Sint32, queryErr = httpx.FormDecoder[int32](queryErr, queries, "sint32", urlx.GetInt[int32])
-		req.Sfixed32, queryErr = httpx.FormDecoder[int32](queryErr, queries, "sfixed32", urlx.GetInt[int32])
-		req.OptInt32, queryErr = httpx.FormDecoder[*int32](queryErr, queries, "opt_int32", urlx.GetIntPtr[int32])
-		req.OptSint32, queryErr = httpx.FormDecoder[*int32](queryErr, queries, "opt_sint32", urlx.GetIntPtr[int32])
-		req.OptSfixed32, queryErr = httpx.FormDecoder[*int32](queryErr, queries, "opt_sfixed32", urlx.GetIntPtr[int32])
-		req.WrapInt32, queryErr = httpx.FormDecoder[*wrapperspb.Int32Value](queryErr, queries, "wrap_int32", urlx.GetInt32Value)
+		req.Int32, queryErr = coder.DecodeForm[int32](queryErr, queries, "int32", urlx.GetInt[int32])
+		req.Sint32, queryErr = coder.DecodeForm[int32](queryErr, queries, "sint32", urlx.GetInt[int32])
+		req.Sfixed32, queryErr = coder.DecodeForm[int32](queryErr, queries, "sfixed32", urlx.GetInt[int32])
+		req.OptInt32, queryErr = coder.DecodeForm[*int32](queryErr, queries, "opt_int32", urlx.GetIntPtr[int32])
+		req.OptSint32, queryErr = coder.DecodeForm[*int32](queryErr, queries, "opt_sint32", urlx.GetIntPtr[int32])
+		req.OptSfixed32, queryErr = coder.DecodeForm[*int32](queryErr, queries, "opt_sfixed32", urlx.GetIntPtr[int32])
+		req.WrapInt32, queryErr = coder.DecodeForm[*wrapperspb.Int32Value](queryErr, queries, "wrap_int32", urlx.GetInt32Value)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -353,13 +354,13 @@ func (decoder int32QueryHttpServerRequestDecoder) Int32Query() http1.DecodeReque
 type int32QueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder int32QueryHttpServerResponseEncoder) Int32Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -431,13 +432,13 @@ func (e int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.Cr
 type int32QueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder int32QueryHttpClientResponseDecoder) Int32Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -551,13 +552,13 @@ func (decoder int64QueryHttpServerRequestDecoder) Int64Query() http1.DecodeReque
 		req := &Int64QueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Int64, queryErr = httpx.FormDecoder[int64](queryErr, queries, "int64", urlx.GetInt[int64])
-		req.Sint64, queryErr = httpx.FormDecoder[int64](queryErr, queries, "sint64", urlx.GetInt[int64])
-		req.Sfixed64, queryErr = httpx.FormDecoder[int64](queryErr, queries, "sfixed64", urlx.GetInt[int64])
-		req.OptInt64, queryErr = httpx.FormDecoder[*int64](queryErr, queries, "opt_int64", urlx.GetIntPtr[int64])
-		req.OptSint64, queryErr = httpx.FormDecoder[*int64](queryErr, queries, "opt_sint64", urlx.GetIntPtr[int64])
-		req.OptSfixed64, queryErr = httpx.FormDecoder[*int64](queryErr, queries, "opt_sfixed64", urlx.GetIntPtr[int64])
-		req.WrapInt64, queryErr = httpx.FormDecoder[*wrapperspb.Int64Value](queryErr, queries, "wrap_int64", urlx.GetInt64Value)
+		req.Int64, queryErr = coder.DecodeForm[int64](queryErr, queries, "int64", urlx.GetInt[int64])
+		req.Sint64, queryErr = coder.DecodeForm[int64](queryErr, queries, "sint64", urlx.GetInt[int64])
+		req.Sfixed64, queryErr = coder.DecodeForm[int64](queryErr, queries, "sfixed64", urlx.GetInt[int64])
+		req.OptInt64, queryErr = coder.DecodeForm[*int64](queryErr, queries, "opt_int64", urlx.GetIntPtr[int64])
+		req.OptSint64, queryErr = coder.DecodeForm[*int64](queryErr, queries, "opt_sint64", urlx.GetIntPtr[int64])
+		req.OptSfixed64, queryErr = coder.DecodeForm[*int64](queryErr, queries, "opt_sfixed64", urlx.GetIntPtr[int64])
+		req.WrapInt64, queryErr = coder.DecodeForm[*wrapperspb.Int64Value](queryErr, queries, "wrap_int64", urlx.GetInt64Value)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -568,13 +569,13 @@ func (decoder int64QueryHttpServerRequestDecoder) Int64Query() http1.DecodeReque
 type int64QueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder int64QueryHttpServerResponseEncoder) Int64Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -646,13 +647,13 @@ func (e int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.Cr
 type int64QueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder int64QueryHttpClientResponseDecoder) Int64Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -766,11 +767,11 @@ func (decoder uint32QueryHttpServerRequestDecoder) Uint32Query() http1.DecodeReq
 		req := &Uint32QueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Uint32, queryErr = httpx.FormDecoder[uint32](queryErr, queries, "uint32", urlx.GetUint[uint32])
-		req.Fixed32, queryErr = httpx.FormDecoder[uint32](queryErr, queries, "fixed32", urlx.GetUint[uint32])
-		req.OptUint32, queryErr = httpx.FormDecoder[*uint32](queryErr, queries, "opt_uint32", urlx.GetUintPtr[uint32])
-		req.OptFixed32, queryErr = httpx.FormDecoder[*uint32](queryErr, queries, "opt_fixed32", urlx.GetUintPtr[uint32])
-		req.WrapUint32, queryErr = httpx.FormDecoder[*wrapperspb.UInt32Value](queryErr, queries, "wrap_uint32", urlx.GetUint32Value)
+		req.Uint32, queryErr = coder.DecodeForm[uint32](queryErr, queries, "uint32", urlx.GetUint[uint32])
+		req.Fixed32, queryErr = coder.DecodeForm[uint32](queryErr, queries, "fixed32", urlx.GetUint[uint32])
+		req.OptUint32, queryErr = coder.DecodeForm[*uint32](queryErr, queries, "opt_uint32", urlx.GetUintPtr[uint32])
+		req.OptFixed32, queryErr = coder.DecodeForm[*uint32](queryErr, queries, "opt_fixed32", urlx.GetUintPtr[uint32])
+		req.WrapUint32, queryErr = coder.DecodeForm[*wrapperspb.UInt32Value](queryErr, queries, "wrap_uint32", urlx.GetUint32Value)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -781,13 +782,13 @@ func (decoder uint32QueryHttpServerRequestDecoder) Uint32Query() http1.DecodeReq
 type uint32QueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder uint32QueryHttpServerResponseEncoder) Uint32Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -857,13 +858,13 @@ func (e uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.
 type uint32QueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder uint32QueryHttpClientResponseDecoder) Uint32Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -977,11 +978,11 @@ func (decoder uint64QueryHttpServerRequestDecoder) Uint64Query() http1.DecodeReq
 		req := &Uint64QueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Uint64, queryErr = httpx.FormDecoder[uint64](queryErr, queries, "uint64", urlx.GetUint[uint64])
-		req.Fixed64, queryErr = httpx.FormDecoder[uint64](queryErr, queries, "fixed64", urlx.GetUint[uint64])
-		req.OptUint64, queryErr = httpx.FormDecoder[*uint64](queryErr, queries, "opt_uint64", urlx.GetUintPtr[uint64])
-		req.OptFixed64, queryErr = httpx.FormDecoder[*uint64](queryErr, queries, "opt_fixed64", urlx.GetUintPtr[uint64])
-		req.WrapUint64, queryErr = httpx.FormDecoder[*wrapperspb.UInt64Value](queryErr, queries, "wrap_uint64", urlx.GetUint64Value)
+		req.Uint64, queryErr = coder.DecodeForm[uint64](queryErr, queries, "uint64", urlx.GetUint[uint64])
+		req.Fixed64, queryErr = coder.DecodeForm[uint64](queryErr, queries, "fixed64", urlx.GetUint[uint64])
+		req.OptUint64, queryErr = coder.DecodeForm[*uint64](queryErr, queries, "opt_uint64", urlx.GetUintPtr[uint64])
+		req.OptFixed64, queryErr = coder.DecodeForm[*uint64](queryErr, queries, "opt_fixed64", urlx.GetUintPtr[uint64])
+		req.WrapUint64, queryErr = coder.DecodeForm[*wrapperspb.UInt64Value](queryErr, queries, "wrap_uint64", urlx.GetUint64Value)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -992,13 +993,13 @@ func (decoder uint64QueryHttpServerRequestDecoder) Uint64Query() http1.DecodeReq
 type uint64QueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder uint64QueryHttpServerResponseEncoder) Uint64Query() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1068,13 +1069,13 @@ func (e uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.
 type uint64QueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder uint64QueryHttpClientResponseDecoder) Uint64Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1188,9 +1189,9 @@ func (decoder floatQueryHttpServerRequestDecoder) FloatQuery() http1.DecodeReque
 		req := &FloatQueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Float, queryErr = httpx.FormDecoder[float32](queryErr, queries, "float", urlx.GetFloat[float32])
-		req.OptFloat, queryErr = httpx.FormDecoder[*float32](queryErr, queries, "opt_float", urlx.GetFloatPtr[float32])
-		req.WrapFloat, queryErr = httpx.FormDecoder[*wrapperspb.FloatValue](queryErr, queries, "wrap_float", urlx.GetFloat32Value)
+		req.Float, queryErr = coder.DecodeForm[float32](queryErr, queries, "float", urlx.GetFloat[float32])
+		req.OptFloat, queryErr = coder.DecodeForm[*float32](queryErr, queries, "opt_float", urlx.GetFloatPtr[float32])
+		req.WrapFloat, queryErr = coder.DecodeForm[*wrapperspb.FloatValue](queryErr, queries, "wrap_float", urlx.GetFloat32Value)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -1201,13 +1202,13 @@ func (decoder floatQueryHttpServerRequestDecoder) FloatQuery() http1.DecodeReque
 type floatQueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder floatQueryHttpServerResponseEncoder) FloatQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1275,13 +1276,13 @@ func (e floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.Cr
 type floatQueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder floatQueryHttpClientResponseDecoder) FloatQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1395,9 +1396,9 @@ func (decoder doubleQueryHttpServerRequestDecoder) DoubleQuery() http1.DecodeReq
 		req := &DoubleQueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Double, queryErr = httpx.FormDecoder[float64](queryErr, queries, "double", urlx.GetFloat[float64])
-		req.OptDouble, queryErr = httpx.FormDecoder[*float64](queryErr, queries, "opt_double", urlx.GetFloatPtr[float64])
-		req.WrapDouble, queryErr = httpx.FormDecoder[*wrapperspb.DoubleValue](queryErr, queries, "wrap_double", urlx.GetFloat64Value)
+		req.Double, queryErr = coder.DecodeForm[float64](queryErr, queries, "double", urlx.GetFloat[float64])
+		req.OptDouble, queryErr = coder.DecodeForm[*float64](queryErr, queries, "opt_double", urlx.GetFloatPtr[float64])
+		req.WrapDouble, queryErr = coder.DecodeForm[*wrapperspb.DoubleValue](queryErr, queries, "wrap_double", urlx.GetFloat64Value)
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -1408,13 +1409,13 @@ func (decoder doubleQueryHttpServerRequestDecoder) DoubleQuery() http1.DecodeReq
 type doubleQueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder doubleQueryHttpServerResponseEncoder) DoubleQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1482,13 +1483,13 @@ func (e doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.
 type doubleQueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder doubleQueryHttpClientResponseDecoder) DoubleQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1615,13 +1616,13 @@ func (decoder stringQueryHttpServerRequestDecoder) StringQuery() http1.DecodeReq
 type stringQueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder stringQueryHttpServerResponseEncoder) StringQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1689,13 +1690,13 @@ func (e stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.
 type stringQueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder stringQueryHttpClientResponseDecoder) StringQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1809,8 +1810,8 @@ func (decoder enumQueryHttpServerRequestDecoder) EnumQuery() http1.DecodeRequest
 		req := &EnumQueryRequest{}
 		queries := r.URL.Query()
 		var queryErr error
-		req.Status, queryErr = httpx.FormDecoder[EnumQueryRequest_Status](queryErr, queries, "status", urlx.GetInt[EnumQueryRequest_Status])
-		req.OptStatus, queryErr = httpx.FormDecoder[*EnumQueryRequest_Status](queryErr, queries, "opt_status", urlx.GetIntPtr[EnumQueryRequest_Status])
+		req.Status, queryErr = coder.DecodeForm[EnumQueryRequest_Status](queryErr, queries, "status", urlx.GetInt[EnumQueryRequest_Status])
+		req.OptStatus, queryErr = coder.DecodeForm[*EnumQueryRequest_Status](queryErr, queries, "opt_status", urlx.GetIntPtr[EnumQueryRequest_Status])
 		if queryErr != nil {
 			return nil, queryErr
 		}
@@ -1821,13 +1822,13 @@ func (decoder enumQueryHttpServerRequestDecoder) EnumQuery() http1.DecodeRequest
 type enumQueryHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder enumQueryHttpServerResponseEncoder) EnumQuery() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*emptypb.Empty)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeResponseToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -1894,13 +1895,13 @@ func (e enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.Crea
 type enumQueryHttpClientResponseDecoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (decoder enumQueryHttpClientResponseDecoder) EnumQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		resp := &emptypb.Empty{}
-		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+		if err := coder.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

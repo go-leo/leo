@@ -73,24 +73,29 @@ var (
 )
 
 var (
-	HttpxTransportxPackage   = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx")
-	ErrorEncoderIdent        = HttpxTransportxPackage.Ident("ErrorEncoder")
-	ResponseTransformerIdent = HttpxTransportxPackage.Ident("ResponseTransformer")
-	DefaultErrorEncoderIdent = HttpxTransportxPackage.Ident("DefaultErrorEncoder")
-	ResponseEncoderIdent     = HttpxTransportxPackage.Ident("ResponseEncoder")
-	HttpBodyEncoderIdent     = HttpxTransportxPackage.Ident("HttpBodyEncoder")
-	HttpResponseEncoderIdent = HttpxTransportxPackage.Ident("HttpResponseEncoder")
-	HttpBodyDecoderIdent     = HttpxTransportxPackage.Ident("HttpBodyDecoder")
-	HttpRequestDecoderIdent  = HttpxTransportxPackage.Ident("HttpRequestDecoder")
-	FormDecoderIdent         = HttpxTransportxPackage.Ident("FormDecoder")
-	OptionIdent              = HttpxTransportxPackage.Ident("Option")
-	NewOptionsIdent          = HttpxTransportxPackage.Ident("NewOptions")
+	HttpxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx")
 
-	DecodeRequestFromRequest = HttpxTransportxPackage.Ident("DecodeRequestFromRequest")
+	OptionIdent     = HttpxTransportxPackage.Ident("Option")
+	NewOptionsIdent = HttpxTransportxPackage.Ident("NewOptions")
+)
+var (
+	HttpxCoderPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx/coder")
 
-	DecodeResponseFromResponse     = HttpxTransportxPackage.Ident("DecodeResponseFromResponse")
-	DecodeHttpBodyFromResponse     = HttpxTransportxPackage.Ident("DecodeHttpBodyFromResponse")
-	DecodeHttpResponseFromResponse = HttpxTransportxPackage.Ident("DecodeHttpResponseFromResponse")
+	ResponseTransformer = HttpxCoderPackage.Ident("ResponseTransformer")
+
+	DecodeForm                   = HttpxCoderPackage.Ident("DecodeForm")
+	DecodeHttpBodyFromRequest    = HttpxCoderPackage.Ident("DecodeHttpBodyFromRequest")
+	DecodeHttpRequestFromRequest = HttpxCoderPackage.Ident("DecodeHttpRequestFromRequest")
+
+	EncodeResponseToResponse     = HttpxCoderPackage.Ident("EncodeResponseToResponse")
+	EncodeHttpBodyToResponse     = HttpxCoderPackage.Ident("EncodeHttpBodyToResponse")
+	EncodeHttpResponseToResponse = HttpxCoderPackage.Ident("EncodeHttpResponseToResponse")
+
+	DecodeRequestFromRequest = HttpxCoderPackage.Ident("DecodeRequestFromRequest")
+
+	DecodeResponseFromResponse     = HttpxCoderPackage.Ident("DecodeResponseFromResponse")
+	DecodeHttpBodyFromResponse     = HttpxCoderPackage.Ident("DecodeHttpBodyFromResponse")
+	DecodeHttpResponseFromResponse = HttpxCoderPackage.Ident("DecodeHttpResponseFromResponse")
 )
 
 var (

@@ -1,4 +1,4 @@
-package httpx
+package coder
 
 import (
 	"context"
@@ -27,7 +27,7 @@ func DecodeRequestFromRequest(ctx context.Context, r *http.Request, req proto.Me
 	return nil
 }
 
-func HttpBodyDecoder(ctx context.Context, r *http.Request, body *httpbody.HttpBody) error {
+func DecodeHttpBodyFromRequest(ctx context.Context, r *http.Request, body *httpbody.HttpBody) error {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func HttpBodyDecoder(ctx context.Context, r *http.Request, body *httpbody.HttpBo
 	return nil
 }
 
-func HttpRequestDecoder(ctx context.Context, r *http.Request, req *rpchttp.HttpRequest) error {
+func DecodeHttpRequestFromRequest(ctx context.Context, r *http.Request, req *rpchttp.HttpRequest) error {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func HttpRequestDecoder(ctx context.Context, r *http.Request, req *rpchttp.HttpR
 
 type FormGetter[T any] func(form url.Values, key string) (T, error)
 
-func FormDecoder[T any](pre error, form url.Values, key string, f FormGetter[T]) (T, error) {
+func DecodeForm[T any](pre error, form url.Values, key string, f FormGetter[T]) (T, error) {
 	return errorx.Break[T](pre)(func() (T, error) { return f(form, key) })
 }
 

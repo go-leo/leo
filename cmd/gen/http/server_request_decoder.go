@@ -88,13 +88,13 @@ func (f *ServerRequestDecoderGenerator) PrintDecodeRequestFromRequest(g *protoge
 }
 
 func (f *ServerRequestDecoderGenerator) PrintHttpBodyDecodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
-	g.P(append(append([]any{"if err := ", internal.HttpBodyDecoderIdent, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
+	g.P(append(append([]any{"if err := ", internal.DecodeHttpBodyFromRequest, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
 	g.P("return nil, err")
 	g.P("}")
 }
 
 func (f *ServerRequestDecoderGenerator) PrintHttpRequestEncodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
-	g.P(append(append([]any{"if err := ", internal.HttpRequestDecoderIdent, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
+	g.P(append(append([]any{"if err := ", internal.DecodeHttpRequestFromRequest, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
 	g.P("return nil, err")
 	g.P("}")
 }
@@ -399,7 +399,7 @@ func (f *ServerRequestDecoderGenerator) PrintQueryField(g *protogen.GeneratedFil
 }
 
 func (f *ServerRequestDecoderGenerator) PrintFieldAssign(g *protogen.GeneratedFile, tgtValue []any, goType []any, getter protogen.GoIdent, key string, form string, errName string) {
-	g.P(append(append([]any{}, tgtValue...), append(append([]any{internal.FormDecoderIdent, "["}, goType...), append([]any{"](", errName, ", ", form, ", ", strconv.Quote(key), ", ", getter}, ")")...)...)...)
+	g.P(append(append([]any{}, tgtValue...), append(append([]any{internal.DecodeForm, "["}, goType...), append([]any{"](", errName, ", ", form, ", ", strconv.Quote(key), ", ", getter}, ")")...)...)...)
 }
 
 func (f *ServerRequestDecoderGenerator) PrintStringValueAssign(g *protogen.GeneratedFile, tgtValue []any, srcValue []any, hasPresence bool) {
