@@ -8,7 +8,6 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -214,15 +213,16 @@ func (e boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http1.Crea
 	}
 }
 
-type boolQueryHttpClientResponseDecoder struct{}
+type boolQueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (boolQueryHttpClientResponseDecoder) BoolQuery() http1.DecodeResponseFunc {
+func (decoder boolQueryHttpClientResponseDecoder) BoolQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -428,15 +428,16 @@ func (e int32QueryHttpClientRequestEncoder) Int32Query(instance string) http1.Cr
 	}
 }
 
-type int32QueryHttpClientResponseDecoder struct{}
+type int32QueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (int32QueryHttpClientResponseDecoder) Int32Query() http1.DecodeResponseFunc {
+func (decoder int32QueryHttpClientResponseDecoder) Int32Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -642,15 +643,16 @@ func (e int64QueryHttpClientRequestEncoder) Int64Query(instance string) http1.Cr
 	}
 }
 
-type int64QueryHttpClientResponseDecoder struct{}
+type int64QueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (int64QueryHttpClientResponseDecoder) Int64Query() http1.DecodeResponseFunc {
+func (decoder int64QueryHttpClientResponseDecoder) Int64Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -852,15 +854,16 @@ func (e uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) http1.
 	}
 }
 
-type uint32QueryHttpClientResponseDecoder struct{}
+type uint32QueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (uint32QueryHttpClientResponseDecoder) Uint32Query() http1.DecodeResponseFunc {
+func (decoder uint32QueryHttpClientResponseDecoder) Uint32Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1062,15 +1065,16 @@ func (e uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) http1.
 	}
 }
 
-type uint64QueryHttpClientResponseDecoder struct{}
+type uint64QueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (uint64QueryHttpClientResponseDecoder) Uint64Query() http1.DecodeResponseFunc {
+func (decoder uint64QueryHttpClientResponseDecoder) Uint64Query() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1268,15 +1272,16 @@ func (e floatQueryHttpClientRequestEncoder) FloatQuery(instance string) http1.Cr
 	}
 }
 
-type floatQueryHttpClientResponseDecoder struct{}
+type floatQueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (floatQueryHttpClientResponseDecoder) FloatQuery() http1.DecodeResponseFunc {
+func (decoder floatQueryHttpClientResponseDecoder) FloatQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1474,15 +1479,16 @@ func (e doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) http1.
 	}
 }
 
-type doubleQueryHttpClientResponseDecoder struct{}
+type doubleQueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (doubleQueryHttpClientResponseDecoder) DoubleQuery() http1.DecodeResponseFunc {
+func (decoder doubleQueryHttpClientResponseDecoder) DoubleQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1680,15 +1686,16 @@ func (e stringQueryHttpClientRequestEncoder) StringQuery(instance string) http1.
 	}
 }
 
-type stringQueryHttpClientResponseDecoder struct{}
+type stringQueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (stringQueryHttpClientResponseDecoder) StringQuery() http1.DecodeResponseFunc {
+func (decoder stringQueryHttpClientResponseDecoder) StringQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1884,15 +1891,16 @@ func (e enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http1.Crea
 	}
 }
 
-type enumQueryHttpClientResponseDecoder struct{}
+type enumQueryHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (enumQueryHttpClientResponseDecoder) EnumQuery() http1.DecodeResponseFunc {
+func (decoder enumQueryHttpClientResponseDecoder) EnumQuery() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

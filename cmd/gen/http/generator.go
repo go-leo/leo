@@ -39,7 +39,6 @@ func (f *Generator) Generate() error {
 	functionGenerator := FunctionGenerator{}
 	serverTransportsGenerator := ServerTransportsGenerator{}
 	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
-	serverResponseEncoderGenerator := ServerResponseEncoderGenerator{}
 
 	clientRequestEncoderGenerator := ClientRequestEncoderGenerator{}
 	for _, service := range services {
@@ -59,17 +58,21 @@ func (f *Generator) Generate() error {
 		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoder(service, g); err != nil {
 			return err
 		}
-		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoder(service, g); err != nil {
+		responseEncoderGenerator := ResponseEncoderGenerator{
+			service: service,
+			g:       g,
+		}
+		if err := responseEncoderGenerator.GenerateResponseEncoder(); err != nil {
 			return err
 		}
 		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoder(service, g); err != nil {
 			return err
 		}
-		clientResponseDecoderGenerator := ClientResponseDecoderGenerator{
+		responseDecoderGenerator := ResponseDecoderGenerator{
 			service: service,
 			g:       g,
 		}
-		if err := clientResponseDecoderGenerator.GenerateClientResponseDecoder(); err != nil {
+		if err := responseDecoderGenerator.GenerateClientResponseDecoder(); err != nil {
 			return err
 		}
 		if err := serverTransportsGenerator.GenerateTransportsImplements(service, g); err != nil {
@@ -78,7 +81,7 @@ func (f *Generator) Generate() error {
 		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(service, g); err != nil {
 			return err
 		}
-		if err := serverResponseEncoderGenerator.GenerateServerResponseEncoderImplements(service, g); err != nil {
+		if err := responseEncoderGenerator.GenerateServerResponseEncoderImplements(); err != nil {
 			return err
 		}
 		clientTransportsGenerator := ClientTransportsGenerator{
@@ -91,7 +94,7 @@ func (f *Generator) Generate() error {
 		if err := clientRequestEncoderGenerator.GenerateClientRequestEncoderImplements(service, g); err != nil {
 			return err
 		}
-		if err := clientResponseDecoderGenerator.GenerateClientResponseDecoderImplements(); err != nil {
+		if err := responseDecoderGenerator.GenerateClientResponseDecoderImplements(); err != nil {
 			return err
 		}
 	}

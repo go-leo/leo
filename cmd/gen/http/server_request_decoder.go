@@ -40,7 +40,7 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(s
 			case "google.rpc.HttpRequest":
 				f.PrintHttpRequestEncodeBlock(g, []any{"req"})
 			default:
-				f.PrintRequestDecodeBlock(g, []any{"req"})
+				f.PrintDecodeRequestFromRequest(g, []any{"req"})
 			}
 		} else if bodyField != nil {
 			tgtValue := []any{"req.", bodyField.GoName}
@@ -53,7 +53,7 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(s
 				case "google.api.HttpBody":
 					f.PrintHttpBodyDecodeBlock(g, tgtValue)
 				default:
-					f.PrintRequestDecodeBlock(g, []any{"req.", bodyField.GoName})
+					f.PrintDecodeRequestFromRequest(g, []any{"req.", bodyField.GoName})
 				}
 			}
 		}
@@ -81,6 +81,12 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements(s
 	return nil
 }
 
+func (f *ServerRequestDecoderGenerator) PrintDecodeRequestFromRequest(g *protogen.GeneratedFile, tgtValue []any) {
+	g.P(append(append([]any{"if err := ", internal.DecodeRequestFromRequest, "(ctx, r, "}, tgtValue...), ", decoder.unmarshalOptions); err != nil {")...)
+	g.P("return nil, err")
+	g.P("}")
+}
+
 func (f *ServerRequestDecoderGenerator) PrintHttpBodyDecodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
 	g.P(append(append([]any{"if err := ", internal.HttpBodyDecoderIdent, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
 	g.P("return nil, err")
@@ -89,12 +95,6 @@ func (f *ServerRequestDecoderGenerator) PrintHttpBodyDecodeBlock(g *protogen.Gen
 
 func (f *ServerRequestDecoderGenerator) PrintHttpRequestEncodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
 	g.P(append(append([]any{"if err := ", internal.HttpRequestDecoderIdent, "(ctx, r, "}, tgtValue...), "); err != nil {")...)
-	g.P("return nil, err")
-	g.P("}")
-}
-
-func (f *ServerRequestDecoderGenerator) PrintRequestDecodeBlock(g *protogen.GeneratedFile, tgtValue []any) {
-	g.P(append(append([]any{"if err := ", internal.RequestDecoderIdent, "(ctx, r, "}, tgtValue...), ", decoder.unmarshalOptions); err != nil {")...)
 	g.P("return nil, err")
 	g.P("}")
 }

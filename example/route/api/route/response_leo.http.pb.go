@@ -8,7 +8,6 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	mux "github.com/gorilla/mux"
@@ -606,82 +605,67 @@ func (e responseHttpClientRequestEncoder) HttpResponse(instance string) http1.Cr
 	}
 }
 
-type responseHttpClientResponseDecoder struct{}
+type responseHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (responseHttpClientResponseDecoder) OmittedResponse() http1.DecodeResponseFunc {
+func (decoder responseHttpClientResponseDecoder) OmittedResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &UserResponse{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (responseHttpClientResponseDecoder) StarResponse() http1.DecodeResponseFunc {
+func (decoder responseHttpClientResponseDecoder) StarResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &UserResponse{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (responseHttpClientResponseDecoder) NamedResponse() http1.DecodeResponseFunc {
+func (decoder responseHttpClientResponseDecoder) NamedResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &UserResponse{}
-		if err := jsonx.NewDecoder(r.Body).Decode(&resp.User); err != nil {
+		if resp.User == nil {
+			resp.User = &User{}
+		}
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp.User, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (responseHttpClientResponseDecoder) HttpBodyResponse() http1.DecodeResponseFunc {
+func (decoder responseHttpClientResponseDecoder) HttpBodyResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &httpbody.HttpBody{}
-		resp.ContentType = r.Header.Get("Content-Type")
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
+		if err := httpx.DecodeHttpBodyFromResponse(ctx, r, resp); err != nil {
 			return nil, err
 		}
-		resp.Data = body
 		return resp, nil
 	}
 }
-func (responseHttpClientResponseDecoder) HttpBodyNamedResponse() http1.DecodeResponseFunc {
+func (decoder responseHttpClientResponseDecoder) HttpBodyNamedResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &HttpBody{}
-		resp.Body = &httpbody.HttpBody{}
-		resp.Body.ContentType = r.Header.Get("Content-Type")
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
+		if resp.Body == nil {
+			resp.Body = &httpbody.HttpBody{}
+		}
+		if err := httpx.DecodeHttpBodyFromResponse(ctx, r, resp.Body); err != nil {
 			return nil, err
 		}
-		resp.Body.Data = body
 		return resp, nil
 	}
 }
-func (responseHttpClientResponseDecoder) HttpResponse() http1.DecodeResponseFunc {
+func (decoder responseHttpClientResponseDecoder) HttpResponse() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &http2.HttpResponse{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeHttpResponseFromResponse(ctx, r, resp); err != nil {
 			return nil, err
 		}
 		return resp, nil

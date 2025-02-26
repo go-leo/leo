@@ -247,7 +247,7 @@ type bodyHttpServerRequestDecoder struct {
 func (decoder bodyHttpServerRequestDecoder) StarBody() http1.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &BodyRequest{}
-		if err := httpx.RequestDecoder(ctx, r, req, decoder.unmarshalOptions); err != nil {
+		if err := httpx.DecodeRequestFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -259,7 +259,7 @@ func (decoder bodyHttpServerRequestDecoder) NamedBody() http1.DecodeRequestFunc 
 		if req.User == nil {
 			req.User = &BodyRequest_User{}
 		}
-		if err := httpx.RequestDecoder(ctx, r, req.User, decoder.unmarshalOptions); err != nil {
+		if err := httpx.DecodeRequestFromRequest(ctx, r, req.User, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -655,75 +655,61 @@ func (e bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.CreateR
 	}
 }
 
-type bodyHttpClientResponseDecoder struct{}
+type bodyHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (bodyHttpClientResponseDecoder) StarBody() http1.DecodeResponseFunc {
+func (decoder bodyHttpClientResponseDecoder) StarBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (bodyHttpClientResponseDecoder) NamedBody() http1.DecodeResponseFunc {
+func (decoder bodyHttpClientResponseDecoder) NamedBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (bodyHttpClientResponseDecoder) NonBody() http1.DecodeResponseFunc {
+func (decoder bodyHttpClientResponseDecoder) NonBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (bodyHttpClientResponseDecoder) HttpBodyStarBody() http1.DecodeResponseFunc {
+func (decoder bodyHttpClientResponseDecoder) HttpBodyStarBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (bodyHttpClientResponseDecoder) HttpBodyNamedBody() http1.DecodeResponseFunc {
+func (decoder bodyHttpClientResponseDecoder) HttpBodyNamedBody() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (bodyHttpClientResponseDecoder) HttpRequest() http1.DecodeResponseFunc {
+func (decoder bodyHttpClientResponseDecoder) HttpRequest() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

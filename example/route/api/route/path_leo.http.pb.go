@@ -8,7 +8,6 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	jsonx "github.com/go-leo/gox/encodingx/jsonx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -213,15 +212,16 @@ func (e boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.Create
 	}
 }
 
-type boolPathHttpClientResponseDecoder struct{}
+type boolPathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (boolPathHttpClientResponseDecoder) BoolPath() http1.DecodeResponseFunc {
+func (decoder boolPathHttpClientResponseDecoder) BoolPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -421,15 +421,16 @@ func (e int32PathHttpClientRequestEncoder) Int32Path(instance string) http1.Crea
 	}
 }
 
-type int32PathHttpClientResponseDecoder struct{}
+type int32PathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (int32PathHttpClientResponseDecoder) Int32Path() http1.DecodeResponseFunc {
+func (decoder int32PathHttpClientResponseDecoder) Int32Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -629,15 +630,16 @@ func (e int64PathHttpClientRequestEncoder) Int64Path(instance string) http1.Crea
 	}
 }
 
-type int64PathHttpClientResponseDecoder struct{}
+type int64PathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (int64PathHttpClientResponseDecoder) Int64Path() http1.DecodeResponseFunc {
+func (decoder int64PathHttpClientResponseDecoder) Int64Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -835,15 +837,16 @@ func (e uint32PathHttpClientRequestEncoder) Uint32Path(instance string) http1.Cr
 	}
 }
 
-type uint32PathHttpClientResponseDecoder struct{}
+type uint32PathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (uint32PathHttpClientResponseDecoder) Uint32Path() http1.DecodeResponseFunc {
+func (decoder uint32PathHttpClientResponseDecoder) Uint32Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1041,15 +1044,16 @@ func (e uint64PathHttpClientRequestEncoder) Uint64Path(instance string) http1.Cr
 	}
 }
 
-type uint64PathHttpClientResponseDecoder struct{}
+type uint64PathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (uint64PathHttpClientResponseDecoder) Uint64Path() http1.DecodeResponseFunc {
+func (decoder uint64PathHttpClientResponseDecoder) Uint64Path() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1245,15 +1249,16 @@ func (e floatPathHttpClientRequestEncoder) FloatPath(instance string) http1.Crea
 	}
 }
 
-type floatPathHttpClientResponseDecoder struct{}
+type floatPathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (floatPathHttpClientResponseDecoder) FloatPath() http1.DecodeResponseFunc {
+func (decoder floatPathHttpClientResponseDecoder) FloatPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1449,15 +1454,16 @@ func (e doublePathHttpClientRequestEncoder) DoublePath(instance string) http1.Cr
 	}
 }
 
-type doublePathHttpClientResponseDecoder struct{}
+type doublePathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (doublePathHttpClientResponseDecoder) DoublePath() http1.DecodeResponseFunc {
+func (decoder doublePathHttpClientResponseDecoder) DoublePath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1653,15 +1659,16 @@ func (e stringPathHttpClientRequestEncoder) StringPath(instance string) http1.Cr
 	}
 }
 
-type stringPathHttpClientResponseDecoder struct{}
+type stringPathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (stringPathHttpClientResponseDecoder) StringPath() http1.DecodeResponseFunc {
+func (decoder stringPathHttpClientResponseDecoder) StringPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -1856,15 +1863,16 @@ func (e enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.Create
 	}
 }
 
-type enumPathHttpClientResponseDecoder struct{}
+type enumPathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (enumPathHttpClientResponseDecoder) EnumPath() http1.DecodeResponseFunc {
+func (decoder enumPathHttpClientResponseDecoder) EnumPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2540,75 +2548,61 @@ func (e namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instance str
 	}
 }
 
-type namedPathHttpClientResponseDecoder struct{}
+type namedPathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (namedPathHttpClientResponseDecoder) NamedPathString() http1.DecodeResponseFunc {
+func (decoder namedPathHttpClientResponseDecoder) NamedPathString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (namedPathHttpClientResponseDecoder) NamedPathOptString() http1.DecodeResponseFunc {
+func (decoder namedPathHttpClientResponseDecoder) NamedPathOptString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.DecodeResponseFunc {
+func (decoder namedPathHttpClientResponseDecoder) NamedPathWrapString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.DecodeResponseFunc {
+func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http1.DecodeResponseFunc {
+func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathOptString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
 	}
 }
-func (namedPathHttpClientResponseDecoder) EmbedNamedPathWrapString() http1.DecodeResponseFunc {
+func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathWrapString() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -2814,15 +2808,16 @@ func (e mixPathHttpClientRequestEncoder) MixPath(instance string) http1.CreateRe
 	}
 }
 
-type mixPathHttpClientResponseDecoder struct{}
+type mixPathHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer httpx.ResponseTransformer
+}
 
-func (mixPathHttpClientResponseDecoder) MixPath() http1.DecodeResponseFunc {
+func (decoder mixPathHttpClientResponseDecoder) MixPath() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &emptypb.Empty{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := httpx.DecodeResponseFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

@@ -80,12 +80,17 @@ var (
 	ResponseEncoderIdent     = HttpxTransportxPackage.Ident("ResponseEncoder")
 	HttpBodyEncoderIdent     = HttpxTransportxPackage.Ident("HttpBodyEncoder")
 	HttpResponseEncoderIdent = HttpxTransportxPackage.Ident("HttpResponseEncoder")
-	RequestDecoderIdent      = HttpxTransportxPackage.Ident("RequestDecoder")
 	HttpBodyDecoderIdent     = HttpxTransportxPackage.Ident("HttpBodyDecoder")
 	HttpRequestDecoderIdent  = HttpxTransportxPackage.Ident("HttpRequestDecoder")
 	FormDecoderIdent         = HttpxTransportxPackage.Ident("FormDecoder")
 	OptionIdent              = HttpxTransportxPackage.Ident("Option")
 	NewOptionsIdent          = HttpxTransportxPackage.Ident("NewOptions")
+
+	DecodeRequestFromRequest = HttpxTransportxPackage.Ident("DecodeRequestFromRequest")
+
+	DecodeResponseFromResponse     = HttpxTransportxPackage.Ident("DecodeResponseFromResponse")
+	DecodeHttpBodyFromResponse     = HttpxTransportxPackage.Ident("DecodeHttpBodyFromResponse")
+	DecodeHttpResponseFromResponse = HttpxTransportxPackage.Ident("DecodeHttpResponseFromResponse")
 )
 
 var (
