@@ -76,20 +76,21 @@ func (f *Generator) Generate() error {
 		responseDecoderGenerator.GenerateClientResponseDecoder()
 
 		serverTransportsGenerator.GenerateTransportsImplements()
-		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(); err != nil {
-			return err
-		}
+
+		serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements()
+
 		if err := responseEncoderGenerator.GenerateServerResponseEncoderImplements(); err != nil {
 			return err
 		}
+
 		clientTransportsGenerator := ClientTransportsGenerator{
 			service: service,
 			g:       g,
 		}
 		clientTransportsGenerator.GenerateTransports()
-		if err := requestEncoderGenerator.GenerateClientRequestEncoderImplements(); err != nil {
-			return err
-		}
+
+		requestEncoderGenerator.GenerateClientRequestEncoderImplements()
+
 		if err := responseDecoderGenerator.GenerateClientResponseDecoderImplements(); err != nil {
 			return err
 		}

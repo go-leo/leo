@@ -37,14 +37,14 @@ service Body {
 
   rpc HttpBodyNamedBody (HttpBodyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put : "/v1/http/body/named/body"
+      patch : "/v1/http/body/named/body"
       body : "body"
     };
   }
 
   rpc HttpRequest (google.rpc.HttpRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put : "/v1/http/request"
+      delete : "/v1/http/request"
       body : "*"
     };
   }

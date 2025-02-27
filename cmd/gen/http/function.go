@@ -14,13 +14,10 @@ type FunctionGenerator struct {
 func (f *FunctionGenerator) GenerateAppendRoutesFunc() {
 	f.g.P("func append", f.service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
 	for _, endpoint := range f.service.Endpoints {
-		httpRule := endpoint.HttpRule()
-		// 调整路径，来适应 github.com/gorilla/mux 路由规则
-		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
 		f.g.P("router.NewRoute().")
 		f.g.P("Name(", strconv.Quote(endpoint.FullName()), ").")
 		f.g.P("Methods(", endpoint.HttpMethod(), ").")
-		f.g.P("Path(", strconv.Quote(path), ")")
+		f.g.P("Path(", strconv.Quote(endpoint.RoutePath()), ")")
 	}
 	f.g.P("return router")
 	f.g.P("}")

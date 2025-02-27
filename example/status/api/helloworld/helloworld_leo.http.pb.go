@@ -3,6 +3,7 @@
 package helloworld
 
 import (
+	bytes "bytes"
 	context "context"
 	errors "errors"
 	fmt "fmt"
@@ -22,7 +23,7 @@ import (
 func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/helloworld.Greeter/SayHello").
-		Methods("POST").
+		Methods(http.MethodPost).
 		Path("/v1/example/echo")
 	return router
 }
@@ -183,25 +184,23 @@ func (encoder greeterHttpClientRequestEncoder) SayHello(instance string) http1.C
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		method := "POST"
+		method := http.MethodPost
 		target := &url.URL{
 			Scheme: encoder.scheme,
 			Host:   instance,
 		}
 		header := http.Header{}
-		var body io.Reader
-		body, contentType, err := coder.EncodeMessageToRequest(ctx, req, encoder.marshalOptions)
-		if err != nil {
+		var body bytes.Buffer
+		if err := coder.EncodeMessageToRequest(ctx, req, header, &body, encoder.marshalOptions); err != nil {
 			return nil, err
 		}
-		header.Set("Content-Type", contentType)
 		var pairs []string
 		path, err := encoder.router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
 		target.Path = path.Path
-		r, err := http.NewRequestWithContext(ctx, method, target.String(), body)
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}

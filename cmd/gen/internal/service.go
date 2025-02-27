@@ -219,10 +219,11 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			}
 			endpoint.SetHttpRule()
 			endpoint.SetResponsibility()
-			if err := endpoint.ParseMethod(); err != nil {
+			if err := endpoint.ParsePattern(); err != nil {
 				return nil, err
 			}
-			if err := endpoint.ParseParameters(); err != nil {
+			endpoint.ParsePath()
+			if err := endpoint.ParseRequest(); err != nil {
 				return nil, err
 			}
 			endpoints = append(endpoints, endpoint)

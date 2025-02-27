@@ -40,24 +40,22 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements()
 				f.PrintDecodeMessageFromRequest([]any{"req"})
 			}
 		} else if bodyField := endpoint.BodyField(); bodyField != nil {
-			tgtValue := []any{"req.", bodyField.GoName}
-			f.g.P(append(append(append([]any{"if "}, tgtValue...), " == nil {"))...)
-			f.g.P(append(tgtValue, " = &", bodyField.Message.GoIdent, "{}")...)
-			f.g.P("}")
+			tgtValue := []any{"req.Get", bodyField.GoName, "()"}
+			f.g.P("req.", bodyField.GoName, " = &", bodyField.Message.GoIdent, "{}")
 			switch bodyField.Desc.Kind() {
 			case protoreflect.MessageKind:
 				switch bodyField.Message.Desc.FullName() {
 				case "google.api.HttpBody":
 					f.PrintDecodeHttpBodyFromRequest(tgtValue)
 				default:
-					f.PrintDecodeMessageFromRequest([]any{"req.", bodyField.GoName})
+					f.PrintDecodeMessageFromRequest(tgtValue)
 				}
 			}
 		}
 
 		if namedPathFields, pathFields := endpoint.NamedPathFields(), endpoint.PathFields(); len(namedPathFields)+len(pathFields) > 0 {
 			f.g.P("vars := ", internal.UrlxPackage.Ident("FormFromMap"), "(", internal.VarsIdent, "(r)", ")")
-			f.PrintNamedPathField(namedPathFields, endpoint.HttpRule())
+			f.PrintNamedPathField(namedPathFields, endpoint)
 			f.PrintPathField(pathFields)
 		}
 
@@ -95,7 +93,7 @@ func (f *ServerRequestDecoderGenerator) PrintDecodeHttpRequestFromRequest(tgtVal
 	f.g.P("}")
 }
 
-func (f *ServerRequestDecoderGenerator) PrintNamedPathField(namedPathFields []*protogen.Field, httpRule *internal.HttpRule) {
+func (f *ServerRequestDecoderGenerator) PrintNamedPathField(namedPathFields []*protogen.Field, endpoint *internal.Endpoint) {
 	for i, namedPathField := range namedPathFields {
 		fullFieldName := internal.FullFieldName(namedPathFields[:i+1])
 		if i < len(namedPathFields)-1 {
@@ -103,10 +101,9 @@ func (f *ServerRequestDecoderGenerator) PrintNamedPathField(namedPathFields []*p
 			f.g.P("req.", fullFieldName, " = &", namedPathField.Message.GoIdent, "{}")
 			f.g.P("}")
 		} else {
-			_, _, namedPathTemplate, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
 			tgtValue := []any{"req.", fullFieldName, " = "}
-			srcValue := []any{internal.Sprintf, "(", strconv.Quote(namedPathTemplate)}
-			for _, namedPathParameter := range namedPathParameters {
+			srcValue := []any{internal.Sprintf, "(", strconv.Quote(endpoint.NamedPathTemplate())}
+			for _, namedPathParameter := range endpoint.NamedPathFieldsParameters() {
 				srcValue = append(srcValue, ", vars.Get(", strconv.Quote(namedPathParameter), ")")
 			}
 			srcValue = append(srcValue, ")")

@@ -81,12 +81,8 @@ var (
 )
 
 var (
-	namedPathPattern = regexp.MustCompile("{([^{}]+)=([^{}]+)}")
-	pathPattern      = regexp.MustCompile("{([^=}]+)}")
-)
-
-var (
-	ContentTypeKey = "Content-Type"
+	samplePathPattern = regexp.MustCompile("{([^=}]+)}")
+	namedPathPattern  = regexp.MustCompile("{([^{}]+)=([^{}]+)}")
 )
 
 var (

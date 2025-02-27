@@ -30,9 +30,7 @@ func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() {
 	f.g.P("scheme string")
 	f.g.P("}")
 	for _, endpoint := range f.service.Endpoints {
-		httpRule := endpoint.HttpRule()
 		f.g.P("func (encoder ", f.service.Unexported(f.service.HttpClientRequestEncoderName()), ")", endpoint.Name(), "(instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
-
 		f.g.P("return func(ctx context.Context, obj any) (*", internal.Request, ", error) {")
 		f.g.P("if obj == nil {")
 		f.g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request is nil"), ")")
@@ -75,7 +73,7 @@ func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() {
 		}
 
 		f.g.P("var pairs []string")
-		f.PrintNamedPathField(endpoint.NamedPathFields(), httpRule)
+		f.PrintNamedPathField(endpoint.NamedPathFields(), endpoint)
 		f.PrintPathField(endpoint.PathFields())
 		f.g.P("path, err := encoder.router.Get(", strconv.Quote(endpoint.FullName()), ").URLPath(pairs...)")
 		f.g.P("if err != nil {")
@@ -115,12 +113,12 @@ func (f *RequestEncoderGenerator) PrintEncodeHttpRequestToRequest(srcValue []any
 	f.g.P("}")
 }
 
-func (f *RequestEncoderGenerator) PrintNamedPathField(namedPathFields []*protogen.Field, httpRule *internal.HttpRule) {
+func (f *RequestEncoderGenerator) PrintNamedPathField(namedPathFields []*protogen.Field, endpoint *internal.Endpoint) {
 	if len(namedPathFields) <= 0 {
 		return
 	}
+	namedPathParameters := endpoint.NamedPathFieldsParameters()
 	fullFieldGetterName := internal.FullFieldGetterName(namedPathFields)
-	_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
 	lastField := namedPathFields[len(namedPathFields)-1]
 	switch lastField.Desc.Kind() {
 	case protoreflect.StringKind:

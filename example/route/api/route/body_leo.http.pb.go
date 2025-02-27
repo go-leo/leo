@@ -42,11 +42,11 @@ func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/http/body/star/body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/HttpBodyNamedBody").
-		Methods(http.MethodPut).
+		Methods(http.MethodPatch).
 		Path("/v1/http/body/named/body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/HttpRequest").
-		Methods(http.MethodPut).
+		Methods(http.MethodDelete).
 		Path("/v1/http/request")
 	return router
 }
@@ -257,10 +257,8 @@ func (decoder bodyHttpServerRequestDecoder) StarBody() http1.DecodeRequestFunc {
 func (decoder bodyHttpServerRequestDecoder) NamedBody() http1.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &BodyRequest{}
-		if req.User == nil {
-			req.User = &BodyRequest_User{}
-		}
-		if err := coder.DecodeMessageFromRequest(ctx, r, req.User, decoder.unmarshalOptions); err != nil {
+		req.User = &BodyRequest_User{}
+		if err := coder.DecodeMessageFromRequest(ctx, r, req.GetUser(), decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -284,10 +282,8 @@ func (decoder bodyHttpServerRequestDecoder) HttpBodyStarBody() http1.DecodeReque
 func (decoder bodyHttpServerRequestDecoder) HttpBodyNamedBody() http1.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &HttpBodyRequest{}
-		if req.Body == nil {
-			req.Body = &httpbody.HttpBody{}
-		}
-		if err := coder.DecodeHttpBodyFromRequest(ctx, r, req.Body); err != nil {
+		req.Body = &httpbody.HttpBody{}
+		if err := coder.DecodeHttpBodyFromRequest(ctx, r, req.GetBody()); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -593,7 +589,7 @@ func (encoder bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) h
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		method := http.MethodPut
+		method := http.MethodPatch
 		target := &url.URL{
 			Scheme: encoder.scheme,
 			Host:   instance,
@@ -627,7 +623,7 @@ func (encoder bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.C
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		method := http.MethodPut
+		method := http.MethodDelete
 		target := &url.URL{
 			Scheme: encoder.scheme,
 			Host:   instance,
