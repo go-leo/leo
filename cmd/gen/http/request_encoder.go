@@ -22,7 +22,7 @@ func (f *RequestEncoderGenerator) GenerateRequestEncoder() {
 	f.g.P()
 }
 
-func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() error {
+func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() {
 	f.g.P("type ", f.service.Unexported(f.service.HttpClientRequestEncoderName()), " struct {")
 	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
 	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
@@ -95,7 +95,6 @@ func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() error
 		f.g.P("}")
 	}
 	f.g.P()
-	return nil
 }
 
 func (f *RequestEncoderGenerator) PrintEncodeMessageToRequest(srcValue []any) {

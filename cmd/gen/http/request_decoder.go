@@ -21,7 +21,7 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoder() {
 	f.g.P()
 }
 
-func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements() error {
+func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements() {
 	f.g.P("type ", f.service.Unexported(f.service.HttpServerRequestDecoderName()), " struct {")
 	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
 	f.g.P("}")
@@ -75,7 +75,6 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements()
 		f.g.P("}")
 	}
 	f.g.P()
-	return nil
 }
 
 func (f *ServerRequestDecoderGenerator) PrintDecodeMessageFromRequest(tgtValue []any) {
