@@ -3,11 +3,13 @@
 package route
 
 import (
+	bytes "bytes"
 	context "context"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
+	httpx1 "github.com/go-leo/gox/netx/httpx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -26,7 +28,7 @@ import (
 func appendBoolQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.BoolQuery/BoolQuery").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/bool")
 	return router
 }
@@ -192,28 +194,29 @@ func (encoder boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.BoolQuery/BoolQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["bool"] = append(queries["bool"], strconvx.FormatBool(req.GetBool()))
 		queries["opt_bool"] = append(queries["opt_bool"], strconvx.FormatBool(req.GetOptBool()))
 		queries["wrap_bool"] = append(queries["wrap_bool"], strconvx.FormatBool(req.GetWrapBool().GetValue()))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -237,7 +240,7 @@ func (decoder boolQueryHttpClientResponseDecoder) BoolQuery() http1.DecodeRespon
 func appendInt32QueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.Int32Query/Int32Query").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/int32")
 	return router
 }
@@ -407,13 +410,19 @@ func (encoder int32QueryHttpClientRequestEncoder) Int32Query(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.Int32Query/Int32Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["int32"] = append(queries["int32"], strconvx.FormatInt(req.GetInt32(), 10))
 		queries["sint32"] = append(queries["sint32"], strconvx.FormatInt(req.GetSint32(), 10))
@@ -422,17 +431,12 @@ func (encoder int32QueryHttpClientRequestEncoder) Int32Query(instance string) ht
 		queries["opt_sint32"] = append(queries["opt_sint32"], strconvx.FormatInt(req.GetOptSint32(), 10))
 		queries["opt_sfixed32"] = append(queries["opt_sfixed32"], strconvx.FormatInt(req.GetOptSfixed32(), 10))
 		queries["wrap_int32"] = append(queries["wrap_int32"], strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -456,7 +460,7 @@ func (decoder int32QueryHttpClientResponseDecoder) Int32Query() http1.DecodeResp
 func appendInt64QueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.Int64Query/Int64Query").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/int64")
 	return router
 }
@@ -626,13 +630,19 @@ func (encoder int64QueryHttpClientRequestEncoder) Int64Query(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.Int64Query/Int64Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["int64"] = append(queries["int64"], strconvx.FormatInt(req.GetInt64(), 10))
 		queries["sint64"] = append(queries["sint64"], strconvx.FormatInt(req.GetSint64(), 10))
@@ -641,17 +651,12 @@ func (encoder int64QueryHttpClientRequestEncoder) Int64Query(instance string) ht
 		queries["opt_sint64"] = append(queries["opt_sint64"], strconvx.FormatInt(req.GetOptSint64(), 10))
 		queries["opt_sfixed64"] = append(queries["opt_sfixed64"], strconvx.FormatInt(req.GetOptSfixed64(), 10))
 		queries["wrap_int64"] = append(queries["wrap_int64"], strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -675,7 +680,7 @@ func (decoder int64QueryHttpClientResponseDecoder) Int64Query() http1.DecodeResp
 func appendUint32QueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.Uint32Query/Uint32Query").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/uint32")
 	return router
 }
@@ -843,30 +848,31 @@ func (encoder uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) 
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.Uint32Query/Uint32Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["uint32"] = append(queries["uint32"], strconvx.FormatUint(req.GetUint32(), 10))
 		queries["fixed32"] = append(queries["fixed32"], strconvx.FormatUint(req.GetFixed32(), 10))
 		queries["opt_uint32"] = append(queries["opt_uint32"], strconvx.FormatUint(req.GetOptUint32(), 10))
 		queries["opt_fixed32"] = append(queries["opt_fixed32"], strconvx.FormatUint(req.GetOptFixed32(), 10))
 		queries["wrap_uint32"] = append(queries["wrap_uint32"], strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -890,7 +896,7 @@ func (decoder uint32QueryHttpClientResponseDecoder) Uint32Query() http1.DecodeRe
 func appendUint64QueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.Uint64Query/Uint64Query").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/uint64")
 	return router
 }
@@ -1058,30 +1064,31 @@ func (encoder uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) 
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.Uint64Query/Uint64Query").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["uint64"] = append(queries["uint64"], strconvx.FormatUint(req.GetUint64(), 10))
 		queries["fixed64"] = append(queries["fixed64"], strconvx.FormatUint(req.GetFixed64(), 10))
 		queries["opt_uint64"] = append(queries["opt_uint64"], strconvx.FormatUint(req.GetOptUint64(), 10))
 		queries["opt_fixed64"] = append(queries["opt_fixed64"], strconvx.FormatUint(req.GetOptFixed64(), 10))
 		queries["wrap_uint64"] = append(queries["wrap_uint64"], strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1105,7 +1112,7 @@ func (decoder uint64QueryHttpClientResponseDecoder) Uint64Query() http1.DecodeRe
 func appendFloatQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.FloatQuery/FloatQuery").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/float")
 	return router
 }
@@ -1271,28 +1278,29 @@ func (encoder floatQueryHttpClientRequestEncoder) FloatQuery(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.FloatQuery/FloatQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["float"] = append(queries["float"], strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32))
 		queries["opt_float"] = append(queries["opt_float"], strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32))
 		queries["wrap_float"] = append(queries["wrap_float"], strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1316,7 +1324,7 @@ func (decoder floatQueryHttpClientResponseDecoder) FloatQuery() http1.DecodeResp
 func appendDoubleQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.DoubleQuery/DoubleQuery").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/double")
 	return router
 }
@@ -1482,28 +1490,29 @@ func (encoder doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) 
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.DoubleQuery/DoubleQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["double"] = append(queries["double"], strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64))
 		queries["opt_double"] = append(queries["opt_double"], strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64))
 		queries["wrap_double"] = append(queries["wrap_double"], strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1527,7 +1536,7 @@ func (decoder doubleQueryHttpClientResponseDecoder) DoubleQuery() http1.DecodeRe
 func appendStringQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.StringQuery/StringQuery").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/string")
 	return router
 }
@@ -1693,28 +1702,29 @@ func (encoder stringQueryHttpClientRequestEncoder) StringQuery(instance string) 
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.StringQuery/StringQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["string"] = append(queries["string"], req.GetString_())
 		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
 		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1738,7 +1748,7 @@ func (decoder stringQueryHttpClientResponseDecoder) StringQuery() http1.DecodeRe
 func appendEnumQueryHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.query.EnumQuery/EnumQuery").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/enum")
 	return router
 }
@@ -1903,27 +1913,28 @@ func (encoder enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.query.EnumQuery/EnumQuery").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["status"] = append(queries["status"], strconvx.FormatInt(req.GetStatus(), 10))
 		queries["opt_status"] = append(queries["opt_status"], strconvx.FormatInt(req.GetOptStatus(), 10))
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

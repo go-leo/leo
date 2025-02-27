@@ -3,17 +3,15 @@
 package helloworld
 
 import (
-	bytes "bytes"
 	context "context"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
-	lb "github.com/go-kit/kit/sd/lb"
 	http1 "github.com/go-kit/kit/transport/http"
-	jsonx "github.com/go-leo/gox/encodingx/jsonx"
-	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
+	httpx1 "github.com/go-leo/gox/netx/httpx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
+	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	io "io"
@@ -22,7 +20,10 @@ import (
 )
 
 func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
-	router.NewRoute().Name("/helloworld.Greeter/SayHello").Methods("POST").Path("/v1/example/echo")
+	router.NewRoute().
+		Name("/helloworld.Greeter/SayHello").
+		Methods("POST").
+		Path("/v1/example/echo")
 	return router
 }
 func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
@@ -66,7 +67,6 @@ func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterServ
 	balancers := &greeterBalancers{
 		factory:    options.BalancerFactory(),
 		endpointer: endpointer,
-		sayHello:   lazyloadx.Group[lb.Balancer]{},
 	}
 	endpoints := &greeterClientEndpoints{
 		balancers: balancers,
@@ -117,12 +117,14 @@ func (t *greeterHttpServerTransports) SayHello() http.Handler {
 	)
 }
 
-type greeterHttpServerRequestDecoder struct{}
+type greeterHttpServerRequestDecoder struct {
+	unmarshalOptions protojson.UnmarshalOptions
+}
 
-func (greeterHttpServerRequestDecoder) SayHello() http1.DecodeRequestFunc {
+func (decoder greeterHttpServerRequestDecoder) SayHello() http1.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &HelloRequest{}
-		if err := jsonx.NewDecoder(r.Body).Decode(req); err != nil {
+		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return req, nil
@@ -132,13 +134,13 @@ func (greeterHttpServerRequestDecoder) SayHello() http1.DecodeRequestFunc {
 type greeterHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
 	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer httpx.ResponseTransformer
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*HelloReply)
-		return httpx.ResponseEncoder(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
+		return coder.EncodeMessageToResponse(ctx, w, encoder.responseTransformer(ctx, resp), encoder.marshalOptions)
 	}
 }
 
@@ -165,11 +167,13 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 }
 
 type greeterHttpClientRequestEncoder struct {
-	router *mux.Router
-	scheme string
+	marshalOptions   protojson.MarshalOptions
+	unmarshalOptions protojson.UnmarshalOptions
+	router           *mux.Router
+	scheme           string
 }
 
-func (e greeterHttpClientRequestEncoder) SayHello(instance string) http1.CreateRequestFunc {
+func (encoder greeterHttpClientRequestEncoder) SayHello(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
 			return nil, errors.New("request is nil")
@@ -179,43 +183,43 @@ func (e greeterHttpClientRequestEncoder) SayHello(instance string) http1.CreateR
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var bodyBuf bytes.Buffer
-		if err := jsonx.NewEncoder(&bodyBuf).Encode(req); err != nil {
-			return nil, err
-		}
-		body = &bodyBuf
-		contentType := "application/json; charset=utf-8"
-		var pairs []string
-		path, err := e.router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
-		if err != nil {
-			return nil, err
-		}
-		queries := url.Values{}
+		method := "POST"
 		target := &url.URL{
-			Scheme:   e.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
+			Scheme: encoder.scheme,
+			Host:   instance,
 		}
-		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		header := http.Header{}
+		var body io.Reader
+		body, contentType, err := coder.EncodeMessageToRequest(ctx, req, encoder.marshalOptions)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		header.Set("Content-Type", contentType)
+		var pairs []string
+		path, err := encoder.router.Get("/helloworld.Greeter/SayHello").URLPath(pairs...)
+		if err != nil {
+			return nil, err
+		}
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), body)
+		if err != nil {
+			return nil, err
+		}
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
 
-type greeterHttpClientResponseDecoder struct{}
+type greeterHttpClientResponseDecoder struct {
+	marshalOptions      protojson.MarshalOptions
+	unmarshalOptions    protojson.UnmarshalOptions
+	responseTransformer coder.ResponseTransformer
+}
 
-func (greeterHttpClientResponseDecoder) SayHello() http1.DecodeResponseFunc {
+func (decoder greeterHttpClientResponseDecoder) SayHello() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if httpx.IsErrorResponse(r) {
-			return nil, httpx.ErrorDecoder(ctx, r)
-		}
 		resp := &HelloReply{}
-		if err := jsonx.NewDecoder(r.Body).Decode(resp); err != nil {
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
 		return resp, nil

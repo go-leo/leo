@@ -5,7 +5,6 @@ import (
 	"github.com/go-leo/leo/v3/cmd/gen/internal"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"strconv"
 )
 
 type ResponseEncoderGenerator struct {
@@ -13,14 +12,13 @@ type ResponseEncoderGenerator struct {
 	g       *protogen.GeneratedFile
 }
 
-func (f *ResponseEncoderGenerator) GenerateResponseEncoder() error {
+func (f *ResponseEncoderGenerator) GenerateResponseEncoder() {
 	f.g.P("type ", f.service.HttpServerResponseEncoderName(), " interface {")
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P(endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"))
 	}
 	f.g.P("}")
 	f.g.P()
-	return nil
 }
 
 func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() error {
@@ -33,7 +31,7 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (encoder ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
 		httpRule := endpoint.HttpRule()
-		f.g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.HttpPackage.Ident("ResponseWriter"), ", obj any) error {")
+		f.g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.ResponseWriter, ", obj any) error {")
 		f.g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
 		bodyParameter := httpRule.ResponseBody()
 		switch bodyParameter {
@@ -71,27 +69,6 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 	}
 	f.g.P()
 	return nil
-}
-
-func (f *ResponseEncoderGenerator) PrintGoogleApiHttpBodyEncodeBlock(srcValue []any) {
-	f.g.P(append(append([]any{"w.Header().Set(", strconv.Quote("Content-Type"), ", "}, srcValue...), ".GetContentType())")...)
-	f.g.P(append(append([]any{"for _, src := range "}, srcValue...), ".GetExtensions() {")...)
-	f.g.P("dst, err := ", internal.AnypbPackage.Ident("UnmarshalNew"), "(src, ", internal.ProtoPackage.Ident("UnmarshalOptions"), "{})")
-	f.g.P("if err != nil {")
-	f.g.P("return err")
-	f.g.P("}")
-	f.g.P("metadata, ok := dst.(*", internal.StructpbPackage.Ident("Struct"), ")")
-	f.g.P("if !ok {")
-	f.g.P("continue")
-	f.g.P("}")
-	f.g.P("for key, value := range metadata.GetFields() {")
-	f.g.P("w.Header().Add(key, string(", internal.ErrorxPackage.Ident("Ignore"), "(", internal.JsonxPackage.Ident("Marshal"), "(value))))")
-	f.g.P("}")
-	f.g.P("}")
-	f.g.P("w.WriteHeader(", internal.HttpPackage.Ident("StatusOK"), ")")
-	f.g.P(append(append([]any{"if ", "_, err := w.Write("}, srcValue...), ".GetData())", "; err != nil {")...)
-	f.g.P("return err")
-	f.g.P("}")
 }
 
 func (f *ResponseEncoderGenerator) PrintEncodeMessageToResponse(srcValue []any) {

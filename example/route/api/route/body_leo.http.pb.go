@@ -3,11 +3,13 @@
 package route
 
 import (
+	bytes "bytes"
 	context "context"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
+	httpx1 "github.com/go-leo/gox/netx/httpx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
@@ -24,27 +26,27 @@ import (
 func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/StarBody").
-		Methods("POST").
+		Methods(http.MethodPost).
 		Path("/v1/star/body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/NamedBody").
-		Methods("POST").
+		Methods(http.MethodPost).
 		Path("/v1/named/body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/NonBody").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/user_body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/HttpBodyStarBody").
-		Methods("PUT").
+		Methods(http.MethodPut).
 		Path("/v1/http/body/star/body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/HttpBodyNamedBody").
-		Methods("PUT").
+		Methods(http.MethodPut).
 		Path("/v1/http/body/named/body")
 	router.NewRoute().
 		Name("/leo.example.route.body.Body/HttpRequest").
-		Methods("PUT").
+		Methods(http.MethodPut).
 		Path("/v1/http/request")
 	return router
 }
@@ -458,26 +460,27 @@ func (encoder bodyHttpClientRequestEncoder) StarBody(instance string) http1.Crea
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
-		body, contentType, err = coder.EncodeMessageToRequest(ctx, req, encoder.marshalOptions)
+		method := http.MethodPost
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeMessageToRequest(ctx, req, header, &body, encoder.marshalOptions); err != nil {
+			return nil, err
+		}
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.body.Body/StarBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -491,26 +494,27 @@ func (encoder bodyHttpClientRequestEncoder) NamedBody(instance string) http1.Cre
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
-		body, contentType, err := coder.EncodeMessageToRequest(ctx, req.GetUser(), encoder.marshalOptions)
+		method := http.MethodPost
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeMessageToRequest(ctx, req.GetUser(), header, &body, encoder.marshalOptions); err != nil {
+			return nil, err
+		}
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.body.Body/NamedBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "POST", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -524,25 +528,24 @@ func (encoder bodyHttpClientRequestEncoder) NonBody(instance string) http1.Creat
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.body.Body/NonBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -556,26 +559,27 @@ func (encoder bodyHttpClientRequestEncoder) HttpBodyStarBody(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
-		body, contentType = coder.EncodeHttpBodyToRequest(ctx, req)
+		method := http.MethodPut
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeHttpBodyToRequest(ctx, req, header, &body); err != nil {
+			return nil, err
+		}
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.body.Body/HttpBodyStarBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -589,26 +593,27 @@ func (encoder bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) h
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
-		body, contentType = coder.EncodeHttpBodyToRequest(ctx, req.GetBody())
+		method := http.MethodPut
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeHttpBodyToRequest(ctx, req.GetBody(), header, &body); err != nil {
+			return nil, err
+		}
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.body.Body/HttpBodyNamedBody").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -622,25 +627,27 @@ func (encoder bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.C
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodPut
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeHttpRequestToRequest(ctx, req, header, &body); err != nil {
+			return nil, err
+		}
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.route.body.Body/HttpRequest").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "PUT", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

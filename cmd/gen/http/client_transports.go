@@ -10,7 +10,7 @@ type ClientTransportsGenerator struct {
 	g       *protogen.GeneratedFile
 }
 
-func (f *ClientTransportsGenerator) GenerateTransports() error {
+func (f *ClientTransportsGenerator) GenerateTransports() {
 	f.g.P("type ", f.service.Unexported(f.service.HttpClientTransportsName()), " struct {")
 	f.g.P("clientOptions []", internal.HttpTransportPackage.Ident("ClientOption"))
 	f.g.P("middlewares []", internal.EndpointPackage.Ident("Middleware"))
@@ -36,5 +36,4 @@ func (f *ClientTransportsGenerator) GenerateTransports() error {
 		f.g.P("}")
 		f.g.P()
 	}
-	return nil
 }

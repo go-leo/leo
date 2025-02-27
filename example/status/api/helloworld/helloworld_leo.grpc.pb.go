@@ -5,9 +5,7 @@ package helloworld
 import (
 	context "context"
 	endpoint "github.com/go-kit/kit/endpoint"
-	lb "github.com/go-kit/kit/sd/lb"
 	grpc "github.com/go-kit/kit/transport/grpc"
-	lazyloadx "github.com/go-leo/gox/syncx/lazyloadx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
 	grpc1 "google.golang.org/grpc"
@@ -47,7 +45,6 @@ func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterServ
 	balancers := &greeterBalancers{
 		factory:    options.BalancerFactory(),
 		endpointer: endpointer,
-		sayHello:   lazyloadx.Group[lb.Balancer]{},
 	}
 	endpoints := &greeterClientEndpoints{
 		balancers: balancers,

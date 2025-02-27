@@ -3,11 +3,13 @@
 package route
 
 import (
+	bytes "bytes"
 	context "context"
 	errors "errors"
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
+	httpx1 "github.com/go-leo/gox/netx/httpx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
@@ -27,7 +29,7 @@ import (
 func appendBoolPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.BoolPath/BoolPath").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
 	return router
 }
@@ -193,26 +195,29 @@ func (encoder boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "bool", strconvx.FormatBool(req.GetBool()), "opt_bool", strconvx.FormatBool(req.GetOptBool()), "wrap_bool", strconvx.FormatBool(req.GetWrapBool().GetValue()))
+		pairs = append(pairs,
+			"bool", strconvx.FormatBool(req.GetBool()),
+			"opt_bool", strconvx.FormatBool(req.GetOptBool()),
+			"wrap_bool", strconvx.FormatBool(req.GetWrapBool().GetValue()),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.BoolPath/BoolPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -236,7 +241,7 @@ func (decoder boolPathHttpClientResponseDecoder) BoolPath() http1.DecodeResponse
 func appendInt32PathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.Int32Path/Int32Path").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
 	return router
 }
@@ -406,26 +411,33 @@ func (encoder int32PathHttpClientRequestEncoder) Int32Path(instance string) http
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "int32", strconvx.FormatInt(req.GetInt32(), 10), "sint32", strconvx.FormatInt(req.GetSint32(), 10), "sfixed32", strconvx.FormatInt(req.GetSfixed32(), 10), "opt_int32", strconvx.FormatInt(req.GetOptInt32(), 10), "opt_sint32", strconvx.FormatInt(req.GetOptSint32(), 10), "opt_sfixed32", strconvx.FormatInt(req.GetOptSfixed32(), 10), "wrap_int32", strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10))
+		pairs = append(pairs,
+			"int32", strconvx.FormatInt(req.GetInt32(), 10),
+			"sint32", strconvx.FormatInt(req.GetSint32(), 10),
+			"sfixed32", strconvx.FormatInt(req.GetSfixed32(), 10),
+			"opt_int32", strconvx.FormatInt(req.GetOptInt32(), 10),
+			"opt_sint32", strconvx.FormatInt(req.GetOptSint32(), 10),
+			"opt_sfixed32", strconvx.FormatInt(req.GetOptSfixed32(), 10),
+			"wrap_int32", strconvx.FormatInt(req.GetWrapInt32().GetValue(), 10),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.Int32Path/Int32Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -449,7 +461,7 @@ func (decoder int32PathHttpClientResponseDecoder) Int32Path() http1.DecodeRespon
 func appendInt64PathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.Int64Path/Int64Path").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}")
 	return router
 }
@@ -619,26 +631,33 @@ func (encoder int64PathHttpClientRequestEncoder) Int64Path(instance string) http
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "int64", strconvx.FormatInt(req.GetInt64(), 10), "sint64", strconvx.FormatInt(req.GetSint64(), 10), "sfixed64", strconvx.FormatInt(req.GetSfixed64(), 10), "opt_int64", strconvx.FormatInt(req.GetOptInt64(), 10), "opt_sint64", strconvx.FormatInt(req.GetOptSint64(), 10), "opt_sfixed64", strconvx.FormatInt(req.GetOptSfixed64(), 10), "wrap_int64", strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10))
+		pairs = append(pairs,
+			"int64", strconvx.FormatInt(req.GetInt64(), 10),
+			"sint64", strconvx.FormatInt(req.GetSint64(), 10),
+			"sfixed64", strconvx.FormatInt(req.GetSfixed64(), 10),
+			"opt_int64", strconvx.FormatInt(req.GetOptInt64(), 10),
+			"opt_sint64", strconvx.FormatInt(req.GetOptSint64(), 10),
+			"opt_sfixed64", strconvx.FormatInt(req.GetOptSfixed64(), 10),
+			"wrap_int64", strconvx.FormatInt(req.GetWrapInt64().GetValue(), 10),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.Int64Path/Int64Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -662,7 +681,7 @@ func (decoder int64PathHttpClientResponseDecoder) Int64Path() http1.DecodeRespon
 func appendUint32PathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.Uint32Path/Uint32Path").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}")
 	return router
 }
@@ -830,26 +849,31 @@ func (encoder uint32PathHttpClientRequestEncoder) Uint32Path(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "uint32", strconvx.FormatUint(req.GetUint32(), 10), "fixed32", strconvx.FormatUint(req.GetFixed32(), 10), "opt_uint32", strconvx.FormatUint(req.GetOptUint32(), 10), "opt_fixed32", strconvx.FormatUint(req.GetOptFixed32(), 10), "wrap_uint32", strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10))
+		pairs = append(pairs,
+			"uint32", strconvx.FormatUint(req.GetUint32(), 10),
+			"fixed32", strconvx.FormatUint(req.GetFixed32(), 10),
+			"opt_uint32", strconvx.FormatUint(req.GetOptUint32(), 10),
+			"opt_fixed32", strconvx.FormatUint(req.GetOptFixed32(), 10),
+			"wrap_uint32", strconvx.FormatUint(req.GetWrapUint32().GetValue(), 10),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.Uint32Path/Uint32Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -873,7 +897,7 @@ func (decoder uint32PathHttpClientResponseDecoder) Uint32Path() http1.DecodeResp
 func appendUint64PathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.Uint64Path/Uint64Path").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}")
 	return router
 }
@@ -1041,26 +1065,31 @@ func (encoder uint64PathHttpClientRequestEncoder) Uint64Path(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "uint64", strconvx.FormatUint(req.GetUint64(), 10), "fixed64", strconvx.FormatUint(req.GetFixed64(), 10), "opt_uint64", strconvx.FormatUint(req.GetOptUint64(), 10), "opt_fixed64", strconvx.FormatUint(req.GetOptFixed64(), 10), "wrap_uint64", strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10))
+		pairs = append(pairs,
+			"uint64", strconvx.FormatUint(req.GetUint64(), 10),
+			"fixed64", strconvx.FormatUint(req.GetFixed64(), 10),
+			"opt_uint64", strconvx.FormatUint(req.GetOptUint64(), 10),
+			"opt_fixed64", strconvx.FormatUint(req.GetOptFixed64(), 10),
+			"wrap_uint64", strconvx.FormatUint(req.GetWrapUint64().GetValue(), 10),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.Uint64Path/Uint64Path").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1084,7 +1113,7 @@ func (decoder uint64PathHttpClientResponseDecoder) Uint64Path() http1.DecodeResp
 func appendFloatPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.FloatPath/FloatPath").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{float}/{opt_float}/{wrap_float}")
 	return router
 }
@@ -1250,26 +1279,29 @@ func (encoder floatPathHttpClientRequestEncoder) FloatPath(instance string) http
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "float", strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32), "opt_float", strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32), "wrap_float", strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32))
+		pairs = append(pairs,
+			"float", strconvx.FormatFloat(req.GetFloat(), 'f', -1, 32),
+			"opt_float", strconvx.FormatFloat(req.GetOptFloat(), 'f', -1, 32),
+			"wrap_float", strconvx.FormatFloat(req.GetWrapFloat().GetValue(), 'f', -1, 32),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.FloatPath/FloatPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1293,7 +1325,7 @@ func (decoder floatPathHttpClientResponseDecoder) FloatPath() http1.DecodeRespon
 func appendDoublePathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.DoublePath/DoublePath").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{double}/{opt_double}/{wrap_double}")
 	return router
 }
@@ -1459,26 +1491,29 @@ func (encoder doublePathHttpClientRequestEncoder) DoublePath(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "double", strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64), "opt_double", strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64), "wrap_double", strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64))
+		pairs = append(pairs,
+			"double", strconvx.FormatFloat(req.GetDouble(), 'f', -1, 64),
+			"opt_double", strconvx.FormatFloat(req.GetOptDouble(), 'f', -1, 64),
+			"wrap_double", strconvx.FormatFloat(req.GetWrapDouble().GetValue(), 'f', -1, 64),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.DoublePath/DoublePath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1502,7 +1537,7 @@ func (decoder doublePathHttpClientResponseDecoder) DoublePath() http1.DecodeResp
 func appendStringPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.StringPath/StringPath").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{string}/{opt_string}/{wrap_string}")
 	return router
 }
@@ -1668,26 +1703,29 @@ func (encoder stringPathHttpClientRequestEncoder) StringPath(instance string) ht
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
+		pairs = append(pairs,
+			"string", req.GetString_(),
+			"opt_string", req.GetOptString(),
+			"wrap_string", req.GetWrapString().GetValue(),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.StringPath/StringPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1711,7 +1749,7 @@ func (decoder stringPathHttpClientResponseDecoder) StringPath() http1.DecodeResp
 func appendEnumPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.EnumPath/EnumPath").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{status}/{opt_status}")
 	return router
 }
@@ -1876,26 +1914,28 @@ func (encoder enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
-		pairs = append(pairs, "status", strconvx.FormatInt(req.GetStatus(), 10), "opt_status", strconvx.FormatInt(req.GetOptStatus(), 10))
+		pairs = append(pairs,
+			"status", strconvx.FormatInt(req.GetStatus(), 10),
+			"opt_status", strconvx.FormatInt(req.GetOptStatus(), 10),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.EnumPath/EnumPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1919,27 +1959,27 @@ func (decoder enumPathHttpClientResponseDecoder) EnumPath() http1.DecodeResponse
 func appendNamedPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.NamedPath/NamedPathString").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
 		Name("/leo.example.route.path.NamedPath/NamedPathOptString").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
 		Name("/leo.example.route.path.NamedPath/NamedPathWrapString").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
 		Name("/leo.example.route.path.NamedPath/EmbedNamedPathString").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/embed/string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
 		Name("/leo.example.route.path.NamedPath/EmbedNamedPathOptString").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/embed/opt_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	router.NewRoute().
 		Name("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
 }
@@ -2374,33 +2414,39 @@ func (encoder namedPathHttpClientRequestEncoder) NamedPathString(instance string
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetString_()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/NamedPathString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
 		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2414,33 +2460,39 @@ func (encoder namedPathHttpClientRequestEncoder) NamedPathOptString(instance str
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetOptString()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/NamedPathOptString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["string"] = append(queries["string"], req.GetString_())
 		queries["wrap_string"] = append(queries["wrap_string"], req.GetWrapString().GetValue())
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2454,33 +2506,39 @@ func (encoder namedPathHttpClientRequestEncoder) NamedPathWrapString(instance st
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetWrapString().GetValue()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/NamedPathWrapString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
+		target.Path = path.Path
 		queries := url.Values{}
 		queries["string"] = append(queries["string"], req.GetString_())
 		queries["opt_string"] = append(queries["opt_string"], req.GetOptString())
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.RawQuery = queries.Encode()
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2494,31 +2552,35 @@ func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance s
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetString_()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2532,31 +2594,35 @@ func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instanc
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetOptString()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathOptString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2570,31 +2636,35 @@ func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instan
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2663,7 +2733,7 @@ func (decoder namedPathHttpClientResponseDecoder) EmbedNamedPathWrapString() htt
 func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
 		Name("/leo.example.route.path.MixPath/MixPath").
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
 }
@@ -2833,32 +2903,40 @@ func (encoder mixPathHttpClientRequestEncoder) MixPath(instance string) http1.Cr
 			return nil, fmt.Errorf("invalid request type, %T", obj)
 		}
 		_ = req
-		var body io.Reader
-		var contentType string
+		method := http.MethodGet
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
 		var pairs []string
 		namedPathParameter := req.GetEmbed().GetWrapString().GetValue()
 		namedPathValues := strings.Split(namedPathParameter, "/")
 		if len(namedPathValues) != 8 {
-			return nil, errors.New("invalid named path parameter, %s", namedPathParameter)
+			return nil, fmt.Errorf("invalid named path parameter, %s", namedPathParameter)
 		}
-		pairs = append(pairs, "class", namedPathValues[1], "shelf", namedPathValues[3], "book", namedPathValues[5], "family", namedPathValues[7])
-		pairs = append(pairs, "string", req.GetString_(), "opt_string", req.GetOptString(), "wrap_string", req.GetWrapString().GetValue())
+		pairs = append(pairs,
+			"class", namedPathValues[1],
+			"shelf", namedPathValues[3],
+			"book", namedPathValues[5],
+			"family", namedPathValues[7],
+		)
+		pairs = append(pairs,
+			"string", req.GetString_(),
+			"opt_string", req.GetOptString(),
+			"wrap_string", req.GetWrapString().GetValue(),
+		)
 		path, err := encoder.router.Get("/leo.example.route.path.MixPath/MixPath").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
-		queries := url.Values{}
-		target := &url.URL{
-			Scheme:   encoder.scheme,
-			Host:     instance,
-			Path:     path.Path,
-			RawQuery: queries.Encode(),
-		}
-		r, err := http.NewRequestWithContext(ctx, "GET", target.String(), body)
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
 		if err != nil {
 			return nil, err
 		}
-		r.Header.Set("Content-Type", contentType)
+		httpx1.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

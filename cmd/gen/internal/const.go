@@ -8,13 +8,10 @@ import (
 var (
 	ContextPackage = protogen.GoImportPath("context")
 	UrlPackage     = protogen.GoImportPath("net/url")
-	HttpPackage    = protogen.GoImportPath("net/http")
-	FmtPackage     = protogen.GoImportPath("fmt")
 	ErrorsPackage  = protogen.GoImportPath("errors")
 	TimePackage    = protogen.GoImportPath("time")
 	StrconvPackage = protogen.GoImportPath("strconv")
 	IOPackage      = protogen.GoImportPath("io")
-	BytesPackage   = protogen.GoImportPath("bytes")
 	StringsPackage = protogen.GoImportPath("strings")
 	JsonPackage    = protogen.GoImportPath("encoding/json")
 
@@ -57,13 +54,39 @@ var (
 )
 
 var (
+	BytesPackage = protogen.GoImportPath("bytes")
+	Buffer       = BytesPackage.Ident("Buffer")
+)
+
+var (
+	HttpPackage           = protogen.GoImportPath("net/http")
+	Handler               = HttpPackage.Ident("Handler")
+	Request               = HttpPackage.Ident("Request")
+	Response              = HttpPackage.Ident("Response")
+	ResponseWriter        = HttpPackage.Ident("ResponseWriter")
+	Header                = HttpPackage.Ident("Header")
+	NewRequestWithContext = HttpPackage.Ident("NewRequestWithContext")
+	StatusOK              = HttpPackage.Ident("StatusOK")
+	MethodGet             = HttpPackage.Ident("MethodGet")
+	MethodPost            = HttpPackage.Ident("MethodPost")
+	MethodPut             = HttpPackage.Ident("MethodPut")
+	MethodDelete          = HttpPackage.Ident("MethodDelete")
+	MethodPatch           = HttpPackage.Ident("MethodPatch")
+)
+
+var (
+	FmtPackage = protogen.GoImportPath("fmt")
+	Errorf     = FmtPackage.Ident("Errorf")
+	Sprintf    = FmtPackage.Ident("Sprintf")
+)
+
+var (
 	namedPathPattern = regexp.MustCompile("{([^{}]+)=([^{}]+)}")
 	pathPattern      = regexp.MustCompile("{([^=}]+)}")
 )
 
 var (
-	ContentTypeKey  = "Content-Type"
-	JsonContentType = "application/json; charset=utf-8"
+	ContentTypeKey = "Content-Type"
 )
 
 var (
@@ -87,8 +110,9 @@ var (
 	DecodeHttpBodyFromRequest    = HttpxCoderPackage.Ident("DecodeHttpBodyFromRequest")
 	DecodeHttpRequestFromRequest = HttpxCoderPackage.Ident("DecodeHttpRequestFromRequest")
 
-	EncodeMessageToRequest  = HttpxCoderPackage.Ident("EncodeMessageToRequest")
-	EncodeHttpBodyToRequest = HttpxCoderPackage.Ident("EncodeHttpBodyToRequest")
+	EncodeMessageToRequest     = HttpxCoderPackage.Ident("EncodeMessageToRequest")
+	EncodeHttpBodyToRequest    = HttpxCoderPackage.Ident("EncodeHttpBodyToRequest")
+	EncodeHttpRequestToRequest = HttpxCoderPackage.Ident("EncodeHttpRequestToRequest")
 
 	EncodeMessageToResponse      = HttpxCoderPackage.Ident("EncodeMessageToResponse")
 	EncodeHttpBodyToResponse     = HttpxCoderPackage.Ident("EncodeHttpBodyToResponse")
@@ -105,4 +129,9 @@ var (
 	MuxPackage = protogen.GoImportPath("github.com/gorilla/mux")
 	Router     = MuxPackage.Ident("Router")
 	VarsIdent  = MuxPackage.Ident("Vars")
+)
+
+var (
+	HttpxPackage = protogen.GoImportPath("github.com/go-leo/gox/netx/httpx")
+	CopyHeader   = HttpxPackage.Ident("CopyHeader")
 )

@@ -1,7 +1,6 @@
 package coder
 
 import (
-	"bytes"
 	"context"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	rpchttp "google.golang.org/genproto/googleapis/rpc/http"
@@ -56,18 +55,32 @@ func EncodeHttpResponseToResponse(ctx context.Context, w http.ResponseWriter, re
 // ===== client request encoder =====
 
 // EncodeMessageToRequest encodes the proto.Message to the io.Reader.
-func EncodeMessageToRequest(ctx context.Context, req proto.Message, marshalOptions protojson.MarshalOptions) (io.Reader, string, error) {
-	var bodyBuf bytes.Buffer
+func EncodeMessageToRequest(ctx context.Context, req proto.Message, header http.Header, body io.Writer, marshalOptions protojson.MarshalOptions) error {
 	data, err := marshalOptions.Marshal(req)
 	if err != nil {
-		return nil, "", err
+		return err
 	}
-	if _, err = bodyBuf.Write(data); err != nil {
-		return nil, "", err
+	if _, err = body.Write(data); err != nil {
+		return err
 	}
-	return &bodyBuf, JsonContentType, nil
+	header.Set(ContentTypeKey, JsonContentType)
+	return nil
 }
 
-func EncodeHttpBodyToRequest(ctx context.Context, req *httpbody.HttpBody) (io.Reader, string) {
-	return bytes.NewReader(req.GetData()), req.GetContentType()
+func EncodeHttpBodyToRequest(ctx context.Context, req *httpbody.HttpBody, header http.Header, body io.Writer) error {
+	if _, err := body.Write(req.GetData()); err != nil {
+		return err
+	}
+	header.Set(ContentTypeKey, req.GetContentType())
+	return nil
+}
+
+func EncodeHttpRequestToRequest(ctx context.Context, req *rpchttp.HttpRequest, header http.Header, body io.Writer) error {
+	if _, err := body.Write(req.GetBody()); err != nil {
+		return err
+	}
+	for _, httpHeader := range req.GetHeaders() {
+		header.Add(httpHeader.GetKey(), httpHeader.GetValue())
+	}
+	return nil
 }

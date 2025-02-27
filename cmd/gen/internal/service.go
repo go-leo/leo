@@ -215,10 +215,16 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 				protoMethod: pbMethod,
 			}
 			if endpoint.IsStreaming() {
-				return nil, fmt.Errorf("leo: unsupport stream method, %s", endpoint.FullName())
+				return nil, fmt.Errorf("leo: unsupport stream httpMethod, %s", endpoint.FullName())
 			}
 			endpoint.SetHttpRule()
 			endpoint.SetResponsibility()
+			if err := endpoint.ParseMethod(); err != nil {
+				return nil, err
+			}
+			if err := endpoint.ParseParameters(); err != nil {
+				return nil, err
+			}
 			endpoints = append(endpoints, endpoint)
 		}
 		service.Endpoints = endpoints

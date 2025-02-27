@@ -6,83 +6,83 @@ import (
 	"strconv"
 )
 
-type FunctionGenerator struct{}
+type FunctionGenerator struct {
+	service *internal.Service
+	g       *protogen.GeneratedFile
+}
 
-func (f *FunctionGenerator) GenerateAppendRoutesFunc(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func append", service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
-	for _, endpoint := range service.Endpoints {
+func (f *FunctionGenerator) GenerateAppendRoutesFunc() {
+	f.g.P("func append", f.service.HttpRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ") *", internal.MuxPackage.Ident("Router"), "{")
+	for _, endpoint := range f.service.Endpoints {
 		httpRule := endpoint.HttpRule()
 		// 调整路径，来适应 github.com/gorilla/mux 路由规则
 		path, _, _, _ := httpRule.RegularizePath(httpRule.Path())
-		g.P("router.NewRoute().")
-		g.P("Name(", strconv.Quote(endpoint.FullName()), ").")
-		g.P("Methods(", strconv.Quote(httpRule.Method()), ").")
-		g.P("Path(", strconv.Quote(path), ")")
+		f.g.P("router.NewRoute().")
+		f.g.P("Name(", strconv.Quote(endpoint.FullName()), ").")
+		f.g.P("Methods(", endpoint.HttpMethod(), ").")
+		f.g.P("Path(", strconv.Quote(path), ")")
 	}
-	g.P("return router")
-	g.P("}")
-	return nil
+	f.g.P("return router")
+	f.g.P("}")
 }
 
-func (f *FunctionGenerator) GenerateAppendServerFunc(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func Append", service.HttpServerRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
-	g.P("endpoints := &", service.Unexported(service.ServerEndpointsName()), "{")
-	g.P("svc:         svc,")
-	g.P("middlewares: middlewares,")
-	g.P("}")
-	g.P("transports := &", service.Unexported(service.HttpServerTransportsName()), "{")
-	g.P("endpoints:       endpoints,")
-	g.P("requestDecoder:  ", service.Unexported(service.HttpServerRequestDecoderName()), "{},")
-	g.P("responseEncoder: ", service.Unexported(service.HttpServerResponseEncoderName()), "{},")
-	g.P("}")
-	g.P("router = append", service.HttpRoutesName(), "(router)")
-	for _, endpoint := range service.Endpoints {
-		g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
+func (f *FunctionGenerator) GenerateAppendServerFunc() {
+	f.g.P("func Append", f.service.HttpServerRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", f.service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
+	f.g.P("endpoints := &", f.service.Unexported(f.service.ServerEndpointsName()), "{")
+	f.g.P("svc:         svc,")
+	f.g.P("middlewares: middlewares,")
+	f.g.P("}")
+	f.g.P("transports := &", f.service.Unexported(f.service.HttpServerTransportsName()), "{")
+	f.g.P("endpoints:       endpoints,")
+	f.g.P("requestDecoder:  ", f.service.Unexported(f.service.HttpServerRequestDecoderName()), "{},")
+	f.g.P("responseEncoder: ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), "{},")
+	f.g.P("}")
+	f.g.P("router = append", f.service.HttpRoutesName(), "(router)")
+	for _, endpoint := range f.service.Endpoints {
+		f.g.P("router.Get(", strconv.Quote(endpoint.FullName()), ").Handler(transports.", endpoint.Name(), "())")
 	}
-	g.P("return router")
-	g.P("}")
-	g.P()
-	return nil
+	f.g.P("return router")
+	f.g.P("}")
+	f.g.P()
 }
 
-func (f *FunctionGenerator) GenerateNewClientFunc(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", service.ServiceName(), " {")
-	g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
+func (f *FunctionGenerator) GenerateNewClientFunc() {
+	f.g.P("func New", f.service.HttpClientName(), "(target string, opts ...", internal.HttpxTransportxPackage.Ident("ClientOption"), ") ", f.service.ServiceName(), " {")
+	f.g.P("options := ", internal.HttpxTransportxPackage.Ident("NewClientOptions"), "(opts...)")
 
-	g.P("requestEncoder := &", service.Unexported(service.HttpClientRequestEncoderName()), "{")
-	g.P("router: append", service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "()),")
-	g.P("scheme: options.Scheme(),")
-	g.P("}")
-	g.P("responseDecoder := &", service.Unexported(service.HttpClientResponseDecoderName()), "{}")
-	g.P("transports :=  &", service.Unexported(service.HttpClientTransportsName()), "{")
-	g.P("clientOptions: options.ClientTransportOptions(),")
-	g.P("middlewares:   options.Middlewares(),")
-	g.P("requestEncoder:  requestEncoder,")
-	g.P("responseDecoder: responseDecoder,")
-	g.P("}")
-	g.P("factories := &", service.Unexported(service.FactoriesName()), "{")
-	g.P("transports: transports,")
-	g.P("}")
-	g.P("endpointer := &", service.Unexported(service.EndpointersName()), "{")
-	g.P("target:    target,")
-	g.P("builder:   options.Builder(),")
-	g.P("factories: factories,")
-	g.P("logger:    options.Logger(),")
-	g.P("options:   options.EndpointerOptions(),")
-	g.P("}")
-	g.P("balancers := &", service.Unexported(service.BalancersName()), "{")
-	g.P("factory:    options.BalancerFactory(),")
-	g.P("endpointer: endpointer,")
-	g.P("}")
-	g.P("endpoints := &", service.Unexported(service.ClientEndpointsName()), "{")
-	g.P("balancers: balancers,")
-	g.P("}")
+	f.g.P("requestEncoder := &", f.service.Unexported(f.service.HttpClientRequestEncoderName()), "{")
+	f.g.P("router: append", f.service.HttpRoutesName(), "(", internal.MuxPackage.Ident("NewRouter"), "()),")
+	f.g.P("scheme: options.Scheme(),")
+	f.g.P("}")
+	f.g.P("responseDecoder := &", f.service.Unexported(f.service.HttpClientResponseDecoderName()), "{}")
+	f.g.P("transports :=  &", f.service.Unexported(f.service.HttpClientTransportsName()), "{")
+	f.g.P("clientOptions: options.ClientTransportOptions(),")
+	f.g.P("middlewares:   options.Middlewares(),")
+	f.g.P("requestEncoder:  requestEncoder,")
+	f.g.P("responseDecoder: responseDecoder,")
+	f.g.P("}")
+	f.g.P("factories := &", f.service.Unexported(f.service.FactoriesName()), "{")
+	f.g.P("transports: transports,")
+	f.g.P("}")
+	f.g.P("endpointer := &", f.service.Unexported(f.service.EndpointersName()), "{")
+	f.g.P("target:    target,")
+	f.g.P("builder:   options.Builder(),")
+	f.g.P("factories: factories,")
+	f.g.P("logger:    options.Logger(),")
+	f.g.P("options:   options.EndpointerOptions(),")
+	f.g.P("}")
+	f.g.P("balancers := &", f.service.Unexported(f.service.BalancersName()), "{")
+	f.g.P("factory:    options.BalancerFactory(),")
+	f.g.P("endpointer: endpointer,")
+	f.g.P("}")
+	f.g.P("endpoints := &", f.service.Unexported(f.service.ClientEndpointsName()), "{")
+	f.g.P("balancers: balancers,")
+	f.g.P("}")
 
-	g.P("return &", service.Unexported(service.ClientServiceName()), "{")
-	g.P("endpoints:     endpoints,")
-	g.P("transportName: ", internal.HttpxTransportxPackage.Ident("HttpClient"), ",")
-	g.P("}")
-	g.P("}")
-	g.P()
-	return nil
+	f.g.P("return &", f.service.Unexported(f.service.ClientServiceName()), "{")
+	f.g.P("endpoints:     endpoints,")
+	f.g.P("transportName: ", internal.HttpxTransportxPackage.Ident("HttpClient"), ",")
+	f.g.P("}")
+	f.g.P("}")
+	f.g.P()
 }

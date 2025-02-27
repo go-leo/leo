@@ -12,14 +12,13 @@ type ResponseDecoderGenerator struct {
 	g       *protogen.GeneratedFile
 }
 
-func (f *ResponseDecoderGenerator) GenerateClientResponseDecoder() error {
+func (f *ResponseDecoderGenerator) GenerateClientResponseDecoder() {
 	f.g.P("type ", f.service.HttpClientResponseDecoderName(), " interface {")
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P(endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeResponseFunc"))
 	}
 	f.g.P("}")
 	f.g.P()
-	return nil
 }
 
 func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() error {
@@ -31,7 +30,7 @@ func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() err
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (decoder ", f.service.Unexported(f.service.HttpClientResponseDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeResponseFunc"), " {")
 		httpRule := endpoint.HttpRule()
-		f.g.P("return func ", "(ctx context.Context, r *", internal.HttpPackage.Ident("Response"), ") (any, error) {")
+		f.g.P("return func ", "(ctx context.Context, r *", internal.Response, ") (any, error) {")
 		f.g.P("resp := &", endpoint.Output().GoIdent, "{}")
 		bodyParameter := httpRule.ResponseBody()
 		switch bodyParameter {

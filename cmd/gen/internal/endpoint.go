@@ -8,7 +8,6 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"net/http"
 	"strings"
 )
 
@@ -20,9 +19,19 @@ const (
 )
 
 type Endpoint struct {
-	protoMethod    *protogen.Method
-	httpRule       *HttpRule
+	protoMethod *protogen.Method
+
+	httpRule *HttpRule
+
 	responsibility Responsibility
+
+	httpMethod protogen.GoIdent
+
+	bodyMessage     *protogen.Message
+	bodyField       *protogen.Field
+	namedPathFields []*protogen.Field
+	pathFields      []*protogen.Field
+	queryFields     []*protogen.Field
 }
 
 func (e *Endpoint) Name() string {
@@ -126,8 +135,59 @@ func (e *Endpoint) IsQuery() bool {
 func (e *Endpoint) HttpRule() *HttpRule {
 	return e.httpRule
 }
+func (e *Endpoint) SetHttpRule() {
+	httpRule := proto.GetExtension(e.protoMethod.Desc.Options(), annotations.E_Http)
+	if httpRule == nil || httpRule == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
+		httpRule = &annotations.HttpRule{
+			Pattern: &annotations.HttpRule_Post{
+				Post: e.FullName(),
+			},
+			Body: "*",
+		}
+	}
+	e.httpRule = &HttpRule{rule: httpRule.(*annotations.HttpRule)}
+}
 
-func (e *Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*protogen.Field, []*protogen.Field, []*protogen.Field, error) {
+func (e *Endpoint) ParseMethod() error {
+	switch pattern := e.httpRule.rule.GetPattern().(type) {
+	case *annotations.HttpRule_Get:
+		e.httpMethod = MethodGet
+		return nil
+	case *annotations.HttpRule_Post:
+		e.httpMethod = MethodPost
+		return nil
+	case *annotations.HttpRule_Put:
+		e.httpMethod = MethodPut
+		return nil
+	case *annotations.HttpRule_Delete:
+		e.httpMethod = MethodDelete
+		return nil
+	case *annotations.HttpRule_Patch:
+		e.httpMethod = MethodPatch
+		return nil
+	default:
+		return fmt.Errorf("%s, unsupported httpMethod %s", e.FullName(), pattern)
+	}
+}
+
+func (e *Endpoint) HttpMethod() any {
+	return e.httpMethod
+}
+
+func (e *Endpoint) ParseParameters() error {
+	bodyMessage, bodyField, namedPathFields, pathFields, queryFields, err := e.parseParameters()
+	if err != nil {
+		return err
+	}
+	e.bodyMessage = bodyMessage
+	e.bodyField = bodyField
+	e.namedPathFields = namedPathFields
+	e.pathFields = pathFields
+	e.queryFields = queryFields
+	return nil
+}
+
+func (e *Endpoint) parseParameters() (*protogen.Message, *protogen.Field, []*protogen.Field, []*protogen.Field, []*protogen.Field, error) {
 	httpRule := e.httpRule
 	bodyParameter := httpRule.Body()
 	path, namedPathName, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
@@ -273,17 +333,24 @@ func (e *Endpoint) ParseParameters() (*protogen.Message, *protogen.Field, []*pro
 	return bodyMessage, bodyField, namedPathFields, pathFields, queryFields, nil
 }
 
-func (e *Endpoint) SetHttpRule() {
-	httpRule := proto.GetExtension(e.protoMethod.Desc.Options(), annotations.E_Http)
-	if httpRule == nil || httpRule == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
-		httpRule = &annotations.HttpRule{
-			Pattern: &annotations.HttpRule_Post{
-				Post: e.FullName(),
-			},
-			Body: "*",
-		}
-	}
-	e.httpRule = &HttpRule{rule: httpRule.(*annotations.HttpRule)}
+func (e *Endpoint) BodyMessage() *protogen.Message {
+	return e.bodyMessage
+}
+
+func (e *Endpoint) BodyField() *protogen.Field {
+	return e.bodyField
+}
+
+func (e *Endpoint) NamedPathFields() []*protogen.Field {
+	return e.namedPathFields
+}
+
+func (e *Endpoint) PathFields() []*protogen.Field {
+	return e.pathFields
+}
+
+func (e *Endpoint) QueryFields() []*protogen.Field {
+	return e.queryFields
 }
 
 func (e *Endpoint) CommandName() string {
@@ -300,25 +367,6 @@ func (e *Endpoint) ResultName() string {
 
 type HttpRule struct {
 	rule *annotations.HttpRule
-}
-
-func (r *HttpRule) Method() string {
-	switch pattern := r.rule.GetPattern().(type) {
-	case *annotations.HttpRule_Get:
-		return http.MethodGet
-	case *annotations.HttpRule_Post:
-		return http.MethodPost
-	case *annotations.HttpRule_Put:
-		return http.MethodPut
-	case *annotations.HttpRule_Delete:
-		return http.MethodDelete
-	case *annotations.HttpRule_Patch:
-		return http.MethodPatch
-	case *annotations.HttpRule_Custom:
-		return pattern.Custom.GetKind()
-	default:
-		return ""
-	}
 }
 
 func (r *HttpRule) Path() string {

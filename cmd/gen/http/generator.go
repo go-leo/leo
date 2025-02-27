@@ -36,52 +36,47 @@ func (f *Generator) Generate() error {
 		return err
 	}
 
-	functionGenerator := FunctionGenerator{}
-	serverTransportsGenerator := ServerTransportsGenerator{}
-	serverRequestDecoderGenerator := ServerRequestDecoderGenerator{}
-
 	for _, service := range services {
+		functionGenerator := FunctionGenerator{
+			service: service,
+			g:       g,
+		}
+		functionGenerator.GenerateAppendRoutesFunc()
+		functionGenerator.GenerateAppendServerFunc()
+		functionGenerator.GenerateNewClientFunc()
 
-		if err := functionGenerator.GenerateAppendRoutesFunc(service, g); err != nil {
-			return err
+		serverTransportsGenerator := ServerTransportsGenerator{
+			service: service,
+			g:       g,
 		}
-		if err := functionGenerator.GenerateAppendServerFunc(service, g); err != nil {
-			return err
+		serverTransportsGenerator.GenerateTransports()
+
+		serverRequestDecoderGenerator := ServerRequestDecoderGenerator{
+			service: service,
+			g:       g,
 		}
-		if err := functionGenerator.GenerateNewClientFunc(service, g); err != nil {
-			return err
-		}
-		if err := serverTransportsGenerator.GenerateTransports(service, g); err != nil {
-			return err
-		}
-		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoder(service, g); err != nil {
-			return err
-		}
+		serverRequestDecoderGenerator.GenerateServerRequestDecoder()
+
 		responseEncoderGenerator := ResponseEncoderGenerator{
 			service: service,
 			g:       g,
 		}
-		if err := responseEncoderGenerator.GenerateResponseEncoder(); err != nil {
-			return err
-		}
+		responseEncoderGenerator.GenerateResponseEncoder()
+
 		requestEncoderGenerator := RequestEncoderGenerator{
 			service: service,
 			g:       g,
 		}
-		if err := requestEncoderGenerator.GenerateRequestEncoder(); err != nil {
-			return err
-		}
+		requestEncoderGenerator.GenerateRequestEncoder()
+
 		responseDecoderGenerator := ResponseDecoderGenerator{
 			service: service,
 			g:       g,
 		}
-		if err := responseDecoderGenerator.GenerateClientResponseDecoder(); err != nil {
-			return err
-		}
-		if err := serverTransportsGenerator.GenerateTransportsImplements(service, g); err != nil {
-			return err
-		}
-		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(service, g); err != nil {
+		responseDecoderGenerator.GenerateClientResponseDecoder()
+
+		serverTransportsGenerator.GenerateTransportsImplements()
+		if err := serverRequestDecoderGenerator.GenerateServerRequestDecoderImplements(); err != nil {
 			return err
 		}
 		if err := responseEncoderGenerator.GenerateServerResponseEncoderImplements(); err != nil {
@@ -91,9 +86,7 @@ func (f *Generator) Generate() error {
 			service: service,
 			g:       g,
 		}
-		if err := clientTransportsGenerator.GenerateTransports(); err != nil {
-			return err
-		}
+		clientTransportsGenerator.GenerateTransports()
 		if err := requestEncoderGenerator.GenerateClientRequestEncoderImplements(); err != nil {
 			return err
 		}

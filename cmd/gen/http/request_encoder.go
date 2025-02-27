@@ -13,14 +13,13 @@ type RequestEncoderGenerator struct {
 	g       *protogen.GeneratedFile
 }
 
-func (f *RequestEncoderGenerator) GenerateRequestEncoder() error {
+func (f *RequestEncoderGenerator) GenerateRequestEncoder() {
 	f.g.P("type ", f.service.HttpClientRequestEncoderName(), " interface {")
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P(endpoint.Name(), "(instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"))
 	}
 	f.g.P("}")
 	f.g.P()
-	return nil
 }
 
 func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() error {
@@ -31,62 +30,38 @@ func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() error
 	f.g.P("scheme string")
 	f.g.P("}")
 	for _, endpoint := range f.service.Endpoints {
-		f.g.P("func (encoder ", f.service.Unexported(f.service.HttpClientRequestEncoderName()), ")", endpoint.Name(), "(instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
 		httpRule := endpoint.HttpRule()
-		f.g.P("return func(ctx context.Context, obj any) (*", internal.HttpPackage.Ident("Request"), ", error) {")
+		f.g.P("func (encoder ", f.service.Unexported(f.service.HttpClientRequestEncoderName()), ")", endpoint.Name(), "(instance string) ", internal.HttpTransportPackage.Ident("CreateRequestFunc"), " {")
+
+		f.g.P("return func(ctx context.Context, obj any) (*", internal.Request, ", error) {")
 		f.g.P("if obj == nil {")
 		f.g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("request is nil"), ")")
 		f.g.P("}")
 		f.g.P("req, ok := obj.(*", endpoint.InputGoIdent(), ")")
 		f.g.P("if !ok {")
-		f.g.P("return nil, ", internal.FmtPackage.Ident("Errorf"), "(", strconv.Quote("invalid request type, %T"), ", obj)")
+		f.g.P("return nil, ", internal.Errorf, "(", strconv.Quote("invalid request type, %T"), ", obj)")
 		f.g.P("}")
 		f.g.P("_ = req")
 
-		bodyMessage, bodyField, namedPathFields, pathFields, queryFields, err := endpoint.ParseParameters()
-		if err != nil {
-			return err
-		}
+		f.g.P("method := ", endpoint.HttpMethod())
+		f.g.P("target := &", internal.UrlPackage.Ident("URL"), "{")
+		f.g.P("Scheme:   encoder.scheme,")
+		f.g.P("Host:     instance,")
+		f.g.P("}")
+		f.g.P("header := ", internal.Header, "{}")
+		f.g.P("var body ", internal.Buffer)
 
-		f.g.P("var body ", internal.IOPackage.Ident("Reader"))
-		f.g.P("var contentType string")
-		//if bodyMessage != nil {
-		//	switch bodyMessage.Desc.FullName() {
-		//	case "google.api.HttpBody":
-		//		f.PrintReaderBlock(g, internal.BytesPackage, []any{"body"}, []any{"req.GetData()"})
-		//		f.g.P("contentType := req.GetContentType()")
-		//	default:
-		//		f.g.P("var bodyBuf ", internal.BytesPackage.Ident("Buffer"))
-		//		encoder := internal.JsonxPackage.Ident("NewEncoder")
-		//		f.PrintEncodeBlock(g, encoder, []any{"&bodyBuf"}, []any{"req"})
-		//		f.g.P("body = &bodyBuf")
-		//		f.g.P("contentType := ", strconv.Quote(internal.JsonContentType))
-		//	}
-		//} else if bodyField != nil {
-		//	if bodyField.Desc.Kind() == protoreflect.MessageKind && bodyField.Message.Desc.FullName() == "google.api.HttpBody" {
-		//		f.PrintReaderBlock(g, internal.BytesPackage, []any{"body"}, []any{"req.Get", bodyField.GoName, "()", ".GetData()"})
-		//		f.g.P("contentType := req.Get", bodyField.GoName, "()", ".GetContentType()")
-		//	} else {
-		//		f.g.P("var bodyBuf ", internal.BytesPackage.Ident("Buffer"))
-		//		encoder := internal.JsonxPackage.Ident("NewEncoder")
-		//		tgtValue := []any{"&bodyBuf"}
-		//		srcValue := []any{"req.Get", bodyField.GoName, "()"}
-		//		f.PrintEncodeBlock(g, encoder, tgtValue, srcValue)
-		//		f.g.P("body = &bodyBuf")
-		//		f.g.P("contentType := ", strconv.Quote(internal.JsonContentType))
-		//	}
-		//}
-		if bodyMessage != nil {
+		if bodyMessage := endpoint.BodyMessage(); bodyMessage != nil {
 			srcValue := []any{"req"}
 			switch bodyMessage.Desc.FullName() {
 			case "google.api.HttpBody":
 				f.PrintEncodeHttpBodyToRequest(srcValue)
 			case "google.rpc.HttpRequest":
-				//f.PrintDecodeHttpRequestFromRequest(g, []any{"req"})
+				f.PrintEncodeHttpRequestToRequest(srcValue)
 			default:
 				f.PrintEncodeMessageToRequest(srcValue)
 			}
-		} else if bodyField != nil {
+		} else if bodyField := endpoint.BodyField(); bodyField != nil {
 			switch bodyField.Desc.Kind() {
 			case protoreflect.MessageKind:
 				srcValue := []any{"req.Get", bodyField.GoName, "()"}
@@ -94,43 +69,27 @@ func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() error
 				case "google.api.HttpBody":
 					f.PrintEncodeHttpBodyToRequest(srcValue)
 				default:
-					//f.PrintDecodeMessageFromRequest(g, []any{"req.", bodyField.GoName})
 					f.PrintEncodeMessageToRequest(srcValue)
 				}
 			}
 		}
 
 		f.g.P("var pairs []string")
-		if len(namedPathFields) > 0 {
-			f.PrintNamedPathField(namedPathFields, httpRule)
-		}
-
-		if len(pathFields) > 0 {
-			f.PrintPathField(pathFields)
-		}
-
+		f.PrintNamedPathField(endpoint.NamedPathFields(), httpRule)
+		f.PrintPathField(endpoint.PathFields())
 		f.g.P("path, err := encoder.router.Get(", strconv.Quote(endpoint.FullName()), ").URLPath(pairs...)")
 		f.g.P("if err != nil {")
 		f.g.P("return nil, err")
 		f.g.P("}")
+		f.g.P("target.Path = path.Path")
 
-		f.g.P("queries := ", internal.UrlPackage.Ident("Values"), "{}")
-		if len(queryFields) > 0 {
-			f.PrintQueryField(queryFields)
-		}
+		f.PrintQueryField(endpoint.QueryFields())
 
-		f.g.P("target := &", internal.UrlPackage.Ident("URL"), "{")
-		f.g.P("Scheme:   encoder.scheme,")
-		f.g.P("Host:     instance,")
-		f.g.P("Path:     path.Path,")
-		f.g.P("RawQuery: queries.Encode(),")
-		f.g.P("}")
-
-		f.g.P("r, err := ", internal.HttpPackage.Ident("NewRequestWithContext"), "(ctx, ", strconv.Quote(httpRule.Method()), ", target.String(), body)")
+		f.g.P("r, err := ", internal.NewRequestWithContext, "(ctx, method, target.String(), &body)")
 		f.g.P("if err != nil {")
 		f.g.P("return nil, err")
 		f.g.P("}")
-		f.g.P("r.Header.Set(", strconv.Quote(internal.ContentTypeKey), ", contentType)")
+		f.g.P(internal.CopyHeader, "(r.Header, header)")
 		f.g.P("return r, nil")
 		f.g.P("}")
 		f.g.P("}")
@@ -139,17 +98,28 @@ func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() error
 	return nil
 }
 
-func (f *RequestEncoderGenerator) PrintReaderBlock(readerPkg protogen.GoImportPath, tgtValue []any, srcValue []any) {
-	f.g.P(append(append(append(append([]any{}, tgtValue...), []any{" = ", readerPkg.Ident("NewReader"), "("}...), srcValue...), ")")...)
+func (f *RequestEncoderGenerator) PrintEncodeMessageToRequest(srcValue []any) {
+	f.g.P(append(append([]any{"if err := ", internal.EncodeMessageToRequest, "(ctx, "}, srcValue...), ", header, &body, encoder.marshalOptions); err!= nil {")...)
+	f.g.P("return nil, err")
+	f.g.P("}")
 }
 
-func (f *RequestEncoderGenerator) PrintEncodeBlock(encoder protogen.GoIdent, tgtValue []any, srcValue []any) {
-	f.g.P(append(append(append(append([]any{"if err := ", encoder, "("}, tgtValue...), []any{").Encode("}...), srcValue...), []any{"); err != nil {"}...)...)
+func (f *RequestEncoderGenerator) PrintEncodeHttpBodyToRequest(srcValue []any) {
+	f.g.P(append(append([]any{"if err := ", internal.EncodeHttpBodyToRequest, "(ctx, "}, srcValue...), ", header, &body); err!= nil {")...)
+	f.g.P("return nil, err")
+	f.g.P("}")
+}
+
+func (f *RequestEncoderGenerator) PrintEncodeHttpRequestToRequest(srcValue []any) {
+	f.g.P(append(append([]any{"if err := ", internal.EncodeHttpRequestToRequest, "(ctx, "}, srcValue...), ", header, &body); err!= nil {")...)
 	f.g.P("return nil, err")
 	f.g.P("}")
 }
 
 func (f *RequestEncoderGenerator) PrintNamedPathField(namedPathFields []*protogen.Field, httpRule *internal.HttpRule) {
+	if len(namedPathFields) <= 0 {
+		return
+	}
 	fullFieldGetterName := internal.FullFieldGetterName(namedPathFields)
 	_, _, _, namedPathParameters := httpRule.RegularizePath(httpRule.Path())
 	lastField := namedPathFields[len(namedPathFields)-1]
@@ -162,27 +132,32 @@ func (f *RequestEncoderGenerator) PrintNamedPathField(namedPathFields []*protoge
 
 	f.g.P("namedPathValues := ", internal.StringsPackage.Ident("Split"), "(namedPathParameter, ", strconv.Quote("/"), ")")
 	f.g.P("if len(namedPathValues) != ", strconv.Itoa(len(namedPathParameters)*2), " {")
-	f.g.P("return nil, ", internal.ErrorsPackage.Ident("New"), "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
+	f.g.P("return nil, ", internal.Errorf, "(", strconv.Quote("invalid named path parameter, %s"), ", namedPathParameter)")
 	f.g.P("}")
 
-	pairs := []any{"pairs = append(pairs"}
+	f.g.P("pairs = append(pairs, ")
 	for i, parameter := range namedPathParameters {
-		pairs = append(pairs, ",", strconv.Quote(parameter), ",", fmt.Sprintf("namedPathValues[%d]", i*2+1))
+		f.g.P(append(append([]any{strconv.Quote(parameter), ", "}, fmt.Sprintf("namedPathValues[%d]", i*2+1)), ",")...)
 	}
-	pairs = append(pairs, ")")
-	f.g.P(pairs...)
+	f.g.P(")")
 }
 
 func (f *RequestEncoderGenerator) PrintPathField(pathFields []*protogen.Field) {
-	pairs := []any{"pairs = append(pairs"}
-	for _, field := range pathFields {
-		pairs = append(append(pairs, ",", strconv.Quote(string(field.Desc.Name())), ","), f.PathFieldFormat(field)...)
+	if len(pathFields) <= 0 {
+		return
 	}
-	pairs = append(pairs, ")")
-	f.g.P(pairs...)
+	f.g.P("pairs = append(pairs, ")
+	for _, field := range pathFields {
+		f.g.P(append(append([]any{strconv.Quote(string(field.Desc.Name())), ", "}, f.PathFieldFormat(field)...), ",")...)
+	}
+	f.g.P(")")
 }
 
 func (f *RequestEncoderGenerator) PrintQueryField(queryFields []*protogen.Field) {
+	if len(queryFields) <= 0 {
+		return
+	}
+	f.g.P("queries := ", internal.UrlPackage.Ident("Values"), "{}")
 	for _, field := range queryFields {
 		srcValue := []any{"req.Get", field.GoName, "()"}
 		fieldName := string(field.Desc.Name())
@@ -294,6 +269,7 @@ func (f *RequestEncoderGenerator) PrintQueryField(queryFields []*protogen.Field)
 			}
 		}
 	}
+	f.g.P("target.RawQuery = queries.Encode()")
 }
 
 func (f *RequestEncoderGenerator) PathFieldFormat(field *protogen.Field) []any {
@@ -418,12 +394,4 @@ func (f *RequestEncoderGenerator) UnwrapUintSliceFormat(srcValue []any, bitSize 
 
 func (f *RequestEncoderGenerator) UnwrapStringSliceFormat(srcValue []any) []any {
 	return append(append([]any{internal.ProtoxPackage.Ident("UnwrapStringSlice"), "("}, srcValue...), []any{")"}...)
-}
-
-func (f *RequestEncoderGenerator) PrintEncodeHttpBodyToRequest(srcValue []any) {
-	f.g.P(append(append([]any{"body, contentType = ", internal.EncodeHttpBodyToRequest, "(ctx, "}, srcValue...), ")")...)
-}
-
-func (f *RequestEncoderGenerator) PrintEncodeMessageToRequest(srcValue []any) {
-	f.g.P(append(append([]any{"body, contentType, err = ", internal.EncodeMessageToRequest, "(ctx, "}, srcValue...), ", encoder.marshalOptions)")...)
 }
