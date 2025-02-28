@@ -16,11 +16,11 @@ var (
 	port = flag.Int("port", 50051, "The server port")
 )
 
-type server struct {
-}
+type server struct{}
 
 func (s *server) SayHello(_ context.Context, in *api.HelloRequest) (*api.HelloReply, error) {
 	if in.GetName() == "" {
+		// 返回错误
 		return nil, api.ErrInvalidName(statusx.RequestInfo(uuid.NewString(), in.GetName()))
 	}
 	log.Printf("Received: %v", in.GetName())

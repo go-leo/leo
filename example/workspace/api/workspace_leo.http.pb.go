@@ -47,15 +47,21 @@ func appendWorkspacesHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/projects/{project}/locations/{location}/workspaces/{workspac}")
 	return router
 }
-func AppendWorkspacesHttpServerRoutes(router *mux.Router, svc WorkspacesService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendWorkspacesHttpServerRoutes(router *mux.Router, svc WorkspacesService, opts ...httpx.ServerOption) *mux.Router {
+	options := httpx.NewServerOptions(opts...)
 	endpoints := &workspacesServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &workspacesHttpServerTransports{
-		endpoints:       endpoints,
-		requestDecoder:  workspacesHttpServerRequestDecoder{},
-		responseEncoder: workspacesHttpServerResponseEncoder{},
+		endpoints: endpoints,
+		requestDecoder: workspacesHttpServerRequestDecoder{
+			unmarshalOptions: options.UnmarshalOptions(),
+		},
+		responseEncoder: workspacesHttpServerResponseEncoder{
+			marshalOptions:      options.MarshalOptions(),
+			responseTransformer: options.ResponseTransformer(),
+		},
 	}
 	router = appendWorkspacesHttpRoutes(router)
 	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(transports.ListWorkspaces())
@@ -280,7 +286,6 @@ func (decoder workspacesHttpServerRequestDecoder) DeleteWorkspace() http1.Decode
 
 type workspacesHttpServerResponseEncoder struct {
 	marshalOptions      protojson.MarshalOptions
-	unmarshalOptions    protojson.UnmarshalOptions
 	responseTransformer coder.ResponseTransformer
 }
 

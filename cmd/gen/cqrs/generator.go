@@ -1,8 +1,8 @@
-package generator
+package cqrs
 
 import (
 	"github.com/go-leo/gox/stringx"
-	"github.com/go-leo/leo/v3/cmd/internal"
+	"github.com/go-leo/leo/v3/cmd/gen/internal"
 	"google.golang.org/protobuf/compiler/protogen"
 	"os"
 	"path"
@@ -24,10 +24,6 @@ func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, err
 }
 
 func (f *Generator) Generate() error {
-	return f.GenerateFile()
-}
-
-func (f *Generator) GenerateFile() error {
 	file := f.File
 	filename := file.GeneratedFilenamePrefix + "_leo.cqrs.pb.go"
 	g := f.Plugin.NewGeneratedFile(filename, file.GoImportPath)
@@ -37,9 +33,6 @@ func (f *Generator) GenerateFile() error {
 	g.P()
 
 	for _, service := range f.Services {
-		if service.Command == nil && service.Query == nil {
-			continue
-		}
 		if err := f.GenerateEndpoints(service); err != nil {
 			return err
 		}

@@ -27,15 +27,21 @@ func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/example/echo")
 	return router
 }
-func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, middlewares ...endpoint.Middleware) *mux.Router {
+func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, opts ...httpx.ServerOption) *mux.Router {
+	options := httpx.NewServerOptions(opts...)
 	endpoints := &greeterServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &greeterHttpServerTransports{
-		endpoints:       endpoints,
-		requestDecoder:  greeterHttpServerRequestDecoder{},
-		responseEncoder: greeterHttpServerResponseEncoder{},
+		endpoints: endpoints,
+		requestDecoder: greeterHttpServerRequestDecoder{
+			unmarshalOptions: options.UnmarshalOptions(),
+		},
+		responseEncoder: greeterHttpServerResponseEncoder{
+			marshalOptions:      options.MarshalOptions(),
+			responseTransformer: options.ResponseTransformer(),
+		},
 	}
 	router = appendGreeterHttpRoutes(router)
 	router.Get("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
@@ -133,6 +139,8 @@ func (decoder greeterHttpServerRequestDecoder) SayHello() http1.DecodeRequestFun
 }
 
 type greeterHttpServerResponseEncoder struct {
+	marshalOptions      protojson.MarshalOptions
+	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
