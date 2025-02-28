@@ -24,17 +24,30 @@ func newStatus(code codes.Code, opts ...Option) *sampleStatus {
 	statusCode := util.ToHttpStatusCode(code)
 	st := &sampleStatus{
 		err: &statuspb.Error{
+			GrpcStatus: &rpcstatus.Status{
+				Code:    int32(code),
+				Message: "",
+				Details: nil,
+			},
 			DetailInfo: &statuspb.DetailInfo{
+				StatusCode: &statuspb.StatusCode{
+					Value: int32(statusCode),
+				},
 				Identifier: &statuspb.Identifier{
 					Value: fmt.Sprintf("%d-%d", code, statusCode),
 				},
-			},
-			HttpStatus: &httpstatus.HttpResponse{
-				Status: int32(statusCode),
-				Reason: http.StatusText(statusCode),
-			},
-			GrpcStatus: &rpcstatus.Status{
-				Code: int32(code),
+				ErrorInfo:           nil,
+				RetryInfo:           nil,
+				DebugInfo:           nil,
+				QuotaFailure:        nil,
+				PreconditionFailure: nil,
+				BadRequest:          nil,
+				RequestInfo:         nil,
+				ResourceInfo:        nil,
+				Help:                nil,
+				LocalizedMessage:    nil,
+				Header:              nil,
+				Extra:               nil,
 			},
 		},
 	}
@@ -65,10 +78,16 @@ func Message(format string, a ...any) Option {
 // Headers sets the http header info.
 func Headers(header http.Header) Option {
 	return func(st *sampleStatus) {
+		if st.err.DetailInfo.Header == nil {
+			st.err.DetailInfo.Header = &statuspb.Header{}
+		}
 		for key, values := range header {
 			for _, value := range values {
-				item := &httpstatus.HttpHeader{Key: key, Value: value}
-				st.err.HttpStatus.Headers = append(st.err.HttpStatus.Headers, item)
+				item := &httpstatus.HttpHeader{
+					Key:   key,
+					Value: value,
+				}
+				st.err.DetailInfo.Header.Headers = append(st.err.DetailInfo.Header.Headers, item)
 			}
 		}
 	}
@@ -172,14 +191,17 @@ func LocalizedMessage(locale string, message string) Option {
 	}
 }
 
-// Detail adds additional detail to the Status.
-func Detail(detail proto.Message) Option {
+// Extra sets the extra info.
+func Extra(extra proto.Message) Option {
 	return func(st *sampleStatus) {
-		switch item := detail.(type) {
+		switch item := extra.(type) {
 		case *wrapperspb.StringValue:
 			Message(item.GetValue())(st)
 		case *httpstatus.HttpHeader:
-			st.err.HttpStatus.Headers = append(st.err.HttpStatus.Headers, item)
+			if st.err.DetailInfo.Header == nil {
+				st.err.DetailInfo.Header = &statuspb.Header{}
+			}
+			st.err.DetailInfo.Header.Headers = append(st.err.DetailInfo.Header.Headers, item)
 		case *errdetails.ErrorInfo:
 			ErrorInfo(item.GetReason(), item.GetDomain(), item.GetMetadata())(st)
 		case *errdetails.RetryInfo:
@@ -213,7 +235,7 @@ func Detail(detail proto.Message) Option {
 			if err != nil {
 				panic(err)
 			}
-			st.err.DetailInfo.Details = append(st.err.DetailInfo.Details, value)
+			st.err.DetailInfo.Extra = value
 		}
 	}
 }

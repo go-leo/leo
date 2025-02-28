@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/go-leo/gox/errorx"
+	"github.com/go-leo/leo/v3/statusx"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	rpchttp "google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -103,4 +104,9 @@ func DecodeHttpResponseFromResponse(ctx context.Context, r *http.Response, resp 
 	}
 	resp.Body = data
 	return r.Body.Close()
+}
+
+func DecodeErrorFromResponse(ctx context.Context, r *http.Response) error {
+	st, _ := statusx.From(r)
+	return st
 }

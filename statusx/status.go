@@ -4,14 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-leo/gox/protox"
-	"github.com/go-leo/leo/v3/proto/leo/status"
 	"github.com/go-leo/leo/v3/statusx/internal/statuspb"
-	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"net/http"
 )
@@ -32,9 +28,6 @@ type Status interface {
 	// see: https://github.com/grpc/grpc-go/blame/8528f4387f276518050f2b71a9dee1e3fb19d924/status/status.go#L100
 	// type grpcstatus interface{ GRPCStatus() *Status }
 	GRPCStatus() *grpcstatus.Status
-
-	// HTTPStatus returns the HTTP Status.
-	HTTPStatus() *httpstatus.HttpResponse
 
 	// Is implements future errors.Is functionality.
 	Is(target error) bool
@@ -79,7 +72,7 @@ type Status interface {
 	LocalizedMessage() *errdetails.LocalizedMessage
 
 	// Detail returns additional detail from the Status
-	Detail() []proto.Message
+	Detail() proto.Message
 }
 
 var _ Status = (*sampleStatus)(nil)
@@ -112,14 +105,8 @@ func (st *sampleStatus) Message() string {
 
 func (st *sampleStatus) GRPCStatus() *grpcstatus.Status {
 	grpcStatus := protox.Clone(st.err.GetGrpcStatus())
-	grpcStatus.Details = st.err.ToGrpcDetails()
+	grpcStatus.Details = statuspb.ToGrpcDetails(st.err.GetDetailInfo())
 	return grpcstatus.FromProto(grpcStatus)
-}
-
-func (st *sampleStatus) HTTPStatus() *httpstatus.HttpResponse {
-	httpStatus := protox.Clone(st.err.GetHttpStatus())
-	httpStatus.Body, _ = st.MarshalJSON()
-	return httpStatus
 }
 
 func (st *sampleStatus) Is(target error) bool {
@@ -133,27 +120,19 @@ func (st *sampleStatus) Is(target error) bool {
 }
 
 func (st *sampleStatus) StatusCode() int {
-	return int(st.err.GetHttpStatus().GetStatus())
+	return int(st.err.GetDetailInfo().GetStatusCode().GetValue())
 }
 
 func (st *sampleStatus) Headers() http.Header {
 	header := make(http.Header)
-	for _, item := range st.err.GetHttpStatus().GetHeaders() {
+	for _, item := range st.err.GetDetailInfo().GetHeader().GetHeaders() {
 		header.Add(item.GetKey(), item.GetValue())
 	}
 	return header
 }
 
 func (st *sampleStatus) MarshalJSON() ([]byte, error) {
-	body := &status.HttpBody{
-		Error: &status.HttpBody_Status{
-			Code:    int32(st.StatusCode()),
-			Message: st.Message(),
-			Status:  code.Code(st.Code()),
-			Details: st.err.HttpDetails(),
-		},
-	}
-	return protojson.MarshalOptions{}.Marshal(body)
+	return marshalHttpBody(st)
 }
 
 func (st *sampleStatus) ErrorInfo() *errdetails.ErrorInfo {
@@ -196,14 +175,14 @@ func (st *sampleStatus) LocalizedMessage() *errdetails.LocalizedMessage {
 	return protox.Clone(st.err.GetDetailInfo().GetLocalizedMessage())
 }
 
-func (st *sampleStatus) Detail() []proto.Message {
-	var r []proto.Message
-	for _, infoAny := range st.err.GetDetailInfo().GetDetails() {
-		info, err := infoAny.UnmarshalNew()
-		if err != nil {
-			panic(err)
-		}
-		r = append(r, info)
+func (st *sampleStatus) Detail() proto.Message {
+	detail := st.err.GetDetailInfo().GetExtra()
+	if detail == nil {
+		return nil
 	}
-	return r
+	info, err := detail.UnmarshalNew()
+	if err != nil {
+		panic(err)
+	}
+	return info
 }

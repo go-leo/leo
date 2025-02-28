@@ -7,6 +7,8 @@ import (
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
+	"io"
+	"net/http"
 	"net/url"
 )
 
@@ -26,11 +28,20 @@ func From(obj any) (Status, bool) {
 		return fromRpcStatus(st.Proto()), true
 	case interface{ GRPCStatus() *grpcstatus.Status }:
 		return fromRpcStatus(st.GRPCStatus().Proto()), true
+	case *http.Response:
+		return fromHttpResponse(st)
 	case error:
 		return fromError(st)
 	default:
 		return Unknown(Message("%s", obj)), false
 	}
+}
+
+func fromRpcStatus(grpcProto *rpcstatus.Status) Status {
+	st := newStatus(codes.Code(grpcProto.Code))
+	st.err.GrpcStatus.Message = grpcProto.GetMessage()
+	st.err.DetailInfo = statuspb.FromDetails(grpcProto.GetDetails())
+	return st
 }
 
 func fromError(err error) (Status, bool) {
@@ -50,9 +61,29 @@ func fromError(err error) (Status, bool) {
 	return fromRpcStatus(grpcStatus.Proto()), ok
 }
 
-func fromRpcStatus(grpcProto *rpcstatus.Status) Status {
-	st := newStatus(codes.Code(grpcProto.Code))
-	st.err.GrpcStatus.Message = grpcProto.GetMessage()
-	st.err.DetailInfo, st.err.HttpStatus = st.err.FromGrpcDetails(grpcProto.GetDetails())
-	return st
+func fromHttpResponse(resp *http.Response) (Status, bool) {
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return Unknown(Message(string(data)), Headers(resp.Header)), false
+	}
+	body, err := unmarshalHttpBody(data)
+	if err != nil {
+		return Unknown(Message(string(data)), Headers(resp.Header)), false
+	}
+	bodyStatus := body.GetError()
+	st := newStatus(codes.Code(bodyStatus.GetStatus()), Headers(resp.Header), Identifier(bodyStatus.GetIdentifier()))
+	st.err.GrpcStatus.Message = bodyStatus.GetMessage()
+	details := statuspb.FromDetails(bodyStatus.GetDetails())
+	st.err.DetailInfo.ErrorInfo = details.GetErrorInfo()
+	st.err.DetailInfo.RetryInfo = details.GetRetryInfo()
+	st.err.DetailInfo.DebugInfo = details.GetDebugInfo()
+	st.err.DetailInfo.QuotaFailure = details.GetQuotaFailure()
+	st.err.DetailInfo.PreconditionFailure = details.GetPreconditionFailure()
+	st.err.DetailInfo.BadRequest = details.GetBadRequest()
+	st.err.DetailInfo.RequestInfo = details.GetRequestInfo()
+	st.err.DetailInfo.ResourceInfo = details.GetResourceInfo()
+	st.err.DetailInfo.Help = details.GetHelp()
+	st.err.DetailInfo.LocalizedMessage = details.GetLocalizedMessage()
+	st.err.DetailInfo.Extra = details.GetExtra()
+	return st, true
 }

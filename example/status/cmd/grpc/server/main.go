@@ -4,8 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	errorspb "github.com/go-leo/leo/v3/example/status/api/errors"
-	helloworldpb "github.com/go-leo/leo/v3/example/status/api/helloworld"
+	"github.com/go-leo/leo/v3/example/status/api"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -20,12 +19,12 @@ var (
 type server struct {
 }
 
-func (s *server) SayHello(_ context.Context, in *helloworldpb.HelloRequest) (*helloworldpb.HelloReply, error) {
+func (s *server) SayHello(_ context.Context, in *api.HelloRequest) (*api.HelloReply, error) {
 	if in.GetName() == "" {
-		return nil, errorspb.ErrInvalidName(statusx.RequestInfo(uuid.NewString(), in.GetName()))
+		return nil, api.ErrInvalidName(statusx.RequestInfo(uuid.NewString(), in.GetName()))
 	}
 	log.Printf("Received: %v", in.GetName())
-	return &helloworldpb.HelloReply{Message: "Hello " + in.GetName()}, nil
+	return &api.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
 
 func main() {
@@ -35,7 +34,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	helloworldpb.RegisterGreeterServer(s, helloworldpb.NewGreeterGrpcServer(&server{}))
+	api.RegisterGreeterServer(s, api.NewGreeterGrpcServer(&server{}))
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
