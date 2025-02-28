@@ -19,11 +19,11 @@ import (
 )
 
 type Server struct {
-	o       *serverOptions
+	o       *_serverOptions
 	handler http.Handler
 }
 
-type serverOptions struct {
+type _serverOptions struct {
 	Port int
 
 	DisableGeneralOptionsHandler bool
@@ -45,119 +45,119 @@ type serverOptions struct {
 	Color            string
 }
 
-type ServerOption func(o *serverOptions)
+type _ServerOption func(o *_serverOptions)
 
-func (o *serverOptions) apply(opts ...ServerOption) *serverOptions {
+func (o *_serverOptions) apply(opts ..._ServerOption) *_serverOptions {
 	for _, opt := range opts {
 		opt(o)
 	}
 	return o
 }
 
-func (o *serverOptions) init() *serverOptions {
+func (o *_serverOptions) init() *_serverOptions {
 	return o
 }
 
-func Port(p int) ServerOption {
-	return func(o *serverOptions) {
+func Port(p int) _ServerOption {
+	return func(o *_serverOptions) {
 		o.Port = p
 	}
 }
 
-func DisableGeneralOptionsHandlerLS() ServerOption {
-	return func(o *serverOptions) {
+func DisableGeneralOptionsHandlerLS() _ServerOption {
+	return func(o *_serverOptions) {
 		o.DisableGeneralOptionsHandler = true
 	}
 }
 
-func TLSConfig(conf *tls.Config) ServerOption {
-	return func(o *serverOptions) {
+func TLSConfig(conf *tls.Config) _ServerOption {
+	return func(o *_serverOptions) {
 		o.TLSConfig = conf
 	}
 }
 
-func ReadTimeout(timeout time.Duration) ServerOption {
-	return func(o *serverOptions) {
+func ReadTimeout(timeout time.Duration) _ServerOption {
+	return func(o *_serverOptions) {
 		o.ReadTimeout = timeout
 	}
 }
 
-func ReadHeaderTimeout(timeout time.Duration) ServerOption {
-	return func(o *serverOptions) {
+func ReadHeaderTimeout(timeout time.Duration) _ServerOption {
+	return func(o *_serverOptions) {
 		o.ReadHeaderTimeout = timeout
 	}
 }
 
-func WriteTimeout(timeout time.Duration) ServerOption {
-	return func(o *serverOptions) {
+func WriteTimeout(timeout time.Duration) _ServerOption {
+	return func(o *_serverOptions) {
 		o.WriteTimeout = timeout
 	}
 }
 
-func IdleTimeout(timeout time.Duration) ServerOption {
-	return func(o *serverOptions) {
+func IdleTimeout(timeout time.Duration) _ServerOption {
+	return func(o *_serverOptions) {
 		o.IdleTimeout = timeout
 	}
 }
 
-func MaxHeaderBytes(size int) ServerOption {
-	return func(o *serverOptions) {
+func MaxHeaderBytes(size int) _ServerOption {
+	return func(o *_serverOptions) {
 		o.MaxHeaderBytes = size
 	}
 }
 
-func TLSNextProto(m map[string]func(*http.Server, *tls.Conn, http.Handler)) ServerOption {
-	return func(o *serverOptions) {
+func TLSNextProto(m map[string]func(*http.Server, *tls.Conn, http.Handler)) _ServerOption {
+	return func(o *_serverOptions) {
 		o.TLSNextProto = m
 	}
 }
 
-func ConnState(f func(net.Conn, http.ConnState)) ServerOption {
-	return func(o *serverOptions) {
+func ConnState(f func(net.Conn, http.ConnState)) _ServerOption {
+	return func(o *_serverOptions) {
 		o.ConnState = f
 	}
 }
 
-func BaseContext(f func(net.Listener) context.Context) ServerOption {
-	return func(o *serverOptions) {
+func BaseContext(f func(net.Listener) context.Context) _ServerOption {
+	return func(o *_serverOptions) {
 		o.BaseContext = f
 	}
 }
 
-func ConnContext(f func(ctx context.Context, c net.Conn) context.Context) ServerOption {
-	return func(o *serverOptions) {
+func ConnContext(f func(ctx context.Context, c net.Conn) context.Context) _ServerOption {
+	return func(o *_serverOptions) {
 		o.ConnContext = f
 	}
 }
 
-func ShutdownTimeout(timeout time.Duration) ServerOption {
-	return func(o *serverOptions) {
+func ShutdownTimeout(timeout time.Duration) _ServerOption {
+	return func(o *_serverOptions) {
 		o.ShutdownTimeout = &timeout
 	}
 }
 
-func RegistrarBuilder(builder sdx.Builder) ServerOption {
-	return func(o *serverOptions) {
+func RegistrarBuilder(builder sdx.Builder) _ServerOption {
+	return func(o *_serverOptions) {
 		o.RegistrarBuilder = builder
 	}
 }
 
-func Instance(instance string) ServerOption {
-	return func(o *serverOptions) {
+func Instance(instance string) _ServerOption {
+	return func(o *_serverOptions) {
 		o.Instance = instance
 	}
 }
 
-func Color(color string) ServerOption {
-	return func(o *serverOptions) {
+func Color(color string) _ServerOption {
+	return func(o *_serverOptions) {
 		o.Color = color
 	}
 }
 
-func NewServer(handler http.Handler, opts ...ServerOption) *Server {
+func NewServer(handler http.Handler, opts ..._ServerOption) *Server {
 	return &Server{
 		handler: handler,
-		o:       new(serverOptions).apply(opts...).init(),
+		o:       new(_serverOptions).apply(opts...).init(),
 	}
 }
 

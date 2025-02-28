@@ -94,9 +94,13 @@ var (
 var (
 	HttpxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx")
 
-	OptionIdent     = HttpxTransportxPackage.Ident("Option")
-	NewOptionsIdent = HttpxTransportxPackage.Ident("NewOptions")
+	OptionIdent      = HttpxTransportxPackage.Ident("Option")
+	NewOptionsIdent  = HttpxTransportxPackage.Ident("NewOptions")
+	ServerOption     = HttpxTransportxPackage.Ident("ServerOption")
+	ServerOptions    = HttpxTransportxPackage.Ident("ServerOptions")
+	NewServerOptions = HttpxTransportxPackage.Ident("NewServerOptions")
 )
+
 var (
 	HttpxCoderPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx/coder")
 

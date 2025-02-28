@@ -1,6 +1,6 @@
 syntax = "proto3";
 package leo.example.route.query;
-option go_package = "github.com/go-leo/leo/v3/example/route/api/route;route";
+option go_package = "github.com/go-leo/leo/v3/example/route/api;api";
 
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";

@@ -133,9 +133,6 @@ func (decoder greeterHttpServerRequestDecoder) SayHello() http1.DecodeRequestFun
 }
 
 type greeterHttpServerResponseEncoder struct {
-	marshalOptions      protojson.MarshalOptions
-	unmarshalOptions    protojson.UnmarshalOptions
-	responseTransformer coder.ResponseTransformer
 }
 
 func (encoder greeterHttpServerResponseEncoder) SayHello() http1.EncodeResponseFunc {
@@ -217,9 +214,6 @@ type greeterHttpClientResponseDecoder struct {
 
 func (decoder greeterHttpClientResponseDecoder) SayHello() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
-		if r.StatusCode != http.StatusOK {
-			return nil, coder.DecodeErrorFromResponse(ctx, r)
-		}
 		resp := &HelloReply{}
 		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err

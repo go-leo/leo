@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.3
-// source: api/route/query.proto
+// source: api/query.proto
 
-package route
+package api
 
 import (
 	context "context"
@@ -106,7 +106,7 @@ var BoolQuery_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -196,7 +196,7 @@ var Int32Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -286,7 +286,7 @@ var Int64Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -376,7 +376,7 @@ var Uint32Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -466,7 +466,7 @@ var Uint64Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -556,7 +556,7 @@ var FloatQuery_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -646,7 +646,7 @@ var DoubleQuery_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -736,7 +736,7 @@ var StringQuery_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }
 
 const (
@@ -826,5 +826,5 @@ var EnumQuery_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/query.proto",
+	Metadata: "api/query.proto",
 }

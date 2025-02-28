@@ -24,7 +24,6 @@ func (f *ResponseEncoderGenerator) GenerateResponseEncoder() {
 func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() error {
 	f.g.P("type ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), " struct {")
 	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
-	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
 	f.g.P("responseTransformer ", internal.ResponseTransformer)
 	f.g.P("}")
 	f.g.P()

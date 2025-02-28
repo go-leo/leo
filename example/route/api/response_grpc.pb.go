@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.3
-// source: api/route/response.proto
+// source: api/response.proto
 
-package route
+package api
 
 import (
 	context "context"
@@ -293,5 +293,5 @@ var Response_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/response.proto",
+	Metadata: "api/response.proto",
 }

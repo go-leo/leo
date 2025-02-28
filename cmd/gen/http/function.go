@@ -24,15 +24,21 @@ func (f *FunctionGenerator) GenerateAppendRoutesFunc() {
 }
 
 func (f *FunctionGenerator) GenerateAppendServerFunc() {
-	f.g.P("func Append", f.service.HttpServerRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", f.service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", "*", internal.MuxPackage.Ident("Router"), " {")
+	f.g.P("func Append", f.service.HttpServerRoutesName(), "(router *", internal.MuxPackage.Ident("Router"), ", svc ", f.service.ServiceName(), ", opts ...", internal.ServerOption, ") ", "*", internal.MuxPackage.Ident("Router"), " {")
+	f.g.P("options := ", internal.NewServerOptions, "(opts...)")
 	f.g.P("endpoints := &", f.service.Unexported(f.service.ServerEndpointsName()), "{")
 	f.g.P("svc:         svc,")
-	f.g.P("middlewares: middlewares,")
+	f.g.P("middlewares: options.Middlewares(),")
 	f.g.P("}")
 	f.g.P("transports := &", f.service.Unexported(f.service.HttpServerTransportsName()), "{")
 	f.g.P("endpoints:       endpoints,")
-	f.g.P("requestDecoder:  ", f.service.Unexported(f.service.HttpServerRequestDecoderName()), "{},")
-	f.g.P("responseEncoder: ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), "{},")
+	f.g.P("requestDecoder:  ", f.service.Unexported(f.service.HttpServerRequestDecoderName()), "{")
+	f.g.P("unmarshalOptions: options.UnmarshalOptions(),")
+	f.g.P("},")
+	f.g.P("responseEncoder: ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), "{")
+	f.g.P("marshalOptions:      options.MarshalOptions(),")
+	f.g.P("responseTransformer: options.ResponseTransformer(),")
+	f.g.P("},")
 	f.g.P("}")
 	f.g.P("router = append", f.service.HttpRoutesName(), "(router)")
 	for _, endpoint := range f.service.Endpoints {

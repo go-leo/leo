@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.3
-// source: api/route/path.proto
+// source: api/path.proto
 
-package route
+package api
 
 import (
 	context "context"
@@ -106,7 +106,7 @@ var BoolPath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -196,7 +196,7 @@ var Int32Path_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -286,7 +286,7 @@ var Int64Path_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -376,7 +376,7 @@ var Uint32Path_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -466,7 +466,7 @@ var Uint64Path_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -556,7 +556,7 @@ var FloatPath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -646,7 +646,7 @@ var DoublePath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -736,7 +736,7 @@ var StringPath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -826,7 +826,7 @@ var EnumPath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -1101,7 +1101,7 @@ var NamedPath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
 
 const (
@@ -1191,5 +1191,5 @@ var MixPath_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/route/path.proto",
+	Metadata: "api/path.proto",
 }
