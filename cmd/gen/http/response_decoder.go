@@ -23,16 +23,16 @@ func (f *ResponseDecoderGenerator) GenerateClientResponseDecoder() {
 
 func (f *ResponseDecoderGenerator) GenerateClientResponseDecoderImplements() error {
 	f.g.P("type ", f.service.Unexported(f.service.HttpClientResponseDecoderName()), " struct {")
-	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
 	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
-	f.g.P("responseTransformer ", internal.ResponseTransformer)
 	f.g.P("}")
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (decoder ", f.service.Unexported(f.service.HttpClientResponseDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeResponseFunc"), " {")
-		httpRule := endpoint.HttpRule()
 		f.g.P("return func ", "(ctx context.Context, r *", internal.Response, ") (any, error) {")
+		f.g.P("if r.StatusCode != ", internal.StatusOK, " {")
+		f.g.P("return nil, ", internal.DecodeErrorFromResponse, "(ctx, r)")
+		f.g.P("}")
 		f.g.P("resp := &", endpoint.Output().GoIdent, "{}")
-		bodyParameter := httpRule.ResponseBody()
+		bodyParameter := endpoint.ResponseBody()
 		switch bodyParameter {
 		case "", "*":
 			message := endpoint.Output()

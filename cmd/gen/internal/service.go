@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
+	"golang.org/x/mod/modfile"
 	"google.golang.org/protobuf/compiler/protogen"
 	"os"
 	"path/filepath"
@@ -9,19 +11,21 @@ import (
 )
 
 type Service struct {
-	ProtoService *protogen.Service
-	Endpoints    []*Endpoint
-
-	Command *Package
-	Query   *Package
+	file           *protogen.File
+	protoService   *protogen.Service
+	Endpoints      []*Endpoint
+	CommandPath    string
+	CommandPackage string
+	QueryPath      string
+	QueryPackage   string
 }
 
 func (s *Service) FullName() string {
-	return string(s.ProtoService.Desc.FullName())
+	return string(s.protoService.Desc.FullName())
 }
 
 func (s *Service) Name() string {
-	return s.ProtoService.GoName
+	return s.protoService.GoName
 }
 
 func (s *Service) Unexported(name string) string {
@@ -68,6 +72,12 @@ func (s *Service) ClientName() string {
 	return s.Name() + "Client"
 }
 
+func (s *Service) ClientServiceName() string {
+	return s.Name() + "ClientService"
+}
+
+// ------------------ Grpc ------------------
+
 func (s *Service) GrpcServerName() string {
 	return s.Name() + "GrpcServer"
 }
@@ -88,12 +98,18 @@ func (s *Service) GrpcFactoriesName() string {
 	return s.GrpcClientName() + "Factories"
 }
 
-func (s *Service) HttpServerName() string {
-	return s.Name() + "HttpServer"
+func (s *Service) GrpcClientTransportsName() string {
+	return s.GrpcClientName() + "Transports"
 }
 
-func (s *Service) ClientServiceName() string {
-	return s.Name() + "ClientService"
+func (s *Service) UnimplementedServerName() string {
+	return "Unimplemented" + s.protoService.GoName + "Server"
+}
+
+// ------------------ Http ------------------
+
+func (s *Service) HttpServerName() string {
+	return s.Name() + "HttpServer"
 }
 
 func (s *Service) HttpClientName() string {
@@ -102,10 +118,6 @@ func (s *Service) HttpClientName() string {
 
 func (s *Service) HttpServerTransportsName() string {
 	return s.HttpServerName() + "Transports"
-}
-
-func (s *Service) GrpcClientTransportsName() string {
-	return s.GrpcClientName() + "Transports"
 }
 
 func (s *Service) HttpClientTransportsName() string {
@@ -118,22 +130,6 @@ func (s *Service) HttpRoutesName() string {
 
 func (s *Service) HttpServerRoutesName() string {
 	return s.Name() + "HttpServerRoutes"
-}
-
-func (s *Service) UnimplementedServerName() string {
-	return "Unimplemented" + s.ProtoService.GoName + "Server"
-}
-
-func (s *Service) CQRSName() string {
-	return s.ProtoService.GoName + "CqrsService"
-}
-
-func (s *Service) AssemblerName() string {
-	return s.ProtoService.GoName + "Assembler"
-}
-
-func (s *Service) BusName() string {
-	return s.ProtoService.GoName + "Bus"
 }
 
 func (s *Service) HttpServerRequestDecoderName() string {
@@ -152,63 +148,72 @@ func (s *Service) HttpClientResponseDecoderName() string {
 	return s.HttpClientName() + "ResponseDecoder"
 }
 
-func (s *Service) SetCommandPackage(file *protogen.File) error {
-	pkgAbs, pkgRel, err := s.resolvePkgPath(file.Desc.Path(), ".")
-	if err != nil {
-		return fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", s.FullName(), "command", err)
-	}
+// ------------------ CQRS ------------------
 
-	s.Command = NewPackage(pkgAbs, pkgRel, file.GoImportPath.String()+"/command")
-	return nil
+func (s *Service) CQRSName() string {
+	return s.protoService.GoName + "CqrsService"
 }
 
-func (s *Service) SetQueryPackage(file *protogen.File) error {
-	pkgAbs, pkgRel, err := s.resolvePkgPath(file.Desc.Path(), ".")
-	if err != nil {
-		return fmt.Errorf("cqrs: %s, failed to resolve %s package path, %w", s.FullName(), "query", err)
-	}
-	s.Query = NewPackage(pkgAbs, pkgRel, file.GoImportPath.String()+"/query")
-	return nil
+func (s *Service) AssemblerName() string {
+	return s.protoService.GoName + "Assembler"
 }
 
-func (s *Service) resolvePkgPath(filePath string, rel string) (string, string, error) {
-	// 算出query或者command包的绝对路径
-	pkgAbs, err := filepath.Abs(filepath.Join(filePath, rel))
+func (s *Service) BusName() string {
+	return s.protoService.GoName + "Bus"
+}
+
+func (s *Service) ParseCqrs(file *protogen.File) error {
+	// 查找go.mod
+	filePath := s.file.Desc.Path()
+	pkgAbs, err := filepath.Abs(filePath)
 	if err != nil {
-		return "", "", err
+		return err
 	}
+	dir := filepath.Dir(pkgAbs)
+	var found bool
+	for {
+		stat, _ := os.Stat(filepath.Join(dir, "go.mod"))
+		if stat != nil {
+			found = true
+			break
+		}
+		par := filepath.Dir(dir)
+		if par == dir {
+			break
+		}
+		dir = par
+	}
+	if !found {
+		return errors.New("failed to found go.mod")
+	}
+	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
+	if err != nil {
+		return err
+	}
+	modFile, err := modfile.Parse("go.mod", data, nil)
+	if err != nil {
+		return err
+	}
+	_ = modFile
+	//modulePath := modFile.Module.Mod.Path
 	//
-	_, err = os.Stat(pkgAbs)
-	if err != nil {
-		return "", "", err
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", "", err
-	}
-	// 算出query或者command包的相对路径
-	pkgRel, err := filepath.Rel(wd, pkgAbs)
-	if err != nil {
-		return "", "", err
-	}
-	pkgRel = filepath.Clean(pkgRel)
-	return pkgAbs, pkgRel, nil
+	//s.CommandPath = filepath.Join(wd, "command")
+	//s.CommandPackage = path.Join(file.GoImportPath.String(), "command")
+	//s.QueryPath = filepath.Join(wd, "query")
+	//s.QueryPackage = path.Join(file.GoImportPath.String(), "query")
+	return nil
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {
 	var services []*Service
 	for _, pbService := range file.Services {
 		service := &Service{
-			ProtoService: pbService,
+			file:         file,
+			protoService: pbService,
 		}
-		if err := service.SetQueryPackage(file); err != nil {
+		if err := service.ParseCqrs(file); err != nil {
 			return nil, err
 		}
-		if err := service.SetCommandPackage(file); err != nil {
-			return nil, err
-		}
-
 		var endpoints []*Endpoint
 		for _, pbMethod := range pbService.Methods {
 			endpoint := &Endpoint{
@@ -217,15 +222,10 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			if endpoint.IsStreaming() {
 				return nil, fmt.Errorf("leo: unsupport stream httpMethod, %s", endpoint.FullName())
 			}
-			endpoint.SetHttpRule()
-			endpoint.SetResponsibility()
-			if err := endpoint.ParsePattern(); err != nil {
+			if err := endpoint.ParseHttpRule(); err != nil {
 				return nil, err
 			}
-			endpoint.ParsePath()
-			if err := endpoint.ParseRequest(); err != nil {
-				return nil, err
-			}
+			endpoint.ParseCqrs()
 			endpoints = append(endpoints, endpoint)
 		}
 		service.Endpoints = endpoints

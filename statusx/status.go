@@ -71,8 +71,8 @@ type Status interface {
 	// LocalizedMessage returns the localized message info.
 	LocalizedMessage() *errdetails.LocalizedMessage
 
-	// Detail returns additional detail from the Status
-	Detail() proto.Message
+	// Extra returns additional detail from the Status
+	Extra() proto.Message
 }
 
 var _ Status = (*sampleStatus)(nil)
@@ -175,7 +175,7 @@ func (st *sampleStatus) LocalizedMessage() *errdetails.LocalizedMessage {
 	return protox.Clone(st.err.GetDetailInfo().GetLocalizedMessage())
 }
 
-func (st *sampleStatus) Detail() proto.Message {
+func (st *sampleStatus) Extra() proto.Message {
 	detail := st.err.GetDetailInfo().GetExtra()
 	if detail == nil {
 		return nil

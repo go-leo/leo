@@ -24,15 +24,13 @@ func (f *ResponseEncoderGenerator) GenerateResponseEncoder() {
 func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() error {
 	f.g.P("type ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), " struct {")
 	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
-	f.g.P("responseTransformer ", internal.ResponseTransformer)
 	f.g.P("}")
 	f.g.P()
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (encoder ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
-		httpRule := endpoint.HttpRule()
 		f.g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.ResponseWriter, ", obj any) error {")
 		f.g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
-		bodyParameter := httpRule.ResponseBody()
+		bodyParameter := endpoint.ResponseBody()
 		switch bodyParameter {
 		case "", "*":
 			message := endpoint.Output()
@@ -44,7 +42,7 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 				srcValue := []any{"resp"}
 				f.PrintEncodeHttpResponseToResponse(srcValue)
 			default:
-				srcValue := []any{"encoder.responseTransformer(ctx, resp)"}
+				srcValue := []any{"resp"}
 				f.PrintEncodeMessageToResponse(srcValue)
 			}
 		default:

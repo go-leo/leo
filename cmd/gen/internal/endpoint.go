@@ -20,12 +20,12 @@ const (
 
 type Endpoint struct {
 	protoMethod *protogen.Method
+	httpRule    *annotations.HttpRule
 
-	httpRule *HttpRule
-
+	// cqrs
 	responsibility Responsibility
 
-	// Pattern
+	// http rule pattern
 	httpMethod                protogen.GoIdent
 	rawPath                   string
 	routePath                 string
@@ -34,7 +34,7 @@ type Endpoint struct {
 	namedPathFieldsParameters []string
 	pathFieldsParameters      []string
 
-	// Request parameters
+	// request parameters
 	bodyMessage     *protogen.Message
 	bodyField       *protogen.Field
 	namedPathFields []*protogen.Field
@@ -52,46 +52,6 @@ func (e *Endpoint) Unexported(s string) string {
 
 func (e *Endpoint) FullName() string {
 	return fmt.Sprintf("/%s/%s", e.protoMethod.Parent.Desc.FullName(), e.protoMethod.Desc.Name())
-}
-
-func (e *Endpoint) HttpClientRequestEncoderName() string {
-	return fmt.Sprintf("_%s_%s_HttpClient_RequestEncoder", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
-}
-
-func (e *Endpoint) HttpClientResponseDecoderName() string {
-	return fmt.Sprintf("_%s_%s_HttpClient_ResponseDecoder", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
-}
-
-func (e *Endpoint) GrpcServerTransportName() string {
-	return fmt.Sprintf("_%s_%s_GrpcServer_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
-}
-
-func (e *Endpoint) GrpcClientTransportName() string {
-	return fmt.Sprintf("_%s_%s_GrpcClient_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
-}
-
-func (e *Endpoint) HttpServerTransportName() any {
-	return fmt.Sprintf("_%s_%s_HttpServer_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
-}
-
-func (e *Endpoint) HttpClientTransportName() any {
-	return fmt.Sprintf("_%s_%s_HttpClient_Transport", e.protoMethod.Parent.GoName, e.protoMethod.GoName)
-}
-
-func (e *Endpoint) ArgsName() string {
-	return e.protoMethod.GoName + "Args"
-}
-
-func (e *Endpoint) ResName() string {
-	return e.protoMethod.GoName + "Res"
-}
-
-func (e *Endpoint) RequestName() string {
-	return e.protoMethod.GoName + "Request"
-}
-
-func (e *Endpoint) ResponseName() string {
-	return e.protoMethod.GoName + "Response"
 }
 
 func (e *Endpoint) IsStreaming() bool {
@@ -119,45 +79,42 @@ func (e *Endpoint) ServerStreamName() string {
 	return method.Parent.GoName + "_" + method.GoName + "Server"
 }
 
-func (e *Endpoint) SetResponsibility() {
-	output := e.Output()
-	if len(output.Fields)+len(output.Oneofs) > 0 {
-		e.responsibility = ResponsibilityQuery
-		return
-	}
-	e.responsibility = ResponsibilityCommand
-}
+// --------------------- Http Rule ---------------------
 
-func (e *Endpoint) Responsibility() Responsibility {
-	return e.responsibility
-}
-
-func (e *Endpoint) IsCommand() bool {
-	return e.responsibility == ResponsibilityCommand
-}
-
-func (e *Endpoint) IsQuery() bool {
-	return e.responsibility == ResponsibilityQuery
-}
-
-func (e *Endpoint) HttpRule() *HttpRule {
-	return e.httpRule
-}
-func (e *Endpoint) SetHttpRule() {
+func (e *Endpoint) ParseHttpRule() error {
 	httpRule := proto.GetExtension(e.protoMethod.Desc.Options(), annotations.E_Http)
 	if httpRule == nil || httpRule == annotations.E_Http.InterfaceOf(annotations.E_Http.Zero()) {
+		pattern := &annotations.HttpRule_Post{
+			Post: e.FullName(),
+		}
+		body := "*"
 		httpRule = &annotations.HttpRule{
-			Pattern: &annotations.HttpRule_Post{
-				Post: e.FullName(),
-			},
-			Body: "*",
+			Pattern: pattern,
+			Body:    body,
 		}
 	}
-	e.httpRule = &HttpRule{rule: httpRule.(*annotations.HttpRule)}
+	e.httpRule = httpRule.(*annotations.HttpRule)
+	if err := e.ParsePattern(); err != nil {
+		return err
+	}
+	e.ParsePath()
+	if err := e.ParseRequestBody(); err != nil {
+		return err
+	}
+	if err := e.ParseNamedPathFields(); err != nil {
+		return err
+	}
+	if err := e.ParsePathFields(); err != nil {
+		return err
+	}
+	if err := e.ParseQueryFields(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (e *Endpoint) ParsePattern() error {
-	switch pattern := e.httpRule.rule.GetPattern().(type) {
+	switch pattern := e.httpRule.GetPattern().(type) {
 	case *annotations.HttpRule_Get:
 		e.httpMethod = MethodGet
 		e.rawPath = pattern.Get
@@ -260,24 +217,10 @@ func (e *Endpoint) PathFieldsParameters() []string {
 	return e.pathFieldsParameters
 }
 
-func (e *Endpoint) ParseRequest() error {
-	if err := e.ParseBodyRequest(); err != nil {
-		return err
-	}
-	namedPathFields, pathFields, queryFields, err := e.parseParameters()
-	if err != nil {
-		return err
-	}
-	e.namedPathFields = namedPathFields
-	e.pathFields = pathFields
-	e.queryFields = queryFields
-	return nil
-}
-
-func (e *Endpoint) ParseBodyRequest() error {
+func (e *Endpoint) ParseRequestBody() error {
 	// body arguments
 	var bodyField *protogen.Field
-	body := e.httpRule.Body()
+	body := e.httpRule.GetBody()
 	switch body {
 	case "":
 		// ignore
@@ -305,54 +248,64 @@ func (e *Endpoint) BodyField() *protogen.Field {
 	return e.bodyField
 }
 
-func (e *Endpoint) parseParameters() ([]*protogen.Field, []*protogen.Field, []*protogen.Field, error) {
-	httpRule := e.httpRule
-	bodyParameter := httpRule.Body()
-	//path, namedPathName, _, namedPathParameters := httpRule.RegularizePath(e.Path())
-	//pathParameters := slicex.Difference(httpRule.PathParameters(path), namedPathParameters)
-
-	// namedPathParameters
+func (e *Endpoint) ParseNamedPathFields() error {
 	var namedPathFields []*protogen.Field
-	input := e.Input()
+	message := e.Input()
+	// 根据path解析出来的NamedPathFieldName查找
 	if namedPathName := e.NamedPathFieldName(); len(namedPathName) > 0 {
+		// 以.分割
 		namedPathParameters := strings.Split(namedPathName, ".")
+		// 逐级查找
 		for i, namedPathParameter := range namedPathParameters {
-			field := FindField(namedPathParameter, input)
+			field := FindField(namedPathParameter, message)
+			// 如果找不到，返回错误
 			if field == nil {
-				return nil, nil, nil, fmt.Errorf("%s, failed to find named path field %s", e.FullName(), namedPathName)
+				return fmt.Errorf("%s, failed to find named path parameter, %s", e.FullName(), namedPathName)
 			}
+
+			// 如果不是最后一级参数，那么必须是message类型
 			if i < len(namedPathParameters)-1 {
+				// 如果不是message类型，返回错误
 				if field.Desc.Kind() != protoreflect.MessageKind {
-					return nil, nil, nil, fmt.Errorf("%s, %s is not message", e.FullName(), field.Desc.Name())
+					return fmt.Errorf("%s, named path parameter '%s' is not message, %s", e.FullName(), field.Desc.Name(), namedPathName)
 				}
 			} else {
+				// 如果是最后一级参数，那么必须是string或者google.protobuf.StringValue类型
 				switch field.Desc.Kind() {
 				case protoreflect.StringKind:
 				case protoreflect.MessageKind:
 					switch field.Message.Desc.FullName() {
 					case "google.protobuf.StringValue":
 					default:
-						return nil, nil, nil, fmt.Errorf("%s, named path parameters do not support %s", field.Message.Desc.FullName())
+						return fmt.Errorf("%s, named path parameter only support 'string' or 'google.protobuf.StringValue' type, %s", e.FullName(), namedPathName)
 					}
 				default:
-					return nil, nil, nil, fmt.Errorf("%s, named path parameters do not support %s", field.Desc.Kind())
+					return fmt.Errorf("%s, named path parameter only support 'string' or 'google.protobuf.StringValue' type, %s", e.FullName(), namedPathName)
 				}
 			}
+			// 下一级查找
 			namedPathFields = append(namedPathFields, field)
-			input = field.Message
+			message = field.Message
 		}
 	}
+	e.namedPathFields = namedPathFields
+	return nil
+}
 
+func (e *Endpoint) NamedPathFields() []*protogen.Field {
+	return e.namedPathFields
+}
+
+func (e *Endpoint) ParsePathFields() error {
 	var pathFields []*protogen.Field
 	for _, pathParameter := range e.PathFieldsParameters() {
 		field := FindField(pathParameter, e.Input())
 		if field == nil {
-			return nil, nil, nil, fmt.Errorf("%s, failed to find path field %s", e.FullName(), bodyParameter)
+			return fmt.Errorf("%s, failed to find path parameter, %s", e.FullName(), pathParameter)
 		}
 		if field.Desc.IsList() || field.Desc.IsMap() {
-			return nil, nil, nil, fmt.Errorf("%s, path parameters do not support list or map", e.FullName())
+			return fmt.Errorf("%s, path parameter do not support list or map, %s", e.FullName(), pathParameter)
 		}
-
 		switch field.Desc.Kind() {
 		case protoreflect.BoolKind: // bool
 		case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind: // int32
@@ -375,30 +328,38 @@ func (e *Endpoint) parseParameters() ([]*protogen.Field, []*protogen.Field, []*p
 			case "google.protobuf.BoolValue":
 			case "google.protobuf.StringValue":
 			default:
-				return nil, nil, nil, fmt.Errorf("%s, path parameters do not support %s", e.FullName(), message.Desc.FullName())
+				return fmt.Errorf("%s, path parameters do not support %s", e.FullName(), message.Desc.FullName())
 			}
 		default:
-			return nil, nil, nil, fmt.Errorf("%s, path parameters do not support %s", e.FullName(), field.Desc.Kind())
+			return fmt.Errorf("%s, path parameters do not support %s", e.FullName(), field.Desc.Kind())
 		}
-
 		pathFields = append(pathFields, field)
 	}
+	e.pathFields = pathFields
+	return nil
+}
 
+func (e *Endpoint) PathFields() []*protogen.Field {
+	return e.pathFields
+}
+
+func (e *Endpoint) ParseQueryFields() error {
 	var queryFields []*protogen.Field
 	if e.BodyMessage() != nil {
 		// 如果bodyMessage不为空，那么忽略query参数
-		return namedPathFields, pathFields, queryFields, nil
+		return nil
 	}
 	for _, field := range e.Input().Fields {
 		if field == e.BodyField() {
 			// 跳过bodyField
 			continue
 		}
-		if slices.Contains(namedPathFields, field) {
+		if slices.Contains(e.NamedPathFields(), field) {
 			// 跳过namedPathFields
 			continue
 		}
-		if slices.Contains(pathFields, field) {
+		if slices.Contains(e.PathFields(), field) {
+			// 跳过pathFields
 			continue
 		}
 		if field.Desc.IsMap() {
@@ -433,19 +394,43 @@ func (e *Endpoint) parseParameters() ([]*protogen.Field, []*protogen.Field, []*p
 		}
 		queryFields = append(queryFields, field)
 	}
-	return namedPathFields, pathFields, queryFields, nil
-}
-
-func (e *Endpoint) NamedPathFields() []*protogen.Field {
-	return e.namedPathFields
-}
-
-func (e *Endpoint) PathFields() []*protogen.Field {
-	return e.pathFields
+	e.queryFields = queryFields
+	return nil
 }
 
 func (e *Endpoint) QueryFields() []*protogen.Field {
 	return e.queryFields
+}
+
+func (e *Endpoint) RequestBody() string {
+	return e.httpRule.GetBody()
+}
+
+func (e *Endpoint) ResponseBody() string {
+	return e.httpRule.GetResponseBody()
+}
+
+func (e *Endpoint) ParseCqrs() {
+	output := e.Output()
+	if len(output.Fields)+len(output.Oneofs) > 0 {
+		e.responsibility = ResponsibilityQuery
+		return
+	}
+	e.responsibility = ResponsibilityCommand
+}
+
+// --------------------- Cqrs ---------------------
+
+func (e *Endpoint) Responsibility() Responsibility {
+	return e.responsibility
+}
+
+func (e *Endpoint) IsCommand() bool {
+	return e.responsibility == ResponsibilityCommand
+}
+
+func (e *Endpoint) IsQuery() bool {
+	return e.responsibility == ResponsibilityQuery
 }
 
 func (e *Endpoint) CommandName() string {
@@ -460,71 +445,18 @@ func (e *Endpoint) ResultName() string {
 	return e.Name() + "Result"
 }
 
-type HttpRule struct {
-	rule *annotations.HttpRule
+func (e *Endpoint) ArgsName() string {
+	return e.protoMethod.GoName + "Args"
 }
 
-func (r *HttpRule) Path() string {
-	switch pattern := r.rule.GetPattern().(type) {
-	case *annotations.HttpRule_Get:
-		return pattern.Get
-	case *annotations.HttpRule_Post:
-		return pattern.Post
-	case *annotations.HttpRule_Put:
-		return pattern.Put
-	case *annotations.HttpRule_Delete:
-		return pattern.Delete
-	case *annotations.HttpRule_Patch:
-		return pattern.Patch
-	case *annotations.HttpRule_Custom:
-		return pattern.Custom.GetPath()
-	default:
-		return ""
-	}
+func (e *Endpoint) ResName() string {
+	return e.protoMethod.GoName + "Res"
 }
 
-//func (r *HttpRule) RegularizePath(path string) (string, string, string, []string) {
-//	var name string
-//	var parameters []string
-//	var template string
-//	// Find named path parameters like {name=shelves/*}
-//	if matches := namedPathPattern.FindStringSubmatch(path); matches != nil {
-//		name = matches[1]
-//		starredPath := matches[2]
-//		parts := strings.Split(starredPath, "/")
-//		newParts := slices.Clone(parts)
-//		templateParts := slices.Clone(parts)
-//		// "things/*/otherthings/*" => "things/{thingsId}/otherthings/{otherthingsId}"
-//		for i := 0; i < len(parts)-1; i += 2 {
-//			namedPathParameter := singular(newParts[i])
-//			newParts[i+1] = "{" + namedPathParameter + "}"
-//			templateParts[i+1] = "%s"
-//			parameters = append(parameters, namedPathParameter)
-//		}
-//		newPath := strings.Join(newParts, "/")
-//		template = strings.Join(templateParts, "/")
-//		path = strings.Replace(path, matches[0], newPath, 1)
-//	}
-//	return path, name, template, parameters
-//}
-//
-//func (r *HttpRule) PathParameters(path string) []string {
-//	// Find simple path parameters like {id}
-//	var parameters []string
-//	if allMatches := samplePathPattern.FindAllStringSubmatch(path, -1); allMatches != nil {
-//		for _, matches := range allMatches {
-//			pathParameter := matches[1]
-//			parameters = append(parameters, pathParameter)
-//			path = strings.Replace(path, matches[1], pathParameter, 1)
-//		}
-//	}
-//	return parameters
-//}
-
-func (r *HttpRule) Body() string {
-	return r.rule.GetBody()
+func (e *Endpoint) RequestName() string {
+	return e.protoMethod.GoName + "Request"
 }
 
-func (r *HttpRule) ResponseBody() string {
-	return r.rule.GetResponseBody()
+func (e *Endpoint) ResponseName() string {
+	return e.protoMethod.GoName + "Response"
 }

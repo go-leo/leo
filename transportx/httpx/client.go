@@ -9,31 +9,52 @@ import (
 	"github.com/go-leo/leo/v3/sdx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type (
 	ClientOptions interface {
+		// Scheme returns the http scheme, http or https, default http
 		Scheme() string
+		// ClientTransportOptions returns the go-kit http transport client options.
 		ClientTransportOptions() []httptransport.ClientOption
-		Middlewares() []endpoint.Middleware
+		// Builder returns the sdx.Builder.
 		Builder() sdx.Builder
+		// EndpointerOptions returns the sd.EndpointerOptions.
 		EndpointerOptions() []sd.EndpointerOption
+		// Logger returns the logger.
 		Logger() log.Logger
+		// BalancerFactory returns the lbx.BalancerFactory.
 		BalancerFactory() lbx.BalancerFactory
+		// UnmarshalOptions returns the protojson.UnmarshalOptions.
+		UnmarshalOptions() protojson.UnmarshalOptions
+		// MarshalOptions returns the protojson.MarshalOptions.
+		MarshalOptions() protojson.MarshalOptions
+		// Middlewares returns the go-kit endpoint middlewares.
+		Middlewares() []endpoint.Middleware
 	}
 
 	clientOptions struct {
 		scheme                 string
 		clientTransportOptions []httptransport.ClientOption
-		middlewares            []endpoint.Middleware
 		builder                sdx.Builder
 		endpointerOptions      []sd.EndpointerOption
 		logger                 log.Logger
 		balancerFactory        lbx.BalancerFactory
+		unmarshalOptions       protojson.UnmarshalOptions
+		marshalOptions         protojson.MarshalOptions
+		middlewares            []endpoint.Middleware
 	}
 
 	ClientOption func(o *clientOptions)
 )
+
+func (o *clientOptions) Apply(opts ...ClientOption) *clientOptions {
+	for _, opt := range opts {
+		opt(o)
+	}
+	return o
+}
 
 func (o *clientOptions) Scheme() string {
 	return o.scheme
@@ -41,10 +62,6 @@ func (o *clientOptions) Scheme() string {
 
 func (o *clientOptions) ClientTransportOptions() []httptransport.ClientOption {
 	return o.clientTransportOptions
-}
-
-func (o *clientOptions) Middlewares() []endpoint.Middleware {
-	return o.middlewares
 }
 
 func (o *clientOptions) Builder() sdx.Builder {
@@ -63,52 +80,78 @@ func (o *clientOptions) BalancerFactory() lbx.BalancerFactory {
 	return o.balancerFactory
 }
 
-// Scheme is a option that sets the http scheme, http or https, default http
-func Scheme(scheme string) ClientOption {
+func (o *clientOptions) UnmarshalOptions() protojson.UnmarshalOptions {
+	return o.unmarshalOptions
+}
+
+func (o *clientOptions) MarshalOptions() protojson.MarshalOptions {
+	return o.marshalOptions
+}
+
+func (o *clientOptions) Middlewares() []endpoint.Middleware {
+	return o.middlewares
+}
+
+// WithScheme is a option that sets the http scheme, http or https, default http
+func WithScheme(scheme string) ClientOption {
 	return func(o *clientOptions) {
 		o.scheme = scheme
 	}
 }
 
-// ClientTransportOption is a option that sets the go-kit http transport client options.
-func ClientTransportOption(options ...httptransport.ClientOption) ClientOption {
+// WithClientTransportOption is a option that sets the go-kit http transport client options.
+func WithClientTransportOption(options ...httptransport.ClientOption) ClientOption {
 	return func(o *clientOptions) {
 		o.clientTransportOptions = append(o.clientTransportOptions, options...)
 	}
 }
 
-// Middleware is a option that sets the go-kit endpoint middlewares.
-func Middleware(middlewares ...endpoint.Middleware) ClientOption {
-	return func(o *clientOptions) {
-		o.middlewares = append(o.middlewares, middlewares...)
-	}
-}
-
-// InstancerBuilder is a option that sets the sd instancer factory.
-func InstancerBuilder(builder sdx.Builder) ClientOption {
+// WithInstancerBuilder is a option that sets the sd instancer factory.
+func WithInstancerBuilder(builder sdx.Builder) ClientOption {
 	return func(o *clientOptions) {
 		o.builder = builder
 	}
 }
 
-// EndpointerOption is a option that sets the endpointer EndpointerOptions.
-func EndpointerOption(options ...sd.EndpointerOption) ClientOption {
+// WithEndpointerOption is a option that sets the endpointer EndpointerOptions.
+func WithEndpointerOption(options ...sd.EndpointerOption) ClientOption {
 	return func(o *clientOptions) {
 		o.endpointerOptions = append(o.endpointerOptions, options...)
 	}
 }
 
-// Logger is a option that sets the logger.
+// WithLogger is a option that sets the logger.
 func Logger(logger log.Logger) ClientOption {
 	return func(o *clientOptions) {
 		o.logger = logger
 	}
 }
 
-// BalancerFactory is a option that sets the balancer factory.
-func BalancerFactory(factory lbx.BalancerFactory) ClientOption {
+// WithBalancerFactory is a option that sets the balancer factory.
+func WithBalancerFactory(factory lbx.BalancerFactory) ClientOption {
 	return func(o *clientOptions) {
 		o.balancerFactory = factory
+	}
+}
+
+// WithUnmarshalOptions is a option that sets the protojson.UnmarshalOptions.
+func WithUnmarshalOptions(opts protojson.UnmarshalOptions) ClientOption {
+	return func(o *clientOptions) {
+		o.unmarshalOptions = opts
+	}
+}
+
+// WithMarshalOptions is a option that sets the protojson.MarshalOptions.
+func WithMarshalOptions(opts protojson.MarshalOptions) ClientOption {
+	return func(o *clientOptions) {
+		o.marshalOptions = opts
+	}
+}
+
+// WithMiddleware is a option that sets the go-kit endpoint middlewares.
+func WithMiddleware(middlewares ...endpoint.Middleware) ClientOption {
+	return func(o *clientOptions) {
+		o.middlewares = append(o.middlewares, middlewares...)
 	}
 }
 
@@ -116,18 +159,13 @@ func NewClientOptions(opts ...ClientOption) ClientOptions {
 	options := &clientOptions{
 		scheme:                 "http",
 		clientTransportOptions: nil,
-		middlewares:            nil,
 		builder:                passthroughx.Builder{},
 		endpointerOptions:      nil,
 		logger:                 logx.L(),
 		balancerFactory:        lbx.PeakFirstFactory{},
+		unmarshalOptions:       protojson.UnmarshalOptions{},
+		marshalOptions:         protojson.MarshalOptions{},
+		middlewares:            nil,
 	}
 	return options.Apply(opts...)
-}
-
-func (o *clientOptions) Apply(opts ...ClientOption) *clientOptions {
-	for _, opt := range opts {
-		opt(o)
-	}
-	return o
 }

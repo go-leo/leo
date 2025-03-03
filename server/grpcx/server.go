@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-leo/leo/v3/sdx"
-	"github.com/go-leo/leo/v3/transportx/internal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"

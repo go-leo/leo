@@ -147,9 +147,9 @@ func TestDetail(t *testing.T) {
 		Seconds: int32(now.Second()),
 		Nanos:   int32(now.Nanosecond()),
 	}
-	st := statusx.Unimplemented(statusx.Detail(detail))
-	assert.Equal(t, detail.GetHours(), st.Detail()[0].(*timeofday.TimeOfDay).GetHours())
-	assert.Equal(t, detail.GetMinutes(), st.Detail()[0].(*timeofday.TimeOfDay).GetMinutes())
-	assert.Equal(t, detail.GetSeconds(), st.Detail()[0].(*timeofday.TimeOfDay).GetSeconds())
-	assert.Equal(t, detail.GetNanos(), st.Detail()[0].(*timeofday.TimeOfDay).GetNanos())
+	st := statusx.Unimplemented(statusx.Extra(detail))
+	assert.Equal(t, detail.GetHours(), st.Extra().(*timeofday.TimeOfDay).GetHours())
+	assert.Equal(t, detail.GetMinutes(), st.Extra().(*timeofday.TimeOfDay).GetMinutes())
+	assert.Equal(t, detail.GetSeconds(), st.Extra().(*timeofday.TimeOfDay).GetSeconds())
+	assert.Equal(t, detail.GetNanos(), st.Extra().(*timeofday.TimeOfDay).GetNanos())
 }

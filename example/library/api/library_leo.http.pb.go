@@ -99,8 +99,10 @@ func AppendLibraryServiceHttpServerRoutes(router *mux.Router, svc LibraryService
 func NewLibraryServiceHttpClient(target string, opts ...httpx.ClientOption) LibraryServiceService {
 	options := httpx.NewClientOptions(opts...)
 	requestEncoder := &libraryServiceHttpClientRequestEncoder{
-		router: appendLibraryServiceHttpRoutes(mux.NewRouter()),
-		scheme: options.Scheme(),
+		marshalOptions:   protojson.MarshalOptions{},
+		unmarshalOptions: protojson.UnmarshalOptions{},
+		router:           appendLibraryServiceHttpRoutes(mux.NewRouter()),
+		scheme:           options.Scheme(),
 	}
 	responseDecoder := &libraryServiceHttpClientResponseDecoder{}
 	transports := &libraryServiceHttpClientTransports{

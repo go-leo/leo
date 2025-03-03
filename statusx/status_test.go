@@ -2,7 +2,7 @@ package statusx_test
 
 import (
 	"errors"
-	"github.com/go-leo/leo/v3/proto/status"
+	"github.com/go-leo/leo/v3/proto/leo/status"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -30,7 +30,7 @@ func TestGRPCStatus(t *testing.T) {
 		statusx.Message(text),
 		statusx.ErrorInfo(text, domain, metadata),
 		statusx.Headers(http.Header{key: {value}}),
-		statusx.Detail(&phone_number.PhoneNumber{
+		statusx.Extra(&phone_number.PhoneNumber{
 			Kind: &phone_number.PhoneNumber_E164Number{
 				E164Number: number,
 			},
@@ -67,20 +67,17 @@ func TestHTTPStatus(t *testing.T) {
 		statusx.Message(text),
 		statusx.ErrorInfo(text, domain, metadata),
 		statusx.Headers(http.Header{key: {value}}),
-		statusx.Detail(&phone_number.PhoneNumber{
+		statusx.Extra(&phone_number.PhoneNumber{
 			Kind: &phone_number.PhoneNumber_E164Number{
 				E164Number: number,
 			},
 		}),
 	)
-	httpStatus := st.HTTPStatus()
-	assert.Equal(t, http.StatusUnauthorized, int(httpStatus.GetStatus()))
-	assert.Equal(t, http.StatusText(http.StatusUnauthorized), httpStatus.GetReason())
-	assert.Equal(t, key, httpStatus.GetHeaders()[0].GetKey())
-	assert.Equal(t, value, httpStatus.GetHeaders()[0].GetValue())
 
+	data, err := st.MarshalJSON()
+	assert.NoError(t, err)
 	body := &status.HttpBody{}
-	err := protojson.Unmarshal(httpStatus.GetBody(), body)
+	err = protojson.Unmarshal(data, body)
 	assert.NoErrorf(t, err, "unmarshal http body")
 	assert.Equal(t, text, body.GetError().GetMessage())
 	assert.Equal(t, int(codes.Unauthenticated), int(body.GetError().GetStatus()))
@@ -112,7 +109,7 @@ func TestIs(t *testing.T) {
 		statusx.Message(text),
 		statusx.ErrorInfo(text, domain, metadata),
 		statusx.Headers(http.Header{key: {value}}),
-		statusx.Detail(&phone_number.PhoneNumber{
+		statusx.Extra(&phone_number.PhoneNumber{
 			Kind: &phone_number.PhoneNumber_E164Number{
 				E164Number: number,
 			},
@@ -123,7 +120,7 @@ func TestIs(t *testing.T) {
 		statusx.Message(text),
 		statusx.ErrorInfo(text, domain, metadata),
 		statusx.Headers(http.Header{key: {value}}),
-		statusx.Detail(&phone_number.PhoneNumber{
+		statusx.Extra(&phone_number.PhoneNumber{
 			Kind: &phone_number.PhoneNumber_E164Number{
 				E164Number: number,
 			},
@@ -136,7 +133,7 @@ func TestIs(t *testing.T) {
 		statusx.Message(text),
 		statusx.ErrorInfo(text, domain, metadata),
 		statusx.Headers(http.Header{key: {value}}),
-		statusx.Detail(&phone_number.PhoneNumber{
+		statusx.Extra(&phone_number.PhoneNumber{
 			Kind: &phone_number.PhoneNumber_E164Number{
 				E164Number: number,
 			},

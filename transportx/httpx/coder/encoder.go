@@ -10,10 +10,6 @@ import (
 	"net/http"
 )
 
-type ResponseTransformer func(ctx context.Context, resp proto.Message) proto.Message
-
-func DefaultResponseTransformer(ctx context.Context, resp proto.Message) proto.Message { return resp }
-
 // ===== server response encoder =====
 
 // EncodeMessageToResponse encodes the proto.Message to the http.ResponseWriter.

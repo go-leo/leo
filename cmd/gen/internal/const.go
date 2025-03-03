@@ -104,9 +104,8 @@ var (
 var (
 	HttpxCoderPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx/coder")
 
-	ResponseTransformer = HttpxCoderPackage.Ident("ResponseTransformer")
-
 	DecodeForm                   = HttpxCoderPackage.Ident("DecodeForm")
+	DecodeMessageFromRequest     = HttpxCoderPackage.Ident("DecodeMessageFromRequest")
 	DecodeHttpBodyFromRequest    = HttpxCoderPackage.Ident("DecodeHttpBodyFromRequest")
 	DecodeHttpRequestFromRequest = HttpxCoderPackage.Ident("DecodeHttpRequestFromRequest")
 
@@ -114,15 +113,14 @@ var (
 	EncodeHttpBodyToRequest    = HttpxCoderPackage.Ident("EncodeHttpBodyToRequest")
 	EncodeHttpRequestToRequest = HttpxCoderPackage.Ident("EncodeHttpRequestToRequest")
 
-	EncodeMessageToResponse      = HttpxCoderPackage.Ident("EncodeMessageToResponse")
-	EncodeHttpBodyToResponse     = HttpxCoderPackage.Ident("EncodeHttpBodyToResponse")
-	EncodeHttpResponseToResponse = HttpxCoderPackage.Ident("EncodeHttpResponseToResponse")
-
-	DecodeMessageFromRequest = HttpxCoderPackage.Ident("DecodeMessageFromRequest")
-
+	DecodeErrorFromResponse        = HttpxCoderPackage.Ident("DecodeErrorFromResponse")
 	DecodeMessageFromResponse      = HttpxCoderPackage.Ident("DecodeMessageFromResponse")
 	DecodeHttpBodyFromResponse     = HttpxCoderPackage.Ident("DecodeHttpBodyFromResponse")
 	DecodeHttpResponseFromResponse = HttpxCoderPackage.Ident("DecodeHttpResponseFromResponse")
+
+	EncodeMessageToResponse      = HttpxCoderPackage.Ident("EncodeMessageToResponse")
+	EncodeHttpBodyToResponse     = HttpxCoderPackage.Ident("EncodeHttpBodyToResponse")
+	EncodeHttpResponseToResponse = HttpxCoderPackage.Ident("EncodeHttpResponseToResponse")
 )
 
 var (

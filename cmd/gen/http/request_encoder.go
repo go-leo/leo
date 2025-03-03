@@ -25,7 +25,6 @@ func (f *RequestEncoderGenerator) GenerateRequestEncoder() {
 func (f *RequestEncoderGenerator) GenerateClientRequestEncoderImplements() {
 	f.g.P("type ", f.service.Unexported(f.service.HttpClientRequestEncoderName()), " struct {")
 	f.g.P("marshalOptions ", internal.ProtoJsonMarshalOptionsIdent)
-	f.g.P("unmarshalOptions ", internal.ProtoJsonUnmarshalOptionsIdent)
 	f.g.P("router *", internal.Router)
 	f.g.P("scheme string")
 	f.g.P("}")
