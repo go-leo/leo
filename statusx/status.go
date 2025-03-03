@@ -186,3 +186,5 @@ func (st *sampleStatus) Extra() proto.Message {
 	}
 	return info
 }
+
+type Aser interface{ As(any) bool }

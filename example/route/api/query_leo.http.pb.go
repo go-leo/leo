@@ -129,6 +129,7 @@ func (t *boolQueryHttpServerTransports) BoolQuery() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -349,6 +350,7 @@ func (t *int32QueryHttpServerTransports) Int32Query() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -577,6 +579,7 @@ func (t *int64QueryHttpServerTransports) Int64Query() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -805,6 +808,7 @@ func (t *uint32QueryHttpServerTransports) Uint32Query() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1029,6 +1033,7 @@ func (t *uint64QueryHttpServerTransports) Uint64Query() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1253,6 +1258,7 @@ func (t *floatQueryHttpServerTransports) FloatQuery() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1473,6 +1479,7 @@ func (t *doubleQueryHttpServerTransports) DoubleQuery() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1693,6 +1700,7 @@ func (t *stringQueryHttpServerTransports) StringQuery() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1913,6 +1921,7 @@ func (t *enumQueryHttpServerTransports) EnumQuery() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }

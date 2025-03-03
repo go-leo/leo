@@ -38,6 +38,7 @@ func (f *ServerTransportsGenerator) GenerateTransportsImplements() {
 		f.g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingMetadataInjector"), "),")
 		f.g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingTimeLimitInjector"), "),")
 		f.g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("IncomingStainInjector"), "),")
+		f.g.P(internal.HttpTransportPackage.Ident("ServerErrorEncoder"), "(", internal.EncodeErrorToResponse, "),")
 		f.g.P(internal.HttpTransportPackage.Ident("ServerFinalizer"), "(", internal.HttpxTransportxPackage.Ident("CancelInvoker"), "),")
 		f.g.P(")")
 		f.g.P("}")

@@ -130,6 +130,7 @@ func (t *boolPathHttpServerTransports) BoolPath() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -350,6 +351,7 @@ func (t *int32PathHttpServerTransports) Int32Path() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -578,6 +580,7 @@ func (t *int64PathHttpServerTransports) Int64Path() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -806,6 +809,7 @@ func (t *uint32PathHttpServerTransports) Uint32Path() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1030,6 +1034,7 @@ func (t *uint64PathHttpServerTransports) Uint64Path() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1254,6 +1259,7 @@ func (t *floatPathHttpServerTransports) FloatPath() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1474,6 +1480,7 @@ func (t *doublePathHttpServerTransports) DoublePath() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1694,6 +1701,7 @@ func (t *stringPathHttpServerTransports) StringPath() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -1914,6 +1922,7 @@ func (t *enumPathHttpServerTransports) EnumPath() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2182,6 +2191,7 @@ func (t *namedPathHttpServerTransports) NamedPathString() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2196,6 +2206,7 @@ func (t *namedPathHttpServerTransports) NamedPathOptString() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2210,6 +2221,7 @@ func (t *namedPathHttpServerTransports) NamedPathWrapString() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2224,6 +2236,7 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathString() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2238,6 +2251,7 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathOptString() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2252,6 +2266,7 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathWrapString() http.Handler 
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -2929,6 +2944,7 @@ func (t *mixPathHttpServerTransports) MixPath() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }

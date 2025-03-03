@@ -121,6 +121,7 @@ var (
 	EncodeMessageToResponse      = HttpxCoderPackage.Ident("EncodeMessageToResponse")
 	EncodeHttpBodyToResponse     = HttpxCoderPackage.Ident("EncodeHttpBodyToResponse")
 	EncodeHttpResponseToResponse = HttpxCoderPackage.Ident("EncodeHttpResponseToResponse")
+	EncodeErrorToResponse        = HttpxCoderPackage.Ident("EncodeErrorToResponse")
 )
 
 var (

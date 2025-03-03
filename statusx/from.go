@@ -3,6 +3,7 @@ package statusx
 import (
 	"context"
 	"errors"
+	"github.com/go-leo/leo/v3/proto/leo/status"
 	"github.com/go-leo/leo/v3/statusx/internal/statuspb"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
@@ -17,9 +18,7 @@ func From(obj any) (Status, bool) {
 	case *sampleStatus:
 		return st, true
 	case *statuspb.Error:
-		return &sampleStatus{
-			err: st,
-		}, true
+		return &sampleStatus{err: st}, true
 	case Status:
 		return st, true
 	case *rpcstatus.Status:
@@ -28,12 +27,14 @@ func From(obj any) (Status, bool) {
 		return fromRpcStatus(st.Proto()), true
 	case interface{ GRPCStatus() *grpcstatus.Status }:
 		return fromRpcStatus(st.GRPCStatus().Proto()), true
+	case *status.HttpBody:
+		return fromHttpBody(st), true
 	case *http.Response:
 		return fromHttpResponse(st)
 	case error:
 		return fromError(st)
 	default:
-		return Unknown(Message("%s", obj)), false
+		return Unknown(Message("%+v", obj)), false
 	}
 }
 
@@ -58,7 +59,10 @@ func fromError(err error) (Status, bool) {
 		return statusErr, true
 	}
 	grpcStatus, ok := grpcstatus.FromError(err)
-	return fromRpcStatus(grpcStatus.Proto()), ok
+	if ok {
+		return fromRpcStatus(grpcStatus.Proto()), true
+	}
+	return Unknown(Message("%+v", err)), false
 }
 
 func fromHttpResponse(resp *http.Response) (Status, bool) {
@@ -70,8 +74,12 @@ func fromHttpResponse(resp *http.Response) (Status, bool) {
 	if err != nil {
 		return Unknown(Message(string(data)), Headers(resp.Header)), false
 	}
+	return fromHttpBody(body, Headers(resp.Header)), true
+}
+
+func fromHttpBody(body *status.HttpBody, opts ...Option) Status {
 	bodyStatus := body.GetError()
-	st := newStatus(codes.Code(bodyStatus.GetStatus()), Headers(resp.Header), Identifier(bodyStatus.GetIdentifier()))
+	st := newStatus(codes.Code(bodyStatus.GetStatus()), append([]Option{Identifier(bodyStatus.GetIdentifier())}, opts...)...)
 	st.err.GrpcStatus.Message = bodyStatus.GetMessage()
 	details := statuspb.FromDetails(bodyStatus.GetDetails())
 	st.err.DetailInfo.ErrorInfo = details.GetErrorInfo()
@@ -85,5 +93,5 @@ func fromHttpResponse(resp *http.Response) (Status, bool) {
 	st.err.DetailInfo.Help = details.GetHelp()
 	st.err.DetailInfo.LocalizedMessage = details.GetLocalizedMessage()
 	st.err.DetailInfo.Extra = details.GetExtra()
-	return st, true
+	return st
 }

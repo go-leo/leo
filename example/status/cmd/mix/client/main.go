@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/go-leo/gox/netx/httpx/outgoing"
 	"github.com/go-leo/leo/v3/example/status/api"
 	"log"
 )
@@ -27,24 +26,4 @@ func main() {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %s", r.GetMessage())
-}
-
-func mainStd() {
-	flag.Parse()
-	receiver, err := outgoing.Post().
-		URLString("http://" + *addr + "/v1/example/echo").
-		JSONBody(&api.HelloRequest{
-			Name: *name,
-		}).Send(context.Background())
-	if err != nil {
-		log.Fatalf("failed to send request: %v", err)
-	}
-	body, err := receiver.TextBody()
-	if err != nil {
-		log.Fatalf("failed to read response: %v", err)
-	}
-	if receiver.StatusCode() != 200 {
-		log.Fatalf("could not greet: %v", body)
-	}
-	log.Printf("Greeting: %s", body)
 }

@@ -177,6 +177,7 @@ func (t *bodyHttpServerTransports) StarBody() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -191,6 +192,7 @@ func (t *bodyHttpServerTransports) NamedBody() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -205,6 +207,7 @@ func (t *bodyHttpServerTransports) NonBody() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -219,6 +222,7 @@ func (t *bodyHttpServerTransports) HttpBodyStarBody() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -233,6 +237,7 @@ func (t *bodyHttpServerTransports) HttpBodyNamedBody() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -247,6 +252,7 @@ func (t *bodyHttpServerTransports) HttpRequest() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }

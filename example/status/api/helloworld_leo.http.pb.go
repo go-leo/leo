@@ -33,14 +33,16 @@ func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, opts 
 		svc:         svc,
 		middlewares: options.Middlewares(),
 	}
+	requestDecoder := greeterHttpServerRequestDecoder{
+		unmarshalOptions: options.UnmarshalOptions(),
+	}
+	responseEncoder := greeterHttpServerResponseEncoder{
+		marshalOptions: options.MarshalOptions(),
+	}
 	transports := &greeterHttpServerTransports{
-		endpoints: endpoints,
-		requestDecoder: greeterHttpServerRequestDecoder{
-			unmarshalOptions: options.UnmarshalOptions(),
-		},
-		responseEncoder: greeterHttpServerResponseEncoder{
-			marshalOptions: options.MarshalOptions(),
-		},
+		endpoints:       endpoints,
+		requestDecoder:  requestDecoder,
+		responseEncoder: responseEncoder,
 	}
 	router = appendGreeterHttpRoutes(router)
 	router.Get("/helloworld.Greeter/SayHello").Handler(transports.SayHello())
@@ -50,10 +52,13 @@ func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, opts 
 func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterService {
 	options := httpx.NewClientOptions(opts...)
 	requestEncoder := &greeterHttpClientRequestEncoder{
-		router: appendGreeterHttpRoutes(mux.NewRouter()),
-		scheme: options.Scheme(),
+		marshalOptions: options.MarshalOptions(),
+		router:         appendGreeterHttpRoutes(mux.NewRouter()),
+		scheme:         options.Scheme(),
 	}
-	responseDecoder := &greeterHttpClientResponseDecoder{}
+	responseDecoder := &greeterHttpClientResponseDecoder{
+		unmarshalOptions: options.UnmarshalOptions(),
+	}
 	transports := &greeterHttpClientTransports{
 		clientOptions:   options.ClientTransportOptions(),
 		middlewares:     options.Middlewares(),
@@ -119,6 +124,7 @@ func (t *greeterHttpServerTransports) SayHello() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -171,10 +177,9 @@ func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance str
 }
 
 type greeterHttpClientRequestEncoder struct {
-	marshalOptions   protojson.MarshalOptions
-	unmarshalOptions protojson.UnmarshalOptions
-	router           *mux.Router
-	scheme           string
+	marshalOptions protojson.MarshalOptions
+	router         *mux.Router
+	scheme         string
 }
 
 func (encoder greeterHttpClientRequestEncoder) SayHello(instance string) http1.CreateRequestFunc {
@@ -213,7 +218,6 @@ func (encoder greeterHttpClientRequestEncoder) SayHello(instance string) http1.C
 }
 
 type greeterHttpClientResponseDecoder struct {
-	marshalOptions   protojson.MarshalOptions
 	unmarshalOptions protojson.UnmarshalOptions
 }
 

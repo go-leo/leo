@@ -177,6 +177,7 @@ func (t *responseHttpServerTransports) OmittedResponse() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -191,6 +192,7 @@ func (t *responseHttpServerTransports) StarResponse() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -205,6 +207,7 @@ func (t *responseHttpServerTransports) NamedResponse() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -219,6 +222,7 @@ func (t *responseHttpServerTransports) HttpBodyResponse() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -233,6 +237,7 @@ func (t *responseHttpServerTransports) HttpBodyNamedResponse() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
@@ -247,6 +252,7 @@ func (t *responseHttpServerTransports) HttpResponse() http.Handler {
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
 		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
