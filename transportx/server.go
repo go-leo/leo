@@ -10,7 +10,7 @@ import (
 )
 
 type Server interface {
-	runner.StartStopper
+	runner.Server
 }
 
 type ServerFactory func(lis net.Listener, args any) Server

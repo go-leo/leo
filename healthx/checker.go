@@ -3,6 +3,7 @@ package healthx
 import (
 	"context"
 	"github.com/go-leo/gox/mapx"
+	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"sync"
 )
@@ -16,47 +17,56 @@ func RegisterChecker(checker Checker) {
 }
 
 func GetCheckers() map[string]Checker {
-	return mapx.FromMapRange[map[string]Checker](&checkers)
+	return mapx.FromRanger[map[string]Checker](&checkers)
 }
 
-// Checker actual health check logic.
+func GetChecker(name string) (Checker, bool) {
+	value, ok := checkers.Load(name)
+	if !ok {
+		return nil, false
+	}
+	return value.(Checker), true
+}
+
 type Checker interface {
-	Check(ctx context.Context) Status
+	// Name returns the name of the Checker.
 	Name() string
-}
 
-// Status express state of a component or system.
-type Status interface {
-	// Code return the code of the Status.
-	Code() int
-	// Name return the name of the Status.
-	Name() string
+	// HealthServer implements `service Health`.
+	grpc_health_v1.HealthServer
+
+	// Shutdown sets all serving status to NOT_SERVING, and configures the server to
+	// ignore all future status changes.
+	//
+	// This changes serving status for all services. To set status for a particular
+	// services, call SetServingStatus().
+	Shutdown()
+
+	// Resume sets all serving status to SERVING, and configures the server to
+	// accept all future status changes.
+	//
+	// This changes serving status for all services. To set status for a particular
+	// services, call SetServingStatus().
+	Resume()
 }
 
 // CheckerProvider provides a Checker.
 type CheckerProvider interface {
-	HealthChecker() Checker
+	HealthChecker(ctx context.Context) Checker
 }
 
-// status is a Status implementation.
-type status grpc_health_v1.HealthCheckResponse_ServingStatus
-
-// Code return the code of the Status.
-func (s status) Code() int {
-	return int(s)
+type checker struct {
+	*health.Server
+	name string
 }
 
-// Name return the name of the Status.
-func (s status) Name() string {
-	return grpc_health_v1.HealthCheckResponse_ServingStatus_name[int32(s)]
+func (c *checker) Name() string {
+	return c.name
 }
 
-var (
-	Unknown = status(grpc_health_v1.HealthCheckResponse_UNKNOWN)
-
-	Serving = status(grpc_health_v1.HealthCheckResponse_SERVING)
-
-	NotServing = status(grpc_health_v1.HealthCheckResponse_NOT_SERVING)
-
-	ServiceUnknown = status(grpc_health_v1.HealthCheckResponse_SERVICE_UNKNOWN)
-)
+func NewChecker(name string) Checker {
+	return &checker{
+		Server: health.NewServer(),
+		name:   name,
+	}
+}
