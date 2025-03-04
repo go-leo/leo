@@ -4,12 +4,9 @@ import (
 	"context"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-leo/leo/v3/endpointx"
-	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/sdx/stain"
-	"github.com/go-leo/leo/v3/transportx/internal"
 	"net/http"
-	"time"
 )
 
 const (
@@ -20,8 +17,7 @@ const (
 )
 
 const (
-	kTimeoutKey = "X-Leo-Timeout"
-	kStainKey   = "X-Leo-Stain"
+	kStainKey = "X-Leo-Stain"
 )
 
 func EndpointInjector(name string) httptransport.RequestFunc {
@@ -49,35 +45,6 @@ func OutgoingMetadataInjector(ctx context.Context, request *http.Request) contex
 
 func IncomingMetadataInjector(ctx context.Context, request *http.Request) context.Context {
 	return metadatax.NewIncomingContext(ctx, metadatax.FromHttpHeader(request.Header))
-}
-
-type timeLimiterKey struct{}
-
-func OutgoingTimeLimitInjector(ctx context.Context, request *http.Request) context.Context {
-	if deadline, ok := ctx.Deadline(); ok {
-		request.Header.Set(kTimeoutKey, internal.EncodeDuration(time.Until(deadline)))
-	}
-	return ctx
-}
-
-func IncomingTimeLimitInjector(ctx context.Context, request *http.Request) context.Context {
-	if value := request.Header.Get(kTimeoutKey); value != "" {
-		timeout, err := internal.DecodeTimeout(value)
-		if err != nil {
-			_ = logx.L().Log("error", err)
-		}
-		ctx, cancelFunc := context.WithTimeout(ctx, timeout)
-		return context.WithValue(ctx, timeLimiterKey{}, cancelFunc)
-	}
-	ctx, cancelFunc := context.WithCancel(ctx)
-	return context.WithValue(ctx, timeLimiterKey{}, cancelFunc)
-}
-
-func CancelInvoker(ctx context.Context, code int, r *http.Request) {
-	cancelFunc, ok := ctx.Value(timeLimiterKey{}).(context.CancelFunc)
-	if ok {
-		cancelFunc()
-	}
 }
 
 type targetKey struct{}

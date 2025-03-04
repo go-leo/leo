@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	_StatusCode          = &StatusCode{}
 	_Identifier          = &Identifier{}
 	_ErrorInfo           = &errdetails.ErrorInfo{}
 	_RetryInfo           = &errdetails.RetryInfo{}
@@ -113,15 +112,54 @@ func ToHttpDetails(detailInfo *DetailInfo) []*anypb.Any {
 	return details
 }
 
+func (x *DetailInfo) MergeHttpDetails(details *DetailInfo) {
+	if info := details.GetIdentifier(); info != nil {
+		x.Identifier = info
+	}
+	if info := details.GetErrorInfo(); info != nil {
+		x.ErrorInfo = info
+	}
+	if info := details.GetRetryInfo(); info != nil {
+		x.RetryInfo = info
+	}
+	if info := details.GetDebugInfo(); info != nil {
+		x.DebugInfo = info
+	}
+	if info := details.GetQuotaFailure(); info != nil {
+		x.QuotaFailure = info
+	}
+	if info := details.GetPreconditionFailure(); info != nil {
+		x.PreconditionFailure = info
+	}
+	if info := details.GetBadRequest(); info != nil {
+		x.BadRequest = info
+	}
+	if info := details.GetRequestInfo(); info != nil {
+		x.RequestInfo = info
+	}
+	if info := details.GetResourceInfo(); info != nil {
+		x.ResourceInfo = info
+	}
+	if info := details.GetHelp(); info != nil {
+		x.Help = info
+	}
+	if info := details.GetLocalizedMessage(); info != nil {
+		x.LocalizedMessage = info
+	}
+	if info := details.GetExtra(); info != nil {
+		x.Extra = info
+	}
+}
+
+func (x *DetailInfo) MergeGrpcDetails(details *DetailInfo) {
+	x.MergeHttpDetails(details)
+	if info := details.GetHeader(); info != nil {
+		x.Header = info
+	}
+}
+
 func ToGrpcDetails(detailInfo *DetailInfo) []*anypb.Any {
 	var details []*anypb.Any
-	if info := detailInfo.GetStatusCode(); info != nil {
-		infoAny, err := anypb.New(info)
-		if err != nil {
-			panic(err)
-		}
-		details = append(details, infoAny)
-	}
 	if info := detailInfo.GetHeader(); info != nil {
 		infoAny, err := anypb.New(info)
 		if err != nil {
@@ -136,12 +174,6 @@ func FromDetails(details []*anypb.Any) *DetailInfo {
 	detailInfo := &DetailInfo{}
 	for _, value := range details {
 		switch {
-		case value.MessageIs(_StatusCode):
-			detailInfo.StatusCode = new(StatusCode)
-			err := value.UnmarshalTo(detailInfo.StatusCode)
-			if err != nil {
-				panic(err)
-			}
 		case value.MessageIs(_Identifier):
 			detailInfo.Identifier = new(Identifier)
 			err := value.UnmarshalTo(detailInfo.Identifier)

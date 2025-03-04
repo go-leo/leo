@@ -30,9 +30,6 @@ func newStatus(code codes.Code, opts ...Option) *sampleStatus {
 				Details: nil,
 			},
 			DetailInfo: &statuspb.DetailInfo{
-				StatusCode: &statuspb.StatusCode{
-					Value: int32(statusCode),
-				},
 				Identifier: &statuspb.Identifier{
 					Value: fmt.Sprintf("%d-%d", code, statusCode),
 				},

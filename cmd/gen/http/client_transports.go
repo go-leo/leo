@@ -23,7 +23,7 @@ func (f *ClientTransportsGenerator) GenerateTransports() {
 		f.g.P("func (t *", f.service.Unexported(f.service.HttpClientTransportsName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
 		f.g.P("opts := []", internal.HttpTransportPackage.Ident("ClientOption"), "{")
 		f.g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingMetadataInjector"), "),")
-		f.g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingTimeLimitInjector"), "),")
+		f.g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.TimeoutxOutgoingInjector, "),")
 		f.g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.HttpxTransportxPackage.Ident("OutgoingStainInjector"), "),")
 		f.g.P("}")
 		f.g.P("opts = append(opts, t.clientOptions...)")

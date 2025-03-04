@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/protox"
 	"github.com/go-leo/leo/v3/statusx/internal/statuspb"
+	"github.com/go-leo/leo/v3/statusx/internal/util"
+	"golang.org/x/exp/maps"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"net/http"
+	"strings"
 )
 
 type Status interface {
@@ -120,14 +123,18 @@ func (st *sampleStatus) Is(target error) bool {
 }
 
 func (st *sampleStatus) StatusCode() int {
-	return int(st.err.GetDetailInfo().GetStatusCode().GetValue())
+	return util.ToHttpStatusCode(st.Code())
 }
 
 func (st *sampleStatus) Headers() http.Header {
-	header := make(http.Header)
-	for _, item := range st.err.GetDetailInfo().GetHeader().GetHeaders() {
+	headers := st.err.GetDetailInfo().GetHeader().GetHeaders()
+	header := make(http.Header, len(headers))
+	keys := make(map[string]struct{}, len(headers))
+	for _, item := range headers {
 		header.Add(item.GetKey(), item.GetValue())
+		keys[item.GetKey()] = struct{}{}
 	}
+	header.Add(kXLeoHeader, strings.Join(maps.Keys(keys), kXLeoHeaderSeparator))
 	return header
 }
 
@@ -186,5 +193,3 @@ func (st *sampleStatus) Extra() proto.Message {
 	}
 	return info
 }
-
-type Aser interface{ As(any) bool }

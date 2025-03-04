@@ -1,4 +1,4 @@
-package internal
+package timeoutx
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ const (
 
 const maxTimeoutValue int64 = 100000000 - 1
 
-func DecodeTimeout(s string) (time.Duration, error) {
+func decodeTimeout(s string) (time.Duration, error) {
 	size := len(s)
 	if size < 2 {
 		return 0, fmt.Errorf("httpx: timeout string is too short: %q", s)
@@ -74,11 +74,11 @@ func div(d, r time.Duration) int64 {
 	return int64(d / r)
 }
 
-// EncodeDuration encodes the duration to the format grpc-timeout header
+// encodeDuration encodes the duration to the format grpc-timeout header
 // accepts.
 //
 // https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#requests
-func EncodeDuration(t time.Duration) string {
+func encodeDuration(t time.Duration) string {
 	// TODO: This is simplistic and not bandwidth efficient. Improve it.
 	if t <= 0 {
 		return "0n"

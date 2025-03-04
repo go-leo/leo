@@ -13,6 +13,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	timeoutx "github.com/go-leo/leo/v3/timeoutx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
 	mux "github.com/gorilla/mux"
@@ -127,10 +128,10 @@ func (t *boolQueryHttpServerTransports) BoolQuery() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.BoolQuery/BoolQuery")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -174,7 +175,7 @@ type boolQueryHttpClientTransports struct {
 func (t *boolQueryHttpClientTransports) BoolQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -348,10 +349,10 @@ func (t *int32QueryHttpServerTransports) Int32Query() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Int32Query/Int32Query")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -399,7 +400,7 @@ type int32QueryHttpClientTransports struct {
 func (t *int32QueryHttpClientTransports) Int32Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -577,10 +578,10 @@ func (t *int64QueryHttpServerTransports) Int64Query() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Int64Query/Int64Query")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -628,7 +629,7 @@ type int64QueryHttpClientTransports struct {
 func (t *int64QueryHttpClientTransports) Int64Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -806,10 +807,10 @@ func (t *uint32QueryHttpServerTransports) Uint32Query() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Uint32Query/Uint32Query")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -855,7 +856,7 @@ type uint32QueryHttpClientTransports struct {
 func (t *uint32QueryHttpClientTransports) Uint32Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -1031,10 +1032,10 @@ func (t *uint64QueryHttpServerTransports) Uint64Query() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Uint64Query/Uint64Query")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -1080,7 +1081,7 @@ type uint64QueryHttpClientTransports struct {
 func (t *uint64QueryHttpClientTransports) Uint64Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -1256,10 +1257,10 @@ func (t *floatQueryHttpServerTransports) FloatQuery() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.FloatQuery/FloatQuery")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -1303,7 +1304,7 @@ type floatQueryHttpClientTransports struct {
 func (t *floatQueryHttpClientTransports) FloatQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -1477,10 +1478,10 @@ func (t *doubleQueryHttpServerTransports) DoubleQuery() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.DoubleQuery/DoubleQuery")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -1524,7 +1525,7 @@ type doubleQueryHttpClientTransports struct {
 func (t *doubleQueryHttpClientTransports) DoubleQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -1698,10 +1699,10 @@ func (t *stringQueryHttpServerTransports) StringQuery() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.StringQuery/StringQuery")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -1745,7 +1746,7 @@ type stringQueryHttpClientTransports struct {
 func (t *stringQueryHttpClientTransports) StringQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -1919,10 +1920,10 @@ func (t *enumQueryHttpServerTransports) EnumQuery() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.EnumQuery/EnumQuery")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -1965,7 +1966,7 @@ type enumQueryHttpClientTransports struct {
 func (t *enumQueryHttpClientTransports) EnumQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)

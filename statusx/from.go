@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 func From(obj any) (Status, bool) {
@@ -41,7 +42,8 @@ func From(obj any) (Status, bool) {
 func fromRpcStatus(grpcProto *rpcstatus.Status) Status {
 	st := newStatus(codes.Code(grpcProto.Code))
 	st.err.GrpcStatus.Message = grpcProto.GetMessage()
-	st.err.DetailInfo = statuspb.FromDetails(grpcProto.GetDetails())
+	details := statuspb.FromDetails(grpcProto.GetDetails())
+	st.err.DetailInfo.MergeGrpcDetails(details)
 	return st
 }
 
@@ -74,24 +76,26 @@ func fromHttpResponse(resp *http.Response) (Status, bool) {
 	if err != nil {
 		return Unknown(Message(string(data)), Headers(resp.Header)), false
 	}
-	return fromHttpBody(body, Headers(resp.Header)), true
+	keys := strings.Split(resp.Header.Get(kXLeoHeader), kXLeoHeaderSeparator)
+	if len(keys) == 0 {
+		return fromHttpBody(body), true
+	}
+	header := make(http.Header)
+	for _, key := range keys {
+		values := resp.Header.Values(key)
+		for _, value := range values {
+			header.Add(key, value)
+		}
+	}
+	return fromHttpBody(body, Headers(header)), true
 }
 
 func fromHttpBody(body *status.HttpBody, opts ...Option) Status {
 	bodyStatus := body.GetError()
-	st := newStatus(codes.Code(bodyStatus.GetStatus()), append([]Option{Identifier(bodyStatus.GetIdentifier())}, opts...)...)
+	options := append([]Option{Identifier(bodyStatus.GetIdentifier())}, opts...)
+	st := newStatus(codes.Code(bodyStatus.GetStatus()), options...)
 	st.err.GrpcStatus.Message = bodyStatus.GetMessage()
 	details := statuspb.FromDetails(bodyStatus.GetDetails())
-	st.err.DetailInfo.ErrorInfo = details.GetErrorInfo()
-	st.err.DetailInfo.RetryInfo = details.GetRetryInfo()
-	st.err.DetailInfo.DebugInfo = details.GetDebugInfo()
-	st.err.DetailInfo.QuotaFailure = details.GetQuotaFailure()
-	st.err.DetailInfo.PreconditionFailure = details.GetPreconditionFailure()
-	st.err.DetailInfo.BadRequest = details.GetBadRequest()
-	st.err.DetailInfo.RequestInfo = details.GetRequestInfo()
-	st.err.DetailInfo.ResourceInfo = details.GetResourceInfo()
-	st.err.DetailInfo.Help = details.GetHelp()
-	st.err.DetailInfo.LocalizedMessage = details.GetLocalizedMessage()
-	st.err.DetailInfo.Extra = details.GetExtra()
+	st.err.DetailInfo.MergeHttpDetails(details)
 	return st
 }

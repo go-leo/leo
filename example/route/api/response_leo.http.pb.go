@@ -11,6 +11,7 @@ import (
 	http1 "github.com/go-kit/kit/transport/http"
 	httpx1 "github.com/go-leo/gox/netx/httpx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	timeoutx "github.com/go-leo/leo/v3/timeoutx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
 	mux "github.com/gorilla/mux"
@@ -175,10 +176,10 @@ func (t *responseHttpServerTransports) OmittedResponse() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.response.Response/OmittedResponse")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -190,10 +191,10 @@ func (t *responseHttpServerTransports) StarResponse() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.response.Response/StarResponse")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -205,10 +206,10 @@ func (t *responseHttpServerTransports) NamedResponse() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.response.Response/NamedResponse")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -220,10 +221,10 @@ func (t *responseHttpServerTransports) HttpBodyResponse() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.response.Response/HttpBodyResponse")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -235,10 +236,10 @@ func (t *responseHttpServerTransports) HttpBodyNamedResponse() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.response.Response/HttpBodyNamedResponse")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -250,10 +251,10 @@ func (t *responseHttpServerTransports) HttpResponse() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.response.Response/HttpResponse")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 	)
 }
 
@@ -349,7 +350,7 @@ type responseHttpClientTransports struct {
 func (t *responseHttpClientTransports) OmittedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -364,7 +365,7 @@ func (t *responseHttpClientTransports) OmittedResponse(ctx context.Context, inst
 func (t *responseHttpClientTransports) StarResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -379,7 +380,7 @@ func (t *responseHttpClientTransports) StarResponse(ctx context.Context, instanc
 func (t *responseHttpClientTransports) NamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -394,7 +395,7 @@ func (t *responseHttpClientTransports) NamedResponse(ctx context.Context, instan
 func (t *responseHttpClientTransports) HttpBodyResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -409,7 +410,7 @@ func (t *responseHttpClientTransports) HttpBodyResponse(ctx context.Context, ins
 func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -424,7 +425,7 @@ func (t *responseHttpClientTransports) HttpBodyNamedResponse(ctx context.Context
 func (t *responseHttpClientTransports) HttpResponse(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)

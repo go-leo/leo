@@ -102,6 +102,14 @@ var (
 )
 
 var (
+	TimeoutxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/timeoutx")
+
+	TimeoutxOutgoingInjector = TimeoutxPackage.Ident("OutgoingInjector")
+	TimeoutxIncomingInjector = TimeoutxPackage.Ident("IncomingInjector")
+	TimeoutxCancelInvoker    = TimeoutxPackage.Ident("CancelInvoker")
+)
+
+var (
 	HttpxCoderPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx/coder")
 
 	DecodeForm                   = HttpxCoderPackage.Ident("DecodeForm")

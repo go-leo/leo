@@ -7,6 +7,11 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+const (
+	kXLeoHeader          = "X-Leo-Headers"
+	kXLeoHeaderSeparator = ", "
+)
+
 func marshalHttpBody(st *sampleStatus) ([]byte, error) {
 	body := &status.HttpBody{
 		Error: &status.HttpBody_Status{
