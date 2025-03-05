@@ -7,7 +7,7 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
-	"github.com/go-leo/leo/v3/sdx/stain"
+	"github.com/go-leo/leo/v3/stainx"
 	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
 	stdconsul "github.com/hashicorp/consul/api"
@@ -48,7 +48,7 @@ func (b Builder) BuildInstancer(ctx context.Context, instance *url.URL, color st
 	}
 
 	service := strings.TrimLeft(rawURL.Path, "/")
-	color, ok := stain.ExtractColor(ctx)
+	color, ok := stainx.ExtractColor(ctx)
 	if !ok {
 		return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, nil, true), nil
 	}

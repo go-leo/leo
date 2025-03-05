@@ -26,11 +26,9 @@ var (
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
 	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpctransportx")
 	CqrsPackage            = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
-	MetadataxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
 	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
 	SdxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx")
 	LbxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/lbx")
-	StainPackage           = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/stain")
 
 	ErrorxPackage    = protogen.GoImportPath("github.com/go-leo/gox/errorx")
 	ConvxPackage     = protogen.GoImportPath("github.com/go-leo/gox/convx")
@@ -56,6 +54,15 @@ var (
 var (
 	BytesPackage = protogen.GoImportPath("bytes")
 	Buffer       = BytesPackage.Ident("Buffer")
+)
+
+var (
+	MetadataxPackage              = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
+	MetadataxMetadata             = MetadataxPackage.Ident("Metadata")
+	MetadataxGrpcOutgoingInjector = MetadataxPackage.Ident("GrpcOutgoingInjector")
+	MetadataxGrpcIncomingInjector = MetadataxPackage.Ident("GrpcIncomingInjector")
+	MetadataxHttpOutgoingInjector = MetadataxPackage.Ident("HttpOutgoingInjector")
+	MetadataxHttpIncomingInjector = MetadataxPackage.Ident("HttpIncomingInjector")
 )
 
 var (
@@ -89,6 +96,15 @@ var (
 	ProtoJsonPackage               = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	ProtoJsonMarshalOptionsIdent   = ProtoJsonPackage.Ident("MarshalOptions")
 	ProtoJsonUnmarshalOptionsIdent = ProtoJsonPackage.Ident("UnmarshalOptions")
+)
+
+var (
+	StainxPackage              = protogen.GoImportPath("github.com/go-leo/leo/v3/stainx")
+	StainxGrpcOutgoingInjector = StainxPackage.Ident("GrpcOutgoingInjector")
+	StainxGrpcIncomingInjector = StainxPackage.Ident("GrpcIncomingInjector")
+	StainxHttpOutgoingInjector = StainxPackage.Ident("HttpOutgoingInjector")
+	StainxHttpIncomingInjector = StainxPackage.Ident("HttpIncomingInjector")
+	StainxExtractColor         = StainxPackage.Ident("ExtractColor")
 )
 
 var (

@@ -4,9 +4,14 @@ import (
 	"context"
 )
 
+type _RawMD struct {
+	md    Metadata
+	added []Metadata
+}
+
 type incomingKey struct{}
 
-// NewIncomingContext creates a new context with incoming md attached.
+// NewIncomingContext creates a new context with incoming _Metadata attached.
 func NewIncomingContext(ctx context.Context, md Metadata) context.Context {
 	return context.WithValue(ctx, incomingKey{}, md)
 }
@@ -24,27 +29,24 @@ type outgoingKey struct{}
 
 // NewOutgoingContext creates a new context with outgoing Metadata attached.
 func NewOutgoingContext(ctx context.Context, md Metadata) context.Context {
-	return context.WithValue(ctx, outgoingKey{}, rawMD{md: md})
+	return context.WithValue(ctx, outgoingKey{}, _RawMD{md: md})
 }
 
 // FromOutgoingContext returns the outgoing metadata in ctx if it exists.
 func FromOutgoingContext(ctx context.Context) (Metadata, bool) {
-	md, ok := ctx.Value(outgoingKey{}).(rawMD)
+	rawMD, ok := ctx.Value(outgoingKey{}).(_RawMD)
 	if !ok {
 		return nil, false
 	}
-	out := Join(append([]Metadata{md.md}, md.added...)...)
-	return out, ok
+	res := Join(append([]Metadata{rawMD.md}, rawMD.added...)...)
+	return res, ok
 }
 
 // AppendToOutgoingContext appends the Metadata to the outgoing context.
 func AppendToOutgoingContext(ctx context.Context, mds ...Metadata) context.Context {
-	oldMD, _ := ctx.Value(outgoingKey{}).(rawMD)
-	added := append(append(make([]Metadata, 0, len(oldMD.added)+len(mds)), oldMD.added...), mds...)
-	return context.WithValue(ctx, outgoingKey{}, rawMD{md: oldMD.md, added: added})
-}
-
-type rawMD struct {
-	md    Metadata
-	added []Metadata
+	old, _ := ctx.Value(outgoingKey{}).(_RawMD)
+	added := make([]Metadata, 0, len(old.added)+len(mds))
+	added = append(added, old.added...)
+	added = append(added, mds...)
+	return context.WithValue(ctx, outgoingKey{}, _RawMD{md: old.md, added: added})
 }

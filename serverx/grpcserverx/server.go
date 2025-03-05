@@ -75,7 +75,8 @@ func Instance(instance string) Option {
 	}
 }
 
-func Color(color string) Option {
+// Stain 染色
+func Stain(color string) Option {
 	return func(o *options) {
 		o.Color = color
 	}

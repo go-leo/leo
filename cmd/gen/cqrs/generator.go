@@ -24,6 +24,10 @@ func NewGenerator(plugin *protogen.Plugin, file *protogen.File) (*Generator, err
 }
 
 func (f *Generator) Generate() error {
+	// 没有定义服务，则不生成代码
+	if len(f.Services) <= 0 {
+		return nil
+	}
 	//for _, service := range f.Services {
 	//	if err := f.GenerateEndpoints(service); err != nil {
 	//		return err
@@ -89,7 +93,7 @@ func (f *Generator) GenerateCommand(service *internal.Service, endpoint *interna
 	g.P("type ", endpoint.Unexported(endpoint.Name()), " struct {")
 	g.P("}")
 	g.P()
-	g.P("func (h *", endpoint.Unexported(endpoint.Name()), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxPackage.Ident("Metadata"), ", error) {")
+	g.P("func (h *", endpoint.Unexported(endpoint.Name()), ") Handle(ctx ", internal.ContextPackage.Ident("Context"), ", args *", endpoint.ArgsName(), ") (", internal.MetadataxMetadata, ", error) {")
 	g.P(internal.Comments("TODO implement me"))
 	g.P("panic(", strconv.Quote("implement me"), ")")
 	g.P("}")
