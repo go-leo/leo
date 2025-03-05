@@ -7,16 +7,17 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	grpctransportx "github.com/go-leo/leo/v3/transportx/grpctransportx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
 
-func NewBoolPathGrpcServer(svc BoolPathService, middlewares ...endpoint.Middleware) BoolPathServer {
+func NewBoolPathGrpcServer(svc BoolPathService, opts ...grpctransportx.ServerOption) BoolPathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &boolPathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &boolPathGrpcServerTransports{
 		endpoints: endpoints,
@@ -26,8 +27,8 @@ func NewBoolPathGrpcServer(svc BoolPathService, middlewares ...endpoint.Middlewa
 	}
 }
 
-func NewBoolPathGrpcClient(target string, opts ...grpcx.ClientOption) BoolPathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewBoolPathGrpcClient(target string, opts ...grpctransportx.ClientOption) BoolPathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &boolPathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -52,7 +53,7 @@ func NewBoolPathGrpcClient(target string, opts ...grpcx.ClientOption) BoolPathSe
 	}
 	return &boolPathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -65,10 +66,10 @@ func (t *boolPathGrpcServerTransports) BoolPath() grpc.Handler {
 		t.endpoints.BoolPath(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.BoolPath/BoolPath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.BoolPath/BoolPath")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -99,8 +100,8 @@ func (t *boolPathGrpcClientTransports) BoolPath(ctx context.Context, instance st
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -114,10 +115,11 @@ func (t *boolPathGrpcClientTransports) BoolPath(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewInt32PathGrpcServer(svc Int32PathService, middlewares ...endpoint.Middleware) Int32PathServer {
+func NewInt32PathGrpcServer(svc Int32PathService, opts ...grpctransportx.ServerOption) Int32PathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &int32PathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &int32PathGrpcServerTransports{
 		endpoints: endpoints,
@@ -127,8 +129,8 @@ func NewInt32PathGrpcServer(svc Int32PathService, middlewares ...endpoint.Middle
 	}
 }
 
-func NewInt32PathGrpcClient(target string, opts ...grpcx.ClientOption) Int32PathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewInt32PathGrpcClient(target string, opts ...grpctransportx.ClientOption) Int32PathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &int32PathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -153,7 +155,7 @@ func NewInt32PathGrpcClient(target string, opts ...grpcx.ClientOption) Int32Path
 	}
 	return &int32PathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -166,10 +168,10 @@ func (t *int32PathGrpcServerTransports) Int32Path() grpc.Handler {
 		t.endpoints.Int32Path(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.Int32Path/Int32Path")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.Int32Path/Int32Path")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -200,8 +202,8 @@ func (t *int32PathGrpcClientTransports) Int32Path(ctx context.Context, instance 
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -215,10 +217,11 @@ func (t *int32PathGrpcClientTransports) Int32Path(ctx context.Context, instance 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewInt64PathGrpcServer(svc Int64PathService, middlewares ...endpoint.Middleware) Int64PathServer {
+func NewInt64PathGrpcServer(svc Int64PathService, opts ...grpctransportx.ServerOption) Int64PathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &int64PathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &int64PathGrpcServerTransports{
 		endpoints: endpoints,
@@ -228,8 +231,8 @@ func NewInt64PathGrpcServer(svc Int64PathService, middlewares ...endpoint.Middle
 	}
 }
 
-func NewInt64PathGrpcClient(target string, opts ...grpcx.ClientOption) Int64PathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewInt64PathGrpcClient(target string, opts ...grpctransportx.ClientOption) Int64PathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &int64PathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -254,7 +257,7 @@ func NewInt64PathGrpcClient(target string, opts ...grpcx.ClientOption) Int64Path
 	}
 	return &int64PathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -267,10 +270,10 @@ func (t *int64PathGrpcServerTransports) Int64Path() grpc.Handler {
 		t.endpoints.Int64Path(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.Int64Path/Int64Path")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.Int64Path/Int64Path")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -301,8 +304,8 @@ func (t *int64PathGrpcClientTransports) Int64Path(ctx context.Context, instance 
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -316,10 +319,11 @@ func (t *int64PathGrpcClientTransports) Int64Path(ctx context.Context, instance 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewUint32PathGrpcServer(svc Uint32PathService, middlewares ...endpoint.Middleware) Uint32PathServer {
+func NewUint32PathGrpcServer(svc Uint32PathService, opts ...grpctransportx.ServerOption) Uint32PathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &uint32PathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &uint32PathGrpcServerTransports{
 		endpoints: endpoints,
@@ -329,8 +333,8 @@ func NewUint32PathGrpcServer(svc Uint32PathService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewUint32PathGrpcClient(target string, opts ...grpcx.ClientOption) Uint32PathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewUint32PathGrpcClient(target string, opts ...grpctransportx.ClientOption) Uint32PathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &uint32PathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -355,7 +359,7 @@ func NewUint32PathGrpcClient(target string, opts ...grpcx.ClientOption) Uint32Pa
 	}
 	return &uint32PathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -368,10 +372,10 @@ func (t *uint32PathGrpcServerTransports) Uint32Path() grpc.Handler {
 		t.endpoints.Uint32Path(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.Uint32Path/Uint32Path")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.Uint32Path/Uint32Path")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -402,8 +406,8 @@ func (t *uint32PathGrpcClientTransports) Uint32Path(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -417,10 +421,11 @@ func (t *uint32PathGrpcClientTransports) Uint32Path(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewUint64PathGrpcServer(svc Uint64PathService, middlewares ...endpoint.Middleware) Uint64PathServer {
+func NewUint64PathGrpcServer(svc Uint64PathService, opts ...grpctransportx.ServerOption) Uint64PathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &uint64PathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &uint64PathGrpcServerTransports{
 		endpoints: endpoints,
@@ -430,8 +435,8 @@ func NewUint64PathGrpcServer(svc Uint64PathService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewUint64PathGrpcClient(target string, opts ...grpcx.ClientOption) Uint64PathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewUint64PathGrpcClient(target string, opts ...grpctransportx.ClientOption) Uint64PathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &uint64PathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -456,7 +461,7 @@ func NewUint64PathGrpcClient(target string, opts ...grpcx.ClientOption) Uint64Pa
 	}
 	return &uint64PathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -469,10 +474,10 @@ func (t *uint64PathGrpcServerTransports) Uint64Path() grpc.Handler {
 		t.endpoints.Uint64Path(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.Uint64Path/Uint64Path")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.Uint64Path/Uint64Path")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -503,8 +508,8 @@ func (t *uint64PathGrpcClientTransports) Uint64Path(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -518,10 +523,11 @@ func (t *uint64PathGrpcClientTransports) Uint64Path(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewFloatPathGrpcServer(svc FloatPathService, middlewares ...endpoint.Middleware) FloatPathServer {
+func NewFloatPathGrpcServer(svc FloatPathService, opts ...grpctransportx.ServerOption) FloatPathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &floatPathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &floatPathGrpcServerTransports{
 		endpoints: endpoints,
@@ -531,8 +537,8 @@ func NewFloatPathGrpcServer(svc FloatPathService, middlewares ...endpoint.Middle
 	}
 }
 
-func NewFloatPathGrpcClient(target string, opts ...grpcx.ClientOption) FloatPathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewFloatPathGrpcClient(target string, opts ...grpctransportx.ClientOption) FloatPathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &floatPathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -557,7 +563,7 @@ func NewFloatPathGrpcClient(target string, opts ...grpcx.ClientOption) FloatPath
 	}
 	return &floatPathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -570,10 +576,10 @@ func (t *floatPathGrpcServerTransports) FloatPath() grpc.Handler {
 		t.endpoints.FloatPath(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.FloatPath/FloatPath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.FloatPath/FloatPath")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -604,8 +610,8 @@ func (t *floatPathGrpcClientTransports) FloatPath(ctx context.Context, instance 
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -619,10 +625,11 @@ func (t *floatPathGrpcClientTransports) FloatPath(ctx context.Context, instance 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewDoublePathGrpcServer(svc DoublePathService, middlewares ...endpoint.Middleware) DoublePathServer {
+func NewDoublePathGrpcServer(svc DoublePathService, opts ...grpctransportx.ServerOption) DoublePathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &doublePathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &doublePathGrpcServerTransports{
 		endpoints: endpoints,
@@ -632,8 +639,8 @@ func NewDoublePathGrpcServer(svc DoublePathService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewDoublePathGrpcClient(target string, opts ...grpcx.ClientOption) DoublePathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewDoublePathGrpcClient(target string, opts ...grpctransportx.ClientOption) DoublePathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &doublePathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -658,7 +665,7 @@ func NewDoublePathGrpcClient(target string, opts ...grpcx.ClientOption) DoublePa
 	}
 	return &doublePathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -671,10 +678,10 @@ func (t *doublePathGrpcServerTransports) DoublePath() grpc.Handler {
 		t.endpoints.DoublePath(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.DoublePath/DoublePath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.DoublePath/DoublePath")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -705,8 +712,8 @@ func (t *doublePathGrpcClientTransports) DoublePath(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -720,10 +727,11 @@ func (t *doublePathGrpcClientTransports) DoublePath(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewStringPathGrpcServer(svc StringPathService, middlewares ...endpoint.Middleware) StringPathServer {
+func NewStringPathGrpcServer(svc StringPathService, opts ...grpctransportx.ServerOption) StringPathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &stringPathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &stringPathGrpcServerTransports{
 		endpoints: endpoints,
@@ -733,8 +741,8 @@ func NewStringPathGrpcServer(svc StringPathService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewStringPathGrpcClient(target string, opts ...grpcx.ClientOption) StringPathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewStringPathGrpcClient(target string, opts ...grpctransportx.ClientOption) StringPathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &stringPathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -759,7 +767,7 @@ func NewStringPathGrpcClient(target string, opts ...grpcx.ClientOption) StringPa
 	}
 	return &stringPathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -772,10 +780,10 @@ func (t *stringPathGrpcServerTransports) StringPath() grpc.Handler {
 		t.endpoints.StringPath(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.StringPath/StringPath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.StringPath/StringPath")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -806,8 +814,8 @@ func (t *stringPathGrpcClientTransports) StringPath(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -821,10 +829,11 @@ func (t *stringPathGrpcClientTransports) StringPath(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewEnumPathGrpcServer(svc EnumPathService, middlewares ...endpoint.Middleware) EnumPathServer {
+func NewEnumPathGrpcServer(svc EnumPathService, opts ...grpctransportx.ServerOption) EnumPathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &enumPathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &enumPathGrpcServerTransports{
 		endpoints: endpoints,
@@ -834,8 +843,8 @@ func NewEnumPathGrpcServer(svc EnumPathService, middlewares ...endpoint.Middlewa
 	}
 }
 
-func NewEnumPathGrpcClient(target string, opts ...grpcx.ClientOption) EnumPathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewEnumPathGrpcClient(target string, opts ...grpctransportx.ClientOption) EnumPathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &enumPathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -860,7 +869,7 @@ func NewEnumPathGrpcClient(target string, opts ...grpcx.ClientOption) EnumPathSe
 	}
 	return &enumPathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -873,10 +882,10 @@ func (t *enumPathGrpcServerTransports) EnumPath() grpc.Handler {
 		t.endpoints.EnumPath(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.EnumPath/EnumPath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.EnumPath/EnumPath")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -907,8 +916,8 @@ func (t *enumPathGrpcClientTransports) EnumPath(ctx context.Context, instance st
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -922,10 +931,11 @@ func (t *enumPathGrpcClientTransports) EnumPath(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middleware) NamedPathServer {
+func NewNamedPathGrpcServer(svc NamedPathService, opts ...grpctransportx.ServerOption) NamedPathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &namedPathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &namedPathGrpcServerTransports{
 		endpoints: endpoints,
@@ -940,8 +950,8 @@ func NewNamedPathGrpcServer(svc NamedPathService, middlewares ...endpoint.Middle
 	}
 }
 
-func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewNamedPathGrpcClient(target string, opts ...grpctransportx.ClientOption) NamedPathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &namedPathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -966,7 +976,7 @@ func NewNamedPathGrpcClient(target string, opts ...grpcx.ClientOption) NamedPath
 	}
 	return &namedPathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -979,10 +989,10 @@ func (t *namedPathGrpcServerTransports) NamedPathString() grpc.Handler {
 		t.endpoints.NamedPathString(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.NamedPath/NamedPathString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.NamedPath/NamedPathString")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -991,10 +1001,10 @@ func (t *namedPathGrpcServerTransports) NamedPathOptString() grpc.Handler {
 		t.endpoints.NamedPathOptString(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.NamedPath/NamedPathOptString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.NamedPath/NamedPathOptString")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -1003,10 +1013,10 @@ func (t *namedPathGrpcServerTransports) NamedPathWrapString() grpc.Handler {
 		t.endpoints.NamedPathWrapString(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.NamedPath/NamedPathWrapString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.NamedPath/NamedPathWrapString")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -1015,10 +1025,10 @@ func (t *namedPathGrpcServerTransports) EmbedNamedPathString() grpc.Handler {
 		t.endpoints.EmbedNamedPathString(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathString")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -1027,10 +1037,10 @@ func (t *namedPathGrpcServerTransports) EmbedNamedPathOptString() grpc.Handler {
 		t.endpoints.EmbedNamedPathOptString(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathOptString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathOptString")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -1039,10 +1049,10 @@ func (t *namedPathGrpcServerTransports) EmbedNamedPathWrapString() grpc.Handler 
 		t.endpoints.EmbedNamedPathWrapString(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -1123,8 +1133,8 @@ func (t *namedPathGrpcClientTransports) NamedPathString(ctx context.Context, ins
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -1144,8 +1154,8 @@ func (t *namedPathGrpcClientTransports) NamedPathOptString(ctx context.Context, 
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -1165,8 +1175,8 @@ func (t *namedPathGrpcClientTransports) NamedPathWrapString(ctx context.Context,
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -1186,8 +1196,8 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathString(ctx context.Context
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -1207,8 +1217,8 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathOptString(ctx context.Cont
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -1228,8 +1238,8 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString(ctx context.Con
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -1243,10 +1253,11 @@ func (t *namedPathGrpcClientTransports) EmbedNamedPathWrapString(ctx context.Con
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware) MixPathServer {
+func NewMixPathGrpcServer(svc MixPathService, opts ...grpctransportx.ServerOption) MixPathServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &mixPathServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &mixPathGrpcServerTransports{
 		endpoints: endpoints,
@@ -1256,8 +1267,8 @@ func NewMixPathGrpcServer(svc MixPathService, middlewares ...endpoint.Middleware
 	}
 }
 
-func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathService {
-	options := grpcx.NewClientOptions(opts...)
+func NewMixPathGrpcClient(target string, opts ...grpctransportx.ClientOption) MixPathService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &mixPathGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -1282,7 +1293,7 @@ func NewMixPathGrpcClient(target string, opts ...grpcx.ClientOption) MixPathServ
 	}
 	return &mixPathClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -1295,10 +1306,10 @@ func (t *mixPathGrpcServerTransports) MixPath() grpc.Handler {
 		t.endpoints.MixPath(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.path.MixPath/MixPath")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.path.MixPath/MixPath")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -1329,8 +1340,8 @@ func (t *mixPathGrpcClientTransports) MixPath(ctx context.Context, instance stri
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

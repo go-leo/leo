@@ -1,4 +1,4 @@
-package httpx
+package httptransportx
 
 import (
 	"github.com/go-kit/kit/endpoint"

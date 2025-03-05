@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/go-leo/leo/v3/example/status/api"
-	"github.com/go-leo/leo/v3/transportx/grpcx"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -17,7 +17,7 @@ var (
 
 func main() {
 	flag.Parse()
-	c := api.NewGreeterGrpcClient(*addr, grpcx.DialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
+	c := api.NewGreeterGrpcClient(*addr, grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
 	r, err := c.SayHello(context.Background(), &api.HelloRequest{Name: *name})
 	if err != nil {
 		st, ok := api.IsInvalidName(err)

@@ -2,42 +2,36 @@ package main
 
 import (
 	"context"
-	"flag"
-	"fmt"
+	"github.com/go-leo/gox/convx"
+	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/sd/api"
+	"github.com/go-leo/leo/v3/runner"
+	"github.com/go-leo/leo/v3/sdx/consulx"
+	"github.com/go-leo/leo/v3/serverx/httpserverx"
 	"github.com/gorilla/mux"
 	"log"
-	"net"
-	"net/http"
-	"time"
-)
-
-var (
-	port = flag.Int("port", 60051, "The server port")
 )
 
 // server is used to implement helloworld.GreeterServer.
 type server struct {
+	i string
 }
 
 func (s *server) SayHello(ctx context.Context, in *api.HelloRequest) (*api.HelloReply, error) {
-	deadline, ok := ctx.Deadline()
-	log.Printf("timeout: %v, %v", deadline, ok)
-	time.Sleep(10 * time.Second)
-	return &api.HelloReply{Message: "Hello " + in.GetName()}, nil
+	return &api.HelloReply{Message: s.i + " Hello " + in.GetName()}, nil
 }
 
 func main() {
-	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	var runners []runner.Runner
+	for i := 0; i < 10; i++ {
+		httpSrv := httpserverx.NewServer(
+			api.AppendGreeterHttpServerRoutes(mux.NewRouter(), &server{i: convx.ToString(i)}),
+			httpserverx.Instance("consul://localhost:8500/leo.example.sd.http?dc=dc1"),
+			httpserverx.RegistrarBuilder(consulx.Builder{}),
+		)
+		runners = append(runners, httpSrv)
 	}
-	s := &http.Server{
-		Handler: api.AppendGreeterHttpServerRoutes(mux.NewRouter(), &server{}),
-	}
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
+	if err := leo.NewApp(leo.Runner(runners...)).Run(context.Background()); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

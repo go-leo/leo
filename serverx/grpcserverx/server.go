@@ -1,8 +1,10 @@
-package grpcx
+package grpcserverx
 
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/mapx"
 	"github.com/go-leo/leo/v3/healthx"
 	"github.com/go-leo/leo/v3/sdx"
@@ -14,7 +16,6 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
-	"time"
 )
 
 type Server struct {
@@ -33,8 +34,8 @@ type options struct {
 	Instance string
 	// Color is the color of the instance.
 	Color string
-	// ShutdownTimeout is the timeout for graceful shutdown.
-	ShutdownTimeout *time.Duration
+	// ShutdownContext is the shutdown context.
+	ShutdownContext func(ctx context.Context) (context.Context, context.CancelCauseFunc)
 }
 
 type Option func(o *options)
@@ -80,9 +81,9 @@ func Color(color string) Option {
 	}
 }
 
-func ShutdownTimeout(timeout time.Duration) Option {
+func ShutdownContext(f func(ctx context.Context) (context.Context, context.CancelCauseFunc)) Option {
 	return func(o *options) {
-		o.ShutdownTimeout = &timeout
+		o.ShutdownContext = f
 	}
 }
 
@@ -142,10 +143,11 @@ func (s *Server) Run(ctx context.Context) error {
 		internalsd.Deregister(registrar)
 		return serveErr
 	case <-ctx.Done():
+		serveExitErr := fmt.Errorf("server exit serve, %w", contextx.Error(ctx))
 		// graceful shutdown, deregister and shutdown
 		internalsd.Deregister(registrar)
-		err := s.shutdown(ctx, grpcSrv, checker)
-		return errors.Join(ctx.Err(), err)
+		shutdownErr := s.shutdown(ctx, grpcSrv, checker)
+		return errors.Join(serveExitErr, shutdownErr)
 	}
 }
 
@@ -168,10 +170,10 @@ func (s *Server) serve(grpcSrv *grpc.Server, lis net.Listener, checker healthx.C
 
 func (s *Server) shutdown(ctx context.Context, grpcSrv *grpc.Server, checker healthx.Checker) error {
 	ctx = context.WithoutCancel(ctx)
-	if s.o.ShutdownTimeout != nil {
-		var cancelFunc context.CancelFunc
-		ctx, cancelFunc = context.WithTimeout(ctx, *s.o.ShutdownTimeout)
-		defer cancelFunc()
+	if s.o.ShutdownContext != nil {
+		var cancelFunc context.CancelCauseFunc
+		ctx, cancelFunc = s.o.ShutdownContext(ctx)
+		defer cancelFunc(nil)
 	}
 	done := make(chan struct{})
 	go func() {
@@ -183,6 +185,6 @@ func (s *Server) shutdown(ctx context.Context, grpcSrv *grpc.Server, checker hea
 	case <-done:
 		return nil
 	case <-ctx.Done():
-		return ctx.Err()
+		return fmt.Errorf("server shutdown, %w", contextx.Error(ctx))
 	}
 }

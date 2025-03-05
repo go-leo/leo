@@ -2,25 +2,25 @@ package main
 
 import (
 	"context"
-	"flag"
+	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/leo/v3/example/sd/api"
+	"github.com/go-leo/leo/v3/sdx/consulx"
+	"github.com/go-leo/leo/v3/sdx/lbx"
+	"github.com/go-leo/leo/v3/transportx/httptransportx"
 	"log"
-	"time"
-)
-
-var (
-	addr = flag.String("addr", "localhost:60051", "the address to connect to")
-	name = flag.String("name", "", "Name to greet")
 )
 
 func main() {
-	flag.Parse()
-	client := api.NewGreeterHttpClient(*addr)
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancelFunc()
-	r, err := client.SayHello(ctx, &api.HelloRequest{Name: *name})
-	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+	client := api.NewGreeterHttpClient(
+		"consul://localhost:8500/leo.example.sd.http?dc=dc1",
+		httptransportx.WithInstancerBuilder(consulx.Builder{}),
+		httptransportx.WithBalancerFactory(lbx.RoundRobinFactory{}),
+	)
+	for i := 0; i < 10; i++ {
+		r, err := client.SayHello(context.Background(), &api.HelloRequest{Name: randx.HexString(10)})
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+		log.Printf("Greeting: %s", r.GetMessage())
 	}
-	log.Printf("Greeting: %s", r.GetMessage())
 }

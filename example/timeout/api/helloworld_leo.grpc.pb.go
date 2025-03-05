@@ -7,15 +7,16 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	grpctransportx "github.com/go-leo/leo/v3/transportx/grpctransportx"
 	grpc1 "google.golang.org/grpc"
 	io "io"
 )
 
-func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware) GreeterServer {
+func NewGreeterGrpcServer(svc GreeterService, opts ...grpctransportx.ServerOption) GreeterServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &greeterServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &greeterGrpcServerTransports{
 		endpoints: endpoints,
@@ -25,8 +26,8 @@ func NewGreeterGrpcServer(svc GreeterService, middlewares ...endpoint.Middleware
 	}
 }
 
-func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterService {
-	options := grpcx.NewClientOptions(opts...)
+func NewGreeterGrpcClient(target string, opts ...grpctransportx.ClientOption) GreeterService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &greeterGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -51,7 +52,7 @@ func NewGreeterGrpcClient(target string, opts ...grpcx.ClientOption) GreeterServ
 	}
 	return &greeterClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -64,10 +65,10 @@ func (t *greeterGrpcServerTransports) SayHello() grpc.Handler {
 		t.endpoints.SayHello(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/helloworld.Greeter/SayHello")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -98,8 +99,8 @@ func (t *greeterGrpcClientTransports) SayHello(ctx context.Context, instance str
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

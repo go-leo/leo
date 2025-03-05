@@ -9,11 +9,11 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	httpx1 "github.com/go-leo/gox/netx/httpx"
+	httpx "github.com/go-leo/gox/netx/httpx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	timeoutx "github.com/go-leo/leo/v3/timeoutx"
-	httpx "github.com/go-leo/leo/v3/transportx/httpx"
-	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
+	httptransportx "github.com/go-leo/leo/v3/transportx/httptransportx"
+	coder "github.com/go-leo/leo/v3/transportx/httptransportx/coder"
 	mux "github.com/gorilla/mux"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http2 "google.golang.org/genproto/googleapis/rpc/http"
@@ -51,8 +51,8 @@ func appendBodyHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/http/request")
 	return router
 }
-func AppendBodyHttpServerRoutes(router *mux.Router, svc BodyService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendBodyHttpServerRoutes(router *mux.Router, svc BodyService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &bodyServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -78,8 +78,8 @@ func AppendBodyHttpServerRoutes(router *mux.Router, svc BodyService, opts ...htt
 	return router
 }
 
-func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
-	options := httpx.NewClientOptions(opts...)
+func NewBodyHttpClient(target string, opts ...httptransportx.ClientOption) BodyService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &bodyHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendBodyHttpRoutes(mux.NewRouter()),
@@ -113,7 +113,7 @@ func NewBodyHttpClient(target string, opts ...httpx.ClientOption) BodyService {
 	}
 	return &bodyClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -173,13 +173,13 @@ func (t *bodyHttpServerTransports) StarBody() http.Handler {
 		t.endpoints.StarBody(context.TODO()),
 		t.requestDecoder.StarBody(),
 		t.responseEncoder.StarBody(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.body.Body/StarBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.body.Body/StarBody")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -188,13 +188,13 @@ func (t *bodyHttpServerTransports) NamedBody() http.Handler {
 		t.endpoints.NamedBody(context.TODO()),
 		t.requestDecoder.NamedBody(),
 		t.responseEncoder.NamedBody(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.body.Body/NamedBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.body.Body/NamedBody")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -203,13 +203,13 @@ func (t *bodyHttpServerTransports) NonBody() http.Handler {
 		t.endpoints.NonBody(context.TODO()),
 		t.requestDecoder.NonBody(),
 		t.responseEncoder.NonBody(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.body.Body/NonBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.body.Body/NonBody")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -218,13 +218,13 @@ func (t *bodyHttpServerTransports) HttpBodyStarBody() http.Handler {
 		t.endpoints.HttpBodyStarBody(context.TODO()),
 		t.requestDecoder.HttpBodyStarBody(),
 		t.responseEncoder.HttpBodyStarBody(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.body.Body/HttpBodyStarBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.body.Body/HttpBodyStarBody")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -233,13 +233,13 @@ func (t *bodyHttpServerTransports) HttpBodyNamedBody() http.Handler {
 		t.endpoints.HttpBodyNamedBody(context.TODO()),
 		t.requestDecoder.HttpBodyNamedBody(),
 		t.responseEncoder.HttpBodyNamedBody(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.body.Body/HttpBodyNamedBody")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.body.Body/HttpBodyNamedBody")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -248,13 +248,13 @@ func (t *bodyHttpServerTransports) HttpRequest() http.Handler {
 		t.endpoints.HttpRequest(context.TODO()),
 		t.requestDecoder.HttpRequest(),
 		t.responseEncoder.HttpRequest(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.body.Body/HttpRequest")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.body.Body/HttpRequest")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -366,9 +366,9 @@ type bodyHttpClientTransports struct {
 
 func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -381,9 +381,9 @@ func (t *bodyHttpClientTransports) StarBody(ctx context.Context, instance string
 
 func (t *bodyHttpClientTransports) NamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -396,9 +396,9 @@ func (t *bodyHttpClientTransports) NamedBody(ctx context.Context, instance strin
 
 func (t *bodyHttpClientTransports) NonBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -411,9 +411,9 @@ func (t *bodyHttpClientTransports) NonBody(ctx context.Context, instance string)
 
 func (t *bodyHttpClientTransports) HttpBodyStarBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -426,9 +426,9 @@ func (t *bodyHttpClientTransports) HttpBodyStarBody(ctx context.Context, instanc
 
 func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -441,9 +441,9 @@ func (t *bodyHttpClientTransports) HttpBodyNamedBody(ctx context.Context, instan
 
 func (t *bodyHttpClientTransports) HttpRequest(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -490,7 +490,7 @@ func (encoder bodyHttpClientRequestEncoder) StarBody(instance string) http1.Crea
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -524,7 +524,7 @@ func (encoder bodyHttpClientRequestEncoder) NamedBody(instance string) http1.Cre
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -555,7 +555,7 @@ func (encoder bodyHttpClientRequestEncoder) NonBody(instance string) http1.Creat
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -589,7 +589,7 @@ func (encoder bodyHttpClientRequestEncoder) HttpBodyStarBody(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -623,7 +623,7 @@ func (encoder bodyHttpClientRequestEncoder) HttpBodyNamedBody(instance string) h
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -657,7 +657,7 @@ func (encoder bodyHttpClientRequestEncoder) HttpRequest(instance string) http1.C
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

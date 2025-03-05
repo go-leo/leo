@@ -53,10 +53,11 @@ func (f *Generator) Generate() error {
 }
 
 func (f *Generator) GenerateServiceService(service *internal.Service, g *protogen.GeneratedFile) error {
-	g.P("func New", service.GrpcServerName(), "(svc ", service.ServiceName(), ", middlewares ...", internal.EndpointPackage.Ident("Middleware"), ") ", service.ServerName(), " {")
+	g.P("func New", service.GrpcServerName(), "(svc ", service.ServiceName(), ", opts ...", internal.GrpcxTransportxPackage.Ident("ServerOption"), ") ", service.ServerName(), " {")
+	g.P("options := ", internal.GrpcxTransportxPackage.Ident("NewServerOptions"), "(opts...)")
 	g.P("endpoints := &", service.Unexported(service.ServerEndpointsName()), "{")
 	g.P("svc:         svc,")
-	g.P("middlewares: middlewares,")
+	g.P("middlewares: options.Middlewares(),")
 	g.P("}")
 	g.P("transports := &", service.Unexported(service.GrpcServerTransportsName()), "{")
 	g.P("endpoints: endpoints,")

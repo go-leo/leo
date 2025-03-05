@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/go-leo/gox/mathx/randx"
 	"github.com/go-leo/gox/netx/httpx/outgoing"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
 	"github.com/go-leo/leo/v3/sdx/stain"
+	helloworld "go.opencensus.io/examples/grpc/proto"
 )
 
 func main() {
-	client := helloworld.NewGreeterHttpClient("127.0.0.1:8000")
+	client := api.NewGreeterHttpClient("127.0.0.1:8000")
 	var callApi = func(color string) {
 		ctx := stain.InjectColor(context.Background(), color)
 		resp, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: color})

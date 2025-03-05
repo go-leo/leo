@@ -7,7 +7,7 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	grpctransportx "github.com/go-leo/leo/v3/transportx/grpctransportx"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	http "google.golang.org/genproto/googleapis/rpc/http"
 	grpc1 "google.golang.org/grpc"
@@ -15,10 +15,11 @@ import (
 	io "io"
 )
 
-func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) BodyServer {
+func NewBodyGrpcServer(svc BodyService, opts ...grpctransportx.ServerOption) BodyServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &bodyServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &bodyGrpcServerTransports{
 		endpoints: endpoints,
@@ -33,8 +34,8 @@ func NewBodyGrpcServer(svc BodyService, middlewares ...endpoint.Middleware) Body
 	}
 }
 
-func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
-	options := grpcx.NewClientOptions(opts...)
+func NewBodyGrpcClient(target string, opts ...grpctransportx.ClientOption) BodyService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &bodyGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -59,7 +60,7 @@ func NewBodyGrpcClient(target string, opts ...grpcx.ClientOption) BodyService {
 	}
 	return &bodyClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -72,10 +73,10 @@ func (t *bodyGrpcServerTransports) StarBody() grpc.Handler {
 		t.endpoints.StarBody(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.body.Body/StarBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.body.Body/StarBody")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -84,10 +85,10 @@ func (t *bodyGrpcServerTransports) NamedBody() grpc.Handler {
 		t.endpoints.NamedBody(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.body.Body/NamedBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.body.Body/NamedBody")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -96,10 +97,10 @@ func (t *bodyGrpcServerTransports) NonBody() grpc.Handler {
 		t.endpoints.NonBody(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.body.Body/NonBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.body.Body/NonBody")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -108,10 +109,10 @@ func (t *bodyGrpcServerTransports) HttpBodyStarBody() grpc.Handler {
 		t.endpoints.HttpBodyStarBody(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.body.Body/HttpBodyStarBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.body.Body/HttpBodyStarBody")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -120,10 +121,10 @@ func (t *bodyGrpcServerTransports) HttpBodyNamedBody() grpc.Handler {
 		t.endpoints.HttpBodyNamedBody(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.body.Body/HttpBodyNamedBody")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.body.Body/HttpBodyNamedBody")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -132,10 +133,10 @@ func (t *bodyGrpcServerTransports) HttpRequest() grpc.Handler {
 		t.endpoints.HttpRequest(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.body.Body/HttpRequest")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.body.Body/HttpRequest")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -216,8 +217,8 @@ func (t *bodyGrpcClientTransports) StarBody(ctx context.Context, instance string
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -237,8 +238,8 @@ func (t *bodyGrpcClientTransports) NamedBody(ctx context.Context, instance strin
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -258,8 +259,8 @@ func (t *bodyGrpcClientTransports) NonBody(ctx context.Context, instance string)
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -279,8 +280,8 @@ func (t *bodyGrpcClientTransports) HttpBodyStarBody(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -300,8 +301,8 @@ func (t *bodyGrpcClientTransports) HttpBodyNamedBody(ctx context.Context, instan
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -321,8 +322,8 @@ func (t *bodyGrpcClientTransports) HttpRequest(ctx context.Context, instance str
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

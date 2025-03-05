@@ -46,20 +46,6 @@ service UserManager {
     };
   }
 
-  // UploadUserAvatar upload user avatar
-  rpc UploadUserAvatar (UploadUserAvatarRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post : "/v1/user/{user_id}"
-      body : "avatar"
-    };
-  }
-
-  // GetUserAvatar get user avatar
-  rpc GetUserAvatar (GetUserAvatarRequest) returns (google.api.HttpBody) {
-    option (google.api.http) = {
-      get : "/v1/users/{user_id}"
-    };
-  }
 }
 
 message User {

@@ -9,13 +9,13 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	httpx1 "github.com/go-leo/gox/netx/httpx"
+	httpx "github.com/go-leo/gox/netx/httpx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	timeoutx "github.com/go-leo/leo/v3/timeoutx"
-	httpx "github.com/go-leo/leo/v3/transportx/httpx"
-	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
+	httptransportx "github.com/go-leo/leo/v3/transportx/httptransportx"
+	coder "github.com/go-leo/leo/v3/transportx/httptransportx/coder"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
@@ -33,8 +33,8 @@ func appendBoolQueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/bool")
 	return router
 }
-func AppendBoolQueryHttpServerRoutes(router *mux.Router, svc BoolQueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendBoolQueryHttpServerRoutes(router *mux.Router, svc BoolQueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &boolQueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -55,8 +55,8 @@ func AppendBoolQueryHttpServerRoutes(router *mux.Router, svc BoolQueryService, o
 	return router
 }
 
-func NewBoolQueryHttpClient(target string, opts ...httpx.ClientOption) BoolQueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewBoolQueryHttpClient(target string, opts ...httptransportx.ClientOption) BoolQueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &boolQueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendBoolQueryHttpRoutes(mux.NewRouter()),
@@ -90,7 +90,7 @@ func NewBoolQueryHttpClient(target string, opts ...httpx.ClientOption) BoolQuery
 	}
 	return &boolQueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -125,13 +125,13 @@ func (t *boolQueryHttpServerTransports) BoolQuery() http.Handler {
 		t.endpoints.BoolQuery(context.TODO()),
 		t.requestDecoder.BoolQuery(),
 		t.responseEncoder.BoolQuery(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.BoolQuery/BoolQuery")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.BoolQuery/BoolQuery")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -174,9 +174,9 @@ type boolQueryHttpClientTransports struct {
 
 func (t *boolQueryHttpClientTransports) BoolQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -225,7 +225,7 @@ func (encoder boolQueryHttpClientRequestEncoder) BoolQuery(instance string) http
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -254,8 +254,8 @@ func appendInt32QueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/int32")
 	return router
 }
-func AppendInt32QueryHttpServerRoutes(router *mux.Router, svc Int32QueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendInt32QueryHttpServerRoutes(router *mux.Router, svc Int32QueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &int32QueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -276,8 +276,8 @@ func AppendInt32QueryHttpServerRoutes(router *mux.Router, svc Int32QueryService,
 	return router
 }
 
-func NewInt32QueryHttpClient(target string, opts ...httpx.ClientOption) Int32QueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewInt32QueryHttpClient(target string, opts ...httptransportx.ClientOption) Int32QueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &int32QueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendInt32QueryHttpRoutes(mux.NewRouter()),
@@ -311,7 +311,7 @@ func NewInt32QueryHttpClient(target string, opts ...httpx.ClientOption) Int32Que
 	}
 	return &int32QueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -346,13 +346,13 @@ func (t *int32QueryHttpServerTransports) Int32Query() http.Handler {
 		t.endpoints.Int32Query(context.TODO()),
 		t.requestDecoder.Int32Query(),
 		t.responseEncoder.Int32Query(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Int32Query/Int32Query")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.Int32Query/Int32Query")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -399,9 +399,9 @@ type int32QueryHttpClientTransports struct {
 
 func (t *int32QueryHttpClientTransports) Int32Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -454,7 +454,7 @@ func (encoder int32QueryHttpClientRequestEncoder) Int32Query(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -483,8 +483,8 @@ func appendInt64QueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/int64")
 	return router
 }
-func AppendInt64QueryHttpServerRoutes(router *mux.Router, svc Int64QueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendInt64QueryHttpServerRoutes(router *mux.Router, svc Int64QueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &int64QueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -505,8 +505,8 @@ func AppendInt64QueryHttpServerRoutes(router *mux.Router, svc Int64QueryService,
 	return router
 }
 
-func NewInt64QueryHttpClient(target string, opts ...httpx.ClientOption) Int64QueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewInt64QueryHttpClient(target string, opts ...httptransportx.ClientOption) Int64QueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &int64QueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendInt64QueryHttpRoutes(mux.NewRouter()),
@@ -540,7 +540,7 @@ func NewInt64QueryHttpClient(target string, opts ...httpx.ClientOption) Int64Que
 	}
 	return &int64QueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -575,13 +575,13 @@ func (t *int64QueryHttpServerTransports) Int64Query() http.Handler {
 		t.endpoints.Int64Query(context.TODO()),
 		t.requestDecoder.Int64Query(),
 		t.responseEncoder.Int64Query(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Int64Query/Int64Query")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.Int64Query/Int64Query")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -628,9 +628,9 @@ type int64QueryHttpClientTransports struct {
 
 func (t *int64QueryHttpClientTransports) Int64Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -683,7 +683,7 @@ func (encoder int64QueryHttpClientRequestEncoder) Int64Query(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -712,8 +712,8 @@ func appendUint32QueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/uint32")
 	return router
 }
-func AppendUint32QueryHttpServerRoutes(router *mux.Router, svc Uint32QueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendUint32QueryHttpServerRoutes(router *mux.Router, svc Uint32QueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &uint32QueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -734,8 +734,8 @@ func AppendUint32QueryHttpServerRoutes(router *mux.Router, svc Uint32QueryServic
 	return router
 }
 
-func NewUint32QueryHttpClient(target string, opts ...httpx.ClientOption) Uint32QueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewUint32QueryHttpClient(target string, opts ...httptransportx.ClientOption) Uint32QueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &uint32QueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendUint32QueryHttpRoutes(mux.NewRouter()),
@@ -769,7 +769,7 @@ func NewUint32QueryHttpClient(target string, opts ...httpx.ClientOption) Uint32Q
 	}
 	return &uint32QueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -804,13 +804,13 @@ func (t *uint32QueryHttpServerTransports) Uint32Query() http.Handler {
 		t.endpoints.Uint32Query(context.TODO()),
 		t.requestDecoder.Uint32Query(),
 		t.responseEncoder.Uint32Query(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Uint32Query/Uint32Query")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.Uint32Query/Uint32Query")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -855,9 +855,9 @@ type uint32QueryHttpClientTransports struct {
 
 func (t *uint32QueryHttpClientTransports) Uint32Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -908,7 +908,7 @@ func (encoder uint32QueryHttpClientRequestEncoder) Uint32Query(instance string) 
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -937,8 +937,8 @@ func appendUint64QueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/uint64")
 	return router
 }
-func AppendUint64QueryHttpServerRoutes(router *mux.Router, svc Uint64QueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendUint64QueryHttpServerRoutes(router *mux.Router, svc Uint64QueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &uint64QueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -959,8 +959,8 @@ func AppendUint64QueryHttpServerRoutes(router *mux.Router, svc Uint64QueryServic
 	return router
 }
 
-func NewUint64QueryHttpClient(target string, opts ...httpx.ClientOption) Uint64QueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewUint64QueryHttpClient(target string, opts ...httptransportx.ClientOption) Uint64QueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &uint64QueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendUint64QueryHttpRoutes(mux.NewRouter()),
@@ -994,7 +994,7 @@ func NewUint64QueryHttpClient(target string, opts ...httpx.ClientOption) Uint64Q
 	}
 	return &uint64QueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1029,13 +1029,13 @@ func (t *uint64QueryHttpServerTransports) Uint64Query() http.Handler {
 		t.endpoints.Uint64Query(context.TODO()),
 		t.requestDecoder.Uint64Query(),
 		t.responseEncoder.Uint64Query(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.Uint64Query/Uint64Query")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.Uint64Query/Uint64Query")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1080,9 +1080,9 @@ type uint64QueryHttpClientTransports struct {
 
 func (t *uint64QueryHttpClientTransports) Uint64Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1133,7 +1133,7 @@ func (encoder uint64QueryHttpClientRequestEncoder) Uint64Query(instance string) 
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1162,8 +1162,8 @@ func appendFloatQueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/float")
 	return router
 }
-func AppendFloatQueryHttpServerRoutes(router *mux.Router, svc FloatQueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendFloatQueryHttpServerRoutes(router *mux.Router, svc FloatQueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &floatQueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1184,8 +1184,8 @@ func AppendFloatQueryHttpServerRoutes(router *mux.Router, svc FloatQueryService,
 	return router
 }
 
-func NewFloatQueryHttpClient(target string, opts ...httpx.ClientOption) FloatQueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewFloatQueryHttpClient(target string, opts ...httptransportx.ClientOption) FloatQueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &floatQueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendFloatQueryHttpRoutes(mux.NewRouter()),
@@ -1219,7 +1219,7 @@ func NewFloatQueryHttpClient(target string, opts ...httpx.ClientOption) FloatQue
 	}
 	return &floatQueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1254,13 +1254,13 @@ func (t *floatQueryHttpServerTransports) FloatQuery() http.Handler {
 		t.endpoints.FloatQuery(context.TODO()),
 		t.requestDecoder.FloatQuery(),
 		t.responseEncoder.FloatQuery(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.FloatQuery/FloatQuery")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.FloatQuery/FloatQuery")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1303,9 +1303,9 @@ type floatQueryHttpClientTransports struct {
 
 func (t *floatQueryHttpClientTransports) FloatQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1354,7 +1354,7 @@ func (encoder floatQueryHttpClientRequestEncoder) FloatQuery(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1383,8 +1383,8 @@ func appendDoubleQueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/double")
 	return router
 }
-func AppendDoubleQueryHttpServerRoutes(router *mux.Router, svc DoubleQueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendDoubleQueryHttpServerRoutes(router *mux.Router, svc DoubleQueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &doubleQueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1405,8 +1405,8 @@ func AppendDoubleQueryHttpServerRoutes(router *mux.Router, svc DoubleQueryServic
 	return router
 }
 
-func NewDoubleQueryHttpClient(target string, opts ...httpx.ClientOption) DoubleQueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewDoubleQueryHttpClient(target string, opts ...httptransportx.ClientOption) DoubleQueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &doubleQueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendDoubleQueryHttpRoutes(mux.NewRouter()),
@@ -1440,7 +1440,7 @@ func NewDoubleQueryHttpClient(target string, opts ...httpx.ClientOption) DoubleQ
 	}
 	return &doubleQueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1475,13 +1475,13 @@ func (t *doubleQueryHttpServerTransports) DoubleQuery() http.Handler {
 		t.endpoints.DoubleQuery(context.TODO()),
 		t.requestDecoder.DoubleQuery(),
 		t.responseEncoder.DoubleQuery(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.DoubleQuery/DoubleQuery")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.DoubleQuery/DoubleQuery")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1524,9 +1524,9 @@ type doubleQueryHttpClientTransports struct {
 
 func (t *doubleQueryHttpClientTransports) DoubleQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1575,7 +1575,7 @@ func (encoder doubleQueryHttpClientRequestEncoder) DoubleQuery(instance string) 
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1604,8 +1604,8 @@ func appendStringQueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/string")
 	return router
 }
-func AppendStringQueryHttpServerRoutes(router *mux.Router, svc StringQueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendStringQueryHttpServerRoutes(router *mux.Router, svc StringQueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &stringQueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1626,8 +1626,8 @@ func AppendStringQueryHttpServerRoutes(router *mux.Router, svc StringQueryServic
 	return router
 }
 
-func NewStringQueryHttpClient(target string, opts ...httpx.ClientOption) StringQueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewStringQueryHttpClient(target string, opts ...httptransportx.ClientOption) StringQueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &stringQueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendStringQueryHttpRoutes(mux.NewRouter()),
@@ -1661,7 +1661,7 @@ func NewStringQueryHttpClient(target string, opts ...httpx.ClientOption) StringQ
 	}
 	return &stringQueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1696,13 +1696,13 @@ func (t *stringQueryHttpServerTransports) StringQuery() http.Handler {
 		t.endpoints.StringQuery(context.TODO()),
 		t.requestDecoder.StringQuery(),
 		t.responseEncoder.StringQuery(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.StringQuery/StringQuery")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.StringQuery/StringQuery")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1745,9 +1745,9 @@ type stringQueryHttpClientTransports struct {
 
 func (t *stringQueryHttpClientTransports) StringQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1796,7 +1796,7 @@ func (encoder stringQueryHttpClientRequestEncoder) StringQuery(instance string) 
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1825,8 +1825,8 @@ func appendEnumQueryHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/enum")
 	return router
 }
-func AppendEnumQueryHttpServerRoutes(router *mux.Router, svc EnumQueryService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendEnumQueryHttpServerRoutes(router *mux.Router, svc EnumQueryService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &enumQueryServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1847,8 +1847,8 @@ func AppendEnumQueryHttpServerRoutes(router *mux.Router, svc EnumQueryService, o
 	return router
 }
 
-func NewEnumQueryHttpClient(target string, opts ...httpx.ClientOption) EnumQueryService {
-	options := httpx.NewClientOptions(opts...)
+func NewEnumQueryHttpClient(target string, opts ...httptransportx.ClientOption) EnumQueryService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &enumQueryHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendEnumQueryHttpRoutes(mux.NewRouter()),
@@ -1882,7 +1882,7 @@ func NewEnumQueryHttpClient(target string, opts ...httpx.ClientOption) EnumQuery
 	}
 	return &enumQueryClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1917,13 +1917,13 @@ func (t *enumQueryHttpServerTransports) EnumQuery() http.Handler {
 		t.endpoints.EnumQuery(context.TODO()),
 		t.requestDecoder.EnumQuery(),
 		t.responseEncoder.EnumQuery(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.query.EnumQuery/EnumQuery")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.query.EnumQuery/EnumQuery")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1965,9 +1965,9 @@ type enumQueryHttpClientTransports struct {
 
 func (t *enumQueryHttpClientTransports) EnumQuery(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2015,7 +2015,7 @@ func (encoder enumQueryHttpClientRequestEncoder) EnumQuery(instance string) http
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

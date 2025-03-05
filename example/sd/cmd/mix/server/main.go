@@ -2,54 +2,64 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/go-leo/gox/convx"
+	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/sd/api"
-	"github.com/go-leo/leo/v3/transportx/grpcx"
+	"github.com/go-leo/leo/v3/runner"
+	"github.com/go-leo/leo/v3/sdx/consulx"
+	"github.com/go-leo/leo/v3/sdx/lbx"
+	"github.com/go-leo/leo/v3/serverx/grpcserverx"
+	"github.com/go-leo/leo/v3/serverx/httpserverx"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
 	"github.com/gorilla/mux"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"net"
-	"net/http"
 	"time"
 )
 
 func main() {
 	eg, _ := errgroup.WithContext(context.Background())
 	eg.Go(func() error {
-		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 60051))
-		if err != nil {
-			return err
+		client := api.NewGreeterGrpcClient(
+			"consul://localhost:8500/leo.example.sd.grpc?dc=dc1",
+			grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())),
+			grpctransportx.WithInstancerBuilder(consulx.Builder{}),
+			grpctransportx.WithBalancerFactory(lbx.RandomFactory{Seed: time.Now().Unix()}),
+		)
+		var runners []runner.Runner
+		for i := 0; i < 10; i++ {
+			httpSrv := httpserverx.NewServer(
+				api.AppendGreeterHttpServerRoutes(mux.NewRouter(), client),
+				httpserverx.Instance("consul://localhost:8500/leo.example.sd.http?dc=dc1"),
+				httpserverx.RegistrarBuilder(consulx.Builder{}),
+			)
+			runners = append(runners, httpSrv)
 		}
-		client := api.NewGreeterGrpcClient("localhost:50051", grpcx.DialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
-		s := &http.Server{
-			Handler: api.AppendGreeterHttpServerRoutes(mux.NewRouter(), client),
-		}
-		log.Printf("http server listening at %v", lis.Addr())
-		return s.Serve(lis)
+		return leo.NewApp(leo.Runner(runners...)).Run(context.Background())
 	})
 	eg.Go(func() error {
-		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
-		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
+		var runners []runner.Runner
+		for i := 0; i < 10; i++ {
+			grpcSrv := grpcserverx.NewServer(
+				grpcserverx.Instance("consul://localhost:8500/leo.example.sd.grpc?dc=dc1"),
+				grpcserverx.Builder(consulx.Builder{}),
+			)
+			api.RegisterGreeterServer(grpcSrv, api.NewGreeterGrpcServer(&server{i: convx.ToString(i)}))
+			runners = append(runners, grpcSrv)
 		}
-		s := grpc.NewServer()
-		api.RegisterGreeterServer(s, api.NewGreeterGrpcServer(&server{}))
-		log.Printf("grpc server listening at %v", lis.Addr())
-		return s.Serve(lis)
+		return leo.NewApp(leo.Runner(runners...)).Run(context.Background())
 	})
 	if err := eg.Wait(); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
-type server struct{}
+type server struct {
+	i string
+}
 
 func (s *server) SayHello(ctx context.Context, in *api.HelloRequest) (*api.HelloReply, error) {
-	deadline, ok := ctx.Deadline()
-	log.Printf("timeout: %v, %v", deadline, ok)
-	time.Sleep(10 * time.Second)
-	log.Printf("after timeout")
-	return &api.HelloReply{Message: "Hello " + in.GetName()}, nil
+	return &api.HelloReply{Message: s.i + " Hello " + in.GetName()}, nil
 }

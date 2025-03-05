@@ -24,7 +24,7 @@ var (
 
 	EndpointxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
-	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpcx")
+	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpctransportx")
 	CqrsPackage            = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
 	MetadataxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/metadatax")
 	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
@@ -92,7 +92,7 @@ var (
 )
 
 var (
-	HttpxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx")
+	HttpxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httptransportx")
 
 	OptionIdent      = HttpxTransportxPackage.Ident("Option")
 	NewOptionsIdent  = HttpxTransportxPackage.Ident("NewOptions")
@@ -110,7 +110,7 @@ var (
 )
 
 var (
-	HttpxCoderPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httpx/coder")
+	HttpxCoderPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/httptransportx/coder")
 
 	DecodeForm                   = HttpxCoderPackage.Ident("DecodeForm")
 	DecodeMessageFromRequest     = HttpxCoderPackage.Ident("DecodeMessageFromRequest")

@@ -13,6 +13,7 @@ import (
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
+	timeoutx "github.com/go-leo/leo/v3/timeoutx"
 	httpx "github.com/go-leo/leo/v3/transportx/httpx"
 	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
 	mux "github.com/gorilla/mux"
@@ -53,14 +54,16 @@ func AppendWorkspacesHttpServerRoutes(router *mux.Router, svc WorkspacesService,
 		svc:         svc,
 		middlewares: options.Middlewares(),
 	}
+	requestDecoder := workspacesHttpServerRequestDecoder{
+		unmarshalOptions: options.UnmarshalOptions(),
+	}
+	responseEncoder := workspacesHttpServerResponseEncoder{
+		marshalOptions: options.MarshalOptions(),
+	}
 	transports := &workspacesHttpServerTransports{
-		endpoints: endpoints,
-		requestDecoder: workspacesHttpServerRequestDecoder{
-			unmarshalOptions: options.UnmarshalOptions(),
-		},
-		responseEncoder: workspacesHttpServerResponseEncoder{
-			marshalOptions: options.MarshalOptions(),
-		},
+		endpoints:       endpoints,
+		requestDecoder:  requestDecoder,
+		responseEncoder: responseEncoder,
 	}
 	router = appendWorkspacesHttpRoutes(router)
 	router.Get("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces").Handler(transports.ListWorkspaces())
@@ -74,10 +77,13 @@ func AppendWorkspacesHttpServerRoutes(router *mux.Router, svc WorkspacesService,
 func NewWorkspacesHttpClient(target string, opts ...httpx.ClientOption) WorkspacesService {
 	options := httpx.NewClientOptions(opts...)
 	requestEncoder := &workspacesHttpClientRequestEncoder{
-		router: appendWorkspacesHttpRoutes(mux.NewRouter()),
-		scheme: options.Scheme(),
+		marshalOptions: options.MarshalOptions(),
+		router:         appendWorkspacesHttpRoutes(mux.NewRouter()),
+		scheme:         options.Scheme(),
 	}
-	responseDecoder := &workspacesHttpClientResponseDecoder{}
+	responseDecoder := &workspacesHttpClientResponseDecoder{
+		unmarshalOptions: options.UnmarshalOptions(),
+	}
 	transports := &workspacesHttpClientTransports{
 		clientOptions:   options.ClientTransportOptions(),
 		middlewares:     options.Middlewares(),
@@ -161,9 +167,10 @@ func (t *workspacesHttpServerTransports) ListWorkspaces() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -175,9 +182,10 @@ func (t *workspacesHttpServerTransports) GetWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/GetWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -189,9 +197,10 @@ func (t *workspacesHttpServerTransports) CreateWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -203,9 +212,10 @@ func (t *workspacesHttpServerTransports) UpdateWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -217,9 +227,10 @@ func (t *workspacesHttpServerTransports) DeleteWorkspace() http.Handler {
 		http1.ServerBefore(httpx.EndpointInjector("/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")),
 		http1.ServerBefore(httpx.ServerTransportInjector),
 		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
 		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerFinalizer(httpx.CancelInvoker),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -328,7 +339,7 @@ type workspacesHttpClientTransports struct {
 func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -343,7 +354,7 @@ func (t *workspacesHttpClientTransports) ListWorkspaces(ctx context.Context, ins
 func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -358,7 +369,7 @@ func (t *workspacesHttpClientTransports) GetWorkspace(ctx context.Context, insta
 func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -373,7 +384,7 @@ func (t *workspacesHttpClientTransports) CreateWorkspace(ctx context.Context, in
 func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -388,7 +399,7 @@ func (t *workspacesHttpClientTransports) UpdateWorkspace(ctx context.Context, in
 func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
 		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
 		http1.ClientBefore(httpx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
@@ -401,10 +412,9 @@ func (t *workspacesHttpClientTransports) DeleteWorkspace(ctx context.Context, in
 }
 
 type workspacesHttpClientRequestEncoder struct {
-	marshalOptions   protojson.MarshalOptions
-	unmarshalOptions protojson.UnmarshalOptions
-	router           *mux.Router
-	scheme           string
+	marshalOptions protojson.MarshalOptions
+	router         *mux.Router
+	scheme         string
 }
 
 func (encoder workspacesHttpClientRequestEncoder) ListWorkspaces(instance string) http1.CreateRequestFunc {

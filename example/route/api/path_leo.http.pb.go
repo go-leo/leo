@@ -9,13 +9,13 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	httpx1 "github.com/go-leo/gox/netx/httpx"
+	httpx "github.com/go-leo/gox/netx/httpx"
 	urlx "github.com/go-leo/gox/netx/urlx"
 	strconvx "github.com/go-leo/gox/strconvx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
 	timeoutx "github.com/go-leo/leo/v3/timeoutx"
-	httpx "github.com/go-leo/leo/v3/transportx/httpx"
-	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
+	httptransportx "github.com/go-leo/leo/v3/transportx/httptransportx"
+	coder "github.com/go-leo/leo/v3/transportx/httptransportx/coder"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
@@ -34,8 +34,8 @@ func appendBoolPathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{bool}/{opt_bool}/{wrap_bool}")
 	return router
 }
-func AppendBoolPathHttpServerRoutes(router *mux.Router, svc BoolPathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendBoolPathHttpServerRoutes(router *mux.Router, svc BoolPathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &boolPathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -56,8 +56,8 @@ func AppendBoolPathHttpServerRoutes(router *mux.Router, svc BoolPathService, opt
 	return router
 }
 
-func NewBoolPathHttpClient(target string, opts ...httpx.ClientOption) BoolPathService {
-	options := httpx.NewClientOptions(opts...)
+func NewBoolPathHttpClient(target string, opts ...httptransportx.ClientOption) BoolPathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &boolPathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendBoolPathHttpRoutes(mux.NewRouter()),
@@ -91,7 +91,7 @@ func NewBoolPathHttpClient(target string, opts ...httpx.ClientOption) BoolPathSe
 	}
 	return &boolPathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -126,13 +126,13 @@ func (t *boolPathHttpServerTransports) BoolPath() http.Handler {
 		t.endpoints.BoolPath(context.TODO()),
 		t.requestDecoder.BoolPath(),
 		t.responseEncoder.BoolPath(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.BoolPath/BoolPath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.BoolPath/BoolPath")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -175,9 +175,9 @@ type boolPathHttpClientTransports struct {
 
 func (t *boolPathHttpClientTransports) BoolPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -226,7 +226,7 @@ func (encoder boolPathHttpClientRequestEncoder) BoolPath(instance string) http1.
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -255,8 +255,8 @@ func appendInt32PathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{int32}/{sint32}/{sfixed32}/{opt_int32}/{opt_sint32}/{opt_sfixed32}/{wrap_int32}")
 	return router
 }
-func AppendInt32PathHttpServerRoutes(router *mux.Router, svc Int32PathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendInt32PathHttpServerRoutes(router *mux.Router, svc Int32PathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &int32PathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -277,8 +277,8 @@ func AppendInt32PathHttpServerRoutes(router *mux.Router, svc Int32PathService, o
 	return router
 }
 
-func NewInt32PathHttpClient(target string, opts ...httpx.ClientOption) Int32PathService {
-	options := httpx.NewClientOptions(opts...)
+func NewInt32PathHttpClient(target string, opts ...httptransportx.ClientOption) Int32PathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &int32PathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendInt32PathHttpRoutes(mux.NewRouter()),
@@ -312,7 +312,7 @@ func NewInt32PathHttpClient(target string, opts ...httpx.ClientOption) Int32Path
 	}
 	return &int32PathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -347,13 +347,13 @@ func (t *int32PathHttpServerTransports) Int32Path() http.Handler {
 		t.endpoints.Int32Path(context.TODO()),
 		t.requestDecoder.Int32Path(),
 		t.responseEncoder.Int32Path(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.Int32Path/Int32Path")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.Int32Path/Int32Path")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -400,9 +400,9 @@ type int32PathHttpClientTransports struct {
 
 func (t *int32PathHttpClientTransports) Int32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -455,7 +455,7 @@ func (encoder int32PathHttpClientRequestEncoder) Int32Path(instance string) http
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -484,8 +484,8 @@ func appendInt64PathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{int64}/{sint64}/{sfixed64}/{opt_int64}/{opt_sint64}/{opt_sfixed64}/{wrap_int64}")
 	return router
 }
-func AppendInt64PathHttpServerRoutes(router *mux.Router, svc Int64PathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendInt64PathHttpServerRoutes(router *mux.Router, svc Int64PathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &int64PathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -506,8 +506,8 @@ func AppendInt64PathHttpServerRoutes(router *mux.Router, svc Int64PathService, o
 	return router
 }
 
-func NewInt64PathHttpClient(target string, opts ...httpx.ClientOption) Int64PathService {
-	options := httpx.NewClientOptions(opts...)
+func NewInt64PathHttpClient(target string, opts ...httptransportx.ClientOption) Int64PathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &int64PathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendInt64PathHttpRoutes(mux.NewRouter()),
@@ -541,7 +541,7 @@ func NewInt64PathHttpClient(target string, opts ...httpx.ClientOption) Int64Path
 	}
 	return &int64PathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -576,13 +576,13 @@ func (t *int64PathHttpServerTransports) Int64Path() http.Handler {
 		t.endpoints.Int64Path(context.TODO()),
 		t.requestDecoder.Int64Path(),
 		t.responseEncoder.Int64Path(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.Int64Path/Int64Path")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.Int64Path/Int64Path")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -629,9 +629,9 @@ type int64PathHttpClientTransports struct {
 
 func (t *int64PathHttpClientTransports) Int64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -684,7 +684,7 @@ func (encoder int64PathHttpClientRequestEncoder) Int64Path(instance string) http
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -713,8 +713,8 @@ func appendUint32PathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{uint32}/{fixed32}/{opt_uint32}/{opt_fixed32}/{wrap_uint32}")
 	return router
 }
-func AppendUint32PathHttpServerRoutes(router *mux.Router, svc Uint32PathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendUint32PathHttpServerRoutes(router *mux.Router, svc Uint32PathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &uint32PathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -735,8 +735,8 @@ func AppendUint32PathHttpServerRoutes(router *mux.Router, svc Uint32PathService,
 	return router
 }
 
-func NewUint32PathHttpClient(target string, opts ...httpx.ClientOption) Uint32PathService {
-	options := httpx.NewClientOptions(opts...)
+func NewUint32PathHttpClient(target string, opts ...httptransportx.ClientOption) Uint32PathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &uint32PathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendUint32PathHttpRoutes(mux.NewRouter()),
@@ -770,7 +770,7 @@ func NewUint32PathHttpClient(target string, opts ...httpx.ClientOption) Uint32Pa
 	}
 	return &uint32PathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -805,13 +805,13 @@ func (t *uint32PathHttpServerTransports) Uint32Path() http.Handler {
 		t.endpoints.Uint32Path(context.TODO()),
 		t.requestDecoder.Uint32Path(),
 		t.responseEncoder.Uint32Path(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.Uint32Path/Uint32Path")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.Uint32Path/Uint32Path")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -856,9 +856,9 @@ type uint32PathHttpClientTransports struct {
 
 func (t *uint32PathHttpClientTransports) Uint32Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -909,7 +909,7 @@ func (encoder uint32PathHttpClientRequestEncoder) Uint32Path(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -938,8 +938,8 @@ func appendUint64PathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{uint64}/{fixed64}/{opt_uint64}/{opt_fixed64}/{wrap_uint64}")
 	return router
 }
-func AppendUint64PathHttpServerRoutes(router *mux.Router, svc Uint64PathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendUint64PathHttpServerRoutes(router *mux.Router, svc Uint64PathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &uint64PathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -960,8 +960,8 @@ func AppendUint64PathHttpServerRoutes(router *mux.Router, svc Uint64PathService,
 	return router
 }
 
-func NewUint64PathHttpClient(target string, opts ...httpx.ClientOption) Uint64PathService {
-	options := httpx.NewClientOptions(opts...)
+func NewUint64PathHttpClient(target string, opts ...httptransportx.ClientOption) Uint64PathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &uint64PathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendUint64PathHttpRoutes(mux.NewRouter()),
@@ -995,7 +995,7 @@ func NewUint64PathHttpClient(target string, opts ...httpx.ClientOption) Uint64Pa
 	}
 	return &uint64PathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1030,13 +1030,13 @@ func (t *uint64PathHttpServerTransports) Uint64Path() http.Handler {
 		t.endpoints.Uint64Path(context.TODO()),
 		t.requestDecoder.Uint64Path(),
 		t.responseEncoder.Uint64Path(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.Uint64Path/Uint64Path")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.Uint64Path/Uint64Path")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1081,9 +1081,9 @@ type uint64PathHttpClientTransports struct {
 
 func (t *uint64PathHttpClientTransports) Uint64Path(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1134,7 +1134,7 @@ func (encoder uint64PathHttpClientRequestEncoder) Uint64Path(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1163,8 +1163,8 @@ func appendFloatPathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{float}/{opt_float}/{wrap_float}")
 	return router
 }
-func AppendFloatPathHttpServerRoutes(router *mux.Router, svc FloatPathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendFloatPathHttpServerRoutes(router *mux.Router, svc FloatPathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &floatPathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1185,8 +1185,8 @@ func AppendFloatPathHttpServerRoutes(router *mux.Router, svc FloatPathService, o
 	return router
 }
 
-func NewFloatPathHttpClient(target string, opts ...httpx.ClientOption) FloatPathService {
-	options := httpx.NewClientOptions(opts...)
+func NewFloatPathHttpClient(target string, opts ...httptransportx.ClientOption) FloatPathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &floatPathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendFloatPathHttpRoutes(mux.NewRouter()),
@@ -1220,7 +1220,7 @@ func NewFloatPathHttpClient(target string, opts ...httpx.ClientOption) FloatPath
 	}
 	return &floatPathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1255,13 +1255,13 @@ func (t *floatPathHttpServerTransports) FloatPath() http.Handler {
 		t.endpoints.FloatPath(context.TODO()),
 		t.requestDecoder.FloatPath(),
 		t.responseEncoder.FloatPath(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.FloatPath/FloatPath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.FloatPath/FloatPath")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1304,9 +1304,9 @@ type floatPathHttpClientTransports struct {
 
 func (t *floatPathHttpClientTransports) FloatPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1355,7 +1355,7 @@ func (encoder floatPathHttpClientRequestEncoder) FloatPath(instance string) http
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1384,8 +1384,8 @@ func appendDoublePathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{double}/{opt_double}/{wrap_double}")
 	return router
 }
-func AppendDoublePathHttpServerRoutes(router *mux.Router, svc DoublePathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendDoublePathHttpServerRoutes(router *mux.Router, svc DoublePathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &doublePathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1406,8 +1406,8 @@ func AppendDoublePathHttpServerRoutes(router *mux.Router, svc DoublePathService,
 	return router
 }
 
-func NewDoublePathHttpClient(target string, opts ...httpx.ClientOption) DoublePathService {
-	options := httpx.NewClientOptions(opts...)
+func NewDoublePathHttpClient(target string, opts ...httptransportx.ClientOption) DoublePathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &doublePathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendDoublePathHttpRoutes(mux.NewRouter()),
@@ -1441,7 +1441,7 @@ func NewDoublePathHttpClient(target string, opts ...httpx.ClientOption) DoublePa
 	}
 	return &doublePathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1476,13 +1476,13 @@ func (t *doublePathHttpServerTransports) DoublePath() http.Handler {
 		t.endpoints.DoublePath(context.TODO()),
 		t.requestDecoder.DoublePath(),
 		t.responseEncoder.DoublePath(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.DoublePath/DoublePath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.DoublePath/DoublePath")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1525,9 +1525,9 @@ type doublePathHttpClientTransports struct {
 
 func (t *doublePathHttpClientTransports) DoublePath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1576,7 +1576,7 @@ func (encoder doublePathHttpClientRequestEncoder) DoublePath(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1605,8 +1605,8 @@ func appendStringPathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{string}/{opt_string}/{wrap_string}")
 	return router
 }
-func AppendStringPathHttpServerRoutes(router *mux.Router, svc StringPathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendStringPathHttpServerRoutes(router *mux.Router, svc StringPathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &stringPathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1627,8 +1627,8 @@ func AppendStringPathHttpServerRoutes(router *mux.Router, svc StringPathService,
 	return router
 }
 
-func NewStringPathHttpClient(target string, opts ...httpx.ClientOption) StringPathService {
-	options := httpx.NewClientOptions(opts...)
+func NewStringPathHttpClient(target string, opts ...httptransportx.ClientOption) StringPathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &stringPathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendStringPathHttpRoutes(mux.NewRouter()),
@@ -1662,7 +1662,7 @@ func NewStringPathHttpClient(target string, opts ...httpx.ClientOption) StringPa
 	}
 	return &stringPathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1697,13 +1697,13 @@ func (t *stringPathHttpServerTransports) StringPath() http.Handler {
 		t.endpoints.StringPath(context.TODO()),
 		t.requestDecoder.StringPath(),
 		t.responseEncoder.StringPath(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.StringPath/StringPath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.StringPath/StringPath")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1746,9 +1746,9 @@ type stringPathHttpClientTransports struct {
 
 func (t *stringPathHttpClientTransports) StringPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -1797,7 +1797,7 @@ func (encoder stringPathHttpClientRequestEncoder) StringPath(instance string) ht
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -1826,8 +1826,8 @@ func appendEnumPathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{status}/{opt_status}")
 	return router
 }
-func AppendEnumPathHttpServerRoutes(router *mux.Router, svc EnumPathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendEnumPathHttpServerRoutes(router *mux.Router, svc EnumPathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &enumPathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -1848,8 +1848,8 @@ func AppendEnumPathHttpServerRoutes(router *mux.Router, svc EnumPathService, opt
 	return router
 }
 
-func NewEnumPathHttpClient(target string, opts ...httpx.ClientOption) EnumPathService {
-	options := httpx.NewClientOptions(opts...)
+func NewEnumPathHttpClient(target string, opts ...httptransportx.ClientOption) EnumPathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &enumPathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendEnumPathHttpRoutes(mux.NewRouter()),
@@ -1883,7 +1883,7 @@ func NewEnumPathHttpClient(target string, opts ...httpx.ClientOption) EnumPathSe
 	}
 	return &enumPathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -1918,13 +1918,13 @@ func (t *enumPathHttpServerTransports) EnumPath() http.Handler {
 		t.endpoints.EnumPath(context.TODO()),
 		t.requestDecoder.EnumPath(),
 		t.responseEncoder.EnumPath(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.EnumPath/EnumPath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.EnumPath/EnumPath")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -1966,9 +1966,9 @@ type enumPathHttpClientTransports struct {
 
 func (t *enumPathHttpClientTransports) EnumPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2016,7 +2016,7 @@ func (encoder enumPathHttpClientRequestEncoder) EnumPath(instance string) http1.
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2065,8 +2065,8 @@ func appendNamedPathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/embed/wrap_string/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
 }
-func AppendNamedPathHttpServerRoutes(router *mux.Router, svc NamedPathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendNamedPathHttpServerRoutes(router *mux.Router, svc NamedPathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &namedPathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -2092,8 +2092,8 @@ func AppendNamedPathHttpServerRoutes(router *mux.Router, svc NamedPathService, o
 	return router
 }
 
-func NewNamedPathHttpClient(target string, opts ...httpx.ClientOption) NamedPathService {
-	options := httpx.NewClientOptions(opts...)
+func NewNamedPathHttpClient(target string, opts ...httptransportx.ClientOption) NamedPathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &namedPathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendNamedPathHttpRoutes(mux.NewRouter()),
@@ -2127,7 +2127,7 @@ func NewNamedPathHttpClient(target string, opts ...httpx.ClientOption) NamedPath
 	}
 	return &namedPathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -2187,13 +2187,13 @@ func (t *namedPathHttpServerTransports) NamedPathString() http.Handler {
 		t.endpoints.NamedPathString(context.TODO()),
 		t.requestDecoder.NamedPathString(),
 		t.responseEncoder.NamedPathString(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.NamedPath/NamedPathString")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.NamedPath/NamedPathString")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2202,13 +2202,13 @@ func (t *namedPathHttpServerTransports) NamedPathOptString() http.Handler {
 		t.endpoints.NamedPathOptString(context.TODO()),
 		t.requestDecoder.NamedPathOptString(),
 		t.responseEncoder.NamedPathOptString(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.NamedPath/NamedPathOptString")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.NamedPath/NamedPathOptString")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2217,13 +2217,13 @@ func (t *namedPathHttpServerTransports) NamedPathWrapString() http.Handler {
 		t.endpoints.NamedPathWrapString(context.TODO()),
 		t.requestDecoder.NamedPathWrapString(),
 		t.responseEncoder.NamedPathWrapString(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.NamedPath/NamedPathWrapString")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.NamedPath/NamedPathWrapString")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2232,13 +2232,13 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathString() http.Handler {
 		t.endpoints.EmbedNamedPathString(context.TODO()),
 		t.requestDecoder.EmbedNamedPathString(),
 		t.responseEncoder.EmbedNamedPathString(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathString")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathString")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2247,13 +2247,13 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathOptString() http.Handler {
 		t.endpoints.EmbedNamedPathOptString(context.TODO()),
 		t.requestDecoder.EmbedNamedPathOptString(),
 		t.responseEncoder.EmbedNamedPathOptString(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathOptString")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathOptString")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2262,13 +2262,13 @@ func (t *namedPathHttpServerTransports) EmbedNamedPathWrapString() http.Handler 
 		t.endpoints.EmbedNamedPathWrapString(context.TODO()),
 		t.requestDecoder.EmbedNamedPathWrapString(),
 		t.responseEncoder.EmbedNamedPathWrapString(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.NamedPath/EmbedNamedPathWrapString")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2405,9 +2405,9 @@ type namedPathHttpClientTransports struct {
 
 func (t *namedPathHttpClientTransports) NamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2420,9 +2420,9 @@ func (t *namedPathHttpClientTransports) NamedPathString(ctx context.Context, ins
 
 func (t *namedPathHttpClientTransports) NamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2435,9 +2435,9 @@ func (t *namedPathHttpClientTransports) NamedPathOptString(ctx context.Context, 
 
 func (t *namedPathHttpClientTransports) NamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2450,9 +2450,9 @@ func (t *namedPathHttpClientTransports) NamedPathWrapString(ctx context.Context,
 
 func (t *namedPathHttpClientTransports) EmbedNamedPathString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2465,9 +2465,9 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathString(ctx context.Context
 
 func (t *namedPathHttpClientTransports) EmbedNamedPathOptString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2480,9 +2480,9 @@ func (t *namedPathHttpClientTransports) EmbedNamedPathOptString(ctx context.Cont
 
 func (t *namedPathHttpClientTransports) EmbedNamedPathWrapString(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -2541,7 +2541,7 @@ func (encoder namedPathHttpClientRequestEncoder) NamedPathString(instance string
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2587,7 +2587,7 @@ func (encoder namedPathHttpClientRequestEncoder) NamedPathOptString(instance str
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2633,7 +2633,7 @@ func (encoder namedPathHttpClientRequestEncoder) NamedPathWrapString(instance st
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2675,7 +2675,7 @@ func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathString(instance s
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2717,7 +2717,7 @@ func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathOptString(instanc
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2759,7 +2759,7 @@ func (encoder namedPathHttpClientRequestEncoder) EmbedNamedPathWrapString(instan
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }
@@ -2848,8 +2848,8 @@ func appendMixPathHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/{string}/{opt_string}/{wrap_string}/classes/{class}/shelves/{shelf}/books/{book}/families/{family}")
 	return router
 }
-func AppendMixPathHttpServerRoutes(router *mux.Router, svc MixPathService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendMixPathHttpServerRoutes(router *mux.Router, svc MixPathService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &mixPathServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -2870,8 +2870,8 @@ func AppendMixPathHttpServerRoutes(router *mux.Router, svc MixPathService, opts 
 	return router
 }
 
-func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathService {
-	options := httpx.NewClientOptions(opts...)
+func NewMixPathHttpClient(target string, opts ...httptransportx.ClientOption) MixPathService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &mixPathHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendMixPathHttpRoutes(mux.NewRouter()),
@@ -2905,7 +2905,7 @@ func NewMixPathHttpClient(target string, opts ...httpx.ClientOption) MixPathServ
 	}
 	return &mixPathClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -2940,13 +2940,13 @@ func (t *mixPathHttpServerTransports) MixPath() http.Handler {
 		t.endpoints.MixPath(context.TODO()),
 		t.requestDecoder.MixPath(),
 		t.responseEncoder.MixPath(),
-		http1.ServerBefore(httpx.EndpointInjector("/leo.example.route.path.MixPath/MixPath")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.route.path.MixPath/MixPath")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
 		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
 	)
 }
 
@@ -2993,9 +2993,9 @@ type mixPathHttpClientTransports struct {
 
 func (t *mixPathHttpClientTransports) MixPath(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
 		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -3055,7 +3055,7 @@ func (encoder mixPathHttpClientRequestEncoder) MixPath(instance string) http1.Cr
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

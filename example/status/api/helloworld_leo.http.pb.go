@@ -9,10 +9,11 @@ import (
 	fmt "fmt"
 	endpoint "github.com/go-kit/kit/endpoint"
 	http1 "github.com/go-kit/kit/transport/http"
-	httpx1 "github.com/go-leo/gox/netx/httpx"
+	httpx "github.com/go-leo/gox/netx/httpx"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	httpx "github.com/go-leo/leo/v3/transportx/httpx"
-	coder "github.com/go-leo/leo/v3/transportx/httpx/coder"
+	timeoutx "github.com/go-leo/leo/v3/timeoutx"
+	httptransportx "github.com/go-leo/leo/v3/transportx/httptransportx"
+	coder "github.com/go-leo/leo/v3/transportx/httptransportx/coder"
 	mux "github.com/gorilla/mux"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	io "io"
@@ -27,8 +28,8 @@ func appendGreeterHttpRoutes(router *mux.Router) *mux.Router {
 		Path("/v1/example/echo")
 	return router
 }
-func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, opts ...httpx.ServerOption) *mux.Router {
-	options := httpx.NewServerOptions(opts...)
+func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, opts ...httptransportx.ServerOption) *mux.Router {
+	options := httptransportx.NewServerOptions(opts...)
 	endpoints := &greeterServerEndpoints{
 		svc:         svc,
 		middlewares: options.Middlewares(),
@@ -49,8 +50,8 @@ func AppendGreeterHttpServerRoutes(router *mux.Router, svc GreeterService, opts 
 	return router
 }
 
-func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterService {
-	options := httpx.NewClientOptions(opts...)
+func NewGreeterHttpClient(target string, opts ...httptransportx.ClientOption) GreeterService {
+	options := httptransportx.NewClientOptions(opts...)
 	requestEncoder := &greeterHttpClientRequestEncoder{
 		marshalOptions: options.MarshalOptions(),
 		router:         appendGreeterHttpRoutes(mux.NewRouter()),
@@ -84,7 +85,7 @@ func NewGreeterHttpClient(target string, opts ...httpx.ClientOption) GreeterServ
 	}
 	return &greeterClientService{
 		endpoints:     endpoints,
-		transportName: httpx.HttpClient,
+		transportName: httptransportx.HttpClient,
 	}
 }
 
@@ -119,13 +120,13 @@ func (t *greeterHttpServerTransports) SayHello() http.Handler {
 		t.endpoints.SayHello(context.TODO()),
 		t.requestDecoder.SayHello(),
 		t.responseEncoder.SayHello(),
-		http1.ServerBefore(httpx.EndpointInjector("/helloworld.Greeter/SayHello")),
-		http1.ServerBefore(httpx.ServerTransportInjector),
-		http1.ServerBefore(httpx.IncomingMetadataInjector),
-		http1.ServerBefore(httpx.IncomingTimeLimitInjector),
-		http1.ServerBefore(httpx.IncomingStainInjector),
+		http1.ServerBefore(httptransportx.EndpointInjector("/helloworld.Greeter/SayHello")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(httptransportx.IncomingMetadataInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
+		http1.ServerBefore(httptransportx.IncomingStainInjector),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
 		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-		http1.ServerFinalizer(httpx.CancelInvoker),
 	)
 }
 
@@ -163,9 +164,9 @@ type greeterHttpClientTransports struct {
 
 func (t *greeterHttpClientTransports) SayHello(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	opts := []http1.ClientOption{
-		http1.ClientBefore(httpx.OutgoingMetadataInjector),
-		http1.ClientBefore(httpx.OutgoingTimeLimitInjector),
-		http1.ClientBefore(httpx.OutgoingStainInjector),
+		http1.ClientBefore(httptransportx.OutgoingMetadataInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
+		http1.ClientBefore(httptransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := http1.NewExplicitClient(
@@ -212,7 +213,7 @@ func (encoder greeterHttpClientRequestEncoder) SayHello(instance string) http1.C
 		if err != nil {
 			return nil, err
 		}
-		httpx1.CopyHeader(r.Header, header)
+		httpx.CopyHeader(r.Header, header)
 		return r, nil
 	}
 }

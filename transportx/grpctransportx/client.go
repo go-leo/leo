@@ -1,4 +1,4 @@
-package grpcx
+package grpctransportx
 
 import (
 	"github.com/go-kit/kit/endpoint"
@@ -64,50 +64,50 @@ func (o *clientOptions) BalancerFactory() lbx.BalancerFactory {
 	return o.balancerFactory
 }
 
-// DialOptions is a option that sets the grpc dial options.
-func DialOptions(options ...grpc.DialOption) ClientOption {
+// WithDialOptions is a option that sets the grpc dial options.
+func WithDialOptions(options ...grpc.DialOption) ClientOption {
 	return func(o *clientOptions) {
 		o.dialOptions = append(o.dialOptions, options...)
 	}
 }
 
-// ClientTransportOption is a option that sets the go-kit grpc transport client options.
-func ClientTransportOption(options ...grpctransport.ClientOption) ClientOption {
+// WithClientTransportOption is a option that sets the go-kit grpc transport client options.
+func WithClientTransportOption(options ...grpctransport.ClientOption) ClientOption {
 	return func(o *clientOptions) {
 		o.clientTransportOptions = append(o.clientTransportOptions, options...)
 	}
 }
 
-// Middleware is a option that sets the go-kit endpoint middlewares.
-func Middleware(middlewares ...endpoint.Middleware) ClientOption {
+// WithMiddleware is a option that sets the go-kit endpoint middlewares.
+func WithMiddleware(middlewares ...endpoint.Middleware) ClientOption {
 	return func(o *clientOptions) {
 		o.middlewares = append(o.middlewares, middlewares...)
 	}
 }
 
-// InstancerBuilder is a option that sets the sd instancer factory.
-func InstancerBuilder(factory sdx.Builder) ClientOption {
+// WithInstancerBuilder is a option that sets the sd instancer factory.
+func WithInstancerBuilder(factory sdx.Builder) ClientOption {
 	return func(o *clientOptions) {
 		o.builder = factory
 	}
 }
 
-// EndpointerOption is a option that sets the endpointer EndpointerOptions.
-func EndpointerOption(options ...sd.EndpointerOption) ClientOption {
+// WithEndpointerOption is a option that sets the endpointer EndpointerOptions.
+func WithEndpointerOption(options ...sd.EndpointerOption) ClientOption {
 	return func(o *clientOptions) {
 		o.endpointerOptions = append(o.endpointerOptions, options...)
 	}
 }
 
-// Logger is a option that sets the logger.
-func Logger(logger log.Logger) ClientOption {
+// WithLogger is a option that sets the logger.
+func WithLogger(logger log.Logger) ClientOption {
 	return func(o *clientOptions) {
 		o.logger = logger
 	}
 }
 
-// BalancerFactory is a option that sets the balancer factory.
-func BalancerFactory(factory lbx.BalancerFactory) ClientOption {
+// WithBalancerFactory is a option that sets the balancer factory.
+func WithBalancerFactory(factory lbx.BalancerFactory) ClientOption {
 	return func(o *clientOptions) {
 		o.balancerFactory = factory
 	}

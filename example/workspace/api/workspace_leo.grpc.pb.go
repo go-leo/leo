@@ -13,10 +13,11 @@ import (
 	io "io"
 )
 
-func NewWorkspacesGrpcServer(svc WorkspacesService, middlewares ...endpoint.Middleware) WorkspacesServer {
+func NewWorkspacesGrpcServer(svc WorkspacesService, opts ...grpcx.ServerOption) WorkspacesServer {
+	options := grpcx.NewServerOptions(opts...)
 	endpoints := &workspacesServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &workspacesGrpcServerTransports{
 		endpoints: endpoints,

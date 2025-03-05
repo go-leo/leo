@@ -7,16 +7,17 @@ import (
 	endpoint "github.com/go-kit/kit/endpoint"
 	grpc "github.com/go-kit/kit/transport/grpc"
 	endpointx "github.com/go-leo/leo/v3/endpointx"
-	grpcx "github.com/go-leo/leo/v3/transportx/grpcx"
+	grpctransportx "github.com/go-leo/leo/v3/transportx/grpctransportx"
 	grpc1 "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 )
 
-func NewBoolQueryGrpcServer(svc BoolQueryService, middlewares ...endpoint.Middleware) BoolQueryServer {
+func NewBoolQueryGrpcServer(svc BoolQueryService, opts ...grpctransportx.ServerOption) BoolQueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &boolQueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &boolQueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -26,8 +27,8 @@ func NewBoolQueryGrpcServer(svc BoolQueryService, middlewares ...endpoint.Middle
 	}
 }
 
-func NewBoolQueryGrpcClient(target string, opts ...grpcx.ClientOption) BoolQueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewBoolQueryGrpcClient(target string, opts ...grpctransportx.ClientOption) BoolQueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &boolQueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -52,7 +53,7 @@ func NewBoolQueryGrpcClient(target string, opts ...grpcx.ClientOption) BoolQuery
 	}
 	return &boolQueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -65,10 +66,10 @@ func (t *boolQueryGrpcServerTransports) BoolQuery() grpc.Handler {
 		t.endpoints.BoolQuery(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.BoolQuery/BoolQuery")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.BoolQuery/BoolQuery")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -99,8 +100,8 @@ func (t *boolQueryGrpcClientTransports) BoolQuery(ctx context.Context, instance 
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -114,10 +115,11 @@ func (t *boolQueryGrpcClientTransports) BoolQuery(ctx context.Context, instance 
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewInt32QueryGrpcServer(svc Int32QueryService, middlewares ...endpoint.Middleware) Int32QueryServer {
+func NewInt32QueryGrpcServer(svc Int32QueryService, opts ...grpctransportx.ServerOption) Int32QueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &int32QueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &int32QueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -127,8 +129,8 @@ func NewInt32QueryGrpcServer(svc Int32QueryService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewInt32QueryGrpcClient(target string, opts ...grpcx.ClientOption) Int32QueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewInt32QueryGrpcClient(target string, opts ...grpctransportx.ClientOption) Int32QueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &int32QueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -153,7 +155,7 @@ func NewInt32QueryGrpcClient(target string, opts ...grpcx.ClientOption) Int32Que
 	}
 	return &int32QueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -166,10 +168,10 @@ func (t *int32QueryGrpcServerTransports) Int32Query() grpc.Handler {
 		t.endpoints.Int32Query(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.Int32Query/Int32Query")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.Int32Query/Int32Query")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -200,8 +202,8 @@ func (t *int32QueryGrpcClientTransports) Int32Query(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -215,10 +217,11 @@ func (t *int32QueryGrpcClientTransports) Int32Query(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewInt64QueryGrpcServer(svc Int64QueryService, middlewares ...endpoint.Middleware) Int64QueryServer {
+func NewInt64QueryGrpcServer(svc Int64QueryService, opts ...grpctransportx.ServerOption) Int64QueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &int64QueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &int64QueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -228,8 +231,8 @@ func NewInt64QueryGrpcServer(svc Int64QueryService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewInt64QueryGrpcClient(target string, opts ...grpcx.ClientOption) Int64QueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewInt64QueryGrpcClient(target string, opts ...grpctransportx.ClientOption) Int64QueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &int64QueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -254,7 +257,7 @@ func NewInt64QueryGrpcClient(target string, opts ...grpcx.ClientOption) Int64Que
 	}
 	return &int64QueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -267,10 +270,10 @@ func (t *int64QueryGrpcServerTransports) Int64Query() grpc.Handler {
 		t.endpoints.Int64Query(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.Int64Query/Int64Query")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.Int64Query/Int64Query")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -301,8 +304,8 @@ func (t *int64QueryGrpcClientTransports) Int64Query(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -316,10 +319,11 @@ func (t *int64QueryGrpcClientTransports) Int64Query(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewUint32QueryGrpcServer(svc Uint32QueryService, middlewares ...endpoint.Middleware) Uint32QueryServer {
+func NewUint32QueryGrpcServer(svc Uint32QueryService, opts ...grpctransportx.ServerOption) Uint32QueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &uint32QueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &uint32QueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -329,8 +333,8 @@ func NewUint32QueryGrpcServer(svc Uint32QueryService, middlewares ...endpoint.Mi
 	}
 }
 
-func NewUint32QueryGrpcClient(target string, opts ...grpcx.ClientOption) Uint32QueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewUint32QueryGrpcClient(target string, opts ...grpctransportx.ClientOption) Uint32QueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &uint32QueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -355,7 +359,7 @@ func NewUint32QueryGrpcClient(target string, opts ...grpcx.ClientOption) Uint32Q
 	}
 	return &uint32QueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -368,10 +372,10 @@ func (t *uint32QueryGrpcServerTransports) Uint32Query() grpc.Handler {
 		t.endpoints.Uint32Query(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.Uint32Query/Uint32Query")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.Uint32Query/Uint32Query")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -402,8 +406,8 @@ func (t *uint32QueryGrpcClientTransports) Uint32Query(ctx context.Context, insta
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -417,10 +421,11 @@ func (t *uint32QueryGrpcClientTransports) Uint32Query(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewUint64QueryGrpcServer(svc Uint64QueryService, middlewares ...endpoint.Middleware) Uint64QueryServer {
+func NewUint64QueryGrpcServer(svc Uint64QueryService, opts ...grpctransportx.ServerOption) Uint64QueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &uint64QueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &uint64QueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -430,8 +435,8 @@ func NewUint64QueryGrpcServer(svc Uint64QueryService, middlewares ...endpoint.Mi
 	}
 }
 
-func NewUint64QueryGrpcClient(target string, opts ...grpcx.ClientOption) Uint64QueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewUint64QueryGrpcClient(target string, opts ...grpctransportx.ClientOption) Uint64QueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &uint64QueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -456,7 +461,7 @@ func NewUint64QueryGrpcClient(target string, opts ...grpcx.ClientOption) Uint64Q
 	}
 	return &uint64QueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -469,10 +474,10 @@ func (t *uint64QueryGrpcServerTransports) Uint64Query() grpc.Handler {
 		t.endpoints.Uint64Query(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.Uint64Query/Uint64Query")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.Uint64Query/Uint64Query")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -503,8 +508,8 @@ func (t *uint64QueryGrpcClientTransports) Uint64Query(ctx context.Context, insta
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -518,10 +523,11 @@ func (t *uint64QueryGrpcClientTransports) Uint64Query(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewFloatQueryGrpcServer(svc FloatQueryService, middlewares ...endpoint.Middleware) FloatQueryServer {
+func NewFloatQueryGrpcServer(svc FloatQueryService, opts ...grpctransportx.ServerOption) FloatQueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &floatQueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &floatQueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -531,8 +537,8 @@ func NewFloatQueryGrpcServer(svc FloatQueryService, middlewares ...endpoint.Midd
 	}
 }
 
-func NewFloatQueryGrpcClient(target string, opts ...grpcx.ClientOption) FloatQueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewFloatQueryGrpcClient(target string, opts ...grpctransportx.ClientOption) FloatQueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &floatQueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -557,7 +563,7 @@ func NewFloatQueryGrpcClient(target string, opts ...grpcx.ClientOption) FloatQue
 	}
 	return &floatQueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -570,10 +576,10 @@ func (t *floatQueryGrpcServerTransports) FloatQuery() grpc.Handler {
 		t.endpoints.FloatQuery(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.FloatQuery/FloatQuery")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.FloatQuery/FloatQuery")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -604,8 +610,8 @@ func (t *floatQueryGrpcClientTransports) FloatQuery(ctx context.Context, instanc
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -619,10 +625,11 @@ func (t *floatQueryGrpcClientTransports) FloatQuery(ctx context.Context, instanc
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewDoubleQueryGrpcServer(svc DoubleQueryService, middlewares ...endpoint.Middleware) DoubleQueryServer {
+func NewDoubleQueryGrpcServer(svc DoubleQueryService, opts ...grpctransportx.ServerOption) DoubleQueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &doubleQueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &doubleQueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -632,8 +639,8 @@ func NewDoubleQueryGrpcServer(svc DoubleQueryService, middlewares ...endpoint.Mi
 	}
 }
 
-func NewDoubleQueryGrpcClient(target string, opts ...grpcx.ClientOption) DoubleQueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewDoubleQueryGrpcClient(target string, opts ...grpctransportx.ClientOption) DoubleQueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &doubleQueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -658,7 +665,7 @@ func NewDoubleQueryGrpcClient(target string, opts ...grpcx.ClientOption) DoubleQ
 	}
 	return &doubleQueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -671,10 +678,10 @@ func (t *doubleQueryGrpcServerTransports) DoubleQuery() grpc.Handler {
 		t.endpoints.DoubleQuery(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.DoubleQuery/DoubleQuery")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.DoubleQuery/DoubleQuery")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -705,8 +712,8 @@ func (t *doubleQueryGrpcClientTransports) DoubleQuery(ctx context.Context, insta
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -720,10 +727,11 @@ func (t *doubleQueryGrpcClientTransports) DoubleQuery(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewStringQueryGrpcServer(svc StringQueryService, middlewares ...endpoint.Middleware) StringQueryServer {
+func NewStringQueryGrpcServer(svc StringQueryService, opts ...grpctransportx.ServerOption) StringQueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &stringQueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &stringQueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -733,8 +741,8 @@ func NewStringQueryGrpcServer(svc StringQueryService, middlewares ...endpoint.Mi
 	}
 }
 
-func NewStringQueryGrpcClient(target string, opts ...grpcx.ClientOption) StringQueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewStringQueryGrpcClient(target string, opts ...grpctransportx.ClientOption) StringQueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &stringQueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -759,7 +767,7 @@ func NewStringQueryGrpcClient(target string, opts ...grpcx.ClientOption) StringQ
 	}
 	return &stringQueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -772,10 +780,10 @@ func (t *stringQueryGrpcServerTransports) StringQuery() grpc.Handler {
 		t.endpoints.StringQuery(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.StringQuery/StringQuery")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.StringQuery/StringQuery")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -806,8 +814,8 @@ func (t *stringQueryGrpcClientTransports) StringQuery(ctx context.Context, insta
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(
@@ -821,10 +829,11 @@ func (t *stringQueryGrpcClientTransports) StringQuery(ctx context.Context, insta
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func NewEnumQueryGrpcServer(svc EnumQueryService, middlewares ...endpoint.Middleware) EnumQueryServer {
+func NewEnumQueryGrpcServer(svc EnumQueryService, opts ...grpctransportx.ServerOption) EnumQueryServer {
+	options := grpctransportx.NewServerOptions(opts...)
 	endpoints := &enumQueryServerEndpoints{
 		svc:         svc,
-		middlewares: middlewares,
+		middlewares: options.Middlewares(),
 	}
 	transports := &enumQueryGrpcServerTransports{
 		endpoints: endpoints,
@@ -834,8 +843,8 @@ func NewEnumQueryGrpcServer(svc EnumQueryService, middlewares ...endpoint.Middle
 	}
 }
 
-func NewEnumQueryGrpcClient(target string, opts ...grpcx.ClientOption) EnumQueryService {
-	options := grpcx.NewClientOptions(opts...)
+func NewEnumQueryGrpcClient(target string, opts ...grpctransportx.ClientOption) EnumQueryService {
+	options := grpctransportx.NewClientOptions(opts...)
 	transports := &enumQueryGrpcClientTransports{
 		dialOptions:   options.DialOptions(),
 		clientOptions: options.ClientTransportOptions(),
@@ -860,7 +869,7 @@ func NewEnumQueryGrpcClient(target string, opts ...grpcx.ClientOption) EnumQuery
 	}
 	return &enumQueryClientService{
 		endpoints:     endpoints,
-		transportName: grpcx.GrpcClient,
+		transportName: grpctransportx.GrpcClient,
 	}
 }
 
@@ -873,10 +882,10 @@ func (t *enumQueryGrpcServerTransports) EnumQuery() grpc.Handler {
 		t.endpoints.EnumQuery(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpcx.ServerEndpointInjector("/leo.example.route.query.EnumQuery/EnumQuery")),
-		grpc.ServerBefore(grpcx.ServerTransportInjector),
-		grpc.ServerBefore(grpcx.IncomingMetadataInjector),
-		grpc.ServerBefore(grpcx.IncomingStainInjector),
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.route.query.EnumQuery/EnumQuery")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(grpctransportx.IncomingMetadataInjector),
+		grpc.ServerBefore(grpctransportx.IncomingStainInjector),
 	)
 }
 
@@ -907,8 +916,8 @@ func (t *enumQueryGrpcClientTransports) EnumQuery(ctx context.Context, instance 
 		return nil, nil, err
 	}
 	opts := []grpc.ClientOption{
-		grpc.ClientBefore(grpcx.OutgoingMetadataInjector),
-		grpc.ClientBefore(grpcx.OutgoingStainInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingMetadataInjector),
+		grpc.ClientBefore(grpctransportx.OutgoingStainInjector),
 	}
 	opts = append(opts, t.clientOptions...)
 	client := grpc.NewClient(

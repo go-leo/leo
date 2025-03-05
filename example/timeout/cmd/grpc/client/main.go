@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/go-leo/leo/v3/example/timeout/api"
-	"github.com/go-leo/leo/v3/transportx/grpcx"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -18,7 +18,7 @@ var (
 
 func main() {
 	flag.Parse()
-	c := api.NewGreeterGrpcClient(*addr, grpcx.DialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
+	c := api.NewGreeterGrpcClient(*addr, grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancelFunc()
 	r, err := c.SayHello(ctx, &api.HelloRequest{Name: *name})
