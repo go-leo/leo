@@ -7,6 +7,8 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ HttpBodyResponseHandler = (*httpBodyResponseHandler)(nil)
@@ -17,8 +19,18 @@ type HttpBodyResponseQuery struct {
 	v1.UnimplementedHttpBodyResponseQuery
 }
 
+func (HttpBodyResponseQuery) From(ctx context.Context, req *emptypb.Empty) (v1.HttpBodyResponseQuery, context.Context, error) {
+	panic("implement me")
+	return HttpBodyResponseQuery{}, ctx, nil
+}
+
 type HttpBodyResponseResult struct {
 	v1.UnimplementedHttpBodyResponseResult
+}
+
+func (r HttpBodyResponseResult) To(ctx context.Context) (*httpbody.HttpBody, error) {
+	panic("implement me")
+	return &httpbody.HttpBody{}, nil
 }
 
 func NewHttpBodyResponseHandler() HttpBodyResponseHandler {

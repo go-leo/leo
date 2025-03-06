@@ -17,6 +17,11 @@ type StringPathCommand struct {
 	v1.UnimplementedStringPathCommand
 }
 
+func (StringPathCommand) From(ctx context.Context, req *v1.StringPathRequest) (v1.StringPathCommand, context.Context, error) {
+	panic("implement me")
+	return StringPathCommand{}, ctx, nil
+}
+
 func NewStringPathHandler() StringPathHandler {
 	return &stringPathHandler{}
 }

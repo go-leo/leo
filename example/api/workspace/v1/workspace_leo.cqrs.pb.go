@@ -37,15 +37,33 @@ func NewWorkspacesCqrsService[
 	if err := bus.RegisterCommand(deleteWorkspaceHandler); err != nil {
 		return nil, err
 	}
-	return &workspacesCqrsService{bus: &bus}, nil
+	return &workspacesCqrsService[
+		ListWorkspacesQueryType, ListWorkspacesResultType,
+		GetWorkspaceQueryType, GetWorkspaceResultType,
+		CreateWorkspaceQueryType, CreateWorkspaceResultType,
+		UpdateWorkspaceQueryType, UpdateWorkspaceResultType,
+		DeleteWorkspaceCommandType,
+	]{bus: &bus}, nil
 }
 
-type workspacesCqrsService struct {
+type workspacesCqrsService[
+	ListWorkspacesQueryType ListWorkspacesQuery, ListWorkspacesResultType ListWorkspacesResult,
+	GetWorkspaceQueryType GetWorkspaceQuery, GetWorkspaceResultType GetWorkspaceResult,
+	CreateWorkspaceQueryType CreateWorkspaceQuery, CreateWorkspaceResultType CreateWorkspaceResult,
+	UpdateWorkspaceQueryType UpdateWorkspaceQuery, UpdateWorkspaceResultType UpdateWorkspaceResult,
+	DeleteWorkspaceCommandType DeleteWorkspaceCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *workspacesCqrsService) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
-	var query ListWorkspacesQuery
+func (svc *workspacesCqrsService[
+	ListWorkspacesQueryType, ListWorkspacesResultType,
+	GetWorkspaceQueryType, GetWorkspaceResultType,
+	CreateWorkspaceQueryType, CreateWorkspaceResultType,
+	UpdateWorkspaceQueryType, UpdateWorkspaceResultType,
+	DeleteWorkspaceCommandType,
+]) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
+	var query ListWorkspacesQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -54,11 +72,17 @@ func (svc *workspacesCqrsService) ListWorkspaces(ctx context.Context, request *L
 	if err != nil {
 		return nil, err
 	}
-	return r.(ListWorkspacesResult).To(ctx)
+	return r.(ListWorkspacesResultType).To(ctx)
 }
 
-func (svc *workspacesCqrsService) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
-	var query GetWorkspaceQuery
+func (svc *workspacesCqrsService[
+	ListWorkspacesQueryType, ListWorkspacesResultType,
+	GetWorkspaceQueryType, GetWorkspaceResultType,
+	CreateWorkspaceQueryType, CreateWorkspaceResultType,
+	UpdateWorkspaceQueryType, UpdateWorkspaceResultType,
+	DeleteWorkspaceCommandType,
+]) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
+	var query GetWorkspaceQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -67,11 +91,17 @@ func (svc *workspacesCqrsService) GetWorkspace(ctx context.Context, request *Get
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetWorkspaceResult).To(ctx)
+	return r.(GetWorkspaceResultType).To(ctx)
 }
 
-func (svc *workspacesCqrsService) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
-	var query CreateWorkspaceQuery
+func (svc *workspacesCqrsService[
+	ListWorkspacesQueryType, ListWorkspacesResultType,
+	GetWorkspaceQueryType, GetWorkspaceResultType,
+	CreateWorkspaceQueryType, CreateWorkspaceResultType,
+	UpdateWorkspaceQueryType, UpdateWorkspaceResultType,
+	DeleteWorkspaceCommandType,
+]) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
+	var query CreateWorkspaceQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -80,11 +110,17 @@ func (svc *workspacesCqrsService) CreateWorkspace(ctx context.Context, request *
 	if err != nil {
 		return nil, err
 	}
-	return r.(CreateWorkspaceResult).To(ctx)
+	return r.(CreateWorkspaceResultType).To(ctx)
 }
 
-func (svc *workspacesCqrsService) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
-	var query UpdateWorkspaceQuery
+func (svc *workspacesCqrsService[
+	ListWorkspacesQueryType, ListWorkspacesResultType,
+	GetWorkspaceQueryType, GetWorkspaceResultType,
+	CreateWorkspaceQueryType, CreateWorkspaceResultType,
+	UpdateWorkspaceQueryType, UpdateWorkspaceResultType,
+	DeleteWorkspaceCommandType,
+]) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
+	var query UpdateWorkspaceQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -93,17 +129,22 @@ func (svc *workspacesCqrsService) UpdateWorkspace(ctx context.Context, request *
 	if err != nil {
 		return nil, err
 	}
-	return r.(UpdateWorkspaceResult).To(ctx)
+	return r.(UpdateWorkspaceResultType).To(ctx)
 }
 
-func (svc *workspacesCqrsService) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
-	var command DeleteWorkspaceCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *workspacesCqrsService[
+	ListWorkspacesQueryType, ListWorkspacesResultType,
+	GetWorkspaceQueryType, GetWorkspaceResultType,
+	CreateWorkspaceQueryType, CreateWorkspaceResultType,
+	UpdateWorkspaceQueryType, UpdateWorkspaceResultType,
+	DeleteWorkspaceCommandType,
+]) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+	var command DeleteWorkspaceCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil

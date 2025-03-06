@@ -17,8 +17,18 @@ type GetWorkspaceQuery struct {
 	v1.UnimplementedGetWorkspaceQuery
 }
 
+func (GetWorkspaceQuery) From(ctx context.Context, req *v1.GetWorkspaceRequest) (v1.GetWorkspaceQuery, context.Context, error) {
+	panic("implement me")
+	return GetWorkspaceQuery{}, ctx, nil
+}
+
 type GetWorkspaceResult struct {
 	v1.UnimplementedGetWorkspaceResult
+}
+
+func (r GetWorkspaceResult) To(ctx context.Context) (*v1.Workspace, error) {
+	panic("implement me")
+	return &v1.Workspace{}, nil
 }
 
 func NewGetWorkspaceHandler() GetWorkspaceHandler {

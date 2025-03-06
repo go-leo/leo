@@ -17,6 +17,11 @@ type Int64PathCommand struct {
 	v1.UnimplementedInt64PathCommand
 }
 
+func (Int64PathCommand) From(ctx context.Context, req *v1.Int64PathRequest) (v1.Int64PathCommand, context.Context, error) {
+	panic("implement me")
+	return Int64PathCommand{}, ctx, nil
+}
+
 func NewInt64PathHandler() Int64PathHandler {
 	return &int64PathHandler{}
 }

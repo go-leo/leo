@@ -17,8 +17,18 @@ type ListBooksQuery struct {
 	v1.UnimplementedListBooksQuery
 }
 
+func (ListBooksQuery) From(ctx context.Context, req *v1.ListBooksRequest) (v1.ListBooksQuery, context.Context, error) {
+	panic("implement me")
+	return ListBooksQuery{}, ctx, nil
+}
+
 type ListBooksResult struct {
 	v1.UnimplementedListBooksResult
+}
+
+func (r ListBooksResult) To(ctx context.Context) (*v1.ListBooksResponse, error) {
+	panic("implement me")
+	return &v1.ListBooksResponse{}, nil
 }
 
 func NewListBooksHandler() ListBooksHandler {

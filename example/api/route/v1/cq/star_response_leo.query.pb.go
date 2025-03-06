@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ StarResponseHandler = (*starResponseHandler)(nil)
@@ -17,8 +18,18 @@ type StarResponseQuery struct {
 	v1.UnimplementedStarResponseQuery
 }
 
+func (StarResponseQuery) From(ctx context.Context, req *emptypb.Empty) (v1.StarResponseQuery, context.Context, error) {
+	panic("implement me")
+	return StarResponseQuery{}, ctx, nil
+}
+
 type StarResponseResult struct {
 	v1.UnimplementedStarResponseResult
+}
+
+func (r StarResponseResult) To(ctx context.Context) (*v1.UserResponse, error) {
+	panic("implement me")
+	return &v1.UserResponse{}, nil
 }
 
 func NewStarResponseHandler() StarResponseHandler {

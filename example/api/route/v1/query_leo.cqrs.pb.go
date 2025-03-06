@@ -17,7 +17,7 @@ func NewBoolQueryCqrsService[
 	if err := bus.RegisterCommand(boolQueryHandler); err != nil {
 		return nil, err
 	}
-	return &boolQueryCqrsService{bus: &bus}, nil
+	return &boolQueryCqrsService[BoolQueryCommandType]{bus: &bus}, nil
 }
 
 func NewInt32QueryCqrsService[
@@ -29,7 +29,7 @@ func NewInt32QueryCqrsService[
 	if err := bus.RegisterCommand(int32QueryHandler); err != nil {
 		return nil, err
 	}
-	return &int32QueryCqrsService{bus: &bus}, nil
+	return &int32QueryCqrsService[Int32QueryCommandType]{bus: &bus}, nil
 }
 
 func NewInt64QueryCqrsService[
@@ -41,7 +41,7 @@ func NewInt64QueryCqrsService[
 	if err := bus.RegisterCommand(int64QueryHandler); err != nil {
 		return nil, err
 	}
-	return &int64QueryCqrsService{bus: &bus}, nil
+	return &int64QueryCqrsService[Int64QueryCommandType]{bus: &bus}, nil
 }
 
 func NewUint32QueryCqrsService[
@@ -53,7 +53,7 @@ func NewUint32QueryCqrsService[
 	if err := bus.RegisterCommand(uint32QueryHandler); err != nil {
 		return nil, err
 	}
-	return &uint32QueryCqrsService{bus: &bus}, nil
+	return &uint32QueryCqrsService[Uint32QueryCommandType]{bus: &bus}, nil
 }
 
 func NewUint64QueryCqrsService[
@@ -65,7 +65,7 @@ func NewUint64QueryCqrsService[
 	if err := bus.RegisterCommand(uint64QueryHandler); err != nil {
 		return nil, err
 	}
-	return &uint64QueryCqrsService{bus: &bus}, nil
+	return &uint64QueryCqrsService[Uint64QueryCommandType]{bus: &bus}, nil
 }
 
 func NewFloatQueryCqrsService[
@@ -77,7 +77,7 @@ func NewFloatQueryCqrsService[
 	if err := bus.RegisterCommand(floatQueryHandler); err != nil {
 		return nil, err
 	}
-	return &floatQueryCqrsService{bus: &bus}, nil
+	return &floatQueryCqrsService[FloatQueryCommandType]{bus: &bus}, nil
 }
 
 func NewDoubleQueryCqrsService[
@@ -89,7 +89,7 @@ func NewDoubleQueryCqrsService[
 	if err := bus.RegisterCommand(doubleQueryHandler); err != nil {
 		return nil, err
 	}
-	return &doubleQueryCqrsService{bus: &bus}, nil
+	return &doubleQueryCqrsService[DoubleQueryCommandType]{bus: &bus}, nil
 }
 
 func NewStringQueryCqrsService[
@@ -101,7 +101,7 @@ func NewStringQueryCqrsService[
 	if err := bus.RegisterCommand(stringQueryHandler); err != nil {
 		return nil, err
 	}
-	return &stringQueryCqrsService{bus: &bus}, nil
+	return &stringQueryCqrsService[StringQueryCommandType]{bus: &bus}, nil
 }
 
 func NewEnumQueryCqrsService[
@@ -113,21 +113,22 @@ func NewEnumQueryCqrsService[
 	if err := bus.RegisterCommand(enumQueryHandler); err != nil {
 		return nil, err
 	}
-	return &enumQueryCqrsService{bus: &bus}, nil
+	return &enumQueryCqrsService[EnumQueryCommandType]{bus: &bus}, nil
 }
 
-type boolQueryCqrsService struct {
+type boolQueryCqrsService[
+	BoolQueryCommandType BoolQueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *boolQueryCqrsService) BoolQuery(ctx context.Context, request *BoolQueryRequest) (*emptypb.Empty, error) {
-	var command BoolQueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *boolQueryCqrsService[BoolQueryCommandType]) BoolQuery(ctx context.Context, request *BoolQueryRequest) (*emptypb.Empty, error) {
+	var command BoolQueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -147,18 +148,19 @@ func (UnimplementedBoolQueryCommand) From(context.Context, *BoolQueryRequest) (B
 	return nil, nil, nil
 }
 
-type int32QueryCqrsService struct {
+type int32QueryCqrsService[
+	Int32QueryCommandType Int32QueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *int32QueryCqrsService) Int32Query(ctx context.Context, request *Int32QueryRequest) (*emptypb.Empty, error) {
-	var command Int32QueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *int32QueryCqrsService[Int32QueryCommandType]) Int32Query(ctx context.Context, request *Int32QueryRequest) (*emptypb.Empty, error) {
+	var command Int32QueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -178,18 +180,19 @@ func (UnimplementedInt32QueryCommand) From(context.Context, *Int32QueryRequest) 
 	return nil, nil, nil
 }
 
-type int64QueryCqrsService struct {
+type int64QueryCqrsService[
+	Int64QueryCommandType Int64QueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *int64QueryCqrsService) Int64Query(ctx context.Context, request *Int64QueryRequest) (*emptypb.Empty, error) {
-	var command Int64QueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *int64QueryCqrsService[Int64QueryCommandType]) Int64Query(ctx context.Context, request *Int64QueryRequest) (*emptypb.Empty, error) {
+	var command Int64QueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -209,18 +212,19 @@ func (UnimplementedInt64QueryCommand) From(context.Context, *Int64QueryRequest) 
 	return nil, nil, nil
 }
 
-type uint32QueryCqrsService struct {
+type uint32QueryCqrsService[
+	Uint32QueryCommandType Uint32QueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *uint32QueryCqrsService) Uint32Query(ctx context.Context, request *Uint32QueryRequest) (*emptypb.Empty, error) {
-	var command Uint32QueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *uint32QueryCqrsService[Uint32QueryCommandType]) Uint32Query(ctx context.Context, request *Uint32QueryRequest) (*emptypb.Empty, error) {
+	var command Uint32QueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -240,18 +244,19 @@ func (UnimplementedUint32QueryCommand) From(context.Context, *Uint32QueryRequest
 	return nil, nil, nil
 }
 
-type uint64QueryCqrsService struct {
+type uint64QueryCqrsService[
+	Uint64QueryCommandType Uint64QueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *uint64QueryCqrsService) Uint64Query(ctx context.Context, request *Uint64QueryRequest) (*emptypb.Empty, error) {
-	var command Uint64QueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *uint64QueryCqrsService[Uint64QueryCommandType]) Uint64Query(ctx context.Context, request *Uint64QueryRequest) (*emptypb.Empty, error) {
+	var command Uint64QueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -271,18 +276,19 @@ func (UnimplementedUint64QueryCommand) From(context.Context, *Uint64QueryRequest
 	return nil, nil, nil
 }
 
-type floatQueryCqrsService struct {
+type floatQueryCqrsService[
+	FloatQueryCommandType FloatQueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *floatQueryCqrsService) FloatQuery(ctx context.Context, request *FloatQueryRequest) (*emptypb.Empty, error) {
-	var command FloatQueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *floatQueryCqrsService[FloatQueryCommandType]) FloatQuery(ctx context.Context, request *FloatQueryRequest) (*emptypb.Empty, error) {
+	var command FloatQueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -302,18 +308,19 @@ func (UnimplementedFloatQueryCommand) From(context.Context, *FloatQueryRequest) 
 	return nil, nil, nil
 }
 
-type doubleQueryCqrsService struct {
+type doubleQueryCqrsService[
+	DoubleQueryCommandType DoubleQueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *doubleQueryCqrsService) DoubleQuery(ctx context.Context, request *DoubleQueryRequest) (*emptypb.Empty, error) {
-	var command DoubleQueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *doubleQueryCqrsService[DoubleQueryCommandType]) DoubleQuery(ctx context.Context, request *DoubleQueryRequest) (*emptypb.Empty, error) {
+	var command DoubleQueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -333,18 +340,19 @@ func (UnimplementedDoubleQueryCommand) From(context.Context, *DoubleQueryRequest
 	return nil, nil, nil
 }
 
-type stringQueryCqrsService struct {
+type stringQueryCqrsService[
+	StringQueryCommandType StringQueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *stringQueryCqrsService) StringQuery(ctx context.Context, request *StringQueryRequest) (*emptypb.Empty, error) {
-	var command StringQueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *stringQueryCqrsService[StringQueryCommandType]) StringQuery(ctx context.Context, request *StringQueryRequest) (*emptypb.Empty, error) {
+	var command StringQueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -364,18 +372,19 @@ func (UnimplementedStringQueryCommand) From(context.Context, *StringQueryRequest
 	return nil, nil, nil
 }
 
-type enumQueryCqrsService struct {
+type enumQueryCqrsService[
+	EnumQueryCommandType EnumQueryCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *enumQueryCqrsService) EnumQuery(ctx context.Context, request *EnumQueryRequest) (*emptypb.Empty, error) {
-	var command EnumQueryCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *enumQueryCqrsService[EnumQueryCommandType]) EnumQuery(ctx context.Context, request *EnumQueryRequest) (*emptypb.Empty, error) {
+	var command EnumQueryCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil

@@ -17,6 +17,11 @@ type DeleteUserCommand struct {
 	v1.UnimplementedDeleteUserCommand
 }
 
+func (DeleteUserCommand) From(ctx context.Context, req *v1.DeleteUsersRequest) (v1.DeleteUserCommand, context.Context, error) {
+	panic("implement me")
+	return DeleteUserCommand{}, ctx, nil
+}
+
 func NewDeleteUserHandler() DeleteUserHandler {
 	return &deleteUserHandler{}
 }

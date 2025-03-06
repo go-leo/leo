@@ -17,8 +17,18 @@ type GetUsersQuery struct {
 	v1.UnimplementedGetUsersQuery
 }
 
+func (GetUsersQuery) From(ctx context.Context, req *v1.GetUsersRequest) (v1.GetUsersQuery, context.Context, error) {
+	panic("implement me")
+	return GetUsersQuery{}, ctx, nil
+}
+
 type GetUsersResult struct {
 	v1.UnimplementedGetUsersResult
+}
+
+func (r GetUsersResult) To(ctx context.Context) (*v1.GetUsersResponse, error) {
+	panic("implement me")
+	return &v1.GetUsersResponse{}, nil
 }
 
 func NewGetUsersHandler() GetUsersHandler {

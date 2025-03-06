@@ -17,6 +17,11 @@ type DeleteShelfCommand struct {
 	v1.UnimplementedDeleteShelfCommand
 }
 
+func (DeleteShelfCommand) From(ctx context.Context, req *v1.DeleteShelfRequest) (v1.DeleteShelfCommand, context.Context, error) {
+	panic("implement me")
+	return DeleteShelfCommand{}, ctx, nil
+}
+
 func NewDeleteShelfHandler() DeleteShelfHandler {
 	return &deleteShelfHandler{}
 }

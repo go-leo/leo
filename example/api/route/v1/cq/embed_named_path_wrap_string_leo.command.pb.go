@@ -17,6 +17,11 @@ type EmbedNamedPathWrapStringCommand struct {
 	v1.UnimplementedEmbedNamedPathWrapStringCommand
 }
 
+func (EmbedNamedPathWrapStringCommand) From(ctx context.Context, req *v1.EmbedNamedPathRequest) (v1.EmbedNamedPathWrapStringCommand, context.Context, error) {
+	panic("implement me")
+	return EmbedNamedPathWrapStringCommand{}, ctx, nil
+}
+
 func NewEmbedNamedPathWrapStringHandler() EmbedNamedPathWrapStringHandler {
 	return &embedNamedPathWrapStringHandler{}
 }

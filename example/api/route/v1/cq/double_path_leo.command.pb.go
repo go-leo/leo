@@ -17,6 +17,11 @@ type DoublePathCommand struct {
 	v1.UnimplementedDoublePathCommand
 }
 
+func (DoublePathCommand) From(ctx context.Context, req *v1.DoublePathRequest) (v1.DoublePathCommand, context.Context, error) {
+	panic("implement me")
+	return DoublePathCommand{}, ctx, nil
+}
+
 func NewDoublePathHandler() DoublePathHandler {
 	return &doublePathHandler{}
 }

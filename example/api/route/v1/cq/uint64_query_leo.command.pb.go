@@ -17,6 +17,11 @@ type Uint64QueryCommand struct {
 	v1.UnimplementedUint64QueryCommand
 }
 
+func (Uint64QueryCommand) From(ctx context.Context, req *v1.Uint64QueryRequest) (v1.Uint64QueryCommand, context.Context, error) {
+	panic("implement me")
+	return Uint64QueryCommand{}, ctx, nil
+}
+
 func NewUint64QueryHandler() Uint64QueryHandler {
 	return &uint64QueryHandler{}
 }

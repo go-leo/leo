@@ -17,8 +17,18 @@ type CreateWorkspaceQuery struct {
 	v1.UnimplementedCreateWorkspaceQuery
 }
 
+func (CreateWorkspaceQuery) From(ctx context.Context, req *v1.CreateWorkspaceRequest) (v1.CreateWorkspaceQuery, context.Context, error) {
+	panic("implement me")
+	return CreateWorkspaceQuery{}, ctx, nil
+}
+
 type CreateWorkspaceResult struct {
 	v1.UnimplementedCreateWorkspaceResult
+}
+
+func (r CreateWorkspaceResult) To(ctx context.Context) (*v1.Workspace, error) {
+	panic("implement me")
+	return &v1.Workspace{}, nil
 }
 
 func NewCreateWorkspaceHandler() CreateWorkspaceHandler {

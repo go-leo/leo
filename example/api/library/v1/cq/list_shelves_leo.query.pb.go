@@ -17,8 +17,18 @@ type ListShelvesQuery struct {
 	v1.UnimplementedListShelvesQuery
 }
 
+func (ListShelvesQuery) From(ctx context.Context, req *v1.ListShelvesRequest) (v1.ListShelvesQuery, context.Context, error) {
+	panic("implement me")
+	return ListShelvesQuery{}, ctx, nil
+}
+
 type ListShelvesResult struct {
 	v1.UnimplementedListShelvesResult
+}
+
+func (r ListShelvesResult) To(ctx context.Context) (*v1.ListShelvesResponse, error) {
+	panic("implement me")
+	return &v1.ListShelvesResponse{}, nil
 }
 
 func NewListShelvesHandler() ListShelvesHandler {

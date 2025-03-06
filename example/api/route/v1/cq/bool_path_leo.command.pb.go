@@ -17,6 +17,11 @@ type BoolPathCommand struct {
 	v1.UnimplementedBoolPathCommand
 }
 
+func (BoolPathCommand) From(ctx context.Context, req *v1.BoolPathRequest) (v1.BoolPathCommand, context.Context, error) {
+	panic("implement me")
+	return BoolPathCommand{}, ctx, nil
+}
+
 func NewBoolPathHandler() BoolPathHandler {
 	return &boolPathHandler{}
 }

@@ -26,21 +26,21 @@ import (
 
 func appendCqrsHttpRoutes(router *mux.Router) *mux.Router {
 	router.NewRoute().
-		Name("/leo.example.cqrs.Cqrs/Query").
-		Methods(http.MethodPost).
-		Path("/v1/cqrs/query")
-	router.NewRoute().
 		Name("/leo.example.cqrs.Cqrs/Command").
 		Methods(http.MethodPost).
 		Path("/v1/cqrs/command")
 	router.NewRoute().
-		Name("/leo.example.cqrs.Cqrs/QueryOneOf").
-		Methods(http.MethodPost).
-		Path("/v1/cqrs/query-oneof")
-	router.NewRoute().
 		Name("/leo.example.cqrs.Cqrs/CommandEmpty").
 		Methods(http.MethodPost).
 		Path("/v1/cqrs/command")
+	router.NewRoute().
+		Name("/leo.example.cqrs.Cqrs/Query").
+		Methods(http.MethodPost).
+		Path("/v1/cqrs/query")
+	router.NewRoute().
+		Name("/leo.example.cqrs.Cqrs/QueryOneOf").
+		Methods(http.MethodPost).
+		Path("/v1/cqrs/query-oneof")
 	return router
 }
 func AppendCqrsHttpServerRoutes(router *mux.Router, svc CqrsService, opts ...httptransportx.ServerOption) *mux.Router {
@@ -61,10 +61,10 @@ func AppendCqrsHttpServerRoutes(router *mux.Router, svc CqrsService, opts ...htt
 		responseEncoder: responseEncoder,
 	}
 	router = appendCqrsHttpRoutes(router)
-	router.Get("/leo.example.cqrs.Cqrs/Query").Handler(transports.Query())
 	router.Get("/leo.example.cqrs.Cqrs/Command").Handler(transports.Command())
-	router.Get("/leo.example.cqrs.Cqrs/QueryOneOf").Handler(transports.QueryOneOf())
 	router.Get("/leo.example.cqrs.Cqrs/CommandEmpty").Handler(transports.CommandEmpty())
+	router.Get("/leo.example.cqrs.Cqrs/Query").Handler(transports.Query())
+	router.Get("/leo.example.cqrs.Cqrs/QueryOneOf").Handler(transports.QueryOneOf())
 	return router
 }
 
@@ -108,38 +108,38 @@ func NewCqrsHttpClient(target string, opts ...httptransportx.ClientOption) CqrsS
 }
 
 type CqrsHttpServerTransports interface {
-	Query() http.Handler
 	Command() http.Handler
-	QueryOneOf() http.Handler
 	CommandEmpty() http.Handler
+	Query() http.Handler
+	QueryOneOf() http.Handler
 }
 
 type CqrsHttpServerRequestDecoder interface {
-	Query() http1.DecodeRequestFunc
 	Command() http1.DecodeRequestFunc
-	QueryOneOf() http1.DecodeRequestFunc
 	CommandEmpty() http1.DecodeRequestFunc
+	Query() http1.DecodeRequestFunc
+	QueryOneOf() http1.DecodeRequestFunc
 }
 
 type CqrsHttpServerResponseEncoder interface {
-	Query() http1.EncodeResponseFunc
 	Command() http1.EncodeResponseFunc
-	QueryOneOf() http1.EncodeResponseFunc
 	CommandEmpty() http1.EncodeResponseFunc
+	Query() http1.EncodeResponseFunc
+	QueryOneOf() http1.EncodeResponseFunc
 }
 
 type CqrsHttpClientRequestEncoder interface {
-	Query(instance string) http1.CreateRequestFunc
 	Command(instance string) http1.CreateRequestFunc
-	QueryOneOf(instance string) http1.CreateRequestFunc
 	CommandEmpty(instance string) http1.CreateRequestFunc
+	Query(instance string) http1.CreateRequestFunc
+	QueryOneOf(instance string) http1.CreateRequestFunc
 }
 
 type CqrsHttpClientResponseDecoder interface {
-	Query() http1.DecodeResponseFunc
 	Command() http1.DecodeResponseFunc
-	QueryOneOf() http1.DecodeResponseFunc
 	CommandEmpty() http1.DecodeResponseFunc
+	Query() http1.DecodeResponseFunc
+	QueryOneOf() http1.DecodeResponseFunc
 }
 
 type cqrsHttpServerTransports struct {
@@ -148,42 +148,12 @@ type cqrsHttpServerTransports struct {
 	responseEncoder CqrsHttpServerResponseEncoder
 }
 
-func (t *cqrsHttpServerTransports) Query() http.Handler {
-	return http1.NewServer(
-		t.endpoints.Query(context.TODO()),
-		t.requestDecoder.Query(),
-		t.responseEncoder.Query(),
-		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.cqrs.Cqrs/Query")),
-		http1.ServerBefore(httptransportx.ServerTransportInjector),
-		http1.ServerBefore(metadatax.HttpIncomingInjector),
-		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(stainx.HttpIncomingInjector),
-		http1.ServerFinalizer(timeoutx.CancelInvoker),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-	)
-}
-
 func (t *cqrsHttpServerTransports) Command() http.Handler {
 	return http1.NewServer(
 		t.endpoints.Command(context.TODO()),
 		t.requestDecoder.Command(),
 		t.responseEncoder.Command(),
 		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.cqrs.Cqrs/Command")),
-		http1.ServerBefore(httptransportx.ServerTransportInjector),
-		http1.ServerBefore(metadatax.HttpIncomingInjector),
-		http1.ServerBefore(timeoutx.IncomingInjector),
-		http1.ServerBefore(stainx.HttpIncomingInjector),
-		http1.ServerFinalizer(timeoutx.CancelInvoker),
-		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
-	)
-}
-
-func (t *cqrsHttpServerTransports) QueryOneOf() http.Handler {
-	return http1.NewServer(
-		t.endpoints.QueryOneOf(context.TODO()),
-		t.requestDecoder.QueryOneOf(),
-		t.responseEncoder.QueryOneOf(),
-		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.cqrs.Cqrs/QueryOneOf")),
 		http1.ServerBefore(httptransportx.ServerTransportInjector),
 		http1.ServerBefore(metadatax.HttpIncomingInjector),
 		http1.ServerBefore(timeoutx.IncomingInjector),
@@ -208,31 +178,43 @@ func (t *cqrsHttpServerTransports) CommandEmpty() http.Handler {
 	)
 }
 
+func (t *cqrsHttpServerTransports) Query() http.Handler {
+	return http1.NewServer(
+		t.endpoints.Query(context.TODO()),
+		t.requestDecoder.Query(),
+		t.responseEncoder.Query(),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.cqrs.Cqrs/Query")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(metadatax.HttpIncomingInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
+		http1.ServerBefore(stainx.HttpIncomingInjector),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+	)
+}
+
+func (t *cqrsHttpServerTransports) QueryOneOf() http.Handler {
+	return http1.NewServer(
+		t.endpoints.QueryOneOf(context.TODO()),
+		t.requestDecoder.QueryOneOf(),
+		t.responseEncoder.QueryOneOf(),
+		http1.ServerBefore(httptransportx.EndpointInjector("/leo.example.cqrs.Cqrs/QueryOneOf")),
+		http1.ServerBefore(httptransportx.ServerTransportInjector),
+		http1.ServerBefore(metadatax.HttpIncomingInjector),
+		http1.ServerBefore(timeoutx.IncomingInjector),
+		http1.ServerBefore(stainx.HttpIncomingInjector),
+		http1.ServerFinalizer(timeoutx.CancelInvoker),
+		http1.ServerErrorEncoder(coder.EncodeErrorToResponse),
+	)
+}
+
 type cqrsHttpServerRequestDecoder struct {
 	unmarshalOptions protojson.UnmarshalOptions
 }
 
-func (decoder cqrsHttpServerRequestDecoder) Query() http1.DecodeRequestFunc {
-	return func(ctx context.Context, r *http.Request) (any, error) {
-		req := &QueryRequest{}
-		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
-			return nil, err
-		}
-		return req, nil
-	}
-}
 func (decoder cqrsHttpServerRequestDecoder) Command() http1.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (any, error) {
 		req := &CommandRequest{}
-		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
-			return nil, err
-		}
-		return req, nil
-	}
-}
-func (decoder cqrsHttpServerRequestDecoder) QueryOneOf() http1.DecodeRequestFunc {
-	return func(ctx context.Context, r *http.Request) (any, error) {
-		req := &QueryRequest{}
 		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}
@@ -248,26 +230,32 @@ func (decoder cqrsHttpServerRequestDecoder) CommandEmpty() http1.DecodeRequestFu
 		return req, nil
 	}
 }
+func (decoder cqrsHttpServerRequestDecoder) Query() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
+		req := &QueryRequest{}
+		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
+			return nil, err
+		}
+		return req, nil
+	}
+}
+func (decoder cqrsHttpServerRequestDecoder) QueryOneOf() http1.DecodeRequestFunc {
+	return func(ctx context.Context, r *http.Request) (any, error) {
+		req := &QueryRequest{}
+		if err := coder.DecodeMessageFromRequest(ctx, r, req, decoder.unmarshalOptions); err != nil {
+			return nil, err
+		}
+		return req, nil
+	}
+}
 
 type cqrsHttpServerResponseEncoder struct {
 	marshalOptions protojson.MarshalOptions
 }
 
-func (encoder cqrsHttpServerResponseEncoder) Query() http1.EncodeResponseFunc {
-	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
-		resp := obj.(*QueryReply)
-		return coder.EncodeMessageToResponse(ctx, w, resp, encoder.marshalOptions)
-	}
-}
 func (encoder cqrsHttpServerResponseEncoder) Command() http1.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
 		resp := obj.(*CommandReply)
-		return coder.EncodeMessageToResponse(ctx, w, resp, encoder.marshalOptions)
-	}
-}
-func (encoder cqrsHttpServerResponseEncoder) QueryOneOf() http1.EncodeResponseFunc {
-	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
-		resp := obj.(*QueryOneOfReply)
 		return coder.EncodeMessageToResponse(ctx, w, resp, encoder.marshalOptions)
 	}
 }
@@ -277,27 +265,24 @@ func (encoder cqrsHttpServerResponseEncoder) CommandEmpty() http1.EncodeResponse
 		return coder.EncodeMessageToResponse(ctx, w, resp, encoder.marshalOptions)
 	}
 }
+func (encoder cqrsHttpServerResponseEncoder) Query() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
+		resp := obj.(*QueryReply)
+		return coder.EncodeMessageToResponse(ctx, w, resp, encoder.marshalOptions)
+	}
+}
+func (encoder cqrsHttpServerResponseEncoder) QueryOneOf() http1.EncodeResponseFunc {
+	return func(ctx context.Context, w http.ResponseWriter, obj any) error {
+		resp := obj.(*QueryOneOfReply)
+		return coder.EncodeMessageToResponse(ctx, w, resp, encoder.marshalOptions)
+	}
+}
 
 type cqrsHttpClientTransports struct {
 	clientOptions   []http1.ClientOption
 	middlewares     []endpoint.Middleware
 	requestEncoder  CqrsHttpClientRequestEncoder
 	responseDecoder CqrsHttpClientResponseDecoder
-}
-
-func (t *cqrsHttpClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(metadatax.HttpOutgoingInjector),
-		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(stainx.HttpOutgoingInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
-		t.requestEncoder.Query(instance),
-		t.responseDecoder.Query(),
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
 func (t *cqrsHttpClientTransports) Command(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -310,21 +295,6 @@ func (t *cqrsHttpClientTransports) Command(ctx context.Context, instance string)
 	client := http1.NewExplicitClient(
 		t.requestEncoder.Command(instance),
 		t.responseDecoder.Command(),
-		opts...,
-	)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
-}
-
-func (t *cqrsHttpClientTransports) QueryOneOf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	opts := []http1.ClientOption{
-		http1.ClientBefore(metadatax.HttpOutgoingInjector),
-		http1.ClientBefore(timeoutx.OutgoingInjector),
-		http1.ClientBefore(stainx.HttpOutgoingInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := http1.NewExplicitClient(
-		t.requestEncoder.QueryOneOf(instance),
-		t.responseDecoder.QueryOneOf(),
 		opts...,
 	)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
@@ -345,46 +315,42 @@ func (t *cqrsHttpClientTransports) CommandEmpty(ctx context.Context, instance st
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
 }
 
+func (t *cqrsHttpClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(metadatax.HttpOutgoingInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
+		http1.ClientBefore(stainx.HttpOutgoingInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		t.requestEncoder.Query(instance),
+		t.responseDecoder.Query(),
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
+func (t *cqrsHttpClientTransports) QueryOneOf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	opts := []http1.ClientOption{
+		http1.ClientBefore(metadatax.HttpOutgoingInjector),
+		http1.ClientBefore(timeoutx.OutgoingInjector),
+		http1.ClientBefore(stainx.HttpOutgoingInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := http1.NewExplicitClient(
+		t.requestEncoder.QueryOneOf(instance),
+		t.responseDecoder.QueryOneOf(),
+		opts...,
+	)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), nil, nil
+}
+
 type cqrsHttpClientRequestEncoder struct {
 	marshalOptions protojson.MarshalOptions
 	router         *mux.Router
 	scheme         string
 }
 
-func (encoder cqrsHttpClientRequestEncoder) Query(instance string) http1.CreateRequestFunc {
-	return func(ctx context.Context, obj any) (*http.Request, error) {
-		if obj == nil {
-			return nil, errors.New("request is nil")
-		}
-		req, ok := obj.(*QueryRequest)
-		if !ok {
-			return nil, fmt.Errorf("invalid request type, %T", obj)
-		}
-		_ = req
-		method := http.MethodPost
-		target := &url.URL{
-			Scheme: encoder.scheme,
-			Host:   instance,
-		}
-		header := http.Header{}
-		var body bytes.Buffer
-		if err := coder.EncodeMessageToRequest(ctx, req, header, &body, encoder.marshalOptions); err != nil {
-			return nil, err
-		}
-		var pairs []string
-		path, err := encoder.router.Get("/leo.example.cqrs.Cqrs/Query").URLPath(pairs...)
-		if err != nil {
-			return nil, err
-		}
-		target.Path = path.Path
-		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
-		if err != nil {
-			return nil, err
-		}
-		httpx.CopyHeader(r.Header, header)
-		return r, nil
-	}
-}
 func (encoder cqrsHttpClientRequestEncoder) Command(instance string) http1.CreateRequestFunc {
 	return func(ctx context.Context, obj any) (*http.Request, error) {
 		if obj == nil {
@@ -407,40 +373,6 @@ func (encoder cqrsHttpClientRequestEncoder) Command(instance string) http1.Creat
 		}
 		var pairs []string
 		path, err := encoder.router.Get("/leo.example.cqrs.Cqrs/Command").URLPath(pairs...)
-		if err != nil {
-			return nil, err
-		}
-		target.Path = path.Path
-		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
-		if err != nil {
-			return nil, err
-		}
-		httpx.CopyHeader(r.Header, header)
-		return r, nil
-	}
-}
-func (encoder cqrsHttpClientRequestEncoder) QueryOneOf(instance string) http1.CreateRequestFunc {
-	return func(ctx context.Context, obj any) (*http.Request, error) {
-		if obj == nil {
-			return nil, errors.New("request is nil")
-		}
-		req, ok := obj.(*QueryRequest)
-		if !ok {
-			return nil, fmt.Errorf("invalid request type, %T", obj)
-		}
-		_ = req
-		method := http.MethodPost
-		target := &url.URL{
-			Scheme: encoder.scheme,
-			Host:   instance,
-		}
-		header := http.Header{}
-		var body bytes.Buffer
-		if err := coder.EncodeMessageToRequest(ctx, req, header, &body, encoder.marshalOptions); err != nil {
-			return nil, err
-		}
-		var pairs []string
-		path, err := encoder.router.Get("/leo.example.cqrs.Cqrs/QueryOneOf").URLPath(pairs...)
 		if err != nil {
 			return nil, err
 		}
@@ -487,23 +419,79 @@ func (encoder cqrsHttpClientRequestEncoder) CommandEmpty(instance string) http1.
 		return r, nil
 	}
 }
+func (encoder cqrsHttpClientRequestEncoder) Query(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, errors.New("request is nil")
+		}
+		req, ok := obj.(*QueryRequest)
+		if !ok {
+			return nil, fmt.Errorf("invalid request type, %T", obj)
+		}
+		_ = req
+		method := http.MethodPost
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeMessageToRequest(ctx, req, header, &body, encoder.marshalOptions); err != nil {
+			return nil, err
+		}
+		var pairs []string
+		path, err := encoder.router.Get("/leo.example.cqrs.Cqrs/Query").URLPath(pairs...)
+		if err != nil {
+			return nil, err
+		}
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
+		if err != nil {
+			return nil, err
+		}
+		httpx.CopyHeader(r.Header, header)
+		return r, nil
+	}
+}
+func (encoder cqrsHttpClientRequestEncoder) QueryOneOf(instance string) http1.CreateRequestFunc {
+	return func(ctx context.Context, obj any) (*http.Request, error) {
+		if obj == nil {
+			return nil, errors.New("request is nil")
+		}
+		req, ok := obj.(*QueryRequest)
+		if !ok {
+			return nil, fmt.Errorf("invalid request type, %T", obj)
+		}
+		_ = req
+		method := http.MethodPost
+		target := &url.URL{
+			Scheme: encoder.scheme,
+			Host:   instance,
+		}
+		header := http.Header{}
+		var body bytes.Buffer
+		if err := coder.EncodeMessageToRequest(ctx, req, header, &body, encoder.marshalOptions); err != nil {
+			return nil, err
+		}
+		var pairs []string
+		path, err := encoder.router.Get("/leo.example.cqrs.Cqrs/QueryOneOf").URLPath(pairs...)
+		if err != nil {
+			return nil, err
+		}
+		target.Path = path.Path
+		r, err := http.NewRequestWithContext(ctx, method, target.String(), &body)
+		if err != nil {
+			return nil, err
+		}
+		httpx.CopyHeader(r.Header, header)
+		return r, nil
+	}
+}
 
 type cqrsHttpClientResponseDecoder struct {
 	unmarshalOptions protojson.UnmarshalOptions
 }
 
-func (decoder cqrsHttpClientResponseDecoder) Query() http1.DecodeResponseFunc {
-	return func(ctx context.Context, r *http.Response) (any, error) {
-		if r.StatusCode != http.StatusOK {
-			return nil, coder.DecodeErrorFromResponse(ctx, r)
-		}
-		resp := &QueryReply{}
-		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
-			return nil, err
-		}
-		return resp, nil
-	}
-}
 func (decoder cqrsHttpClientResponseDecoder) Command() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		if r.StatusCode != http.StatusOK {
@@ -516,24 +504,36 @@ func (decoder cqrsHttpClientResponseDecoder) Command() http1.DecodeResponseFunc 
 		return resp, nil
 	}
 }
-func (decoder cqrsHttpClientResponseDecoder) QueryOneOf() http1.DecodeResponseFunc {
-	return func(ctx context.Context, r *http.Response) (any, error) {
-		if r.StatusCode != http.StatusOK {
-			return nil, coder.DecodeErrorFromResponse(ctx, r)
-		}
-		resp := &QueryOneOfReply{}
-		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
-			return nil, err
-		}
-		return resp, nil
-	}
-}
 func (decoder cqrsHttpClientResponseDecoder) CommandEmpty() http1.DecodeResponseFunc {
 	return func(ctx context.Context, r *http.Response) (any, error) {
 		if r.StatusCode != http.StatusOK {
 			return nil, coder.DecodeErrorFromResponse(ctx, r)
 		}
 		resp := &emptypb.Empty{}
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (decoder cqrsHttpClientResponseDecoder) Query() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if r.StatusCode != http.StatusOK {
+			return nil, coder.DecodeErrorFromResponse(ctx, r)
+		}
+		resp := &QueryReply{}
+		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+func (decoder cqrsHttpClientResponseDecoder) QueryOneOf() http1.DecodeResponseFunc {
+	return func(ctx context.Context, r *http.Response) (any, error) {
+		if r.StatusCode != http.StatusOK {
+			return nil, coder.DecodeErrorFromResponse(ctx, r)
+		}
+		resp := &QueryOneOfReply{}
 		if err := coder.DecodeMessageFromResponse(ctx, r, resp, decoder.unmarshalOptions); err != nil {
 			return nil, err
 		}

@@ -17,6 +17,11 @@ type EnumPathCommand struct {
 	v1.UnimplementedEnumPathCommand
 }
 
+func (EnumPathCommand) From(ctx context.Context, req *v1.EnumPathRequest) (v1.EnumPathCommand, context.Context, error) {
+	panic("implement me")
+	return EnumPathCommand{}, ctx, nil
+}
+
 func NewEnumPathHandler() EnumPathHandler {
 	return &enumPathHandler{}
 }

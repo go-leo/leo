@@ -44,86 +44,136 @@ func NewBodyCqrsService[
 	if err := bus.RegisterCommand(httpRequestHandler); err != nil {
 		return nil, err
 	}
-	return &bodyCqrsService{bus: &bus}, nil
+	return &bodyCqrsService[
+		StarBodyCommandType,
+		NamedBodyCommandType,
+		NonBodyCommandType,
+		HttpBodyStarBodyCommandType,
+		HttpBodyNamedBodyCommandType,
+		HttpRequestCommandType,
+	]{bus: &bus}, nil
 }
 
-type bodyCqrsService struct {
+type bodyCqrsService[
+	StarBodyCommandType StarBodyCommand,
+	NamedBodyCommandType NamedBodyCommand,
+	NonBodyCommandType NonBodyCommand,
+	HttpBodyStarBodyCommandType HttpBodyStarBodyCommand,
+	HttpBodyNamedBodyCommandType HttpBodyNamedBodyCommand,
+	HttpRequestCommandType HttpRequestCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *bodyCqrsService) StarBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
-	var command StarBodyCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *bodyCqrsService[
+	StarBodyCommandType,
+	NamedBodyCommandType,
+	NonBodyCommandType,
+	HttpBodyStarBodyCommandType,
+	HttpBodyNamedBodyCommandType,
+	HttpRequestCommandType,
+]) StarBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	var command StarBodyCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *bodyCqrsService) NamedBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
-	var command NamedBodyCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *bodyCqrsService[
+	StarBodyCommandType,
+	NamedBodyCommandType,
+	NonBodyCommandType,
+	HttpBodyStarBodyCommandType,
+	HttpBodyNamedBodyCommandType,
+	HttpRequestCommandType,
+]) NamedBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
+	var command NamedBodyCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *bodyCqrsService) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
-	var command NonBodyCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *bodyCqrsService[
+	StarBodyCommandType,
+	NamedBodyCommandType,
+	NonBodyCommandType,
+	HttpBodyStarBodyCommandType,
+	HttpBodyNamedBodyCommandType,
+	HttpRequestCommandType,
+]) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
+	var command NonBodyCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *bodyCqrsService) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
-	var command HttpBodyStarBodyCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *bodyCqrsService[
+	StarBodyCommandType,
+	NamedBodyCommandType,
+	NonBodyCommandType,
+	HttpBodyStarBodyCommandType,
+	HttpBodyNamedBodyCommandType,
+	HttpRequestCommandType,
+]) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
+	var command HttpBodyStarBodyCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *bodyCqrsService) HttpBodyNamedBody(ctx context.Context, request *HttpBodyRequest) (*emptypb.Empty, error) {
-	var command HttpBodyNamedBodyCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *bodyCqrsService[
+	StarBodyCommandType,
+	NamedBodyCommandType,
+	NonBodyCommandType,
+	HttpBodyStarBodyCommandType,
+	HttpBodyNamedBodyCommandType,
+	HttpRequestCommandType,
+]) HttpBodyNamedBody(ctx context.Context, request *HttpBodyRequest) (*emptypb.Empty, error) {
+	var command HttpBodyNamedBodyCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *bodyCqrsService) HttpRequest(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
-	var command HttpRequestCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *bodyCqrsService[
+	StarBodyCommandType,
+	NamedBodyCommandType,
+	NonBodyCommandType,
+	HttpBodyStarBodyCommandType,
+	HttpBodyNamedBodyCommandType,
+	HttpRequestCommandType,
+]) HttpRequest(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
+	var command HttpRequestCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil

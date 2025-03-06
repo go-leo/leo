@@ -17,6 +17,11 @@ type Int32PathCommand struct {
 	v1.UnimplementedInt32PathCommand
 }
 
+func (Int32PathCommand) From(ctx context.Context, req *v1.Int32PathRequest) (v1.Int32PathCommand, context.Context, error) {
+	panic("implement me")
+	return Int32PathCommand{}, ctx, nil
+}
+
 func NewInt32PathHandler() Int32PathHandler {
 	return &int32PathHandler{}
 }

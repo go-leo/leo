@@ -17,6 +17,11 @@ type NamedBodyCommand struct {
 	v1.UnimplementedNamedBodyCommand
 }
 
+func (NamedBodyCommand) From(ctx context.Context, req *v1.BodyRequest) (v1.NamedBodyCommand, context.Context, error) {
+	panic("implement me")
+	return NamedBodyCommand{}, ctx, nil
+}
+
 func NewNamedBodyHandler() NamedBodyHandler {
 	return &namedBodyHandler{}
 }

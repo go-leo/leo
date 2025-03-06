@@ -17,6 +17,11 @@ type CommandCommand struct {
 	v1.UnimplementedCommandCommand
 }
 
+func (CommandCommand) From(ctx context.Context, req *v1.CommandRequest) (v1.CommandCommand, context.Context, error) {
+	panic("implement me")
+	return CommandCommand{}, ctx, nil
+}
+
 func NewCommandHandler() CommandHandler {
 	return &commandHandler{}
 }

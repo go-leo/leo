@@ -17,6 +17,11 @@ type DoubleQueryCommand struct {
 	v1.UnimplementedDoubleQueryCommand
 }
 
+func (DoubleQueryCommand) From(ctx context.Context, req *v1.DoubleQueryRequest) (v1.DoubleQueryCommand, context.Context, error) {
+	panic("implement me")
+	return DoubleQueryCommand{}, ctx, nil
+}
+
 func NewDoubleQueryHandler() DoubleQueryHandler {
 	return &doubleQueryHandler{}
 }

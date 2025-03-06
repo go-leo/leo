@@ -17,6 +17,11 @@ type FloatPathCommand struct {
 	v1.UnimplementedFloatPathCommand
 }
 
+func (FloatPathCommand) From(ctx context.Context, req *v1.FloatPathRequest) (v1.FloatPathCommand, context.Context, error) {
+	panic("implement me")
+	return FloatPathCommand{}, ctx, nil
+}
+
 func NewFloatPathHandler() FloatPathHandler {
 	return &floatPathHandler{}
 }

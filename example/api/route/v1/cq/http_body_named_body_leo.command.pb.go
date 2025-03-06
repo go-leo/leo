@@ -17,6 +17,11 @@ type HttpBodyNamedBodyCommand struct {
 	v1.UnimplementedHttpBodyNamedBodyCommand
 }
 
+func (HttpBodyNamedBodyCommand) From(ctx context.Context, req *v1.HttpBodyRequest) (v1.HttpBodyNamedBodyCommand, context.Context, error) {
+	panic("implement me")
+	return HttpBodyNamedBodyCommand{}, ctx, nil
+}
+
 func NewHttpBodyNamedBodyHandler() HttpBodyNamedBodyHandler {
 	return &httpBodyNamedBodyHandler{}
 }

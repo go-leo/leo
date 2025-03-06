@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 )
 
 var _ HttpBodyStarBodyHandler = (*httpBodyStarBodyHandler)(nil)
@@ -15,6 +16,11 @@ type HttpBodyStarBodyHandler cqrs.CommandHandler[HttpBodyStarBodyCommand]
 
 type HttpBodyStarBodyCommand struct {
 	v1.UnimplementedHttpBodyStarBodyCommand
+}
+
+func (HttpBodyStarBodyCommand) From(ctx context.Context, req *httpbody.HttpBody) (v1.HttpBodyStarBodyCommand, context.Context, error) {
+	panic("implement me")
+	return HttpBodyStarBodyCommand{}, ctx, nil
 }
 
 func NewHttpBodyStarBodyHandler() HttpBodyStarBodyHandler {

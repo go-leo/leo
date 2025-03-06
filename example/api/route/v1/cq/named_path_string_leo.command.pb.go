@@ -17,6 +17,11 @@ type NamedPathStringCommand struct {
 	v1.UnimplementedNamedPathStringCommand
 }
 
+func (NamedPathStringCommand) From(ctx context.Context, req *v1.NamedPathRequest) (v1.NamedPathStringCommand, context.Context, error) {
+	panic("implement me")
+	return NamedPathStringCommand{}, ctx, nil
+}
+
 func NewNamedPathStringHandler() NamedPathStringHandler {
 	return &namedPathStringHandler{}
 }

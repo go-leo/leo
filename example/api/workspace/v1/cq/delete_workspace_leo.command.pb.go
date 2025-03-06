@@ -17,6 +17,11 @@ type DeleteWorkspaceCommand struct {
 	v1.UnimplementedDeleteWorkspaceCommand
 }
 
+func (DeleteWorkspaceCommand) From(ctx context.Context, req *v1.DeleteWorkspaceRequest) (v1.DeleteWorkspaceCommand, context.Context, error) {
+	panic("implement me")
+	return DeleteWorkspaceCommand{}, ctx, nil
+}
+
 func NewDeleteWorkspaceHandler() DeleteWorkspaceHandler {
 	return &deleteWorkspaceHandler{}
 }

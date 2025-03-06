@@ -44,15 +44,36 @@ func NewResponseCqrsService[
 	if err := bus.RegisterQuery(httpResponseHandler); err != nil {
 		return nil, err
 	}
-	return &responseCqrsService{bus: &bus}, nil
+	return &responseCqrsService[
+		OmittedResponseQueryType, OmittedResponseResultType,
+		StarResponseQueryType, StarResponseResultType,
+		NamedResponseQueryType, NamedResponseResultType,
+		HttpBodyResponseQueryType, HttpBodyResponseResultType,
+		HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+		HttpResponseQueryType, HttpResponseResultType,
+	]{bus: &bus}, nil
 }
 
-type responseCqrsService struct {
+type responseCqrsService[
+	OmittedResponseQueryType OmittedResponseQuery, OmittedResponseResultType OmittedResponseResult,
+	StarResponseQueryType StarResponseQuery, StarResponseResultType StarResponseResult,
+	NamedResponseQueryType NamedResponseQuery, NamedResponseResultType NamedResponseResult,
+	HttpBodyResponseQueryType HttpBodyResponseQuery, HttpBodyResponseResultType HttpBodyResponseResult,
+	HttpBodyNamedResponseQueryType HttpBodyNamedResponseQuery, HttpBodyNamedResponseResultType HttpBodyNamedResponseResult,
+	HttpResponseQueryType HttpResponseQuery, HttpResponseResultType HttpResponseResult,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *responseCqrsService) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	var query OmittedResponseQuery
+func (svc *responseCqrsService[
+	OmittedResponseQueryType, OmittedResponseResultType,
+	StarResponseQueryType, StarResponseResultType,
+	NamedResponseQueryType, NamedResponseResultType,
+	HttpBodyResponseQueryType, HttpBodyResponseResultType,
+	HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+	HttpResponseQueryType, HttpResponseResultType,
+]) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	var query OmittedResponseQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -61,11 +82,18 @@ func (svc *responseCqrsService) OmittedResponse(ctx context.Context, request *em
 	if err != nil {
 		return nil, err
 	}
-	return r.(OmittedResponseResult).To(ctx)
+	return r.(OmittedResponseResultType).To(ctx)
 }
 
-func (svc *responseCqrsService) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	var query StarResponseQuery
+func (svc *responseCqrsService[
+	OmittedResponseQueryType, OmittedResponseResultType,
+	StarResponseQueryType, StarResponseResultType,
+	NamedResponseQueryType, NamedResponseResultType,
+	HttpBodyResponseQueryType, HttpBodyResponseResultType,
+	HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+	HttpResponseQueryType, HttpResponseResultType,
+]) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	var query StarResponseQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -74,11 +102,18 @@ func (svc *responseCqrsService) StarResponse(ctx context.Context, request *empty
 	if err != nil {
 		return nil, err
 	}
-	return r.(StarResponseResult).To(ctx)
+	return r.(StarResponseResultType).To(ctx)
 }
 
-func (svc *responseCqrsService) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	var query NamedResponseQuery
+func (svc *responseCqrsService[
+	OmittedResponseQueryType, OmittedResponseResultType,
+	StarResponseQueryType, StarResponseResultType,
+	NamedResponseQueryType, NamedResponseResultType,
+	HttpBodyResponseQueryType, HttpBodyResponseResultType,
+	HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+	HttpResponseQueryType, HttpResponseResultType,
+]) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
+	var query NamedResponseQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -87,11 +122,18 @@ func (svc *responseCqrsService) NamedResponse(ctx context.Context, request *empt
 	if err != nil {
 		return nil, err
 	}
-	return r.(NamedResponseResult).To(ctx)
+	return r.(NamedResponseResultType).To(ctx)
 }
 
-func (svc *responseCqrsService) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
-	var query HttpBodyResponseQuery
+func (svc *responseCqrsService[
+	OmittedResponseQueryType, OmittedResponseResultType,
+	StarResponseQueryType, StarResponseResultType,
+	NamedResponseQueryType, NamedResponseResultType,
+	HttpBodyResponseQueryType, HttpBodyResponseResultType,
+	HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+	HttpResponseQueryType, HttpResponseResultType,
+]) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
+	var query HttpBodyResponseQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -100,11 +142,18 @@ func (svc *responseCqrsService) HttpBodyResponse(ctx context.Context, request *e
 	if err != nil {
 		return nil, err
 	}
-	return r.(HttpBodyResponseResult).To(ctx)
+	return r.(HttpBodyResponseResultType).To(ctx)
 }
 
-func (svc *responseCqrsService) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
-	var query HttpBodyNamedResponseQuery
+func (svc *responseCqrsService[
+	OmittedResponseQueryType, OmittedResponseResultType,
+	StarResponseQueryType, StarResponseResultType,
+	NamedResponseQueryType, NamedResponseResultType,
+	HttpBodyResponseQueryType, HttpBodyResponseResultType,
+	HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+	HttpResponseQueryType, HttpResponseResultType,
+]) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
+	var query HttpBodyNamedResponseQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -113,11 +162,18 @@ func (svc *responseCqrsService) HttpBodyNamedResponse(ctx context.Context, reque
 	if err != nil {
 		return nil, err
 	}
-	return r.(HttpBodyNamedResponseResult).To(ctx)
+	return r.(HttpBodyNamedResponseResultType).To(ctx)
 }
 
-func (svc *responseCqrsService) HttpResponse(ctx context.Context, request *emptypb.Empty) (*http.HttpResponse, error) {
-	var query HttpResponseQuery
+func (svc *responseCqrsService[
+	OmittedResponseQueryType, OmittedResponseResultType,
+	StarResponseQueryType, StarResponseResultType,
+	NamedResponseQueryType, NamedResponseResultType,
+	HttpBodyResponseQueryType, HttpBodyResponseResultType,
+	HttpBodyNamedResponseQueryType, HttpBodyNamedResponseResultType,
+	HttpResponseQueryType, HttpResponseResultType,
+]) HttpResponse(ctx context.Context, request *emptypb.Empty) (*http.HttpResponse, error) {
+	var query HttpResponseQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -126,7 +182,7 @@ func (svc *responseCqrsService) HttpResponse(ctx context.Context, request *empty
 	if err != nil {
 		return nil, err
 	}
-	return r.(HttpResponseResult).To(ctx)
+	return r.(HttpResponseResultType).To(ctx)
 }
 
 type (

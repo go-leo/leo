@@ -16,15 +16,21 @@ func NewGreeterCqrsService[
 	if err := bus.RegisterQuery(sayHelloHandler); err != nil {
 		return nil, err
 	}
-	return &greeterCqrsService{bus: &bus}, nil
+	return &greeterCqrsService[
+		SayHelloQueryType, SayHelloResultType,
+	]{bus: &bus}, nil
 }
 
-type greeterCqrsService struct {
+type greeterCqrsService[
+	SayHelloQueryType SayHelloQuery, SayHelloResultType SayHelloResult,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *greeterCqrsService) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	var query SayHelloQuery
+func (svc *greeterCqrsService[
+	SayHelloQueryType, SayHelloResultType,
+]) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
+	var query SayHelloQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -33,7 +39,7 @@ func (svc *greeterCqrsService) SayHello(ctx context.Context, request *HelloReque
 	if err != nil {
 		return nil, err
 	}
-	return r.(SayHelloResult).To(ctx)
+	return r.(SayHelloResultType).To(ctx)
 }
 
 type (

@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ NonBodyHandler = (*nonBodyHandler)(nil)
@@ -15,6 +16,11 @@ type NonBodyHandler cqrs.CommandHandler[NonBodyCommand]
 
 type NonBodyCommand struct {
 	v1.UnimplementedNonBodyCommand
+}
+
+func (NonBodyCommand) From(ctx context.Context, req *emptypb.Empty) (v1.NonBodyCommand, context.Context, error) {
+	panic("implement me")
+	return NonBodyCommand{}, ctx, nil
 }
 
 func NewNonBodyHandler() NonBodyHandler {

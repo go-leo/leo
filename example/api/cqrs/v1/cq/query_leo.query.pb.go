@@ -17,8 +17,18 @@ type QueryQuery struct {
 	v1.UnimplementedQueryQuery
 }
 
+func (QueryQuery) From(ctx context.Context, req *v1.QueryRequest) (v1.QueryQuery, context.Context, error) {
+	panic("implement me")
+	return QueryQuery{}, ctx, nil
+}
+
 type QueryResult struct {
 	v1.UnimplementedQueryResult
+}
+
+func (r QueryResult) To(ctx context.Context) (*v1.QueryReply, error) {
+	panic("implement me")
+	return &v1.QueryReply{}, nil
 }
 
 func NewQueryHandler() QueryHandler {

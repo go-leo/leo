@@ -20,58 +20,58 @@ import (
 
 // CqrsService is a service
 type CqrsService interface {
-	Query(ctx context.Context, request *QueryRequest) (*QueryReply, error)
 	Command(ctx context.Context, request *CommandRequest) (*CommandReply, error)
-	QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error)
 	CommandEmpty(ctx context.Context, request *CommandRequest) (*emptypb.Empty, error)
+	Query(ctx context.Context, request *QueryRequest) (*QueryReply, error)
+	QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error)
 }
 
 // CqrsServerEndpoints is server endpoints
 type CqrsServerEndpoints interface {
-	Query(ctx context.Context) endpoint.Endpoint
 	Command(ctx context.Context) endpoint.Endpoint
-	QueryOneOf(ctx context.Context) endpoint.Endpoint
 	CommandEmpty(ctx context.Context) endpoint.Endpoint
+	Query(ctx context.Context) endpoint.Endpoint
+	QueryOneOf(ctx context.Context) endpoint.Endpoint
 }
 
 // CqrsClientEndpoints is client endpoints
 type CqrsClientEndpoints interface {
-	Query(ctx context.Context) (endpoint.Endpoint, error)
 	Command(ctx context.Context) (endpoint.Endpoint, error)
-	QueryOneOf(ctx context.Context) (endpoint.Endpoint, error)
 	CommandEmpty(ctx context.Context) (endpoint.Endpoint, error)
+	Query(ctx context.Context) (endpoint.Endpoint, error)
+	QueryOneOf(ctx context.Context) (endpoint.Endpoint, error)
 }
 
 // CqrsClientTransports is client transports
 type CqrsClientTransports interface {
-	Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	Command(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
-	QueryOneOf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 	CommandEmpty(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
+	QueryOneOf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error)
 }
 
 // CqrsFactories is client factories
 type CqrsFactories interface {
-	Query(ctx context.Context) sd.Factory
 	Command(ctx context.Context) sd.Factory
-	QueryOneOf(ctx context.Context) sd.Factory
 	CommandEmpty(ctx context.Context) sd.Factory
+	Query(ctx context.Context) sd.Factory
+	QueryOneOf(ctx context.Context) sd.Factory
 }
 
 // CqrsEndpointers is client endpointers
 type CqrsEndpointers interface {
-	Query(ctx context.Context, color string) (sd.Endpointer, error)
 	Command(ctx context.Context, color string) (sd.Endpointer, error)
-	QueryOneOf(ctx context.Context, color string) (sd.Endpointer, error)
 	CommandEmpty(ctx context.Context, color string) (sd.Endpointer, error)
+	Query(ctx context.Context, color string) (sd.Endpointer, error)
+	QueryOneOf(ctx context.Context, color string) (sd.Endpointer, error)
 }
 
 // CqrsBalancers is client balancers
 type CqrsBalancers interface {
-	Query(ctx context.Context) (lb.Balancer, error)
 	Command(ctx context.Context) (lb.Balancer, error)
-	QueryOneOf(ctx context.Context) (lb.Balancer, error)
 	CommandEmpty(ctx context.Context) (lb.Balancer, error)
+	Query(ctx context.Context) (lb.Balancer, error)
+	QueryOneOf(ctx context.Context) (lb.Balancer, error)
 }
 
 // cqrsServerEndpoints implements CqrsServerEndpoints
@@ -80,23 +80,9 @@ type cqrsServerEndpoints struct {
 	middlewares []endpoint.Middleware
 }
 
-func (e *cqrsServerEndpoints) Query(context.Context) endpoint.Endpoint {
-	component := func(ctx context.Context, request any) (any, error) {
-		return e.svc.Query(ctx, request.(*QueryRequest))
-	}
-	return endpointx.Chain(component, e.middlewares...)
-}
-
 func (e *cqrsServerEndpoints) Command(context.Context) endpoint.Endpoint {
 	component := func(ctx context.Context, request any) (any, error) {
 		return e.svc.Command(ctx, request.(*CommandRequest))
-	}
-	return endpointx.Chain(component, e.middlewares...)
-}
-
-func (e *cqrsServerEndpoints) QueryOneOf(context.Context) endpoint.Endpoint {
-	component := func(ctx context.Context, request any) (any, error) {
-		return e.svc.QueryOneOf(ctx, request.(*QueryRequest))
 	}
 	return endpointx.Chain(component, e.middlewares...)
 }
@@ -108,15 +94,23 @@ func (e *cqrsServerEndpoints) CommandEmpty(context.Context) endpoint.Endpoint {
 	return endpointx.Chain(component, e.middlewares...)
 }
 
+func (e *cqrsServerEndpoints) Query(context.Context) endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.Query(ctx, request.(*QueryRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
+func (e *cqrsServerEndpoints) QueryOneOf(context.Context) endpoint.Endpoint {
+	component := func(ctx context.Context, request any) (any, error) {
+		return e.svc.QueryOneOf(ctx, request.(*QueryRequest))
+	}
+	return endpointx.Chain(component, e.middlewares...)
+}
+
 // cqrsFactories implements CqrsFactories
 type cqrsFactories struct {
 	transports CqrsClientTransports
-}
-
-func (f *cqrsFactories) Query(ctx context.Context) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		return f.transports.Query(ctx, instance)
-	}
 }
 
 func (f *cqrsFactories) Command(ctx context.Context) sd.Factory {
@@ -125,15 +119,21 @@ func (f *cqrsFactories) Command(ctx context.Context) sd.Factory {
 	}
 }
 
-func (f *cqrsFactories) QueryOneOf(ctx context.Context) sd.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		return f.transports.QueryOneOf(ctx, instance)
-	}
-}
-
 func (f *cqrsFactories) CommandEmpty(ctx context.Context) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		return f.transports.CommandEmpty(ctx, instance)
+	}
+}
+
+func (f *cqrsFactories) Query(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.Query(ctx, instance)
+	}
+}
+
+func (f *cqrsFactories) QueryOneOf(ctx context.Context) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		return f.transports.QueryOneOf(ctx, instance)
 	}
 }
 
@@ -146,45 +146,35 @@ type cqrsEndpointers struct {
 	options   []sd.EndpointerOption
 }
 
-func (e *cqrsEndpointers) Query(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Query(ctx), e.logger, e.options...)
-}
-
 func (e *cqrsEndpointers) Command(ctx context.Context, color string) (sd.Endpointer, error) {
 	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Command(ctx), e.logger, e.options...)
-}
-
-func (e *cqrsEndpointers) QueryOneOf(ctx context.Context, color string) (sd.Endpointer, error) {
-	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.QueryOneOf(ctx), e.logger, e.options...)
 }
 
 func (e *cqrsEndpointers) CommandEmpty(ctx context.Context, color string) (sd.Endpointer, error) {
 	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.CommandEmpty(ctx), e.logger, e.options...)
 }
 
+func (e *cqrsEndpointers) Query(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.Query(ctx), e.logger, e.options...)
+}
+
+func (e *cqrsEndpointers) QueryOneOf(ctx context.Context, color string) (sd.Endpointer, error) {
+	return sdx.NewEndpointer(ctx, e.target, color, e.builder, e.factories.QueryOneOf(ctx), e.logger, e.options...)
+}
+
 // cqrsBalancers implements CqrsBalancers
 type cqrsBalancers struct {
 	factory      lbx.BalancerFactory
 	endpointer   CqrsEndpointers
-	query        lazyloadx.Group[lb.Balancer]
 	command      lazyloadx.Group[lb.Balancer]
-	queryOneOf   lazyloadx.Group[lb.Balancer]
 	commandEmpty lazyloadx.Group[lb.Balancer]
+	query        lazyloadx.Group[lb.Balancer]
+	queryOneOf   lazyloadx.Group[lb.Balancer]
 }
 
-func (b *cqrsBalancers) Query(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
-	balancer, err, _ := b.query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Query))
-	return balancer, err
-}
 func (b *cqrsBalancers) Command(ctx context.Context) (lb.Balancer, error) {
 	color, _ := stainx.ExtractColor(ctx)
 	balancer, err, _ := b.command.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Command))
-	return balancer, err
-}
-func (b *cqrsBalancers) QueryOneOf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
-	balancer, err, _ := b.queryOneOf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.QueryOneOf))
 	return balancer, err
 }
 func (b *cqrsBalancers) CommandEmpty(ctx context.Context) (lb.Balancer, error) {
@@ -192,14 +182,24 @@ func (b *cqrsBalancers) CommandEmpty(ctx context.Context) (lb.Balancer, error) {
 	balancer, err, _ := b.commandEmpty.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CommandEmpty))
 	return balancer, err
 }
+func (b *cqrsBalancers) Query(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Query))
+	return balancer, err
+}
+func (b *cqrsBalancers) QueryOneOf(ctx context.Context) (lb.Balancer, error) {
+	color, _ := stainx.ExtractColor(ctx)
+	balancer, err, _ := b.queryOneOf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.QueryOneOf))
+	return balancer, err
+}
 func newCqrsBalancers(factory lbx.BalancerFactory, endpointer CqrsEndpointers) CqrsBalancers {
 	return &cqrsBalancers{
 		factory:      factory,
 		endpointer:   endpointer,
-		query:        lazyloadx.Group[lb.Balancer]{},
 		command:      lazyloadx.Group[lb.Balancer]{},
-		queryOneOf:   lazyloadx.Group[lb.Balancer]{},
 		commandEmpty: lazyloadx.Group[lb.Balancer]{},
+		query:        lazyloadx.Group[lb.Balancer]{},
+		queryOneOf:   lazyloadx.Group[lb.Balancer]{},
 	}
 }
 
@@ -208,24 +208,8 @@ type cqrsClientEndpoints struct {
 	balancers CqrsBalancers
 }
 
-func (e *cqrsClientEndpoints) Query(ctx context.Context) (endpoint.Endpoint, error) {
-	balancer, err := e.balancers.Query(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return balancer.Endpoint()
-}
-
 func (e *cqrsClientEndpoints) Command(ctx context.Context) (endpoint.Endpoint, error) {
 	balancer, err := e.balancers.Command(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return balancer.Endpoint()
-}
-
-func (e *cqrsClientEndpoints) QueryOneOf(ctx context.Context) (endpoint.Endpoint, error) {
-	balancer, err := e.balancers.QueryOneOf(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -240,24 +224,26 @@ func (e *cqrsClientEndpoints) CommandEmpty(ctx context.Context) (endpoint.Endpoi
 	return balancer.Endpoint()
 }
 
+func (e *cqrsClientEndpoints) Query(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.Query(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
+}
+
+func (e *cqrsClientEndpoints) QueryOneOf(ctx context.Context) (endpoint.Endpoint, error) {
+	balancer, err := e.balancers.QueryOneOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return balancer.Endpoint()
+}
+
 // cqrsClientService implements CqrsClientService
 type cqrsClientService struct {
 	endpoints     CqrsClientEndpoints
 	transportName string
-}
-
-func (c *cqrsClientService) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/Query")
-	ctx = transportx.InjectName(ctx, c.transportName)
-	endpoint, err := c.endpoints.Query(ctx)
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*QueryReply), nil
 }
 
 func (c *cqrsClientService) Command(ctx context.Context, request *CommandRequest) (*CommandReply, error) {
@@ -274,20 +260,6 @@ func (c *cqrsClientService) Command(ctx context.Context, request *CommandRequest
 	return rep.(*CommandReply), nil
 }
 
-func (c *cqrsClientService) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/QueryOneOf")
-	ctx = transportx.InjectName(ctx, c.transportName)
-	endpoint, err := c.endpoints.QueryOneOf(ctx)
-	if err != nil {
-		return nil, err
-	}
-	rep, err := endpoint(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*QueryOneOfReply), nil
-}
-
 func (c *cqrsClientService) CommandEmpty(ctx context.Context, request *CommandRequest) (*emptypb.Empty, error) {
 	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/CommandEmpty")
 	ctx = transportx.InjectName(ctx, c.transportName)
@@ -300,4 +272,32 @@ func (c *cqrsClientService) CommandEmpty(ctx context.Context, request *CommandRe
 		return nil, err
 	}
 	return rep.(*emptypb.Empty), nil
+}
+
+func (c *cqrsClientService) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/Query")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.Query(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*QueryReply), nil
+}
+
+func (c *cqrsClientService) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
+	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/QueryOneOf")
+	ctx = transportx.InjectName(ctx, c.transportName)
+	endpoint, err := c.endpoints.QueryOneOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := endpoint(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*QueryOneOfReply), nil
 }

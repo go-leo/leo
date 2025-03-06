@@ -17,6 +17,11 @@ type DeleteBookCommand struct {
 	v1.UnimplementedDeleteBookCommand
 }
 
+func (DeleteBookCommand) From(ctx context.Context, req *v1.DeleteBookRequest) (v1.DeleteBookCommand, context.Context, error) {
+	panic("implement me")
+	return DeleteBookCommand{}, ctx, nil
+}
+
 func NewDeleteBookHandler() DeleteBookHandler {
 	return &deleteBookHandler{}
 }

@@ -67,15 +67,51 @@ func NewLibraryServiceCqrsService[
 	if err := bus.RegisterQuery(moveBookHandler); err != nil {
 		return nil, err
 	}
-	return &libraryServiceCqrsService{bus: &bus}, nil
+	return &libraryServiceCqrsService[
+		CreateShelfQueryType, CreateShelfResultType,
+		GetShelfQueryType, GetShelfResultType,
+		ListShelvesQueryType, ListShelvesResultType,
+		DeleteShelfCommandType,
+		MergeShelvesQueryType, MergeShelvesResultType,
+		CreateBookQueryType, CreateBookResultType,
+		GetBookQueryType, GetBookResultType,
+		ListBooksQueryType, ListBooksResultType,
+		DeleteBookCommandType,
+		UpdateBookQueryType, UpdateBookResultType,
+		MoveBookQueryType, MoveBookResultType,
+	]{bus: &bus}, nil
 }
 
-type libraryServiceCqrsService struct {
+type libraryServiceCqrsService[
+	CreateShelfQueryType CreateShelfQuery, CreateShelfResultType CreateShelfResult,
+	GetShelfQueryType GetShelfQuery, GetShelfResultType GetShelfResult,
+	ListShelvesQueryType ListShelvesQuery, ListShelvesResultType ListShelvesResult,
+	DeleteShelfCommandType DeleteShelfCommand,
+	MergeShelvesQueryType MergeShelvesQuery, MergeShelvesResultType MergeShelvesResult,
+	CreateBookQueryType CreateBookQuery, CreateBookResultType CreateBookResult,
+	GetBookQueryType GetBookQuery, GetBookResultType GetBookResult,
+	ListBooksQueryType ListBooksQuery, ListBooksResultType ListBooksResult,
+	DeleteBookCommandType DeleteBookCommand,
+	UpdateBookQueryType UpdateBookQuery, UpdateBookResultType UpdateBookResult,
+	MoveBookQueryType MoveBookQuery, MoveBookResultType MoveBookResult,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *libraryServiceCqrsService) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
-	var query CreateShelfQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
+	var query CreateShelfQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -84,11 +120,23 @@ func (svc *libraryServiceCqrsService) CreateShelf(ctx context.Context, request *
 	if err != nil {
 		return nil, err
 	}
-	return r.(CreateShelfResult).To(ctx)
+	return r.(CreateShelfResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
-	var query GetShelfQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
+	var query GetShelfQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -97,11 +145,23 @@ func (svc *libraryServiceCqrsService) GetShelf(ctx context.Context, request *Get
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetShelfResult).To(ctx)
+	return r.(GetShelfResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
-	var query ListShelvesQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
+	var query ListShelvesQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -110,24 +170,47 @@ func (svc *libraryServiceCqrsService) ListShelves(ctx context.Context, request *
 	if err != nil {
 		return nil, err
 	}
-	return r.(ListShelvesResult).To(ctx)
+	return r.(ListShelvesResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
-	var command DeleteShelfCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
+	var command DeleteShelfCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *libraryServiceCqrsService) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
-	var query MergeShelvesQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
+	var query MergeShelvesQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -136,11 +219,23 @@ func (svc *libraryServiceCqrsService) MergeShelves(ctx context.Context, request 
 	if err != nil {
 		return nil, err
 	}
-	return r.(MergeShelvesResult).To(ctx)
+	return r.(MergeShelvesResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
-	var query CreateBookQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
+	var query CreateBookQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -149,11 +244,23 @@ func (svc *libraryServiceCqrsService) CreateBook(ctx context.Context, request *C
 	if err != nil {
 		return nil, err
 	}
-	return r.(CreateBookResult).To(ctx)
+	return r.(CreateBookResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
-	var query GetBookQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
+	var query GetBookQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -162,11 +269,23 @@ func (svc *libraryServiceCqrsService) GetBook(ctx context.Context, request *GetB
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetBookResult).To(ctx)
+	return r.(GetBookResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
-	var query ListBooksQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
+	var query ListBooksQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -175,24 +294,47 @@ func (svc *libraryServiceCqrsService) ListBooks(ctx context.Context, request *Li
 	if err != nil {
 		return nil, err
 	}
-	return r.(ListBooksResult).To(ctx)
+	return r.(ListBooksResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
-	var command DeleteBookCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
+	var command DeleteBookCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *libraryServiceCqrsService) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
-	var query UpdateBookQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
+	var query UpdateBookQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -201,11 +343,23 @@ func (svc *libraryServiceCqrsService) UpdateBook(ctx context.Context, request *U
 	if err != nil {
 		return nil, err
 	}
-	return r.(UpdateBookResult).To(ctx)
+	return r.(UpdateBookResultType).To(ctx)
 }
 
-func (svc *libraryServiceCqrsService) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
-	var query MoveBookQuery
+func (svc *libraryServiceCqrsService[
+	CreateShelfQueryType, CreateShelfResultType,
+	GetShelfQueryType, GetShelfResultType,
+	ListShelvesQueryType, ListShelvesResultType,
+	DeleteShelfCommandType,
+	MergeShelvesQueryType, MergeShelvesResultType,
+	CreateBookQueryType, CreateBookResultType,
+	GetBookQueryType, GetBookResultType,
+	ListBooksQueryType, ListBooksResultType,
+	DeleteBookCommandType,
+	UpdateBookQueryType, UpdateBookResultType,
+	MoveBookQueryType, MoveBookResultType,
+]) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
+	var query MoveBookQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -214,7 +368,7 @@ func (svc *libraryServiceCqrsService) MoveBook(ctx context.Context, request *Mov
 	if err != nil {
 		return nil, err
 	}
-	return r.(MoveBookResult).To(ctx)
+	return r.(MoveBookResultType).To(ctx)
 }
 
 type (

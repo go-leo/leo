@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ NamedResponseHandler = (*namedResponseHandler)(nil)
@@ -17,8 +18,18 @@ type NamedResponseQuery struct {
 	v1.UnimplementedNamedResponseQuery
 }
 
+func (NamedResponseQuery) From(ctx context.Context, req *emptypb.Empty) (v1.NamedResponseQuery, context.Context, error) {
+	panic("implement me")
+	return NamedResponseQuery{}, ctx, nil
+}
+
 type NamedResponseResult struct {
 	v1.UnimplementedNamedResponseResult
+}
+
+func (r NamedResponseResult) To(ctx context.Context) (*v1.UserResponse, error) {
+	panic("implement me")
+	return &v1.UserResponse{}, nil
 }
 
 func NewNamedResponseHandler() NamedResponseHandler {

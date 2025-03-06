@@ -17,8 +17,18 @@ type UpdateWorkspaceQuery struct {
 	v1.UnimplementedUpdateWorkspaceQuery
 }
 
+func (UpdateWorkspaceQuery) From(ctx context.Context, req *v1.UpdateWorkspaceRequest) (v1.UpdateWorkspaceQuery, context.Context, error) {
+	panic("implement me")
+	return UpdateWorkspaceQuery{}, ctx, nil
+}
+
 type UpdateWorkspaceResult struct {
 	v1.UnimplementedUpdateWorkspaceResult
+}
+
+func (r UpdateWorkspaceResult) To(ctx context.Context) (*v1.Workspace, error) {
+	panic("implement me")
+	return &v1.Workspace{}, nil
 }
 
 func NewUpdateWorkspaceHandler() UpdateWorkspaceHandler {

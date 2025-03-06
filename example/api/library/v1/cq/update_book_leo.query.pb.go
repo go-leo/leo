@@ -17,8 +17,18 @@ type UpdateBookQuery struct {
 	v1.UnimplementedUpdateBookQuery
 }
 
+func (UpdateBookQuery) From(ctx context.Context, req *v1.UpdateBookRequest) (v1.UpdateBookQuery, context.Context, error) {
+	panic("implement me")
+	return UpdateBookQuery{}, ctx, nil
+}
+
 type UpdateBookResult struct {
 	v1.UnimplementedUpdateBookResult
+}
+
+func (r UpdateBookResult) To(ctx context.Context) (*v1.Book, error) {
+	panic("implement me")
+	return &v1.Book{}, nil
 }
 
 func NewUpdateBookHandler() UpdateBookHandler {

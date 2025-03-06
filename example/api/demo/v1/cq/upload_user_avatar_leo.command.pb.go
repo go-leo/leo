@@ -17,6 +17,11 @@ type UploadUserAvatarCommand struct {
 	v1.UnimplementedUploadUserAvatarCommand
 }
 
+func (UploadUserAvatarCommand) From(ctx context.Context, req *v1.UploadUserAvatarRequest) (v1.UploadUserAvatarCommand, context.Context, error) {
+	panic("implement me")
+	return UploadUserAvatarCommand{}, ctx, nil
+}
+
 func NewUploadUserAvatarHandler() UploadUserAvatarHandler {
 	return &uploadUserAvatarHandler{}
 }

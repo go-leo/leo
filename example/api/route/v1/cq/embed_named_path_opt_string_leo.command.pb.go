@@ -17,6 +17,11 @@ type EmbedNamedPathOptStringCommand struct {
 	v1.UnimplementedEmbedNamedPathOptStringCommand
 }
 
+func (EmbedNamedPathOptStringCommand) From(ctx context.Context, req *v1.EmbedNamedPathRequest) (v1.EmbedNamedPathOptStringCommand, context.Context, error) {
+	panic("implement me")
+	return EmbedNamedPathOptStringCommand{}, ctx, nil
+}
+
 func NewEmbedNamedPathOptStringHandler() EmbedNamedPathOptStringHandler {
 	return &embedNamedPathOptStringHandler{}
 }

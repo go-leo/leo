@@ -17,6 +17,11 @@ type BoolQueryCommand struct {
 	v1.UnimplementedBoolQueryCommand
 }
 
+func (BoolQueryCommand) From(ctx context.Context, req *v1.BoolQueryRequest) (v1.BoolQueryCommand, context.Context, error) {
+	panic("implement me")
+	return BoolQueryCommand{}, ctx, nil
+}
+
 func NewBoolQueryHandler() BoolQueryHandler {
 	return &boolQueryHandler{}
 }

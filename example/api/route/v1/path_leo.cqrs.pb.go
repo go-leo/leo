@@ -17,7 +17,7 @@ func NewBoolPathCqrsService[
 	if err := bus.RegisterCommand(boolPathHandler); err != nil {
 		return nil, err
 	}
-	return &boolPathCqrsService{bus: &bus}, nil
+	return &boolPathCqrsService[BoolPathCommandType]{bus: &bus}, nil
 }
 
 func NewInt32PathCqrsService[
@@ -29,7 +29,7 @@ func NewInt32PathCqrsService[
 	if err := bus.RegisterCommand(int32PathHandler); err != nil {
 		return nil, err
 	}
-	return &int32PathCqrsService{bus: &bus}, nil
+	return &int32PathCqrsService[Int32PathCommandType]{bus: &bus}, nil
 }
 
 func NewInt64PathCqrsService[
@@ -41,7 +41,7 @@ func NewInt64PathCqrsService[
 	if err := bus.RegisterCommand(int64PathHandler); err != nil {
 		return nil, err
 	}
-	return &int64PathCqrsService{bus: &bus}, nil
+	return &int64PathCqrsService[Int64PathCommandType]{bus: &bus}, nil
 }
 
 func NewUint32PathCqrsService[
@@ -53,7 +53,7 @@ func NewUint32PathCqrsService[
 	if err := bus.RegisterCommand(uint32PathHandler); err != nil {
 		return nil, err
 	}
-	return &uint32PathCqrsService{bus: &bus}, nil
+	return &uint32PathCqrsService[Uint32PathCommandType]{bus: &bus}, nil
 }
 
 func NewUint64PathCqrsService[
@@ -65,7 +65,7 @@ func NewUint64PathCqrsService[
 	if err := bus.RegisterCommand(uint64PathHandler); err != nil {
 		return nil, err
 	}
-	return &uint64PathCqrsService{bus: &bus}, nil
+	return &uint64PathCqrsService[Uint64PathCommandType]{bus: &bus}, nil
 }
 
 func NewFloatPathCqrsService[
@@ -77,7 +77,7 @@ func NewFloatPathCqrsService[
 	if err := bus.RegisterCommand(floatPathHandler); err != nil {
 		return nil, err
 	}
-	return &floatPathCqrsService{bus: &bus}, nil
+	return &floatPathCqrsService[FloatPathCommandType]{bus: &bus}, nil
 }
 
 func NewDoublePathCqrsService[
@@ -89,7 +89,7 @@ func NewDoublePathCqrsService[
 	if err := bus.RegisterCommand(doublePathHandler); err != nil {
 		return nil, err
 	}
-	return &doublePathCqrsService{bus: &bus}, nil
+	return &doublePathCqrsService[DoublePathCommandType]{bus: &bus}, nil
 }
 
 func NewStringPathCqrsService[
@@ -101,7 +101,7 @@ func NewStringPathCqrsService[
 	if err := bus.RegisterCommand(stringPathHandler); err != nil {
 		return nil, err
 	}
-	return &stringPathCqrsService{bus: &bus}, nil
+	return &stringPathCqrsService[StringPathCommandType]{bus: &bus}, nil
 }
 
 func NewEnumPathCqrsService[
@@ -113,7 +113,7 @@ func NewEnumPathCqrsService[
 	if err := bus.RegisterCommand(enumPathHandler); err != nil {
 		return nil, err
 	}
-	return &enumPathCqrsService{bus: &bus}, nil
+	return &enumPathCqrsService[EnumPathCommandType]{bus: &bus}, nil
 }
 
 func NewNamedPathCqrsService[
@@ -150,7 +150,14 @@ func NewNamedPathCqrsService[
 	if err := bus.RegisterCommand(embedNamedPathWrapStringHandler); err != nil {
 		return nil, err
 	}
-	return &namedPathCqrsService{bus: &bus}, nil
+	return &namedPathCqrsService[
+		NamedPathStringCommandType,
+		NamedPathOptStringCommandType,
+		NamedPathWrapStringCommandType,
+		EmbedNamedPathStringCommandType,
+		EmbedNamedPathOptStringCommandType,
+		EmbedNamedPathWrapStringCommandType,
+	]{bus: &bus}, nil
 }
 
 func NewMixPathCqrsService[
@@ -162,21 +169,22 @@ func NewMixPathCqrsService[
 	if err := bus.RegisterCommand(mixPathHandler); err != nil {
 		return nil, err
 	}
-	return &mixPathCqrsService{bus: &bus}, nil
+	return &mixPathCqrsService[MixPathCommandType]{bus: &bus}, nil
 }
 
-type boolPathCqrsService struct {
+type boolPathCqrsService[
+	BoolPathCommandType BoolPathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *boolPathCqrsService) BoolPath(ctx context.Context, request *BoolPathRequest) (*emptypb.Empty, error) {
-	var command BoolPathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *boolPathCqrsService[BoolPathCommandType]) BoolPath(ctx context.Context, request *BoolPathRequest) (*emptypb.Empty, error) {
+	var command BoolPathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -196,18 +204,19 @@ func (UnimplementedBoolPathCommand) From(context.Context, *BoolPathRequest) (Boo
 	return nil, nil, nil
 }
 
-type int32PathCqrsService struct {
+type int32PathCqrsService[
+	Int32PathCommandType Int32PathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *int32PathCqrsService) Int32Path(ctx context.Context, request *Int32PathRequest) (*emptypb.Empty, error) {
-	var command Int32PathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *int32PathCqrsService[Int32PathCommandType]) Int32Path(ctx context.Context, request *Int32PathRequest) (*emptypb.Empty, error) {
+	var command Int32PathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -227,18 +236,19 @@ func (UnimplementedInt32PathCommand) From(context.Context, *Int32PathRequest) (I
 	return nil, nil, nil
 }
 
-type int64PathCqrsService struct {
+type int64PathCqrsService[
+	Int64PathCommandType Int64PathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *int64PathCqrsService) Int64Path(ctx context.Context, request *Int64PathRequest) (*emptypb.Empty, error) {
-	var command Int64PathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *int64PathCqrsService[Int64PathCommandType]) Int64Path(ctx context.Context, request *Int64PathRequest) (*emptypb.Empty, error) {
+	var command Int64PathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -258,18 +268,19 @@ func (UnimplementedInt64PathCommand) From(context.Context, *Int64PathRequest) (I
 	return nil, nil, nil
 }
 
-type uint32PathCqrsService struct {
+type uint32PathCqrsService[
+	Uint32PathCommandType Uint32PathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *uint32PathCqrsService) Uint32Path(ctx context.Context, request *Uint32PathRequest) (*emptypb.Empty, error) {
-	var command Uint32PathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *uint32PathCqrsService[Uint32PathCommandType]) Uint32Path(ctx context.Context, request *Uint32PathRequest) (*emptypb.Empty, error) {
+	var command Uint32PathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -289,18 +300,19 @@ func (UnimplementedUint32PathCommand) From(context.Context, *Uint32PathRequest) 
 	return nil, nil, nil
 }
 
-type uint64PathCqrsService struct {
+type uint64PathCqrsService[
+	Uint64PathCommandType Uint64PathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *uint64PathCqrsService) Uint64Path(ctx context.Context, request *Uint64PathRequest) (*emptypb.Empty, error) {
-	var command Uint64PathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *uint64PathCqrsService[Uint64PathCommandType]) Uint64Path(ctx context.Context, request *Uint64PathRequest) (*emptypb.Empty, error) {
+	var command Uint64PathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -320,18 +332,19 @@ func (UnimplementedUint64PathCommand) From(context.Context, *Uint64PathRequest) 
 	return nil, nil, nil
 }
 
-type floatPathCqrsService struct {
+type floatPathCqrsService[
+	FloatPathCommandType FloatPathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *floatPathCqrsService) FloatPath(ctx context.Context, request *FloatPathRequest) (*emptypb.Empty, error) {
-	var command FloatPathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *floatPathCqrsService[FloatPathCommandType]) FloatPath(ctx context.Context, request *FloatPathRequest) (*emptypb.Empty, error) {
+	var command FloatPathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -351,18 +364,19 @@ func (UnimplementedFloatPathCommand) From(context.Context, *FloatPathRequest) (F
 	return nil, nil, nil
 }
 
-type doublePathCqrsService struct {
+type doublePathCqrsService[
+	DoublePathCommandType DoublePathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *doublePathCqrsService) DoublePath(ctx context.Context, request *DoublePathRequest) (*emptypb.Empty, error) {
-	var command DoublePathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *doublePathCqrsService[DoublePathCommandType]) DoublePath(ctx context.Context, request *DoublePathRequest) (*emptypb.Empty, error) {
+	var command DoublePathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -382,18 +396,19 @@ func (UnimplementedDoublePathCommand) From(context.Context, *DoublePathRequest) 
 	return nil, nil, nil
 }
 
-type stringPathCqrsService struct {
+type stringPathCqrsService[
+	StringPathCommandType StringPathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *stringPathCqrsService) StringPath(ctx context.Context, request *StringPathRequest) (*emptypb.Empty, error) {
-	var command StringPathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *stringPathCqrsService[StringPathCommandType]) StringPath(ctx context.Context, request *StringPathRequest) (*emptypb.Empty, error) {
+	var command StringPathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -413,18 +428,19 @@ func (UnimplementedStringPathCommand) From(context.Context, *StringPathRequest) 
 	return nil, nil, nil
 }
 
-type enumPathCqrsService struct {
+type enumPathCqrsService[
+	EnumPathCommandType EnumPathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *enumPathCqrsService) EnumPath(ctx context.Context, request *EnumPathRequest) (*emptypb.Empty, error) {
-	var command EnumPathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *enumPathCqrsService[EnumPathCommandType]) EnumPath(ctx context.Context, request *EnumPathRequest) (*emptypb.Empty, error) {
+	var command EnumPathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -444,83 +460,126 @@ func (UnimplementedEnumPathCommand) From(context.Context, *EnumPathRequest) (Enu
 	return nil, nil, nil
 }
 
-type namedPathCqrsService struct {
+type namedPathCqrsService[
+	NamedPathStringCommandType NamedPathStringCommand,
+	NamedPathOptStringCommandType NamedPathOptStringCommand,
+	NamedPathWrapStringCommandType NamedPathWrapStringCommand,
+	EmbedNamedPathStringCommandType EmbedNamedPathStringCommand,
+	EmbedNamedPathOptStringCommandType EmbedNamedPathOptStringCommand,
+	EmbedNamedPathWrapStringCommandType EmbedNamedPathWrapStringCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *namedPathCqrsService) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	var command NamedPathStringCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *namedPathCqrsService[
+	NamedPathStringCommandType,
+	NamedPathOptStringCommandType,
+	NamedPathWrapStringCommandType,
+	EmbedNamedPathStringCommandType,
+	EmbedNamedPathOptStringCommandType,
+	EmbedNamedPathWrapStringCommandType,
+]) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	var command NamedPathStringCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *namedPathCqrsService) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	var command NamedPathOptStringCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *namedPathCqrsService[
+	NamedPathStringCommandType,
+	NamedPathOptStringCommandType,
+	NamedPathWrapStringCommandType,
+	EmbedNamedPathStringCommandType,
+	EmbedNamedPathOptStringCommandType,
+	EmbedNamedPathWrapStringCommandType,
+]) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	var command NamedPathOptStringCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *namedPathCqrsService) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	var command NamedPathWrapStringCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *namedPathCqrsService[
+	NamedPathStringCommandType,
+	NamedPathOptStringCommandType,
+	NamedPathWrapStringCommandType,
+	EmbedNamedPathStringCommandType,
+	EmbedNamedPathOptStringCommandType,
+	EmbedNamedPathWrapStringCommandType,
+]) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
+	var command NamedPathWrapStringCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *namedPathCqrsService) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	var command EmbedNamedPathStringCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *namedPathCqrsService[
+	NamedPathStringCommandType,
+	NamedPathOptStringCommandType,
+	NamedPathWrapStringCommandType,
+	EmbedNamedPathStringCommandType,
+	EmbedNamedPathOptStringCommandType,
+	EmbedNamedPathWrapStringCommandType,
+]) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	var command EmbedNamedPathStringCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *namedPathCqrsService) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	var command EmbedNamedPathOptStringCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *namedPathCqrsService[
+	NamedPathStringCommandType,
+	NamedPathOptStringCommandType,
+	NamedPathWrapStringCommandType,
+	EmbedNamedPathStringCommandType,
+	EmbedNamedPathOptStringCommandType,
+	EmbedNamedPathWrapStringCommandType,
+]) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	var command EmbedNamedPathOptStringCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *namedPathCqrsService) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	var command EmbedNamedPathWrapStringCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *namedPathCqrsService[
+	NamedPathStringCommandType,
+	NamedPathOptStringCommandType,
+	NamedPathWrapStringCommandType,
+	EmbedNamedPathStringCommandType,
+	EmbedNamedPathOptStringCommandType,
+	EmbedNamedPathWrapStringCommandType,
+]) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
+	var command EmbedNamedPathWrapStringCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
@@ -595,18 +654,19 @@ func (UnimplementedEmbedNamedPathWrapStringCommand) From(context.Context, *Embed
 	return nil, nil, nil
 }
 
-type mixPathCqrsService struct {
+type mixPathCqrsService[
+	MixPathCommandType MixPathCommand,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *mixPathCqrsService) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
-	var command MixPathCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *mixPathCqrsService[MixPathCommandType]) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
+	var command MixPathCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil

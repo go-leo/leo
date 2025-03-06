@@ -17,6 +17,11 @@ type CommandEmptyCommand struct {
 	v1.UnimplementedCommandEmptyCommand
 }
 
+func (CommandEmptyCommand) From(ctx context.Context, req *v1.CommandRequest) (v1.CommandEmptyCommand, context.Context, error) {
+	panic("implement me")
+	return CommandEmptyCommand{}, ctx, nil
+}
+
 func NewCommandEmptyHandler() CommandEmptyHandler {
 	return &commandEmptyHandler{}
 }

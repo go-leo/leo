@@ -17,6 +17,11 @@ type FloatQueryCommand struct {
 	v1.UnimplementedFloatQueryCommand
 }
 
+func (FloatQueryCommand) From(ctx context.Context, req *v1.FloatQueryRequest) (v1.FloatQueryCommand, context.Context, error) {
+	panic("implement me")
+	return FloatQueryCommand{}, ctx, nil
+}
+
 func NewFloatQueryHandler() FloatQueryHandler {
 	return &floatQueryHandler{}
 }

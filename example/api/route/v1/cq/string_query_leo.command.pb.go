@@ -17,6 +17,11 @@ type StringQueryCommand struct {
 	v1.UnimplementedStringQueryCommand
 }
 
+func (StringQueryCommand) From(ctx context.Context, req *v1.StringQueryRequest) (v1.StringQueryCommand, context.Context, error) {
+	panic("implement me")
+	return StringQueryCommand{}, ctx, nil
+}
+
 func NewStringQueryHandler() StringQueryHandler {
 	return &stringQueryHandler{}
 }

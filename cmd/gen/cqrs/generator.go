@@ -118,49 +118,91 @@ func (f *Generator) PrintNewCQRSService(g *protogen.GeneratedFile, service *inte
 			g.P("}")
 		}
 	}
-	g.P("return &", service.Unexported(service.CQRSName()), "{bus: &bus}, nil")
+	g.P("return &", service.Unexported(service.CQRSName()), "[")
+	for _, endpoint := range service.Endpoints {
+		switch {
+		case endpoint.IsCommand():
+			g.P(endpoint.CommandTypeName(), ", ")
+		case endpoint.IsQuery():
+			g.P(endpoint.QueryTypeName(), ", ", endpoint.ResultTypeName(), ", ")
+		}
+	}
+	g.P("]{bus: &bus}, nil")
 	g.P("}")
 	g.P()
 }
 
 func (f *Generator) PrintCQRSService(g *protogen.GeneratedFile, service *internal.Service) {
-	g.P("type ", service.Unexported(service.CQRSName()), " struct {")
+	g.P("type ", service.Unexported(service.CQRSName()), "[")
+	for _, endpoint := range service.Endpoints {
+		switch {
+		case endpoint.IsCommand():
+			g.P(endpoint.CommandTypeName(), " ", endpoint.CommandName(), ", ")
+		case endpoint.IsQuery():
+			g.P(endpoint.QueryTypeName(), " ", endpoint.QueryName(), ", ", endpoint.ResultTypeName(), " ", endpoint.ResultName(), ", ")
+		}
+	}
+	g.P("] struct {")
 	g.P("bus ", internal.Bus)
 	g.P("}")
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		switch {
 		case endpoint.IsCommand():
-			g.P("func (svc *", service.Unexported(service.CQRSName()), ") ", endpoint.Name(), "(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-			g.P("var command ", endpoint.CommandName())
-			g.P("command, ctx, err := command.From(ctx, request)")
-			g.P("if err != nil {")
-			g.P("return nil, err")
-			g.P("}")
-			g.P("")
-			g.P("if err := svc.bus.Exec(ctx, command); err != nil {")
-			g.P("return nil, err")
-			g.P("}")
-			g.P("return new(", endpoint.OutputGoIdent(), "), nil")
-			g.P("}")
-			g.P()
+			f.PrintCommandMethod(g, service, endpoint)
 		case endpoint.IsQuery():
-			g.P("func (svc *", service.Unexported(service.CQRSName()), ") ", endpoint.Name(), "(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-			g.P("var query ", endpoint.QueryName())
-			g.P("q, ctx, err := query.From(ctx, request)")
-			g.P("if err != nil {")
-			g.P("return nil, err")
-			g.P("}")
-			g.P("r, err := svc.bus.Query(ctx, q)")
-			g.P("if err != nil {")
-			g.P("return nil, err")
-			g.P("}")
-			g.P("return r.(", endpoint.ResultName(), ").To(ctx)")
-			g.P("}")
-			g.P()
+			f.PrintQueryMethod(g, service, endpoint)
 		}
 	}
+}
 
+func (f *Generator) PrintCommandMethod(g *protogen.GeneratedFile, service *internal.Service, endpoint *internal.Endpoint) {
+	g.P("func (svc *", service.Unexported(service.CQRSName()), "[")
+	for _, endpoint := range service.Endpoints {
+		switch {
+		case endpoint.IsCommand():
+			g.P(endpoint.CommandTypeName(), ", ")
+		case endpoint.IsQuery():
+			g.P(endpoint.QueryTypeName(), ", ", endpoint.ResultTypeName(), ", ")
+		}
+	}
+	g.P("]) ", endpoint.Name(), "(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+	g.P("var command ", endpoint.CommandTypeName())
+	g.P("cmd, ctx, err := command.From(ctx, request)")
+	g.P("if err != nil {")
+	g.P("return nil, err")
+	g.P("}")
+	g.P("if err := svc.bus.Exec(ctx, cmd); err != nil {")
+	g.P("return nil, err")
+	g.P("}")
+	g.P("return new(", endpoint.OutputGoIdent(), "), nil")
+	g.P("}")
+	g.P()
+}
+
+func (f *Generator) PrintQueryMethod(g *protogen.GeneratedFile, service *internal.Service, endpoint *internal.Endpoint) {
+	g.P("func (svc *", service.Unexported(service.CQRSName()), "[")
+	for _, endpoint := range service.Endpoints {
+		switch {
+		case endpoint.IsCommand():
+			g.P(endpoint.CommandTypeName(), ", ")
+		case endpoint.IsQuery():
+			g.P(endpoint.QueryTypeName(), ", ", endpoint.ResultTypeName(), ", ")
+		}
+	}
+	g.P("]) ", endpoint.Name(), "(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
+	g.P("var query ", endpoint.QueryTypeName())
+	g.P("q, ctx, err := query.From(ctx, request)")
+	g.P("if err != nil {")
+	g.P("return nil, err")
+	g.P("}")
+	g.P("r, err := svc.bus.Query(ctx, q)")
+	g.P("if err != nil {")
+	g.P("return nil, err")
+	g.P("}")
+	g.P("return r.(", endpoint.ResultTypeName(), ").To(ctx)")
+	g.P("}")
+	g.P()
 }
 
 func (f *Generator) PrintCommand(g *protogen.GeneratedFile, commandEndpoints []*internal.Endpoint) {
@@ -263,6 +305,11 @@ func (f *Generator) GenerateCommand(endpoint *internal.Endpoint) {
 	g.P(f.File.GoImportPath.Ident(endpoint.UnimplementedCommandName()))
 	g.P("}")
 	g.P()
+	g.P("func (", endpoint.CommandName(), ") From(ctx ", internal.Context, ", req *", endpoint.InputGoIdent(), ") (", f.File.GoImportPath.Ident(endpoint.CommandName()), ", ", internal.Context, ", error) {")
+	g.P("panic(", strconv.Quote("implement me"), ")")
+	g.P("return ", endpoint.CommandName(), "{}, ctx, nil")
+	g.P("}")
+	g.P()
 	g.P("func New", endpoint.HandlerName(), "() ", endpoint.HandlerName(), " {")
 	g.P("return &", endpoint.Unexported(endpoint.HandlerName()), "{}")
 	g.P("}")
@@ -292,8 +339,18 @@ func (f *Generator) GenerateQuery(endpoint *internal.Endpoint) {
 	g.P(f.File.GoImportPath.Ident(endpoint.UnimplementedQueryName()))
 	g.P("}")
 	g.P()
+	g.P("func (", endpoint.QueryName(), ") From(ctx ", internal.Context, ", req*", endpoint.InputGoIdent(), ") (", f.File.GoImportPath.Ident(endpoint.QueryName()), ", ", internal.Context, ", error)", " {")
+	g.P("panic(", strconv.Quote("implement me"), ")")
+	g.P("return ", endpoint.QueryName(), "{}, ctx, nil")
+	g.P("}")
+	g.P()
 	g.P("type ", endpoint.ResultName(), " struct {")
 	g.P(f.File.GoImportPath.Ident(endpoint.UnimplementedResultName()))
+	g.P("}")
+	g.P()
+	g.P("func (r ", endpoint.ResultName(), ") To(ctx ", internal.Context, ") (*", endpoint.OutputGoIdent(), ", error) {")
+	g.P("panic(", strconv.Quote("implement me"), ")")
+	g.P("return &", endpoint.OutputGoIdent(), "{}, nil")
 	g.P("}")
 	g.P()
 	g.P("func New", endpoint.HandlerName(), "() ", endpoint.HandlerName(), " {")

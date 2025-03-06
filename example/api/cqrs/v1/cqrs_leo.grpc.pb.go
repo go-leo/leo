@@ -25,10 +25,10 @@ func NewCqrsGrpcServer(svc CqrsService, opts ...grpctransportx.ServerOption) Cqr
 		endpoints: endpoints,
 	}
 	return &cqrsGrpcServer{
-		query:        transports.Query(),
 		command:      transports.Command(),
-		queryOneOf:   transports.QueryOneOf(),
 		commandEmpty: transports.CommandEmpty(),
+		query:        transports.Query(),
+		queryOneOf:   transports.QueryOneOf(),
 	}
 }
 
@@ -66,36 +66,12 @@ type cqrsGrpcServerTransports struct {
 	endpoints CqrsServerEndpoints
 }
 
-func (t *cqrsGrpcServerTransports) Query() grpc.Handler {
-	return grpc.NewServer(
-		t.endpoints.Query(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.cqrs.Cqrs/Query")),
-		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
-		grpc.ServerBefore(metadatax.GrpcIncomingInjector),
-		grpc.ServerBefore(stainx.GrpcIncomingInjector),
-	)
-}
-
 func (t *cqrsGrpcServerTransports) Command() grpc.Handler {
 	return grpc.NewServer(
 		t.endpoints.Command(context.TODO()),
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.cqrs.Cqrs/Command")),
-		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
-		grpc.ServerBefore(metadatax.GrpcIncomingInjector),
-		grpc.ServerBefore(stainx.GrpcIncomingInjector),
-	)
-}
-
-func (t *cqrsGrpcServerTransports) QueryOneOf() grpc.Handler {
-	return grpc.NewServer(
-		t.endpoints.QueryOneOf(context.TODO()),
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.cqrs.Cqrs/QueryOneOf")),
 		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
 		grpc.ServerBefore(metadatax.GrpcIncomingInjector),
 		grpc.ServerBefore(stainx.GrpcIncomingInjector),
@@ -114,20 +90,35 @@ func (t *cqrsGrpcServerTransports) CommandEmpty() grpc.Handler {
 	)
 }
 
-type cqrsGrpcServer struct {
-	query        grpc.Handler
-	command      grpc.Handler
-	queryOneOf   grpc.Handler
-	commandEmpty grpc.Handler
+func (t *cqrsGrpcServerTransports) Query() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.Query(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.cqrs.Cqrs/Query")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(metadatax.GrpcIncomingInjector),
+		grpc.ServerBefore(stainx.GrpcIncomingInjector),
+	)
 }
 
-func (s *cqrsGrpcServer) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
-	ctx, rep, err := s.query.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*QueryReply), nil
+func (t *cqrsGrpcServerTransports) QueryOneOf() grpc.Handler {
+	return grpc.NewServer(
+		t.endpoints.QueryOneOf(context.TODO()),
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		grpc.ServerBefore(grpctransportx.ServerEndpointInjector("/leo.example.cqrs.Cqrs/QueryOneOf")),
+		grpc.ServerBefore(grpctransportx.ServerTransportInjector),
+		grpc.ServerBefore(metadatax.GrpcIncomingInjector),
+		grpc.ServerBefore(stainx.GrpcIncomingInjector),
+	)
+}
+
+type cqrsGrpcServer struct {
+	command      grpc.Handler
+	commandEmpty grpc.Handler
+	query        grpc.Handler
+	queryOneOf   grpc.Handler
 }
 
 func (s *cqrsGrpcServer) Command(ctx context.Context, request *CommandRequest) (*CommandReply, error) {
@@ -139,15 +130,6 @@ func (s *cqrsGrpcServer) Command(ctx context.Context, request *CommandRequest) (
 	return rep.(*CommandReply), nil
 }
 
-func (s *cqrsGrpcServer) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
-	ctx, rep, err := s.queryOneOf.ServeGRPC(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	_ = ctx
-	return rep.(*QueryOneOfReply), nil
-}
-
 func (s *cqrsGrpcServer) CommandEmpty(ctx context.Context, request *CommandRequest) (*emptypb.Empty, error) {
 	ctx, rep, err := s.commandEmpty.ServeGRPC(ctx, request)
 	if err != nil {
@@ -157,33 +139,30 @@ func (s *cqrsGrpcServer) CommandEmpty(ctx context.Context, request *CommandReque
 	return rep.(*emptypb.Empty), nil
 }
 
+func (s *cqrsGrpcServer) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
+	ctx, rep, err := s.query.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*QueryReply), nil
+}
+
+func (s *cqrsGrpcServer) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
+	ctx, rep, err := s.queryOneOf.ServeGRPC(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	_ = ctx
+	return rep.(*QueryOneOfReply), nil
+}
+
 func (s *cqrsGrpcServer) mustEmbedUnimplementedCqrsServer() {}
 
 type cqrsGrpcClientTransports struct {
 	dialOptions   []grpc1.DialOption
 	clientOptions []grpc.ClientOption
 	middlewares   []endpoint.Middleware
-}
-
-func (t *cqrsGrpcClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	conn, err := grpc1.NewClient(instance, t.dialOptions...)
-	if err != nil {
-		return nil, nil, err
-	}
-	opts := []grpc.ClientOption{
-		grpc.ClientBefore(metadatax.GrpcOutgoingInjector),
-		grpc.ClientBefore(stainx.GrpcOutgoingInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := grpc.NewClient(
-		conn,
-		"leo.example.cqrs.Cqrs",
-		"Query",
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		QueryReply{},
-		opts...)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
 func (t *cqrsGrpcClientTransports) Command(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -207,27 +186,6 @@ func (t *cqrsGrpcClientTransports) Command(ctx context.Context, instance string)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }
 
-func (t *cqrsGrpcClientTransports) QueryOneOf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
-	conn, err := grpc1.NewClient(instance, t.dialOptions...)
-	if err != nil {
-		return nil, nil, err
-	}
-	opts := []grpc.ClientOption{
-		grpc.ClientBefore(metadatax.GrpcOutgoingInjector),
-		grpc.ClientBefore(stainx.GrpcOutgoingInjector),
-	}
-	opts = append(opts, t.clientOptions...)
-	client := grpc.NewClient(
-		conn,
-		"leo.example.cqrs.Cqrs",
-		"QueryOneOf",
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		func(_ context.Context, v any) (any, error) { return v, nil },
-		QueryOneOfReply{},
-		opts...)
-	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
-}
-
 func (t *cqrsGrpcClientTransports) CommandEmpty(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
 	conn, err := grpc1.NewClient(instance, t.dialOptions...)
 	if err != nil {
@@ -245,6 +203,48 @@ func (t *cqrsGrpcClientTransports) CommandEmpty(ctx context.Context, instance st
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		func(_ context.Context, v any) (any, error) { return v, nil },
 		emptypb.Empty{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
+}
+
+func (t *cqrsGrpcClientTransports) Query(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(metadatax.GrpcOutgoingInjector),
+		grpc.ClientBefore(stainx.GrpcOutgoingInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.cqrs.Cqrs",
+		"Query",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		QueryReply{},
+		opts...)
+	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
+}
+
+func (t *cqrsGrpcClientTransports) QueryOneOf(ctx context.Context, instance string) (endpoint.Endpoint, io.Closer, error) {
+	conn, err := grpc1.NewClient(instance, t.dialOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+	opts := []grpc.ClientOption{
+		grpc.ClientBefore(metadatax.GrpcOutgoingInjector),
+		grpc.ClientBefore(stainx.GrpcOutgoingInjector),
+	}
+	opts = append(opts, t.clientOptions...)
+	client := grpc.NewClient(
+		conn,
+		"leo.example.cqrs.Cqrs",
+		"QueryOneOf",
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		func(_ context.Context, v any) (any, error) { return v, nil },
+		QueryOneOfReply{},
 		opts...)
 	return endpointx.Chain(client.Endpoint(), t.middlewares...), conn, nil
 }

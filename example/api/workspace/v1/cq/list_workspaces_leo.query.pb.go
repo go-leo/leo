@@ -17,8 +17,18 @@ type ListWorkspacesQuery struct {
 	v1.UnimplementedListWorkspacesQuery
 }
 
+func (ListWorkspacesQuery) From(ctx context.Context, req *v1.ListWorkspacesRequest) (v1.ListWorkspacesQuery, context.Context, error) {
+	panic("implement me")
+	return ListWorkspacesQuery{}, ctx, nil
+}
+
 type ListWorkspacesResult struct {
 	v1.UnimplementedListWorkspacesResult
+}
+
+func (r ListWorkspacesResult) To(ctx context.Context) (*v1.ListWorkspacesResponse, error) {
+	panic("implement me")
+	return &v1.ListWorkspacesResponse{}, nil
 }
 
 func NewListWorkspacesHandler() ListWorkspacesHandler {

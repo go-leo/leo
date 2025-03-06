@@ -48,15 +48,39 @@ func NewDemoCqrsService[
 	if err := bus.RegisterQuery(getUserAvatarHandler); err != nil {
 		return nil, err
 	}
-	return &demoCqrsService{bus: &bus}, nil
+	return &demoCqrsService[
+		CreateUserQueryType, CreateUserResultType,
+		DeleteUserCommandType,
+		UpdateUserCommandType,
+		GetUserQueryType, GetUserResultType,
+		GetUsersQueryType, GetUsersResultType,
+		UploadUserAvatarCommandType,
+		GetUserAvatarQueryType, GetUserAvatarResultType,
+	]{bus: &bus}, nil
 }
 
-type demoCqrsService struct {
+type demoCqrsService[
+	CreateUserQueryType CreateUserQuery, CreateUserResultType CreateUserResult,
+	DeleteUserCommandType DeleteUserCommand,
+	UpdateUserCommandType UpdateUserCommand,
+	GetUserQueryType GetUserQuery, GetUserResultType GetUserResult,
+	GetUsersQueryType GetUsersQuery, GetUsersResultType GetUsersResult,
+	UploadUserAvatarCommandType UploadUserAvatarCommand,
+	GetUserAvatarQueryType GetUserAvatarQuery, GetUserAvatarResultType GetUserAvatarResult,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *demoCqrsService) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
-	var query CreateUserQuery
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	var query CreateUserQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -65,37 +89,59 @@ func (svc *demoCqrsService) CreateUser(ctx context.Context, request *CreateUserR
 	if err != nil {
 		return nil, err
 	}
-	return r.(CreateUserResult).To(ctx)
+	return r.(CreateUserResultType).To(ctx)
 }
 
-func (svc *demoCqrsService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	var command DeleteUserCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	var command DeleteUserCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *demoCqrsService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	var command UpdateUserCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	var command UpdateUserCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *demoCqrsService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	var query GetUserQuery
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	var query GetUserQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -104,11 +150,19 @@ func (svc *demoCqrsService) GetUser(ctx context.Context, request *GetUserRequest
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetUserResult).To(ctx)
+	return r.(GetUserResultType).To(ctx)
 }
 
-func (svc *demoCqrsService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	var query GetUsersQuery
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	var query GetUsersQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -117,24 +171,39 @@ func (svc *demoCqrsService) GetUsers(ctx context.Context, request *GetUsersReque
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetUsersResult).To(ctx)
+	return r.(GetUsersResultType).To(ctx)
 }
 
-func (svc *demoCqrsService) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
-	var command UploadUserAvatarCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
+	var command UploadUserAvatarCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *demoCqrsService) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
-	var query GetUserAvatarQuery
+func (svc *demoCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+	UploadUserAvatarCommandType,
+	GetUserAvatarQueryType, GetUserAvatarResultType,
+]) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
+	var query GetUserAvatarQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -143,7 +212,7 @@ func (svc *demoCqrsService) GetUserAvatar(ctx context.Context, request *GetUserA
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetUserAvatarResult).To(ctx)
+	return r.(GetUserAvatarResultType).To(ctx)
 }
 
 type (

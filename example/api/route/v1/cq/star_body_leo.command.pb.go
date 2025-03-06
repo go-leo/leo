@@ -17,6 +17,11 @@ type StarBodyCommand struct {
 	v1.UnimplementedStarBodyCommand
 }
 
+func (StarBodyCommand) From(ctx context.Context, req *v1.BodyRequest) (v1.StarBodyCommand, context.Context, error) {
+	panic("implement me")
+	return StarBodyCommand{}, ctx, nil
+}
+
 func NewStarBodyHandler() StarBodyHandler {
 	return &starBodyHandler{}
 }

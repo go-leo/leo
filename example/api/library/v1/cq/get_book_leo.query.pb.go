@@ -17,8 +17,18 @@ type GetBookQuery struct {
 	v1.UnimplementedGetBookQuery
 }
 
+func (GetBookQuery) From(ctx context.Context, req *v1.GetBookRequest) (v1.GetBookQuery, context.Context, error) {
+	panic("implement me")
+	return GetBookQuery{}, ctx, nil
+}
+
 type GetBookResult struct {
 	v1.UnimplementedGetBookResult
+}
+
+func (r GetBookResult) To(ctx context.Context) (*v1.Book, error) {
+	panic("implement me")
+	return &v1.Book{}, nil
 }
 
 func NewGetBookHandler() GetBookHandler {

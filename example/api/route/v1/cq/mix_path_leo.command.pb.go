@@ -17,6 +17,11 @@ type MixPathCommand struct {
 	v1.UnimplementedMixPathCommand
 }
 
+func (MixPathCommand) From(ctx context.Context, req *v1.MixPathRequest) (v1.MixPathCommand, context.Context, error) {
+	panic("implement me")
+	return MixPathCommand{}, ctx, nil
+}
+
 func NewMixPathHandler() MixPathHandler {
 	return &mixPathHandler{}
 }

@@ -17,6 +17,11 @@ type EnumQueryCommand struct {
 	v1.UnimplementedEnumQueryCommand
 }
 
+func (EnumQueryCommand) From(ctx context.Context, req *v1.EnumQueryRequest) (v1.EnumQueryCommand, context.Context, error) {
+	panic("implement me")
+	return EnumQueryCommand{}, ctx, nil
+}
+
 func NewEnumQueryHandler() EnumQueryHandler {
 	return &enumQueryHandler{}
 }

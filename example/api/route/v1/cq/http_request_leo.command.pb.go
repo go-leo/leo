@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	http "google.golang.org/genproto/googleapis/rpc/http"
 )
 
 var _ HttpRequestHandler = (*httpRequestHandler)(nil)
@@ -15,6 +16,11 @@ type HttpRequestHandler cqrs.CommandHandler[HttpRequestCommand]
 
 type HttpRequestCommand struct {
 	v1.UnimplementedHttpRequestCommand
+}
+
+func (HttpRequestCommand) From(ctx context.Context, req *http.HttpRequest) (v1.HttpRequestCommand, context.Context, error) {
+	panic("implement me")
+	return HttpRequestCommand{}, ctx, nil
 }
 
 func NewHttpRequestHandler() HttpRequestHandler {

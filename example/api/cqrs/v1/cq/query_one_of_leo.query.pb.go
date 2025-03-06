@@ -17,8 +17,18 @@ type QueryOneOfQuery struct {
 	v1.UnimplementedQueryOneOfQuery
 }
 
+func (QueryOneOfQuery) From(ctx context.Context, req *v1.QueryRequest) (v1.QueryOneOfQuery, context.Context, error) {
+	panic("implement me")
+	return QueryOneOfQuery{}, ctx, nil
+}
+
 type QueryOneOfResult struct {
 	v1.UnimplementedQueryOneOfResult
+}
+
+func (r QueryOneOfResult) To(ctx context.Context) (*v1.QueryOneOfReply, error) {
+	panic("implement me")
+	return &v1.QueryOneOfReply{}, nil
 }
 
 func NewQueryOneOfHandler() QueryOneOfHandler {

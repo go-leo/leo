@@ -20,20 +20,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Cqrs_Query_FullMethodName        = "/leo.example.cqrs.Cqrs/Query"
 	Cqrs_Command_FullMethodName      = "/leo.example.cqrs.Cqrs/Command"
-	Cqrs_QueryOneOf_FullMethodName   = "/leo.example.cqrs.Cqrs/QueryOneOf"
 	Cqrs_CommandEmpty_FullMethodName = "/leo.example.cqrs.Cqrs/CommandEmpty"
+	Cqrs_Query_FullMethodName        = "/leo.example.cqrs.Cqrs/Query"
+	Cqrs_QueryOneOf_FullMethodName   = "/leo.example.cqrs.Cqrs/QueryOneOf"
 )
 
 // CqrsClient is the client API for Cqrs service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CqrsClient interface {
-	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryReply, error)
 	Command(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandReply, error)
-	QueryOneOf(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryOneOfReply, error)
 	CommandEmpty(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryReply, error)
+	QueryOneOf(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryOneOfReply, error)
 }
 
 type cqrsClient struct {
@@ -44,27 +44,9 @@ func NewCqrsClient(cc grpc.ClientConnInterface) CqrsClient {
 	return &cqrsClient{cc}
 }
 
-func (c *cqrsClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryReply, error) {
-	out := new(QueryReply)
-	err := c.cc.Invoke(ctx, Cqrs_Query_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *cqrsClient) Command(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandReply, error) {
 	out := new(CommandReply)
 	err := c.cc.Invoke(ctx, Cqrs_Command_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cqrsClient) QueryOneOf(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryOneOfReply, error) {
-	out := new(QueryOneOfReply)
-	err := c.cc.Invoke(ctx, Cqrs_QueryOneOf_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,14 +62,32 @@ func (c *cqrsClient) CommandEmpty(ctx context.Context, in *CommandRequest, opts 
 	return out, nil
 }
 
+func (c *cqrsClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryReply, error) {
+	out := new(QueryReply)
+	err := c.cc.Invoke(ctx, Cqrs_Query_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cqrsClient) QueryOneOf(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryOneOfReply, error) {
+	out := new(QueryOneOfReply)
+	err := c.cc.Invoke(ctx, Cqrs_QueryOneOf_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CqrsServer is the server API for Cqrs service.
 // All implementations must embed UnimplementedCqrsServer
 // for forward compatibility
 type CqrsServer interface {
-	Query(context.Context, *QueryRequest) (*QueryReply, error)
 	Command(context.Context, *CommandRequest) (*CommandReply, error)
-	QueryOneOf(context.Context, *QueryRequest) (*QueryOneOfReply, error)
 	CommandEmpty(context.Context, *CommandRequest) (*emptypb.Empty, error)
+	Query(context.Context, *QueryRequest) (*QueryReply, error)
+	QueryOneOf(context.Context, *QueryRequest) (*QueryOneOfReply, error)
 	mustEmbedUnimplementedCqrsServer()
 }
 
@@ -95,17 +95,17 @@ type CqrsServer interface {
 type UnimplementedCqrsServer struct {
 }
 
-func (UnimplementedCqrsServer) Query(context.Context, *QueryRequest) (*QueryReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
-}
 func (UnimplementedCqrsServer) Command(context.Context, *CommandRequest) (*CommandReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Command not implemented")
 }
-func (UnimplementedCqrsServer) QueryOneOf(context.Context, *QueryRequest) (*QueryOneOfReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryOneOf not implemented")
-}
 func (UnimplementedCqrsServer) CommandEmpty(context.Context, *CommandRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommandEmpty not implemented")
+}
+func (UnimplementedCqrsServer) Query(context.Context, *QueryRequest) (*QueryReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (UnimplementedCqrsServer) QueryOneOf(context.Context, *QueryRequest) (*QueryOneOfReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryOneOf not implemented")
 }
 func (UnimplementedCqrsServer) mustEmbedUnimplementedCqrsServer() {}
 
@@ -118,24 +118,6 @@ type UnsafeCqrsServer interface {
 
 func RegisterCqrsServer(s grpc.ServiceRegistrar, srv CqrsServer) {
 	s.RegisterService(&Cqrs_ServiceDesc, srv)
-}
-
-func _Cqrs_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CqrsServer).Query(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Cqrs_Query_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CqrsServer).Query(ctx, req.(*QueryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Cqrs_Command_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -152,24 +134,6 @@ func _Cqrs_Command_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CqrsServer).Command(ctx, req.(*CommandRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Cqrs_QueryOneOf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CqrsServer).QueryOneOf(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Cqrs_QueryOneOf_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CqrsServer).QueryOneOf(ctx, req.(*QueryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,6 +156,42 @@ func _Cqrs_CommandEmpty_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Cqrs_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CqrsServer).Query(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cqrs_Query_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CqrsServer).Query(ctx, req.(*QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Cqrs_QueryOneOf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CqrsServer).QueryOneOf(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cqrs_QueryOneOf_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CqrsServer).QueryOneOf(ctx, req.(*QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Cqrs_ServiceDesc is the grpc.ServiceDesc for Cqrs service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -200,20 +200,20 @@ var Cqrs_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CqrsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Query",
-			Handler:    _Cqrs_Query_Handler,
-		},
-		{
 			MethodName: "Command",
 			Handler:    _Cqrs_Command_Handler,
 		},
 		{
-			MethodName: "QueryOneOf",
-			Handler:    _Cqrs_QueryOneOf_Handler,
-		},
-		{
 			MethodName: "CommandEmpty",
 			Handler:    _Cqrs_CommandEmpty_Handler,
+		},
+		{
+			MethodName: "Query",
+			Handler:    _Cqrs_Query_Handler,
+		},
+		{
+			MethodName: "QueryOneOf",
+			Handler:    _Cqrs_QueryOneOf_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

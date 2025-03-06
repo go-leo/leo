@@ -9,64 +9,87 @@ import (
 )
 
 func NewCqrsCqrsService[
-	QueryQueryType QueryQuery, QueryResultType QueryResult,
 	CommandCommandType CommandCommand,
-	QueryOneOfQueryType QueryOneOfQuery, QueryOneOfResultType QueryOneOfResult,
 	CommandEmptyCommandType CommandEmptyCommand,
+	QueryQueryType QueryQuery, QueryResultType QueryResult,
+	QueryOneOfQueryType QueryOneOfQuery, QueryOneOfResultType QueryOneOfResult,
 ](
-	queryHandler cqrs.QueryHandler[QueryQueryType, QueryResultType],
 	commandHandler cqrs.CommandHandler[CommandCommandType],
-	queryOneOfHandler cqrs.QueryHandler[QueryOneOfQueryType, QueryOneOfResultType],
 	commandEmptyHandler cqrs.CommandHandler[CommandEmptyCommandType],
+	queryHandler cqrs.QueryHandler[QueryQueryType, QueryResultType],
+	queryOneOfHandler cqrs.QueryHandler[QueryOneOfQueryType, QueryOneOfResultType],
 ) (CqrsService, error) {
 	var bus cqrs.SampleBus
-	if err := bus.RegisterQuery(queryHandler); err != nil {
-		return nil, err
-	}
 	if err := bus.RegisterCommand(commandHandler); err != nil {
-		return nil, err
-	}
-	if err := bus.RegisterQuery(queryOneOfHandler); err != nil {
 		return nil, err
 	}
 	if err := bus.RegisterCommand(commandEmptyHandler); err != nil {
 		return nil, err
 	}
-	return &cqrsCqrsService{bus: &bus}, nil
+	if err := bus.RegisterQuery(queryHandler); err != nil {
+		return nil, err
+	}
+	if err := bus.RegisterQuery(queryOneOfHandler); err != nil {
+		return nil, err
+	}
+	return &cqrsCqrsService[
+		CommandCommandType,
+		CommandEmptyCommandType,
+		QueryQueryType, QueryResultType,
+		QueryOneOfQueryType, QueryOneOfResultType,
+	]{bus: &bus}, nil
 }
 
-type cqrsCqrsService struct {
+type cqrsCqrsService[
+	CommandCommandType CommandCommand,
+	CommandEmptyCommandType CommandEmptyCommand,
+	QueryQueryType QueryQuery, QueryResultType QueryResult,
+	QueryOneOfQueryType QueryOneOfQuery, QueryOneOfResultType QueryOneOfResult,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *cqrsCqrsService) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
-	var query QueryQuery
-	q, ctx, err := query.From(ctx, request)
+func (svc *cqrsCqrsService[
+	CommandCommandType,
+	CommandEmptyCommandType,
+	QueryQueryType, QueryResultType,
+	QueryOneOfQueryType, QueryOneOfResultType,
+]) Command(ctx context.Context, request *CommandRequest) (*CommandReply, error) {
+	var command CommandCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	r, err := svc.bus.Query(ctx, q)
-	if err != nil {
-		return nil, err
-	}
-	return r.(QueryResult).To(ctx)
-}
-
-func (svc *cqrsCqrsService) Command(ctx context.Context, request *CommandRequest) (*CommandReply, error) {
-	var command CommandCommand
-	command, ctx, err := command.From(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(CommandReply), nil
 }
 
-func (svc *cqrsCqrsService) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
-	var query QueryOneOfQuery
+func (svc *cqrsCqrsService[
+	CommandCommandType,
+	CommandEmptyCommandType,
+	QueryQueryType, QueryResultType,
+	QueryOneOfQueryType, QueryOneOfResultType,
+]) CommandEmpty(ctx context.Context, request *CommandRequest) (*emptypb.Empty, error) {
+	var command CommandEmptyCommandType
+	cmd, ctx, err := command.From(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
+		return nil, err
+	}
+	return new(emptypb.Empty), nil
+}
+
+func (svc *cqrsCqrsService[
+	CommandCommandType,
+	CommandEmptyCommandType,
+	QueryQueryType, QueryResultType,
+	QueryOneOfQueryType, QueryOneOfResultType,
+]) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
+	var query QueryQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -75,20 +98,25 @@ func (svc *cqrsCqrsService) QueryOneOf(ctx context.Context, request *QueryReques
 	if err != nil {
 		return nil, err
 	}
-	return r.(QueryOneOfResult).To(ctx)
+	return r.(QueryResultType).To(ctx)
 }
 
-func (svc *cqrsCqrsService) CommandEmpty(ctx context.Context, request *CommandRequest) (*emptypb.Empty, error) {
-	var command CommandEmptyCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *cqrsCqrsService[
+	CommandCommandType,
+	CommandEmptyCommandType,
+	QueryQueryType, QueryResultType,
+	QueryOneOfQueryType, QueryOneOfResultType,
+]) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
+	var query QueryOneOfQueryType
+	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	r, err := svc.bus.Query(ctx, q)
+	if err != nil {
 		return nil, err
 	}
-	return new(emptypb.Empty), nil
+	return r.(QueryOneOfResultType).To(ctx)
 }
 
 type (
@@ -161,7 +189,7 @@ func (UnimplementedQueryOneOfResult) To(context.Context) (*QueryOneOfReply, erro
 	return nil, nil
 }
 
-// cqrs/v1/cq/query_leo.query.pb.go
 // cqrs/v1/cq/command_leo.query.pb.go
-// cqrs/v1/cq/query_one_of_leo.query.pb.go
 // cqrs/v1/cq/command_empty_leo.query.pb.go
+// cqrs/v1/cq/query_leo.query.pb.go
+// cqrs/v1/cq/query_one_of_leo.query.pb.go

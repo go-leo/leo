@@ -37,15 +37,33 @@ func NewUserManagerCqrsService[
 	if err := bus.RegisterQuery(getUsersHandler); err != nil {
 		return nil, err
 	}
-	return &userManagerCqrsService{bus: &bus}, nil
+	return &userManagerCqrsService[
+		CreateUserQueryType, CreateUserResultType,
+		DeleteUserCommandType,
+		UpdateUserCommandType,
+		GetUserQueryType, GetUserResultType,
+		GetUsersQueryType, GetUsersResultType,
+	]{bus: &bus}, nil
 }
 
-type userManagerCqrsService struct {
+type userManagerCqrsService[
+	CreateUserQueryType CreateUserQuery, CreateUserResultType CreateUserResult,
+	DeleteUserCommandType DeleteUserCommand,
+	UpdateUserCommandType UpdateUserCommand,
+	GetUserQueryType GetUserQuery, GetUserResultType GetUserResult,
+	GetUsersQueryType GetUsersQuery, GetUsersResultType GetUsersResult,
+] struct {
 	bus cqrs.Bus
 }
 
-func (svc *userManagerCqrsService) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
-	var query CreateUserQuery
+func (svc *userManagerCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+]) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
+	var query CreateUserQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -54,37 +72,53 @@ func (svc *userManagerCqrsService) CreateUser(ctx context.Context, request *Crea
 	if err != nil {
 		return nil, err
 	}
-	return r.(CreateUserResult).To(ctx)
+	return r.(CreateUserResultType).To(ctx)
 }
 
-func (svc *userManagerCqrsService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	var command DeleteUserCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *userManagerCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+]) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
+	var command DeleteUserCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *userManagerCqrsService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	var command UpdateUserCommand
-	command, ctx, err := command.From(ctx, request)
+func (svc *userManagerCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+]) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
+	var command UpdateUserCommandType
+	cmd, ctx, err := command.From(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	if err := svc.bus.Exec(ctx, command); err != nil {
+	if err := svc.bus.Exec(ctx, cmd); err != nil {
 		return nil, err
 	}
 	return new(emptypb.Empty), nil
 }
 
-func (svc *userManagerCqrsService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	var query GetUserQuery
+func (svc *userManagerCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+]) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
+	var query GetUserQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -93,11 +127,17 @@ func (svc *userManagerCqrsService) GetUser(ctx context.Context, request *GetUser
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetUserResult).To(ctx)
+	return r.(GetUserResultType).To(ctx)
 }
 
-func (svc *userManagerCqrsService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	var query GetUsersQuery
+func (svc *userManagerCqrsService[
+	CreateUserQueryType, CreateUserResultType,
+	DeleteUserCommandType,
+	UpdateUserCommandType,
+	GetUserQueryType, GetUserResultType,
+	GetUsersQueryType, GetUsersResultType,
+]) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
+	var query GetUsersQueryType
 	q, ctx, err := query.From(ctx, request)
 	if err != nil {
 		return nil, err
@@ -106,7 +146,7 @@ func (svc *userManagerCqrsService) GetUsers(ctx context.Context, request *GetUse
 	if err != nil {
 		return nil, err
 	}
-	return r.(GetUsersResult).To(ctx)
+	return r.(GetUsersResultType).To(ctx)
 }
 
 type (

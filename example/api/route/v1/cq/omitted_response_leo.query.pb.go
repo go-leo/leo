@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ OmittedResponseHandler = (*omittedResponseHandler)(nil)
@@ -17,8 +18,18 @@ type OmittedResponseQuery struct {
 	v1.UnimplementedOmittedResponseQuery
 }
 
+func (OmittedResponseQuery) From(ctx context.Context, req *emptypb.Empty) (v1.OmittedResponseQuery, context.Context, error) {
+	panic("implement me")
+	return OmittedResponseQuery{}, ctx, nil
+}
+
 type OmittedResponseResult struct {
 	v1.UnimplementedOmittedResponseResult
+}
+
+func (r OmittedResponseResult) To(ctx context.Context) (*v1.UserResponse, error) {
+	panic("implement me")
+	return &v1.UserResponse{}, nil
 }
 
 func NewOmittedResponseHandler() OmittedResponseHandler {

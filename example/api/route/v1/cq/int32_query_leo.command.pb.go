@@ -17,6 +17,11 @@ type Int32QueryCommand struct {
 	v1.UnimplementedInt32QueryCommand
 }
 
+func (Int32QueryCommand) From(ctx context.Context, req *v1.Int32QueryRequest) (v1.Int32QueryCommand, context.Context, error) {
+	panic("implement me")
+	return Int32QueryCommand{}, ctx, nil
+}
+
 func NewInt32QueryHandler() Int32QueryHandler {
 	return &int32QueryHandler{}
 }

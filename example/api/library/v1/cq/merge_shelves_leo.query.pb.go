@@ -17,8 +17,18 @@ type MergeShelvesQuery struct {
 	v1.UnimplementedMergeShelvesQuery
 }
 
+func (MergeShelvesQuery) From(ctx context.Context, req *v1.MergeShelvesRequest) (v1.MergeShelvesQuery, context.Context, error) {
+	panic("implement me")
+	return MergeShelvesQuery{}, ctx, nil
+}
+
 type MergeShelvesResult struct {
 	v1.UnimplementedMergeShelvesResult
+}
+
+func (r MergeShelvesResult) To(ctx context.Context) (*v1.Shelf, error) {
+	panic("implement me")
+	return &v1.Shelf{}, nil
 }
 
 func NewMergeShelvesHandler() MergeShelvesHandler {

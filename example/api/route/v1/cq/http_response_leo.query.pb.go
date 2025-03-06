@@ -7,6 +7,8 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/route/v1"
+	http "google.golang.org/genproto/googleapis/rpc/http"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ HttpResponseHandler = (*httpResponseHandler)(nil)
@@ -17,8 +19,18 @@ type HttpResponseQuery struct {
 	v1.UnimplementedHttpResponseQuery
 }
 
+func (HttpResponseQuery) From(ctx context.Context, req *emptypb.Empty) (v1.HttpResponseQuery, context.Context, error) {
+	panic("implement me")
+	return HttpResponseQuery{}, ctx, nil
+}
+
 type HttpResponseResult struct {
 	v1.UnimplementedHttpResponseResult
+}
+
+func (r HttpResponseResult) To(ctx context.Context) (*http.HttpResponse, error) {
+	panic("implement me")
+	return &http.HttpResponse{}, nil
 }
 
 func NewHttpResponseHandler() HttpResponseHandler {

@@ -23,8 +23,6 @@ func main() {
 	}
 
 	var flags flag.FlagSet
-	cqrs.CommandPath = flags.String("command_path", "command", "set the command handle path for the generated code")
-	cqrs.QueryPath = flags.String("query_path", "query", "set the query handle path for the generated code")
 	options := &protogen.Options{ParamFunc: flags.Set}
 	options.Run(func(plugin *protogen.Plugin) error {
 		plugin.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)

@@ -17,8 +17,18 @@ type MoveBookQuery struct {
 	v1.UnimplementedMoveBookQuery
 }
 
+func (MoveBookQuery) From(ctx context.Context, req *v1.MoveBookRequest) (v1.MoveBookQuery, context.Context, error) {
+	panic("implement me")
+	return MoveBookQuery{}, ctx, nil
+}
+
 type MoveBookResult struct {
 	v1.UnimplementedMoveBookResult
+}
+
+func (r MoveBookResult) To(ctx context.Context) (*v1.Book, error) {
+	panic("implement me")
+	return &v1.Book{}, nil
 }
 
 func NewMoveBookHandler() MoveBookHandler {

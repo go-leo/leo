@@ -17,8 +17,18 @@ type CreateShelfQuery struct {
 	v1.UnimplementedCreateShelfQuery
 }
 
+func (CreateShelfQuery) From(ctx context.Context, req *v1.CreateShelfRequest) (v1.CreateShelfQuery, context.Context, error) {
+	panic("implement me")
+	return CreateShelfQuery{}, ctx, nil
+}
+
 type CreateShelfResult struct {
 	v1.UnimplementedCreateShelfResult
+}
+
+func (r CreateShelfResult) To(ctx context.Context) (*v1.Shelf, error) {
+	panic("implement me")
+	return &v1.Shelf{}, nil
 }
 
 func NewCreateShelfHandler() CreateShelfHandler {

@@ -7,6 +7,7 @@ import (
 	context "context"
 	cqrs "github.com/go-leo/leo/v3/cqrs"
 	v1 "github.com/go-leo/leo/v3/example/api/demo/v1"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 )
 
 var _ GetUserAvatarHandler = (*getUserAvatarHandler)(nil)
@@ -17,8 +18,18 @@ type GetUserAvatarQuery struct {
 	v1.UnimplementedGetUserAvatarQuery
 }
 
+func (GetUserAvatarQuery) From(ctx context.Context, req *v1.GetUserAvatarRequest) (v1.GetUserAvatarQuery, context.Context, error) {
+	panic("implement me")
+	return GetUserAvatarQuery{}, ctx, nil
+}
+
 type GetUserAvatarResult struct {
 	v1.UnimplementedGetUserAvatarResult
+}
+
+func (r GetUserAvatarResult) To(ctx context.Context) (*httpbody.HttpBody, error) {
+	panic("implement me")
+	return &httpbody.HttpBody{}, nil
 }
 
 func NewGetUserAvatarHandler() GetUserAvatarHandler {

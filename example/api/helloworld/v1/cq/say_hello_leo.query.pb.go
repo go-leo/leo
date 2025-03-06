@@ -17,8 +17,18 @@ type SayHelloQuery struct {
 	v1.UnimplementedSayHelloQuery
 }
 
+func (SayHelloQuery) From(ctx context.Context, req *v1.HelloRequest) (v1.SayHelloQuery, context.Context, error) {
+	panic("implement me")
+	return SayHelloQuery{}, ctx, nil
+}
+
 type SayHelloResult struct {
 	v1.UnimplementedSayHelloResult
+}
+
+func (r SayHelloResult) To(ctx context.Context) (*v1.HelloReply, error) {
+	panic("implement me")
+	return &v1.HelloReply{}, nil
 }
 
 func NewSayHelloHandler() SayHelloHandler {

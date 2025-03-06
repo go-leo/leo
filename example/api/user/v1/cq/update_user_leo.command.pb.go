@@ -17,6 +17,11 @@ type UpdateUserCommand struct {
 	v1.UnimplementedUpdateUserCommand
 }
 
+func (UpdateUserCommand) From(ctx context.Context, req *v1.UpdateUserRequest) (v1.UpdateUserCommand, context.Context, error) {
+	panic("implement me")
+	return UpdateUserCommand{}, ctx, nil
+}
+
 func NewUpdateUserHandler() UpdateUserHandler {
 	return &updateUserHandler{}
 }
