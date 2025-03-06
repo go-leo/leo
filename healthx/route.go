@@ -10,11 +10,9 @@ import (
 
 func Append(router *mux.Router) *mux.Router {
 	router.NewRoute().
-		Methods(http.MethodGet).
 		Path("/health").
 		HandlerFunc(System)
 	router.NewRoute().
-		Methods(http.MethodGet).
 		Path("/health/{name}").
 		HandlerFunc(Component)
 	return router
