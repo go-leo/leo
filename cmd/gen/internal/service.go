@@ -1,23 +1,16 @@
 package internal
 
 import (
-	"errors"
 	"fmt"
-	"golang.org/x/mod/modfile"
+	"github.com/go-leo/gox/slicex"
 	"google.golang.org/protobuf/compiler/protogen"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
 type Service struct {
-	file           *protogen.File
-	protoService   *protogen.Service
-	Endpoints      []*Endpoint
-	CommandPath    string
-	CommandPackage string
-	QueryPath      string
-	QueryPackage   string
+	file         *protogen.File
+	protoService *protogen.Service
+	Endpoints    []*Endpoint
 }
 
 func (s *Service) FullName() string {
@@ -154,54 +147,20 @@ func (s *Service) CQRSName() string {
 	return s.protoService.GoName + "CqrsService"
 }
 
-func (s *Service) AssemblerName() string {
-	return s.protoService.GoName + "Assembler"
-}
-
 func (s *Service) BusName() string {
 	return s.protoService.GoName + "Bus"
 }
 
-func (s *Service) ParseCqrs(file *protogen.File) error {
-	// 查找go.mod
-	filePath := s.file.Desc.Path()
-	pkgAbs, err := filepath.Abs(filePath)
-	if err != nil {
-		return err
-	}
-	dir := filepath.Dir(pkgAbs)
-	var found bool
-	for {
-		stat, _ := os.Stat(filepath.Join(dir, "go.mod"))
-		if stat != nil {
-			found = true
-			break
-		}
-		par := filepath.Dir(dir)
-		if par == dir {
-			break
-		}
-		dir = par
-	}
-	if !found {
-		return errors.New("failed to found go.mod")
-	}
-	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
-	if err != nil {
-		return err
-	}
-	modFile, err := modfile.Parse("go.mod", data, nil)
-	if err != nil {
-		return err
-	}
-	_ = modFile
-	//modulePath := modFile.Module.Mod.Path
-	//
-	//s.CommandPath = filepath.Join(wd, "command")
-	//s.CommandPackage = path.Join(file.GoImportPath.String(), "command")
-	//s.QueryPath = filepath.Join(wd, "query")
-	//s.QueryPackage = path.Join(file.GoImportPath.String(), "query")
-	return nil
+func (s *Service) CommandEndpoints() []*Endpoint {
+	return slicex.Filter(s.Endpoints, func(_ int, endpoint *Endpoint) bool {
+		return endpoint.IsCommand()
+	})
+}
+
+func (s *Service) QueryEndpoints() []*Endpoint {
+	return slicex.Filter(s.Endpoints, func(_ int, endpoint *Endpoint) bool {
+		return endpoint.IsQuery()
+	})
 }
 
 func NewServices(file *protogen.File) ([]*Service, error) {
@@ -210,9 +169,6 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 		service := &Service{
 			file:         file,
 			protoService: pbService,
-		}
-		if err := service.ParseCqrs(file); err != nil {
-			return nil, err
 		}
 		var endpoints []*Endpoint
 		for _, pbMethod := range pbService.Methods {
@@ -225,7 +181,6 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			if err := endpoint.ParseHttpRule(); err != nil {
 				return nil, err
 			}
-			endpoint.ParseCqrs()
 			endpoints = append(endpoints, endpoint)
 		}
 		service.Endpoints = endpoints

@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/middleware/authx/jwtx"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"

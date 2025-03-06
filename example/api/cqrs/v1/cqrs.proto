@@ -1,0 +1,63 @@
+syntax = "proto3";
+package leo.example.cqrs;
+
+option go_package = "github.com/go-leo/leo/v3/example/api/cqrs/v1;cqrs";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// The greeting service definition.
+service Cqrs {
+  rpc Query (QueryRequest) returns (QueryReply) {
+    option (google.api.http) = {
+      post: "/v1/cqrs/query"
+      body: "*"
+    };
+  }
+
+  rpc Command (CommandRequest) returns (CommandReply) {
+    option (google.api.http) = {
+      post: "/v1/cqrs/command"
+      body: "*"
+    };
+  }
+
+  rpc QueryOneOf (QueryRequest) returns (QueryOneOfReply) {
+    option (google.api.http) = {
+      post: "/v1/cqrs/query-oneof"
+      body: "*"
+    };
+  }
+
+  rpc CommandEmpty (CommandRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/cqrs/command"
+      body: "*"
+    };
+  }
+}
+
+message QueryRequest {
+  string name = 1;
+}
+
+message QueryReply {
+  string message = 1;
+}
+
+message CommandRequest {
+  string name = 1;
+}
+
+message CommandReply {}
+
+message QueryOneOfRequest {
+  string name = 1;
+}
+
+message QueryOneOfReply {
+  oneof data {
+    string name = 1;
+    string id = 2;
+  }
+}

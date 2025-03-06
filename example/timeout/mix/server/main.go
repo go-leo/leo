@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/transportx/grpctransportx"
 	"github.com/gorilla/mux"
 	"golang.org/x/sync/errgroup"

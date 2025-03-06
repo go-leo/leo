@@ -4,8 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
-	api "github.com/go-leo/leo/v3/example/api/status"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"github.com/go-leo/leo/v3/example/api/status/v1"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -24,7 +24,7 @@ type server struct {
 
 func (s *server) SayHello(_ context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	if in.GetName() == "" {
-		return nil, api.ErrInvalidName(statusx.RequestInfo(uuid.NewString(), in.GetName()))
+		return nil, status.ErrInvalidName(statusx.RequestInfo(uuid.NewString(), in.GetName()))
 	}
 	log.Printf("Received: %v", in.GetName())
 	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil

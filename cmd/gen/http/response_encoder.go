@@ -28,7 +28,7 @@ func (f *ResponseEncoderGenerator) GenerateServerResponseEncoderImplements() err
 	f.g.P()
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (encoder ", f.service.Unexported(f.service.HttpServerResponseEncoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("EncodeResponseFunc"), "{")
-		f.g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", w ", internal.ResponseWriter, ", obj any) error {")
+		f.g.P("return func ", "(ctx ", internal.Context, ", w ", internal.ResponseWriter, ", obj any) error {")
 		f.g.P("resp := obj.(*", endpoint.Output().GoIdent, ")")
 		bodyParameter := endpoint.ResponseBody()
 		switch bodyParameter {

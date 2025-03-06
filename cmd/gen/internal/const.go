@@ -7,6 +7,11 @@ import (
 
 var (
 	ContextPackage = protogen.GoImportPath("context")
+	Context        = ContextPackage.Ident("Context")
+	TODO           = ContextPackage.Ident("TODO")
+)
+
+var (
 	UrlPackage     = protogen.GoImportPath("net/url")
 	ErrorsPackage  = protogen.GoImportPath("errors")
 	TimePackage    = protogen.GoImportPath("time")
@@ -25,7 +30,6 @@ var (
 	EndpointxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
 	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpctransportx")
-	CqrsPackage            = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
 	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
 	SdxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx")
 	LbxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/lbx")
@@ -157,4 +161,11 @@ var (
 var (
 	HttpxPackage = protogen.GoImportPath("github.com/go-leo/gox/netx/httpx")
 	CopyHeader   = HttpxPackage.Ident("CopyHeader")
+)
+
+var (
+	CqrsPackage    = protogen.GoImportPath("github.com/go-leo/leo/v3/cqrs")
+	QueryHandler   = CqrsPackage.Ident("QueryHandler")
+	CommandHandler = CqrsPackage.Ident("CommandHandler")
+	Bus            = CqrsPackage.Ident("Bus")
 )

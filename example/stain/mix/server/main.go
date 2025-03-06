@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-leo/gox/convx"
 	"github.com/go-leo/leo/v3"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/runner"
 	"github.com/go-leo/leo/v3/sdx/consulx"
 	"github.com/go-leo/leo/v3/sdx/lbx"

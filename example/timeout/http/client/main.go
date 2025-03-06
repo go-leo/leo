@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"log"
 	"time"
 )

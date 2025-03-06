@@ -30,7 +30,7 @@ func (f *ServerTransportsGenerator) GenerateTransportsImplements() {
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (t *", f.service.Unexported(f.service.HttpServerTransportsName()), ")", endpoint.Name(), "()", internal.Handler, " {")
 		f.g.P("return ", internal.HttpTransportPackage.Ident("NewServer"), "(")
-		f.g.P("t.endpoints.", endpoint.Name(), "(", internal.ContextPackage.Ident("TODO"), "()), ")
+		f.g.P("t.endpoints.", endpoint.Name(), "(", internal.TODO, "()), ")
 		f.g.P("t.requestDecoder.", endpoint.Name(), "(),")
 		f.g.P("t.responseEncoder.", endpoint.Name(), "(),")
 		f.g.P(internal.HttpTransportPackage.Ident("ServerBefore"), "(", internal.HttpxTransportxPackage.Ident("EndpointInjector"), "(", strconv.Quote(endpoint.FullName()), ")),")

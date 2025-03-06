@@ -11,19 +11,9 @@ import (
 	"strings"
 )
 
-type Responsibility int32
-
-const (
-	ResponsibilityQuery   Responsibility = 0
-	ResponsibilityCommand Responsibility = 1
-)
-
 type Endpoint struct {
 	protoMethod *protogen.Method
 	httpRule    *annotations.HttpRule
-
-	// cqrs
-	responsibility Responsibility
 
 	// http rule pattern
 	httpMethod                protogen.GoIdent
@@ -410,53 +400,56 @@ func (e *Endpoint) ResponseBody() string {
 	return e.httpRule.GetResponseBody()
 }
 
-func (e *Endpoint) ParseCqrs() {
-	output := e.Output()
-	if len(output.Fields)+len(output.Oneofs) > 0 {
-		e.responsibility = ResponsibilityQuery
-		return
-	}
-	e.responsibility = ResponsibilityCommand
-}
-
 // --------------------- Cqrs ---------------------
 
-func (e *Endpoint) Responsibility() Responsibility {
-	return e.responsibility
-}
-
 func (e *Endpoint) IsCommand() bool {
-	return e.responsibility == ResponsibilityCommand
+	return len(e.Output().Fields)+len(e.Output().Oneofs) == 0
 }
 
 func (e *Endpoint) IsQuery() bool {
-	return e.responsibility == ResponsibilityQuery
+	return !e.IsCommand()
+}
+
+func (e *Endpoint) HandlerName() string {
+	return e.Name() + "Handler"
 }
 
 func (e *Endpoint) CommandName() string {
 	return e.Name() + "Command"
 }
-
 func (e *Endpoint) QueryName() string {
 	return e.Name() + "Query"
 }
-
 func (e *Endpoint) ResultName() string {
 	return e.Name() + "Result"
 }
 
-func (e *Endpoint) ArgsName() string {
-	return e.protoMethod.GoName + "Args"
+func (e *Endpoint) CommandTypeName() string {
+	return e.CommandName() + "Type"
+}
+func (e *Endpoint) QueryTypeName() string {
+	return e.QueryName() + "Type"
+}
+func (e *Endpoint) ResultTypeName() string {
+	return e.ResultName() + "Type"
 }
 
-func (e *Endpoint) ResName() string {
-	return e.protoMethod.GoName + "Res"
+func (e *Endpoint) IsCommandMethod() string {
+	return "is" + e.CommandName() + "_Kind"
+}
+func (e *Endpoint) IsQueryMethod() string {
+	return "is" + e.QueryName() + "_Kind"
+}
+func (e *Endpoint) IsResultMethod() string {
+	return "is" + e.ResultName() + "_Kind"
 }
 
-func (e *Endpoint) RequestName() string {
-	return e.protoMethod.GoName + "Request"
+func (e *Endpoint) UnimplementedCommandName() string {
+	return "Unimplemented" + e.CommandName()
 }
-
-func (e *Endpoint) ResponseName() string {
-	return e.protoMethod.GoName + "Response"
+func (e *Endpoint) UnimplementedQueryName() string {
+	return "Unimplemented" + e.QueryName()
+}
+func (e *Endpoint) UnimplementedResultName() string {
+	return "Unimplemented" + e.ResultName()
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/go-leo/gox/mathx/randx"
-	"github.com/go-leo/leo/v3/example/api/helloworld"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/sdx/consulx"
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/transportx/grpctransportx"

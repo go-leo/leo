@@ -27,7 +27,7 @@ func (f *ServerRequestDecoderGenerator) GenerateServerRequestDecoderImplements()
 	f.g.P("}")
 	for _, endpoint := range f.service.Endpoints {
 		f.g.P("func (decoder ", f.service.Unexported(f.service.HttpServerRequestDecoderName()), ")", endpoint.Name(), "() ", internal.HttpTransportPackage.Ident("DecodeRequestFunc"), "{")
-		f.g.P("return func ", "(ctx ", internal.ContextPackage.Ident("Context"), ", r *", internal.Request, ") (any, error) {")
+		f.g.P("return func ", "(ctx ", internal.Context, ", r *", internal.Request, ") (any, error) {")
 		f.g.P("req := &", endpoint.InputGoIdent(), "{}")
 
 		if bodyMessage := endpoint.BodyMessage(); bodyMessage != nil {

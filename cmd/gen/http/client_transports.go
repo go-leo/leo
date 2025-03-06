@@ -20,7 +20,7 @@ func (f *ClientTransportsGenerator) GenerateTransports() {
 	f.g.P()
 
 	for _, endpoint := range f.service.Endpoints {
-		f.g.P("func (t *", f.service.Unexported(f.service.HttpClientTransportsName()), ") ", endpoint.Name(), "(ctx ", internal.ContextPackage.Ident("Context"), ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
+		f.g.P("func (t *", f.service.Unexported(f.service.HttpClientTransportsName()), ") ", endpoint.Name(), "(ctx ", internal.Context, ", instance string) (", internal.EndpointPackage.Ident("Endpoint"), ", ", internal.IOPackage.Ident("Closer"), ", error) {")
 		f.g.P("opts := []", internal.HttpTransportPackage.Ident("ClientOption"), "{")
 		f.g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.MetadataxHttpOutgoingInjector, "),")
 		f.g.P(internal.HttpTransportPackage.Ident("ClientBefore"), "(", internal.TimeoutxOutgoingInjector, "),")
