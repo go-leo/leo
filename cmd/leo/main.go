@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-leo/leo/v3/cmd/leo/project"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -12,8 +13,12 @@ func main() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:     "leo",
-	Short:   "leo is ",
-	Example: "",
+	Use:   "leo",
+	Short: "leo is a tool for generate project layout",
+	//Example: "",
 	Version: "v3.0.0",
+}
+
+func init() {
+	rootCmd.AddCommand(project.New())
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/endpointx"
-	"github.com/go-leo/leo/v3/statusx"
 )
 
 // Hystrix circuit breaker
@@ -23,7 +22,7 @@ func Hystrix() endpoint.Middleware {
 			response, err := circuitbreaker.Hystrix(endpointName)(next)(ctx, request)
 			var circuitErr hystrix.CircuitError
 			if errors.As(err, &circuitErr) {
-				return nil, statusx.ErrUnavailable.With(statusx.Wrap(ErrCircuitOpen))
+				return nil, ErrCircuitOpen
 			}
 			return response, err
 		}

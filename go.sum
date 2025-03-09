@@ -117,6 +117,14 @@ github.com/go-leo/gox v0.1.1-0.20250306052720-ddc8e7e642ef h1:3vxdk3loFQN1b7BIoH
 github.com/go-leo/gox v0.1.1-0.20250306052720-ddc8e7e642ef/go.mod h1:cdRc5IClXdcAC9Zy5fhChflmH7TZOL6sJ1kF0cibVzs=
 github.com/go-leo/gox v0.1.1-0.20250306062406-3f8048ed7856 h1:nzgsNmq0xVS83pDlVYXM/7kp/L8Uh+/fBvVtMg3m/WE=
 github.com/go-leo/gox v0.1.1-0.20250306062406-3f8048ed7856/go.mod h1:cdRc5IClXdcAC9Zy5fhChflmH7TZOL6sJ1kF0cibVzs=
+github.com/go-leo/gox v0.1.1-0.20250307072850-09dc1e9ca365 h1:rZP1oURY3R0s24iAnojerlhWEqehWU9vNhlPFSmXokg=
+github.com/go-leo/gox v0.1.1-0.20250307072850-09dc1e9ca365/go.mod h1:cdRc5IClXdcAC9Zy5fhChflmH7TZOL6sJ1kF0cibVzs=
+github.com/go-leo/gox v0.1.1-0.20250307081533-cb5a189eb177 h1:zeh7pZMc2NEiO5rZXCMNCL+FUmm1wKxdtv+35AGQa/I=
+github.com/go-leo/gox v0.1.1-0.20250307081533-cb5a189eb177/go.mod h1:cdRc5IClXdcAC9Zy5fhChflmH7TZOL6sJ1kF0cibVzs=
+github.com/go-leo/gox v0.1.1-0.20250307082139-ce415157ebe0 h1:MWXm43hSRKZ/hgLjKtmlPkf+dzTkmZgU7zXVrNz4BJ8=
+github.com/go-leo/gox v0.1.1-0.20250307082139-ce415157ebe0/go.mod h1:cdRc5IClXdcAC9Zy5fhChflmH7TZOL6sJ1kF0cibVzs=
+github.com/go-leo/gox v0.1.1-0.20250308121716-58c69e90beb1 h1:nW8pNrv2CbCoI2iMPewa3ONNbOPRkzXMsVQyLRuG7Jc=
+github.com/go-leo/gox v0.1.1-0.20250308121716-58c69e90beb1/go.mod h1:cdRc5IClXdcAC9Zy5fhChflmH7TZOL6sJ1kF0cibVzs=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-logfmt/logfmt v0.6.0 h1:wGYYu3uicYdqXVgoYbvnkrPVXkuLM1p1ifugDMEdRi4=
@@ -136,6 +144,8 @@ github.com/go-redis/redis v6.15.9+incompatible h1:K0pv1D7EQUjfyoMql+r/jZqCLizCGK
 github.com/go-redis/redis v6.15.9+incompatible/go.mod h1:NAIEuMOZ/fxfXJIrKDQDz8wamY7mA7PouImQ2Jvg6kA=
 github.com/go-redis/redis_rate/v10 v10.0.1 h1:calPxi7tVlxojKunJwQ72kwfozdy25RjA0bCj1h0MUo=
 github.com/go-redis/redis_rate/v10 v10.0.1/go.mod h1:EMiuO9+cjRkR7UvdvwMO7vbgqJkltQHtwbdIQvaBKIU=
+github.com/go-redsync/redsync/v4 v4.13.0 h1:49X6GJfnbLGaIpBBREM/zA4uIMDXKAh1NDkvQ1EkZKA=
+github.com/go-redsync/redsync/v4 v4.13.0/go.mod h1:HMW4Q224GZQz6x1Xc7040Yfgacukdzu7ifTDAKiyErQ=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/goccy/go-json v0.10.2 h1:CrxCmQqYDkv1z7lO7Wbh2HN93uovUHgrECaO5ZrCXAU=
 github.com/goccy/go-json v0.10.2/go.mod h1:6MelG93GURQebXPDq3khkgXZkazVtN9CRI+MGFi0w8I=
@@ -360,6 +370,8 @@ github.com/smartystreets/goconvey v1.8.1 h1:qGjIddxOk4grTu9JPOU31tVfq3cNdBlNa5sS
 github.com/smartystreets/goconvey v1.8.1/go.mod h1:+/u4qLyY6x1jReYOp7GOM2FSt8aP9CzCZL03bI28W60=
 github.com/sony/gobreaker v1.0.0 h1:feX5fGGXSl3dYd4aHZItw+FpHLvvoaqkawKjVNiFMNQ=
 github.com/sony/gobreaker v1.0.0/go.mod h1:ZKptC7FHNvhBz7dN2LGjPVBz2sZJmc0/PkyDJOjmxWY=
+github.com/sony/gobreaker/v2 v2.1.0 h1:av2BnjtRmVPWBvy5gSFPytm1J8BmN5AGhq875FfGKDM=
+github.com/sony/gobreaker/v2 v2.1.0/go.mod h1:dO3Q/nCzxZj6ICjH6J/gM0r4oAwBMVLY8YAQf+NTtUg=
 github.com/spf13/cobra v1.9.1 h1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=
 github.com/spf13/cobra v1.9.1/go.mod h1:nDyEzZ8ogv936Cinf6g1RU9MRY64Ir93oCnqb9wxYW0=
 github.com/spf13/pflag v1.0.6 h1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=

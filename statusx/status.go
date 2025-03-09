@@ -50,9 +50,6 @@ type Status interface {
 	// RetryInfo returns the retry info.
 	RetryInfo() *errdetails.RetryInfo
 
-	// DebugInfo returns the debug info.
-	DebugInfo() *errdetails.DebugInfo
-
 	// QuotaFailure returns the quota failure info.
 	QuotaFailure() *errdetails.QuotaFailure
 
@@ -76,6 +73,9 @@ type Status interface {
 
 	// Extra returns additional detail from the Status
 	Extra() proto.Message
+
+	// WithoutDetail removes the detail info.
+	WithoutDetail(detail proto.Message) Status
 }
 
 var _ Status = (*sampleStatus)(nil)
@@ -192,4 +192,9 @@ func (st *sampleStatus) Extra() proto.Message {
 		panic(err)
 	}
 	return info
+}
+
+func (st *sampleStatus) WithoutDetail(detail proto.Message) Status {
+	st.err.GetDetailInfo().Without(detail)
+	return st
 }

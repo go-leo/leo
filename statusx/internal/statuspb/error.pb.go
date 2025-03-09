@@ -337,7 +337,6 @@ func (x *DetailInfo) GetExtra() *anypb.Any {
 }
 
 
-
 var File_error_proto protoreflect.FileDescriptor
 
 var file_error_proto_rawDesc = []byte{

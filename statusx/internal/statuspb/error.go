@@ -2,6 +2,7 @@ package statuspb
 
 import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -251,4 +252,38 @@ func FromDetails(details []*anypb.Any) *DetailInfo {
 		}
 	}
 	return detailInfo
+}
+
+func (x *DetailInfo) Without(detail proto.Message) {
+	if x == nil {
+		return
+	}
+	switch detail.(type) {
+	case *Identifier:
+		x.Identifier = nil
+	case *errdetails.ErrorInfo:
+		x.ErrorInfo = nil
+	case *errdetails.RetryInfo:
+		x.RetryInfo = nil
+	case *errdetails.DebugInfo:
+		x.DebugInfo = nil
+	case *errdetails.QuotaFailure:
+		x.QuotaFailure = nil
+	case *errdetails.PreconditionFailure:
+		x.PreconditionFailure = nil
+	case *errdetails.BadRequest:
+		x.BadRequest = nil
+	case *errdetails.RequestInfo:
+		x.RequestInfo = nil
+	case *errdetails.ResourceInfo:
+		x.ResourceInfo = nil
+	case *errdetails.Help:
+		x.Help = nil
+	case *errdetails.LocalizedMessage:
+		x.LocalizedMessage = nil
+	case *Header:
+		x.Header = nil
+	default:
+		x.Extra = nil
+	}
 }

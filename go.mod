@@ -9,7 +9,7 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.2-0.20230606174503-c7bf81493e58
 	github.com/go-kratos/aegis v0.2.0
-	github.com/go-leo/gox v0.1.1-0.20250306062406-3f8048ed7856
+	github.com/go-leo/gox v0.1.1-0.20250308121716-58c69e90beb1
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/golang-jwt/jwt/v4 v4.5.1
@@ -58,6 +58,7 @@ require (
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
+	github.com/go-redsync/redsync/v4 v4.13.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
@@ -92,6 +93,7 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.2 // indirect
 	github.com/smartystreets/goconvey v1.8.1 // indirect
+	github.com/sony/gobreaker/v2 v2.1.0 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect

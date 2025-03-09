@@ -2,9 +2,23 @@ package ratelimitx
 
 import (
 	"context"
+	"github.com/go-kit/kit/endpoint"
 	uberrate "go.uber.org/ratelimit"
 	"time"
 )
+
+// LeakyBucket creates a rate-limiting middleware using an uberRateLimiterWrapper. It initializes the wrapper with a
+// limiter and starts the rate-limiting logic, then returns the middleware.
+// see: https://github.com/uber-go/ratelimit
+func LeakyBucket(limiter uberrate.Limiter, exitC <-chan struct{}) endpoint.Middleware {
+	wrapper := uberRateLimiterWrapper{
+		limiter: limiter,
+		timeC:   make(chan time.Time, 1),
+		exitC:   exitC,
+	}
+	go wrapper.start()
+	return waiterMiddleware(wrapper)
+}
 
 // uberRateLimiterWrapper is a wrapper of uberrate.Limiter
 type uberRateLimiterWrapper struct {
@@ -21,17 +35,15 @@ type uberRateLimiterWrapper struct {
 
 // start a goroutine to control the rate limiter's token issuance
 func (w uberRateLimiterWrapper) start() {
-	go func() {
-		for {
-			select {
-			case w.timeC <- w.limiter.Take():
-				// When a token is obtained from w.limiter.Take(), it is sent to the w.timeC channel.
-			case <-w.exitC:
-				// When a close signal is received from the w.exitC channel, the loop exits and the goroutine terminates.
-				return
-			}
+	for {
+		select {
+		case w.timeC <- w.limiter.Take():
+			// When a token is obtained from w.limiter.Take(), it is sent to the w.timeC channel.
+		case <-w.exitC:
+			// When a close signal is received from the w.exitC channel, the loop exits and the goroutine terminates.
+			return
 		}
-	}()
+	}
 }
 
 // Wait is used to control the rate of requests.

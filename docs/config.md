@@ -23,7 +23,7 @@ Leo当前支持了五种常用的配置格式:
 `Loader` 从配置源加载配置内容`bytes(文本)`，通过`Parser`将`bytes(文本)`解析为`*structpb.Struct`。
 通过`Merger`将多个`*structpb.Struct`合并为一个，最后将`*structpb.Struct`转换为应用程序自已定义的配置结构。
 
-![config_load.png](image/config_load.png)
+![config_load.png](images/config_load.png)
 
 思维导图见[load.mermaid](../configx/load.mermaid) 和 [watch.mermaid](../configx/watch.mermaid)
  
