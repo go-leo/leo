@@ -11,9 +11,9 @@ import (
 	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
-	"github.com/go-leo/leo/v3/transportx/grpcx"
-	"github.com/go-leo/leo/v3/transportx/httpx"
-	httpstatus "google.golang.org/genproto/googleapis/rpc/http"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
+	"github.com/go-leo/leo/v3/transportx/httptransportx"
+	"net/http"
 	"strings"
 )
 
@@ -32,9 +32,9 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 				return next(ctx, request)
 			}
 			switch name {
-			case grpcx.GrpcServer, httpx.HttpServer:
+			case grpctransportx.GrpcServer, httptransportx.HttpServer:
 				return handleIncoming(ctx, request, next, requiredUserBytes, requiredPasswordBytes, realm)
-			case grpcx.GrpcClient, httpx.HttpClient:
+			case grpctransportx.GrpcClient, httptransportx.HttpClient:
 				return handleOutgoing(ctx, request, next, requiredUser, requiredPassword)
 			}
 			return next(ctx, request)
@@ -42,19 +42,16 @@ func Middleware(requiredUser, requiredPassword, realm string) endpoint.Middlewar
 	}
 }
 
-var (
-	ErrInvalidAuthorization = statusx.ErrUnauthenticated.With(statusx.Message("invalid authorization"))
-)
-
 func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, requiredUserBytes []byte, requiredPasswordBytes []byte, realm string) (any, error) {
 	md, ok := metadatax.FromIncomingContext(ctx)
 	if !ok {
-		return nil, statusx.ErrInvalidArgument.With(statusx.Message("missing metadata"))
+		return nil, statusx.InvalidArgument(statusx.Message("missing metadata"))
 	}
 
 	givenUser, givenPassword, ok := parseAuthorization(md.Values(authKey))
 	if !ok {
-		return nil, ErrInvalidAuthorization.With(statusx.HttpHeader(&httpstatus.HttpHeader{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}))
+		header := http.Header{"WWW-Authenticate": []string{fmt.Sprintf(`Basic realm=%q`, realm)}}
+		return nil, statusx.Unauthenticated(statusx.Headers(header), statusx.Message("invalid authorization"))
 	}
 
 	givenUserBytes := toHashSlice(givenUser)
@@ -62,7 +59,8 @@ func handleIncoming(ctx context.Context, request any, next endpoint.Endpoint, re
 
 	if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 		subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
-		return nil, ErrInvalidAuthorization.With(statusx.HttpHeader(&httpstatus.HttpHeader{Key: "WWW-Authenticate", Value: fmt.Sprintf(`Basic realm=%q`, realm)}))
+		header := http.Header{"WWW-Authenticate": []string{fmt.Sprintf(`Basic realm=%q`, realm)}}
+		return nil, statusx.Unauthenticated(statusx.Headers(header), statusx.Message("invalid authorization"))
 	}
 	// Continue execution of handler after ensuring a valid token.
 	return next(ctx, request)

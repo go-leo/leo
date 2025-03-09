@@ -8,17 +8,12 @@ import (
 	"time"
 )
 
-var (
-	addr = flag.String("addr", "localhost:60051", "the address to connect to")
-	name = flag.String("name", "", "Name to greet")
-)
-
 func main() {
 	flag.Parse()
-	client := helloworld.NewGreeterHttpClient(*addr)
+	client := helloworld.NewGreeterHttpClient("localhost:60051")
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancelFunc()
-	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: *name})
+	r, err := client.SayHello(ctx, &helloworld.HelloRequest{})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}

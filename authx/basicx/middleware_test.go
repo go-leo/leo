@@ -9,8 +9,8 @@ import (
 	"github.com/go-leo/leo/v3/metadatax"
 	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx"
-	"github.com/go-leo/leo/v3/transportx/grpcx"
-	"github.com/go-leo/leo/v3/transportx/httpx"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
+	"github.com/go-leo/leo/v3/transportx/httptransportx"
 	"testing"
 
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -23,31 +23,31 @@ func TestHttpWithBasicAuth(t *testing.T) {
 
 	type want struct {
 		result any
-		err    statusx.Error
+		err    statusx.Status
 	}
 	tests := []struct {
 		name       string
 		authHeader any
 		want       want
 	}{
-		{"Isn't valid with nil header", nil, want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid with non-string header", 42, want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid without authHeader", "", want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated()}},
 		{"Is valid for correct creds", makeAuthString(requiredUser, requiredPassword), want{true, nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			ctx = transportx.InjectName(ctx, httpx.HttpServer)
+			ctx = transportx.InjectName(ctx, httptransportx.HttpServer)
 			md := metadatax.New()
 			md.Set("Authorization", convx.ToString(tt.authHeader))
 			ctx = metadatax.NewIncomingContext(ctx, md)
 			ctx = context.WithValue(ctx, httptransport.ContextKeyRequestAuthorization, tt.authHeader)
 
 			result, err := Middleware(requiredUser, requiredPassword, realm)(passedValidation)(ctx, nil)
-			if result != tt.want.result || !tt.want.err.Equals(err) {
+			if result != tt.want.result || !tt.want.err.Is(err) {
 				t.Errorf("WithBasicAuth() = result: %v, err: %v, want result: %v, want error: %v", result, err, tt.want.result, tt.want.err)
 			}
 		})
@@ -68,17 +68,17 @@ func TestGrpcWithBasicAuth(t *testing.T) {
 		authHeader any
 		want       want
 	}{
-		{"Isn't valid with nil header", nil, want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid with non-string header", 42, want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid without authHeader", "", want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.ErrUnauthenticated}},
-		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.ErrUnauthenticated}},
+		{"Isn't valid with nil header", nil, want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid with non-string header", 42, want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid without authHeader", "", want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid for wrong user", makeAuthString("wrong-user", requiredPassword), want{nil, statusx.Unauthenticated()}},
+		{"Isn't valid for wrong password", makeAuthString(requiredUser, "wrong-password"), want{nil, statusx.Unauthenticated()}},
 		{"Is valid for correct creds", makeAuthString(requiredUser, requiredPassword), want{true, nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			ctx = transportx.InjectName(ctx, grpcx.GrpcServer)
+			ctx = transportx.InjectName(ctx, grpctransportx.GrpcServer)
 			md := metadatax.New()
 			md.Set("authorization", convx.ToString(tt.authHeader))
 			ctx = metadatax.NewIncomingContext(ctx, md)

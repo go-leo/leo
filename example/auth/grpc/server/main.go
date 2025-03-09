@@ -3,21 +3,19 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/go-leo/leo/v3"
+	"fmt"
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
-	"github.com/go-leo/leo/v3/serverx/httpserverx"
-	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
 	"log"
+	"net"
 	"time"
 )
 
 var (
-	port = flag.Int("port", 60051, "The server port")
+	port = flag.Int("port", 50051, "The server port")
 )
 
-// server is used to implement helloworld.GreeterServer.
-type server struct {
-}
+type server struct{}
 
 func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	deadline, ok := ctx.Deadline()
@@ -28,9 +26,14 @@ func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*he
 
 func main() {
 	flag.Parse()
-	router := helloworld.AppendGreeterHttpServerRoutes(mux.NewRouter(), &server{})
-	httpSrv := httpserverx.NewServer(router, httpserverx.Port(*port))
-	if err := leo.NewApp(leo.Runner(httpSrv)).Run(context.Background()); err != nil {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	helloworld.RegisterGreeterServer(s, helloworld.NewGreeterGrpcServer(&server{}))
+	log.Printf("server listening at %v", lis.Addr())
+	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

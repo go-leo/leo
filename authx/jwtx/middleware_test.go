@@ -61,10 +61,10 @@ func TestNewSigner(t *testing.T) {
 
 func testNewSigner(t *testing.T, ctx context.Context) {
 	e := func(ctx context.Context, i any) (any, error) { return ctx, nil }
-	signer := NewSigner(kid, key, method, mapClaims)(e)
+	signer := Client(kid, key, method, mapClaims)(e)
 	signingValidator(t, ctx, signer, signedKey)
 
-	signer = NewSigner(kid, key, method, standardClaims)(e)
+	signer = Client(kid, key, method, standardClaims)(e)
 	signingValidator(t, ctx, signer, standardSignedKey)
 }
 
@@ -83,7 +83,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 		return key, nil
 	}
 
-	parser := NewParser(keys, method, ClaimsFactory{Factory: MapClaimsFactory{}})(e)
+	parser := Server(keys, method, ClaimsFactory{Factory: MapClaimsFactory{}})(e)
 
 	// No Token is passed into the parser
 	_, err := parser(ctx, struct{}{})
@@ -103,7 +103,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 
 	// Invalid Method is used in the parser
-	badParser := NewParser(keys, invalidMethod, ClaimsFactory{Factory: MapClaimsFactory{}})(e)
+	badParser := Server(keys, invalidMethod, ClaimsFactory{Factory: MapClaimsFactory{}})(e)
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, signedKey)))
 	_, err = badParser(ctx, struct{}{})
 	if err == nil {
@@ -119,7 +119,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 		return []byte("bad"), nil
 	}
 
-	badParser = NewParser(invalidKeys, method, ClaimsFactory{Factory: MapClaimsFactory{}})(e)
+	badParser = Server(invalidKeys, method, ClaimsFactory{Factory: MapClaimsFactory{}})(e)
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, signedKey)))
 	_, err = badParser(ctx, struct{}{})
 	if err == nil {
@@ -144,7 +144,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 
 	// Test for malformed token error response
-	parser = NewParser(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
+	parser = Server(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, malformedKey)))
 	ctx1, err = parser(ctx, struct{}{})
 	if !statusx.ErrUnauthenticated.Equals(err) {
@@ -152,7 +152,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 
 	// Test for expired token error response
-	parser = NewParser(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
+	parser = Server(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
 	expired := jwt.NewWithClaims(method, jwt.StandardClaims{ExpiresAt: time.Now().Unix() - 100})
 	token, err := expired.SignedString(key)
 	if err != nil {
@@ -165,7 +165,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 
 	// Test for not activated token error response
-	parser = NewParser(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
+	parser = Server(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
 	notactive := jwt.NewWithClaims(method, jwt.StandardClaims{NotBefore: time.Now().Unix() + 100})
 	token, err = notactive.SignedString(key)
 	if err != nil {
@@ -178,7 +178,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 	}
 
 	// test valid standard claims token
-	parser = NewParser(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
+	parser = Server(keys, method, ClaimsFactory{Factory: StandardClaimsFactory{}})(e)
 	ctx = metadatax.NewIncomingContext(ctx, metadatax.Pairs("authorization", fmt.Sprintf("%s%s", prefix, standardSignedKey)))
 	ctx1, err = parser(ctx, struct{}{})
 	if err != nil {
@@ -198,7 +198,7 @@ func testJWTParser(t *testing.T, ctx context.Context) {
 func TestIssue(t *testing.T) {
 	var (
 		kf  = func(token *jwt.Token) (any, error) { return []byte("secret"), nil }
-		e   = NewParser(kf, jwt.SigningMethodHS256, ClaimsFactory{Factory: MapClaimsFactory{}})(endpoint.Nop)
+		e   = Server(kf, jwt.SigningMethodHS256, ClaimsFactory{Factory: MapClaimsFactory{}})(endpoint.Nop)
 		key = kitjwt.JWTContextKey
 		val = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ28ta2l0In0.14M2VmYyApdSlV_LZ88ajjwuaLeIFplB8JpyNy0A19E"
 		ctx = context.WithValue(context.Background(), key, val)

@@ -12,7 +12,7 @@ import (
 func main() {
 	client := helloworld.NewGreeterHttpClient(
 		"127.0.0.1:8080",
-		httpx.Middleware(jwtx.NewSigner("kid", []byte("jwt_key_secret"), jwt.SigningMethodHS256, jwt.MapClaims{"user": "go-leo"})),
+		httpx.Middleware(),
 	)
 	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {

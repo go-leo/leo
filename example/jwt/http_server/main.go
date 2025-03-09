@@ -19,11 +19,6 @@ func main() {
 	router := helloworld.AppendGreeterHttpRoutes(
 		mux.NewRouter(),
 		NewGreeterService(),
-		jwtx.NewParser(
-			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
-			jwt.SigningMethodHS256,
-			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
-		),
 	)
 	server := http.Server{Handler: router}
 	log.Printf("server listening at %v", lis.Addr())

@@ -2,44 +2,27 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"github.com/go-leo/leo/v3/serverx/grpcserverx"
+	"github.com/go-leo/leo/v3/serverx/httpserverx"
 	"github.com/go-leo/leo/v3/transportx/grpctransportx"
 	"github.com/gorilla/mux"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"net"
-	"net/http"
 	"time"
 )
 
 func main() {
-	eg, _ := errgroup.WithContext(context.Background())
-	eg.Go(func() error {
-		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 60051))
-		if err != nil {
-			return err
-		}
-		client := helloworld.NewGreeterGrpcClient("localhost:50051", grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
-		s := &http.Server{
-			Handler: helloworld.AppendGreeterHttpServerRoutes(mux.NewRouter(), client),
-		}
-		log.Printf("http server listening at %v", lis.Addr())
-		return s.Serve(lis)
-	})
-	eg.Go(func() error {
-		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
-		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
-		}
-		s := grpc.NewServer()
-		helloworld.RegisterGreeterServer(s, helloworld.NewGreeterGrpcServer(&server{}))
-		log.Printf("grpc server listening at %v", lis.Addr())
-		return s.Serve(lis)
-	})
-	if err := eg.Wait(); err != nil {
+	client := helloworld.NewGreeterGrpcClient("localhost:50051", grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())))
+	router := helloworld.AppendGreeterHttpServerRoutes(mux.NewRouter(), client)
+	httpSrv := httpserverx.NewServer(router, httpserverx.Port(60051))
+
+	grpcSrv := grpcserverx.NewServer(grpcserverx.Port(50051))
+	helloworld.RegisterGreeterServer(grpcSrv, helloworld.NewGreeterGrpcServer(&server{}))
+
+	if err := leo.NewApp(leo.Runner(httpSrv, grpcSrv)).Run(context.Background()); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

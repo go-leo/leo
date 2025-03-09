@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
+	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
-	"google.golang.org/grpc"
+	"github.com/go-leo/leo/v3/serverx/grpcserverx"
 	"log"
-	"net"
 	"time"
 )
 
@@ -26,14 +25,9 @@ func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*he
 
 func main() {
 	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
-	helloworld.RegisterGreeterServer(s, helloworld.NewGreeterGrpcServer(&server{}))
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
+	grpcSrv := grpcserverx.NewServer(grpcserverx.Port(*port))
+	helloworld.RegisterGreeterServer(grpcSrv, helloworld.NewGreeterGrpcServer(&server{}))
+	if err := leo.NewApp(leo.Runner(grpcSrv)).Run(context.Background()); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
