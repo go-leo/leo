@@ -3,7 +3,6 @@ package circuitbreakerx
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kratos/aegis/circuitbreaker"
 	"github.com/go-leo/gox/syncx/lazyloadx"
@@ -27,7 +26,7 @@ func GoogleSreBreaker(factory func(endpointName string) (circuitbreaker.CircuitB
 			}
 			cb, err, _ := group.Load(endpointName)
 			if err != nil {
-				panic(fmt.Errorf(errLoadBreaker, endpointName))
+				return nil, statusx.Canceled(statusx.Message(errLoadBreaker, endpointName))
 			}
 			if err := cb.Allow(); errors.Is(err, circuitbreaker.ErrNotAllowed) {
 				cb.MarkFailed()
