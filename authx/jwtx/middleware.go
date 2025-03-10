@@ -15,11 +15,14 @@ const (
 	authKey = "authorization"
 )
 
-func Client(kid string, key []byte, method jwt.SigningMethod) endpoint.Middleware {
+func Client(key []byte) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
-			token := jwt.New(method)
-			token.Header["kid"] = kid
+			claims, ok := ClaimsFromContext(ctx)
+			if !ok {
+				return next(ctx, request)
+			}
+			token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 			tokenString, err := token.SignedString(key)
 			if err != nil {
 				return nil, err
@@ -32,7 +35,7 @@ func Client(kid string, key []byte, method jwt.SigningMethod) endpoint.Middlewar
 	}
 }
 
-func Server(keyFunc jwt.Keyfunc, method jwt.SigningMethod) endpoint.Middleware {
+func Server(keyFunc jwt.Keyfunc) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
 			md, ok := metadatax.FromIncomingContext(ctx)
@@ -44,7 +47,7 @@ func Server(keyFunc jwt.Keyfunc, method jwt.SigningMethod) endpoint.Middleware {
 				return nil, statusx.Unauthenticated(statusx.Message("invalid authorization"))
 			}
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-				if token.Method != method {
+				if token.Method != jwt.SigningMethodHS512 {
 					return nil, statusx.Unauthenticated(statusx.Message("unexpected signing method"))
 				}
 				return keyFunc(token)

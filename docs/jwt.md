@@ -1,98 +1,188 @@
-# package authx/jwtx
+# JWT Auth
+一种基于JSON的轻量级的身份验证和授权机制，用于在客户端和服务器之间安全地传输信息。
 
-`package authx/jwtx` provides jwt auth middleware
+Leo提供了JWT认证中间件[jwtx](../authx/jwtx)
 
-## Usage
-### gRPC
-#### Server
+更多关于 jwt 的文档请参考
+[https://jwt.io/introduction](https://jwt.io/introduction)
+
+# 使用
+## gRPC 示例
+### 服务端
 ```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/go-leo/leo/v3"
+	"github.com/go-leo/leo/v3/authx/jwtx"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"github.com/go-leo/leo/v3/serverx/grpcserverx"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
+	"github.com/golang-jwt/jwt/v5"
+	"log"
+)
+
+type server struct{}
+
+func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
+	// 从上下文中获取jwt信息
+	claims, _ := jwtx.ClaimsFromContext(ctx)
+	fmt.Println(claims)
+	// 从上下文中获取jwt token
+	token, _ := jwtx.TokenFromContext(ctx)
+	fmt.Println(token)
+	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil
+}
+
 func main() {
-	lis, err := net.Listen("tcp", ":9090")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc1.NewServer()
-	endpoints := helloworld.NewGreeterEndpoints(
-		NewGreeterService(),
-		jwtx.NewParser(
-			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
-			jwt.SigningMethodHS256,
-			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
-		),
-	)
-	transports := helloworld.NewGreeterGrpcServerTransports(endpoints)
-	service := helloworld.NewGreeterGrpcServer(transports)
-	helloworld.RegisterGreeterServer(s, service)
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
+	// jwt 中间件
+	mdw := jwtx.Server(func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil })
+	grpcSrv := grpcserverx.NewServer(grpcserverx.Port(50051))
+	service := helloworld.NewGreeterGrpcServer(&server{}, grpctransportx.Middleware(mdw))
+	helloworld.RegisterGreeterServer(grpcSrv, service)
+	if err := leo.NewApp(leo.Runner(grpcSrv)).Run(context.Background()); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
+
 ```
 
-#### Client
+### 客户端
 ```go
-func main() {
-	conn, err := grpc1.Dial(":9090", grpc1.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-	transports := helloworld.NewGreeterGrpcClientTransports(conn)
+package main
 
-	// ok
+import (
+	"context"
+	"fmt"
+	"github.com/go-leo/leo/v3/authx/jwtx"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"github.com/go-leo/leo/v3/transportx/grpctransportx"
+	"github.com/golang-jwt/jwt/v5"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
+)
+
+func main() {
+	// success
+	// jwt 中间件
+	mdw := jwtx.Client([]byte("jwt_key_secret"))
 	client := helloworld.NewGreeterGrpcClient(
-		transports,
-		jwtx.NewSigner("kid", []byte("jwt_key_secret"), jwt.SigningMethodHS256, jwt.MapClaims{"user": "go-leo"}),
+		"localhost:50051",
+		grpctransportx.WithMiddleware(mdw),
+		grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())),
 	)
-	reply, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "ubuntu"})
+	// 向ctx中注入jwt信息
+	ctx := jwtx.NewContentWithClaims(context.Background(), jwt.MapClaims{"user_id": "123456"})
+	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
 	if err != nil {
-		panic(err)
+		log.Fatalf("could not greet: %v", err)
 	}
-	fmt.Println(reply)
+	log.Printf("Greeting: %s", r.GetMessage())
 
-	// panic
+	// error
+	// jwt 中间件
+	mdw = jwtx.Client([]byte("wrong_jwt_key_secret"))
 	client = helloworld.NewGreeterGrpcClient(
-		transports,
-		jwtx.NewSigner("kid", []byte("jwt_key_wrong_secret"), jwt.SigningMethodHS256, jwt.MapClaims{"user": "go-leo"}),
+		"localhost:50051",
+		grpctransportx.WithMiddleware(mdw),
+		grpctransportx.WithDialOptions(grpc.WithTransportCredentials(insecure.NewCredentials())),
 	)
-	reply, err = client.SayHello(context.Background(), &helloworld.HelloRequest{Name: "mint"})
-	if err != nil {
+	// 向ctx中注入jwt信息
+	ctx = jwtx.NewContentWithClaims(context.Background(), jwt.MapClaims{"user_id": "123456"})
+	r, err = client.SayHello(ctx, &helloworld.HelloRequest{Name: "mint"})
+	if err == nil {
 		panic(err)
 	}
-	fmt.Println(reply)
+	fmt.Println(err)
 }
 ```
 
-### Http
-#### Server
+## Http 示例
+### 服务端
 ```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/go-leo/leo/v3"
+	"github.com/go-leo/leo/v3/authx/jwtx"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"github.com/go-leo/leo/v3/serverx/httpserverx"
+	"github.com/go-leo/leo/v3/transportx/httptransportx"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/gorilla/mux"
+	"log"
+)
+
+// server is used to implement helloworld.GreeterServer.
+type server struct {
+}
+
+func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
+	// 从上下文中获取jwt信息
+	claims, _ := jwtx.ClaimsFromContext(ctx)
+	fmt.Println(claims)
+	// 从上下文中获取jwt token
+	token, _ := jwtx.TokenFromContext(ctx)
+	fmt.Println(token)
+	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil
+}
+
 func main() {
-	lis, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	endpoints := helloworld.NewGreeterEndpoints(
-		NewGreeterService(),
-		jwtx.NewParser(
-			func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil },
-			jwt.SigningMethodHS256,
-			jwtx.ClaimsFactory{Factory: jwtx.MapClaimsFactory{}},
-		),
-	)
-	transports := helloworld.NewGreeterHttpServerTransports(endpoints)
-	handler := helloworld.NewGreeterHttpServerHandler(transports)
-	server := http.Server{Handler: handler}
-	log.Printf("server listening at %v", lis.Addr())
-	if err := server.Serve(lis); err != nil {
+	// jwt 中间件
+	mdw := jwtx.Server(func(token *jwt.Token) (interface{}, error) { return []byte("jwt_key_secret"), nil })
+	router := mux.NewRouter()
+	router = helloworld.AppendGreeterHttpServerRoutes(router, &server{}, httptransportx.Middleware(mdw))
+	httpSrv := httpserverx.NewServer(router, httpserverx.Port(60051))
+	if err := leo.NewApp(leo.Runner(httpSrv)).Run(context.Background()); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
 ```
-#### Client
+### 客户端
 ```go
+package main
 
+import (
+	"context"
+	"fmt"
+	"github.com/go-leo/leo/v3/authx/jwtx"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"github.com/go-leo/leo/v3/transportx/httptransportx"
+	"github.com/golang-jwt/jwt/v5"
+	"log"
+)
+
+func main() {
+	// success
+	// jwt 中间件
+	mdw := jwtx.Client([]byte("jwt_key_secret"))
+	client := helloworld.NewGreeterHttpClient("localhost:60051", httptransportx.WithMiddleware(mdw))
+	// 向ctx中注入jwt信息
+	ctx := jwtx.NewContentWithClaims(context.Background(), jwt.MapClaims{"user_id": "123456"})
+	r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: "ubuntu"})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %s", r.GetMessage())
+
+	// error
+	// jwt 中间件
+	mdw = jwtx.Client([]byte("wrong_jwt_key_secret"))
+	client = helloworld.NewGreeterHttpClient("localhost:60051", httptransportx.WithMiddleware(mdw))
+	// 向ctx中注入jwt信息
+	ctx = jwtx.NewContentWithClaims(context.Background(), jwt.MapClaims{"user_id": "123456"})
+	r, err = client.SayHello(ctx, &helloworld.HelloRequest{Name: "mint"})
+	if err == nil {
+		panic(err)
+	}
+	fmt.Println(err)
+}
 ```
 
-## Example
-[jwt](..%2F..%2Fexample%2Fcmd%2Ffeatures%2Fauth%2Fjwt)
+# 代码
+[jwt](../example/jwt)
