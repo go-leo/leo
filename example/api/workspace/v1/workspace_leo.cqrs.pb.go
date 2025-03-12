@@ -252,9 +252,3 @@ func (UnimplementedUpdateWorkspaceResult) To(context.Context) (*Workspace, error
 	panic("implement me")
 	return nil, nil
 }
-
-// workspace/v1/cq/list_workspaces_leo.query.pb.go
-// workspace/v1/cq/get_workspace_leo.query.pb.go
-// workspace/v1/cq/create_workspace_leo.query.pb.go
-// workspace/v1/cq/update_workspace_leo.query.pb.go
-// workspace/v1/cq/delete_workspace_leo.query.pb.go

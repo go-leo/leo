@@ -7,6 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 service Cqrs {
+  // Command 是命令
   rpc Command (CommandRequest) returns (CommandReply) {
     option (google.api.http) = {
       post: "/v1/cqrs/command"
@@ -14,6 +15,7 @@ service Cqrs {
     };
   }
 
+  // CommandEmpty 是命令
   rpc CommandEmpty (CommandRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/cqrs/command"
@@ -21,6 +23,7 @@ service Cqrs {
     };
   }
 
+  // Query 是查询
   rpc Query (QueryRequest) returns (QueryReply) {
     option (google.api.http) = {
       post: "/v1/cqrs/query"
@@ -28,6 +31,7 @@ service Cqrs {
     };
   }
 
+  // QueryOneOf 是查询
   rpc QueryOneOf (QueryRequest) returns (QueryOneOfReply) {
     option (google.api.http) = {
       post: "/v1/cqrs/query-oneof"

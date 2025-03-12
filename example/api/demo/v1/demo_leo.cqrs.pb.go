@@ -339,11 +339,3 @@ func (UnimplementedGetUserAvatarResult) To(context.Context) (*httpbody.HttpBody,
 	panic("implement me")
 	return nil, nil
 }
-
-// demo/v1/cq/create_user_leo.query.pb.go
-// demo/v1/cq/delete_user_leo.query.pb.go
-// demo/v1/cq/update_user_leo.query.pb.go
-// demo/v1/cq/get_user_leo.query.pb.go
-// demo/v1/cq/get_users_leo.query.pb.go
-// demo/v1/cq/upload_user_avatar_leo.query.pb.go
-// demo/v1/cq/get_user_avatar_leo.query.pb.go

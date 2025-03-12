@@ -48,6 +48,8 @@ func (f *Generator) Generate() error {
 		f.PrintUnimplementedQuery(g, queryEndpoints)
 	}
 
+	return nil
+
 	for _, service := range f.Services {
 		for _, endpoint := range service.Endpoints {
 			dir := filepath.Dir(f.File.GeneratedFilenamePrefix)

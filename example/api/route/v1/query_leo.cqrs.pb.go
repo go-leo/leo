@@ -403,13 +403,3 @@ func (UnimplementedEnumQueryCommand) From(context.Context, *EnumQueryRequest) (E
 	panic("implement me")
 	return nil, nil, nil
 }
-
-// route/v1/cq/bool_query_leo.query.pb.go
-// route/v1/cq/int32_query_leo.query.pb.go
-// route/v1/cq/int64_query_leo.query.pb.go
-// route/v1/cq/uint32_query_leo.query.pb.go
-// route/v1/cq/uint64_query_leo.query.pb.go
-// route/v1/cq/float_query_leo.query.pb.go
-// route/v1/cq/double_query_leo.query.pb.go
-// route/v1/cq/string_query_leo.query.pb.go
-// route/v1/cq/enum_query_leo.query.pb.go

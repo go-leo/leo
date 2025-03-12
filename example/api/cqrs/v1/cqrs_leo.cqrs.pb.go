@@ -188,8 +188,3 @@ func (UnimplementedQueryOneOfResult) To(context.Context) (*QueryOneOfReply, erro
 	panic("implement me")
 	return nil, nil
 }
-
-// cqrs/v1/cq/command_leo.query.pb.go
-// cqrs/v1/cq/command_empty_leo.query.pb.go
-// cqrs/v1/cq/query_leo.query.pb.go
-// cqrs/v1/cq/query_one_of_leo.query.pb.go

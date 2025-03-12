@@ -594,15 +594,3 @@ func (UnimplementedMoveBookResult) To(context.Context) (*Book, error) {
 	panic("implement me")
 	return nil, nil
 }
-
-// library/v1/cq/create_shelf_leo.query.pb.go
-// library/v1/cq/get_shelf_leo.query.pb.go
-// library/v1/cq/list_shelves_leo.query.pb.go
-// library/v1/cq/delete_shelf_leo.query.pb.go
-// library/v1/cq/merge_shelves_leo.query.pb.go
-// library/v1/cq/create_book_leo.query.pb.go
-// library/v1/cq/get_book_leo.query.pb.go
-// library/v1/cq/list_books_leo.query.pb.go
-// library/v1/cq/delete_book_leo.query.pb.go
-// library/v1/cq/update_book_leo.query.pb.go
-// library/v1/cq/move_book_leo.query.pb.go

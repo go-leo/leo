@@ -685,20 +685,3 @@ func (UnimplementedMixPathCommand) From(context.Context, *MixPathRequest) (MixPa
 	panic("implement me")
 	return nil, nil, nil
 }
-
-// route/v1/cq/bool_path_leo.query.pb.go
-// route/v1/cq/int32_path_leo.query.pb.go
-// route/v1/cq/int64_path_leo.query.pb.go
-// route/v1/cq/uint32_path_leo.query.pb.go
-// route/v1/cq/uint64_path_leo.query.pb.go
-// route/v1/cq/float_path_leo.query.pb.go
-// route/v1/cq/double_path_leo.query.pb.go
-// route/v1/cq/string_path_leo.query.pb.go
-// route/v1/cq/enum_path_leo.query.pb.go
-// route/v1/cq/named_path_string_leo.query.pb.go
-// route/v1/cq/named_path_opt_string_leo.query.pb.go
-// route/v1/cq/named_path_wrap_string_leo.query.pb.go
-// route/v1/cq/embed_named_path_string_leo.query.pb.go
-// route/v1/cq/embed_named_path_opt_string_leo.query.pb.go
-// route/v1/cq/embed_named_path_wrap_string_leo.query.pb.go
-// route/v1/cq/mix_path_leo.query.pb.go

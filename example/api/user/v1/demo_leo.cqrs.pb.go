@@ -240,9 +240,3 @@ func (UnimplementedGetUsersResult) To(context.Context) (*GetUsersResponse, error
 	panic("implement me")
 	return nil, nil
 }
-
-// user/v1/cq/create_user_leo.query.pb.go
-// user/v1/cq/delete_user_leo.query.pb.go
-// user/v1/cq/update_user_leo.query.pb.go
-// user/v1/cq/get_user_leo.query.pb.go
-// user/v1/cq/get_users_leo.query.pb.go

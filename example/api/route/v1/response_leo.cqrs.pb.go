@@ -318,10 +318,3 @@ func (UnimplementedHttpResponseResult) To(context.Context) (*http.HttpResponse, 
 	panic("implement me")
 	return nil, nil
 }
-
-// route/v1/cq/omitted_response_leo.query.pb.go
-// route/v1/cq/star_response_leo.query.pb.go
-// route/v1/cq/named_response_leo.query.pb.go
-// route/v1/cq/http_body_response_leo.query.pb.go
-// route/v1/cq/http_body_named_response_leo.query.pb.go
-// route/v1/cq/http_response_leo.query.pb.go

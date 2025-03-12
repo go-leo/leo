@@ -65,5 +65,3 @@ func (UnimplementedSayHelloResult) To(context.Context) (*HelloReply, error) {
 	panic("implement me")
 	return nil, nil
 }
-
-// helloworld/v1/cq/say_hello_leo.query.pb.go

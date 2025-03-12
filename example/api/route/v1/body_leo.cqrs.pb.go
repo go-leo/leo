@@ -247,10 +247,3 @@ func (UnimplementedHttpRequestCommand) From(context.Context, *http.HttpRequest) 
 	panic("implement me")
 	return nil, nil, nil
 }
-
-// route/v1/cq/star_body_leo.query.pb.go
-// route/v1/cq/named_body_leo.query.pb.go
-// route/v1/cq/non_body_leo.query.pb.go
-// route/v1/cq/http_body_star_body_leo.query.pb.go
-// route/v1/cq/http_body_named_body_leo.query.pb.go
-// route/v1/cq/http_request_leo.query.pb.go
