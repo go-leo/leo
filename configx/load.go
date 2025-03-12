@@ -32,6 +32,9 @@ func Load[Config proto.Message](ctx context.Context, opts ...Option) (Config, er
 			errs = append(errs, err)
 			continue
 		}
+		if len(data) == 0 {
+			continue
+		}
 
 		// 使用解析器解析数据
 		foundParser := false

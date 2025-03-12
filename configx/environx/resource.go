@@ -33,10 +33,7 @@ func (r *Resource) Load(ctx context.Context) ([]byte, error) {
 	return []byte(strings.Join(sortx.Asc(prefixedEnvirons), "\n")), nil
 }
 
-func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
-	// 创建停止通道,用于停止监视。
-	stopC := make(chan struct{})
-
+func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) error {
 	// 启动协程：在一个新的协程中执行监视逻辑。
 	go func() {
 		defer func() {
@@ -48,9 +45,6 @@ func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (fu
 			select {
 			case <-ctx.Done():
 				// 如果上下文 ctx 完成，则退出循环。
-				return
-			case <-stopC:
-				// 如果收到停止信号，则退出循环。
 				return
 			case <-time.After(time.Second):
 				// 每隔一秒钟检查一次是否被修改。
@@ -70,7 +64,5 @@ func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (fu
 			}
 		}
 	}()
-
-	// 返回停止函数：返回一个关闭 stopC 通道的函数，用于外部调用停止监视。
-	return func() { close(stopC) }, nil
+	return nil
 }

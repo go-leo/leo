@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/api/watch"
 	"github.com/hashicorp/go-hclog"
+	"path/filepath"
+	"strings"
 )
 
 var _ configx.Resource = (*Resource)(nil)
@@ -18,6 +20,9 @@ type Resource struct {
 }
 
 func (r *Resource) Format() string {
+	if r.Formatter == nil {
+		return strings.TrimPrefix(filepath.Ext(r.Key), ".")
+	}
 	return r.Formatter.Format()
 }
 
@@ -29,14 +34,14 @@ func (r *Resource) Load(ctx context.Context) ([]byte, error) {
 	return pair.Value, nil
 }
 
-func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
+func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) error {
 	params := map[string]any{
 		"type": "key",
 		"key":  r.Key,
 	}
 	plan, err := watch.Parse(params)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	plan.Handler = func(idx uint64, raw interface{}) {
 		if raw == nil {
@@ -53,9 +58,11 @@ func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (fu
 		}
 		notifyC <- configx.NewErrorEvent(configx.ErrStopWatch)
 	}()
-	return func() {
+	go func() {
+		<-ctx.Done()
 		plan.Stop()
-	}, nil
+	}()
+	return nil
 }
 
 type consuleLogger struct {

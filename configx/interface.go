@@ -35,10 +35,10 @@ type Loader interface {
 // Watcher 定义了一个观察者接口，用于监控配置数据的变化，返回一个通道（用于接收变化通知）、一个停止监听函数和可能的错误。
 type Watcher interface {
 	Formatter
-	// Watch 监控配置数据的变化，接受一个通道（用于接收事件通知）, 返回一个停止监听函数和立即发生的错误
-	// 如果 Context 被取消，必须停止监听。
+	// Watch 监控配置数据的变化，接受一个通道（用于接收事件通知）, 返回立即发生的错误
+	// 如果 Context 被取消，则停止监听。
 	// 停止监听必须要发送 ErrStopWatch 错误事件。
-	Watch(ctx context.Context, notifyC chan<- *Event) (func(), error)
+	Watch(ctx context.Context, notifyC chan<- *Event) error
 }
 
 // Resource 定义了一个资源接口，继承了 Loader 和 Watcher 接口，表示一个既能加载配置数据又能监控其变化的资源。

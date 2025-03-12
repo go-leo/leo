@@ -6,6 +6,7 @@ import (
 	"github.com/go-leo/leo/v3/configx"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var _ configx.Resource = (*Resource)(nil)
@@ -16,6 +17,9 @@ type Resource struct {
 }
 
 func (r *Resource) Format() string {
+	if r.Formatter == nil {
+		return strings.TrimPrefix(filepath.Ext(r.Filename), ".")
+	}
 	return r.Formatter.Format()
 }
 
@@ -23,19 +27,16 @@ func (r *Resource) Load(ctx context.Context) ([]byte, error) {
 	return os.ReadFile(r.Filename)
 }
 
-func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (func(), error) {
+func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) error {
 	// 初始化文件监视器：创建一个 fsnotify.Watcher 实例，用于监听文件变化。
 	fsWatcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// 添加文件目录到监视器：将文件所在的目录添加到监视器中。
 	if err := fsWatcher.Add(filepath.Dir(r.Filename)); err != nil {
-		return nil, err
+		return err
 	}
-	// 创建停止通道,用于停止监视。
-	stopC := make(chan struct{})
-
 	// 启动协程：在一个新的协程中执行监视逻辑。
 	go func() {
 		defer func() {
@@ -51,15 +52,15 @@ func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (fu
 			case <-ctx.Done():
 				// 如果上下文 ctx 完成，则退出循环。
 				return
-			case <-stopC:
-				// 如果收到停止信号，则退出循环。
-				return
 			case event, ok := <-fsWatcher.Events:
 				if !ok {
 					return
 				}
+				if filepath.Clean(event.Name) != r.Filename {
+					continue
+				}
 				// 监听文件变化事件，如果是写操作，则加载文件内容并与前一次内容进行比较，如果不同则发送数据事件。
-				if !event.Has(fsnotify.Write) {
+				if !event.Has(fsnotify.Write) && !event.Has(fsnotify.Create) {
 					continue
 				}
 				data, err := r.Load(ctx)
@@ -81,5 +82,5 @@ func (r *Resource) Watch(ctx context.Context, notifyC chan<- *configx.Event) (fu
 			}
 		}
 	}()
-	return func() { close(stopC) }, nil
+	return nil
 }

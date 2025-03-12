@@ -8,4 +8,5 @@ protoc \
     --go-grpc_opt=paths=source_relative \
 		--go-leo_out=. \
 		--go-leo_opt=paths=source_relative \
+		*/*.proto \
 		*/*/*.proto

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/go-leo/leo/v3/cmd/gen/config"
 	"github.com/go-leo/leo/v3/cmd/gen/core"
 	"github.com/go-leo/leo/v3/cmd/gen/cqrs"
 	"github.com/go-leo/leo/v3/cmd/gen/grpc"
@@ -39,6 +40,10 @@ func generate(plugin *protogen.Plugin) error {
 		// 错误状态码生成
 		statusGenerator := status.NewGenerator(plugin, file)
 		statusGenerator.Generate()
+
+		// 配置生成
+		configGenerator := config.NewGenerator(plugin, file)
+		configGenerator.Generate()
 
 		// 核心代码生成
 		coreGenerator, err := core.NewGenerator(plugin, file)
