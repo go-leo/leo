@@ -1,16 +1,23 @@
-# project-layout
+# CQRS
+CQRS是一个架构模式，它将应用程序分解为两个不同的路径：命令和查询。
+## 命令侧
+每个可以触发服务器上的副作用的操作都必须通过CQRS“命令侧”。
+![command side](images/command_side.jpg)
 
-**ddd layout** is a open-source project meant to be used to  as a start point, or an inspiration, for those who want to build Domain Driven Design applications in Golang.
+## 查询侧
+每个可以触发服务器上的查询操作都必须通过CQRS“查询侧”。
+![query side](images/query_side.jpg)
 
-**NOTE:** This is NOT intended to be a definitive solution or a production ready project
+# Leo CQRS 定义
+1. 通过`protobuf`定义服务
+2. 一个 `rpc method` 是命令还是查询，可以通过 `Output Message` 决定
+    * 如果 `Output Message`没有一个参数，则是认为是命令
+    * 如果 `Output Message`有至少一个参数(普通参数或者oneof参数)，则是认为是查询。
 
-# Architecture overview
+# 案例
+```go
 
-## Layers
-- **presentation**: http controllers, grpc provider, schedule task, message subscriber, console command.
-- **application**: Orchestrates the jobs in the domain needed to be done to accomplish a certain "use case"
-- **Domain**: Where the business rules resides
-- **infrastructure**: Technologies concerns resides here (database access, sending emails, calling external APIs)
+```
 
 ## CQRS
 
