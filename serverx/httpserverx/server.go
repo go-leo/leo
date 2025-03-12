@@ -200,7 +200,7 @@ func (s *Server) Run(ctx context.Context) error {
 		internalsd.Deregister(registrar)
 		return serveErr
 	case <-ctx.Done():
-		serveExitErr := fmt.Errorf("server exit serve, %w", contextx.Error(ctx))
+		serveExitErr := fmt.Errorf("HTTP server exit serve, %w", contextx.Error(ctx))
 		// graceful shutdown, deregister and shutdown
 		internalsd.Deregister(registrar)
 		shutdownErr := s.shutdown(ctx, httpSrv, checker)
@@ -236,7 +236,7 @@ func (s *Server) shutdown(ctx context.Context, httpSrv *http.Server, checker hea
 	if err == nil {
 		return nil
 	}
-	return fmt.Errorf("server shutdown, %w", err)
+	return fmt.Errorf("HTTP server shutdown, %w", err)
 }
 
 func (s *Server) newHttpServer(ctx context.Context) *http.Server {

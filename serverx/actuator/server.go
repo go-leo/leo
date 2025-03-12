@@ -4,87 +4,192 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	kitlog "github.com/go-kit/log"
+	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/leo/v3/logx"
-	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type Server struct {
-	httpSrv *http.Server
-	opts    *options
-	lis     net.Listener
+	port    int
+	handler http.Handler
+	o       *options
 }
 
-func (s *Server) Start(ctx context.Context) error {
-	err := s.serve(ctx)
-	if errors.Is(err, http.ErrServerClosed) {
-		return nil
-	}
-	return err
+type options struct {
+	DisableGeneralOptionsHandler bool
+	TLSConfig                    *tls.Config
+	ReadTimeout                  time.Duration
+	ReadHeaderTimeout            time.Duration
+	WriteTimeout                 time.Duration
+	IdleTimeout                  time.Duration
+	MaxHeaderBytes               int
+	TLSNextProto                 map[string]func(*http.Server, *tls.Conn, http.Handler)
+	ConnState                    func(net.Conn, http.ConnState)
+	BaseContext                  func(net.Listener) context.Context
+	ConnContext                  func(ctx context.Context, c net.Conn) context.Context
+
+	ShutdownContext func(ctx context.Context) (context.Context, context.CancelCauseFunc)
 }
 
-func (s *Server) Stop(ctx context.Context) error {
-	if s.opts.ShutdownTimeout > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, s.opts.ShutdownTimeout)
-		defer cancel()
+type Option func(o *options)
+
+func (o *options) apply(opts ...Option) *options {
+	for _, opt := range opts {
+		opt(o)
 	}
-	return s.httpSrv.Shutdown(ctx)
+	return o
 }
 
-func (s *Server) serve(ctx context.Context) error {
-	s.httpSrv.Handler = s.newHandler()
-	s.httpSrv.BaseContext = func(listener net.Listener) context.Context { return ctx }
-	lis := tls.NewListener(s.lis, s.opts.TLSConfig)
-	if s.httpSrv.TLSConfig != nil {
-		return s.httpSrv.ServeTLS(s.lis, "", "")
-	} else {
-		return s.httpSrv.Serve(s.lis)
+func (o *options) complete() *options {
+	return o
+}
+
+func DisableGeneralOptionsHandlerLS() Option {
+	return func(o *options) {
+		o.DisableGeneralOptionsHandler = true
 	}
 }
 
-func (s *Server) newHandler() *mux.Router {
-	router := mux.NewRouter()
-	router.Use(s.opts.Middlewares...)
-	for _, h := range GetHandlers() {
-		router.PathPrefix(s.opts.PathPrefix).Path(h.Pattern()).HandlerFunc(h.ServeHTTP)
+func TLSConfig(conf *tls.Config) Option {
+	return func(o *options) {
+		o.TLSConfig = conf
 	}
-	for _, h := range s.opts.Handlers {
-		router.PathPrefix(s.opts.PathPrefix).Path(h.Pattern()).HandlerFunc(h.ServeHTTP)
-	}
-	return router
 }
 
-func NewServer(port int, opts ...Option) (*Server, error) {
-	address := net.JoinHostPort("", strconv.Itoa(port))
-	lis, err := net.Listen("tcp", address)
+func ReadTimeout(timeout time.Duration) Option {
+	return func(o *options) {
+		o.ReadTimeout = timeout
+	}
+}
+
+func ReadHeaderTimeout(timeout time.Duration) Option {
+	return func(o *options) {
+		o.ReadHeaderTimeout = timeout
+	}
+}
+
+func WriteTimeout(timeout time.Duration) Option {
+	return func(o *options) {
+		o.WriteTimeout = timeout
+	}
+}
+
+func IdleTimeout(timeout time.Duration) Option {
+	return func(o *options) {
+		o.IdleTimeout = timeout
+	}
+}
+
+func MaxHeaderBytes(size int) Option {
+	return func(o *options) {
+		o.MaxHeaderBytes = size
+	}
+}
+
+func TLSNextProto(m map[string]func(*http.Server, *tls.Conn, http.Handler)) Option {
+	return func(o *options) {
+		o.TLSNextProto = m
+	}
+}
+
+func ConnState(f func(net.Conn, http.ConnState)) Option {
+	return func(o *options) {
+		o.ConnState = f
+	}
+}
+
+func BaseContext(f func(net.Listener) context.Context) Option {
+	return func(o *options) {
+		o.BaseContext = f
+	}
+}
+
+func ConnContext(f func(ctx context.Context, c net.Conn) context.Context) Option {
+	return func(o *options) {
+		o.ConnContext = f
+	}
+}
+
+func ShutdownContext(f func(ctx context.Context) (context.Context, context.CancelCauseFunc)) Option {
+	return func(o *options) {
+		o.ShutdownContext = f
+	}
+}
+
+func NewServer(port int, handler http.Handler, opts ...Option) *Server {
+	return &Server{
+		port:    port,
+		handler: handler,
+		o:       new(options).apply(opts...).complete(),
+	}
+}
+
+func (s *Server) Run(ctx context.Context) error {
+	// listen port.
+	lis, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(s.port)))
 	if err != nil {
-		return nil, err
+		return err
 	}
-	o := new(options).apply(opts...).init()
-	return newServer(lis, o), nil
-}
+	if s.o.TLSConfig != nil {
+		lis = tls.NewListener(lis, s.o.TLSConfig)
+	}
 
-func newServer(lis net.Listener, options *options) *Server {
+	if s.o.BaseContext == nil {
+		s.o.BaseContext = func(listener net.Listener) context.Context { return ctx }
+	}
+	if s.o.ConnContext == nil {
+		s.o.ConnContext = func(ctx context.Context, c net.Conn) context.Context { return ctx }
+	}
 	httpSrv := &http.Server{
 		Addr:                         "",
-		Handler:                      nil,
-		DisableGeneralOptionsHandler: options.DisableGeneralOptionsHandler,
-		TLSConfig:                    options.TLSConfig,
-		ReadTimeout:                  options.ReadTimeout,
-		ReadHeaderTimeout:            options.ReadHeaderTimeout,
-		WriteTimeout:                 options.WriteTimeout,
-		IdleTimeout:                  options.IdleTimeout,
-		MaxHeaderBytes:               options.MaxHeaderBytes,
-		TLSNextProto:                 nil,
-		ConnState:                    nil,
+		Handler:                      s.handler,
+		DisableGeneralOptionsHandler: s.o.DisableGeneralOptionsHandler,
+		ReadTimeout:                  s.o.ReadTimeout,
+		ReadHeaderTimeout:            s.o.ReadHeaderTimeout,
+		WriteTimeout:                 s.o.WriteTimeout,
+		IdleTimeout:                  s.o.IdleTimeout,
+		MaxHeaderBytes:               s.o.MaxHeaderBytes,
+		TLSNextProto:                 s.o.TLSNextProto,
+		ConnState:                    s.o.ConnState,
 		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(logx.L()), "", 0),
-		BaseContext:                  nil,
-		ConnContext:                  nil,
+		BaseContext:                  s.o.BaseContext,
+		ConnContext:                  s.o.ConnContext,
 	}
-	return &Server{httpSrv: httpSrv, opts: options, lis: lis}
+
+	// server serve.
+	var serveErrC = make(chan error, 1)
+	go func() {
+		defer close(serveErrC)
+		err := httpSrv.Serve(lis)
+		if err == nil || errors.Is(err, http.ErrServerClosed) {
+			return
+		}
+		serveErrC <- err
+	}()
+
+	select {
+	case serveErr := <-serveErrC:
+		return serveErr
+	case <-ctx.Done():
+		var errs = []error{
+			fmt.Errorf("actuator server exit serve, %w", contextx.Error(ctx)),
+		}
+		// graceful shutdown, deregister and shutdown
+		ctx = context.WithoutCancel(ctx)
+		if s.o.ShutdownContext != nil {
+			var cancelFunc context.CancelCauseFunc
+			ctx, cancelFunc = s.o.ShutdownContext(ctx)
+			defer cancelFunc(nil)
+		}
+		if err := httpSrv.Shutdown(ctx); err != nil {
+			errs = append(errs, fmt.Errorf("actuator server shutdown, %w", err))
+		}
+		return errors.Join(errs...)
+	}
 }

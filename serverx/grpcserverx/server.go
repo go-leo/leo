@@ -144,7 +144,7 @@ func (s *Server) Run(ctx context.Context) error {
 		internalsd.Deregister(registrar)
 		return serveErr
 	case <-ctx.Done():
-		serveExitErr := fmt.Errorf("server exit serve, %w", contextx.Error(ctx))
+		serveExitErr := fmt.Errorf("gRPC server exit serve, %w", contextx.Error(ctx))
 		// graceful shutdown, deregister and shutdown
 		internalsd.Deregister(registrar)
 		shutdownErr := s.shutdown(ctx, grpcSrv, checker)
@@ -186,6 +186,6 @@ func (s *Server) shutdown(ctx context.Context, grpcSrv *grpc.Server, checker hea
 	case <-done:
 		return nil
 	case <-ctx.Done():
-		return fmt.Errorf("server shutdown, %w", contextx.Error(ctx))
+		return fmt.Errorf("gRPC server shutdown, %w", contextx.Error(ctx))
 	}
 }
