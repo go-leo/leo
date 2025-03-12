@@ -27,8 +27,8 @@ Leo当前支持了五种常用的配置格式:
 
 思维导图见[load.mermaid](../configx/load.mermaid) 和 [watch.mermaid](../configx/watch.mermaid)
  
-# 实例
-1. 创建一个proto配置文件：
+# 用法
+## 创建一个proto配置文件：
 ```proto
 syntax = "proto3";
 package internal.conf;
@@ -59,7 +59,7 @@ message Redis {
 1. 需要引入"leo/config/annotations.proto"。文件在[config](../proto/leo/config)下。
 2. message上添加`option (leo.config.enable) = true;`注解，表明该message是配置结构，没有该注解，则不会被解析为配置结构。
 
-2. 生产pb文件：
+## 生产pb文件：
 ```shell
 protoc \
 		--proto_path=. \
@@ -141,7 +141,7 @@ func LoadAndWatchApplicationConfig(ctx context.Context, f func(err error), opts 
 3. LoadAndWatchXXXConfig方法加载配置并监听配置
 
 
-3. 使用:
+## 使用:
 ```go
 package main
 
