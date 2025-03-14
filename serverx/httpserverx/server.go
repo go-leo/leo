@@ -14,6 +14,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -44,6 +45,7 @@ type options struct {
 	Builder  sdx.Builder
 	Instance string
 	Color    string
+	Logger   kitlog.Logger
 }
 
 type Option func(o *options)
@@ -56,6 +58,9 @@ func (o *options) apply(opts ...Option) *options {
 }
 
 func (o *options) complete() *options {
+	if o.Logger == nil {
+		o.Logger = logx.New(os.Stdout, logx.JSON(), logx.Timestamp(), logx.Caller(0), logx.Sync())
+	}
 	return o
 }
 
@@ -153,6 +158,12 @@ func Instance(instance string) Option {
 func Stain(color string) Option {
 	return func(o *options) {
 		o.Color = color
+	}
+}
+
+func Logger(logger kitlog.Logger) Option {
+	return func(o *options) {
+		o.Logger = logger
 	}
 }
 
@@ -257,7 +268,7 @@ func (s *Server) newHttpServer(ctx context.Context) *http.Server {
 		MaxHeaderBytes:               s.o.MaxHeaderBytes,
 		TLSNextProto:                 s.o.TLSNextProto,
 		ConnState:                    s.o.ConnState,
-		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(logx.L()), "", 0),
+		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(s.o.Logger), "", 0),
 		BaseContext:                  s.o.BaseContext,
 		ConnContext:                  s.o.ConnContext,
 	}

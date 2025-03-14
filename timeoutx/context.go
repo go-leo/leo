@@ -22,7 +22,7 @@ func IncomingInjector(ctx context.Context, request *http.Request) context.Contex
 	if value := request.Header.Get(metadataKey); value != "" {
 		timeout, err := decodeTimeout(value)
 		if err != nil {
-			_ = logx.L().Log("error", err)
+			logx.Error(ctx, "error", err)
 		}
 		ctx, cancelFunc := context.WithTimeout(ctx, timeout)
 		return context.WithValue(ctx, Key{}, cancelFunc)

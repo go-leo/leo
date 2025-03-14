@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/consul"
-	"github.com/go-leo/leo/v3/logx"
+	kitlog "github.com/go-kit/log"
 	"github.com/go-leo/leo/v3/sdx"
 	"github.com/go-leo/leo/v3/stainx"
 	"github.com/google/uuid"
@@ -30,7 +30,7 @@ func (Builder) Scheme() string {
 	return schemeName
 }
 
-func (b Builder) BuildInstancer(ctx context.Context, instance *url.URL, color string) (sd.Instancer, error) {
+func (b Builder) BuildInstancer(ctx context.Context, instance *url.URL, color string, logger kitlog.Logger) (sd.Instancer, error) {
 	dsn := strings.Join([]string{schemeName + ":/", instance.Host, instance.Path + "?" + instance.RawQuery}, "/")
 	rawURL, err := url.Parse(dsn)
 	if err != nil {
@@ -50,12 +50,12 @@ func (b Builder) BuildInstancer(ctx context.Context, instance *url.URL, color st
 	service := strings.TrimLeft(rawURL.Path, "/")
 	color, ok := stainx.ExtractColor(ctx)
 	if !ok {
-		return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, nil, true), nil
+		return consul.NewInstancer(consul.NewClient(cli), logger, service, nil, true), nil
 	}
-	return consul.NewInstancer(consul.NewClient(cli), logx.FromContext(ctx), service, []string{color}, true), nil
+	return consul.NewInstancer(consul.NewClient(cli), logger, service, []string{color}, true), nil
 }
 
-func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.IP, port int, color string) (sd.Registrar, error) {
+func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.IP, port int, color string, logger kitlog.Logger) (sd.Registrar, error) {
 	dsn := strings.Join([]string{schemeName + ":/", instance.Host, instance.Path + "?" + instance.RawQuery}, "/")
 	rawURL, err := url.Parse(dsn)
 	if err != nil {
@@ -72,11 +72,13 @@ func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.I
 		return nil, err
 	}
 	service := strings.TrimLeft(rawURL.Path, "/")
-	return consul.NewRegistrar(consul.NewClient(cli), &stdconsul.AgentServiceRegistration{
+	client := consul.NewClient(cli)
+	registration := &stdconsul.AgentServiceRegistration{
 		ID:      uuid.NewString(),
 		Name:    service,
 		Tags:    []string{color},
 		Port:    port,
 		Address: ip.String(),
-	}, logx.L()), nil
+	}
+	return consul.NewRegistrar(client, registration, logger), nil
 }

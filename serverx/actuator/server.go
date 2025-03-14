@@ -11,6 +11,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -35,6 +36,7 @@ type options struct {
 	ConnContext                  func(ctx context.Context, c net.Conn) context.Context
 
 	ShutdownContext func(ctx context.Context) (context.Context, context.CancelCauseFunc)
+	Logger          kitlog.Logger
 }
 
 type Option func(o *options)
@@ -47,6 +49,9 @@ func (o *options) apply(opts ...Option) *options {
 }
 
 func (o *options) complete() *options {
+	if o.Logger == nil {
+		o.Logger = logx.New(os.Stdout, logx.JSON(), logx.Timestamp(), logx.Caller(0), logx.Sync())
+	}
 	return o
 }
 
@@ -122,6 +127,12 @@ func ShutdownContext(f func(ctx context.Context) (context.Context, context.Cance
 	}
 }
 
+func Logger(logger kitlog.Logger) Option {
+	return func(o *options) {
+		o.Logger = logger
+	}
+}
+
 func NewServer(port int, handler http.Handler, opts ...Option) *Server {
 	return &Server{
 		port:    port,
@@ -157,7 +168,7 @@ func (s *Server) Run(ctx context.Context) error {
 		MaxHeaderBytes:               s.o.MaxHeaderBytes,
 		TLSNextProto:                 s.o.TLSNextProto,
 		ConnState:                    s.o.ConnState,
-		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(logx.L()), "", 0),
+		ErrorLog:                     log.New(kitlog.NewStdlibAdapter(s.o.Logger), "", 0),
 		BaseContext:                  s.o.BaseContext,
 		ConnContext:                  s.o.ConnContext,
 	}

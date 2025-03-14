@@ -10,6 +10,7 @@ import (
 	"github.com/go-leo/leo/v3/sdx/lbx"
 	"github.com/go-leo/leo/v3/sdx/passthroughx"
 	"google.golang.org/grpc"
+	"os"
 )
 
 type (
@@ -120,7 +121,7 @@ func NewClientOptions(opts ...ClientOption) ClientOptions {
 		middlewares:            nil,
 		builder:                passthroughx.Builder{},
 		endpointerOptions:      nil,
-		logger:                 logx.L(),
+		logger:                 logx.New(os.Stdout, logx.JSON(), logx.Timestamp(), logx.Caller(0), logx.Sync()),
 		balancerFactory:        lbx.PeakFirstFactory{},
 	}
 	return options.Apply(opts...)

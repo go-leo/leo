@@ -3,6 +3,7 @@ package passthroughx
 import (
 	"context"
 	"github.com/go-kit/kit/sd"
+	kitlog "github.com/go-kit/log"
 	"github.com/go-leo/leo/v3/sdx"
 	"github.com/go-leo/leo/v3/sdx/internal"
 	"net"
@@ -19,11 +20,11 @@ func (Builder) Scheme() string {
 	return schemeName
 }
 
-func (Builder) BuildInstancer(ctx context.Context, instance *url.URL, color string) (sd.Instancer, error) {
+func (Builder) BuildInstancer(ctx context.Context, instance *url.URL, color string, logger kitlog.Logger) (sd.Instancer, error) {
 	return Instancer{Instance: internal.ExtractEndpoint(instance)}, nil
 }
 
-func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.IP, port int, color string) (sd.Registrar, error) {
+func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.IP, port int, color string, logger kitlog.Logger) (sd.Registrar, error) {
 
 	return nil, nil
 }

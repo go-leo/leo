@@ -30,7 +30,7 @@ func NewEndpointer(
 }
 
 func newEndpointer(ctx context.Context, instanceUrl *url.URL, color string, builder Builder, factory sd.Factory, logger log.Logger, options ...sd.EndpointerOption) (sd.Endpointer, error) {
-	instancer, err := builder.BuildInstancer(ctx, instanceUrl, color)
+	instancer, err := builder.BuildInstancer(ctx, instanceUrl, color, logger)
 	if err != nil {
 		return nil, fmt.Errorf("sdx: failed to new instancer, target url: %q, color: %q", instanceUrl.String(), color)
 	}
