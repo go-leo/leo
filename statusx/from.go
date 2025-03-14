@@ -76,7 +76,7 @@ func fromHttpResponse(resp *http.Response) (Status, bool) {
 	if err != nil {
 		return Unknown(Message(string(data)), Headers(resp.Header)), false
 	}
-	keys := strings.Split(resp.Header.Get(kXLeoHeader), kXLeoHeaderSeparator)
+	keys := strings.Split(resp.Header.Get(kKey), kSeparator)
 	if len(keys) == 0 {
 		return fromHttpBody(body), true
 	}

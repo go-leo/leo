@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	kXLeoHeader          = "X-Leo-Headers"
-	kXLeoHeaderSeparator = ", "
+	kKey       = "X-Leo-Status-Key"
+	kSeparator = ", "
 )
 
 func marshalHttpBody(st *sampleStatus) ([]byte, error) {

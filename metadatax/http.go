@@ -6,13 +6,20 @@ import (
 )
 
 func HttpOutgoingInjector(ctx context.Context, request *http.Request) context.Context {
-	md, ok := FromOutgoingContext(ctx)
-	if !ok {
-		return ctx
+	incomingMD, ok := FromIncomingContext(ctx)
+	if ok {
+		for _, key := range incomingMD.Keys() {
+			for _, value := range incomingMD.Values(key) {
+				request.Header.Add(key, value)
+			}
+		}
 	}
-	for _, key := range md.Keys() {
-		for _, value := range md.Values(key) {
-			request.Header.Add(key, value)
+	md, ok := FromOutgoingContext(ctx)
+	if ok {
+		for _, key := range md.Keys() {
+			for _, value := range md.Values(key) {
+				request.Header.Add(key, value)
+			}
 		}
 	}
 	return ctx

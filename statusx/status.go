@@ -134,7 +134,7 @@ func (st *sampleStatus) Headers() http.Header {
 		header.Add(item.GetKey(), item.GetValue())
 		keys[item.GetKey()] = struct{}{}
 	}
-	header.Add(kXLeoHeader, strings.Join(maps.Keys(keys), kXLeoHeaderSeparator))
+	header.Add(kKey, strings.Join(maps.Keys(keys), kSeparator))
 	return header
 }
 

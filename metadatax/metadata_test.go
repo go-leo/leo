@@ -210,8 +210,8 @@ func TestAppendToOutgoingContext(t *testing.T) {
 	tCtx, cancel := context.WithTimeout(context.Background(), defaultTestTimeout)
 	defer cancel()
 	ctx := NewOutgoingContext(tCtx, Pairs("k1", "v1", "k2", "v2"))
-	ctx = AppendToOutgoingContext(ctx, Pairs("k1", "v3"))
-	ctx = AppendToOutgoingContext(ctx, Pairs("k1", "v4"))
+	ctx = AppendOutgoingContext(ctx, Pairs("k1", "v3"))
+	ctx = AppendOutgoingContext(ctx, Pairs("k1", "v4"))
 	md, ok := FromOutgoingContext(ctx)
 	if !ok {
 		t.Errorf("Expected MD to exist in ctx, but got none")
@@ -222,7 +222,7 @@ func TestAppendToOutgoingContext(t *testing.T) {
 	}
 
 	// No existing metadata
-	ctx = AppendToOutgoingContext(tCtx, Pairs("k1", "v1"))
+	ctx = AppendOutgoingContext(tCtx, Pairs("k1", "v1"))
 	md, ok = FromOutgoingContext(ctx)
 	if !ok {
 		t.Errorf("Expected MD to exist in ctx, but got none")
@@ -238,8 +238,8 @@ func TestAppendToOutgoingContext_Repeated(t *testing.T) {
 	defer cancel()
 
 	for i := 0; i < 100; i = i + 2 {
-		ctx1 := AppendToOutgoingContext(ctx, Pairs("k", strconv.Itoa(i)))
-		ctx2 := AppendToOutgoingContext(ctx, Pairs("k", strconv.Itoa(i+1)))
+		ctx1 := AppendOutgoingContext(ctx, Pairs("k", strconv.Itoa(i)))
+		ctx2 := AppendOutgoingContext(ctx, Pairs("k", strconv.Itoa(i+1)))
 
 		md1, _ := FromOutgoingContext(ctx1)
 		md2, _ := FromOutgoingContext(ctx2)
@@ -257,7 +257,7 @@ func TestAppendToOutgoingContext_Repeated(t *testing.T) {
 //	kv := []string{k, v}
 //	tCtx, cancel := context.WithTimeout(context.Background(), defaultTestTimeout)
 //	defer cancel()
-//	ctx := AppendToOutgoingContext(tCtx, Pairs(kv...))
+//	ctx := AppendOutgoingContext(tCtx, Pairs(kv...))
 //	_Metadata, _ := FromOutgoingContext(ctx)
 //	mdM := _Metadata.(_Metadata)
 //	if mdM[k][0] != v {

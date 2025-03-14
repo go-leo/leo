@@ -29,7 +29,7 @@ func Client(key []byte) endpoint.Middleware {
 			}
 			ctx = NewContentWithToken(ctx, tokenString)
 			metadata := metadatax.Pairs(authKey, fmt.Sprintf("%s%s", prefix, tokenString))
-			ctx = metadatax.AppendToOutgoingContext(ctx, metadata)
+			ctx = metadatax.AppendOutgoingContext(ctx, metadata)
 			return next(ctx, request)
 		}
 	}

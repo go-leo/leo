@@ -32,6 +32,15 @@ func NewOutgoingContext(ctx context.Context, md Metadata) context.Context {
 	return context.WithValue(ctx, outgoingKey{}, _RawMD{md: md})
 }
 
+// AppendOutgoingContext appends the Metadata to the context.
+func AppendOutgoingContext(ctx context.Context, mds ...Metadata) context.Context {
+	old, _ := ctx.Value(outgoingKey{}).(_RawMD)
+	added := make([]Metadata, 0, len(old.added)+len(mds))
+	added = append(added, old.added...)
+	added = append(added, mds...)
+	return context.WithValue(ctx, outgoingKey{}, _RawMD{md: old.md, added: added})
+}
+
 // FromOutgoingContext returns the outgoing metadata in ctx if it exists.
 func FromOutgoingContext(ctx context.Context) (Metadata, bool) {
 	rawMD, ok := ctx.Value(outgoingKey{}).(_RawMD)
@@ -40,13 +49,4 @@ func FromOutgoingContext(ctx context.Context) (Metadata, bool) {
 	}
 	res := Join(append([]Metadata{rawMD.md}, rawMD.added...)...)
 	return res, ok
-}
-
-// AppendToOutgoingContext appends the Metadata to the outgoing context.
-func AppendToOutgoingContext(ctx context.Context, mds ...Metadata) context.Context {
-	old, _ := ctx.Value(outgoingKey{}).(_RawMD)
-	added := make([]Metadata, 0, len(old.added)+len(mds))
-	added = append(added, old.added...)
-	added = append(added, mds...)
-	return context.WithValue(ctx, outgoingKey{}, _RawMD{md: old.md, added: added})
 }

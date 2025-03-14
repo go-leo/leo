@@ -6,12 +6,17 @@ import (
 )
 
 func GrpcOutgoingInjector(ctx context.Context, grpcMD *metadata.MD) context.Context {
-	md, ok := FromOutgoingContext(ctx)
-	if !ok {
-		return ctx
+	incomingMD, ok := FromIncomingContext(ctx)
+	if ok {
+		for _, key := range incomingMD.Keys() {
+			grpcMD.Set(key, incomingMD.Values(key)...)
+		}
 	}
-	for _, key := range md.Keys() {
-		grpcMD.Set(key, md.Values(key)...)
+	md, ok := FromOutgoingContext(ctx)
+	if ok {
+		for _, key := range md.Keys() {
+			grpcMD.Set(key, md.Values(key)...)
+		}
 	}
 	return ctx
 }

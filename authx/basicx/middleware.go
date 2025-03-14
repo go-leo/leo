@@ -24,7 +24,7 @@ func Client(user, password string) endpoint.Middleware {
 		return func(ctx context.Context, request any) (any, error) {
 			tokenString := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", user, password)))
 			metadata := metadatax.Pairs(authKey, fmt.Sprintf("%s%s", prefix, tokenString))
-			ctx = metadatax.AppendToOutgoingContext(ctx, metadata)
+			ctx = metadatax.AppendOutgoingContext(ctx, metadata)
 			return next(ctx, request)
 		}
 	}
