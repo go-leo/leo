@@ -3,6 +3,7 @@ package internalsd
 import (
 	"context"
 	"github.com/go-kit/kit/sd"
+	kitlog "github.com/go-kit/log"
 	"github.com/go-leo/gox/netx/addrx"
 	"github.com/go-leo/leo/v3/sdx"
 	"net"
@@ -10,7 +11,7 @@ import (
 	"runtime"
 )
 
-func NewRegistrar(ctx context.Context, lis net.Listener, builder sdx.Builder, instance string, color string) (sd.Registrar, error) {
+func NewRegistrar(ctx context.Context, lis net.Listener, builder sdx.Builder, instance string, color string, logger kitlog.Logger) (sd.Registrar, error) {
 	if builder == nil {
 		return nil, nil
 	}
@@ -22,7 +23,7 @@ func NewRegistrar(ctx context.Context, lis net.Listener, builder sdx.Builder, in
 	if err != nil {
 		return nil, err
 	}
-	return builder.BuildRegistrar(ctx, instanceUrl, ip, port, color)
+	return builder.BuildRegistrar(ctx, instanceUrl, ip, port, color, logger)
 }
 
 func Register(registrar sd.Registrar) {

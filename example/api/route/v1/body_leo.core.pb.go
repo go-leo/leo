@@ -225,32 +225,32 @@ type bodyBalancers struct {
 }
 
 func (b *bodyBalancers) StarBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.starBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StarBody))
 	return balancer, err
 }
 func (b *bodyBalancers) NamedBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.namedBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedBody))
 	return balancer, err
 }
 func (b *bodyBalancers) NonBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.nonBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NonBody))
 	return balancer, err
 }
 func (b *bodyBalancers) HttpBodyStarBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.httpBodyStarBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyStarBody))
 	return balancer, err
 }
 func (b *bodyBalancers) HttpBodyNamedBody(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.httpBodyNamedBody.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyNamedBody))
 	return balancer, err
 }
 func (b *bodyBalancers) HttpRequest(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.httpRequest.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpRequest))
 	return balancer, err
 }
@@ -327,8 +327,8 @@ type bodyClientService struct {
 }
 
 func (c *bodyClientService) StarBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.body.Body/StarBody")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.body.Body/StarBody")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.StarBody(ctx)
 	if err != nil {
 		return nil, err
@@ -341,8 +341,8 @@ func (c *bodyClientService) StarBody(ctx context.Context, request *BodyRequest) 
 }
 
 func (c *bodyClientService) NamedBody(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.body.Body/NamedBody")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.body.Body/NamedBody")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.NamedBody(ctx)
 	if err != nil {
 		return nil, err
@@ -355,8 +355,8 @@ func (c *bodyClientService) NamedBody(ctx context.Context, request *BodyRequest)
 }
 
 func (c *bodyClientService) NonBody(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.body.Body/NonBody")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.body.Body/NonBody")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.NonBody(ctx)
 	if err != nil {
 		return nil, err
@@ -369,8 +369,8 @@ func (c *bodyClientService) NonBody(ctx context.Context, request *emptypb.Empty)
 }
 
 func (c *bodyClientService) HttpBodyStarBody(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.body.Body/HttpBodyStarBody")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.body.Body/HttpBodyStarBody")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.HttpBodyStarBody(ctx)
 	if err != nil {
 		return nil, err
@@ -383,8 +383,8 @@ func (c *bodyClientService) HttpBodyStarBody(ctx context.Context, request *httpb
 }
 
 func (c *bodyClientService) HttpBodyNamedBody(ctx context.Context, request *HttpBodyRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.body.Body/HttpBodyNamedBody")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.body.Body/HttpBodyNamedBody")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.HttpBodyNamedBody(ctx)
 	if err != nil {
 		return nil, err
@@ -397,8 +397,8 @@ func (c *bodyClientService) HttpBodyNamedBody(ctx context.Context, request *Http
 }
 
 func (c *bodyClientService) HttpRequest(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.body.Body/HttpRequest")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.body.Body/HttpRequest")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.HttpRequest(ctx)
 	if err != nil {
 		return nil, err

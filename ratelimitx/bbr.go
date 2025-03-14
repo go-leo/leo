@@ -17,7 +17,7 @@ func BBR(limiter *bbr.BBR) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
 			// extract endpoint name
-			endpointName, ok := endpointx.ExtractName(ctx)
+			endpointName, ok := endpointx.NameExtractor(ctx)
 			if !ok {
 				return next(ctx, request)
 			}

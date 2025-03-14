@@ -185,7 +185,7 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 
 	// create registrar.
-	registrar, err := internalsd.NewRegistrar(ctx, lis, s.o.Builder, s.o.Instance, s.o.Color)
+	registrar, err := internalsd.NewRegistrar(ctx, lis, s.o.Builder, s.o.Instance, s.o.Color, s.o.Logger)
 	if err != nil {
 		return err
 	}

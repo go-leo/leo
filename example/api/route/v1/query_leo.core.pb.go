@@ -98,7 +98,7 @@ type boolQueryBalancers struct {
 }
 
 func (b *boolQueryBalancers) BoolQuery(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.boolQuery.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.BoolQuery))
 	return balancer, err
 }
@@ -130,8 +130,8 @@ type boolQueryClientService struct {
 }
 
 func (c *boolQueryClientService) BoolQuery(ctx context.Context, request *BoolQueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.BoolQuery/BoolQuery")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.BoolQuery/BoolQuery")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.BoolQuery(ctx)
 	if err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ type int32QueryBalancers struct {
 }
 
 func (b *int32QueryBalancers) Int32Query(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.int32Query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int32Query))
 	return balancer, err
 }
@@ -255,8 +255,8 @@ type int32QueryClientService struct {
 }
 
 func (c *int32QueryClientService) Int32Query(ctx context.Context, request *Int32QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.Int32Query/Int32Query")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.Int32Query/Int32Query")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Int32Query(ctx)
 	if err != nil {
 		return nil, err
@@ -348,7 +348,7 @@ type int64QueryBalancers struct {
 }
 
 func (b *int64QueryBalancers) Int64Query(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.int64Query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int64Query))
 	return balancer, err
 }
@@ -380,8 +380,8 @@ type int64QueryClientService struct {
 }
 
 func (c *int64QueryClientService) Int64Query(ctx context.Context, request *Int64QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.Int64Query/Int64Query")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.Int64Query/Int64Query")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Int64Query(ctx)
 	if err != nil {
 		return nil, err
@@ -473,7 +473,7 @@ type uint32QueryBalancers struct {
 }
 
 func (b *uint32QueryBalancers) Uint32Query(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.uint32Query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint32Query))
 	return balancer, err
 }
@@ -505,8 +505,8 @@ type uint32QueryClientService struct {
 }
 
 func (c *uint32QueryClientService) Uint32Query(ctx context.Context, request *Uint32QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.Uint32Query/Uint32Query")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.Uint32Query/Uint32Query")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Uint32Query(ctx)
 	if err != nil {
 		return nil, err
@@ -598,7 +598,7 @@ type uint64QueryBalancers struct {
 }
 
 func (b *uint64QueryBalancers) Uint64Query(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.uint64Query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint64Query))
 	return balancer, err
 }
@@ -630,8 +630,8 @@ type uint64QueryClientService struct {
 }
 
 func (c *uint64QueryClientService) Uint64Query(ctx context.Context, request *Uint64QueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.Uint64Query/Uint64Query")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.Uint64Query/Uint64Query")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Uint64Query(ctx)
 	if err != nil {
 		return nil, err
@@ -723,7 +723,7 @@ type floatQueryBalancers struct {
 }
 
 func (b *floatQueryBalancers) FloatQuery(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.floatQuery.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.FloatQuery))
 	return balancer, err
 }
@@ -755,8 +755,8 @@ type floatQueryClientService struct {
 }
 
 func (c *floatQueryClientService) FloatQuery(ctx context.Context, request *FloatQueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.FloatQuery/FloatQuery")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.FloatQuery/FloatQuery")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.FloatQuery(ctx)
 	if err != nil {
 		return nil, err
@@ -848,7 +848,7 @@ type doubleQueryBalancers struct {
 }
 
 func (b *doubleQueryBalancers) DoubleQuery(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.doubleQuery.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DoubleQuery))
 	return balancer, err
 }
@@ -880,8 +880,8 @@ type doubleQueryClientService struct {
 }
 
 func (c *doubleQueryClientService) DoubleQuery(ctx context.Context, request *DoubleQueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.DoubleQuery/DoubleQuery")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.DoubleQuery/DoubleQuery")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DoubleQuery(ctx)
 	if err != nil {
 		return nil, err
@@ -973,7 +973,7 @@ type stringQueryBalancers struct {
 }
 
 func (b *stringQueryBalancers) StringQuery(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.stringQuery.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StringQuery))
 	return balancer, err
 }
@@ -1005,8 +1005,8 @@ type stringQueryClientService struct {
 }
 
 func (c *stringQueryClientService) StringQuery(ctx context.Context, request *StringQueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.StringQuery/StringQuery")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.StringQuery/StringQuery")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.StringQuery(ctx)
 	if err != nil {
 		return nil, err
@@ -1098,7 +1098,7 @@ type enumQueryBalancers struct {
 }
 
 func (b *enumQueryBalancers) EnumQuery(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.enumQuery.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EnumQuery))
 	return balancer, err
 }
@@ -1130,8 +1130,8 @@ type enumQueryClientService struct {
 }
 
 func (c *enumQueryClientService) EnumQuery(ctx context.Context, request *EnumQueryRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.query.EnumQuery/EnumQuery")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.query.EnumQuery/EnumQuery")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.EnumQuery(ctx)
 	if err != nil {
 		return nil, err

@@ -198,27 +198,27 @@ type workspacesBalancers struct {
 }
 
 func (b *workspacesBalancers) ListWorkspaces(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.listWorkspaces.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListWorkspaces))
 	return balancer, err
 }
 func (b *workspacesBalancers) GetWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetWorkspace))
 	return balancer, err
 }
 func (b *workspacesBalancers) CreateWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.createWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateWorkspace))
 	return balancer, err
 }
 func (b *workspacesBalancers) UpdateWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.updateWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateWorkspace))
 	return balancer, err
 }
 func (b *workspacesBalancers) DeleteWorkspace(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.deleteWorkspace.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteWorkspace))
 	return balancer, err
 }
@@ -286,8 +286,8 @@ type workspacesClientService struct {
 }
 
 func (c *workspacesClientService) ListWorkspaces(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.endpointsapis.v1.Workspaces/ListWorkspaces")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.ListWorkspaces(ctx)
 	if err != nil {
 		return nil, err
@@ -300,8 +300,8 @@ func (c *workspacesClientService) ListWorkspaces(ctx context.Context, request *L
 }
 
 func (c *workspacesClientService) GetWorkspace(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.endpointsapis.v1.Workspaces/GetWorkspace")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetWorkspace(ctx)
 	if err != nil {
 		return nil, err
@@ -314,8 +314,8 @@ func (c *workspacesClientService) GetWorkspace(ctx context.Context, request *Get
 }
 
 func (c *workspacesClientService) CreateWorkspace(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.endpointsapis.v1.Workspaces/CreateWorkspace")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.CreateWorkspace(ctx)
 	if err != nil {
 		return nil, err
@@ -328,8 +328,8 @@ func (c *workspacesClientService) CreateWorkspace(ctx context.Context, request *
 }
 
 func (c *workspacesClientService) UpdateWorkspace(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.endpointsapis.v1.Workspaces/UpdateWorkspace")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.UpdateWorkspace(ctx)
 	if err != nil {
 		return nil, err
@@ -342,8 +342,8 @@ func (c *workspacesClientService) UpdateWorkspace(ctx context.Context, request *
 }
 
 func (c *workspacesClientService) DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.endpointsapis.v1.Workspaces/DeleteWorkspace")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DeleteWorkspace(ctx)
 	if err != nil {
 		return nil, err

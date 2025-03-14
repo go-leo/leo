@@ -173,22 +173,22 @@ type cqrsBalancers struct {
 }
 
 func (b *cqrsBalancers) Command(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.command.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Command))
 	return balancer, err
 }
 func (b *cqrsBalancers) CommandEmpty(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.commandEmpty.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CommandEmpty))
 	return balancer, err
 }
 func (b *cqrsBalancers) Query(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.query.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Query))
 	return balancer, err
 }
 func (b *cqrsBalancers) QueryOneOf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.queryOneOf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.QueryOneOf))
 	return balancer, err
 }
@@ -247,8 +247,8 @@ type cqrsClientService struct {
 }
 
 func (c *cqrsClientService) Command(ctx context.Context, request *CommandRequest) (*CommandReply, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/Command")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.cqrs.Cqrs/Command")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Command(ctx)
 	if err != nil {
 		return nil, err
@@ -261,8 +261,8 @@ func (c *cqrsClientService) Command(ctx context.Context, request *CommandRequest
 }
 
 func (c *cqrsClientService) CommandEmpty(ctx context.Context, request *CommandRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/CommandEmpty")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.cqrs.Cqrs/CommandEmpty")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.CommandEmpty(ctx)
 	if err != nil {
 		return nil, err
@@ -275,8 +275,8 @@ func (c *cqrsClientService) CommandEmpty(ctx context.Context, request *CommandRe
 }
 
 func (c *cqrsClientService) Query(ctx context.Context, request *QueryRequest) (*QueryReply, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/Query")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.cqrs.Cqrs/Query")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Query(ctx)
 	if err != nil {
 		return nil, err
@@ -289,8 +289,8 @@ func (c *cqrsClientService) Query(ctx context.Context, request *QueryRequest) (*
 }
 
 func (c *cqrsClientService) QueryOneOf(ctx context.Context, request *QueryRequest) (*QueryOneOfReply, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.cqrs.Cqrs/QueryOneOf")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.cqrs.Cqrs/QueryOneOf")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.QueryOneOf(ctx)
 	if err != nil {
 		return nil, err

@@ -16,16 +16,10 @@ const (
 
 func EndpointInjector(name string) httptransport.RequestFunc {
 	return func(ctx context.Context, request *http.Request) context.Context {
-		return endpointx.InjectName(ctx, name)
+		return endpointx.NameInjector(ctx, name)
 	}
 }
 
 func ServerTransportInjector(ctx context.Context, request *http.Request) context.Context {
-	return endpointx.InjectName(ctx, HttpServer)
-}
-
-type targetKey struct{}
-
-func InjectTarget(ctx context.Context, target string) context.Context {
-	return context.WithValue(ctx, targetKey{}, target)
+	return endpointx.NameInjector(ctx, HttpServer)
 }

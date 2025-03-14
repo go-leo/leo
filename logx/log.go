@@ -37,19 +37,19 @@ var warnLevel = []interface{}{kitloglevel.Key(), kitloglevel.WarnValue()}
 var errorLevel = []interface{}{kitloglevel.Key(), kitloglevel.ErrorValue()}
 
 func log(ctx context.Context, level []interface{}, keyvals ...interface{}) {
-	if err := get().Log(slices.Concat(FetchKeyVals(ctx), level, keyvals)...); err != nil {
+	if err := get().Log(slices.Concat(FetchKeyValsExtractor(ctx), level, keyvals)...); err != nil {
 		stdlog.Println(err.Error())
 	}
 }
 
 func print(ctx context.Context, level []interface{}, args ...any) {
-	if err := get().Log(slices.Concat(FetchKeyVals(ctx), level, []any{"msg", fmt.Sprint(args...)})...); err != nil {
+	if err := get().Log(slices.Concat(FetchKeyValsExtractor(ctx), level, []any{"msg", fmt.Sprint(args...)})...); err != nil {
 		stdlog.Println(err.Error())
 	}
 }
 
 func printf(ctx context.Context, level []interface{}, format string, args ...any) {
-	if err := get().Log(slices.Concat(FetchKeyVals(ctx), level, []any{"msg", fmt.Sprintf(format, args...)})...); err != nil {
+	if err := get().Log(slices.Concat(FetchKeyValsExtractor(ctx), level, []any{"msg", fmt.Sprintf(format, args...)})...); err != nil {
 		stdlog.Println(err.Error())
 	}
 }

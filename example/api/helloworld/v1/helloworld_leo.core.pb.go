@@ -97,7 +97,7 @@ type greeterBalancers struct {
 }
 
 func (b *greeterBalancers) SayHello(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.sayHello.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.SayHello))
 	return balancer, err
 }
@@ -129,8 +129,8 @@ type greeterClientService struct {
 }
 
 func (c *greeterClientService) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	ctx = endpointx.InjectName(ctx, "/helloworld.Greeter/SayHello")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/helloworld.Greeter/SayHello")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.SayHello(ctx)
 	if err != nil {
 		return nil, err

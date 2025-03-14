@@ -225,32 +225,32 @@ type responseBalancers struct {
 }
 
 func (b *responseBalancers) OmittedResponse(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.omittedResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.OmittedResponse))
 	return balancer, err
 }
 func (b *responseBalancers) StarResponse(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.starResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StarResponse))
 	return balancer, err
 }
 func (b *responseBalancers) NamedResponse(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.namedResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedResponse))
 	return balancer, err
 }
 func (b *responseBalancers) HttpBodyResponse(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.httpBodyResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyResponse))
 	return balancer, err
 }
 func (b *responseBalancers) HttpBodyNamedResponse(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.httpBodyNamedResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpBodyNamedResponse))
 	return balancer, err
 }
 func (b *responseBalancers) HttpResponse(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.httpResponse.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.HttpResponse))
 	return balancer, err
 }
@@ -327,8 +327,8 @@ type responseClientService struct {
 }
 
 func (c *responseClientService) OmittedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.response.Response/OmittedResponse")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.response.Response/OmittedResponse")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.OmittedResponse(ctx)
 	if err != nil {
 		return nil, err
@@ -341,8 +341,8 @@ func (c *responseClientService) OmittedResponse(ctx context.Context, request *em
 }
 
 func (c *responseClientService) StarResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.response.Response/StarResponse")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.response.Response/StarResponse")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.StarResponse(ctx)
 	if err != nil {
 		return nil, err
@@ -355,8 +355,8 @@ func (c *responseClientService) StarResponse(ctx context.Context, request *empty
 }
 
 func (c *responseClientService) NamedResponse(ctx context.Context, request *emptypb.Empty) (*UserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.response.Response/NamedResponse")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.response.Response/NamedResponse")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.NamedResponse(ctx)
 	if err != nil {
 		return nil, err
@@ -369,8 +369,8 @@ func (c *responseClientService) NamedResponse(ctx context.Context, request *empt
 }
 
 func (c *responseClientService) HttpBodyResponse(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.response.Response/HttpBodyResponse")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.response.Response/HttpBodyResponse")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.HttpBodyResponse(ctx)
 	if err != nil {
 		return nil, err
@@ -383,8 +383,8 @@ func (c *responseClientService) HttpBodyResponse(ctx context.Context, request *e
 }
 
 func (c *responseClientService) HttpBodyNamedResponse(ctx context.Context, request *emptypb.Empty) (*HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.response.Response/HttpBodyNamedResponse")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.response.Response/HttpBodyNamedResponse")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.HttpBodyNamedResponse(ctx)
 	if err != nil {
 		return nil, err
@@ -397,8 +397,8 @@ func (c *responseClientService) HttpBodyNamedResponse(ctx context.Context, reque
 }
 
 func (c *responseClientService) HttpResponse(ctx context.Context, request *emptypb.Empty) (*http.HttpResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.response.Response/HttpResponse")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.response.Response/HttpResponse")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.HttpResponse(ctx)
 	if err != nil {
 		return nil, err

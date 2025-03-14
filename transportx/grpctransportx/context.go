@@ -17,20 +17,20 @@ const (
 
 func ClientEndpointInjector(name string) grpctransport.ClientRequestFunc {
 	return func(ctx context.Context, md *metadata.MD) context.Context {
-		return endpointx.InjectName(ctx, name)
+		return endpointx.NameInjector(ctx, name)
 	}
 }
 
 func ClientTransportInjector(ctx context.Context, md *metadata.MD) context.Context {
-	return transportx.InjectName(ctx, GrpcClient)
+	return transportx.NameInjector(ctx, GrpcClient)
 }
 
 func ServerEndpointInjector(name string) grpctransport.ServerRequestFunc {
 	return func(ctx context.Context, md metadata.MD) context.Context {
-		return endpointx.InjectName(ctx, name)
+		return endpointx.NameInjector(ctx, name)
 	}
 }
 
 func ServerTransportInjector(ctx context.Context, md metadata.MD) context.Context {
-	return transportx.InjectName(ctx, GrpcServer)
+	return transportx.NameInjector(ctx, GrpcServer)
 }

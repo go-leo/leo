@@ -108,7 +108,7 @@ var (
 	StainxGrpcIncomingInjector = StainxPackage.Ident("GrpcIncomingInjector")
 	StainxHttpOutgoingInjector = StainxPackage.Ident("HttpOutgoingInjector")
 	StainxHttpIncomingInjector = StainxPackage.Ident("HttpIncomingInjector")
-	StainxExtractColor         = StainxPackage.Ident("ExtractColor")
+	StainxColorExtractor       = StainxPackage.Ident("ColorExtractor")
 )
 
 var (

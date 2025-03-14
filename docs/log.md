@@ -39,13 +39,13 @@ logx.Errorln(context.Background(), "method", "Errorln")
 ## 全局日志输出Context里的信息
 ```go
 // 创建一个上下文，并注入一些额外的信息
-ctx := logx.InjectKeyVals(context.Background(), "trace_id", "123456", "parent_id", "abcdefg")
-ctx = logx.InjectKeyVals(ctx, "span_id", "987654")
+ctx := logx.KeyValsExtractorInjector(context.Background(), "trace_id", "123456", "parent_id", "abcdefg")
+ctx = logx.KeyValsExtractorInjector(ctx, "span_id", "987654")
 logx.Infoln(ctx, "this is print extra key value pairs")
 ```
 注意：
-* logx.InjectKeyVals()方法，用于将额外的信息注入到上下文中，以便在日志中打印出来。
-* logx.InjectKeyVals()方法可以调用多次，也可以一次传多个键值对。
+* logx.KeyValsExtractorInjector()方法，用于将额外的信息注入到上下文中，以便在日志中打印出来。
+* logx.KeyValsExtractorInjector()方法可以调用多次，也可以一次传多个键值对。
 
 ## 修改全局日志
 ```go

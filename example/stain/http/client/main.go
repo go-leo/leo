@@ -23,7 +23,7 @@ func main() {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		color := colors[r.IntN(len(colors))]
-		ctx = stainx.InjectColor(ctx, color)
+		ctx = stainx.ColorInjector(ctx, color)
 		r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: color})
 		if err != nil {
 			log.Fatalf("could not greet: %v", err)

@@ -33,9 +33,5 @@ func AsGrpcMetadata(md Metadata) metadata.MD {
 //
 // the key is converted to lowercase.
 func FromGrpcMetadata(md metadata.MD) Metadata {
-	res := New()
-	for key, values := range md {
-		res.Set(key, values...)
-	}
-	return res
+	return FromMap(md)
 }

@@ -26,8 +26,8 @@ func main() {
 	logger.Log("msg", "this logx.New() message")
 
 	// inject key value pair to context
-	ctx := logx.InjectKeyVals(context.Background(), "trace_id", "123456", "parent_id", "abcdefg")
-	ctx = logx.InjectKeyVals(ctx, "span_id", "987654")
+	ctx := logx.KeyValsExtractorInjector(context.Background(), "trace_id", "123456", "parent_id", "abcdefg")
+	ctx = logx.KeyValsExtractorInjector(ctx, "span_id", "987654")
 	logx.Infoln(ctx, "this is print extra key value pairs")
 
 	fmt.Println("global debug level")

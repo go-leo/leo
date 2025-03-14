@@ -38,9 +38,5 @@ func AsHttpHeader(md Metadata) http.Header {
 //
 // The keys should be in canonical form, as returned by http.CanonicalHeaderKey.
 func FromHttpHeader(header http.Header) Metadata {
-	res := New()
-	for key, values := range header {
-		res.Set(key, values...)
-	}
-	return res
+	return FromMap(header)
 }

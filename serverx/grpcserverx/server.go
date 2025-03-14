@@ -4,15 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	kitlog "github.com/go-kit/log"
 	"github.com/go-leo/gox/contextx"
 	"github.com/go-leo/gox/mapx"
 	"github.com/go-leo/leo/v3/healthx"
+	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
 	internalsd "github.com/go-leo/leo/v3/serverx/internal/sd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"os"
 	"runtime"
 	"strconv"
 	"sync"
@@ -36,6 +39,7 @@ type options struct {
 	Color string
 	// ShutdownContext is the shutdown context.
 	ShutdownContext func(ctx context.Context) (context.Context, context.CancelCauseFunc)
+	Logger          kitlog.Logger
 }
 
 type Option func(o *options)
@@ -48,6 +52,9 @@ func (o *options) apply(opts ...Option) *options {
 }
 
 func (o *options) complete() *options {
+	if o.Logger == nil {
+		o.Logger = logx.New(os.Stdout, logx.JSON(), logx.Timestamp(), logx.Caller(0), logx.Sync())
+	}
 	return o
 }
 
@@ -88,6 +95,12 @@ func ShutdownContext(f func(ctx context.Context) (context.Context, context.Cance
 	}
 }
 
+func Logger(logger kitlog.Logger) Option {
+	return func(o *options) {
+		o.Logger = logger
+	}
+}
+
 func NewServer(opts ...Option) *Server {
 	return &Server{
 		o: new(options).apply(opts...).complete(),
@@ -107,7 +120,7 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 
 	// create registrar.
-	registrar, err := internalsd.NewRegistrar(ctx, lis, s.o.Builder, s.o.Instance, s.o.Color)
+	registrar, err := internalsd.NewRegistrar(ctx, lis, s.o.Builder, s.o.Instance, s.o.Color, s.o.Logger)
 	if err != nil {
 		return err
 	}

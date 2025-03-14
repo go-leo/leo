@@ -198,27 +198,27 @@ type userManagerBalancers struct {
 }
 
 func (b *userManagerBalancers) CreateUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.createUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateUser))
 	return balancer, err
 }
 func (b *userManagerBalancers) DeleteUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.deleteUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteUser))
 	return balancer, err
 }
 func (b *userManagerBalancers) UpdateUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.updateUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateUser))
 	return balancer, err
 }
 func (b *userManagerBalancers) GetUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUser))
 	return balancer, err
 }
 func (b *userManagerBalancers) GetUsers(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getUsers.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUsers))
 	return balancer, err
 }
@@ -286,8 +286,8 @@ type userManagerClientService struct {
 }
 
 func (c *userManagerClientService) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.user.v1.UserManager/CreateUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.user.v1.UserManager/CreateUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.CreateUser(ctx)
 	if err != nil {
 		return nil, err
@@ -300,8 +300,8 @@ func (c *userManagerClientService) CreateUser(ctx context.Context, request *Crea
 }
 
 func (c *userManagerClientService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.user.v1.UserManager/DeleteUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.user.v1.UserManager/DeleteUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DeleteUser(ctx)
 	if err != nil {
 		return nil, err
@@ -314,8 +314,8 @@ func (c *userManagerClientService) DeleteUser(ctx context.Context, request *Dele
 }
 
 func (c *userManagerClientService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.user.v1.UserManager/UpdateUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.user.v1.UserManager/UpdateUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.UpdateUser(ctx)
 	if err != nil {
 		return nil, err
@@ -328,8 +328,8 @@ func (c *userManagerClientService) UpdateUser(ctx context.Context, request *Upda
 }
 
 func (c *userManagerClientService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.user.v1.UserManager/GetUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.user.v1.UserManager/GetUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetUser(ctx)
 	if err != nil {
 		return nil, err
@@ -342,8 +342,8 @@ func (c *userManagerClientService) GetUser(ctx context.Context, request *GetUser
 }
 
 func (c *userManagerClientService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.user.v1.UserManager/GetUsers")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.user.v1.UserManager/GetUsers")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetUsers(ctx)
 	if err != nil {
 		return nil, err

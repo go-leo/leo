@@ -348,57 +348,57 @@ type libraryServiceBalancers struct {
 }
 
 func (b *libraryServiceBalancers) CreateShelf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.createShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateShelf))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) GetShelf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetShelf))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) ListShelves(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.listShelves.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListShelves))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) DeleteShelf(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.deleteShelf.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteShelf))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) MergeShelves(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.mergeShelves.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MergeShelves))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) CreateBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.createBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) GetBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) ListBooks(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.listBooks.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.ListBooks))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) DeleteBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.deleteBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) UpdateBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.updateBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateBook))
 	return balancer, err
 }
 func (b *libraryServiceBalancers) MoveBook(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.moveBook.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MoveBook))
 	return balancer, err
 }
@@ -520,8 +520,8 @@ type libraryServiceClientService struct {
 }
 
 func (c *libraryServiceClientService) CreateShelf(ctx context.Context, request *CreateShelfRequest) (*Shelf, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/CreateShelf")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.CreateShelf(ctx)
 	if err != nil {
 		return nil, err
@@ -534,8 +534,8 @@ func (c *libraryServiceClientService) CreateShelf(ctx context.Context, request *
 }
 
 func (c *libraryServiceClientService) GetShelf(ctx context.Context, request *GetShelfRequest) (*Shelf, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetShelf")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/GetShelf")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetShelf(ctx)
 	if err != nil {
 		return nil, err
@@ -548,8 +548,8 @@ func (c *libraryServiceClientService) GetShelf(ctx context.Context, request *Get
 }
 
 func (c *libraryServiceClientService) ListShelves(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListShelves")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/ListShelves")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.ListShelves(ctx)
 	if err != nil {
 		return nil, err
@@ -562,8 +562,8 @@ func (c *libraryServiceClientService) ListShelves(ctx context.Context, request *
 }
 
 func (c *libraryServiceClientService) DeleteShelf(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/DeleteShelf")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DeleteShelf(ctx)
 	if err != nil {
 		return nil, err
@@ -576,8 +576,8 @@ func (c *libraryServiceClientService) DeleteShelf(ctx context.Context, request *
 }
 
 func (c *libraryServiceClientService) MergeShelves(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/MergeShelves")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.MergeShelves(ctx)
 	if err != nil {
 		return nil, err
@@ -590,8 +590,8 @@ func (c *libraryServiceClientService) MergeShelves(ctx context.Context, request 
 }
 
 func (c *libraryServiceClientService) CreateBook(ctx context.Context, request *CreateBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/CreateBook")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/CreateBook")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.CreateBook(ctx)
 	if err != nil {
 		return nil, err
@@ -604,8 +604,8 @@ func (c *libraryServiceClientService) CreateBook(ctx context.Context, request *C
 }
 
 func (c *libraryServiceClientService) GetBook(ctx context.Context, request *GetBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/GetBook")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/GetBook")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetBook(ctx)
 	if err != nil {
 		return nil, err
@@ -618,8 +618,8 @@ func (c *libraryServiceClientService) GetBook(ctx context.Context, request *GetB
 }
 
 func (c *libraryServiceClientService) ListBooks(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/ListBooks")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/ListBooks")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.ListBooks(ctx)
 	if err != nil {
 		return nil, err
@@ -632,8 +632,8 @@ func (c *libraryServiceClientService) ListBooks(ctx context.Context, request *Li
 }
 
 func (c *libraryServiceClientService) DeleteBook(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/DeleteBook")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DeleteBook(ctx)
 	if err != nil {
 		return nil, err
@@ -646,8 +646,8 @@ func (c *libraryServiceClientService) DeleteBook(ctx context.Context, request *D
 }
 
 func (c *libraryServiceClientService) UpdateBook(ctx context.Context, request *UpdateBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/UpdateBook")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.UpdateBook(ctx)
 	if err != nil {
 		return nil, err
@@ -660,8 +660,8 @@ func (c *libraryServiceClientService) UpdateBook(ctx context.Context, request *U
 }
 
 func (c *libraryServiceClientService) MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error) {
-	ctx = endpointx.InjectName(ctx, "/google.example.library.v1.LibraryService/MoveBook")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/google.example.library.v1.LibraryService/MoveBook")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.MoveBook(ctx)
 	if err != nil {
 		return nil, err

@@ -98,7 +98,7 @@ type boolPathBalancers struct {
 }
 
 func (b *boolPathBalancers) BoolPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.boolPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.BoolPath))
 	return balancer, err
 }
@@ -130,8 +130,8 @@ type boolPathClientService struct {
 }
 
 func (c *boolPathClientService) BoolPath(ctx context.Context, request *BoolPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.BoolPath/BoolPath")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.BoolPath/BoolPath")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.BoolPath(ctx)
 	if err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ type int32PathBalancers struct {
 }
 
 func (b *int32PathBalancers) Int32Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.int32Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int32Path))
 	return balancer, err
 }
@@ -255,8 +255,8 @@ type int32PathClientService struct {
 }
 
 func (c *int32PathClientService) Int32Path(ctx context.Context, request *Int32PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.Int32Path/Int32Path")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.Int32Path/Int32Path")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Int32Path(ctx)
 	if err != nil {
 		return nil, err
@@ -348,7 +348,7 @@ type int64PathBalancers struct {
 }
 
 func (b *int64PathBalancers) Int64Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.int64Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Int64Path))
 	return balancer, err
 }
@@ -380,8 +380,8 @@ type int64PathClientService struct {
 }
 
 func (c *int64PathClientService) Int64Path(ctx context.Context, request *Int64PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.Int64Path/Int64Path")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.Int64Path/Int64Path")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Int64Path(ctx)
 	if err != nil {
 		return nil, err
@@ -473,7 +473,7 @@ type uint32PathBalancers struct {
 }
 
 func (b *uint32PathBalancers) Uint32Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.uint32Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint32Path))
 	return balancer, err
 }
@@ -505,8 +505,8 @@ type uint32PathClientService struct {
 }
 
 func (c *uint32PathClientService) Uint32Path(ctx context.Context, request *Uint32PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.Uint32Path/Uint32Path")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.Uint32Path/Uint32Path")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Uint32Path(ctx)
 	if err != nil {
 		return nil, err
@@ -598,7 +598,7 @@ type uint64PathBalancers struct {
 }
 
 func (b *uint64PathBalancers) Uint64Path(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.uint64Path.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.Uint64Path))
 	return balancer, err
 }
@@ -630,8 +630,8 @@ type uint64PathClientService struct {
 }
 
 func (c *uint64PathClientService) Uint64Path(ctx context.Context, request *Uint64PathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.Uint64Path/Uint64Path")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.Uint64Path/Uint64Path")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.Uint64Path(ctx)
 	if err != nil {
 		return nil, err
@@ -723,7 +723,7 @@ type floatPathBalancers struct {
 }
 
 func (b *floatPathBalancers) FloatPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.floatPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.FloatPath))
 	return balancer, err
 }
@@ -755,8 +755,8 @@ type floatPathClientService struct {
 }
 
 func (c *floatPathClientService) FloatPath(ctx context.Context, request *FloatPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.FloatPath/FloatPath")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.FloatPath/FloatPath")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.FloatPath(ctx)
 	if err != nil {
 		return nil, err
@@ -848,7 +848,7 @@ type doublePathBalancers struct {
 }
 
 func (b *doublePathBalancers) DoublePath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.doublePath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DoublePath))
 	return balancer, err
 }
@@ -880,8 +880,8 @@ type doublePathClientService struct {
 }
 
 func (c *doublePathClientService) DoublePath(ctx context.Context, request *DoublePathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.DoublePath/DoublePath")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.DoublePath/DoublePath")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DoublePath(ctx)
 	if err != nil {
 		return nil, err
@@ -973,7 +973,7 @@ type stringPathBalancers struct {
 }
 
 func (b *stringPathBalancers) StringPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.stringPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.StringPath))
 	return balancer, err
 }
@@ -1005,8 +1005,8 @@ type stringPathClientService struct {
 }
 
 func (c *stringPathClientService) StringPath(ctx context.Context, request *StringPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.StringPath/StringPath")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.StringPath/StringPath")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.StringPath(ctx)
 	if err != nil {
 		return nil, err
@@ -1098,7 +1098,7 @@ type enumPathBalancers struct {
 }
 
 func (b *enumPathBalancers) EnumPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.enumPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EnumPath))
 	return balancer, err
 }
@@ -1130,8 +1130,8 @@ type enumPathClientService struct {
 }
 
 func (c *enumPathClientService) EnumPath(ctx context.Context, request *EnumPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.EnumPath/EnumPath")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.EnumPath/EnumPath")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.EnumPath(ctx)
 	if err != nil {
 		return nil, err
@@ -1348,32 +1348,32 @@ type namedPathBalancers struct {
 }
 
 func (b *namedPathBalancers) NamedPathString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.namedPathString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedPathString))
 	return balancer, err
 }
 func (b *namedPathBalancers) NamedPathOptString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.namedPathOptString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedPathOptString))
 	return balancer, err
 }
 func (b *namedPathBalancers) NamedPathWrapString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.namedPathWrapString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.NamedPathWrapString))
 	return balancer, err
 }
 func (b *namedPathBalancers) EmbedNamedPathString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.embedNamedPathString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EmbedNamedPathString))
 	return balancer, err
 }
 func (b *namedPathBalancers) EmbedNamedPathOptString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.embedNamedPathOptString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EmbedNamedPathOptString))
 	return balancer, err
 }
 func (b *namedPathBalancers) EmbedNamedPathWrapString(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.embedNamedPathWrapString.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.EmbedNamedPathWrapString))
 	return balancer, err
 }
@@ -1450,8 +1450,8 @@ type namedPathClientService struct {
 }
 
 func (c *namedPathClientService) NamedPathString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.NamedPath/NamedPathString")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.NamedPath/NamedPathString")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.NamedPathString(ctx)
 	if err != nil {
 		return nil, err
@@ -1464,8 +1464,8 @@ func (c *namedPathClientService) NamedPathString(ctx context.Context, request *N
 }
 
 func (c *namedPathClientService) NamedPathOptString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.NamedPath/NamedPathOptString")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.NamedPath/NamedPathOptString")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.NamedPathOptString(ctx)
 	if err != nil {
 		return nil, err
@@ -1478,8 +1478,8 @@ func (c *namedPathClientService) NamedPathOptString(ctx context.Context, request
 }
 
 func (c *namedPathClientService) NamedPathWrapString(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.NamedPath/NamedPathWrapString")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.NamedPath/NamedPathWrapString")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.NamedPathWrapString(ctx)
 	if err != nil {
 		return nil, err
@@ -1492,8 +1492,8 @@ func (c *namedPathClientService) NamedPathWrapString(ctx context.Context, reques
 }
 
 func (c *namedPathClientService) EmbedNamedPathString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.NamedPath/EmbedNamedPathString")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.NamedPath/EmbedNamedPathString")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.EmbedNamedPathString(ctx)
 	if err != nil {
 		return nil, err
@@ -1506,8 +1506,8 @@ func (c *namedPathClientService) EmbedNamedPathString(ctx context.Context, reque
 }
 
 func (c *namedPathClientService) EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.NamedPath/EmbedNamedPathOptString")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.NamedPath/EmbedNamedPathOptString")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.EmbedNamedPathOptString(ctx)
 	if err != nil {
 		return nil, err
@@ -1520,8 +1520,8 @@ func (c *namedPathClientService) EmbedNamedPathOptString(ctx context.Context, re
 }
 
 func (c *namedPathClientService) EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.NamedPath/EmbedNamedPathWrapString")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.NamedPath/EmbedNamedPathWrapString")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.EmbedNamedPathWrapString(ctx)
 	if err != nil {
 		return nil, err
@@ -1613,7 +1613,7 @@ type mixPathBalancers struct {
 }
 
 func (b *mixPathBalancers) MixPath(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.mixPath.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.MixPath))
 	return balancer, err
 }
@@ -1645,8 +1645,8 @@ type mixPathClientService struct {
 }
 
 func (c *mixPathClientService) MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.route.path.MixPath/MixPath")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.route.path.MixPath/MixPath")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.MixPath(ctx)
 	if err != nil {
 		return nil, err

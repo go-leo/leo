@@ -225,7 +225,7 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 	g.P("}")
 	for _, endpoint := range service.Endpoints {
 		g.P("func (b *", service.Unexported(service.BalancersName()), ") ", endpoint.Name(), "(ctx ", internal.Context, ") (", internal.LbPackage.Ident("Balancer"), ", error) {")
-		g.P("color, _ := ", internal.StainxExtractColor, "(ctx)")
+		g.P("color, _ := ", internal.StainxColorExtractor, "(ctx)")
 		g.P("balancer, err, _ := b.", endpoint.Unexported(endpoint.Name()), ".LoadOrNew(color, ", internal.LbxPackage.Ident("NewBalancer"), "(ctx, b.factory, b.endpointer.", endpoint.Name(), "))")
 		g.P("return balancer, err")
 		g.P("}")
@@ -270,8 +270,8 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (c *", service.Unexported(service.ClientServiceName()), ") ", endpoint.Name(), "(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-		g.P("ctx = ", internal.EndpointxPackage.Ident("InjectName"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
-		g.P("ctx = ", internal.TransportxPackage.Ident("InjectName"), "(ctx, c.transportName)")
+		g.P("ctx = ", internal.EndpointxPackage.Ident("NameInjector"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("ctx = ", internal.TransportxPackage.Ident("NameInjector"), "(ctx, c.transportName)")
 		g.P("endpoint, err := c.endpoints.", endpoint.Name(), "(ctx)")
 		g.P("if err != nil {")
 		g.P("return nil, err")

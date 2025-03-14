@@ -47,8 +47,7 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
 * [超时](docs/timeout.md)
   * 除了gRPC天然支持超时，HTTP也支持同样支持
 * [元数据](docs/metadata.md)
-  * go-kit是一个对通信协议无关的，所以它没有内置的元数据支持。
-  * Leo提供了一个元数据支持，支持跨协议传递元数据。
+  * Leo提供了一个元数据支持，支持跨通信方式传递元数据。
 * [健康检查](docs/health.md)
   * gRPC和HTTP都支持健康检查
   * 支持自定义其他系统（比如redis、mysql等）的健康检查

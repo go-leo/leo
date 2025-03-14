@@ -125,7 +125,7 @@ func Pairs(kv ...string) Metadata {
 	return res
 }
 
-func FromMap(m map[string][]string) Metadata {
+func FromMap[M ~map[string][]string](m M) Metadata {
 	res := New()
 	for key, values := range m {
 		res.Append(key, values...)

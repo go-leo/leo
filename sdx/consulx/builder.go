@@ -48,7 +48,7 @@ func (b Builder) BuildInstancer(ctx context.Context, instance *url.URL, color st
 	}
 
 	service := strings.TrimLeft(rawURL.Path, "/")
-	color, ok := stainx.ExtractColor(ctx)
+	color, ok := stainx.ColorExtractor(ctx)
 	if !ok {
 		return consul.NewInstancer(consul.NewClient(cli), logger, service, nil, true), nil
 	}

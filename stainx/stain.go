@@ -13,19 +13,19 @@ const (
 
 type colorKey struct{}
 
-// InjectColor injects the colors into the context.
-func InjectColor(ctx context.Context, color string) context.Context {
+// ColorInjector injects the colors into the context.
+func ColorInjector(ctx context.Context, color string) context.Context {
 	return context.WithValue(ctx, colorKey{}, color)
 }
 
-// ExtractColor extracts the colors from the context.
-func ExtractColor(ctx context.Context) (string, bool) {
+// ColorExtractor extracts the colors from the context.
+func ColorExtractor(ctx context.Context) (string, bool) {
 	color, ok := ctx.Value(colorKey{}).(string)
 	return color, ok
 }
 
 func MatchColor(ctx context.Context, color string) bool {
-	v, ok := ExtractColor(ctx)
+	v, ok := ColorExtractor(ctx)
 	if !ok {
 		return false
 	}
@@ -34,12 +34,12 @@ func MatchColor(ctx context.Context, color string) bool {
 
 func WithColor(color string, do endpoint.Endpoint) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		return do(InjectColor(ctx, color), request)
+		return do(ColorInjector(ctx, color), request)
 	}
 }
 
 func GrpcOutgoingInjector(ctx context.Context, grpcMD *metadata.MD) context.Context {
-	color, ok := ExtractColor(ctx)
+	color, ok := ColorExtractor(ctx)
 	if !ok {
 		return ctx
 	}
@@ -52,11 +52,11 @@ func GrpcIncomingInjector(ctx context.Context, md metadata.MD) context.Context {
 	if values == nil || len(values) == 0 {
 		return ctx
 	}
-	return InjectColor(ctx, values[0])
+	return ColorInjector(ctx, values[0])
 }
 
 func HttpOutgoingInjector(ctx context.Context, request *http.Request) context.Context {
-	color, ok := ExtractColor(ctx)
+	color, ok := ColorExtractor(ctx)
 	if !ok {
 		return ctx
 	}
@@ -69,5 +69,5 @@ func HttpIncomingInjector(ctx context.Context, request *http.Request) context.Co
 	if values == nil || len(values) == 0 {
 		return ctx
 	}
-	return InjectColor(ctx, values[0])
+	return ColorInjector(ctx, values[0])
 }

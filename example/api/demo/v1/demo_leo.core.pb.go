@@ -249,37 +249,37 @@ type demoBalancers struct {
 }
 
 func (b *demoBalancers) CreateUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.createUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.CreateUser))
 	return balancer, err
 }
 func (b *demoBalancers) DeleteUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.deleteUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.DeleteUser))
 	return balancer, err
 }
 func (b *demoBalancers) UpdateUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.updateUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UpdateUser))
 	return balancer, err
 }
 func (b *demoBalancers) GetUser(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getUser.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUser))
 	return balancer, err
 }
 func (b *demoBalancers) GetUsers(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getUsers.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUsers))
 	return balancer, err
 }
 func (b *demoBalancers) UploadUserAvatar(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.uploadUserAvatar.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.UploadUserAvatar))
 	return balancer, err
 }
 func (b *demoBalancers) GetUserAvatar(ctx context.Context) (lb.Balancer, error) {
-	color, _ := stainx.ExtractColor(ctx)
+	color, _ := stainx.ColorExtractor(ctx)
 	balancer, err, _ := b.getUserAvatar.LoadOrNew(color, lbx.NewBalancer(ctx, b.factory, b.endpointer.GetUserAvatar))
 	return balancer, err
 }
@@ -365,8 +365,8 @@ type demoClientService struct {
 }
 
 func (c *demoClientService) CreateUser(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/CreateUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/CreateUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.CreateUser(ctx)
 	if err != nil {
 		return nil, err
@@ -379,8 +379,8 @@ func (c *demoClientService) CreateUser(ctx context.Context, request *CreateUserR
 }
 
 func (c *demoClientService) DeleteUser(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/DeleteUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.DeleteUser(ctx)
 	if err != nil {
 		return nil, err
@@ -393,8 +393,8 @@ func (c *demoClientService) DeleteUser(ctx context.Context, request *DeleteUsers
 }
 
 func (c *demoClientService) UpdateUser(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/UpdateUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.UpdateUser(ctx)
 	if err != nil {
 		return nil, err
@@ -407,8 +407,8 @@ func (c *demoClientService) UpdateUser(ctx context.Context, request *UpdateUserR
 }
 
 func (c *demoClientService) GetUser(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUser")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/GetUser")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetUser(ctx)
 	if err != nil {
 		return nil, err
@@ -421,8 +421,8 @@ func (c *demoClientService) GetUser(ctx context.Context, request *GetUserRequest
 }
 
 func (c *demoClientService) GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUsers")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/GetUsers")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetUsers(ctx)
 	if err != nil {
 		return nil, err
@@ -435,8 +435,8 @@ func (c *demoClientService) GetUsers(ctx context.Context, request *GetUsersReque
 }
 
 func (c *demoClientService) UploadUserAvatar(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/UploadUserAvatar")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.UploadUserAvatar(ctx)
 	if err != nil {
 		return nil, err
@@ -449,8 +449,8 @@ func (c *demoClientService) UploadUserAvatar(ctx context.Context, request *Uploa
 }
 
 func (c *demoClientService) GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error) {
-	ctx = endpointx.InjectName(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
-	ctx = transportx.InjectName(ctx, c.transportName)
+	ctx = endpointx.NameInjector(ctx, "/leo.example.demo.v1.Demo/GetUserAvatar")
+	ctx = transportx.NameInjector(ctx, c.transportName)
 	endpoint, err := c.endpoints.GetUserAvatar(ctx)
 	if err != nil {
 		return nil, err

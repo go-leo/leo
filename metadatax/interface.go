@@ -1,5 +1,7 @@
 package metadatax
 
+import "reflect"
+
 // Metadata is a mapping from metadata keys to values.
 type Metadata interface {
 	// Set sets the value of a given key with a slice of values.
@@ -29,3 +31,5 @@ type Metadata interface {
 	// Clone returns a copy of Metadata or nil if Metadata is nil.
 	Clone() Metadata
 }
+
+var Type = reflect.TypeOf((*Metadata)(nil)).Elem()
