@@ -76,9 +76,6 @@ type Status interface {
 
 	// Extra returns additional detail from the Status
 	Extra() proto.Message
-
-	// WithoutDetail removes the detail info.
-	WithoutDetail(detail proto.Message) Status
 }
 
 var _ Status = (*sampleStatus)(nil)
@@ -146,43 +143,43 @@ func (st *sampleStatus) MarshalJSON() ([]byte, error) {
 }
 
 func (st *sampleStatus) ErrorInfo() *errdetails.ErrorInfo {
-	return protox.Clone(st.err.GetDetailInfo().GetErrorInfo())
+	return st.err.GetDetailInfo().GetErrorInfo()
 }
 
 func (st *sampleStatus) RetryInfo() *errdetails.RetryInfo {
-	return protox.Clone(st.err.GetDetailInfo().GetRetryInfo())
+	return st.err.GetDetailInfo().GetRetryInfo()
 }
 
 func (st *sampleStatus) DebugInfo() *errdetails.DebugInfo {
-	return protox.Clone(st.err.GetDetailInfo().GetDebugInfo())
+	return st.err.GetDetailInfo().GetDebugInfo()
 }
 
 func (st *sampleStatus) QuotaFailure() *errdetails.QuotaFailure {
-	return protox.Clone(st.err.GetDetailInfo().GetQuotaFailure())
+	return st.err.GetDetailInfo().GetQuotaFailure()
 }
 
 func (st *sampleStatus) PreconditionFailure() *errdetails.PreconditionFailure {
-	return protox.Clone(st.err.GetDetailInfo().GetPreconditionFailure())
+	return st.err.GetDetailInfo().GetPreconditionFailure()
 }
 
 func (st *sampleStatus) BadRequest() *errdetails.BadRequest {
-	return protox.Clone(st.err.GetDetailInfo().GetBadRequest())
+	return st.err.GetDetailInfo().GetBadRequest()
 }
 
 func (st *sampleStatus) RequestInfo() *errdetails.RequestInfo {
-	return protox.Clone(st.err.GetDetailInfo().GetRequestInfo())
+	return st.err.GetDetailInfo().GetRequestInfo()
 }
 
 func (st *sampleStatus) ResourceInfo() *errdetails.ResourceInfo {
-	return protox.Clone(st.err.GetDetailInfo().GetResourceInfo())
+	return st.err.GetDetailInfo().GetResourceInfo()
 }
 
 func (st *sampleStatus) Help() *errdetails.Help {
-	return protox.Clone(st.err.GetDetailInfo().GetHelp())
+	return st.err.GetDetailInfo().GetHelp()
 }
 
 func (st *sampleStatus) LocalizedMessage() *errdetails.LocalizedMessage {
-	return protox.Clone(st.err.GetDetailInfo().GetLocalizedMessage())
+	return st.err.GetDetailInfo().GetLocalizedMessage()
 }
 
 func (st *sampleStatus) Extra() proto.Message {
@@ -195,9 +192,4 @@ func (st *sampleStatus) Extra() proto.Message {
 		panic(err)
 	}
 	return info
-}
-
-func (st *sampleStatus) WithoutDetail(detail proto.Message) Status {
-	st.err.GetDetailInfo().Without(detail)
-	return st
 }
