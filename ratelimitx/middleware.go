@@ -5,27 +5,19 @@ import (
 	"errors"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/ratelimit"
-	kratosrate "github.com/go-kratos/aegis/ratelimit"
-	"github.com/go-kratos/aegis/ratelimit/bbr"
-	"github.com/go-leo/leo/v3/endpointx"
 	"github.com/go-leo/leo/v3/statusx"
 )
 
-const (
-	errMessageFormat = "ratelimitx: %s is rejected by limiter"
+var (
+	ErrRejected = statusx.ResourceExhausted(statusx.Message("ratelimitx: rejected by limiter"), statusx.Identifier("github.com/go-leo/leo/v3/ratelimitx.ErrRejected"))
 )
 
 func allowerMiddleware(limiter ratelimit.Allower) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
-			// extract endpoint name
-			endpointName, ok := endpointx.NameExtractor(ctx)
-			if !ok {
-				return next(ctx, request)
-			}
 			// limit the request
 			if !limiter.Allow() {
-				return nil, statusx.ResourceExhausted(statusx.Message(errMessageFormat, endpointName))
+				return nil, ErrRejected
 			}
 			// continue handle the request
 			return next(ctx, request)
@@ -36,15 +28,10 @@ func allowerMiddleware(limiter ratelimit.Allower) endpoint.Middleware {
 func waiterMiddleware(limiter ratelimit.Waiter) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (any, error) {
-			// extract endpoint name
-			endpointName, ok := endpointx.NameExtractor(ctx)
-			if !ok {
-				return next(ctx, request)
-			}
 			// limit the request
 			if err := limiter.Wait(ctx); err != nil {
 				if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, ratelimit.ErrLimited) {
-					return nil, statusx.ResourceExhausted(statusx.Message(errMessageFormat, endpointName))
+					return nil, ErrRejected
 				}
 				return nil, statusx.Unknown(statusx.Message(err.Error()))
 			}

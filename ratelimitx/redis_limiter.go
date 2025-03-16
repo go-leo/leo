@@ -12,14 +12,14 @@ import (
 // see: https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm
 // see: https://github.com/go-redis/redis_rate
 func Redis(limiter *redis_rate.Limiter, limit redis_rate.Limit, keyFunc func(ctx context.Context) string) endpoint.Middleware {
-	return waiterMiddleware(&redisGCRALimiterWrapper{
+	return waiterMiddleware(&redisLimiterWrapper{
 		limiter: limiter,
 		limit:   limit,
 		KeyFunc: keyFunc,
 	})
 }
 
-type redisGCRALimiterWrapper struct {
+type redisLimiterWrapper struct {
 	// limiter is redis_rate limiter
 	limiter *redis_rate.Limiter
 
@@ -30,7 +30,7 @@ type redisGCRALimiterWrapper struct {
 	KeyFunc func(ctx context.Context) string
 }
 
-func (limiter *redisGCRALimiterWrapper) Wait(ctx context.Context) error {
+func (limiter *redisLimiterWrapper) Wait(ctx context.Context) error {
 	allow, err := limiter.limiter.Allow(ctx, limiter.KeyFunc(ctx), limiter.limit)
 	if err != nil {
 		return err

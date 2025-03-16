@@ -34,5 +34,13 @@ func newEndpointer(ctx context.Context, instanceUrl *url.URL, color string, buil
 	if err != nil {
 		return nil, fmt.Errorf("sdx: failed to new instancer, target url: %q, color: %q", instanceUrl.String(), color)
 	}
+	fixedInstancer, ok := instancer.(sd.FixedInstancer)
+	if ok {
+		endpoint, _, err := factory(fixedInstancer[0])
+		if err != nil {
+			return nil, err
+		}
+		return sd.FixedEndpointer{endpoint}, nil
+	}
 	return sd.NewEndpointer(instancer, factory, logger, options...), nil
 }

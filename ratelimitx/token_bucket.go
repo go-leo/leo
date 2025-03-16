@@ -9,5 +9,5 @@ import (
 // rate limiter into a middleware by calling the waiterMiddleware function, which is used to control the request rate.
 // see: https://pkg.go.dev/golang.org/x/time/rate
 func TokenBucket(limiter *rate.Limiter) endpoint.Middleware {
-	return waiterMiddleware(limiter)
+	return allowerMiddleware(limiter)
 }

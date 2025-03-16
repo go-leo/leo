@@ -7,8 +7,8 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-leo/leo/v3/logx"
 	"github.com/go-leo/leo/v3/sdx"
+	"github.com/go-leo/leo/v3/sdx/fixed"
 	"github.com/go-leo/leo/v3/sdx/lbx"
-	"github.com/go-leo/leo/v3/sdx/passthroughx"
 	"google.golang.org/protobuf/encoding/protojson"
 	"os"
 )
@@ -160,7 +160,7 @@ func NewClientOptions(opts ...ClientOption) ClientOptions {
 	options := &clientOptions{
 		scheme:                 "http",
 		clientTransportOptions: nil,
-		builder:                passthroughx.Builder{},
+		builder:                fixed.Builder{},
 		endpointerOptions:      nil,
 		logger:                 logx.New(os.Stdout, logx.JSON(), logx.Timestamp(), logx.Caller(0), logx.Sync()),
 		balancerFactory:        lbx.PeakFirstFactory{},

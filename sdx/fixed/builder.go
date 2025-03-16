@@ -1,4 +1,4 @@
-package passthroughx
+package fixed
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 var _ sdx.Builder = (*Builder)(nil)
 
-const schemeName = "passthrough"
+const schemeName = "fixed"
 
 type Builder struct{}
 
@@ -21,10 +21,9 @@ func (Builder) Scheme() string {
 }
 
 func (Builder) BuildInstancer(ctx context.Context, instance *url.URL, color string, logger kitlog.Logger) (sd.Instancer, error) {
-	return Instancer{Instance: internal.ExtractEndpoint(instance)}, nil
+	return sd.FixedInstancer{internal.ExtractEndpoint(instance)}, nil
 }
 
 func (b Builder) BuildRegistrar(ctx context.Context, instance *url.URL, ip net.IP, port int, color string, logger kitlog.Logger) (sd.Registrar, error) {
-
 	return nil, nil
 }
