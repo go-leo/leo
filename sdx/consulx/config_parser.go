@@ -1,6 +1,7 @@
 package consulx
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-playground/form/v4"
 	"github.com/hashicorp/consul/api"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-func DefaultClientCreator(rawURL *url.URL, color string) (*api.Client, error) {
+func DefaultClientCreator(ctx context.Context, rawURL *url.URL, color string) (*api.Client, error) {
 	q := args{}
 	decoder := form.NewDecoder()
 	decoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) { return time.ParseDuration(vals[0]) }, time.Duration(0))

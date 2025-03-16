@@ -48,7 +48,7 @@ func main() {
 			color := colors[i%len(colors)]
 			grpcSrv := grpcserverx.NewServer(
 				grpcserverx.Instance("consul://localhost:8500/leo.example.sd.grpc?dc=dc1"),
-				grpcserverx.Builder(consulx.Builder{}),
+				grpcserverx.RegistrarBuilder(consulx.Builder{}),
 				grpcserverx.Stain(color),
 			)
 			helloworld.RegisterGreeterServer(grpcSrv, helloworld.NewGreeterGrpcServer(&server{i: convx.ToString(i), color: color}))

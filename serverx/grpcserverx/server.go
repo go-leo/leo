@@ -70,7 +70,7 @@ func ServerOptions(opts ...grpc.ServerOption) Option {
 	}
 }
 
-func Builder(builder sdx.Builder) Option {
+func RegistrarBuilder(builder sdx.Builder) Option {
 	return func(o *options) {
 		o.Builder = builder
 	}

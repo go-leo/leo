@@ -40,52 +40,6 @@ func Backoff(backoff BackoffFunc) Option {
 // Middleware returns a retry middleware.
 // 只有当服务端返回含有 errdetails.RetryInfo的错误时才会重试.
 // 如果RetryDelay为负数，则全链路禁止重试。
-func Middleware1(opts ...Option) endpoint.Middleware {
-	o := &options{
-		maxAttempts: 3,
-		backoff:     backoff.LinearFactory(),
-	}
-	o = o.apply(opts...)
-	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request any) (any, error) {
-			var attempt uint
-			for attempt < o.maxAttempts {
-				// execute cmd
-				resp, err := next(ctx, request)
-				if err == nil {
-					// return if err is nil.
-					return resp, nil
-				}
-				st, ok := statusx.From(err)
-				if !ok {
-					return nil, err
-				}
-				info := st.RetryInfo()
-				if info == nil {
-					return nil, st
-				}
-				delay := info.GetRetryDelay().AsDuration()
-				if delay < 0 {
-					// return if retry delay is negative, disable retry.
-					return nil, st
-				}
-				// increase the number of attempts
-				attempt++
-				select {
-				case <-ctx.Done():
-					// return if context is done, return error, remove retry info.
-					return nil, st
-				case <-time.After(o.backoff(delay)(ctx, attempt)):
-					// sleep and wait retry
-					continue
-				}
-			}
-			// perform the execution
-			return next(ctx, request)
-		}
-	}
-}
-
 func Middleware(opts ...Option) endpoint.Middleware {
 	o := &options{
 		maxAttempts: 3,

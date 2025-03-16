@@ -44,7 +44,7 @@ func main() {
 		for i := 0; i < 10; i++ {
 			grpcSrv := grpcserverx.NewServer(
 				grpcserverx.Instance("consul://localhost:8500/leo.example.sd.grpc?dc=dc1"),
-				grpcserverx.Builder(consulx.Builder{}),
+				grpcserverx.RegistrarBuilder(consulx.Builder{}),
 			)
 			helloworld.RegisterGreeterServer(grpcSrv, helloworld.NewGreeterGrpcServer(&server{i: convx.ToString(i)}))
 			runners = append(runners, grpcSrv)

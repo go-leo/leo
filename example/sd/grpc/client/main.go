@@ -20,7 +20,7 @@ func main() {
 		grpctransportx.WithInstancerBuilder(consulx.Builder{}),
 		grpctransportx.WithBalancerFactory(lbx.RandomFactory{Seed: time.Now().Unix()}),
 	)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		r, err := client.SayHello(context.Background(), &helloworld.HelloRequest{Name: randx.HexString(10)})
 		if err != nil {
 			log.Fatalf("could not greet: %v", err)
