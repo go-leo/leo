@@ -22,7 +22,7 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
 * [gRPC](docs/rpc.md)
   * 基于grpc强大的RPC功能，简化服务通信，提供完善的服务通信功能。
   * 通过go-kit的endpoint和transport，能和http无缝对接。
-* [限流](docs/limit.md)
+* [限流](docs/ratelimit.md)
   * SlideWindow 滑动窗口限流
   * LeakyBucket 漏桶限流
   * TokenBucket 令牌桶限流
