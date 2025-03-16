@@ -50,6 +50,9 @@ type Status interface {
 	// RetryInfo returns the retry info.
 	RetryInfo() *errdetails.RetryInfo
 
+	// DebugInfo returns the debug info.
+	DebugInfo() *errdetails.DebugInfo
+
 	// QuotaFailure returns the quota failure info.
 	QuotaFailure() *errdetails.QuotaFailure
 

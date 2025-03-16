@@ -44,7 +44,7 @@ func Middleware(opts ...Option) endpoint.Middleware {
 					i := 64 << 10
 					stack := make([]byte, i)
 					stack = stack[:runtime.Stack(stack, false)]
-					err = statusx.Internal(statusx.DebugInfo(strings.Split(convx.BytesToString(stack), "\n"), fmt.Sprintf("panic triggered: %v", p)))
+					err = statusx.Internal(statusx.Message(fmt.Sprintf("panic triggered: %v", p)), statusx.DebugInfo(strings.Split(convx.BytesToString(stack), "\n"), ""))
 				}
 			}()
 			return e(ctx, request)
