@@ -30,6 +30,7 @@ func main() {
 			helloworld.AppendGreeterHttpServerRoutes(mux.NewRouter(), &server{i: convx.ToString(i), color: color}),
 			httpserverx.Instance("consul://localhost:8500/leo.example.sd.http?dc=dc1"),
 			httpserverx.RegistrarBuilder(consulx.Builder{}),
+			// 服务端标记(染色)
 			httpserverx.Stain(color),
 		)
 		runners = append(runners, httpSrv)

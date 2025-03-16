@@ -26,6 +26,7 @@ func main() {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		color := colors[r.IntN(len(colors))]
+		// 客户端请求标记(染色)
 		ctx = stainx.ColorInjector(ctx, color)
 		r, err := client.SayHello(ctx, &helloworld.HelloRequest{Name: color})
 		if err != nil {

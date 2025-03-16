@@ -30,6 +30,7 @@ func main() {
 		grpcSrv := grpcserverx.NewServer(
 			grpcserverx.Instance("consul://localhost:8500/leo.example.sd.grpc?dc=dc1"),
 			grpcserverx.RegistrarBuilder(consulx.Builder{}),
+			// 服务端标记(染色)
 			grpcserverx.Stain(color),
 		)
 		helloworld.RegisterGreeterServer(grpcSrv, helloworld.NewGreeterGrpcServer(&server{i: convx.ToString(i), color: color}))

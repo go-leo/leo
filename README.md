@@ -22,6 +22,10 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
 * [gRPC](docs/rpc.md)
   * 基于grpc强大的RPC功能，简化服务通信，提供完善的服务通信功能。
   * 通过go-kit的endpoint和transport，能和http无缝对接。
+* [服务发现](docs/sd.md)
+  * 扩展go-kit的服务发现功能，支持多种注册中心(consul、nacos)
+* [流量染色](docs/stain.md)
+  * 支持流量染色
 * [限流](docs/ratelimit.md)
   * SlideWindow 滑动窗口限流
   * LeakyBucket 漏桶限流
@@ -32,22 +36,18 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
   * google sre 熔断算法
   * hystrix 熔断器
   * sony go breaker
+* [负载均衡](docs/loadbalance.md)
+  * 扩展go-kit的负载均衡功能，支持多种负载均衡算法(随机、轮询、一致性哈希)
+* [超时](docs/timeout.md)
+  * 除了gRPC天然支持超时，HTTP也支持同样支持
+* [重试](docs/retry.md)
+  * 支持客户端失败重试。
 * [配置](docs/config.md)
   * 支持从多种配置源(consul、nacos、环境变量、文件)获取配置
   * 支持监听配置变化，支持配置热加载
   * protobuf 定义配置格式，严格控制配置格式
 * [状态](docs/status.md)
   * 基于 googleapi 错误规范实现，使用简单的协议无关错误模型，这使我们能够在不同的API，API协议（如gRPC或HTTP）以及错误上下文（例如，异步，批处理或工作流错误）中获得一致的体验。
-* [服务发现](docs/sd.md)
-  * 扩展go-kit的服务发现功能，支持多种注册中心(consul、nacos)
-* [负载均衡](docs/loadbalance.md)
-  * 扩展go-kit的负载均衡功能，支持多种负载均衡算法(随机、轮询、一致性哈希)
-* [流量染色](docs/stain.md)
-  * 支持全链路流量染色
-* [超时](docs/timeout.md)
-  * 除了gRPC天然支持超时，HTTP也支持同样支持
-* [重试](docs/retry.md)
-  * 支持客户端失败重试。
 * [元数据](docs/metadata.md)
   * Leo提供了一个元数据支持，支持跨通信方式传递元数据。
 * [健康检查](docs/health.md)
