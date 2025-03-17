@@ -1,3 +1,35 @@
+# 超时
+超时是防止服务端被大量请求压垮的一种机制。
+* gRPC 天然支持超时
+* HTTP Leo提供了和gRPC用法一样的超时机制。
+
+# 示例
+## Http 客户端
+```go
+package main
+
+import (
+	"context"
+	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
+	"log"
+	"time"
+)
+
+func main() {
+	client := helloworld.NewGreeterHttpClient("localhost:60051")
+	// 设置超时时间为1秒
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancelFunc()
+	r, err := client.SayHello(ctx, &helloworld.HelloRequest{})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %s", r.GetMessage())
+}
+```
+
+## 服务端
+```go
 package main
 
 import (
@@ -38,3 +70,6 @@ func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*he
 	log.Printf("after timeout")
 	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
+```
+
+# 代码[timeout](../example/timeout)
