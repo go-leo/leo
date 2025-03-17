@@ -36,28 +36,40 @@ func FailFast() Option {
 }
 
 // Middleware returns a new endpoint.Endpoint that validates request.
+// see: https://github.com/envoyproxy/protoc-gen-validate
 func Middleware(opts ...Option) endpoint.Middleware {
 	o := new(options).apply(opts...)
 	return func(e endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			var err error
-			switch v := req.(type) {
-			case interface{ ValidateAll() error }:
-				if o.failFast {
+
+			if o.failFast {
+				switch v := req.(type) {
+				case interface{ Validate() error }:
+					err = v.Validate()
+				case interface{ ValidateAll() error }:
 					err = v.ValidateAll()
 				}
-			case interface{ Validate(all bool) error }:
-				err = v.Validate(!o.failFast)
+				return invoke(ctx, req, e, o, err)
+			}
+
+			switch v := req.(type) {
+			case interface{ ValidateAll() error }:
+				err = v.ValidateAll()
 			case interface{ Validate() error }:
 				err = v.Validate()
 			}
-			if err != nil {
-				if o.errCallback != nil {
-					o.errCallback(ctx, err)
-				}
-				return nil, statusx.InvalidArgument(statusx.Message(err.Error()))
-			}
-			return e(ctx, req)
+			return invoke(ctx, req, e, o, err)
 		}
 	}
+}
+
+func invoke(ctx context.Context, req interface{}, e endpoint.Endpoint, o *options, err error) (interface{}, error) {
+	if err != nil {
+		if o.errCallback != nil {
+			o.errCallback(ctx, err)
+		}
+		return nil, statusx.InvalidArgument(statusx.Message(err.Error()))
+	}
+	return e(ctx, req)
 }

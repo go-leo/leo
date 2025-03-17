@@ -30,9 +30,13 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CqrsClient interface {
+	// Command 是命令
 	Command(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandReply, error)
+	// CommandEmpty 是命令
 	CommandEmpty(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Query 是查询
 	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryReply, error)
+	// QueryOneOf 是查询
 	QueryOneOf(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryOneOfReply, error)
 }
 
@@ -84,9 +88,13 @@ func (c *cqrsClient) QueryOneOf(ctx context.Context, in *QueryRequest, opts ...g
 // All implementations must embed UnimplementedCqrsServer
 // for forward compatibility
 type CqrsServer interface {
+	// Command 是命令
 	Command(context.Context, *CommandRequest) (*CommandReply, error)
+	// CommandEmpty 是命令
 	CommandEmpty(context.Context, *CommandRequest) (*emptypb.Empty, error)
+	// Query 是查询
 	Query(context.Context, *QueryRequest) (*QueryReply, error)
+	// QueryOneOf 是查询
 	QueryOneOf(context.Context, *QueryRequest) (*QueryOneOfReply, error)
 	mustEmbedUnimplementedCqrsServer()
 }
