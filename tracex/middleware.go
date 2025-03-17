@@ -1,5 +1,0 @@
-package tracex
-
-func Middleware() {
-
-}

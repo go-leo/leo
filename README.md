@@ -55,10 +55,10 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
   * 支持自定义其他系统（比如redis、mysql等）的健康检查
 * [日志](docs/log.md)
   * go-kit 的日志功能
-* [监控](docs/monitor.md)
-  * 支持 OpenTelemetry监控系统(prometheus等)
-* [链路追踪](docs/trace.md)
-  * 支持 OpenTelemetry 链路追踪(jagger等)
+* [监控](docs/opentelemetry.md)
+  * 使用 OpenTelemetry 提供的监控方案
+* [链路追踪](docs/opentelemetry.md)
+  * 使用 OpenTelemetry 提供的链路追踪方案
 * [CQRS](docs/cqrs.md)
   * 支持CQRS架构
   * 将Endpoint拆分为Command和Query
