@@ -65,3 +65,26 @@ func (UnimplementedSayHelloResult) To(context.Context) (*HelloReply, error) {
 	panic("implement me")
 	return nil, nil
 }
+
+// f.File.Desc.Path(): helloworld/v1/helloworld.proto
+// protoFilePath: /Users/stuff/Workspace/github/go-leo/leo/example/api/helloworld/v1/helloworld.proto<nil>
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/helloworld/v1/helloworld.proto
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/helloworld/v1/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/helloworld/v1
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/helloworld/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/helloworld
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// -- cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example
+// goMode.Module.Mod.Path: github.com/go-leo/leo/v3
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo
+// loopPath: /Users/stuff/Workspace/github/go-leo
+// loopPath: /Users/stuff/Workspace/github
+// loopPath: /Users/stuff/Workspace
+// loopPath: /Users/stuff
+// loopPath: /Users
+// loopPath: /
+// rel: ../../../cq
+// cmdFilename: ../../../cq/say_hello_leo.command.pb.go

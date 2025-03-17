@@ -3,7 +3,9 @@ package cqrs
 import (
 	"github.com/go-leo/gox/stringx"
 	"github.com/go-leo/leo/v3/cmd/gen/internal"
+	"golang.org/x/mod/modfile"
 	"google.golang.org/protobuf/compiler/protogen"
+	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -48,18 +50,80 @@ func (f *Generator) Generate() error {
 		f.PrintUnimplementedQuery(g, queryEndpoints)
 	}
 
-	return nil
+	fileDescPath := f.File.Desc.Path()
+	g.P("// f.File.Desc.Path(): ", fileDescPath)
+	protoFilePath, err := filepath.Abs(fileDescPath)
+	g.P("// protoFilePath: ", protoFilePath, err)
 
+	loopPath := protoFilePath
+	var goMode *modfile.File
+	var goModFilePath string
+	var cqDirPath string
+	for {
+		g.P("// loopPath: ", loopPath)
+		currDir := filepath.Dir(loopPath)
+		if currDir == loopPath {
+			break
+		}
+		loopPath = currDir
+
+		// find cq dir
+		if cqDirPath == "" {
+			cqPath := filepath.Join(currDir, "cq")
+			g.P("// cqDirPath: ", cqPath)
+			stat, err := os.Stat(cqPath)
+			if err == nil && stat.IsDir() {
+				cqDirPath = cqPath
+				g.P("// -- cqDirPath: ", cqDirPath)
+			}
+		}
+
+		// find go.mod file
+		if goMode == nil {
+			goModPath := filepath.Join(currDir, "go.mod")
+			stat, err := os.Stat(goModPath)
+			if err == nil && stat.Size() > 0 {
+				goModContent, err := os.ReadFile(goModPath)
+				if err != nil {
+					return err
+				}
+				goMode, err = modfile.Parse(goModPath, goModContent, nil)
+				if err != nil {
+					return err
+				}
+				goModFilePath = goModPath
+				g.P("// goMode.Module.Mod.Path: ", goMode.Module.Mod.Path)
+			}
+		}
+
+	}
+
+	if goMode == nil && goModFilePath == "" || cqDirPath == "" {
+		return nil
+	}
+
+	rel, err := filepath.Rel(filepath.Dir(protoFilePath), cqDirPath)
+	if err != nil {
+		return err
+	}
+	g.P("// rel: ", rel)
+	endpoint := f.Services[0].Endpoints[0]
+	cmdFilename := filepath.Join(rel, stringx.JSONSnakeCase(endpoint.Unexported(endpoint.Name()))+"_leo.command.pb.go")
+	g.P("// cmdFilename: ", cmdFilename)
+	//g.P("// f.File.GeneratedFilenamePrefix: ", f.File.GeneratedFilenamePrefix)
+	g := f.Plugin.NewGeneratedFile(filename, f.File.GoImportPath+"/cq")
+
+	return nil
 	for _, service := range f.Services {
 		for _, endpoint := range service.Endpoints {
 			dir := filepath.Dir(f.File.GeneratedFilenamePrefix)
 			path := "cq"
 			filename := stringx.JSONSnakeCase(endpoint.Unexported(endpoint.Name())) + "_leo.query.pb.go"
 			g.P("// ", filepath.Join(dir, path, filename))
+
 		}
 	}
 
-	f.GenerateCQ()
 	return nil
 }
 

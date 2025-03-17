@@ -8,6 +8,12 @@ import (
 )
 
 func TestDir(t *testing.T) {
+	stat, err := os.Stat("/tmp/ss.d")
+	if os.IsNotExist(err) {
+		fmt.Println("IsNotExist")
+	}
+	_ = stat
+
 	wd, _ := os.Getwd()
 	dir := wd
 	for {

@@ -318,3 +318,26 @@ func (UnimplementedHttpResponseResult) To(context.Context) (*http.HttpResponse, 
 	panic("implement me")
 	return nil, nil
 }
+
+// f.File.Desc.Path(): route/v1/response.proto
+// protoFilePath: /Users/stuff/Workspace/github/go-leo/leo/example/api/route/v1/response.proto<nil>
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/route/v1/response.proto
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/route/v1/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/route/v1
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/route/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/route
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// -- cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example
+// goMode.Module.Mod.Path: github.com/go-leo/leo/v3
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo
+// loopPath: /Users/stuff/Workspace/github/go-leo
+// loopPath: /Users/stuff/Workspace/github
+// loopPath: /Users/stuff/Workspace
+// loopPath: /Users/stuff
+// loopPath: /Users
+// loopPath: /
+// rel: ../../../cq
+// cmdFilename: ../../../cq/omitted_response_leo.command.pb.go

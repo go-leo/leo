@@ -339,3 +339,26 @@ func (UnimplementedGetUserAvatarResult) To(context.Context) (*httpbody.HttpBody,
 	panic("implement me")
 	return nil, nil
 }
+
+// f.File.Desc.Path(): demo/v1/demo.proto
+// protoFilePath: /Users/stuff/Workspace/github/go-leo/leo/example/api/demo/v1/demo.proto<nil>
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/demo/v1/demo.proto
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/demo/v1/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/demo/v1
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/demo/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/demo
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// -- cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example
+// goMode.Module.Mod.Path: github.com/go-leo/leo/v3
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo
+// loopPath: /Users/stuff/Workspace/github/go-leo
+// loopPath: /Users/stuff/Workspace/github
+// loopPath: /Users/stuff/Workspace
+// loopPath: /Users/stuff
+// loopPath: /Users
+// loopPath: /
+// rel: ../../../cq
+// cmdFilename: ../../../cq/create_user_leo.command.pb.go

@@ -594,3 +594,26 @@ func (UnimplementedMoveBookResult) To(context.Context) (*Book, error) {
 	panic("implement me")
 	return nil, nil
 }
+
+// f.File.Desc.Path(): library/v1/library.proto
+// protoFilePath: /Users/stuff/Workspace/github/go-leo/leo/example/api/library/v1/library.proto<nil>
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/library/v1/library.proto
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/library/v1/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/library/v1
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/library/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/library
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// -- cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example
+// goMode.Module.Mod.Path: github.com/go-leo/leo/v3
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo
+// loopPath: /Users/stuff/Workspace/github/go-leo
+// loopPath: /Users/stuff/Workspace/github
+// loopPath: /Users/stuff/Workspace
+// loopPath: /Users/stuff
+// loopPath: /Users
+// loopPath: /
+// rel: ../../../cq
+// cmdFilename: ../../../cq/create_shelf_leo.command.pb.go

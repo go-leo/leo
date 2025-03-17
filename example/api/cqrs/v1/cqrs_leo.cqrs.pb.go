@@ -188,3 +188,26 @@ func (UnimplementedQueryOneOfResult) To(context.Context) (*QueryOneOfReply, erro
 	panic("implement me")
 	return nil, nil
 }
+
+// f.File.Desc.Path(): cqrs/v1/cqrs.proto
+// protoFilePath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cqrs/v1/cqrs.proto<nil>
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cqrs/v1/cqrs.proto
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cqrs/v1/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cqrs/v1
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cqrs/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cqrs
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/api/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example/api
+// cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// -- cqDirPath: /Users/stuff/Workspace/github/go-leo/leo/example/cq
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo/example
+// goMode.Module.Mod.Path: github.com/go-leo/leo/v3
+// loopPath: /Users/stuff/Workspace/github/go-leo/leo
+// loopPath: /Users/stuff/Workspace/github/go-leo
+// loopPath: /Users/stuff/Workspace/github
+// loopPath: /Users/stuff/Workspace
+// loopPath: /Users/stuff
+// loopPath: /Users
+// loopPath: /
+// rel: ../../../cq
+// cmdFilename: ../../../cq/command_leo.command.pb.go
