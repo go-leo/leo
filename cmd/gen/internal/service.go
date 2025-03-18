@@ -183,6 +183,10 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 			}
 			endpoints = append(endpoints, endpoint)
 		}
+		// skip empty endpoints
+		if len(endpoints) == 0 {
+			continue
+		}
 		service.Endpoints = endpoints
 		services = append(services, service)
 	}
