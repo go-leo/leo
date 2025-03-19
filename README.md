@@ -15,8 +15,8 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
 
 # 功能组件
 * [code generator](docs/generator.md)
-  * 可以通过proto定义，gRPC、Http、config、status、CQRS代码。
-  * leo工具生成一套符合微服务和DDD思想的代码结构。
+  * 生成gRPC、Http、config、status代码。
+  * 生成一套符合微服务和DDD思想的代码结构。
 * [服务发现](docs/sd.md)
   * 扩展go-kit的服务发现功能，支持多种注册中心(consul、nacos)
 * [流量染色](docs/stain.md)
