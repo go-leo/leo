@@ -13,9 +13,6 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
 * 仪表化：它与监控和日志记录工具集成良好，提供对服务性能和健康状况的可见性。
 * 标准化：推广最佳实践和标准化，使得维护和扩展微服务变得更容易。
 
-# go-kit 通信原理
-
-
 # 功能组件
 * [code generator](docs/generator.md)
   * 可以通过proto定义，gRPC、Http、config、status、CQRS代码。
