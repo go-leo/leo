@@ -152,5 +152,3 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
-
-replace github.com/armon/go-metrics v0.4.1 => github.com/hashicorp/go-metrics v0.5.4
