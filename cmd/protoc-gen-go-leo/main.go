@@ -3,22 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/go-leo/leo/v3/cmd/gen/config"
-	"github.com/go-leo/leo/v3/cmd/gen/core"
-	"github.com/go-leo/leo/v3/cmd/gen/grpc"
-	"github.com/go-leo/leo/v3/cmd/gen/http"
-	"github.com/go-leo/leo/v3/cmd/gen/status"
+	"github.com/go-leo/leo/v3/cmd"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/config"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/core"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/grpc"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/http"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/status"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/types/pluginpb"
 )
-
-const version = "3.0.1"
 
 func main() {
 	showVersion := flag.Bool("version", false, "print the version and exit")
 	flag.Parse()
 	if *showVersion {
-		fmt.Printf("protoc-gen-go-leo %v\n", version)
+		fmt.Printf("protoc-gen-go-leo %v\n", cmd.Version)
 		return
 	}
 

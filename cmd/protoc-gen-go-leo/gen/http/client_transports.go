@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/go-leo/leo/v3/cmd/gen/internal"
+	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/internal"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
