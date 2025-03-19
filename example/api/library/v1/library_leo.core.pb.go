@@ -33,6 +33,42 @@ type LibraryServiceService interface {
 	MoveBook(ctx context.Context, request *MoveBookRequest) (*Book, error)
 }
 
+type (
+	LibraryServiceService_CreateShelf_Handler interface {
+		Handle(ctx context.Context, request *CreateShelfRequest) (*Shelf, error)
+	}
+	LibraryServiceService_GetShelf_Handler interface {
+		Handle(ctx context.Context, request *GetShelfRequest) (*Shelf, error)
+	}
+	LibraryServiceService_ListShelves_Handler interface {
+		Handle(ctx context.Context, request *ListShelvesRequest) (*ListShelvesResponse, error)
+	}
+	LibraryServiceService_DeleteShelf_Handler interface {
+		Handle(ctx context.Context, request *DeleteShelfRequest) (*emptypb.Empty, error)
+	}
+	LibraryServiceService_MergeShelves_Handler interface {
+		Handle(ctx context.Context, request *MergeShelvesRequest) (*Shelf, error)
+	}
+	LibraryServiceService_CreateBook_Handler interface {
+		Handle(ctx context.Context, request *CreateBookRequest) (*Book, error)
+	}
+	LibraryServiceService_GetBook_Handler interface {
+		Handle(ctx context.Context, request *GetBookRequest) (*Book, error)
+	}
+	LibraryServiceService_ListBooks_Handler interface {
+		Handle(ctx context.Context, request *ListBooksRequest) (*ListBooksResponse, error)
+	}
+	LibraryServiceService_DeleteBook_Handler interface {
+		Handle(ctx context.Context, request *DeleteBookRequest) (*emptypb.Empty, error)
+	}
+	LibraryServiceService_UpdateBook_Handler interface {
+		Handle(ctx context.Context, request *UpdateBookRequest) (*Book, error)
+	}
+	LibraryServiceService_MoveBook_Handler interface {
+		Handle(ctx context.Context, request *MoveBookRequest) (*Book, error)
+	}
+)
+
 // LibraryServiceServerEndpoints is server endpoints
 type LibraryServiceServerEndpoints interface {
 	CreateShelf(ctx context.Context) endpoint.Endpoint

@@ -40,50 +40,25 @@ func (f *Generator) Generate() error {
 	}
 
 	for _, service := range services {
-		if err := f.GenerateServices(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateServerEndpoints(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateClientEndpoints(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateClientTransports(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateFactories(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateEndpointers(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateBalancers(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateServerEndpointsImplements(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateClientTransportsImplements(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateEndpointersImplements(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateBalancersImplements(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateClientEndpointsImplements(service, g); err != nil {
-			return err
-		}
-		if err := f.GenerateClientService(service, g); err != nil {
-			return err
-		}
+		f.GenerateServices(service, g)
+		f.GenerateHandlers(service, g)
+		f.GenerateServerEndpoints(service, g)
+		f.GenerateClientEndpoints(service, g)
+		f.GenerateClientTransports(service, g)
+		f.GenerateFactories(service, g)
+		f.GenerateEndpointers(service, g)
+		f.GenerateBalancers(service, g)
+		f.GenerateServerEndpointsImplements(service, g)
+		f.GenerateClientTransportsImplements(service, g)
+		f.GenerateEndpointersImplements(service, g)
+		f.GenerateBalancersImplements(service, g)
+		f.GenerateClientEndpointsImplements(service, g)
+		f.GenerateClientService(service, g)
 	}
 	return nil
 }
 
-func (f *Generator) GenerateServices(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateServices(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.ServiceName() + " is a service"))
 	g.P("type ", service.ServiceName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -91,10 +66,19 @@ func (f *Generator) GenerateServices(service *internal.Service, g *protogen.Gene
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateHandlers(service *internal.Service, g *protogen.GeneratedFile) {
+	g.P("type (")
+	for _, endpoint := range service.Endpoints {
+		g.P("", endpoint.HandlerName(), " interface {")
+		g.P("Handle(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error)")
+		g.P("}")
+	}
+	g.P(")")
+}
+
+func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.ServerEndpointsName() + " is server endpoints"))
 	g.P("type ", service.ServerEndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -102,10 +86,9 @@ func (f *Generator) GenerateServerEndpoints(service *internal.Service, g *protog
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.ClientEndpointsName() + " is client endpoints"))
 	g.P("type ", service.ClientEndpointsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -113,10 +96,9 @@ func (f *Generator) GenerateClientEndpoints(service *internal.Service, g *protog
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateClientTransports(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.ClientTransportsName() + " is client transports"))
 	g.P("type ", service.ClientTransportsName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -124,10 +106,9 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.FactoriesName() + " is client factories"))
 	g.P("type ", service.FactoriesName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -135,10 +116,9 @@ func (f *Generator) GenerateFactories(service *internal.Service, g *protogen.Gen
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.EndpointersName() + " is client endpointers"))
 	g.P("type ", service.EndpointersName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -146,10 +126,9 @@ func (f *Generator) GenerateEndpointers(service *internal.Service, g *protogen.G
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateBalancers(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateBalancers(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.BalancersName() + " is client balancers"))
 	g.P("type ", service.BalancersName(), " interface {")
 	for _, endpoint := range service.Endpoints {
@@ -157,10 +136,9 @@ func (f *Generator) GenerateBalancers(service *internal.Service, g *protogen.Gen
 	}
 	g.P("}")
 	g.P()
-	return nil
 }
 
-func (f *Generator) GenerateServerEndpointsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateServerEndpointsImplements(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.Unexported(service.ServerEndpointsName())+" implements "), service.ServerEndpointsName())
 	g.P("type ", service.Unexported(service.ServerEndpointsName()), " struct {")
 	g.P("svc ", service.ServiceName())
@@ -176,10 +154,9 @@ func (f *Generator) GenerateServerEndpointsImplements(service *internal.Service,
 		g.P("}")
 		g.P()
 	}
-	return nil
 }
 
-func (f *Generator) GenerateClientTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateClientTransportsImplements(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.Unexported(service.FactoriesName())+" implements "), service.FactoriesName())
 	g.P("type ", service.Unexported(service.FactoriesName()), " struct {")
 	g.P("transports ", service.ClientTransportsName())
@@ -193,10 +170,9 @@ func (f *Generator) GenerateClientTransportsImplements(service *internal.Service
 		g.P("}")
 		g.P()
 	}
-	return nil
 }
 
-func (f *Generator) GenerateEndpointersImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateEndpointersImplements(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.Unexported(service.EndpointersName())+" implements "), service.EndpointersName())
 	g.P("type ", service.Unexported(service.EndpointersName()), " struct {")
 	g.P("target string")
@@ -211,10 +187,9 @@ func (f *Generator) GenerateEndpointersImplements(service *internal.Service, g *
 		g.P("}")
 		g.P()
 	}
-	return nil
 }
 
-func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.Unexported(service.BalancersName())+" implements "), service.BalancersName())
 	g.P("type ", service.Unexported(service.BalancersName()), " struct {")
 	g.P("factory ", internal.LbxPackage.Ident("BalancerFactory"))
@@ -239,10 +214,9 @@ func (f *Generator) GenerateBalancersImplements(service *internal.Service, g *pr
 	}
 	g.P("}")
 	g.P("}")
-	return nil
 }
 
-func (f *Generator) GenerateClientEndpointsImplements(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateClientEndpointsImplements(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.Unexported(service.ClientEndpointsName())+" implements "), service.ClientEndpointsName())
 	g.P("type ", service.Unexported(service.ClientEndpointsName()), " struct {")
 	g.P("balancers ", service.BalancersName())
@@ -258,10 +232,9 @@ func (f *Generator) GenerateClientEndpointsImplements(service *internal.Service,
 		g.P("}")
 		g.P()
 	}
-	return nil
 }
 
-func (f *Generator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) error {
+func (f *Generator) GenerateClientService(service *internal.Service, g *protogen.GeneratedFile) {
 	g.P(internal.Comments(service.Unexported(service.ClientServiceName())+" implements "), service.ClientServiceName())
 	g.P("type ", service.Unexported(service.ClientServiceName()), " struct {")
 	g.P("endpoints ", service.ClientEndpointsName())
@@ -270,7 +243,7 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 	g.P()
 	for _, endpoint := range service.Endpoints {
 		g.P("func (c *", service.Unexported(service.ClientServiceName()), ") ", endpoint.Name(), "(ctx ", internal.Context, ", request *", endpoint.InputGoIdent(), ") (*", endpoint.OutputGoIdent(), ", error){")
-		g.P("ctx = ", internal.EndpointxPackage.Ident("NameInjector"), "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
+		g.P("ctx = ", internal.EndpointxNameInjector, "(ctx, ", strconv.Quote(endpoint.FullName()), ")")
 		g.P("ctx = ", internal.TransportxPackage.Ident("NameInjector"), "(ctx, c.transportName)")
 		g.P("endpoint, err := c.endpoints.", endpoint.Name(), "(ctx)")
 		g.P("if err != nil {")
@@ -284,5 +257,4 @@ func (f *Generator) GenerateClientService(service *internal.Service, g *protogen
 		g.P("}")
 		g.P()
 	}
-	return nil
 }

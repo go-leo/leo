@@ -12,6 +12,7 @@ import (
 )
 
 type Endpoint struct {
+	service     *Service
 	protoMethod *protogen.Method
 	httpRule    *annotations.HttpRule
 
@@ -400,6 +401,14 @@ func (e *Endpoint) ResponseBody() string {
 	return e.httpRule.GetResponseBody()
 }
 
+func (e *Endpoint) HandlerName() string {
+	return e.service.ServiceName() + "_" + e.Name() + "_Handler"
+}
+
+func (e *Endpoint) HandlerVarName() string {
+	return e.Name() + "Handler"
+}
+
 // --------------------- Cqrs ---------------------
 
 func (e *Endpoint) IsCommand() bool {
@@ -408,10 +417,6 @@ func (e *Endpoint) IsCommand() bool {
 
 func (e *Endpoint) IsQuery() bool {
 	return !e.IsCommand()
-}
-
-func (e *Endpoint) HandlerName() string {
-	return e.Name() + "Handler"
 }
 
 func (e *Endpoint) CommandName() string {

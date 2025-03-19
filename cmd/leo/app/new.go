@@ -4,6 +4,7 @@ import (
 	"github.com/go-leo/leo/v3/cmd/leo/internal/gonew"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/modfile"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,7 +14,7 @@ func New() *cobra.Command {
 	var appName string
 	cmd := &cobra.Command{
 		Use:   "app",
-		Short: "Create a new app",
+		Short: "create a new app",
 		Run: func(cmd *cobra.Command, args []string) {
 			wd, err := os.Getwd()
 			if err != nil {
@@ -34,7 +35,11 @@ func New() *cobra.Command {
 			srcMod := "github.com/go-leo/app-layout"
 			srcModVers := srcMod + "@latest"
 
-			gonew.GoNew(srcMod, srcModVers, dstMod, "./app/"+filepath.Base(dstMod))
+			dir := filepath.Join("./app", filepath.Base(dstMod))
+			excludes := []string{"go.mod", "go.sum"}
+			log.Printf("create app %s...\n", dir)
+			gonew.GoNew(srcMod, srcModVers, dstMod, dir, excludes)
+			log.Println("success")
 		},
 	}
 	cmd.Flags().StringVarP(&appName, "name", "n", "", "app name")

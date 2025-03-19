@@ -22,6 +22,12 @@ type GreeterService interface {
 	SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error)
 }
 
+type (
+	GreeterService_SayHello_Handler interface {
+		Handle(ctx context.Context, request *HelloRequest) (*HelloReply, error)
+	}
+)
+
 // GreeterServerEndpoints is server endpoints
 type GreeterServerEndpoints interface {
 	SayHello(ctx context.Context) endpoint.Endpoint

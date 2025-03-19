@@ -27,7 +27,6 @@ var (
 	LbPackage            = protogen.GoImportPath("github.com/go-kit/kit/sd/lb")
 	LogPackage           = protogen.GoImportPath("github.com/go-kit/log")
 
-	EndpointxPackage       = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
 	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpctransportx")
 	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
@@ -58,6 +57,13 @@ var (
 var (
 	BytesPackage = protogen.GoImportPath("bytes")
 	Buffer       = BytesPackage.Ident("Buffer")
+)
+
+var (
+	EndpointxPackage        = protogen.GoImportPath("github.com/go-leo/leo/v3/endpointx")
+	EndpointxChain          = EndpointxPackage.Ident("Chain")
+	EndpointxNameInjector   = EndpointxPackage.Ident("NameInjector")
+	EndpointxHandleEndpoint = EndpointxPackage.Ident("HandleEndpoint")
 )
 
 var (

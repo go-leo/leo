@@ -46,6 +46,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -59,7 +60,7 @@ func usage() {
 	os.Exit(2)
 }
 
-func GoNew(srcMod, srcModVers string, dstMod string, dir string) {
+func GoNew(srcMod, srcModVers string, dstMod string, dir string, excludes []string) {
 	// Dir must not exist or must be an empty directory.
 	de, err := os.ReadDir(dir)
 	if err == nil && len(de) > 0 {
@@ -67,7 +68,6 @@ func GoNew(srcMod, srcModVers string, dstMod string, dir string) {
 	}
 	needMkdir := err != nil
 
-	log.Println("exec: ", strings.Join([]string{"go", "mod", "download", "-json", srcModVers}, " "))
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("go", "mod", "download", "-json", srcModVers)
 	cmd.Stdout = &stdout
@@ -97,6 +97,9 @@ func GoNew(srcMod, srcModVers string, dstMod string, dir string) {
 		rel, err := filepath.Rel(info.Dir, src)
 		if err != nil {
 			log.Fatal(err)
+		}
+		if slices.Contains(excludes, rel) {
+			return nil
 		}
 		dst := filepath.Join(dir, rel)
 		if d.IsDir() {
@@ -246,7 +249,7 @@ func main() {
 		dir = "." + string(filepath.Separator) + path.Base(dstMod)
 	}
 
-	GoNew(srcMod, srcModVers, dstMod, dir)
+	GoNew(srcMod, srcModVers, dstMod, dir, []string{})
 
 	log.Printf("initialized %s in %s", dstMod, dir)
 }

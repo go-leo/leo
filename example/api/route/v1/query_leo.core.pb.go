@@ -23,6 +23,12 @@ type BoolQueryService interface {
 	BoolQuery(ctx context.Context, request *BoolQueryRequest) (*emptypb.Empty, error)
 }
 
+type (
+	BoolQueryService_BoolQuery_Handler interface {
+		Handle(ctx context.Context, request *BoolQueryRequest) (*emptypb.Empty, error)
+	}
+)
+
 // BoolQueryServerEndpoints is server endpoints
 type BoolQueryServerEndpoints interface {
 	BoolQuery(ctx context.Context) endpoint.Endpoint
@@ -147,6 +153,12 @@ func (c *boolQueryClientService) BoolQuery(ctx context.Context, request *BoolQue
 type Int32QueryService interface {
 	Int32Query(ctx context.Context, request *Int32QueryRequest) (*emptypb.Empty, error)
 }
+
+type (
+	Int32QueryService_Int32Query_Handler interface {
+		Handle(ctx context.Context, request *Int32QueryRequest) (*emptypb.Empty, error)
+	}
+)
 
 // Int32QueryServerEndpoints is server endpoints
 type Int32QueryServerEndpoints interface {
@@ -273,6 +285,12 @@ type Int64QueryService interface {
 	Int64Query(ctx context.Context, request *Int64QueryRequest) (*emptypb.Empty, error)
 }
 
+type (
+	Int64QueryService_Int64Query_Handler interface {
+		Handle(ctx context.Context, request *Int64QueryRequest) (*emptypb.Empty, error)
+	}
+)
+
 // Int64QueryServerEndpoints is server endpoints
 type Int64QueryServerEndpoints interface {
 	Int64Query(ctx context.Context) endpoint.Endpoint
@@ -397,6 +415,12 @@ func (c *int64QueryClientService) Int64Query(ctx context.Context, request *Int64
 type Uint32QueryService interface {
 	Uint32Query(ctx context.Context, request *Uint32QueryRequest) (*emptypb.Empty, error)
 }
+
+type (
+	Uint32QueryService_Uint32Query_Handler interface {
+		Handle(ctx context.Context, request *Uint32QueryRequest) (*emptypb.Empty, error)
+	}
+)
 
 // Uint32QueryServerEndpoints is server endpoints
 type Uint32QueryServerEndpoints interface {
@@ -523,6 +547,12 @@ type Uint64QueryService interface {
 	Uint64Query(ctx context.Context, request *Uint64QueryRequest) (*emptypb.Empty, error)
 }
 
+type (
+	Uint64QueryService_Uint64Query_Handler interface {
+		Handle(ctx context.Context, request *Uint64QueryRequest) (*emptypb.Empty, error)
+	}
+)
+
 // Uint64QueryServerEndpoints is server endpoints
 type Uint64QueryServerEndpoints interface {
 	Uint64Query(ctx context.Context) endpoint.Endpoint
@@ -647,6 +677,12 @@ func (c *uint64QueryClientService) Uint64Query(ctx context.Context, request *Uin
 type FloatQueryService interface {
 	FloatQuery(ctx context.Context, request *FloatQueryRequest) (*emptypb.Empty, error)
 }
+
+type (
+	FloatQueryService_FloatQuery_Handler interface {
+		Handle(ctx context.Context, request *FloatQueryRequest) (*emptypb.Empty, error)
+	}
+)
 
 // FloatQueryServerEndpoints is server endpoints
 type FloatQueryServerEndpoints interface {
@@ -773,6 +809,12 @@ type DoubleQueryService interface {
 	DoubleQuery(ctx context.Context, request *DoubleQueryRequest) (*emptypb.Empty, error)
 }
 
+type (
+	DoubleQueryService_DoubleQuery_Handler interface {
+		Handle(ctx context.Context, request *DoubleQueryRequest) (*emptypb.Empty, error)
+	}
+)
+
 // DoubleQueryServerEndpoints is server endpoints
 type DoubleQueryServerEndpoints interface {
 	DoubleQuery(ctx context.Context) endpoint.Endpoint
@@ -898,6 +940,12 @@ type StringQueryService interface {
 	StringQuery(ctx context.Context, request *StringQueryRequest) (*emptypb.Empty, error)
 }
 
+type (
+	StringQueryService_StringQuery_Handler interface {
+		Handle(ctx context.Context, request *StringQueryRequest) (*emptypb.Empty, error)
+	}
+)
+
 // StringQueryServerEndpoints is server endpoints
 type StringQueryServerEndpoints interface {
 	StringQuery(ctx context.Context) endpoint.Endpoint
@@ -1022,6 +1070,12 @@ func (c *stringQueryClientService) StringQuery(ctx context.Context, request *Str
 type EnumQueryService interface {
 	EnumQuery(ctx context.Context, request *EnumQueryRequest) (*emptypb.Empty, error)
 }
+
+type (
+	EnumQueryService_EnumQuery_Handler interface {
+		Handle(ctx context.Context, request *EnumQueryRequest) (*emptypb.Empty, error)
+	}
+)
 
 // EnumQueryServerEndpoints is server endpoints
 type EnumQueryServerEndpoints interface {

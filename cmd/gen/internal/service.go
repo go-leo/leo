@@ -173,6 +173,7 @@ func NewServices(file *protogen.File) ([]*Service, error) {
 		var endpoints []*Endpoint
 		for _, pbMethod := range pbService.Methods {
 			endpoint := &Endpoint{
+				service:     service,
 				protoMethod: pbMethod,
 			}
 			if endpoint.IsStreaming() {

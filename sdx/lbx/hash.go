@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/lb"
-	"github.com/go-leo/gox/hashx"
+	"github.com/go-leo/gox/cryptox/knuthx"
 	"hash"
 )
 
@@ -65,7 +65,7 @@ func (b *hashBalancer) Endpoint() (endpoint.Endpoint, error) {
 	if length == 1 {
 		return endpoints[0], nil
 	}
-	index := hashx.Knuth(uint(b.Hasher.Sum64())) % length
+	index := knuthx.Knuth(uint(b.Hasher.Sum64())) % length
 	return endpoints[index], nil
 }
 

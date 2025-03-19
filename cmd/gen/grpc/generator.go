@@ -177,7 +177,7 @@ func (f *Generator) GenerateClientTransports(service *internal.Service, g *proto
 		g.P("func(_ ", internal.Context, ", v any) (any, error) { return v, nil }", ", ")
 		g.P(endpoint.OutputGoIdent(), "{},")
 		g.P("opts...)")
-		g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(client.Endpoint(), t.middlewares...), conn, nil")
+		g.P("return ", internal.EndpointxChain, "(client.Endpoint(), t.middlewares...), conn, nil")
 		g.P("}")
 		g.P()
 	}

@@ -32,7 +32,7 @@ func (f *ClientTransportsGenerator) GenerateTransports() {
 		f.g.P("t.responseDecoder.", endpoint.Name(), "(),")
 		f.g.P("opts...,")
 		f.g.P(")")
-		f.g.P("return ", internal.EndpointxPackage.Ident("Chain"), "(client.Endpoint(), t.middlewares...), nil, nil")
+		f.g.P("return ", internal.EndpointxChain, "(client.Endpoint(), t.middlewares...), nil, nil")
 		f.g.P("}")
 		f.g.P()
 	}
