@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/go-leo/leo/v3/cmd/gen/config"
 	"github.com/go-leo/leo/v3/cmd/gen/core"
-	"github.com/go-leo/leo/v3/cmd/gen/cqrs"
 	"github.com/go-leo/leo/v3/cmd/gen/grpc"
 	"github.com/go-leo/leo/v3/cmd/gen/http"
 	"github.com/go-leo/leo/v3/cmd/gen/status"
@@ -71,16 +70,6 @@ func generate(plugin *protogen.Plugin) error {
 		if err := httpGenerator.Generate(); err != nil {
 			return err
 		}
-
-		// cqrs代码生成
-		cqrsGenerator, err := cqrs.NewGenerator(plugin, file)
-		if err != nil {
-			return err
-		}
-		if err := cqrsGenerator.Generate(); err != nil {
-			return err
-		}
-
 	}
 	return nil
 }

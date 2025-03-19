@@ -57,10 +57,6 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
   * 使用 OpenTelemetry 提供的监控方案
 * [链路追踪](docs/opentelemetry.md)
   * 使用 OpenTelemetry 提供的链路追踪方案
-* [CQRS](docs/cqrs.md)
-  * 支持CQRS架构
-  * 将Endpoint拆分为Command和Query
-  * 暂不支持EventSourcing，后面考虑添加
 * [参数校验](docs/validator.md)
   * 支持请求参数的自动校验(github.com/envoyproxy/protoc-gen-validate)
   * 避免手动检查代码

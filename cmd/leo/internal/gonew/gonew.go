@@ -116,10 +116,13 @@ func GoNew(srcMod, srcModVers string, dstMod string, dir string) {
 			data = fixGo(data, rel, srcMod, dstMod, isRoot)
 		}
 		if strings.HasSuffix(rel, ".proto") {
-			data = fixProto(data, rel, srcMod, dstMod, isRoot)
+			data = fixProto(data, srcMod, dstMod)
 		}
 		if rel == "go.mod" {
 			data = fixGoMod(data, srcMod, dstMod)
+		}
+		if rel == "protoc.sh" {
+			data = fixShell(data, srcMod, dstMod)
 		}
 
 		if err := os.WriteFile(dst, data, 0666); err != nil {
@@ -127,47 +130,6 @@ func GoNew(srcMod, srcModVers string, dstMod string, dir string) {
 		}
 		return nil
 	})
-}
-
-func main() {
-	log.SetPrefix("gonew: ")
-	log.SetFlags(0)
-	flag.Usage = usage
-	flag.Parse()
-	args := flag.Args()
-
-	if len(args) < 1 || len(args) > 3 {
-		usage()
-	}
-
-	srcMod := args[0]
-	srcModVers := srcMod
-	if !strings.Contains(srcModVers, "@") {
-		srcModVers += "@latest"
-	}
-	srcMod, _, _ = strings.Cut(srcMod, "@")
-	if err := module.CheckPath(srcMod); err != nil {
-		log.Fatalf("invalid source module name: %v", err)
-	}
-
-	dstMod := srcMod
-	if len(args) >= 2 {
-		dstMod = args[1]
-		if err := module.CheckPath(dstMod); err != nil {
-			log.Fatalf("invalid destination module name: %v", err)
-		}
-	}
-
-	var dir string
-	if len(args) == 3 {
-		dir = args[2]
-	} else {
-		dir = "." + string(filepath.Separator) + path.Base(dstMod)
-	}
-
-	GoNew(srcMod, srcModVers, dstMod, dir)
-
-	log.Printf("initialized %s in %s", dstMod, dir)
 }
 
 // fixGo rewrites the Go source in data to replace srcMod with dstMod.
@@ -225,7 +187,11 @@ func fixGo(data []byte, file string, srcMod, dstMod string, isRoot bool) []byte 
 	return buf.Bytes()
 }
 
-func fixProto(data []byte, file string, srcMod, dstMod string, isRoot bool) []byte {
+func fixProto(data []byte, srcMod, dstMod string) []byte {
+	return bytes.Replace(data, []byte(srcMod), []byte(dstMod), -1)
+}
+
+func fixShell(data []byte, srcMod, dstMod string) []byte {
 	return bytes.Replace(data, []byte(srcMod), []byte(dstMod), -1)
 }
 
@@ -242,4 +208,45 @@ func fixGoMod(data []byte, srcMod, dstMod string) []byte {
 		return data
 	}
 	return new
+}
+
+func main() {
+	log.SetPrefix("gonew: ")
+	log.SetFlags(0)
+	flag.Usage = usage
+	flag.Parse()
+	args := flag.Args()
+
+	if len(args) < 1 || len(args) > 3 {
+		usage()
+	}
+
+	srcMod := args[0]
+	srcModVers := srcMod
+	if !strings.Contains(srcModVers, "@") {
+		srcModVers += "@latest"
+	}
+	srcMod, _, _ = strings.Cut(srcMod, "@")
+	if err := module.CheckPath(srcMod); err != nil {
+		log.Fatalf("invalid source module name: %v", err)
+	}
+
+	dstMod := srcMod
+	if len(args) >= 2 {
+		dstMod = args[1]
+		if err := module.CheckPath(dstMod); err != nil {
+			log.Fatalf("invalid destination module name: %v", err)
+		}
+	}
+
+	var dir string
+	if len(args) == 3 {
+		dir = args[2]
+	} else {
+		dir = "." + string(filepath.Separator) + path.Base(dstMod)
+	}
+
+	GoNew(srcMod, srcModVers, dstMod, dir)
+
+	log.Printf("initialized %s in %s", dstMod, dir)
 }
