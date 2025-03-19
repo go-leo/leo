@@ -27,24 +27,6 @@ type UserManagerService interface {
 	GetUsers(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
 }
 
-type (
-	UserManagerService_CreateUser_Handler interface {
-		Handle(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
-	}
-	UserManagerService_DeleteUser_Handler interface {
-		Handle(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-	}
-	UserManagerService_UpdateUser_Handler interface {
-		Handle(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-	}
-	UserManagerService_GetUser_Handler interface {
-		Handle(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-	}
-	UserManagerService_GetUsers_Handler interface {
-		Handle(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	}
-)
-
 // UserManagerServerEndpoints is server endpoints
 type UserManagerServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint

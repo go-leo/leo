@@ -23,12 +23,6 @@ type BoolPathService interface {
 	BoolPath(ctx context.Context, request *BoolPathRequest) (*emptypb.Empty, error)
 }
 
-type (
-	BoolPathService_BoolPath_Handler interface {
-		Handle(ctx context.Context, request *BoolPathRequest) (*emptypb.Empty, error)
-	}
-)
-
 // BoolPathServerEndpoints is server endpoints
 type BoolPathServerEndpoints interface {
 	BoolPath(ctx context.Context) endpoint.Endpoint
@@ -153,12 +147,6 @@ func (c *boolPathClientService) BoolPath(ctx context.Context, request *BoolPathR
 type Int32PathService interface {
 	Int32Path(ctx context.Context, request *Int32PathRequest) (*emptypb.Empty, error)
 }
-
-type (
-	Int32PathService_Int32Path_Handler interface {
-		Handle(ctx context.Context, request *Int32PathRequest) (*emptypb.Empty, error)
-	}
-)
 
 // Int32PathServerEndpoints is server endpoints
 type Int32PathServerEndpoints interface {
@@ -285,12 +273,6 @@ type Int64PathService interface {
 	Int64Path(ctx context.Context, request *Int64PathRequest) (*emptypb.Empty, error)
 }
 
-type (
-	Int64PathService_Int64Path_Handler interface {
-		Handle(ctx context.Context, request *Int64PathRequest) (*emptypb.Empty, error)
-	}
-)
-
 // Int64PathServerEndpoints is server endpoints
 type Int64PathServerEndpoints interface {
 	Int64Path(ctx context.Context) endpoint.Endpoint
@@ -415,12 +397,6 @@ func (c *int64PathClientService) Int64Path(ctx context.Context, request *Int64Pa
 type Uint32PathService interface {
 	Uint32Path(ctx context.Context, request *Uint32PathRequest) (*emptypb.Empty, error)
 }
-
-type (
-	Uint32PathService_Uint32Path_Handler interface {
-		Handle(ctx context.Context, request *Uint32PathRequest) (*emptypb.Empty, error)
-	}
-)
 
 // Uint32PathServerEndpoints is server endpoints
 type Uint32PathServerEndpoints interface {
@@ -547,12 +523,6 @@ type Uint64PathService interface {
 	Uint64Path(ctx context.Context, request *Uint64PathRequest) (*emptypb.Empty, error)
 }
 
-type (
-	Uint64PathService_Uint64Path_Handler interface {
-		Handle(ctx context.Context, request *Uint64PathRequest) (*emptypb.Empty, error)
-	}
-)
-
 // Uint64PathServerEndpoints is server endpoints
 type Uint64PathServerEndpoints interface {
 	Uint64Path(ctx context.Context) endpoint.Endpoint
@@ -677,12 +647,6 @@ func (c *uint64PathClientService) Uint64Path(ctx context.Context, request *Uint6
 type FloatPathService interface {
 	FloatPath(ctx context.Context, request *FloatPathRequest) (*emptypb.Empty, error)
 }
-
-type (
-	FloatPathService_FloatPath_Handler interface {
-		Handle(ctx context.Context, request *FloatPathRequest) (*emptypb.Empty, error)
-	}
-)
 
 // FloatPathServerEndpoints is server endpoints
 type FloatPathServerEndpoints interface {
@@ -809,12 +773,6 @@ type DoublePathService interface {
 	DoublePath(ctx context.Context, request *DoublePathRequest) (*emptypb.Empty, error)
 }
 
-type (
-	DoublePathService_DoublePath_Handler interface {
-		Handle(ctx context.Context, request *DoublePathRequest) (*emptypb.Empty, error)
-	}
-)
-
 // DoublePathServerEndpoints is server endpoints
 type DoublePathServerEndpoints interface {
 	DoublePath(ctx context.Context) endpoint.Endpoint
@@ -940,12 +898,6 @@ type StringPathService interface {
 	StringPath(ctx context.Context, request *StringPathRequest) (*emptypb.Empty, error)
 }
 
-type (
-	StringPathService_StringPath_Handler interface {
-		Handle(ctx context.Context, request *StringPathRequest) (*emptypb.Empty, error)
-	}
-)
-
 // StringPathServerEndpoints is server endpoints
 type StringPathServerEndpoints interface {
 	StringPath(ctx context.Context) endpoint.Endpoint
@@ -1070,12 +1022,6 @@ func (c *stringPathClientService) StringPath(ctx context.Context, request *Strin
 type EnumPathService interface {
 	EnumPath(ctx context.Context, request *EnumPathRequest) (*emptypb.Empty, error)
 }
-
-type (
-	EnumPathService_EnumPath_Handler interface {
-		Handle(ctx context.Context, request *EnumPathRequest) (*emptypb.Empty, error)
-	}
-)
 
 // EnumPathServerEndpoints is server endpoints
 type EnumPathServerEndpoints interface {
@@ -1206,27 +1152,6 @@ type NamedPathService interface {
 	EmbedNamedPathOptString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 	EmbedNamedPathWrapString(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
 }
-
-type (
-	NamedPathService_NamedPathString_Handler interface {
-		Handle(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	}
-	NamedPathService_NamedPathOptString_Handler interface {
-		Handle(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	}
-	NamedPathService_NamedPathWrapString_Handler interface {
-		Handle(ctx context.Context, request *NamedPathRequest) (*emptypb.Empty, error)
-	}
-	NamedPathService_EmbedNamedPathString_Handler interface {
-		Handle(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	}
-	NamedPathService_EmbedNamedPathOptString_Handler interface {
-		Handle(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	}
-	NamedPathService_EmbedNamedPathWrapString_Handler interface {
-		Handle(ctx context.Context, request *EmbedNamedPathRequest) (*emptypb.Empty, error)
-	}
-)
 
 // NamedPathServerEndpoints is server endpoints
 type NamedPathServerEndpoints interface {
@@ -1612,12 +1537,6 @@ func (c *namedPathClientService) EmbedNamedPathWrapString(ctx context.Context, r
 type MixPathService interface {
 	MixPath(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
 }
-
-type (
-	MixPathService_MixPath_Handler interface {
-		Handle(ctx context.Context, request *MixPathRequest) (*emptypb.Empty, error)
-	}
-)
 
 // MixPathServerEndpoints is server endpoints
 type MixPathServerEndpoints interface {

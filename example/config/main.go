@@ -7,7 +7,7 @@ import (
 	"github.com/go-leo/leo/v3/configx"
 	"github.com/go-leo/leo/v3/configx/environx"
 	"github.com/go-leo/leo/v3/configx/filex"
-	"github.com/go-leo/leo/v3/example/api/configs"
+	"github.com/go-leo/leo/v3/example/api/configs/v1"
 	"os"
 	"time"
 )

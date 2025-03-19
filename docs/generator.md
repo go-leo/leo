@@ -2,7 +2,7 @@
 
 Leo提供一个 `leo` 工具 和 `protoc-gen-go-leo` protoc插件
 
-* `leo`可以初始化项目(project)和应用(app)
+* `leo`可以初始化项目和应用
 * `protoc-gen-go-leo` 可以生成HTTP和gRPC的代码，还可以生成配置、状态码等代码。
 
 # 安装
@@ -53,6 +53,9 @@ leo project -m github.com/go-leo/example
 * tools：工具目录
 
 ## 2. 创建一个新应用
+>项目结构采用DDD的四层架构.
+
+![ddd_layer.png](images/ddd_layer.png)
 
 进入项目目录
 
@@ -79,11 +82,91 @@ leo app -n user
 └── ui
 ```
 
-* api：api目录，存放proto定义文件
+* api：api目录，存放proto定义文件和生成的代码
 * cmd: 应用启动目录，存放main函数与子命令
 * domain：领域层目录，存放领域模型代码
 * infra：基础设施层目录，存放基础设施代码
 * protoc.sh: protoc编译脚本
-* service：服务层目录，存放业务服务代码
-* ui：ui层目录，存放 user interface 代码, 代码可以通过protoc.sh生成出来
+* service：服务层目录，存放业务服务代码(把应用服务和领域服务合在一起)
+* ui：ui层目录，存放 user interface 代码
 
+![ddd.png](images/ddd.png)
+
+# protoc-gen-go-leo 插件
+protoc-gen-go-leo 插件可以生成一下代码:
+* HTTP代码
+* gRPC代码
+* 状态码
+* 配置
+
+## service
+```protobuf
+syntax = "proto3";
+
+option go_package = "github.com/go-leo/leo/v3/example/api/helloworld/v1;helloworld";
+
+package helloworld;
+
+import "google/api/annotations.proto";
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {
+    option (google.api.http) = {
+      post: "/v1/example/echo"
+      body: "*"
+    };
+  }
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
+```
+运行下命令
+```go
+protoc \
+		--proto_path=. \
+		--proto_path=../../proto/ \
+		--proto_path=../../third_party \
+		--go_out=. \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=. \
+        --go-grpc_opt=paths=source_relative \
+		--go-leo_out=. \
+		--go-leo_opt=paths=source_relative \
+		*/*/*.proto
+```
+将生成下面几个文件
+```
+.
+├── helloworld.pb.go
+├── helloworld_grpc.pb.go
+├── helloworld_leo.core.pb.go
+├── helloworld_leo.grpc.pb.go
+└── helloworld_leo.http.pb.go
+```
+* helloworld.pb.go 是命令中`--go_`实际是`protoc-gen-go`生成的protobuf文件
+* helloworld_grpc.pb.go 是命令中`--go-grpc_`实际是`protoc-gen-go-grpc`生成的gRPC文件
+* helloworld_leo.x.pb.go 是命令中`--go-leo_`实际是`protoc-gen-go-leo`生成的文件
+  * helloworld_leo.core.pb.go 是命令中`--go-leo_`生成的核心的 go-kit 代码
+  * helloworld_leo.grpc.pb.go 是命令中`--go-leo_`生成的基于 go-kit gRPC transport 代码,
+  * helloworld_leo.http.pb.go 是命令中`--go-leo_`生成的基于 go-kit HTTP transport 代码
+
+这里简单介绍一下go-kit的核心概念，先看一张图
+![go_kit_core.png](images/go_kit_core.png)
+
+* transport: 传输层，负责传输请求和响应并对其编解码, 多协议时，只需要增加transport即可
+* endpoint: endpoint 代表一个RPC方法, 在 server 和 client有所区别.
+  * server endpoint 相当于是包装下层service的方法，因为 go-kit 定义的endpoint 请求和响应是any类型，所以需要对具体类型进行包装转换。
+  * client endpoint 除了要包装转化请求和响应类型外，还要通过服务发现组件来生成。
+* service: RPC service， 服务端就是具体的业务代码，客户端是RPC方法，
+
+## status code
+详情请看[status.md](status.md)
+
+## config
+详情请看[config.md](config.md)

@@ -30,27 +30,6 @@ type ResponseService interface {
 	HttpResponse(ctx context.Context, request *emptypb.Empty) (*http.HttpResponse, error)
 }
 
-type (
-	ResponseService_OmittedResponse_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
-	}
-	ResponseService_StarResponse_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
-	}
-	ResponseService_NamedResponse_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*UserResponse, error)
-	}
-	ResponseService_HttpBodyResponse_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*httpbody.HttpBody, error)
-	}
-	ResponseService_HttpBodyNamedResponse_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*HttpBody, error)
-	}
-	ResponseService_HttpResponse_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*http.HttpResponse, error)
-	}
-)
-
 // ResponseServerEndpoints is server endpoints
 type ResponseServerEndpoints interface {
 	OmittedResponse(ctx context.Context) endpoint.Endpoint

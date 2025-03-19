@@ -30,27 +30,6 @@ type BodyService interface {
 	HttpRequest(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
 }
 
-type (
-	BodyService_StarBody_Handler interface {
-		Handle(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
-	}
-	BodyService_NamedBody_Handler interface {
-		Handle(ctx context.Context, request *BodyRequest) (*emptypb.Empty, error)
-	}
-	BodyService_NonBody_Handler interface {
-		Handle(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error)
-	}
-	BodyService_HttpBodyStarBody_Handler interface {
-		Handle(ctx context.Context, request *httpbody.HttpBody) (*emptypb.Empty, error)
-	}
-	BodyService_HttpBodyNamedBody_Handler interface {
-		Handle(ctx context.Context, request *HttpBodyRequest) (*emptypb.Empty, error)
-	}
-	BodyService_HttpRequest_Handler interface {
-		Handle(ctx context.Context, request *http.HttpRequest) (*emptypb.Empty, error)
-	}
-)
-
 // BodyServerEndpoints is server endpoints
 type BodyServerEndpoints interface {
 	StarBody(ctx context.Context) endpoint.Endpoint

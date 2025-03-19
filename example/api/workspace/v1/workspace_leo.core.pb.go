@@ -27,24 +27,6 @@ type WorkspacesService interface {
 	DeleteWorkspace(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 }
 
-type (
-	WorkspacesService_ListWorkspaces_Handler interface {
-		Handle(ctx context.Context, request *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
-	}
-	WorkspacesService_GetWorkspace_Handler interface {
-		Handle(ctx context.Context, request *GetWorkspaceRequest) (*Workspace, error)
-	}
-	WorkspacesService_CreateWorkspace_Handler interface {
-		Handle(ctx context.Context, request *CreateWorkspaceRequest) (*Workspace, error)
-	}
-	WorkspacesService_UpdateWorkspace_Handler interface {
-		Handle(ctx context.Context, request *UpdateWorkspaceRequest) (*Workspace, error)
-	}
-	WorkspacesService_DeleteWorkspace_Handler interface {
-		Handle(ctx context.Context, request *DeleteWorkspaceRequest) (*emptypb.Empty, error)
-	}
-)
-
 // WorkspacesServerEndpoints is server endpoints
 type WorkspacesServerEndpoints interface {
 	ListWorkspaces(ctx context.Context) endpoint.Endpoint

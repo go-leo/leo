@@ -33,7 +33,7 @@ status 是一个微服务常用的状态码管理工具，参考 google Status �
 
 # Install
 ```
-go get github.com/go-leo/status@latest
+go get github.com/go-leo/leo/v3/proto-gen-go-len@latest
 ```
 
 # 定义错误

@@ -41,7 +41,7 @@ func (f *Generator) Generate() error {
 
 	for _, service := range services {
 		f.GenerateServices(service, g)
-		f.GenerateHandlers(service, g)
+		//f.GenerateHandlers(service, g)
 		f.GenerateServerEndpoints(service, g)
 		f.GenerateClientEndpoints(service, g)
 		f.GenerateClientTransports(service, g)

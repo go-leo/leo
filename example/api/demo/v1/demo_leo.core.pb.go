@@ -30,30 +30,6 @@ type DemoService interface {
 	GetUserAvatar(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
 }
 
-type (
-	DemoService_CreateUser_Handler interface {
-		Handle(ctx context.Context, request *CreateUserRequest) (*CreateUserResponse, error)
-	}
-	DemoService_DeleteUser_Handler interface {
-		Handle(ctx context.Context, request *DeleteUsersRequest) (*emptypb.Empty, error)
-	}
-	DemoService_UpdateUser_Handler interface {
-		Handle(ctx context.Context, request *UpdateUserRequest) (*emptypb.Empty, error)
-	}
-	DemoService_GetUser_Handler interface {
-		Handle(ctx context.Context, request *GetUserRequest) (*GetUserResponse, error)
-	}
-	DemoService_GetUsers_Handler interface {
-		Handle(ctx context.Context, request *GetUsersRequest) (*GetUsersResponse, error)
-	}
-	DemoService_UploadUserAvatar_Handler interface {
-		Handle(ctx context.Context, request *UploadUserAvatarRequest) (*emptypb.Empty, error)
-	}
-	DemoService_GetUserAvatar_Handler interface {
-		Handle(ctx context.Context, request *GetUserAvatarRequest) (*httpbody.HttpBody, error)
-	}
-)
-
 // DemoServerEndpoints is server endpoints
 type DemoServerEndpoints interface {
 	CreateUser(ctx context.Context) endpoint.Endpoint
