@@ -1,5 +1,7 @@
 package lbx
 
+// 最快响应时间
+
 //
 //type _Balancer struct {
 //	mutex    sync.RWMutex

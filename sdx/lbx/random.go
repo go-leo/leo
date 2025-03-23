@@ -14,3 +14,5 @@ type RandomFactory struct {
 func (f RandomFactory) New(ctx context.Context, endpointer sd.Endpointer) lb.Balancer {
 	return lb.NewRandom(endpointer, f.Seed)
 }
+
+// 加权随机

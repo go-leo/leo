@@ -69,6 +69,4 @@ func (b *hashBalancer) Endpoint() (endpoint.Endpoint, error) {
 	return endpoints[index], nil
 }
 
-// IpHash
-
-// URLHash
+// 一致性hash
