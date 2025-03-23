@@ -55,7 +55,7 @@ leo project -m github.com/go-leo/example
 ## 2. 创建一个新应用
 >项目结构采用DDD的四层架构.
 
-![ddd_layer.png](images/ddd_layer.png)
+![ddd_layer](images/ddd_layer.png)
 
 进入项目目录
 
@@ -161,12 +161,12 @@ protoc \
 
 * transport: 传输层，负责传输请求和响应并对其编解码, 多协议时，只需要增加transport即可
 * endpoint: endpoint 代表一个RPC方法, 在 server 和 client有所区别.
-  * server endpoint 相当于是包装下层service的方法，因为 go-kit 定义的endpoint 请求和响应是any类型，所以需要对具体类型进行包装转换。
+  * server endpoint 相当于是包装下层service的方法，调用endpoint,就相当于调用service的方法。
   * client endpoint 除了要包装转化请求和响应类型外，还要通过服务发现组件来生成。
 * service: RPC service， 服务端就是具体的业务代码，客户端是RPC方法，
 
 ## status code
-详情请看[status.md](status.md)
+生成状态码，详情请看[status.md](status.md)
 
 ## config
-详情请看[config.md](config.md)
+生成配置，详情请看[config.md](config.md)
