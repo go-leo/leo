@@ -44,7 +44,11 @@ func Middleware(opts ...Option) endpoint.Middleware {
 					i := 64 << 10
 					stack := make([]byte, i)
 					stack = stack[:runtime.Stack(stack, false)]
-					err = statusx.Internal(statusx.Message(fmt.Sprintf("panic triggered: %v", p)), statusx.DebugInfo(strings.Split(convx.BytesToString(stack), "\n"), ""))
+					err = statusx.Internal(
+						statusx.Message(fmt.Sprintf("panic triggered: %v", p)), 
+						statusx.DebugInfo(strings.Split(convx.BytesToString(stack), "\n"), ""),
+						statusx.Identifier("github.com/go-leo/leo/v3/recoveryx.ErrPanicked"),
+					)
 				}
 			}()
 			return e(ctx, request)
