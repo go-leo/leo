@@ -3,13 +3,15 @@ package ratelimitx
 import (
 	"context"
 	"errors"
+
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/go-leo/leo/v3/statusx"
 )
 
-var (
-	ErrRejected = statusx.ResourceExhausted(statusx.Message("ratelimitx: rejected by limiter"), statusx.Identifier("github.com/go-leo/leo/v3/ratelimitx.ErrRejected"))
+var ErrRejected = statusx.ResourceExhausted(
+	statusx.Message("ratelimitx: rejected by limiter"),
+	statusx.Identifier("github.com/go-leo/leo/v3/ratelimitx.ErrRejected"),
 )
 
 func allowerMiddleware(limiter ratelimit.Allower) endpoint.Middleware {
