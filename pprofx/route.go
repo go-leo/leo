@@ -1,15 +1,16 @@
 package pprofx
 
 import (
-	"github.com/gorilla/mux"
 	"net/http/pprof"
+
+	"github.com/gorilla/mux"
 )
 
 func Append(router *mux.Router) *mux.Router {
-	router.NewRoute().Path("/debug/pprof/").HandlerFunc(pprof.Index)
-	router.NewRoute().Path("/debug/pprof/cmdline").HandlerFunc(pprof.Cmdline)
-	router.NewRoute().Path("/debug/pprof/profile").HandlerFunc(pprof.Profile)
-	router.NewRoute().Path("/debug/pprof/symbol").HandlerFunc(pprof.Symbol)
-	router.NewRoute().Path("/debug/pprof/trace").HandlerFunc(pprof.Trace)
+	router.PathPrefix("/debug/pprof/").HandlerFunc(pprof.Index)
+	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	router.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	return router
 }
