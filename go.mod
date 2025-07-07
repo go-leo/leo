@@ -1,6 +1,6 @@
 module github.com/go-leo/leo/v3
 
-go 1.23.6
+go 1.24
 
 require (
 	github.com/RussellLuo/slidingwindow v0.0.0-20200528002341-535bb99d338b
@@ -10,8 +10,8 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.2-0.20230606174503-c7bf81493e58
 	github.com/go-kratos/aegis v0.2.0
-	github.com/go-leo/gox v0.1.1
-	github.com/go-playground/form/v4 v4.2.1
+	github.com/go-leo/gox v0.1.15
+	github.com/go-playground/form/v4 v4.2.3
 	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
@@ -38,19 +38,19 @@ require (
 	go.uber.org/ratelimit v0.3.1
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
 	golang.org/x/mod v0.24.0
-	golang.org/x/sync v0.12.0
+	golang.org/x/sync v0.15.0
 	golang.org/x/time v0.9.0
 	golang.org/x/tools v0.31.0
 	google.golang.org/genproto v0.0.0-20230822172742-b8732ec3820d
-	google.golang.org/genproto/googleapis/api v0.0.0-20250313205543-e70fdf4c4cb4
+	google.golang.org/genproto/googleapis/api v0.0.0-20250324211829-b45e905df463
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250313205543-e70fdf4c4cb4
 	google.golang.org/grpc v1.71.0
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/BurntSushi/toml v1.4.0 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-pop v0.0.6 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
 	github.com/alibabacloud-go/darabonba-array v0.1.0 // indirect
@@ -138,15 +138,15 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	go.etcd.io/etcd/api/v3 v3.5.19 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.19 // indirect
+	go.etcd.io/etcd/api/v3 v3.5.21 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.21 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.19 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
