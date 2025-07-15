@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"google.golang.org/protobuf/compiler/protogen"
 	"regexp"
+
+	"google.golang.org/protobuf/compiler/protogen"
 )
 
 var (
@@ -29,7 +30,6 @@ var (
 
 	TransportxPackage      = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx")
 	GrpcxTransportxPackage = protogen.GoImportPath("github.com/go-leo/leo/v3/transportx/grpctransportx")
-	StatusxPackage         = protogen.GoImportPath("github.com/go-leo/leo/v3/statusx")
 	SdxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx")
 	LbxPackage             = protogen.GoImportPath("github.com/go-leo/leo/v3/sdx/lbx")
 

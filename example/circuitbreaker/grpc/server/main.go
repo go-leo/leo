@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
+	"log"
+	"math/rand/v2"
+
 	"github.com/go-leo/gox/errorx"
 	"github.com/go-leo/gox/mathx/randx/v2"
 	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/serverx/grpcserverx"
-	"github.com/go-leo/leo/v3/statusx"
-	"log"
-	"math/rand/v2"
+	"github.com/go-leo/status"
+	"google.golang.org/grpc/codes"
 )
 
 type server struct {
@@ -20,7 +22,7 @@ func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*he
 	f := s.r.Float32()
 	f = f + 0.0
 	if f > 0.9 {
-		return nil, statusx.Internal()
+		return nil, status.New(codes.Internal)
 	}
 	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil
 }

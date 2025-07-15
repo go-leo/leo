@@ -3,11 +3,13 @@ package jwtx
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/leo/v3/metadatax"
-	"github.com/go-leo/leo/v3/statusx"
+	"github.com/go-leo/status"
 	"github.com/golang-jwt/jwt/v5"
-	"strings"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -40,23 +42,23 @@ func Server(keyFunc jwt.Keyfunc) endpoint.Middleware {
 		return func(ctx context.Context, request any) (any, error) {
 			md, ok := metadatax.FromIncomingContext(ctx)
 			if !ok {
-				return nil, statusx.InvalidArgument(statusx.Message("missing metadata"))
+				return nil, status.New(codes.InvalidArgument, status.Message("missing metadata"))
 			}
 			tokenString, ok := parseAuthorization(md.Values(authKey))
 			if !ok {
-				return nil, statusx.Unauthenticated(statusx.Message("invalid authorization"))
+				return nil, status.New(codes.Unauthenticated, status.Message("invalid authorization"))
 			}
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 				if token.Method != jwt.SigningMethodHS512 {
-					return nil, statusx.Unauthenticated(statusx.Message("unexpected signing method"))
+					return nil, status.New(codes.Unauthenticated, status.Message("unexpected signing method"))
 				}
 				return keyFunc(token)
 			})
 			if err != nil {
-				return nil, statusx.Unauthenticated(statusx.Message(err.Error()))
+				return nil, status.New(codes.Unauthenticated, status.Message(err.Error()))
 			}
 			if !token.Valid {
-				return nil, statusx.Unauthenticated(statusx.Message("JWT was invalid"))
+				return nil, status.New(codes.Unauthenticated, status.Message("JWT was invalid"))
 			}
 			ctx = NewContentWithToken(ctx, tokenString)
 			ctx = NewContentWithClaims(ctx, token.Claims)

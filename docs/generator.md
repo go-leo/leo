@@ -166,7 +166,8 @@ protoc \
 * service: RPC service， 服务端就是具体的业务代码，客户端是RPC方法，
 
 ## status code
-生成状态码，详情请看[status.md](status.md)
+生成状态码，详情请看[github.com/go-leo/status](https://github.com/go-leo/status
+)
 
 ## config
-生成配置，详情请看[config.md](config.md)
+生成配置，详情请看[github.com/go-leo/config](https://github.com/go-leo/config)

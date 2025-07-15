@@ -2,11 +2,12 @@ package retryx
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-leo/gox/backoff"
-	"github.com/go-leo/leo/v3/statusx"
+	"github.com/go-leo/status"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"time"
 )
 
 type options struct {
@@ -59,10 +60,10 @@ func Middleware(opts ...Option) endpoint.Middleware {
 			}
 
 			for attempt := uint(0); attempt < o.maxAttempts; attempt++ {
-				// 还原出 statusx.Status
-				st, ok := statusx.From(err)
+				// 还原出 status.Status
+				st, ok := status.From(err)
 				if !ok {
-					// 不是 statusx.Status 错误，不重试
+					// 不是 status.Status 错误，不重试
 					return nil, err
 				}
 
@@ -92,8 +93,8 @@ func Middleware(opts ...Option) endpoint.Middleware {
 				}
 			}
 
-			// 还原出 statusx.Status, 设置RetryDelay为负数，禁止全链路重试
-			st, ok := statusx.From(err)
+			// 还原出 status.Status, 设置RetryDelay为负数，禁止全链路重试
+			st, ok := status.From(err)
 			if !ok {
 				return nil, err
 			}

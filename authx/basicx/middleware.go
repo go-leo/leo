@@ -7,11 +7,13 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
-	"github.com/go-kit/kit/endpoint"
-	"github.com/go-leo/leo/v3/metadatax"
-	"github.com/go-leo/leo/v3/statusx"
 	"net/http"
 	"strings"
+
+	"github.com/go-kit/kit/endpoint"
+	"github.com/go-leo/leo/v3/metadatax"
+	"github.com/go-leo/status"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -37,13 +39,13 @@ func Server(user, password string) endpoint.Middleware {
 		return func(ctx context.Context, request any) (any, error) {
 			md, ok := metadatax.FromIncomingContext(ctx)
 			if !ok {
-				return nil, statusx.InvalidArgument(statusx.Message("missing metadata"))
+				return nil, status.New(codes.InvalidArgument, status.Message("missing metadata"))
 			}
 
 			givenUser, givenPassword, ok := parseAuthorization(md.Values(authKey))
 			if !ok {
 				header := http.Header{"WWW-Authenticate": []string{fmt.Sprintf(`Basic realm=%q`, "Restricted")}}
-				return nil, statusx.Unauthenticated(statusx.Headers(header), statusx.Message("invalid authorization"))
+				return nil, status.New(codes.Unauthenticated, status.Headers(header), status.Message("invalid authorization"))
 			}
 
 			givenUserBytes := toHashSlice(givenUser)
@@ -52,7 +54,7 @@ func Server(user, password string) endpoint.Middleware {
 			if subtle.ConstantTimeCompare(givenUserBytes, requiredUserBytes) == 0 ||
 				subtle.ConstantTimeCompare(givenPasswordBytes, requiredPasswordBytes) == 0 {
 				header := http.Header{"WWW-Authenticate": []string{fmt.Sprintf(`Basic realm=%q`, "Restricted")}}
-				return nil, statusx.Unauthenticated(statusx.Headers(header), statusx.Message("invalid authorization"))
+				return nil, status.New(codes.Unauthenticated, status.Headers(header), status.Message("invalid authorization"))
 			}
 			// Continue execution of handler after ensuring a valid token.
 			return next(ctx, request)

@@ -3,18 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/go-leo/leo/v3"
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/retryx"
 	"github.com/go-leo/leo/v3/serverx/grpcserverx"
 	"github.com/go-leo/leo/v3/serverx/httpserverx"
-	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx/grpctransportx"
+	"github.com/go-leo/status"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"time"
 )
 
 func main() {
@@ -50,5 +52,5 @@ type server struct{}
 
 func (s *server) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
 	fmt.Println("SayHello", time.Now())
-	return nil, statusx.Internal(statusx.RetryInfo(time.Second))
+	return nil, status.New(codes.Internal, status.RetryInfo(time.Second))
 }

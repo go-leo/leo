@@ -2,12 +2,13 @@ package recoveryx
 
 import (
 	"context"
-	"fmt"
-	"github.com/go-kit/kit/endpoint"
-	"github.com/go-leo/gox/convx"
-	"github.com/go-leo/leo/v3/statusx"
 	"runtime"
 	"strings"
+
+	"github.com/go-kit/kit/endpoint"
+	"github.com/go-leo/gox/convx"
+	"github.com/go-leo/status"
+	"google.golang.org/grpc/codes"
 )
 
 type options struct {
@@ -44,10 +45,10 @@ func Middleware(opts ...Option) endpoint.Middleware {
 					i := 64 << 10
 					stack := make([]byte, i)
 					stack = stack[:runtime.Stack(stack, false)]
-					err = statusx.Internal(
-						statusx.Message(fmt.Sprintf("panic triggered: %v", p)), 
-						statusx.DebugInfo(strings.Split(convx.BytesToString(stack), "\n"), ""),
-						statusx.Identifier("github.com/go-leo/leo/v3/recoveryx.ErrPanicked"),
+					err = status.New(codes.Internal,
+						status.Message("panic triggered: %v", p),
+						status.DebugInfo(strings.Split(convx.BytesToString(stack), "\n"), ""),
+						status.Identifier("github.com/go-leo/leo/v3/recoveryx.ErrPanicked"),
 					)
 				}
 			}()

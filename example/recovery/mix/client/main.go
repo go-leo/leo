@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
-	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx/grpctransportx"
+	"github.com/go-leo/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 func Call(grpcCli helloworld.GreeterService) {
 	r, err := grpcCli.SayHello(context.Background(), &helloworld.HelloRequest{Name: "recovery"})
 	if err != nil {
-		st, ok := statusx.From(err)
+		st, ok := status.From(err)
 		if ok {
 			log.Printf("could not greet: %v, debugInfo: %v", err, st.DebugInfo())
 		}

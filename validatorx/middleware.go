@@ -2,8 +2,10 @@ package validatorx
 
 import (
 	"context"
+
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-leo/leo/v3/statusx"
+	"github.com/go-leo/status"
+	"google.golang.org/grpc/codes"
 )
 
 type options struct {
@@ -69,7 +71,7 @@ func invoke(ctx context.Context, req interface{}, e endpoint.Endpoint, o *option
 		if o.errCallback != nil {
 			o.errCallback(ctx, err)
 		}
-		return nil, statusx.InvalidArgument(statusx.Message(err.Error()))
+		return nil, status.New(codes.InvalidArgument, status.Message(err.Error()))
 	}
 	return e(ctx, req)
 }

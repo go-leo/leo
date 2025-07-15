@@ -2,14 +2,15 @@ package coder
 
 import (
 	"context"
+	"io"
+	"net/http"
+
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/go-leo/leo/v3/statusx"
+	"github.com/go-leo/status"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	rpchttp "google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"io"
-	"net/http"
 )
 
 // ===== server response encoder =====
@@ -51,7 +52,7 @@ func EncodeHttpResponseToResponse(ctx context.Context, w http.ResponseWriter, re
 }
 
 func EncodeErrorToResponse(ctx context.Context, err error, w http.ResponseWriter) {
-	st, ok := statusx.From(err)
+	st, ok := status.From(err)
 	if !ok {
 		httptransport.DefaultErrorEncoder(ctx, err, w)
 		return

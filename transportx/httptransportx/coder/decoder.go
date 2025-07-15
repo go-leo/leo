@@ -3,15 +3,16 @@ package coder
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
+	"net/url"
+
 	"github.com/go-leo/gox/errorx"
-	"github.com/go-leo/leo/v3/statusx"
+	"github.com/go-leo/status"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	rpchttp "google.golang.org/genproto/googleapis/rpc/http"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"io"
-	"net/http"
-	"net/url"
 )
 
 // ===== server request decoder =====
@@ -107,6 +108,6 @@ func DecodeHttpResponseFromResponse(ctx context.Context, r *http.Response, resp 
 }
 
 func DecodeErrorFromResponse(ctx context.Context, r *http.Response) error {
-	st, _ := statusx.From(r)
+	st, _ := status.From(r)
 	return st
 }

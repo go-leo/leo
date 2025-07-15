@@ -6,12 +6,13 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/ratelimit"
-	"github.com/go-leo/leo/v3/statusx"
+	"github.com/go-leo/status"
+	"google.golang.org/grpc/codes"
 )
 
-var ErrRejected = statusx.ResourceExhausted(
-	statusx.Message("ratelimitx: rejected by limiter"),
-	statusx.Identifier("github.com/go-leo/leo/v3/ratelimitx.ErrRejected"),
+var ErrRejected = status.New(codes.ResourceExhausted,
+	status.Message("ratelimitx: rejected by limiter"),
+	status.Identifier("github.com/go-leo/leo/v3/ratelimitx.ErrRejected"),
 )
 
 func allowerMiddleware(limiter ratelimit.Allower) endpoint.Middleware {
@@ -35,7 +36,7 @@ func waiterMiddleware(limiter ratelimit.Waiter) endpoint.Middleware {
 				if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, ratelimit.ErrLimited) {
 					return nil, ErrRejected
 				}
-				return nil, statusx.Unknown(statusx.Message(err.Error()))
+				return nil, status.New(codes.Unknown, status.Message(err.Error()))
 			}
 			// continue handle the request
 			return next(ctx, request)

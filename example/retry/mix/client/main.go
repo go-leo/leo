@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/go-leo/leo/v3/example/api/helloworld/v1"
 	"github.com/go-leo/leo/v3/retryx"
-	"github.com/go-leo/leo/v3/statusx"
 	"github.com/go-leo/leo/v3/transportx/httptransportx"
-	"log"
+	"github.com/go-leo/status"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 func Call(grpcCli helloworld.GreeterService) {
 	r, err := grpcCli.SayHello(context.Background(), &helloworld.HelloRequest{Name: "retry"})
 	if err != nil {
-		st, ok := statusx.From(err)
+		st, ok := status.From(err)
 		if ok {
 			log.Printf("could not greet: %v, retryInfo: %v", err, st.RetryInfo())
 		}
