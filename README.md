@@ -60,7 +60,5 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
   * 支持自定义校验器
 * [Panic恢复](docs/recovery.md)
   * 避免程序崩溃
-* [JWT Auth](docs/jwt.md)
-* [Basic Auth](docs/basic.md)
 * [中间件](docs/middleware.md)
   * 除了内置限流、校验、日志、监控等中间件，go-kit的所有中间件都支持
