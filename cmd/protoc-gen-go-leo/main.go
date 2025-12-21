@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-leo/leo/v3/cmd"
-	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/config"
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/core"
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/grpc"
 	"github.com/go-leo/leo/v3/cmd/protoc-gen-go-leo/gen/http"
@@ -38,10 +37,6 @@ func generate(plugin *protogen.Plugin) error {
 		// 错误状态码生成
 		statusGenerator := status.NewGenerator(plugin, file)
 		statusGenerator.Generate()
-
-		// 配置生成
-		configGenerator := config.NewGenerator(plugin, file)
-		configGenerator.Generate()
 
 		// 核心代码生成
 		coreGenerator, err := core.NewGenerator(plugin, file)

@@ -37,10 +37,6 @@ Leo 提供一些列 proto 插件，可以生成基于 go-kit 的 HTTP 和 gRPC �
   * 除了gRPC天然支持超时，HTTP也支持同样支持
 * [重试](docs/retry.md)
   * 支持客户端失败重试。
-* [配置](docs/config.md)
-  * 支持从多种配置源(consul、nacos、环境变量、文件)获取配置
-  * 支持监听配置变化，支持配置热加载
-  * protobuf 定义配置格式，严格控制配置格式
 * [状态](docs/status.md)
   * 基于 googleapi 错误规范实现，使用简单的协议无关错误模型，这使我们能够在不同的API，API协议（如gRPC或HTTP）以及错误上下文（例如，异步，批处理或工作流错误）中获得一致的体验。
 * [元数据](docs/metadata.md)
